@@ -1,0 +1,34 @@
+<% content_for :title, "Showing subsector" %>
+
+<div class="md:w-2/3 w-full">
+  <h1 class="font-bold text-4xl mb-4"><%= @subsector.name %></h1>
+
+  <%= render @subsector %>
+
+  <% sector = @subsector.sector %>
+  <% if sector.present? %>
+    <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
+
+    <div class="mt-6">
+      <strong class="block font-medium mb-2"><%= link_to sector.name, sector, class: "link-traveller-i" %></strong>
+      <%= render "sectors/subsector_grid", sector: sector, active_subsector: @subsector %>
+    </div>
+  <% end %>
+
+  <div class="mt-6 flex flex-col sm:flex-row gap-2">
+    <%= link_to "Edit this subsector",
+                edit_subsector_path(@subsector),
+                class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
+
+    <%= link_to "Back to sector",
+                sector_path(sector),
+                class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
+
+    <%= button_to "Destroy this subsector",
+                  @subsector,
+                  method: :delete,
+                  form_class: "w-full sm:w-auto",
+                  class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 text-white bg-traveller-red hover:bg-traveller-red/90 font-medium cursor-pointer",
+                  data: { turbo_confirm: "Are you sure?" } %>
+  </div>
+</div>

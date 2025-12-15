@@ -1,0 +1,35 @@
+<%# locals: (sector:, active_subsector: nil) %>
+
+<% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
+<div class="rounded-xl border border-slate-700/60 bg-slate-900/70 p-3">
+  <div class="grid grid-cols-4 gap-1">
+    <% (1..4).each do |row| %>
+      <% (1..4).each do |col| %>
+        <% subsector = subsectors_by_coord[[col, row]] %>
+
+        <% if subsector %>
+          <% if subsector == active_subsector %>
+            <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border-2 border-traveller-red bg-traveller-red/10 text-xs">
+              <div class="font-semibold text-traveller-red-foreground text-center px-1">
+                <%= subsector.name.presence || "?" %>
+              </div>
+            </div>
+          <% else %>
+            <%= link_to subsector_path(subsector),
+                        class: "aspect-[4/5] group flex flex-col items-center justify-center rounded-md border border-slate-700/70 bg-slate-950/70 text-xs hover:border-traveller-red hover:bg-slate-900/80 transition" do %>
+              <div class="font-semibold text-slate-50 group-hover:text-traveller-red-foreground text-center px-1">
+                <%= subsector.name.presence || "?" %>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-slate-800/70 bg-slate-950/40 text-xs">
+            <div class="font-medium text-slate-600">
+              Empty
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

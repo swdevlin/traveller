@@ -1,0 +1,57 @@
+@import "tailwindcss";
+/*@import "components";*/
+/*@import "utilities";*/
+/*@import "typography";*/
+/*@import "forms";*/
+
+@theme {
+  --color-traveller-red: #e10600;
+  --color-traveller-red-foreground: #FFF5F7;
+  --color-deepnight-orange: #DE8034;
+
+  --font-sans: "Exo 2", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: "Orbitron", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}
+
+@layer components {
+  .btn-traveller {
+    @apply inline-flex items-center justify-center gap-2
+    rounded-lg px-4 py-2.5 text-sm font-medium
+    bg-traveller-red text-traveller-red-foreground
+    shadow-lg shadow-traveller-red/40
+    transition
+    hover:bg-traveller-red/90
+    focus-visible:outline-none
+    focus-visible:ring-2 focus-visible:ring-traveller-red
+    focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  .link-traveller {
+    @apply inline-flex items-center gap-1
+    text-sm font-medium
+    text-traveller-red
+    underline-offset-2
+    hover:underline hover:text-traveller-red/90
+    focus-visible:outline-none
+    focus-visible:ring-2 focus-visible:ring-traveller-red
+    focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  .link-traveller-i {
+    @apply inline-flex items-center gap-1
+    text-traveller-red
+    underline-offset-2
+    hover:underline hover:text-traveller-red/90
+    focus-visible:outline-none
+    focus-visible:ring-2 focus-visible:ring-traveller-red
+    focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+}

@@ -1,0 +1,19 @@
+<div id="<%= dom_id sector %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Imperial Coordinates</strong>
+    <%= sector.x %>/<%= sector.y %>
+  </div>
+
+  <div>
+    <p>
+      <strong>Library data:</strong>
+      <% unless sector.wiki_link.nil? %>
+        <%= link_to "Traveller Wiki", sector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
+      <% else %>
+        <span>Undocumented</span>
+      <% end %>
+    </p>
+  </div>
+
+  <% render  %>
+</div>

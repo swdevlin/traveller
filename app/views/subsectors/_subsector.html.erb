@@ -1,0 +1,17 @@
+<div id="<%= dom_id subsector %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Name:</strong>
+    <%= subsector.name %>
+  </div>
+  <div>
+    <p>
+      <strong>Library data:</strong>
+      <% unless subsector.wiki_link.nil? %>
+        <%= link_to "Traveller Wiki", subsector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
+      <% else %>
+        <span>Undocumented</span>
+      <% end %>
+    </p>
+  </div>
+
+</div>

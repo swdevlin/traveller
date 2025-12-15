@@ -1,0 +1,52 @@
+<%= form_with(model: solar_system, class: "contents") do |form| %>
+  <% if solar_system.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(solar_system.errors.count, "error") %> prohibited this solar_system from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% solar_system.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :x %>
+    <%= form.number_field :x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:x].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:x].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :y %>
+    <%= form.number_field :y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:y].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:y].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:name].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:name].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :sector_id %>
+    <%= form.text_field :sector_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:sector_id].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:sector_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :origin_x %>
+    <%= form.number_field :origin_x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:origin_x].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:origin_x].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :origin_y %>
+    <%= form.number_field :origin_y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:origin_y].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:origin_y].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :meta %>
+    <%= form.text_field :meta, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": solar_system.errors[:meta].none?, "border-red-400 focus:outline-red-600": solar_system.errors[:meta].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

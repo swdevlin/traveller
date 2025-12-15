@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= content_for(:title) || "Traveller" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Traveller">
+  <meta name="mobile-web-app-capable" content="yes">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= yield :head %>
+
+  <!-- Google Fonts: Exo 2 (UI) + Orbitron (headings) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+  <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+  <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <script src="https://kit.fontawesome.com/6da76bfdd0.js" crossorigin="anonymous"></script>
+
+  <%# Includes all stylesheet files in app/assets/stylesheets %>
+  <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+</head>
+
+<body class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-black text-slate-100">
+  <%= render "application/navbar" %>
+
+  <% flash.each do |key, message| %>
+    <% next if message.blank? %>
+
+    <% classes =
+         case key.to_sym
+         when :notice
+           "border-emerald-500/40 bg-emerald-900/30 text-emerald-200"
+         when :alert, :error
+           "border-traveller-red/60 bg-traveller-red/15 text-traveller-red-foreground"
+         else
+           "border-slate-500/40 bg-slate-900/60 text-slate-100"
+         end %>
+
+    <p
+      class="mb-4 inline-flex w-full items-center justify-between rounded-lg border px-4 py-2 text-sm font-medium shadow-sm <%= classes %>"
+      role="status"
+    >
+      <span><%= message %></span>
+    </p>
+  <% end %>
+
+  <main class="container mx-auto mt-28 px-5 flex">
+    <%= yield %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<% content_for :title, "Sectors" %>
+
+<div class="w-full max-w-6xl mx-auto space-y-4">
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-sky-50">
+        Sectors
+      </h1>
+      <p class="mt-1 text-sm text-slate-300">
+        Strategic astrography overlay for your Deepnight campaign.
+      </p>
+    </div>
+
+    <%= link_to new_sector_path,
+                class: "inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-sky-600/40 transition hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" do %>
+      <span class="text-lg">➕</span>
+      <span>New sector</span>
+    <% end %>
+
+  </div>
+
+  <div id="sectors" class="w-full">
+    <% if @sectors.any? %>
+      <div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl">
+        <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
+          <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
+            Sector registry
+          </p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-700 text-sm">
+            <thead class="bg-slate-900/80">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Sector
+              </th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Star Chart
+              </th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Library
+              </th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+            <% @sectors.each do |sector| %>
+              <tr class="transition hover:bg-slate-900/80">
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <div class="flex flex-col gap-1">
+                    <%= link_to sector_path(sector),
+                                class: "text-sm font-medium text-slate-50 hover:text-traveller-red hover:underline hover:underline-offset-2" do %>
+                      <span><%= sector.name %></span>
+                    <% end %>
+                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                      <% if sector.abbreviation.present? %>
+                          <span class="inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-2 py-0.5 font-mono tracking-wide text-slate-200">
+                            <span class="mr-1 h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                            <%= sector.abbreviation %>
+                          </span>
+                      <% end %>
+
+                      <span class="inline-flex items-center rounded-full border border-sky-500/40 bg-sky-900/30 px-2 py-0.5 font-mono text-sky-100">
+                        <span class="mr-1 h-1.5 w-1.5 rounded-full bg-sky-400"></span>
+                          <%= sector.x %>/<%= sector.y %>
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <%= link_to sector.traveller_map_url, target: "_blank", rel: "noopener", class: "hover:text-traveller-red hover:underline hover:underline-offset-2" do %>
+                    Traveller Map
+                  <% end %>
+                </td>
+
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <% if sector.wiki_link.present? %>
+                    <%= link_to sector.wiki_link,
+                                target: "_blank",
+                                rel: "noopener",
+                                class: "inline-flex items-center gap-1 text-xs font-medium text-amber-300 hover:text-amber-200 hover:underline hover:underline-offset-2" do %>
+                      <span class="text-base">📡</span>
+                      <span>Traveller Wiki</span>
+                    <% end %>
+                  <% else %>
+                      <span class="text-xs text-slate-500">
+                        No registry link
+                      </span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% else %>
+      <div class="my-16 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300">
+          🛰️
+        </div>
+        <p class="text-sm text-slate-300">
+          No sectors logged in this quadrant yet.
+        </p>
+        <p class="mt-1 text-xs text-slate-500">
+          Use <span class="font-mono text-slate-200">New sector</span> to chart your first region.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
