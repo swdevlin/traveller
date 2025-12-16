@@ -1,0 +1,2 @@
+class Star < StellarObject
+end

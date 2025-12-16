@@ -1,0 +1,2 @@
+class GasGiant < StellarObject
+end

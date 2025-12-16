@@ -1,0 +1,2 @@
+class Planetoid < StellarObject
+end

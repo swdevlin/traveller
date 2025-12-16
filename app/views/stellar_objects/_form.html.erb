@@ -1,0 +1,57 @@
+<%= form_with(model: stellar_object, class: "contents") do |form| %>
+  <% if stellar_object.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(stellar_object.errors.count, "error") %> prohibited this stellar_object from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% stellar_object.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :orbit_x %>
+    <%= form.number_field :orbit_x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit_x].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit_x].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :orbit_y %>
+    <%= form.number_field :orbit_y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit_y].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit_y].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :Parsec_id %>
+    <%= form.text_field :Parsec_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:Parsec_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:Parsec_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :SolarSystem_id %>
+    <%= form.text_field :SolarSystem_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:SolarSystem_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:SolarSystem_id].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :inclination %>
+    <%= form.text_field :inclination, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:inclination].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:inclination].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :eccentricity %>
+    <%= form.text_field :eccentricity, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:eccentricity].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:eccentricity].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :orbit %>
+    <%= form.text_field :orbit, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :effective_hzco_deviation %>
+    <%= form.text_field :effective_hzco_deviation, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:effective_hzco_deviation].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:effective_hzco_deviation].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>

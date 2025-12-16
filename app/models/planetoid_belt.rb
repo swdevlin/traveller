@@ -1,0 +1,2 @@
+class PlanetoidBelt < StellarObject
+end

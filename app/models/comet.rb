@@ -1,0 +1,2 @@
+class Comet < StellarObject
+end

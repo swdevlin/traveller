@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  orbit_x: 1
+  orbit_y: 1
+  Parsec: one
+  SolarSystem: one
+  inclination: 1.5
+  eccentricity: 1.5
+  orbit: 1.5
+  effective_hzco_deviation: 1.5
+
+two:
+  orbit_x: 1
+  orbit_y: 1
+  Parsec: two
+  SolarSystem: two
+  inclination: 1.5
+  eccentricity: 1.5
+  orbit: 1.5
+  effective_hzco_deviation: 1.5
