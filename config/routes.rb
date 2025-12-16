@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :stellar_objects
   resources :parsecs
   resources :solar_systems
   resources :subsectors
