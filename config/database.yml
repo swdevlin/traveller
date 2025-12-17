@@ -39,7 +39,7 @@ production:
   primary:
     <<: *default
     database: traveller_production
-    url: <%= Rails.application.credentials.db_url %> %>
+    url: <%= Rails.application.credentials.db_url %>
   cache:
     <<: *sqlite
     database: storage/traveller_cache.sqlite3
