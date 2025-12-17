@@ -38,12 +38,12 @@
   <div class="my-5">
     <span class="block font-medium">Imperial Coordinates</span>
 
-    <div class="mt-2 flex flex-wrap gap-4">
+    <div class="mt-2 flex flex-wrap gap-6">
       <div>
         <%= form.label :x, "X", class: "block text-sm font-medium mb-1" %>
         <%= form.number_field :x,
                               class: [
-                                "block shadow-sm rounded-md border px-3 py-2 w-24",
+                                "coord-input",
                                 {
                                   "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
                                   "border-red-400 focus:outline-red-600": sector.errors[:x].any?
@@ -55,7 +55,7 @@
         <%= form.label :y, "Y", class: "block text-sm font-medium mb-1" %>
         <%= form.number_field :y,
                               class: [
-                                "block shadow-sm rounded-md border px-3 py-2 w-24",
+                                "coord-input",
                                 {
                                   "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
                                   "border-red-400 focus:outline-red-600": sector.errors[:y].any?

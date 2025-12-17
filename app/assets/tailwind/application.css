@@ -22,6 +22,10 @@
 }
 
 @layer components {
+  .coord-input {
+    @apply w-24 flex-none block shadow-sm rounded-md border px-3 py-2;
+  }
+
   .btn-traveller {
     @apply inline-flex items-center justify-center gap-2
     rounded-lg px-4 py-2.5 text-sm font-medium
