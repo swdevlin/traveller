@@ -12,9 +12,18 @@ default: &default
   password: <%= ENV["DB_PASSWORD"] %>
   host: <%= ENV["DB_HOST"] %>
 
+sqlite: &sqlite
+  adapter: sqlite3
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
 development:
-  <<: *default
-  database: traveller_development
+  primary:
+    <<: *default
+    database: traveller_development
+  cache:
+    <<: *sqlite
+    database: solid/traveller_cache.sqlite3
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -29,16 +38,17 @@ test:
 production:
   primary:
     <<: *default
-    database: traveller
+    database: traveller_production
+    url: <%= Rails.application.credentials.db_url %> %>
   cache:
-    <<: *default
-    database: traveller_cache
+    <<: *sqlite
+    database: storage/traveller_cache.sqlite3
     migrations_paths: db/cache_migrate
   queue:
-    <<: *default
-    database: traveller_queue
+    <<: *sqlite
+    database: storage/traveller_queue.sqlite3
     migrations_paths: db/queue_migrate
   cable:
-    <<: *default
-    database: traveller_cable
+    <<: *sqlite
+    database: storage/traveller_cable.sqlite3
     migrations_paths: db/cable_migrate

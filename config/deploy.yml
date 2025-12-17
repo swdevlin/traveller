@@ -2,12 +2,15 @@
 service: traveller
 
 # Name of the container image (use your-user/app-name on external registries).
-image: traveller
+image: radiofreewaba/traveller
+
+ssh:
+  user: KAMAL_SSH_USER
 
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - KAMAL_SERVER_IP
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -20,21 +23,22 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  ssl: true
+  host: traveller.radiofreewaba.net
 
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  # server: localhost:5555
+  #  server: hub.docker.com
 
   # Needed for authenticated registries.
-  # username: your-user
+  username: radiofreewaba
 
   # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -53,8 +57,7 @@ env:
 
     # Match this to any external database server to configure Active Record correctly
     # Use traveller-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
-
+    DB_HOST: DB_HOST
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
 

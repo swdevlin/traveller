@@ -40,3 +40,7 @@
 *rbs_collection.yaml
 .gem_rbs_collection
 .idea
+
+# Ignore key files for decrypting credentials and more.
+/config/credentials/*.key
+
