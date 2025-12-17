@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_231748) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_17_212727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,8 +54,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_231748) do
 
   create_table "sectors", force: :cascade do |t|
     t.string "abbreviation"
+    t.text "build"
     t.datetime "created_at", null: false
     t.string "name"
+    t.text "notes"
     t.datetime "updated_at", null: false
     t.integer "x"
     t.integer "y"
@@ -97,8 +99,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_231748) do
 
   create_table "subsectors", force: :cascade do |t|
     t.string "abbreviation"
+    t.text "build"
     t.datetime "created_at", null: false
     t.string "name"
+    t.text "notes"
     t.integer "sector_id", null: false
     t.datetime "updated_at", null: false
     t.integer "x", null: false
