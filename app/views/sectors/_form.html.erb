@@ -13,22 +13,69 @@
 
   <div class="my-5">
     <%= form.label :name %>
-    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": sector.errors[:name].none?, "border-red-400 focus:outline-red-600": sector.errors[:name].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :x %>
-    <%= form.number_field :x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": sector.errors[:x].none?, "border-red-400 focus:outline-red-600": sector.errors[:x].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :y %>
-    <%= form.number_field :y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": sector.errors[:y].none?, "border-red-400 focus:outline-red-600": sector.errors[:y].any?}] %>
+    <%= form.text_field :name,
+                        class: [
+                          "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+                          {
+                            "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
+                            "border-red-400 focus:outline-red-600": sector.errors[:name].any?
+                          }
+                        ] %>
   </div>
 
   <div class="my-5">
     <%= form.label :abbreviation %>
-    <%= form.text_field :abbreviation, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?, "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?}] %>
+    <%= form.text_field :abbreviation,
+                        class: [
+                          "block shadow-sm rounded-md border px-3 py-2 mt-2 w-24",
+                          {
+                            "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
+                            "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
+                          }
+                        ] %>
+  </div>
+
+  <div class="my-5">
+    <span class="block font-medium">Imperial Coordinates</span>
+
+    <div class="mt-2 flex flex-wrap gap-4">
+      <div>
+        <%= form.label :x, "X", class: "block text-sm font-medium mb-1" %>
+        <%= form.number_field :x,
+                              class: [
+                                "block shadow-sm rounded-md border px-3 py-2 w-24",
+                                {
+                                  "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
+                                  "border-red-400 focus:outline-red-600": sector.errors[:x].any?
+                                }
+                              ] %>
+      </div>
+
+      <div>
+        <%= form.label :y, "Y", class: "block text-sm font-medium mb-1" %>
+        <%= form.number_field :y,
+                              class: [
+                                "block shadow-sm rounded-md border px-3 py-2 w-24",
+                                {
+                                  "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
+                                  "border-red-400 focus:outline-red-600": sector.errors[:y].any?
+                                }
+                              ] %>
+      </div>
+    </div>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :notes, "Library Data" %>
+    <%= form.text_area :notes,
+                       rows: 6,
+                       class: [
+                         "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
+                         {
+                           "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
+                           "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
+                         }
+                       ] %>
   </div>
 
   <div class="inline">
