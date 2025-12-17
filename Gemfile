@@ -71,6 +71,6 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "debase", "~> 3.0"
-
-gem "ruby-debug-ide", "~> 3.0"
+# gem "debase", "~> 3.0"
+#
+# gem "ruby-debug-ide", "~> 3.0"
