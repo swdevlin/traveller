@@ -17,7 +17,7 @@ servers:
     proxy: false
     options:
       publish:
-        - "127.0.0.1:3017:3000"
+        - "127.0.0.1:3025:3000"
   # job:
   #   hosts:
   #     - 192.168.0.1
