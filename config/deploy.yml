@@ -7,7 +7,7 @@ service: traveller
 image: radiofreewaba/traveller
 
 ssh:
-  user: KAMAL_SSH_USER
+  user: <%= ENV["KAMAL_SSH_USER"] %>
 
 # Deploy to these servers.
 servers:
