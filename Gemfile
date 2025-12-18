@@ -63,8 +63,6 @@ end
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
-  gem "debase", "~> 3.0"
-  gem "ruby-debug-ide", "~> 3.0"
 end
 
 group :test do
