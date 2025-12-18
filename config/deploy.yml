@@ -14,6 +14,10 @@ servers:
   web:
     hosts:
       - <%= ENV["KAMAL_SERVER_IP"] %>
+    proxy: false
+    options:
+      publish:
+        - "127.0.0.1:3017:3000"
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -26,9 +30,9 @@ servers:
 #
 # Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
 #
-proxy:
-  ssl: true
-  host: traveller.radiofreewaba.net
+#proxy:
+#  ssl: true
+#  host: traveller.radiofreewaba.net
 
 # Where you keep your container images.
 registry:
