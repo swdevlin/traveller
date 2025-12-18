@@ -22,6 +22,10 @@
 }
 
 @layer components {
+  h1, hg2, h3, h4, h5, h6 {
+    @apply text-deepnight-orange;
+  }
+
   .coord-input {
     @apply w-24 flex-none block shadow-sm rounded-md border px-3 py-2;
   }
@@ -58,4 +62,27 @@
     focus-visible:ring-2 focus-visible:ring-traveller-red
     focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
   }
+
+  .btn {
+    @apply inline-block rounded-md px-3.5 py-2.5 font-medium text-center
+    bg-slate-700/60 hover:bg-slate-700/80
+    text-slate-100
+    border border-slate-500/70 hover:border-slate-300/80
+    transition;
+  }
+
+  .btn-primary {
+    @apply border-deepnight-orange/80 hover:border-deepnight-orange;
+    box-shadow: 0 0 0 0 rgba(222, 128, 52, 0);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 0 3px rgba(222, 128, 52, 0.18);
+  }
+
+  .btn-danger {
+    @apply hover:bg-traveller-red/90 text-white
+    border border-traveller-red/90;
+  }
+
 }
