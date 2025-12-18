@@ -65,6 +65,6 @@ class SubsectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def subsector_params
-      params.expect(subsector: [ :name, :x, :y ])
+      params.expect(subsector: [ :name, :x, :y, :notes, :build ])
     end
 end
