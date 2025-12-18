@@ -11,7 +11,7 @@ ssh:
 servers:
   web:
     hosts:
-      - <%= ENV.fetch("KAMAL_SERVER_IP") %>
+      - traveller.radiofreewaba.net
   # job:
   #   hosts:
   #     - 192.168.0.1
