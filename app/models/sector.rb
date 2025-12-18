@@ -14,6 +14,25 @@ class Sector < ApplicationRecord
     "https://travellermap.com/go/#{name.tr(' ', '_')}"
   end
 
+  def universal_coordinates
+    ul = Coordinate.new(x*32, y*40)
+    lr = ul.clone
+    lr.x += 32
+    lr.y -= 40
+    return ul, lr
+  end
+
+  def hexes
+    ul, lr = universal_coordinates
+    Parsec.where(x: ul.x..lr.x, y: ul.y..lr.y)
+  end
+
+  def neighbours
+    Sector
+        .where(x: (x-1..x+1), y: (y-1..y+1))
+        .index_by { |s| [s.x, s.y] }
+  end
+
   private
 
   def coordinates_unique_with_link

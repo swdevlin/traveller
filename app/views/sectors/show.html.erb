@@ -1,33 +1,41 @@
 <% content_for :title, "Showing sector" %>
 
-<div class="md:w-2/3 w-full">
+<div class="w-full">
   <h1 class="font-bold text-4xl mb-4"><%= @sector.name %> <span class="text-base">(<%= @sector.abbreviation %>)</span></h1>
-  <p class="mb-4">Imperial Coordinates: <%= @sector.x %>/<%= @sector.y %></p>
-  <%= render "subsector_grid", sector: @sector %>
+  <div class="flex flex-col md:flex-row md:items-start gap-6">
+    <div class="flex-1 min-w-0">
+      <p class="mb-4">Imperial Coordinates: <%= @sector.x %>/<%= @sector.y %></p>
 
-  <% if @sector.notes.present? %>
-    <div class="mb-4">
-      <strong class="block text-sm font-semibold mb-1">Library Data</strong>
-      <p class="text-sm whitespace-pre-line">
-        <%= @sector.notes %>
-      </p>
+      <% if @sector.notes.present? %>
+        <div class="mb-4">
+          <strong class="block text-sm font-semibold mb-1">Library Data</strong>
+          <p class="text-sm whitespace-pre-line">
+            <%= @sector.notes %>
+          </p>
+        </div>
+      <% end %>
+
+      <div class="mb-4 mt-4 flex flex-col sm:flex-row gap-2">
+        <%= link_to "Edit this sector",
+                    edit_sector_path(@sector),
+                    class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
+
+        <%= link_to "Back to sectors",
+                    sectors_path,
+                    class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
+
+        <%= button_to "Delete",
+                      @sector,
+                      method: :delete,
+                      form_class: "w-full sm:w-auto",
+                      class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 text-white bg-traveller-red hover:bg-traveller-red/90 font-medium cursor-pointer",
+                      data: { turbo_confirm: "Are you sure?" } %>
+      </div>
     </div>
-  <% end %>
-
-  <div class="mb-4 mt-4 flex flex-col sm:flex-row gap-2">
-    <%= link_to "Edit this sector",
-                edit_sector_path(@sector),
-                class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
-
-    <%= link_to "Back to sectors",
-                sectors_path,
-                class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium text-gray-900" %>
-
-    <%= button_to "Delete",
-                  @sector,
-                  method: :delete,
-                  form_class: "w-full sm:w-auto",
-                  class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 text-white bg-traveller-red hover:bg-traveller-red/90 font-medium cursor-pointer",
-                  data: { turbo_confirm: "Are you sure?" } %>
+    <div class="w-full md:w-[300px] shrink-0">
+      <%= render "subsector_grid", sector: @sector %>
+      <p class="mt-4">Sectors</p>
+      <%= render "sector_grid", sector: @sector %>
+    </div>
   </div>
 </div>

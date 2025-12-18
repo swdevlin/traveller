@@ -1,0 +1,44 @@
+<%# locals: (sector:) %>
+
+<% neighbours = sector.neighbours %>
+
+<div class="rounded-xl border border-slate-700/60 bg-slate-900/70 p-3">
+  <div class="grid grid-cols-3 gap-1 text-xs">
+    <% (sector.y + 1).downto(sector.y - 1) do |y| %>
+      <% (sector.x - 1).upto(sector.x + 1) do |x| %>
+        <% neighbour = neighbours[[x, y]] %>
+
+        <% if neighbour %>
+          <% if neighbour == sector %>
+            <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border-2 border-traveller-red bg-traveller-red/10 px-1 py-1 text-center">
+              <div class="font-semibold text-[0.7rem] text-traveller-red-foreground truncate w-full text-center">
+                <%= neighbour.name %>
+              </div>
+              <div class="text-[0.6rem] text-slate-300 italic">
+                <%= x %>/<%= y %>
+              </div>
+            </div>
+          <% else %>
+            <%= link_to sector_path(neighbour),
+                        class: "aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-slate-700/70 bg-slate-950/70 px-1 py-1 text-centre hover:border-traveller-red hover:bg-slate-900/80 transition" do %>
+              <div class="font-semibold text-[0.7rem] text-slate-50 truncate w-full text-center">
+                <%= neighbour.name %>
+              </div>
+              <div class="text-[0.6rem] text-slate-400 italic">
+                <%= x %>/<%= y %>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <!-- Empty space in this 3x3 window -->
+          <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-slate-800/70 bg-slate-950/40 px-1 py-1 text-[0.6rem] text-slate-600 text-center">
+            Unknown
+            <div class="text-[0.55rem] text-slate-500 italic">
+              <%= x %>/<%= y %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

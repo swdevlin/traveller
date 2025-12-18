@@ -7,6 +7,20 @@ class Subsector < ApplicationRecord
     message: "Subsector already exists"
   }
 
+  def universal_coordinates
+    ul, lr = sector.universal_coordinates
+    ul.x += (x-1)* 8
+    lr.x = ul.x + 8
+    ul.y -= (y-i) * 10
+    lr.y = ul.y + 10
+    return ul, lr
+  end
+
+  def hexes
+    ul, lr = universal_coordinates
+    Parsec.where(x: ul.x..lr.x, y: ul.y..lr.y)
+  end
+
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
   end
