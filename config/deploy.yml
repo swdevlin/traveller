@@ -10,7 +10,8 @@ ssh:
 # Deploy to these servers.
 servers:
   web:
-    - KAMAL_SERVER_IP
+    hosts:
+      - <%= ENV.fetch("KAMAL_SERVER_IP") %>
   # job:
   #   hosts:
   #     - 192.168.0.1
