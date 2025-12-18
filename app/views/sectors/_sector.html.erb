@@ -15,5 +15,16 @@
     </p>
   </div>
 
+  <div>
+    <p>
+      <strong>Imperial star chart:</strong>
+      <% unless sector.traveller_map_url.nil? %>
+        <%= link_to "Traveller Map", sector.traveller_map_url, target: "_blank", rel: "noopener", class: "link-traveller" %>
+      <% else %>
+        <span>Undocumented</span>
+      <% end %>
+    </p>
+  </div>
+
   <% render  %>
 </div>

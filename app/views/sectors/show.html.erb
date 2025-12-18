@@ -6,9 +6,31 @@
     <div class="flex-1 min-w-0">
       <p class="mb-4">Imperial Coordinates: <%= @sector.x %>/<%= @sector.y %></p>
 
+      <div>
+        <p>
+          <strong>Library data:</strong>
+          <% unless @sector.wiki_link.nil? %>
+            <%= link_to "Traveller Wiki", @sector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
+          <% else %>
+            <span>Undocumented</span>
+          <% end %>
+        </p>
+      </div>
+
+      <div>
+        <p>
+          <strong>Imperial star chart:</strong>
+          <% unless @sector.traveller_map_url.nil? %>
+            <%= link_to "Traveller Map", @sector.traveller_map_url, target: "_blank", rel: "noopener", class: "link-traveller" %>
+          <% else %>
+            <span>Undocumented</span>
+          <% end %>
+        </p>
+      </div>
+
       <% if @sector.notes.present? %>
         <div class="mb-4">
-          <strong class="block text-sm font-semibold mb-1">Library Data</strong>
+          <strong class="block text-sm font-semibold mb-1">Deepnight Log</strong>
           <p class="text-sm whitespace-pre-line">
             <%= @sector.notes %>
           </p>
