@@ -11,7 +11,7 @@ class Sector < ApplicationRecord
   end
 
   def traveller_map_url
-    "https://travellermap.com/go/#{name.tr(' ', '_')}"
+    "https://travellermap.com/go/#{name}"
   end
 
   def universal_coordinates
