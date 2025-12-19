@@ -14,5 +14,3 @@ module UrlHelper
     nil
   end
 end
-# frozen_string_literal: true
-
