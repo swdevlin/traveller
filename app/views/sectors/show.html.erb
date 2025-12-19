@@ -9,8 +9,8 @@
       <div>
         <p>
           <strong>Library data:</strong>
-          <% unless @sector.wiki_link.nil? %>
-            <%= link_to "Traveller Wiki", @sector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
+          <% if (u = safe_external_url(@sector.wiki_link)) %>
+            <%= link_to "Traveller Wiki", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
           <% else %>
             <span>Undocumented</span>
           <% end %>
@@ -20,8 +20,8 @@
       <div>
         <p>
           <strong>Imperial star chart:</strong>
-          <% unless @sector.traveller_map_url.nil? %>
-            <%= link_to "Traveller Map", @sector.traveller_map_url, target: "_blank", rel: "noopener", class: "link-traveller" %>
+          <% if (u = safe_external_url(@sector.traveller_map_url)) %>
+            <%= link_to "Traveller Map", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
           <% else %>
             <span>Undocumented</span>
           <% end %>

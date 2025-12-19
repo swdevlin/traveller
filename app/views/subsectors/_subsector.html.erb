@@ -6,8 +6,8 @@
   <div>
     <p>
       <strong>Library data:</strong>
-      <% unless subsector.wiki_link.nil? %>
-        <%= link_to "Traveller Wiki", subsector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
+      <% if (u = safe_external_url(subsector.wiki_link)) %>
+        <%= link_to "Traveller Wiki", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
       <% else %>
         <span>Undocumented</span>
       <% end %>
