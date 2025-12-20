@@ -141,6 +141,7 @@ sectors = [
 ]
 
 sectors.each do |attrs|
+  puts(".#{attrs[:name]}")
   sector = Sector.find_or_initialize_by(x: attrs[:x], y: attrs[:y])
   sector.name         = attrs[:name]
   sector.abbreviation = attrs[:abbreviation]
