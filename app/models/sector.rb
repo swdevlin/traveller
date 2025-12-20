@@ -1,8 +1,9 @@
 class Sector < ApplicationRecord
   validates :x, :y, presence: true
   has_many :subsectors, dependent: :destroy
+  has_many :parsecs, dependent: :destroy
 
-  after_create :create_subsectors
+  after_create :create_subsectors_and_parsecs
 
   validate :coordinates_unique_with_link
 
@@ -19,7 +20,8 @@ class Sector < ApplicationRecord
     lr = ul.clone
     lr.x += 32
     lr.y -= 40
-    return ul, lr
+
+    [ul, lr]
   end
 
   def hexes
@@ -48,6 +50,11 @@ class Sector < ApplicationRecord
     errors.add(:base, message)
   end
 
+  def create_subsectors_and_parsecs
+    create_subsectors
+    create_parsecs
+  end
+
   def create_subsectors
     letters = ("A".."P").to_a
 
@@ -63,5 +70,16 @@ class Sector < ApplicationRecord
       )
     end
 
+  end
+  def create_parsecs
+    ul, lr = universal_coordinates
+    (0...32).each do |x|
+      (0...40).each do |y|
+        parsecs.create!(
+          x: ul.x + x,
+          y: ul.y - y
+        )
+      end
+    end
   end
 end
