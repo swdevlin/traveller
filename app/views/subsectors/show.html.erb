@@ -6,7 +6,6 @@
   <h1 class="font-bold text-4xl mb-4"><%= @subsector.name %>, <%= link_to sector.name, sector_path(sector), class:"text-inherit hover:text-traveller-red/90 hover:underline" %></h1>
 
   <div class="flex flex-col md:flex-row md:items-start gap-6">
-    <!-- Left column: details, take all remaining space -->
     <div class="flex-1 min-w-0">
       <div>
         <p>
@@ -42,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Right column: fixed-width map -->
     <div class="w-full md:w-[300px] shrink-0">
       <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
 
