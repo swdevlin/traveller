@@ -45,3 +45,5 @@
 /config/credentials/*.key
 
 /solid/*
+
+/node_modules/*
