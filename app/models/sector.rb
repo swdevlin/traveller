@@ -21,7 +21,7 @@ class Sector < ApplicationRecord
     lr.x += 32
     lr.y -= 40
 
-    [ul, lr]
+    [ ul, lr ]
   end
 
   def hexes
@@ -32,7 +32,7 @@ class Sector < ApplicationRecord
   def neighbours
     Sector
         .where(x: (x-1..x+1), y: (y-1..y+1))
-        .index_by { |s| [s.x, s.y] }
+        .index_by { |s| [ s.x, s.y ] }
   end
 
   private
@@ -69,8 +69,8 @@ class Sector < ApplicationRecord
         name: letter
       )
     end
-
   end
+
   def create_parsecs
     ul, lr = universal_coordinates
     (0...32).each do |x|
