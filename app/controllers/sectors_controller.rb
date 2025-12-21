@@ -3,7 +3,10 @@ class SectorsController < ApplicationController
 
   # GET /sectors or /sectors.json
   def index
-    @sectors = Sector.order("LOWER(name)").all
+    @q = params[:q].to_s.strip
+    scope = Sector.order(:name)
+    scope = scope.where("LOWER(name) LIKE ?", "%#{@q.downcase}%") if params[:q].present?
+    @pagy, @sectors = pagy(scope, params: request.query_parameters)
   end
 
   # GET /sectors/1 or /sectors/1.json

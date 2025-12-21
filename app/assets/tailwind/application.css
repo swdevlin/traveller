@@ -85,4 +85,30 @@
     border border-traveller-red/90;
   }
 
+  /* Pagy nav button styling */
+  .series-nav {
+    @apply mt-6 flex flex-wrap items-center justify-center gap-2;
+  }
+
+  .series-nav a,
+  .series-nav span {
+    @apply inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium
+    border border-slate-700 bg-slate-950/40 text-slate-100
+    transition;
+  }
+
+  .series-nav a:hover {
+    @apply bg-slate-900/60 hover:underline hover:text-traveller-red/90;
+  }
+
+  .series-nav .current,
+  .series-nav span.current {
+    @apply bg-slate-200 text-slate-950 border-slate-200;
+  }
+
+  .series-nav .disabled,
+  .series-nav span.disabled {
+    @apply bg-slate-900/30 text-slate-500 border-slate-800 cursor-not-allowed;
+  }
+
 }
