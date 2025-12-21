@@ -2,5 +2,4 @@
 
 module Pagination
   extend ActiveSupport::Concern
-  include Pagy::Backend
 end
