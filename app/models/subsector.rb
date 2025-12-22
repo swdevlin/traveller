@@ -22,6 +22,16 @@ class Subsector < ApplicationRecord
     Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
   end
 
+  def rogues
+    ul, lr = universal_coordinates
+    in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }
+    StellarObject
+      .joins(:parsec)
+      .where(parsecs: in_subsector)
+      .where(solar_system_id: nil)
+      .order("parsecs.x ASC, parsecs.y DESC")
+  end
+
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
   end

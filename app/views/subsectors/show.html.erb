@@ -27,6 +27,85 @@
         </div>
       <% end %>
 
+      <% if @subsector.rogues.any? %>
+        <div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl mt-4">
+          <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
+            <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
+              Rogue objects
+            </p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full table-fixed divide-y divide-slate-700 text-sm">
+              <thead class="bg-slate-900/80">
+              <tr>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-20">
+                  Hex
+                </th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-40">
+                  Type
+                </th>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                  Name
+                </th>
+                <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
+                  Actions
+                </th>
+              </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+              <% @subsector.rogues.each do |rogue| %>
+                <tr class="transition hover:bg-slate-900/80">
+                  <td class="px-4 py-3 whitespace-nowrap align-middle">
+                    <%= rogue.parsec.subsector_hex_code %>
+                  </td>
+
+                  <td class="px-4 py-3 whitespace-nowrap align-middle">
+                    <%= rogue.type.underscore.humanize %>
+                  </td>
+
+                  <td class="px-4 py-3 whitespace-nowrap align-middle">
+                    <%= rogue.name %>
+                  </td>
+                  <td class="px-2 py-3 whitespace-nowrap align-middle text-right w-0">
+                    <div class="inline-flex items-center justify-end gap-2">
+                      <%= link_to edit_stellar_object_path(rogue),
+                                  class: "text-slate-300 hover:text-traveller-red/90",
+                                  title: "Edit" do %>
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      <% end %>
+
+                      <%= button_to stellar_object_path(rogue),
+                                    method: :delete,
+                                    form_class: "inline",
+                                    class: "text-slate-300 hover:text-traveller-red/90",
+                                    title: "Delete",
+                                    data: { turbo_confirm: "Delete this rogue object?" } do %>
+                        <i class="fa-solid fa-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% else %>
+        <div class="my-16 text-center">
+          <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300">
+            🛰️
+          </div>
+          <p class="text-sm text-slate-300">
+            No rogue objects
+          </p>
+          <p class="mt-1 text-xs text-slate-500">
+            Use <span class="font-mono text-slate-200">Add rogue</span> to add a rogue object to a hex in this subsector.
+          </p>
+        </div>
+      <% end %>
+
+
       <div class="mt-6 flex flex-col sm:flex-row gap-2">
         <%= link_to "Edit",
                     edit_subsector_path(@subsector),

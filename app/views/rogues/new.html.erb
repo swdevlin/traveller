@@ -16,11 +16,49 @@
   <% end %>
 
   <div>
-    <%= f.label :type, "Rogue type", class: "block text-sm font-semibold mb-1" %>
-    <%= f.select :type,
-                 StellarObject::STI_TYPES.map { |t| [t.demodulize.underscore.humanize, t] },
-                 { prompt: "Select a type" },
-                 class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+    <%= f.label :name, class: "block text-sm font-semibold mb-1" %>
+    <%= f.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": @rogue.errors[:name].none?, "border-red-400 focus:outline-red-600": @rogue.errors[:name].any?}] %>
+  </div>
+
+  <div data-controller="rogue-form">
+    <div>
+      <%= f.label :type, "Rogue type", class: "block text-sm font-semibold mb-1" %>
+      <%= f.select :type,
+                   StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
+                   { prompt: "Select a type" },
+                   class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2",
+                   data: { action: "change->rogue-form#typeChanged", rogue_form_target: "typeSelect" } %>
+    </div>
+
+    <%= f.fields_for :data, (@rogue.data || {}) do |df| %>
+      <div data-rogue-form-target="section" data-type="GasGiant" class="hidden mt-4">
+        <%= df.label :size, "Gas giant size", class: "block text-sm font-semibold mb-1" %>
+        <%= df.select :size,
+                      options_for_select([["Random", "random"], ["Small", "small"], ["Medium", "medium"], ["Large", "large"]], (@rogue.data || {})["size"]),
+                      { prompt: "Select a size" },
+                      class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+      </div>
+
+      <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4">
+        <%= df.label :tail_length, "Tail length", class: "block text-sm font-semibold mb-1" %>
+        <%= df.number_field :tail_length,
+                            value: (@rogue.data || {})["tail_length"],
+                            class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= f.label :notes, "Deepnight Log" %>
+    <%= f.text_area :notes,
+                       rows: 6,
+                       class: [
+                         "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
+                         {
+                           "border-gray-400 focus:outline-blue-600": @rogue.errors[:notes].none?,
+                           "border-red-400 focus:outline-red-600": @rogue.errors[:notes].any?
+                         }
+                       ] %>
   </div>
 
   <%= f.submit "Add rogue", class: "btn btn-primary" %>

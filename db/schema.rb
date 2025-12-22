@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_17_212727) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_190514) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_212727) do
   create_table "stellar_objects", force: :cascade do |t|
     t.json "characteristics"
     t.datetime "created_at", null: false
+    t.json "data", default: {}, null: false
     t.float "diameter"
     t.float "eccentricity"
     t.float "effective_hzco_deviation"
