@@ -1,0 +1,27 @@
+<%= form_with model: @rogue, url: request.path.include?("/parsecs/") ? parsec_rogues_path(@parsec) : polymorphic_path([@sector || @subsector, :rogues]), class: "space-y-6" do |f| %>
+  <%= hidden_field_tag :return_to, @return_to %>
+  <h1 class="text-3xl font-bold mb-6">
+    <i class="fa-solid fa-meteor mr-2 text-slate-300"></i>
+    Add rogue to <span class="text-slate-200"><%= @context_label %></span>
+  </h1>
+
+  <% unless @parsec %>
+    <div>
+      <%= f.label :parsec_id, "Parsec", class: "block text-sm font-semibold mb-1" %>
+      <%= f.select :parsec_id,
+                   options_for_select(@parsec_options, @rogue.parsec_id),
+                   { prompt: "Select a parsec" },
+                   class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :type, "Rogue type", class: "block text-sm font-semibold mb-1" %>
+    <%= f.select :type,
+                 StellarObject::STI_TYPES.map { |t| [t.demodulize.underscore.humanize, t] },
+                 { prompt: "Select a type" },
+                 class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+  </div>
+
+  <%= f.submit "Add rogue", class: "btn btn-primary" %>
+<% end %>

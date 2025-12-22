@@ -1,5 +1,5 @@
 class SectorsController < ApplicationController
-  before_action :set_sector, only: %i[ show edit update destroy ]
+  before_action :set_sector, only: %i[ show edit update destroy clear ]
 
   # GET /sectors or /sectors.json
   def index
@@ -11,11 +11,27 @@ class SectorsController < ApplicationController
 
   # GET /sectors/1 or /sectors/1.json
   def show
+    @solar_system_count =
+      SolarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
+
+    @rogue_count =
+      StellarObject
+        .joins(:parsec)
+        .where(parsecs: { sector_id: @sector.id })
+        .where(solar_system_id: nil)
+        .count
   end
 
   # GET /sectors/new
   def new
     @sector = Sector.new
+  end
+
+  def clear
+    Sector.transaction do
+      @sector.clear
+    end
+    redirect_to sector_path(@sector), notice: "Sector cleared."
   end
 
   # GET /sectors/1/edit

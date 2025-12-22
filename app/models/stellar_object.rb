@@ -1,9 +1,23 @@
 class StellarObject < ApplicationRecord
-  belongs_to :Parsec, optional: true
-  belongs_to :SolarSystem, optional: true
-  belongs_to :StellarObject, optional: true
+  STI_TYPES = %w[
+    Comet
+    GasGiant
+    BrownDwarf
+    TerrestrialPlanet
+    PlanetoidBelt
+    InterstellarWreck
+    ExtremelyUnusualObject
+    Relic
+    SpaceStation
+    GasCloud
+  ].freeze
+
+  belongs_to :parsec, optional: true
+  belongs_to :solar_system, optional: true
+  belongs_to :parent, class_name: "StellarObject", optional: true
 
   validate :parsec_or_solar_system_required
+  validates :type, inclusion: { in: STI_TYPES }
 
   private
 

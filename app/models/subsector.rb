@@ -1,4 +1,5 @@
 class Subsector < ApplicationRecord
+  include ClearableParsecs
   validates :x, :y, :sector, presence: true
   belongs_to :sector
 
@@ -8,17 +9,17 @@ class Subsector < ApplicationRecord
   }
 
   def universal_coordinates
-    ul, lr = sector.universal_coordinates
+    ul,  = sector.universal_coordinates
+    ul = ul.dup
     ul.x += (x-1)* 8
-    lr.x = ul.x + 8
-    ul.y -= (y-i) * 10
-    lr.y = ul.y + 10
+    ul.y -= (y-1) * 10
+    lr = Coordinate.new(x: ul.x+7, y: ul.y-9)
     return ul, lr
   end
 
-  def hexes
+  def parsecs
     ul, lr = universal_coordinates
-    Parsec.where(x: ul.x..lr.x, y: ul.y..lr.y)
+    Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
   end
 
   def wiki_link

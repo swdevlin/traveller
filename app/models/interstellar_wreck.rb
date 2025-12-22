@@ -1,0 +1,2 @@
+class InterstellarWreck < StellarObject
+end

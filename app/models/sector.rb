@@ -1,4 +1,5 @@
 class Sector < ApplicationRecord
+  include ClearableParsecs
   validates :x, :y, presence: true
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
@@ -6,6 +7,7 @@ class Sector < ApplicationRecord
   after_create :create_subsectors_and_parsecs
 
   validate :coordinates_unique_with_link
+
 
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
@@ -18,15 +20,19 @@ class Sector < ApplicationRecord
   def universal_coordinates
     ul = Coordinate.new(x*32, y*40)
     lr = ul.clone
-    lr.x += 32
-    lr.y -= 40
+    lr.x += 31
+    lr.y -= 39
 
     [ ul, lr ]
   end
 
+  def upper_left
+    Coordinate.new(x*32, y*40)
+  end
+
   def hexes
     ul, lr = universal_coordinates
-    Parsec.where(x: ul.x..lr.x, y: ul.y..lr.y)
+    Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
   end
 
   def neighbours

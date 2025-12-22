@@ -1,0 +1,2 @@
+class SpaceStation < StellarObject
+end

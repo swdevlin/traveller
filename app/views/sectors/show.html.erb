@@ -37,6 +37,8 @@
         </div>
       <% end %>
 
+      <% confirm_msg = "There are #{pluralize(@solar_system_count, "solar system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to clear the sector?" %>
+
       <div class="mb-4 mt-4 flex flex-col sm:flex-row gap-2">
         <%= link_to "Edit this sector",
                     edit_sector_path(@sector),
@@ -45,6 +47,13 @@
         <%= link_to "Add rogue",
                     new_sector_rogue_path(@sector),
                     class: "w-full sm:w-auto btn" %>
+
+        <%= button_to "Clear",
+                      clear_sector_path(@sector),
+                      method: "post",
+                      class: "w-full sm:w-auto btn",
+                      data: {turbo_confirm: confirm_msg}
+        %>
 
         <%= link_to "Back to sectors",
                     sectors_path,

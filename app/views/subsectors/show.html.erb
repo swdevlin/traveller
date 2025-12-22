@@ -32,6 +32,10 @@
                     edit_subsector_path(@subsector),
                     class: "w-full sm:w-auto btn btn-primary" %>
 
+        <%= link_to "Add rogue",
+                    new_subsector_rogue_path(@subsector),
+                    class: "btn" %>
+
         <%= button_to "Delete",
                       @subsector,
                       method: :delete,
