@@ -83,15 +83,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_17_212727) do
     t.float "orbit"
     t.integer "orbit_x"
     t.integer "orbit_y"
-    t.bigint "orbiting_id"
-    t.bigint "parsec_id"
-    t.bigint "solar_system_id"
+    t.integer "orbiting_id"
+    t.integer "parsec_id"
+    t.integer "solar_system_id"
     t.string "type"
     t.datetime "updated_at", null: false
     t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
     t.index ["solar_system_id"], name: "index_stellar_objects_on_solar_system_id"
-    t.check_constraint "parsec_id IS NOT NULL OR solar_system_id IS NOT NULL", name: "stellar_objects_parsec_or_solar_system_present"
+    t.check_constraint "(parsec_id IS NOT NULL) OR (solar_system_id IS NOT NULL)", name: "stellar_objects_parsec_or_solar_system_present"
   end
 
   create_table "subsectors", force: :cascade do |t|
