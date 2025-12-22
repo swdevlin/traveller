@@ -36,7 +36,7 @@ class RoguesController < ApplicationController
     else
       @return_to = params[:return_to]
       render :new, status: :unprocessable_entity
-      end
+    end
   end
 
   private
@@ -54,7 +54,7 @@ class RoguesController < ApplicationController
   def load_parsecs!
     scope =
       if @parsec
-        [@parsec]
+        [ @parsec ]
       elsif @subsector
         @subsector.parsecs.includes(:sector)
       else
@@ -64,7 +64,7 @@ class RoguesController < ApplicationController
     @parsecs = scope.sort_by(&:hex_code)
 
     label_method = @subsector ? :subsector_hex_code : :hex_code
-    @parsec_options = @parsecs.map { |p| [p.public_send(label_method), p.id] }
+    @parsec_options = @parsecs.map { |p| [ p.public_send(label_method), p.id ] }
   end
 
   def set_context_label!
@@ -101,5 +101,4 @@ class RoguesController < ApplicationController
 
     uri.to_s
   end
-
 end

@@ -25,5 +25,4 @@ class StellarObject < ApplicationRecord
     return if parsec_id.present? || solar_system_id.present?
     errors.add(:base, "stellar object must belong to a parsec or solar system")
   end
-
 end

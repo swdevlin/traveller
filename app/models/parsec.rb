@@ -5,7 +5,7 @@ class Parsec < ApplicationRecord
   has_many :stellar_objects, dependent: :destroy
 
   validates :x, uniqueness: {
-    scope: [:y, :sector_id],
+    scope: [ :y, :sector_id ],
     message: "parsec already exists"
   }
 
@@ -31,5 +31,4 @@ class Parsec < ApplicationRecord
     self.x = ul.x + (hx - 1)
     self.y = ul.y - (hy - 1)
   end
-
 end
