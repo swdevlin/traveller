@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_190514) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -42,6 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_190514) do
   create_table "parsecs", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "sector_id", null: false
+    t.integer "survey_index", default: 0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
@@ -74,6 +75,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_190514) do
     t.json "characteristics"
     t.datetime "created_at", null: false
     t.json "data", default: {}, null: false
+    t.integer "detect_si"
     t.float "diameter"
     t.float "eccentricity"
     t.float "effective_hzco_deviation"
