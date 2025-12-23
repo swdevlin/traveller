@@ -8,13 +8,13 @@ class Comet < StellarObject
   end
 
   def comet_type
-    data&.dig("comet_type")
+    data&.dig('comet_type')
   end
 
   private
   def comet_type_is_valid
     return if comet_type.blank?
 
-    errors.add(:data, "comet type is invalid") unless TYPES.include?(comet_type)
+    errors.add(:data, 'comet type is invalid') unless TYPES.include?(comet_type)
   end
 end

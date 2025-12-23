@@ -1,1 +1,1 @@
-json.array! @parsecs, partial: "parsecs/parsec", as: :parsec
+json.array! @parsecs, partial: 'parsecs/parsec', as: :parsec

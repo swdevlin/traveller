@@ -5,7 +5,7 @@ class SectorsController < ApplicationController
   def index
     @q = params[:q].to_s.strip
     scope = Sector.order(:name)
-    scope = scope.where("LOWER(name) LIKE ?", "%#{@q.downcase}%") if params[:q].present?
+    scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, params: request.query_parameters)
   end
 
@@ -31,7 +31,7 @@ class SectorsController < ApplicationController
     Sector.transaction do
       @sector.clear
     end
-    redirect_to sector_path(@sector), notice: "Sector cleared."
+    redirect_to sector_path(@sector), notice: 'Sector cleared.'
   end
 
   # GET /sectors/1/edit
@@ -44,7 +44,7 @@ class SectorsController < ApplicationController
 
     respond_to do |format|
       if @sector.save
-        format.html { redirect_to @sector, notice: "Sector was successfully created." }
+        format.html { redirect_to @sector, notice: 'Sector was successfully created.' }
         format.json { render :show, status: :created, location: @sector }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -57,7 +57,7 @@ class SectorsController < ApplicationController
   def update
     respond_to do |format|
       if @sector.update(sector_params)
-        format.html { redirect_to @sector, notice: "Sector was successfully updated.", status: :see_other }
+        format.html { redirect_to @sector, notice: 'Sector was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @sector }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -71,7 +71,7 @@ class SectorsController < ApplicationController
     @sector.destroy!
 
     respond_to do |format|
-      format.html { redirect_to sectors_path, notice: "Sector deleted.", status: :see_other }
+      format.html { redirect_to sectors_path, notice: 'Sector deleted.', status: :see_other }
       format.json { head :no_content }
     end
   end

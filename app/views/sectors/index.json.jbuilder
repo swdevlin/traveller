@@ -1,1 +1,1 @@
-json.array! @sectors, partial: "sectors/sector", as: :sector
+json.array! @sectors, partial: 'sectors/sector', as: :sector

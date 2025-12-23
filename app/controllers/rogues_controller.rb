@@ -17,7 +17,7 @@ class RoguesController < ApplicationController
     @rogue.solar_system_id = nil
 
     unless StellarObject::STI_TYPES.include?(@rogue.type)
-      @rogue.errors.add(:type, "is not a valid type")
+      @rogue.errors.add(:type, 'is not a valid type')
       @return_to = params[:return_to]
       return render :new, status: :unprocessable_entity
     end
@@ -27,7 +27,7 @@ class RoguesController < ApplicationController
 
     # Safety: ensure parsec belongs to the allowed scope (sector/subsector)
     unless @parsecs.any? { |p| p.id == @rogue.parsec_id }
-      @rogue.errors.add(:parsec_id, "is not in scope")
+      @rogue.errors.add(:parsec_id, 'is not in scope')
       return render :new, status: :unprocessable_entity
     end
 

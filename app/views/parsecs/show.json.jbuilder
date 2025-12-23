@@ -1,1 +1,1 @@
-json.partial! "parsecs/parsec", parsec: @parsec
+json.partial! 'parsecs/parsec', parsec: @parsec

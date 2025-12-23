@@ -25,7 +25,7 @@ class StellarObjectsController < ApplicationController
 
     respond_to do |format|
       if @stellar_object.save
-        format.html { redirect_to @stellar_object, notice: "Stellar object was successfully created." }
+        format.html { redirect_to @stellar_object, notice: 'Stellar object was successfully created.' }
         format.json { render :show, status: :created, location: @stellar_object }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class StellarObjectsController < ApplicationController
   def update
     respond_to do |format|
       if @stellar_object.update(stellar_object_params)
-        format.html { redirect_to @stellar_object, notice: "Stellar object was successfully updated.", status: :see_other }
+        format.html { redirect_to @stellar_object, notice: 'Stellar object was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @stellar_object }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class StellarObjectsController < ApplicationController
     @stellar_object.destroy!
 
     respond_to do |format|
-      format.html { redirect_to stellar_objects_path, notice: "Stellar object was successfully destroyed.", status: :see_other }
+      format.html { redirect_to stellar_objects_path, notice: 'Stellar object was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end

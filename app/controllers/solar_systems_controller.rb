@@ -25,7 +25,7 @@ class SolarSystemsController < ApplicationController
 
     respond_to do |format|
       if @solar_system.save
-        format.html { redirect_to @solar_system, notice: "Solar system was successfully created." }
+        format.html { redirect_to @solar_system, notice: 'Solar system was successfully created.' }
         format.json { render :show, status: :created, location: @solar_system }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class SolarSystemsController < ApplicationController
   def update
     respond_to do |format|
       if @solar_system.update(solar_system_params)
-        format.html { redirect_to @solar_system, notice: "Solar system was successfully updated.", status: :see_other }
+        format.html { redirect_to @solar_system, notice: 'Solar system was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @solar_system }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class SolarSystemsController < ApplicationController
     @solar_system.destroy!
 
     respond_to do |format|
-      format.html { redirect_to solar_systems_path, notice: "Solar system was successfully destroyed.", status: :see_other }
+      format.html { redirect_to solar_systems_path, notice: 'Solar system was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end

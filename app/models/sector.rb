@@ -63,7 +63,7 @@ class Sector < ApplicationRecord
   end
 
   def create_subsectors
-    letters = ("A".."P").to_a
+    letters = ('A'..'P').to_a
 
     letters.each_with_index do |letter, index|
       x = (index % 4) + 1

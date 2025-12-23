@@ -1,1 +1,1 @@
-json.partial! "sectors/sector", sector: @sector
+json.partial! 'sectors/sector', sector: @sector

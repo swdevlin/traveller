@@ -6,21 +6,21 @@ class Parsec < ApplicationRecord
 
   validates :x, uniqueness: {
     scope: [:y, :sector_id],
-    message: "parsec already exists"
+    message: 'parsec already exists'
   }
 
   def hex_code
     ul = sector.upper_left
     hx = (x - ul.x) + 1
     hy = (ul.y - y) + 1
-    format("%02d%02d", hx, hy)
+    format('%02d%02d', hx, hy)
   end
 
   def subsector_hex_code
     ul = sector.upper_left
     hx = (x - ul.x).modulo(8) + 1
     hy = (ul.y - y).modulo(10) + 1
-    format("%02d%02d", hx, hy)
+    format('%02d%02d', hx, hy)
   end
 
   def hex_code=(code)

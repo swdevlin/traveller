@@ -18,7 +18,7 @@ class SubsectorsController < ApplicationController
   def update
     respond_to do |format|
       if @subsector.update(subsector_params)
-        format.html { redirect_to @subsector, notice: "Subsector was successfully updated.", status: :see_other }
+        format.html { redirect_to @subsector, notice: 'Subsector was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @subsector }
       else
         format.html { render :edit, status: :unprocessable_entity }

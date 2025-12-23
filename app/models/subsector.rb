@@ -5,7 +5,7 @@ class Subsector < ApplicationRecord
 
   validates :x, uniqueness: {
     scope: [:y, :sector_id],
-    message: "Subsector already exists"
+    message: 'Subsector already exists'
   }
 
   def universal_coordinates
@@ -29,7 +29,7 @@ class Subsector < ApplicationRecord
       .joins(:parsec)
       .where(parsecs: in_subsector)
       .where(solar_system_id: nil)
-      .order("parsecs.x ASC, parsecs.y DESC")
+      .order('parsecs.x ASC, parsecs.y DESC')
   end
 
   def wiki_link

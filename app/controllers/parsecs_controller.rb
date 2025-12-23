@@ -25,7 +25,7 @@ class ParsecsController < ApplicationController
 
     respond_to do |format|
       if @parsec.save
-        format.html { redirect_to @parsec, notice: "Parsec was successfully created." }
+        format.html { redirect_to @parsec, notice: 'Parsec was successfully created.' }
         format.json { render :show, status: :created, location: @parsec }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class ParsecsController < ApplicationController
   def update
     respond_to do |format|
       if @parsec.update(parsec_params)
-        format.html { redirect_to @parsec, notice: "Parsec was successfully updated.", status: :see_other }
+        format.html { redirect_to @parsec, notice: 'Parsec was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @parsec }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class ParsecsController < ApplicationController
     @parsec.destroy!
 
     respond_to do |format|
-      format.html { redirect_to parsecs_path, notice: "Parsec was successfully destroyed.", status: :see_other }
+      format.html { redirect_to parsecs_path, notice: 'Parsec was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
