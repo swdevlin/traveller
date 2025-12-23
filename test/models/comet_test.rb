@@ -2,9 +2,8 @@
 require "test_helper"
 
 class CometTest < ActiveSupport::TestCase
-
   test ".allowed_data_keys permits only the data keys Comet expects" do
-    assert_equal [:comet_type], Comet.allowed_data_keys
+    assert_equal [ :comet_type ], Comet.allowed_data_keys
   end
 
   test "comet_type_is_valid: blank comet_type adds no errors" do
