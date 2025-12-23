@@ -57,6 +57,7 @@ class Sector < ApplicationRecord
   end
 
   def create_subsectors_and_parsecs
+    return if Rails.env.test?
     create_subsectors
     create_parsecs
   end
