@@ -2,10 +2,12 @@
 
 one:
   name: MyString
+  sector: one
   x: 1
   'y': 1
 
 two:
   name: MyString
+  sector: one
   x: 1
-  'y': 1
+  'y': 2
