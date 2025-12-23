@@ -4,7 +4,7 @@ class Subsector < ApplicationRecord
   belongs_to :sector
 
   validates :x, uniqueness: {
-    scope: [ :y, :sector_id ],
+    scope: [:y, :sector_id],
     message: "Subsector already exists"
   }
 

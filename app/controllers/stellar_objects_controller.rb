@@ -65,6 +65,6 @@ class StellarObjectsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def stellar_object_params
-      params.expect(stellar_object: [ :orbit_x, :orbit_y, :Parsec_id, :SolarSystem_id, :inclination, :eccentricity, :orbit, :effective_hzco_deviation ])
+      params.expect(stellar_object: [:orbit_x, :orbit_y, :Parsec_id, :SolarSystem_id, :inclination, :eccentricity, :orbit, :effective_hzco_deviation])
     end
 end

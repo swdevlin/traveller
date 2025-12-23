@@ -25,5 +25,4 @@ class SubsectorsControllerTest < ActionDispatch::IntegrationTest
     patch subsector_url(@subsector), params: { subsector: { name: @subsector.name, x: @subsector.x, y: @subsector.y } }
     assert_redirected_to subsector_url(@subsector)
   end
-
 end

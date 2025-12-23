@@ -65,6 +65,6 @@ class SolarSystemsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def solar_system_params
-      params.expect(solar_system: [ :x, :y, :name, :sector_id, :origin_x, :origin_y, :meta ])
+      params.expect(solar_system: [:x, :y, :name, :sector_id, :origin_x, :origin_y, :meta])
     end
 end

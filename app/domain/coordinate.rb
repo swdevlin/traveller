@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 Coordinate = Struct.new(:x, :y) do
   def subsector_corners(subsector)
     ul = self.clone
@@ -10,4 +11,3 @@ Coordinate = Struct.new(:x, :y) do
     return ul, lr
   end
 end
-

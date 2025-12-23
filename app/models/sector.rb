@@ -23,7 +23,7 @@ class Sector < ApplicationRecord
     lr.x += 31
     lr.y -= 39
 
-    [ ul, lr ]
+    [ul, lr]
   end
 
   def upper_left
@@ -38,7 +38,7 @@ class Sector < ApplicationRecord
   def neighbours
     Sector
         .where(x: (x-1..x+1), y: (y-1..y+1))
-        .index_by { |s| [ s.x, s.y ] }
+        .index_by { |s| [s.x, s.y] }
   end
 
   private

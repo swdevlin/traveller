@@ -65,6 +65,6 @@ class ParsecsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def parsec_params
-      params.expect(parsec: [ :sector_id, :x, :y ])
+      params.expect(parsec: [:sector_id, :x, :y])
     end
 end
