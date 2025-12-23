@@ -3,6 +3,7 @@ require "test_helper"
 class ParsecsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @parsec = parsecs(:one)
+    @sector = sectors(:one)
   end
 
   test "should get index" do
@@ -17,7 +18,7 @@ class ParsecsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create parsec" do
     assert_difference("Parsec.count") do
-      post parsecs_url, params: { parsec: { sector_id: @parsec.sector_id, x: @parsec.x, y: @parsec.y } }
+      post parsecs_url, params: { parsec: { sector_id: @sector.id, x: 31, y: 31 } }
     end
 
     assert_redirected_to parsec_url(Parsec.last)
