@@ -39,11 +39,41 @@
                       class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
       </div>
 
-      <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4">
-        <%= df.label :tail_length, "Tail length", class: "block text-sm font-semibold mb-1" %>
-        <%= df.number_field :tail_length,
-                            value: (@rogue.data || {})["tail_length"],
-                            class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+      <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4 space-y-4">
+        <!-- Comet type -->
+        <fieldset class="space-y-2">
+          <legend class="block text-sm font-semibold mb-1">Comet type</legend>
+
+          <% comet_type = (@rogue.data || {})["comet_type"] %>
+
+          <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+            <%= df.radio_button :comet_type, "inhabited",
+                                checked: comet_type == "inhabited",
+                                class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
+            <span class="text-sm text-slate-100">Inhabited</span>
+          </label>
+
+          <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+            <%= df.radio_button :comet_type, "tiny_one_refuel",
+                                checked: comet_type == "tiny_one_refuel",
+                                class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
+            <span class="text-sm text-slate-100">Tiny, ice-bearing suitable for one refuelling only</span>
+          </label>
+
+          <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+            <%= df.radio_button :comet_type, "ice_multiple_refuels",
+                                checked: comet_type == "ice_multiple_refuels",
+                                class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
+            <span class="text-sm text-slate-100">Ice-bearing suitable for multiple refuellings</span>
+          </label>
+
+          <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+            <%= df.radio_button :comet_type, "large",
+                                checked: comet_type == "large",
+                                class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
+            <span class="text-sm text-slate-100">Large</span>
+          </label>
+        </fieldset>
       </div>
     <% end %>
   </div>

@@ -1,12 +1,16 @@
 Rails.application.routes.draw do
   resources :stellar_objects
+
   resources :parsecs do
     resources :rogues, only: %i[new create index destroy]
   end
+
   resources :solar_systems
-  resources :subsectors do
+
+  resources :subsectors, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]
   end
+
   resources :sectors do
     member do
       post :clear

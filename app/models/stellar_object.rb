@@ -19,6 +19,15 @@ class StellarObject < ApplicationRecord
   validate :parsec_or_solar_system_required
   validates :type, inclusion: { in: STI_TYPES }
 
+  def self.allowed_data_keys
+    []
+  end
+
+  def self.sti_class_for(type)
+    return unless STI_TYPES.include?(type.to_s)
+
+    type.to_s.safe_constantize
+  end
   private
 
   def parsec_or_solar_system_required

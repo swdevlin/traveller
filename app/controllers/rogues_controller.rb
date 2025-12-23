@@ -79,7 +79,12 @@ class RoguesController < ApplicationController
   end
 
   def rogue_params
-    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, :data)
+    raw_type = params.dig(:stellar_object, :type).to_s
+    klass = StellarObject.sti_class_for(raw_type)
+
+    data_keys = klass ? klass.allowed_data_keys : []
+
+    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, data: data_keys)
   end
 
   def after_create_path

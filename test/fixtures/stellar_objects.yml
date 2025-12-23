@@ -3,6 +3,7 @@
 one:
   orbit_x: 1
   orbit_y: 1
+  name: In parsec 1
   parsec: one
   solar_system: one
   inclination: 1.5
@@ -13,6 +14,7 @@ one:
 two:
   orbit_x: 1
   orbit_y: 1
+  name: In parsec 2
   parsec: two
   solar_system: two
   inclination: 1.5
@@ -22,3 +24,4 @@ two:
 
 rogue:
   parsec: two
+  name: Rogue object
