@@ -89,6 +89,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
     t.integer "orbiting_id"
     t.integer "parsec_id"
     t.integer "solar_system_id"
+    t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false
     t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"

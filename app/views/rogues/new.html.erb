@@ -54,15 +54,15 @@
           </label>
 
           <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
-            <%= df.radio_button :comet_type, "tiny_one_refuel",
-                                checked: comet_type == "tiny_one_refuel",
+            <%= df.radio_button :comet_type, "tiny",
+                                checked: comet_type == "tiny",
                                 class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
             <span class="text-sm text-slate-100">Tiny, ice-bearing suitable for one refuelling only</span>
           </label>
 
           <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
-            <%= df.radio_button :comet_type, "ice_multiple_refuels",
-                                checked: comet_type == "ice_multiple_refuels",
+            <%= df.radio_button :comet_type, "medium",
+                                checked: comet_type == "medium",
                                 class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
             <span class="text-sm text-slate-100">Ice-bearing suitable for multiple refuellings</span>
           </label>
