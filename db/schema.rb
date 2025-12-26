@@ -43,7 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
     t.json "build_log"
     t.datetime "created_at", null: false
     t.integer "sector_id", null: false
-    t.float "star_chance"
+    t.float "star_chance", default: 50.0
     t.integer "survey_index", default: 0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
@@ -59,21 +59,21 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
     t.datetime "created_at", null: false
     t.string "name"
     t.text "notes"
-    t.float "star_chance"
+    t.float "star_chance", default: 50.0
     t.datetime "updated_at", null: false
     t.integer "x"
     t.integer "y"
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
-  create_table "solar_systems", force: :cascade do |t|
+  create_table "star_systems", force: :cascade do |t|
     t.json "build_log"
     t.datetime "created_at", null: false
     t.json "meta"
     t.string "name"
     t.integer "parsec_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["parsec_id"], name: "index_solar_systems_on_parsec_id"
+    t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
   create_table "stellar_objects", force: :cascade do |t|
@@ -94,14 +94,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
     t.integer "orbit_y"
     t.integer "orbiting_id"
     t.integer "parsec_id"
-    t.integer "solar_system_id"
+    t.integer "star_system_id"
     t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false
     t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
-    t.index ["solar_system_id"], name: "index_stellar_objects_on_solar_system_id"
-    t.check_constraint "(parsec_id IS NOT NULL) OR (solar_system_id IS NOT NULL)", name: "stellar_objects_parsec_or_solar_system_present"
+    t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
+    t.check_constraint "(parsec_id IS NOT NULL) OR (star_system_id IS NOT NULL)", name: "stellar_objects_parsec_or_star_system_present"
   end
 
   create_table "subsectors", force: :cascade do |t|
@@ -112,7 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
     t.string "name"
     t.text "notes"
     t.integer "sector_id", null: false
-    t.float "star_chance"
+    t.float "star_chance", default: 50.0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
@@ -123,9 +123,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "parsecs", "sectors"
-  add_foreign_key "solar_systems", "parsecs"
+  add_foreign_key "star_systems", "parsecs"
   add_foreign_key "stellar_objects", "parsecs"
-  add_foreign_key "stellar_objects", "solar_systems"
+  add_foreign_key "stellar_objects", "star_systems"
   add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id"
   add_foreign_key "subsectors", "sectors"
 end

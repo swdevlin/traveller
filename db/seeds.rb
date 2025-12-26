@@ -3,5 +3,5 @@
 puts "Seeding sectors..."
 require_relative "seeds/sectors"
 
-# puts "Seeding solar systems..."
-# require_relative "seeds/solar_systems"
+# puts "Seeding star systems..."
+# require_relative "seeds/star_systems"

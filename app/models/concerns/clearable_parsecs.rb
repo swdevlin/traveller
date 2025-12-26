@@ -11,7 +11,7 @@ module ClearableParsecs
   def clear
     scope = parsec_scope
 
-    SolarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
+    StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
     StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
   end
 end

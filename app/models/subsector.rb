@@ -28,7 +28,7 @@ class Subsector < ApplicationRecord
     StellarObject
       .joins(:parsec)
       .where(parsecs: in_subsector)
-      .where(solar_system_id: nil)
+      .where(star_system_id: nil)
       .order('parsecs.x ASC, parsecs.y DESC')
   end
 

@@ -17,7 +17,7 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create stellar_object' do
     assert_difference('StellarObject.count') do
-      post stellar_objects_url, params: { stellar_object: { Parsec_id: @stellar_object.Parsec_id, SolarSystem_id: @stellar_object.SolarSystem_id, eccentricity: @stellar_object.eccentricity, effective_hzco_deviation: @stellar_object.effective_hzco_deviation, inclination: @stellar_object.inclination, orbit: @stellar_object.orbit, orbit_x: @stellar_object.orbit_x, orbit_y: @stellar_object.orbit_y } }
+      post stellar_objects_url, params: { stellar_object: { Parsec_id: @stellar_object.Parsec_id, StarSystem_id: @stellar_object.StarSystem_id, eccentricity: @stellar_object.eccentricity, effective_hzco_deviation: @stellar_object.effective_hzco_deviation, inclination: @stellar_object.inclination, orbit: @stellar_object.orbit, orbit_x: @stellar_object.orbit_x, orbit_y: @stellar_object.orbit_y } }
     end
 
     assert_redirected_to stellar_object_url(StellarObject.last)
@@ -34,7 +34,7 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should update stellar_object' do
-    patch stellar_object_url(@stellar_object), params: { stellar_object: { Parsec_id: @stellar_object.Parsec_id, SolarSystem_id: @stellar_object.SolarSystem_id, eccentricity: @stellar_object.eccentricity, effective_hzco_deviation: @stellar_object.effective_hzco_deviation, inclination: @stellar_object.inclination, orbit: @stellar_object.orbit, orbit_x: @stellar_object.orbit_x, orbit_y: @stellar_object.orbit_y } }
+    patch stellar_object_url(@stellar_object), params: { stellar_object: { Parsec_id: @stellar_object.Parsec_id, StarSystem_id: @stellar_object.StarSystem_id, eccentricity: @stellar_object.eccentricity, effective_hzco_deviation: @stellar_object.effective_hzco_deviation, inclination: @stellar_object.inclination, orbit: @stellar_object.orbit, orbit_x: @stellar_object.orbit_x, orbit_y: @stellar_object.orbit_y } }
     assert_redirected_to stellar_object_url(@stellar_object)
   end
 

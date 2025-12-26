@@ -1,48 +1,48 @@
 require 'test_helper'
 
-class SolarSystemsControllerTest < ActionDispatch::IntegrationTest
+class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @solar_system = solar_systems(:one)
+    @star_system = star_systems(:one)
   end
 
   test 'should get index' do
-    get solar_systems_url
+    get star_systems_url
     assert_response :success
   end
 
   test 'should get new' do
-    get new_solar_system_url
+    get new_star_system_url
     assert_response :success
   end
 
-  test 'should create solar_system' do
-    assert_difference('SolarSystem.count') do
-      post solar_systems_url, params: { solar_system: { meta: @solar_system.meta, name: @solar_system.name, origin_x: @solar_system.origin_x, origin_y: @solar_system.origin_y, sector_id: @solar_system.sector_id, x: @solar_system.x, y: @solar_system.y } }
+  test 'should create star_system' do
+    assert_difference('StarSystem.count') do
+      post star_systems_url, params: { star_system: { meta: @star_system.meta, name: @star_system.name, origin_x: @star_system.origin_x, origin_y: @star_system.origin_y, sector_id: @star_system.sector_id, x: @star_system.x, y: @star_system.y } }
     end
 
-    assert_redirected_to solar_system_url(SolarSystem.last)
+    assert_redirected_to star_system_url(StarSystem.last)
   end
 
-  test 'should show solar_system' do
-    get solar_system_url(@solar_system)
+  test 'should show star_system' do
+    get star_system_url(@star_system)
     assert_response :success
   end
 
   test 'should get edit' do
-    get edit_solar_system_url(@solar_system)
+    get edit_star_system_url(@star_system)
     assert_response :success
   end
 
-  test 'should update solar_system' do
-    patch solar_system_url(@solar_system), params: { solar_system: { meta: @solar_system.meta, name: @solar_system.name, origin_x: @solar_system.origin_x, origin_y: @solar_system.origin_y, sector_id: @solar_system.sector_id, x: @solar_system.x, y: @solar_system.y } }
-    assert_redirected_to solar_system_url(@solar_system)
+  test 'should update star_system' do
+    patch star_system_url(@star_system), params: { star_system: { meta: @star_system.meta, name: @star_system.name, origin_x: @star_system.origin_x, origin_y: @star_system.origin_y, sector_id: @star_system.sector_id, x: @star_system.x, y: @star_system.y } }
+    assert_redirected_to star_system_url(@star_system)
   end
 
-  test 'should destroy solar_system' do
-    assert_difference('SolarSystem.count', -1) do
-      delete solar_system_url(@solar_system)
+  test 'should destroy star_system' do
+    assert_difference('StarSystem.count', -1) do
+      delete star_system_url(@star_system)
     end
 
-    assert_redirected_to solar_systems_url
+    assert_redirected_to star_systems_url
   end
 end

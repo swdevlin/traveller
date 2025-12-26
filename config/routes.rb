@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     resources :rogues, only: %i[new create index destroy]
   end
 
-  resources :solar_systems
+  resources :star_systems
 
   resources :subsectors, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]

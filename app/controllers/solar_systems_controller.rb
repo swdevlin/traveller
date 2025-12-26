@@ -1,70 +1,70 @@
-class SolarSystemsController < ApplicationController
-  before_action :set_solar_system, only: %i[ show edit update destroy ]
+class StarSystemsController < ApplicationController
+  before_action :set_star_system, only: %i[ show edit update destroy ]
 
-  # GET /solar_systems or /solar_systems.json
+  # GET /star_systems or /star_systems.json
   def index
-    @solar_systems = SolarSystem.all
+    @star_systems = StarSystem.all
   end
 
-  # GET /solar_systems/1 or /solar_systems/1.json
+  # GET /star_systems/1 or /star_systems/1.json
   def show
   end
 
-  # GET /solar_systems/new
+  # GET /star_systems/new
   def new
-    @solar_system = SolarSystem.new
+    @star_system = StarSystem.new
   end
 
-  # GET /solar_systems/1/edit
+  # GET /star_systems/1/edit
   def edit
   end
 
-  # POST /solar_systems or /solar_systems.json
+  # POST /star_systems or /star_systems.json
   def create
-    @solar_system = SolarSystem.new(solar_system_params)
+    @star_system = StarSystem.new(star_system_params)
 
     respond_to do |format|
-      if @solar_system.save
-        format.html { redirect_to @solar_system, notice: 'Solar system was successfully created.' }
-        format.json { render :show, status: :created, location: @solar_system }
+      if @star_system.save
+        format.html { redirect_to @star_system, notice: 'Star system was successfully created.' }
+        format.json { render :show, status: :created, location: @star_system }
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @solar_system.errors, status: :unprocessable_entity }
+        format.json { render json: @star_system.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # PATCH/PUT /solar_systems/1 or /solar_systems/1.json
+  # PATCH/PUT /star_systems/1 or /star_systems/1.json
   def update
     respond_to do |format|
-      if @solar_system.update(solar_system_params)
-        format.html { redirect_to @solar_system, notice: 'Solar system was successfully updated.', status: :see_other }
-        format.json { render :show, status: :ok, location: @solar_system }
+      if @star_system.update(star_system_params)
+        format.html { redirect_to @star_system, notice: 'Star system was successfully updated.', status: :see_other }
+        format.json { render :show, status: :ok, location: @star_system }
       else
         format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @solar_system.errors, status: :unprocessable_entity }
+        format.json { render json: @star_system.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /solar_systems/1 or /solar_systems/1.json
+  # DELETE /star_systems/1 or /star_systems/1.json
   def destroy
-    @solar_system.destroy!
+    @star_system.destroy!
 
     respond_to do |format|
-      format.html { redirect_to solar_systems_path, notice: 'Solar system was successfully destroyed.', status: :see_other }
+      format.html { redirect_to star_systems_path, notice: 'Star system was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_solar_system
-      @solar_system = SolarSystem.find(params.expect(:id))
+    def set_star_system
+      @star_system = StarSystem.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.
-    def solar_system_params
-      params.expect(solar_system: [:x, :y, :name, :sector_id, :origin_x, :origin_y, :meta])
+    def star_system_params
+      params.expect(star_system: [:x, :y, :name, :sector_id, :origin_x, :origin_y, :meta])
     end
 end

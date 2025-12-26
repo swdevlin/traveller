@@ -11,14 +11,14 @@ class SectorsController < ApplicationController
 
   # GET /sectors/1 or /sectors/1.json
   def show
-    @solar_system_count =
-      SolarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
+    @star_system_count =
+      StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
 
     @rogue_count =
       StellarObject
         .joins(:parsec)
         .where(parsecs: { sector_id: @sector.id })
-        .where(solar_system_id: nil)
+        .where(star_system_id: nil)
         .count
   end
 

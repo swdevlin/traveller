@@ -5,7 +5,7 @@ class CreateStellarObjects < ActiveRecord::Migration[8.1]
       t.integer :orbit_x
       t.integer :orbit_y
       t.references :parsec, null: true, foreign_key: true
-      t.references :solar_system, null: true, foreign_key: true
+      t.references :star_system, null: true, foreign_key: true
       t.float :inclination
       t.float :eccentricity
       t.float :orbit
@@ -19,7 +19,7 @@ class CreateStellarObjects < ActiveRecord::Migration[8.1]
     end
 
     add_check_constraint :stellar_objects,
-      "(parsec_id IS NOT NULL) OR (solar_system_id IS NOT NULL)",
-      name: "stellar_objects_parsec_or_solar_system_present"
+      "(parsec_id IS NOT NULL) OR (star_system_id IS NOT NULL)",
+      name: "stellar_objects_parsec_or_star_system_present"
   end
 end

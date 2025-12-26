@@ -13,10 +13,10 @@ class StellarObject < ApplicationRecord
   ].freeze
 
   belongs_to :parsec, optional: true
-  belongs_to :solar_system, optional: true
+  belongs_to :star_system, optional: true
   belongs_to :parent, class_name: 'StellarObject', optional: true
 
-  validate :parsec_or_solar_system_required
+  validate :parsec_or_star_system_required
   validates :type, inclusion: { in: STI_TYPES }
 
   def self.allowed_data_keys
@@ -30,8 +30,8 @@ class StellarObject < ApplicationRecord
   end
   private
 
-  def parsec_or_solar_system_required
-    return if parsec_id.present? || solar_system_id.present?
-    errors.add(:base, 'stellar object must belong to a parsec or solar system')
+  def parsec_or_star_system_required
+    return if parsec_id.present? || star_system_id.present?
+    errors.add(:base, 'stellar object must belong to a parsec or star system')
   end
 end

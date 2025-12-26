@@ -1,6 +1,6 @@
-class CreateSolarSystems < ActiveRecord::Migration[8.1]
+class CreateStarSystems < ActiveRecord::Migration[8.1]
   def change
-    create_table :solar_systems do |t|
+    create_table :star_systems do |t|
       t.string :name
       t.references :parsec, null: false, foreign_key: true
       t.json :meta

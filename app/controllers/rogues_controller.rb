@@ -14,7 +14,7 @@ class RoguesController < ApplicationController
 
   def create
     @rogue = StellarObject.new(rogue_params)
-    @rogue.solar_system_id = nil
+    @rogue.star_system_id = nil
 
     unless StellarObject::STI_TYPES.include?(@rogue.type)
       @rogue.errors.add(:type, 'is not a valid type')
