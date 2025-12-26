@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_24_151509) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -40,8 +40,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   end
 
   create_table "parsecs", force: :cascade do |t|
+    t.json "build_log"
     t.datetime "created_at", null: false
     t.integer "sector_id", null: false
+    t.float "star_chance"
     t.integer "survey_index", default: 0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
@@ -53,9 +55,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   create_table "sectors", force: :cascade do |t|
     t.string "abbreviation"
     t.text "build"
+    t.json "build_log"
     t.datetime "created_at", null: false
     t.string "name"
     t.text "notes"
+    t.float "star_chance"
     t.datetime "updated_at", null: false
     t.integer "x"
     t.integer "y"
@@ -63,6 +67,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   end
 
   create_table "solar_systems", force: :cascade do |t|
+    t.json "build_log"
     t.datetime "created_at", null: false
     t.json "meta"
     t.string "name"
@@ -72,6 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   end
 
   create_table "stellar_objects", force: :cascade do |t|
+    t.json "build_log"
     t.json "characteristics"
     t.datetime "created_at", null: false
     t.json "data", default: {}, null: false
@@ -101,10 +107,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_22_201514) do
   create_table "subsectors", force: :cascade do |t|
     t.string "abbreviation"
     t.text "build"
+    t.json "build_log"
     t.datetime "created_at", null: false
     t.string "name"
     t.text "notes"
     t.integer "sector_id", null: false
+    t.float "star_chance"
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
