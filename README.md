@@ -1,24 +1,36 @@
-# README
+# My Traveller Universe
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## To Do
 
-Things you may want to cover:
+* Add a rogue stellar object
+* On-line help
+* Add a star system to a hex
+* Hex display for a subsector
+* Links to the Deepnight navigation console for Travellers
+* Populate a subsector
+* Populate a sector
+* Log in
+* Multi-tenancy
+* Export sector file that can be used by Traveller Map
+* Export subsector file that can be used by Traveller Map
+* In star system editing
 
-* Ruby version
+### To do ?
 
-* System dependencies
+* Themes
+* Communication routes
+* Name generation
+* Make generic for any custom Traveller universe
 
-* Configuration
+#### To do??
 
-* Database creation
+* Complete edit of a stellar object
+* Import of Charted Space data
 
-* Database initialization
+## Development Notes
 
-* How to run the test suite
+The site is built using Rails 8.1.1 and Ruby 3.5.7.
 
-* Services (job queues, cache servers, search engines, etc.)
+SQLite is used for the database.
 
-* Deployment instructions
-
-* ...
+Multi-tenacy is handled via schemas.
