@@ -10,7 +10,8 @@
 * Populate a subsector
 * Populate a sector
 * Log in
-* Multi-tenancy
+  * Multi-tenancy
+  * Start at sectors list if the user is logged in
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
 * In star system editing
@@ -24,6 +25,7 @@
 
 #### To do??
 
+* Import Traveller Map sector specification file
 * Complete edit of a stellar object
 * Import of Charted Space data
 
