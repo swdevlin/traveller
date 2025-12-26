@@ -22,8 +22,24 @@
 }
 
 @layer components {
-  h1, hg2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6 {
     @apply text-deepnight-orange;
+  }
+
+  h1 {
+    @apply text-3xl sm:text-4xl font-semibold tracking-tight
+  }
+
+  h2 {
+    @apply text-2xl sm:text-4xl font-semibold tracking-tight
+  }
+
+  h3 {
+    @apply text-xl sm:text-4xl font-semibold tracking-tight
+  }
+
+  a {
+    @apply underline hover:text-traveller-red hover:underline hover:underline-offset-2
   }
 
   .coord-input {
