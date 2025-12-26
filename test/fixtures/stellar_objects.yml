@@ -5,7 +5,7 @@ one:
   orbit_y: 1
   name: In parsec 1
   parsec: one
-  solar_system: one
+  star_system: one
   inclination: 1.5
   eccentricity: 1.5
   orbit: 1.5
@@ -16,7 +16,7 @@ two:
   orbit_y: 1
   name: In parsec 2
   parsec: two
-  solar_system: two
+  star_system: two
   inclination: 1.5
   eccentricity: 1.5
   orbit: 1.5
