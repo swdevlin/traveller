@@ -1,8 +1,8 @@
 @import "tailwindcss";
 /*@import "components";*/
 /*@import "utilities";*/
-/*@import "typography";*/
-/*@import "forms";*/
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
 
 @theme {
   --color-traveller-red: #e10600;
