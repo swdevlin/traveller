@@ -19,6 +19,7 @@
 ### To do ?
 
 * Themes
+* System generation from Deepnight book
 * Communication routes
 * Name generation
 * Make generic for any custom Traveller universe
