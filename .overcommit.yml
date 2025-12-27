@@ -16,22 +16,25 @@
 # Uncomment the following lines to make the configuration take effect.
 
 PreCommit:
-  RuboCop:
-    enabled: true
-    command: ["bundle", "exec", "rubocop", "-A"]
-    on_warn: fail # Treat all warnings as failures
-    problem_on_unmodified_line: ignore
+  ALL:
+    enabled: false
 
+PrePush:
   TrailingWhitespace:
     enabled: true
     exclude:
       - '**/db/structure.sql' # Ignore trailing whitespace in generated files
-
-PrePush:
-  RSpec:
+  RuboCop:
     enabled: true
+    command: ["bundle", "exec", "rubocop"]
+    on_warn: fail
+    problem_on_unmodified_line: ignore
+  RailsTest:
+    enabled: true
+    command: ["bin/rails", "test"]
   Brakeman:
     enabled: true
+
 #PostCheckout:
 #  ALL: # Special hook name that customizes all hooks of this type
 #    quiet: true # Change all post-checkout hooks to only display output on failure
