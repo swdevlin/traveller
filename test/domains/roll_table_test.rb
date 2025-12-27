@@ -71,6 +71,5 @@ describe RollTable do
       r = @range_table.roll(the_roll: 22, dm: 0, roller: @roller)
       _(r).must_equal 'high'
     end
-
   end
 end
