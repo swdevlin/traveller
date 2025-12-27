@@ -46,7 +46,6 @@ class RoguesController < ApplicationController
     @subsector = Subsector.find(params[:subsector_id]) if params[:subsector_id]
     @sector = Sector.find(params[:sector_id]) if params[:sector_id]
 
-    # convenience: if parsec/subsector implies a sector
     @sector ||= @parsec&.sector
     @sector ||= @subsector&.sector
   end
@@ -91,7 +90,7 @@ class RoguesController < ApplicationController
     return parsec_path(@parsec) if @parsec
     return subsector_path(@subsector) if @subsector
     return sector_path(@sector) if @sector
-    root_path
+    sectors_path
   end
 
   def safe_return_to
@@ -101,7 +100,6 @@ class RoguesController < ApplicationController
     uri = URI.parse(return_to) rescue nil
     return unless uri
 
-    # Only allow same-host redirects (prevents open redirect issues)
     return unless uri.host.nil? || uri.host == request.host
 
     uri.to_s
