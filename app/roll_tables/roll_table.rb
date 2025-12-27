@@ -2,7 +2,6 @@
 
 # RolLTable encapsulates table lookups typically used in roleplaying games.
 class RollTable
-
   # Initialize the roll table.
   #
   # @param table [Hash]
@@ -73,5 +72,4 @@ class RollTable
   def default_note
     self.class.name.gsub(/([a-z\d])([A-Z])/, '\1 \2').downcase
   end
-
 end

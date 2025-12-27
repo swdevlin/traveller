@@ -30,11 +30,11 @@ class DiceRoller
   # @raise [ArgumentError] If n or d are not positive.
   # @raise [ArgumentError] If note is blank.
   def roll(n:, d:, dm: 0, note:)
-    raise ArgumentError, "n must be positive" unless n.positive?
-    raise ArgumentError, "d must be positive" unless d.positive?
-    raise ArgumentError, "note must be provided" if note.strip.empty?
+    raise ArgumentError, 'n must be positive' unless n.positive?
+    raise ArgumentError, 'd must be positive' unless d.positive?
+    raise ArgumentError, 'note must be provided' if note.strip.empty?
 
-    l = {rolls: [], note: note, dm: dm, dice: n, sides: d}
+    l = { rolls: [], note: note, dm: dm, dice: n, sides: d }
     (1..n).each do |i|
       l[:rolls] << @roller.rand(1..d)
     end
