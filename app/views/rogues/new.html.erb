@@ -7,17 +7,23 @@
 
   <% unless @parsec %>
     <div>
-      <%= f.label :parsec_id, "Parsec", class: "block text-sm font-semibold mb-1" %>
+      <%= f.label :parsec_id, "Hex", class: "block text-sm font-semibold mb-1" %>
       <%= f.select :parsec_id,
                    options_for_select(@parsec_options, @rogue.parsec_id),
-                   { prompt: "Select a parsec" },
+                   { prompt: "Select a hex" },
                    class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
     </div>
   <% end %>
 
   <div>
     <%= f.label :name, class: "block text-sm font-semibold mb-1" %>
-    <%= f.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": @rogue.errors[:name].none?, "border-red-400 focus:outline-red-600": @rogue.errors[:name].any?}] %>
+    <%= f.text_field :name,
+                     class: class_names(
+                       "block w-full mt-2 px-3 py-2 rounded-md border shadow-sm",
+                       "bg-slate-900 text-slate-100 caret-slate-100 placeholder:text-slate-400",
+                       "border-gray-400 focus:border-blue-600" => @rogue.errors[:name].none?,
+                       "border-red-400 focus:border-red-600"   => @rogue.errors[:name].any?
+                     ) %>
   </div>
 
   <div data-controller="rogue-form">
@@ -85,8 +91,8 @@
                        class: [
                          "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
                          {
-                           "border-gray-400 focus:outline-blue-600": @rogue.errors[:notes].none?,
-                           "border-red-400 focus:outline-red-600": @rogue.errors[:notes].any?
+                           "border-gray-400 focus:border-blue-600": @rogue.errors[:notes].none?,
+                           "border-red-400 focus:border-red-600": @rogue.errors[:notes].any?
                          }
                        ] %>
   </div>
