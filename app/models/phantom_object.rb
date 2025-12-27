@@ -1,0 +1,2 @@
+class PhantomObject < StellarObject
+end

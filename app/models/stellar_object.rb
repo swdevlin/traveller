@@ -1,15 +1,16 @@
 class StellarObject < ApplicationRecord
   STI_TYPES = %w[
-    Comet
-    GasGiant
     BrownDwarf
-    TerrestrialPlanet
-    PlanetoidBelt
+    Comet
+    GasCloud
+    GasGiant
     InterstellarWreck
-    ExtremelyUnusualObject
+    PhantomObject
+    PlanetoidBelt
     Relic
     SpaceStation
-    GasCloud
+    TerrestrialPlanet
+    UnusualObject
   ].freeze
 
   belongs_to :parsec, optional: true

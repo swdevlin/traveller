@@ -1,0 +1,2 @@
+class UnusualObject < StellarObject
+end
