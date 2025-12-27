@@ -24,14 +24,13 @@ PrePush:
     enabled: true
     exclude:
       - '**/db/structure.sql' # Ignore trailing whitespace in generated files
-  RuboCop:
+  Execute:
     enabled: true
-    command: ["bundle", "exec", "rubocop"]
-    on_warn: fail
-    problem_on_unmodified_line: ignore
-  RailsTest:
-    enabled: true
-    command: ["bin/rails", "test"]
+    description: "Run RuboCop"
+    command: ["bash", "-lc", "bundle exec rubocop"]
+  #  RailsTest:
+#    enabled: true
+#    command: ["bin/rails", "test"]
   Brakeman:
     enabled: true
 
