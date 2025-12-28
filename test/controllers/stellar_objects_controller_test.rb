@@ -18,11 +18,11 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create stellar_object" do
-    assert_difference("StellarObject.count", +1) do
+  test 'should create stellar_object' do
+    assert_difference('StellarObject.count', +1) do
       post stellar_objects_url, params: {
         stellar_object: {
-          type: "GasGiant", # used only to choose class, not permitted
+          type: 'GasGiant', # used only to choose class, not permitted
           star_system_id: @star_system.id,
           eccentricity: 0,
           effective_hzco_deviation: 0.4,
