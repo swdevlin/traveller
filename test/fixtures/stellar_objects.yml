@@ -10,6 +10,7 @@ one:
   eccentricity: 1.5
   orbit: 1.5
   effective_hzco_deviation: 1.5
+  type: 'Comet'
 
 two:
   orbit_x: 1
@@ -21,7 +22,9 @@ two:
   eccentricity: 1.5
   orbit: 1.5
   effective_hzco_deviation: 1.5
+  type: 'TerrestrialPlanet'
 
 rogue:
   parsec: two
   name: Rogue object
+  type: 'GasCloud'

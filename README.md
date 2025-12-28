@@ -53,3 +53,25 @@ The site is built using Rails 8.1.1 and Ruby 3.5.7.
 SQLite is used for the database.
 
 Multi-tenacy is handled via schemas.
+
+# Dev Notes
+
+This for trying to figure out why a get was returning a 404
+
+
+test "should get edit" do
+path = edit_parsec_path(@parsec)
+puts "PATH: #{path}"
+
+    begin
+      p Rails.application.routes.recognize_path(path, method: :get)
+    rescue => e
+      puts "recognize_path error: #{e.class}: #{e.message}"
+    end
+
+    get path
+    puts "status=#{response.status}"
+    puts response.body
+    assert_response :success
+end
+

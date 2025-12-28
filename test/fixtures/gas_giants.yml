@@ -4,8 +4,17 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-#one: {}
-# column: value
-#
+small:
+  orbit_x: 1
+  orbit_y: 1
+  name: Small gas giant in star system one
+  star_system: one
+  inclination: 1.5
+  eccentricity: 1.5
+  orbit: 1.5
+  effective_hzco_deviation: 1.5
+  data: {size: 'small'}
+  type: 'GasGiant'
+
 #two: {}
 # column: value

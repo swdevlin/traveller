@@ -65,6 +65,6 @@ class StarSystemsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def star_system_params
-      params.expect(star_system: [:x, :y, :name, :sector_id, :origin_x, :origin_y, :meta])
+      params.expect(star_system: [:name, :parsec_id, :meta])
     end
 end

@@ -17,7 +17,7 @@ class SectorsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create sector' do
     assert_difference('Sector.count') do
-      post sectors_url, params: { sector: { abbreviation: @sector.abbreviation, name: @sector.name, x: @sector.x, y: @sector.y } }
+      post sectors_url, params: { sector: { abbreviation: @sector.abbreviation, name: @sector.name, x: 12, y: 12 } }
     end
 
     assert_redirected_to sector_url(Sector.last)

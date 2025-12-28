@@ -1,11 +1,6 @@
 <% content_for :title, "Subsectors" %>
 
 <div class="w-full">
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Subsectors</h1>
-    <%= link_to "New subsector", new_subsector_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
-  </div>
-
   <div id="subsectors" class="min-w-full divide-y divide-gray-200 space-y-5">
     <% if @subsectors.any? %>
       <% @subsectors.each do |subsector| %>

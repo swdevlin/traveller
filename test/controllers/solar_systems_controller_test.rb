@@ -3,6 +3,7 @@ require 'test_helper'
 class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @star_system = star_systems(:one)
+    @parsec = parsecs(:one)
   end
 
   test 'should get index' do
@@ -17,7 +18,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create star_system' do
     assert_difference('StarSystem.count') do
-      post star_systems_url, params: { star_system: { meta: @star_system.meta, name: @star_system.name, origin_x: @star_system.origin_x, origin_y: @star_system.origin_y, sector_id: @star_system.sector_id, x: @star_system.x, y: @star_system.y } }
+      post star_systems_url, params: { star_system: { name: 'new system', parsec_id: @parsec.id } }
     end
 
     assert_redirected_to star_system_url(StarSystem.last)
@@ -34,7 +35,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should update star_system' do
-    patch star_system_url(@star_system), params: { star_system: { meta: @star_system.meta, name: @star_system.name, origin_x: @star_system.origin_x, origin_y: @star_system.origin_y, sector_id: @star_system.sector_id, x: @star_system.x, y: @star_system.y } }
+    patch star_system_url(@star_system), params: { star_system: { meta: @star_system.meta, name: @star_system.name, parses_id: @star_system.parsec_id } }
     assert_redirected_to star_system_url(@star_system)
   end
 

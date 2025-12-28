@@ -3,14 +3,14 @@
 one:
   name: In One
   parsec: one
-  meta:
+  meta: {}
 
 two:
   name: in Two
   parsec: two
-  meta:
+  meta: {}
 
 three:
   name: Second in One
   parsec: one
-  meta:
+  meta: {}

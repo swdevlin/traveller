@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :stellar_objects
 
-  resources :parsecs do
+  resources :parsecs, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]
   end
 
