@@ -30,7 +30,10 @@ PrePush:
     command: ["bash", "-lc", "bundle exec rubocop"]
   RailsTest:
     enabled: true
-    command: ["bin/rails", "test"]
+    command: ["bash", "-lc", "bin/rails test"]
+#  RailsTest:
+#    enabled: true
+#    command: ["bin/rails", "test"]
   Brakeman:
     enabled: true
 
