@@ -28,9 +28,9 @@ PrePush:
     enabled: true
     description: "Run RuboCop"
     command: ["bash", "-lc", "bundle exec rubocop"]
-  #  RailsTest:
-#    enabled: true
-#    command: ["bin/rails", "test"]
+  RailsTest:
+    enabled: true
+    command: ["bin/rails", "test"]
   Brakeman:
     enabled: true
 
