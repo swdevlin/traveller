@@ -25,5 +25,4 @@ class ParsecsControllerTest < ActionDispatch::IntegrationTest
     patch parsec_url(@parsec), params: { parsec: { sector_id: @parsec.sector_id, x: @parsec.x, y: @parsec.y } }
     assert_redirected_to parsec_url(@parsec)
   end
-
 end
