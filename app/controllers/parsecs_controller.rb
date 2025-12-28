@@ -11,12 +11,10 @@ class ParsecsController < ApplicationController
 
   # GET /parsecs/1 or /parsecs/1.json
   def show
-    puts('show parsec')
   end
 
   # GET /parsecs/1/edit
   def edit
-    puts('editing parsec')
   end
 
   # PATCH/PUT /parsecs/1 or /parsecs/1.json
@@ -35,7 +33,6 @@ class ParsecsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_parsec
-      puts('setting parsec')
       @parsec = Parsec.find(params[:id])
     end
 
