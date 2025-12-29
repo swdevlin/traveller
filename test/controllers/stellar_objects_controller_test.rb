@@ -57,10 +57,12 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should destroy stellar_object' do
+    referer_url = subsector_url(subsectors(:one))
+
     assert_difference('StellarObject.count', -1) do
-      delete stellar_object_url(@stellar_object)
+      delete stellar_object_url(@stellar_object), headers: { 'HTTP_REFERER' => referer_url }
     end
 
-    assert_redirected_to stellar_objects_url
+    assert_redirected_to referer_url
   end
 end
