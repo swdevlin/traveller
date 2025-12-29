@@ -51,10 +51,11 @@ class StellarObjectsController < ApplicationController
   # DELETE /stellar_objects/1 or /stellar_objects/1.json
   def destroy
     type = @stellar_object.type.underscore.humanize
+
     @stellar_object.destroy!
 
     respond_to do |format|
-      format.html { redirect_to stellar_objects_path, notice: "#{type} was successfully destroyed.", status: :see_other }
+      format.html { redirect_to request.referer, notice: "#{type} deleted.", status: :see_other }
       format.json { head :no_content }
     end
   end

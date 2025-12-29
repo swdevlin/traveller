@@ -1,4 +1,4 @@
-<%= form_with model: @rogue, url: request.path.include?("/parsecs/") ? parsec_rogues_path(@parsec) : polymorphic_path([@sector || @subsector, :rogues]), class: "space-y-6" do |f| %>
+<%= form_with model: @rogue, scope: :stellar_object, url: request.path.include?("/parsecs/") ? parsec_rogues_path(@parsec) : polymorphic_path([@subsector || @sector, :rogues]), class: "space-y-6" do |f| %>
   <%= hidden_field_tag :return_to, @return_to %>
   <h1 class="text-3xl font-bold mb-6">
     <i class="fa-solid fa-meteor mr-2 text-slate-300"></i>
@@ -30,7 +30,10 @@
     <div>
       <%= f.label :type, "Rogue type", class: "block text-sm font-semibold mb-1" %>
       <%= f.select :type,
-                   StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
+                   options_for_select(
+                     StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
+                     params.dig(:stellar_object, :type) || @rogue.class.name
+                   ),
                    { prompt: "Select a type" },
                    class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2",
                    data: { action: "change->rogue-form#typeChanged", rogue_form_target: "typeSelect" } %>
@@ -42,7 +45,11 @@
         <%= df.select :size,
                       options_for_select([["Random", "random"], ["Small", "GS"], ["Medium", "GM"], ["Large", "GL"]], (@rogue.data || {})["size"]),
                       { prompt: "Select a size" },
-                      class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+                      class: class_names(
+                        "w-full rounded-lg bg-slate-950 border px-3 py-2",
+                        "border-slate-700" => @rogue.errors[:size].none?,
+                        "border-red-500" => @rogue.errors[:size].any?,
+                        )%>
       </div>
 
       <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4 space-y-4">

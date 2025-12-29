@@ -3,21 +3,27 @@
 ## To Do
 
 * Add a rogue stellar object
+  * Brown dwarf
+    * can edit
   * [x] Comet
+    * can edit
+  * [x] Gas cloud
     * can edit
   * [x] Gas giant
     * can edit
-  * Gas cloud
+  * [x] Gravity bubble
     * can edit
-  * Brown dwarf
-    * can edit
-  * Interstellar wreck
+  * [x] Interstellar wreck
     * can edit
   * Planetoid belt
     * can edit
+  * [x] Radiation cloud
+    * can edit
+  * [x] Relic
+    * can edit
   * Terrestrial planet
     * can edit
-  * Relic
+  * [x] Unusual Object
     * can edit
   * can delete rogue object
 * On-line help

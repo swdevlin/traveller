@@ -4,9 +4,11 @@ class StellarObject < ApplicationRecord
     Comet
     GasCloud
     GasGiant
+    GravityBubble
     InterstellarWreck
     PhantomObject
     PlanetoidBelt
+    RadiationCloud
     Relic
     SpaceStation
     TerrestrialPlanet
