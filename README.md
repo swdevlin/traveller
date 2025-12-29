@@ -4,13 +4,22 @@
 
 * Add a rogue stellar object
   * [x] Comet
-  * Gas giant
+    * can edit
+  * [x] Gas giant
+    * can edit
   * Gas cloud
+    * can edit
   * Brown dwarf
+    * can edit
   * Interstellar wreck
+    * can edit
   * Planetoid belt
+    * can edit
   * Terrestrial planet
+    * can edit
   * Relic
+    * can edit
+  * can delete rogue object
 * On-line help
 * Add a star system to a hex
   * Support generating by system density
