@@ -31,9 +31,10 @@
 * Import default data for subsector
 * Import default data for parsec
 
-### To do ?
+### To do?
 
 * Themes
+* Routes
 * Support generation by The Deep Space Exploration Handbook
 * System generation from Deepnight book
 * Communication routes
@@ -45,6 +46,7 @@
 * Import Traveller Map sector specification file
 * Complete edit of a stellar object
 * Import of Charted Space data
+  * load from github? 
 
 ## Development Notes
 
