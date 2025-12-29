@@ -40,7 +40,7 @@
       <div data-rogue-form-target="section" data-type="GasGiant" class="hidden mt-4">
         <%= df.label :size, "Gas giant size", class: "block text-sm font-semibold mb-1" %>
         <%= df.select :size,
-                      options_for_select([["Random", "random"], ["Small", "small"], ["Medium", "medium"], ["Large", "large"]], (@rogue.data || {})["size"]),
+                      options_for_select([["Random", "random"], ["Small", "GS"], ["Medium", "GM"], ["Large", "GL"]], (@rogue.data || {})["size"]),
                       { prompt: "Select a size" },
                       class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
       </div>
