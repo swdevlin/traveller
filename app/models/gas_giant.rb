@@ -4,5 +4,4 @@ class GasGiant < StellarObject
   def self.allowed_data_keys
     [:code, :has_ring]
   end
-
 end

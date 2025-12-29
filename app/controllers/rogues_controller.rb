@@ -1,6 +1,6 @@
-require "net/http"
-require "uri"
-require "json"
+require 'net/http'
+require 'uri'
+require 'json'
 
 class RoguesController < ApplicationController
   before_action :load_parent!
@@ -19,10 +19,10 @@ class RoguesController < ApplicationController
   def create
     @return_to = params[:return_to]
     @rogue = if params.dig(:stellar_object, :type) == 'GasGiant'
-               fetch_gas_giant
-             else
-               StellarObject.new(rogue_params)
-             end
+      fetch_gas_giant
+    else
+      StellarObject.new(rogue_params)
+    end
 
     if @rogue.errors.any?
       flash.now[:alert] = @rogue.errors.full_messages.to_sentence
@@ -58,7 +58,6 @@ class RoguesController < ApplicationController
   def destroy
     type = @stellar_object.type.underscore.humanize
     parsec = @stellar_object.parsec
-    
     # Try to find a subsector if it's a rogue object (no star system)
     subsector = nil
     if @stellar_object.star_system_id.nil? && parsec
@@ -69,12 +68,12 @@ class RoguesController < ApplicationController
 
     respond_to do |format|
       redirect_path = if subsector
-                        subsector_path(subsector)
-                      elsif parsec
-                        parsec_path(parsec)
-                      else
-                        stellar_objects_path
-                      end
+        subsector_path(subsector)
+      elsif parsec
+        parsec_path(parsec)
+      else
+        stellar_objects_path
+      end
 
       format.html { redirect_to redirect_path, notice: "#{type} was deleted.", status: :see_other }
       format.json { head :no_content }
@@ -126,7 +125,7 @@ class RoguesController < ApplicationController
     GasGiant.new(rogue_params.merge({
       diameter: data['diameter'],
       mass: data['mass'],
-      data: {code: data['code']}
+      data: { code: data['code'] }
       })
     )
   rescue StandardError => e
