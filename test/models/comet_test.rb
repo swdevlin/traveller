@@ -47,5 +47,4 @@ class CometTest < ActiveSupport::TestCase
 
     assert_equal note, comet.notes
   end
-
 end
