@@ -31,17 +31,17 @@ class CometTest < ActiveSupport::TestCase
     comet = Comet.create!(
       parsec: parsecs(:one),
       comet_type: 'tiny',
-      notes: ""
+      notes: ''
     )
 
     assert_equal Comet::DESCRIPTIONS['tiny'], comet.notes
   end
 
-  test "notes not changed if defined" do
+  test 'notes not changed if defined' do
     note = 'should be the same'
     comet = Comet.create!(
       parsec: parsecs(:one),
-      comet_type: "tiny",
+      comet_type: 'tiny',
       notes: note
     )
 
