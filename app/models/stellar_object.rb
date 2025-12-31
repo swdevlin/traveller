@@ -4,7 +4,7 @@ class StellarObject < ApplicationRecord
     Comet
     GasCloud
     GasGiant
-    GravityBubble
+    GravityAnomaly
     InterstellarWreck
     PhantomObject
     PlanetoidBelt

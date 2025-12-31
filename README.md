@@ -11,7 +11,7 @@
     * can edit
   * [x] Gas giant
     * can edit
-  * [x] Gravity bubble
+  * [x] Gravity anomaly
     * can edit
   * [x] Interstellar wreck
     * can edit
