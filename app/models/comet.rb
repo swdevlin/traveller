@@ -2,10 +2,10 @@ class Comet < StellarObject
   before_validation :default_notes_from_comet_type, on: :create
   store_accessor :data, :comet_type
   DESCRIPTIONS = {
-    "tiny"      => "Tiny, ice-bearing suitable for one refuelling only",
-    "medium"    => "Ice-bearing suitable for multiple refuellings",
-    "large"     => "Large",
-    "inhabited" => "Inhabited"
+    'tiny'      => 'Tiny, ice-bearing suitable for one refuelling only',
+    'medium'    => 'Ice-bearing suitable for multiple refuellings',
+    'large'     => 'Large',
+    'inhabited' => 'Inhabited'
   }.freeze
 
   validate :comet_type_is_valid
@@ -31,7 +31,7 @@ class Comet < StellarObject
     return if comet_type.blank?
 
     unless DESCRIPTIONS.key?(comet_type)
-      errors.add(:data, "comet type is invalid")
+      errors.add(:data, 'comet type is invalid')
     end
   end
 end
