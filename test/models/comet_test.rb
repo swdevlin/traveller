@@ -26,4 +26,26 @@ class CometTest < ActiveSupport::TestCase
     comet.validate
     assert_not_empty comet.errors[:data]
   end
+
+  test 'defaults notes from comet_type on create when notes is blank' do
+    comet = Comet.create!(
+      parsec: parsecs(:one),
+      comet_type: 'tiny',
+      notes: ""
+    )
+
+    assert_equal Comet::DESCRIPTIONS['tiny'], comet.notes
+  end
+
+  test "notes not changed if defined" do
+    note = 'should be the same'
+    comet = Comet.create!(
+      parsec: parsecs(:one),
+      comet_type: "tiny",
+      notes: note
+    )
+
+    assert_equal note, comet.notes
+  end
+
 end
