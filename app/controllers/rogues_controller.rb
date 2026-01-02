@@ -18,10 +18,14 @@ class RoguesController < ApplicationController
 
   def create
     @return_to = params[:return_to]
-    @rogue = if params.dig(:stellar_object, :type) == 'GasGiant'
-      fetch_gas_giant
-    else
-      StellarObject.new(rogue_params)
+
+    @rogue = case params.dig(:stellar_object, :type)
+      when 'GasGiant'
+        generate_gas_giant
+      when 'PlanetoidBelt'
+        generate_stellar_object(PlanetoidBelt)
+      else
+        StellarObject.new(rogue_params)
     end
 
     if @rogue.errors.any?
@@ -82,33 +86,38 @@ class RoguesController < ApplicationController
 
   private
 
-  def fetch_gas_giant
+  def generate_gas_giant
     size = params.dig(:stellar_object, :data, :size)
     if size.blank?
       return GasGiant.new(rogue_params).tap do |gg|
         gg.errors.add(:size, 'must be specified')
       end
     end
+
     if size == 'random'
       roller = DiceRoller.new
+      table = GasGiantSizeTable.new
       size = table.roll(dm: 0, roller: roller)
     end
 
-    uri = URI(Rails.application.config.x.generator_service)
-    uri = uri + '/gasgiant'
-    uri.query = URI.encode_www_form(size: size)
+    generate_stellar_object(GasGiant, {size: size})
+  end
+
+  def generate_stellar_object(klass, params = {})
+    base = Rails.application.config.x.generator_service
+    uri  = URI.join(base.end_with?("/") ? base : "#{base}/", klass.name.underscore)
+    uri.query = URI.encode_www_form(params) if params.present?
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 5
     http.read_timeout = 5
 
-    # response = Net::HTTP.get_response(uri)
     response = http.get(uri.request_uri)
 
     unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "GasGiant API Failure: HTTP #{response.code} - #{response.body}"
-      return GasGiant.new(rogue_params).tap do |gg|
-        gg.errors.add(:base, 'Cannot create gas giant at this time')
+      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+      return klass.new(rogue_params).tap do |so|
+        so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
       end
     end
 
@@ -116,22 +125,19 @@ class RoguesController < ApplicationController
       begin
         JSON.parse(response.body)
       rescue JSON::ParserError => e
-        Rails.logger.error "GasGiant API JSON Error: #{e.message} - Body: #{response.body}"
-        return GasGiant.new(rogue_params).tap do |gg|
-          gg.errors.add(:base, 'Cannot create gas giant at this time')
+        Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
+        return klass.new(rogue_params).tap do |so|
+          so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
         end
       end
 
-    GasGiant.new(rogue_params.merge({
-      diameter: data['diameter'],
-      mass: data['mass'],
-      data: { code: data['code'] }
-      })
-    )
+    so = klass.new(rogue_params)
+    so.assign_data_from_generator(data)
+    so
   rescue StandardError => e
-    Rails.logger.error "GasGiant unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
-    GasGiant.new(rogue_params).tap do |gg|
-      gg.errors.add(:base, 'Cannot create gas giant at this time')
+    Rails.logger.error "#{uri} unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    klass.new(rogue_params).tap do |so|
+      so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
     end
   end
 

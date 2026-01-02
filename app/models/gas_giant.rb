@@ -1,7 +1,9 @@
 class GasGiant < StellarObject
-  store_accessor :data, :code, :has_ring
+  include GeneratorMappings
 
-  def self.allowed_data_keys
-    [:code, :has_ring]
-  end
+  API_DATA_MAP = {
+    code: 'code',
+    has_ring: 'hasRing',
+  }.freeze
+
 end
