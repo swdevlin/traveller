@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module ClearableParsecs
-  extend ActiveSupport::Concern
-
   def parsec_scope
     ul, lr = universal_coordinates
     Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
