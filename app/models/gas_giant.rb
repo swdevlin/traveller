@@ -3,7 +3,6 @@ class GasGiant < StellarObject
 
   API_DATA_MAP = {
     code: 'code',
-    has_ring: 'hasRing',
+    has_ring: 'hasRing'
   }.freeze
-
 end

@@ -20,11 +20,11 @@ class RoguesController < ApplicationController
     @return_to = params[:return_to]
 
     @rogue = case params.dig(:stellar_object, :type)
-      when 'GasGiant'
+    when 'GasGiant'
         generate_gas_giant
-      when 'PlanetoidBelt'
+    when 'PlanetoidBelt'
         generate_stellar_object(PlanetoidBelt)
-      else
+    else
         StellarObject.new(rogue_params)
     end
 
@@ -100,12 +100,12 @@ class RoguesController < ApplicationController
       size = table.roll(dm: 0, roller: roller)
     end
 
-    generate_stellar_object(GasGiant, {size: size})
+    generate_stellar_object(GasGiant, { size: size })
   end
 
   def generate_stellar_object(klass, params = {})
     base = Rails.application.config.x.generator_service
-    uri  = URI.join(base.end_with?("/") ? base : "#{base}/", klass.name.underscore)
+    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", klass.name.underscore)
     uri.query = URI.encode_www_form(params) if params.present?
 
     http = Net::HTTP.new(uri.host, uri.port)

@@ -21,7 +21,7 @@ module GeneratorMappings
     end
 
     def api_data_map
-      base = { build_log: "buildLog" }
+      base = { build_log: 'buildLog' }
       base.merge(const_get(:API_DATA_MAP))
     rescue NameError
       base
