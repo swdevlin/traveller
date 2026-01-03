@@ -47,3 +47,4 @@
 /solid/*
 
 /node_modules/*
+/vendor/bundle
