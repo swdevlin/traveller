@@ -1,5 +1,9 @@
 class StarSystem < ApplicationRecord
-  validates :parsec, presence: true
-  has_many :stellar_objects, dependent: :destroy
   belongs_to :parsec
+  has_many :stellar_objects, dependent: :destroy
+  has_many :stars, class_name: 'Star'
+
+  def table_description
+    stars.map(&:spectral_classification).join(', ')
+  end
 end

@@ -32,6 +32,15 @@ class Subsector < ApplicationRecord
       .order('parsecs.x ASC, parsecs.y DESC')
   end
 
+  def star_systems
+    ul, lr = universal_coordinates
+    in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }
+    StarSystem
+      .joins(:parsec)
+      .where(parsecs: in_subsector)
+      .order('parsecs.x ASC, parsecs.y DESC')
+  end
+
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
   end

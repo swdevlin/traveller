@@ -8,16 +8,19 @@ class StellarObject < ApplicationRecord
     InterstellarWreck
     PhantomObject
     PlanetoidBelt
+    Planetoid
     RadiationCloud
     Relic
     SpaceStation
     TerrestrialPlanet
+    Star
     UnusualObject
   ].freeze
 
   belongs_to :parsec, optional: true
   belongs_to :star_system, optional: true
-  belongs_to :parent, class_name: 'StellarObject', optional: true
+  belongs_to :orbiting, class_name: 'StellarObject', optional: true
+  has_many :stellar_objects, class_name: 'StellarObject', foreign_key: :orbiting_id, dependent: :nullify
 
   validate :parsec_or_star_system_required
   validates :type, inclusion: { in: STI_TYPES }

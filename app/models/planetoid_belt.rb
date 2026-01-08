@@ -1,7 +1,7 @@
 class PlanetoidBelt < StellarObject
   include GeneratorMappings
 
-  API_DATA_MAP = {
+  generator_data_map(
     m_type: 'mType',
     s_type: 'sType',
     c_type: 'cType',
@@ -9,5 +9,6 @@ class PlanetoidBelt < StellarObject
     resource_rating: 'resourceRating',
     bulk: 'bulk',
     span: 'span'
-  }.freeze
+  )
+
 end

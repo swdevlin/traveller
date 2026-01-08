@@ -3,12 +3,14 @@ Rails.application.routes.draw do
 
   resources :parsecs, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]
+    resources :star_systems, only: %i[new create index destroy]
   end
 
   resources :star_systems
 
   resources :subsectors, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]
+    resources :star_systems, only: %i[new create index destroy]
   end
 
   resources :sectors do
@@ -16,6 +18,7 @@ Rails.application.routes.draw do
       post :clear
     end
     resources :rogues, only: %i[index new create destroy]
+    resources :star_systems, only: %i[new create index destroy]
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

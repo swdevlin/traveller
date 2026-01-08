@@ -1,0 +1,137 @@
+{
+  "stars": [
+    {
+      "orbitPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "inclination": 0,
+      "eccentricity": 0,
+      "effectiveHZCODeviation": 0,
+      "orbit": 0,
+      "buildLog": [],
+      "stellarClass": "V",
+      "stellarType": "M",
+      "isProtostar": false,
+      "subtype": 5,
+      "totalObjects": 12,
+      "orbitType": 0,
+      "mass": 0.16,
+      "diameter": 0.2,
+      "temperature": 3000,
+      "age": 2.96,
+      "colour": "Orange Red",
+      "companion": {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "inclination": 0,
+        "eccentricity": 0.0022816153076998043,
+        "effectiveHZCODeviation": 0,
+        "orbit": 0.32999999999999996,
+        "buildLog": [],
+        "stellarClass": "V",
+        "stellarType": "M",
+        "isProtostar": false,
+        "subtype": 5,
+        "totalObjects": 0,
+        "orbitType": 4,
+        "mass": 0.16,
+        "diameter": 0.2,
+        "temperature": 3000,
+        "age": 4.44,
+        "colour": "Orange Red",
+        "companion": null,
+        "period": 0.08477853501918983,
+        "baseline": 0,
+        "emptyOrbits": 0,
+        "spread": 1,
+        "availableOrbits": [],
+        "stellarObjects": [],
+        "occupiedOrbits": [],
+        "orbitSequence": ""
+      },
+      "period": 0,
+      "baseline": 1,
+      "emptyOrbits": 1,
+      "spread": 0.5022816153076998,
+      "availableOrbits": [
+        [
+          0.5022816153076998,
+          20
+        ]
+      ],
+      "stellarObjects": [
+        {
+          "orbitPosition": {
+            "x": 0,
+            "y": 0
+          },
+          "inclination": 0,
+          "eccentricity": 0,
+          "effectiveHZCODeviation": -3.470142180837711,
+          "orbit": 0.8538787460230897,
+          "buildLog": [
+            "composition roll 6",
+            "effectiveHZCODeviation DM -4",
+            "bulk roll 2",
+            "resource rating roll 6"
+          ],
+          "moons": [],
+          "orbitType": 12,
+          "mType": 65,
+          "sType": 20,
+          "cType": 3,
+          "oType": 12,
+          "span": 0.30136896918461986,
+          "bulk": 1,
+          "resourceRating": 6,
+          "significantBodies": [],
+          "atmosphere": {
+            "code": 0,
+            "irritant": false,
+            "taint": {
+              "subtype": "",
+              "code": "",
+              "severity": 0,
+              "persistence": 0
+            },
+            "characteristic": "",
+            "bar": 0,
+            "gasType": null,
+            "density": "None",
+            "hazardCode": null
+          },
+          "hydrographics": {
+            "code": 0,
+            "distribution": null
+          },
+          "population": {
+            "code": 0,
+            "concentrationRating": null
+          },
+          "governmentCode": 0,
+          "lawLevelCode": 0,
+          "starPort": "X",
+          "techLevel": 0,
+          "size": 0,
+          "period": 0.35286558468340834
+        }
+      ]
+    }
+  ],
+  "gasGiants": 1,
+  "planetoidBelts": 2,
+  "terrestrialPlanets": 9,
+  "sector": null,
+  "coordinates": null,
+  "remainingOrbits": [],
+  "name": "New Star System",
+  "scanPoints": 0,
+  "_mainWorld": null,
+  "bases": "",
+  "remarks": "",
+  "surveyIndex": 0,
+  "allegiance": null
+}
