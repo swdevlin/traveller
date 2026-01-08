@@ -17,8 +17,10 @@ module ParentHex
         "#{@parsec.sector.name} #{@parsec.hex_code}"
       elsif @subsector
         "#{@subsector.name}, #{@subsector.sector.name}"
-      else
+      elsif @sector
         @sector.name
+      else
+        ''
       end
   end
 
@@ -37,13 +39,18 @@ module ParentHex
         [@parsec]
       elsif @subsector
         @subsector.parsecs.includes(:sector)
-      else
+      elsif @sector
         @sector.parsecs.includes(:sector)
       end
 
-    @parsecs = scope.sort_by(&:hex_code)
+    if scope
+      @parsecs = scope.sort_by(&:hex_code)
 
-    label_method = @subsector ? :subsector_hex_code : :hex_code
-    @parsec_options = @parsecs.map { |p| [p.public_send(label_method), p.id] }
+      label_method = @subsector ? :subsector_hex_code : :hex_code
+      @parsec_options = @parsecs.map { |p| [p.public_send(label_method), p.id] }
+    else
+      @parsecs = []
+      @parsec_options = []
+    end
   end
 end

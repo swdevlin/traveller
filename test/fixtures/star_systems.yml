@@ -1,16 +1,16 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+in_one:
   name: In One
   parsec: one
   meta: {}
 
-two:
+in_two:
   name: in Two
   parsec: two
   meta: {}
 
-three:
+also_in_one:
   name: Second in One
   parsec: one
   meta: {}
