@@ -3,7 +3,7 @@ require 'test_helper'
 class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @parsec = parsecs(:one)
-    @star_system = star_systems(:one)
+    @star_system = star_systems(:in_one)
     @stellar_object = stellar_objects(:one)
     @gas_giant = gas_giants(:small)
   end
