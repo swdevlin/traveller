@@ -21,6 +21,6 @@ module OrbitType
     VALUES[:primary] => Star,
     VALUES[:close] => Star,
     VALUES[:near] => Star,
-    VALUES[:far] => Star,
+    VALUES[:far] => Star
   }.freeze
 end

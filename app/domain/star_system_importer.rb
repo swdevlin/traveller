@@ -41,5 +41,4 @@ class StarSystemImporter
       end
     end
   end
-
 end

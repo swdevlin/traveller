@@ -4,7 +4,6 @@ require 'test_helper'
 require 'json'
 
 class StarSystemImporterTest < ActiveSupport::TestCase
-
   def setup
     super
     @importer = StarSystemImporter.new
@@ -56,5 +55,4 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 2, primary.stellar_objects.count
     assert_equal 1, secondary.stellar_objects.count
   end
-
 end

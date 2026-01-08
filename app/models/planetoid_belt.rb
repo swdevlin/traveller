@@ -10,5 +10,4 @@ class PlanetoidBelt < StellarObject
     bulk: 'bulk',
     span: 'span'
   )
-
 end

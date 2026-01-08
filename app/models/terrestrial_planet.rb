@@ -11,5 +11,4 @@ class TerrestrialPlanet < StellarObject
     retrograde: 'retrograde',
     biomass_rating: 'biomassRating',
   )
-
 end

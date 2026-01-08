@@ -46,7 +46,4 @@ module ParentHex
     label_method = @subsector ? :subsector_hex_code : :hex_code
     @parsec_options = @parsecs.map { |p| [p.public_send(label_method), p.id] }
   end
-
-
 end
-

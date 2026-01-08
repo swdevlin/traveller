@@ -63,9 +63,9 @@ class StarSystemsController < ApplicationController
     return_to = params[:return_to].presence
 
     if return_to && URI.parse(return_to).host.nil?
-      redirect_to return_to, notice: "Star system created."
+      redirect_to return_to, notice: 'Star system created.'
     else
-      redirect_to fallback_return_path, notice: "Star system created."
+      redirect_to fallback_return_path, notice: 'Star system created.'
     end
   end
 
@@ -107,13 +107,13 @@ class StarSystemsController < ApplicationController
   end
 
   def generate_star_system
-    definition = {name: star_system_params[:name]}
+    definition = { name: star_system_params[:name] }
     unless params.dig(:star_system, :random_star) == '1'
       # set up the primary
     end
 
     base = Rails.application.config.x.generator_service
-    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", "star_system")
+    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'star_system')
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 50
@@ -128,7 +128,7 @@ class StarSystemsController < ApplicationController
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
       return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:base, "Cannot create star system at this time")
+        so.errors.add(:base, 'Cannot create star system at this time')
       end
     end
 
@@ -138,7 +138,7 @@ class StarSystemsController < ApplicationController
       rescue JSON::ParserError => e
         Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
         return StarSystem.new(star_system_params).tap do |so|
-          so.errors.add(:base, "Cannot create star system at this time")
+          so.errors.add(:base, 'Cannot create star system at this time')
         end
       end
 
@@ -177,5 +177,4 @@ class StarSystemsController < ApplicationController
       root_path
     end
   end
-
 end
