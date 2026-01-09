@@ -18,6 +18,12 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should create star_system' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
     assert_difference('StarSystem.count') do
       post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', random: '1', parsec_id: @parsec.id } }
     end

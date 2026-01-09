@@ -156,5 +156,4 @@ class StarSystemsController < ApplicationController
         polymorphic_path([@subsector || @sector, :star_systems])
       end
   end
-
 end
