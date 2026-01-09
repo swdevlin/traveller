@@ -1,14 +1,13 @@
 <div id="<%= dom_id star_system %>" class="w-full sm:w-auto my-5 space-y-5">
   <div>
-    <strong class="block font-medium mb-1">Parsec:</strong>
-    <%= star_system.parsec_id %>
+    <%= link_to star_system.parsec.subsector.name, subsector_path(star_system.parsec.subsector) %> subsector
+    <strong class="block font-medium mb-1"><%= link_to star_system.parsec.sector.name, subsector_path(star_system.parsec.subsector) %> <%= star_system.parsec.hex_code %></strong>
   </div>
   <div>
-    <strong class="block font-medium mb-1">Name:</strong>
-    <%= star_system.name %>
+    <strong class="block font-medium mb-1">System</strong>
   </div>
   <div>
-    <strong class="block font-medium mb-1">Meta:</strong>
-    <%= star_system.meta %>
+    <strong class="block font-medium mb-1">Notes</strong>
+    <%= star_system.notes %>
   </div>
 </div>
