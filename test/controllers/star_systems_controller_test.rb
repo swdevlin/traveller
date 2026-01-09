@@ -4,7 +4,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @star_system = star_systems(:in_one)
     @parsec = parsecs(:one)
-    @subsector = subsectors(:one)
+    @subsector = subsectors(:subsector_1_1)
   end
 
   test 'should get index' do
@@ -19,10 +19,11 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create star_system' do
     assert_difference('StarSystem.count') do
-      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'new system', random: '1', parsec_id: @parsec.id } }
+      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', random: '1', parsec_id: @parsec.id } }
     end
 
-    assert_redirected_to subsector_url(@subsector)
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
   end
 
   test 'should show star_system' do

@@ -9,6 +9,18 @@ class Parsec < ApplicationRecord
     message: 'parsec already exists'
   }
 
+  def subsector
+    ul = sector.upper_left
+    hx = (x - ul.x)
+    hy = (ul.y - y)
+    sx, sy = subsector_xy_for_parsec(hx, hy)
+    sector.subsectors.find_by(x: sx, y: sy)
+  end
+
+  def subsector_xy_for_parsec(x, y)
+    [(x / 8) + 1, (y / 10) + 1]
+  end
+
   def hex_code
     ul = sector.upper_left
     hx = (x - ul.x) + 1

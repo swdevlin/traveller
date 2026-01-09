@@ -1,13 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
+<% (1..4).each do |y| %>
+<% (1..4).each do |x| %>
+subsector_<%= x %>_<%= y %>:
+  name: "Subsector <%= ('A'..'P').to_a[(y-1)*4 + (x-1)] %>"
   sector: one
-  x: 1
-  'y': 1
+  x: <%= x %>
+  y: <%= y %>
 
-two:
-  name: MyString
-  sector: one
-  x: 1
-  'y': 2
+subsector_2_<%= x %>_<%= y %>:
+  name: "Subsector <%= ('A'..'P').to_a[(y-1)*4 + (x-1)] %>"
+  sector: two
+  x: <%= x %>
+  y: <%= y %>
+<% end %>
+<% end %>

@@ -2,7 +2,7 @@ require 'test_helper'
 
 class SubsectorsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @subsector = subsectors(:one)
+    @subsector = subsectors(:subsector_1_1)
     @sector = sectors(:one)
   end
 

@@ -60,19 +60,13 @@ class StarSystemsController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    return_to = params[:return_to].presence
-
-    if return_to && URI.parse(return_to).host.nil?
-      redirect_to return_to, notice: 'Star system created.'
-    else
-      redirect_to fallback_return_path, notice: 'Star system created.'
-    end
+    redirect_to @star_system, notice: 'Star system created.'
   end
 
   # PATCH/PUT /star_systems/1 or /star_systems/1.json
   def update
     respond_to do |format|
-      if @star_system.update(star_system_params)
+      if @star_system.update(star_system_edit_params)
         format.html { redirect_to @star_system, notice: 'Star system was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @star_system }
       else
@@ -93,13 +87,6 @@ class StarSystemsController < ApplicationController
   end
 
   private
-
-  def after_create_path
-    return parsec_path(@parsec) if @parsec
-    return subsector_path(@subsector) if @subsector
-    return sector_path(@sector) if @sector
-    sectors_path
-  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_star_system
@@ -147,6 +134,10 @@ class StarSystemsController < ApplicationController
     @star_system = importer.import!(@parsec, data)
   end
 
+  def star_system_edit_params
+    params.expect(star_system: [:name, :notes])
+  end
+
   def star_system_params
     params.expect(star_system: [:name, :parsec_id, :notes])
   end
@@ -166,15 +157,4 @@ class StarSystemsController < ApplicationController
       end
   end
 
-  def fallback_return_path
-    if params[:subsector_id]
-      subsector_path(params[:subsector_id])
-    elsif params[:sector_id]
-      sector_path(params[:sector_id])
-    elsif params[:parsec_id]
-      parsec_path(params[:parsec_id])
-    else
-      root_path
-    end
-  end
 end

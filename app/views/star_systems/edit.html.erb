@@ -1,6 +1,8 @@
-<h1 class='text-3xl font-bold mb-6'>
-  <i class='fa-solid fa-pen-to-square mr-2 text-slate-300'></i>
-  Edit star system <span class='text-slate-200'><%= @star_system.name %></span>
-</h1>
+<div class='flex flex-col gap-6'>
+  <h1 class='text-3xl font-bold mb-6'>
+    <i class='fa-solid fa-pen-to-square mr-2 text-slate-300'></i>
+    Edit star system in <span class='text-slate-200'><%= @star_system.parsec.sector.name %> <%= @star_system.parsec.hex_code %></span>
+  </h1>
 
-<%= render 'form' %>
+  <%= render 'form' %>
+</div>
