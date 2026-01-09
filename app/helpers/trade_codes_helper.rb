@@ -1,0 +1,2 @@
+module TradeCodesHelper
+end

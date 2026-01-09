@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :trade_codes
   resources :stellar_objects
 
   resources :parsecs, only: %i[index show edit update] do
