@@ -40,6 +40,8 @@ module GeneratorMappings
     self.orbit_y = payload['orbitY']
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']
+    self.orbit_sequence = payload.fetch('orbitSequence', nil)
+    self.uwp = payload.fetch('uwp', nil)
 
     self.data ||= {}
     self.data = merge ? self.data.merge(mapped) : mapped

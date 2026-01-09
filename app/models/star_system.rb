@@ -1,9 +1,52 @@
 class StarSystem < ApplicationRecord
   belongs_to :parsec
+  belongs_to :main_world, class_name: 'StellarObject', optional: true
   has_many :stellar_objects, dependent: :destroy
   has_many :stars, class_name: 'Star'
+  has_many :gas_giants, class_name: 'GasGiant'
+  has_many :star_system_trade_codes, dependent: :destroy
+  has_many :trade_codes, through: :star_system_trade_codes
+
+  validate :main_world_must_be_in_system
 
   def table_description
     stars.map(&:spectral_classification).join(', ')
+  end
+
+  def trade_codes_string
+    trade_codes.order(:code).pluck(:code).join(' ')
+  end
+
+  def has_gas_giant?
+    @has_gas_giant ||= gas_giants.exists?
+  end
+
+  def main_world_uwp
+    return nil if main_world_id.nil?
+
+    @main_world_uwp ||= StellarObject.where(id: main_world_id).pick(:uwp)
+  end
+
+  def pbg
+    "#{HexDigit.hex_digit(terrestrial_count)}#{HexDigit.hex_digit(belt_count)}#{HexDigit.hex_digit(gas_giant_count)}"
+  end
+
+  def recalculate_world_counts!
+    counts = stellar_objects.group(:type).count
+
+    update!(
+      terrestrial_count: counts.fetch('TerrestrialPlanet', 0),
+      belt_count: counts.fetch('PlanetoidBelt', 0),
+      gas_giant_count: counts.fetch('GasGiant', 0)
+    )
+  end
+
+  private
+
+  def main_world_must_be_in_system
+    return unless main_world
+    return if stellar_objects.exists?(id: main_world_id)
+
+    errors.add(:main_world, 'must be in system')
   end
 end

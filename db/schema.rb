@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_06_194321) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_09_203202) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -66,15 +66,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_194321) do
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
+  create_table "star_system_trade_codes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "star_system_id", null: false
+    t.integer "trade_code_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["star_system_id", "trade_code_id"], name: "idx_on_star_system_id_trade_code_id_9139c73bd8", unique: true
+    t.index ["star_system_id"], name: "index_star_system_trade_codes_on_star_system_id"
+    t.index ["trade_code_id"], name: "index_star_system_trade_codes_on_trade_code_id"
+  end
+
   create_table "star_systems", force: :cascade do |t|
+    t.integer "belt_count", default: 0, null: false
     t.json "build_log"
     t.datetime "created_at", null: false
+    t.integer "gas_giant_count", default: 0, null: false
+    t.integer "main_world_id"
     t.json "meta"
     t.string "name"
     t.text "notes"
     t.integer "parsec_id", null: false
+    t.integer "terrestrial_count", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
+  end
+
+  create_table "stellar_object_trade_codes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "stellar_object_id", null: false
+    t.integer "trade_code_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stellar_object_id", "trade_code_id"], name: "idx_on_stellar_object_id_trade_code_id_0e62e9d1bb", unique: true
+    t.index ["stellar_object_id"], name: "index_stellar_object_trade_codes_on_stellar_object_id"
+    t.index ["trade_code_id"], name: "index_stellar_object_trade_codes_on_trade_code_id"
   end
 
   create_table "stellar_objects", force: :cascade do |t|
@@ -91,6 +116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_194321) do
     t.string "name"
     t.text "notes"
     t.float "orbit"
+    t.string "orbit_sequence"
     t.integer "orbit_x"
     t.integer "orbit_y"
     t.integer "orbiting_id"
@@ -99,6 +125,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_194321) do
     t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false
+    t.string "uwp"
     t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
     t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
@@ -121,10 +148,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_06_194321) do
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
   end
 
+  create_table "trade_codes", force: :cascade do |t|
+    t.string "code", limit: 2, null: false
+    t.datetime "created_at", null: false
+    t.string "definition", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_trade_codes_on_code", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "parsecs", "sectors"
+  add_foreign_key "star_system_trade_codes", "star_systems"
+  add_foreign_key "star_system_trade_codes", "trade_codes"
   add_foreign_key "star_systems", "parsecs"
+  add_foreign_key "star_systems", "stellar_objects", column: "main_world_id"
+  add_foreign_key "stellar_object_trade_codes", "stellar_objects"
+  add_foreign_key "stellar_object_trade_codes", "trade_codes"
   add_foreign_key "stellar_objects", "parsecs"
   add_foreign_key "stellar_objects", "star_systems"
   add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id"

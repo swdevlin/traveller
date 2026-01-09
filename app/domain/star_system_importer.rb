@@ -11,15 +11,33 @@ class StarSystemImporter
       @star_system.name = data['name']
       @star_system.save!
 
-      primary_data = data['stars'][0]
+      set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
+
+      primary_data = data['primaryStar']
       primary = Star.new
       primary.star_system = @star_system
       import_star(primary, primary_data)
+      @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
+      @star_system.save!
     end
     @star_system
   end
 
   private
+
+  def set_star_system_trade_codes(codes)
+    return if codes.nil?
+    codes.each do |code|
+      StarSystemTradeCode.create!(star_system: @star_system, trade_code: TradeCode.find_by(code: code))
+    end
+  end
+
+  def set_stellar_object_trade_codes(so, codes)
+    return if codes.nil?
+    codes.each do |code|
+      StellarObjectTradeCode.create!(stellar_object: so, trade_code: TradeCode.find_by(code: code))
+    end
+  end
 
   def import_star(star, data)
     star.assign_data_from_generator(data)
@@ -38,6 +56,7 @@ class StarSystemImporter
       else
         so.assign_data_from_generator(so_data)
         so.save!
+        set_stellar_object_trade_codes(so, so_data['tradeCodes'])
       end
     end
   end
