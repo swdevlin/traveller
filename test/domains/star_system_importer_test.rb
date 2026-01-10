@@ -21,7 +21,7 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     end
 
     assert_equal @parsec, star_system.parsec
-    assert_equal 'New Star System', star_system.name
+    assert_equal 'Kiusah', star_system.name
   end
 
   test 'every stellar object in a star system points to the star system' do

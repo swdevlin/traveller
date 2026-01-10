@@ -3,16 +3,16 @@ require_relative '../config/environment'
 require 'rails/test_help'
 require 'webmock/minitest'
 
+require_relative '../db/seed_data/trade_codes'
+
 WebMock.disable_net_connect!(allow_localhost: true)
 
-module ActiveSupport
-  class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors)
+class ActiveSupport::TestCase
+  parallelize(workers: :number_of_processors)
 
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
+  dupes = TRADE_CODES.group_by { |h| h[:code] }.select { |_k, v| v.size > 1 }.keys
+  raise "Duplicate trade codes in TRADE_CODES: #{dupes.join(', ')}" if dupes.any?
 
-    # Add more helper methods to be used by all tests here...
-  end
+  fixtures :all
+
 end

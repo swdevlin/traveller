@@ -1,1704 +1,928 @@
 {
-  "stars": [
-    {
-      "orbitPosition": {
-        "x": 0,
-        "y": 0
-      },
-      "inclination": 0,
-      "eccentricity": 0,
-      "effectiveHZCODeviation": 0,
-      "orbit": 0,
-      "buildLog": [],
-      "stellarClass": "V",
-      "stellarType": "M",
-      "isProtostar": false,
-      "subtype": 5,
-      "totalObjects": 12,
-      "orbitType": 0,
-      "mass": 0.16,
-      "diameter": 0.2,
-      "temperature": 3000,
-      "age": 2.96,
-      "colour": "Orange Red",
-      "companion": {
+  "gasGiants": 2,
+  "planetoidBelts": 0,
+  "terrestrialPlanets": 5,
+  "sector": null,
+  "coordinates": null,
+  "remainingOrbits": [],
+  "name": "Kiusah",
+  "scanPoints": 0,
+  "bases": "",
+  "remarks": "",
+  "surveyIndex": 0,
+  "allegiance": null,
+  "mainWorldOrbitSequence": "Aa II",
+  "x": null,
+  "y": null,
+  "totalObjects": 7,
+  "primaryStar": {
+    "orbitPosition": {
+      "x": 0,
+      "y": 0
+    },
+    "inclination": 0,
+    "eccentricity": 0,
+    "effectiveHZCODeviation": 0,
+    "orbit": 0,
+    "buildLog": [],
+    "stellarClass": "V",
+    "stellarType": "K",
+    "isProtostar": false,
+    "subtype": 3,
+    "totalObjects": 5,
+    "orbitType": 0,
+    "mass": 0.8,
+    "diameter": 0.9,
+    "temperature": 5200,
+    "age": 0.63,
+    "colour": "Light Orange",
+    "companion": null,
+    "period": 0,
+    "baseline": 2,
+    "emptyOrbits": 0,
+    "spread": 1.0907669831994158,
+    "availableOrbits": [
+      [
+        4,
+        11.9
+      ],
+      [
+        15.9,
+        20
+      ]
+    ],
+    "stellarObjects": [
+      {
         "orbitPosition": {
           "x": 0,
           "y": 0
         },
         "inclination": 0,
-        "eccentricity": 0.0022816153076998043,
+        "eccentricity": 0.6721448432584363,
         "effectiveHZCODeviation": 0,
-        "orbit": 0.32999999999999996,
+        "orbit": 1,
         "buildLog": [],
         "stellarClass": "V",
-        "stellarType": "M",
+        "stellarType": "K",
         "isProtostar": false,
-        "subtype": 5,
+        "subtype": 3,
         "totalObjects": 0,
-        "orbitType": 4,
-        "mass": 0.16,
-        "diameter": 0.2,
-        "temperature": 3000,
-        "age": 4.44,
-        "colour": "Orange Red",
+        "orbitType": 1,
+        "mass": 0.8,
+        "diameter": 0.9,
+        "temperature": 5200,
+        "age": 1.05,
+        "colour": "Light Orange",
         "companion": null,
-        "period": 0.08477853501918983,
-        "baseline": 0,
+        "period": 0.28284271247461906,
+        "baseline": 7,
         "emptyOrbits": 0,
         "spread": 1,
         "availableOrbits": [],
         "stellarObjects": [],
         "occupiedOrbits": [],
-        "orbitSequence": ""
+        "orbitSequence": "Aa",
+        "jump": 2.4581502451939863,
+        "minimumOrbit": null,
+        "isAnomaly": false,
+        "isCompanion": false,
+        "minimumAllowableOrbit": 0.02,
+        "luminosity": 0.5335720890574503,
+        "totalLuminosity": 0.5335720890574503,
+        "hzco": 2.1015339663988315,
+        "jumpShadow": 0.8374450735581959,
+        "totalOrbits": 0,
+        "au": 0.4,
+        "safeJumpTime": "1m"
       },
-      "period": 0,
-      "baseline": 1,
-      "emptyOrbits": 1,
-      "spread": 0.5022816153076998,
-      "availableOrbits": [
-        [
-          0.5022816153076998,
-          20
-        ]
-      ],
-      "stellarObjects": [
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 0,
-          "eccentricity": 0,
-          "effectiveHZCODeviation": -3.470142180837711,
-          "orbit": 0.8538787460230897,
-          "buildLog": [
-            "composition roll 6",
-            "effectiveHZCODeviation DM -4",
-            "bulk roll 2",
-            "resource rating roll 6"
-          ],
-          "moons": [],
-          "orbitType": 12,
-          "mType": 65,
-          "sType": 20,
-          "cType": 3,
-          "oType": 12,
-          "span": 0.30136896918461986,
-          "bulk": 1,
-          "resourceRating": 6,
-          "significantBodies": [],
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 0,
-            "gasType": null,
-            "density": "None",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": null
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "size": 0,
-          "period": 0.35286558468340834
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
+        "inclination": 7,
+        "eccentricity": 0.012342599747602535,
+        "effectiveHZCODeviation": 0.7726135865595325,
+        "orbit": 1.328920379839299,
+        "buildLog": [],
+        "sizeVariance": 554,
+        "size": 5,
+        "period": 0.2783991201437518,
+        "composition": "Mostly Rock",
+        "retrograde": false,
+        "trojanOffset": null,
+        "axialTilt": 11.086225950513635,
+        "moons": [],
+        "biomassRating": -1,
+        "biocomplexityCode": 1,
+        "biodiversityRating": 2,
+        "compatibilityRating": 0,
+        "resourceRating": 4,
+        "hasRing": false,
+        "orbitType": 11,
+        "atmosphere": {
+          "code": 4,
+          "irritant": false,
+          "taint": {
+            "subtype": "Biological",
+            "code": "B",
+            "severity": 5,
+            "persistence": 5
           },
-          "inclination": 3,
-          "eccentricity": 0.253854260907106,
-          "effectiveHZCODeviation": -5.836688041281206,
-          "orbit": 1.3059321998000195,
-          "buildLog": [],
-          "sizeVariance": 1921,
-          "size": 1,
-          "period": 0.60965038767076,
-          "composition": "Mostly Rock",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 11.606817936359409,
-          "moons": [],
-          "biomassRating": 0,
-          "biocomplexityCode": 0,
-          "biodiversityRating": 0,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 0.7210311109813796,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.24000000000000002,
-          "density": 0.491324682943193,
-          "greenhouse": 0,
-          "meanTemperature": 838,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+          "characteristic": "",
+          "bar": 0.6469423837044934,
+          "gasType": null,
+          "density": "Thin",
+          "hazardCode": null
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 14,
-          "eccentricity": 0.3124266419583632,
-          "effectiveHZCODeviation": -8.99208252187253,
-          "orbit": 1.9086701381692592,
-          "buildLog": [],
-          "sizeVariance": 1712,
-          "size": 7,
-          "period": 0.9751272971488053,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 4.915099319485099,
-          "moons": [],
-          "biomassRating": 0,
-          "biocomplexityCode": 0,
-          "biodiversityRating": 0,
-          "compatibilityRating": 0,
-          "resourceRating": 9,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 12,
-            "irritant": true,
-            "taint": {
-              "subtype": "Low Oxygen",
-              "code": "L",
-              "severity": 9,
-              "persistence": 9
-            },
-            "characteristic": "",
-            "bar": 7.109827677370987,
-            "gasType": null,
-            "density": "Very Dense",
-            "hazardCode": "T"
-          },
-          "hydrographics": {
-            "code": 10,
-            "distribution": 1
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.32,
-          "density": 0.8432322750270789,
-          "greenhouse": 6.043298063729389,
-          "meanTemperature": 1438,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "hydrographics": {
+          "code": 1,
+          "distribution": 6
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 1,
-          "eccentricity": 0.05352545889525063,
-          "effectiveHZCODeviation": -10.97738565821828,
-          "orbit": 2.2878992731631107,
-          "buildLog": [],
-          "sizeVariance": 1422,
-          "size": "S",
-          "period": 1.232722251648718,
-          "composition": "Mostly Rock",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 7.11672462848318,
-          "moons": [],
-          "biomassRating": -1,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.1788538631047019,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.12,
-          "density": 0.48997999368697465,
-          "greenhouse": 0,
-          "meanTemperature": 1338,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "population": {
+          "code": 0,
+          "concentrationRating": null
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 9,
-          "eccentricity": 0.30771700859650386,
-          "effectiveHZCODeviation": -11.144030161502673,
-          "orbit": 2.319731414902605,
-          "buildLog": [],
-          "sizeVariance": -353,
-          "size": "S",
-          "period": 1.255245481058638,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 1.7813910855381327,
-          "moons": [],
-          "biomassRating": -3,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.2385883283124355,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 1,
-            "distribution": 7
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.04,
-          "density": 0.8180753720044532,
-          "greenhouse": 0,
-          "meanTemperature": 1338,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "governmentCode": 0,
+        "lawLevelCode": 0,
+        "starPort": "X",
+        "techLevel": 0,
+        "tradeCodes": [],
+        "albedo": 0.27,
+        "density": 0.5190518552612098,
+        "greenhouse": 0.46752913883236524,
+        "meanTemperature": 278,
+        "nativeSophont": false,
+        "extinctSophont": false,
+        "habitabilityRating": 4,
+        "orbitSequence": "Aa II",
+        "uwp": "X541000-0",
+        "diameter": 8554,
+        "gravity": 0.3480691102151449,
+        "mass": 0.1565218432845104,
+        "escapeVelocity": 5.404243690518424,
+        "jumpShadow": 855400,
+        "au": 0.4986761139517897,
+        "safeJumpTime": "16m"
+      },
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 12,
-          "eccentricity": 0.06895023864088239,
-          "effectiveHZCODeviation": -11.275044081798509,
-          "orbit": 2.344757464958313,
-          "buildLog": [],
-          "sizeVariance": 1717,
-          "size": "S",
-          "period": 1.2730481756416534,
-          "composition": "Mostly Rock",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 8.61523308708855,
-          "moons": [],
-          "biomassRating": -4,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.2835252543858005,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.2,
-          "density": 0.4930905546669044,
-          "greenhouse": 0,
-          "meanTemperature": 1388,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "inclination": 0,
+        "eccentricity": 0.05155083702810682,
+        "effectiveHZCODeviation": -2.989233016800584,
+        "orbit": 5.090766983199416,
+        "buildLog": [],
+        "code": "GS",
+        "diameter": 5568000,
+        "mass": 20,
+        "moons": [],
+        "hasRing": false,
+        "orbitType": 10,
+        "trojanOffset": null,
+        "axialTilt": 9.075212966790918,
+        "period": 4.144617806886645,
+        "orbitSequence": "Aa III",
+        "jumpShadow": 556800000,
+        "au": 3.017840759678597,
+        "safeJumpTime": "6h 38m"
+      },
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
+        "inclination": 8,
+        "eccentricity": 0.5245689257814251,
+        "effectiveHZCODeviation": -3.861846603360117,
+        "orbit": 5.963380569758948,
+        "buildLog": [],
+        "sizeVariance": -424,
+        "size": 4,
+        "period": 9.137780531346632,
+        "composition": "Rock and Metal",
+        "retrograde": false,
+        "trojanOffset": null,
+        "axialTilt": 121.21074476843071,
+        "moons": [],
+        "biomassRating": -6,
+        "biocomplexityCode": 1,
+        "biodiversityRating": 1,
+        "compatibilityRating": 0,
+        "resourceRating": 5,
+        "hasRing": false,
+        "orbitType": 11,
+        "atmosphere": {
+          "code": 1,
+          "irritant": false,
+          "taint": {
+            "subtype": "",
+            "code": "",
+            "severity": 0,
+            "persistence": 0
           },
-          "inclination": 0,
-          "eccentricity": 0,
-          "effectiveHZCODeviation": -11.621577922365303,
-          "orbit": 2.410951753476959,
-          "buildLog": [
-            "composition roll 10",
-            "effectiveHZCODeviation DM -4",
-            "bulk roll 3",
-            "resource rating roll 5"
-          ],
-          "moons": [],
-          "orbitType": 12,
-          "mType": 5,
-          "sType": 45,
-          "cType": 10,
-          "oType": 40,
-          "span": 0.2511408076538499,
-          "bulk": 3,
-          "resourceRating": 2,
-          "significantBodies": [],
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 0,
-            "gasType": null,
-            "density": "None",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": null
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "size": 0,
-          "period": 1.3205374775973295
+          "characteristic": "",
+          "bar": 0.05890393649219664,
+          "gasType": null,
+          "density": "Trace",
+          "hazardCode": null
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 6,
-          "eccentricity": 0.08589236298813824,
-          "effectiveHZCODeviation": -11.958014725668603,
-          "orbit": 2.475217323586141,
-          "buildLog": [],
-          "sizeVariance": 1507,
-          "size": "S",
-          "period": 1.3671944451190008,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 0.05704474769245306,
-          "moons": [],
-          "biomassRating": -3,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 3,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.3527084529725046,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.14,
-          "density": 0.7913846163584871,
-          "greenhouse": 0,
-          "meanTemperature": 1438,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "hydrographics": {
+          "code": 0,
+          "distribution": 0
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 2.5,
-          "eccentricity": 0.5992073267280125,
-          "effectiveHZCODeviation": -12.135536811822085,
-          "orbit": 2.509127282192364,
-          "buildLog": [],
-          "sizeVariance": 1440,
-          "size": "S",
-          "period": 1.392029941753633,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 4.666615169048404,
-          "moons": [],
-          "biomassRating": -6,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.1126100849163305,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.06,
-          "density": 0.836099113326449,
-          "greenhouse": 0,
-          "meanTemperature": 1438,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "population": {
+          "code": 0,
+          "concentrationRating": null
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 1,
-          "eccentricity": 0.7882456551099544,
-          "effectiveHZCODeviation": -12.461793683602853,
-          "orbit": 2.571448299575612,
-          "buildLog": [],
-          "sizeVariance": 1117,
-          "size": "S",
-          "period": 1.438060401485342,
-          "composition": "Mostly Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 0.6270290821298568,
-          "moons": [],
-          "biomassRating": -5,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 4,
-          "hasRing": false,
-          "orbitType": 13,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 0.7947326361580354,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.16,
-          "density": 1.1480397405104306,
-          "greenhouse": 0,
-          "meanTemperature": 1488,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
+        "governmentCode": 0,
+        "lawLevelCode": 0,
+        "starPort": "X",
+        "techLevel": 0,
+        "tradeCodes": [],
+        "albedo": 0.18000000000000002,
+        "density": 0.7916513187384168,
+        "greenhouse": 0.2385812224595969,
+        "meanTemperature": 638,
+        "nativeSophont": false,
+        "extinctSophont": false,
+        "habitabilityRating": 0,
+        "orbitSequence": "Aa IV",
+        "uwp": "X410000-0",
+        "diameter": 5976,
+        "gravity": 0.3708770994654107,
+        "mass": 0.08139958191403456,
+        "escapeVelocity": 4.662704180003813,
+        "jumpShadow": 597600,
+        "au": 5.112113367421476,
+        "safeJumpTime": "14m"
+      },
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
         },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 8,
-          "eccentricity": 0.4565900125227397,
-          "effectiveHZCODeviation": -15.302871483055183,
-          "orbit": 3.1141460149077385,
-          "buildLog": [],
-          "sizeVariance": 811,
-          "size": 1,
-          "period": 1.9524469657502497,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 22.028116057806933,
-          "moons": [],
-          "biomassRating": -6,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 3,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
+        "inclination": 0,
+        "eccentricity": 0.0023996090873981573,
+        "effectiveHZCODeviation": -5.170766983199416,
+        "orbit": 7.272300949598248,
+        "buildLog": [],
+        "code": "GM",
+        "diameter": 9744000,
+        "mass": 120,
+        "moons": [
+          {
+            "orbitPosition": {
+              "x": 0,
+              "y": 0
             },
-            "characteristic": "",
-            "bar": 0.8135502216178666,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.04,
-          "density": 0.8364806495108119,
-          "greenhouse": 0,
-          "meanTemperature": 1788,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 3,
-          "eccentricity": 0.000646553397781634,
-          "effectiveHZCODeviation": -18.19531642359723,
-          "orbit": 3.666655791746208,
-          "buildLog": [],
-          "sizeVariance": -5,
-          "size": 6,
-          "period": 2.9282896210178295,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 150.7620012973767,
-          "moons": [],
-          "biomassRating": -6,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 6,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 11,
-            "irritant": true,
-            "taint": {
-              "subtype": "Gas Mix",
-              "code": "G",
-              "severity": 1,
-              "persistence": 4
+            "inclination": 0,
+            "eccentricity": 0.08261215023445949,
+            "effectiveHZCODeviation": 0,
+            "orbit": {
+              "zone": "inner",
+              "orbit": 73.58280067942353
             },
-            "characteristic": "",
-            "bar": 10,
-            "gasType": null,
-            "density": "Extremely Dense",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 3,
-            "distribution": 6
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.5,
-          "density": 0.8039487842992,
-          "greenhouse": 6.324555320336759,
-          "meanTemperature": 2338,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 25,
-          "eccentricity": 0.1853288117934871,
-          "effectiveHZCODeviation": -23.717256764632047,
-          "orbit": 4.721447183892377,
-          "buildLog": [],
-          "sizeVariance": 467,
-          "size": 1,
-          "period": 6.844552180568498,
-          "composition": "Mostly Rock",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 31.322877526733137,
-          "moons": [],
-          "biomassRating": -8,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 0,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.333311734611946,
-            "gasType": null,
-            "density": "Standard",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.22,
-          "density": 0.5215218264117876,
-          "greenhouse": 0,
-          "meanTemperature": 2588,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 2,
-          "eccentricity": 0.07198689583469431,
-          "effectiveHZCODeviation": -26.87265124522337,
-          "orbit": 5.324185122261617,
-          "buildLog": [],
-          "sizeVariance": 2207,
-          "size": 9,
-          "period": 11.964473154616483,
-          "composition": "Mostly Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 10.702912738851628,
-          "moons": [],
-          "biomassRating": -2,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 2,
-          "compatibilityRating": 0,
-          "resourceRating": 11,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 11,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 1.7235741589831606,
-            "gasType": null,
-            "density": "Dense",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 10,
-            "distribution": 3
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.22999999999999998,
-          "density": 1.1753551980002268,
-          "greenhouse": 1.9656425731870786,
-          "meanTemperature": 3238,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 2.5,
-          "eccentricity": 0.0048489783519406965,
-          "effectiveHZCODeviation": -28.450348485519033,
-          "orbit": 5.6255540914462365,
-          "buildLog": [],
-          "sizeVariance": 1825,
-          "size": 6,
-          "period": 15.769906854217425,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 17.09614351212067,
-          "moons": [],
-          "biomassRating": -1,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 9,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 11,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 10,
-            "gasType": null,
-            "density": "Extremely Dense",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 6,
-            "distribution": 5
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.44000000000000006,
-          "density": 0.8071196150138952,
-          "greenhouse": 4.743416490252569,
-          "meanTemperature": 3388,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 6,
-          "eccentricity": 0.020567994907184205,
-          "effectiveHZCODeviation": -30.816894345962528,
-          "orbit": 6.077607545223167,
-          "buildLog": [],
-          "sizeVariance": -248,
-          "size": 2,
-          "period": 23.25423314701263,
-          "composition": "Rock and Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 23.37607958860894,
-          "moons": [],
-          "biomassRating": -3,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 2,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 1,
-            "irritant": false,
-            "taint": {
-              "subtype": "",
-              "code": "",
-              "severity": 0,
-              "persistence": 0
-            },
-            "characteristic": "",
-            "bar": 0.04070022985600546,
-            "gasType": null,
-            "density": "Trace",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 0,
-            "distribution": 0
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.16,
-          "density": 0.8040075827323268,
-          "greenhouse": 0.23220127436326024,
-          "meanTemperature": 3338,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 21,
-          "eccentricity": 0.11194963758218396,
-          "effectiveHZCODeviation": -33.183440206406026,
-          "orbit": 6.529660999000097,
-          "buildLog": [],
-          "sizeVariance": -708,
-          "size": 10,
-          "period": 38.08343636604289,
-          "composition": "Mostly Metal",
-          "retrograde": false,
-          "trojanOffset": null,
-          "axialTilt": 0.05741688786881436,
-          "moons": [
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
+            "buildLog": [],
+            "size": "S",
+            "period": null,
+            "atmosphere": {
+              "code": 0,
+              "irritant": false,
+              "taint": {
+                "subtype": "",
+                "code": "",
+                "severity": 0,
+                "persistence": 0
               },
-              "inclination": 0,
-              "eccentricity": 0.02124261688552642,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "inner",
-                "orbit": 168.6916769807248
+              "characteristic": "",
+              "bar": 0,
+              "gasType": null,
+              "density": "None",
+              "hazardCode": null
+            },
+            "hydrographics": {
+              "code": 0,
+              "distribution": null
+            },
+            "governmentCode": 0,
+            "population": {
+              "code": 0,
+              "concentrationRating": null
+            },
+            "lawLevelCode": 0,
+            "biomassRating": 0,
+            "axialTilt": 2.277617657123578,
+            "diameter": null,
+            "jumpShadow": null,
+            "au": null,
+            "safeJumpTime": "0m"
+          },
+          {
+            "orbitPosition": {
+              "x": 0,
+              "y": 0
+            },
+            "inclination": 0,
+            "eccentricity": 0.004887820912936869,
+            "effectiveHZCODeviation": 0,
+            "orbit": {
+              "zone": "middle",
+              "orbit": 125.2104217152881
+            },
+            "buildLog": [],
+            "size": 2,
+            "period": null,
+            "atmosphere": {
+              "code": 0,
+              "irritant": false,
+              "taint": {
+                "subtype": "",
+                "code": "",
+                "severity": 0,
+                "persistence": 0
               },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+              "characteristic": "",
+              "bar": 0,
+              "gasType": null,
+              "density": "None",
+              "hazardCode": null
+            },
+            "hydrographics": {
+              "code": 0,
+              "distribution": null
+            },
+            "governmentCode": 0,
+            "population": {
+              "code": 0,
+              "concentrationRating": null
+            },
+            "lawLevelCode": 0,
+            "biomassRating": 0,
+            "axialTilt": 11.386550098847433,
+            "diameter": null,
+            "jumpShadow": null,
+            "au": null,
+            "safeJumpTime": "0m"
+          }
+        ],
+        "hasRing": false,
+        "orbitType": 10,
+        "trojanOffset": null,
+        "axialTilt": 4.3827353786778875,
+        "period": 35.877715825331705,
+        "orbitSequence": "Aa V",
+        "jumpShadow": 974400000,
+        "au": 12.723009495982476,
+        "safeJumpTime": "8h 46m"
+      },
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "inclination": 1,
+        "eccentricity": 0.07107023710769345,
+        "effectiveHZCODeviation": -6.588764061358658,
+        "orbit": 8.690298027757489,
+        "buildLog": [],
+        "sizeVariance": 1495,
+        "size": 7,
+        "period": 155.39245544075047,
+        "composition": "Rock and Metal",
+        "retrograde": false,
+        "trojanOffset": null,
+        "axialTilt": 3.899913910207108,
+        "moons": [],
+        "biomassRating": -2,
+        "biocomplexityCode": 1,
+        "biodiversityRating": 1,
+        "compatibilityRating": 0,
+        "resourceRating": 10,
+        "hasRing": false,
+        "orbitType": 11,
+        "atmosphere": {
+          "code": 11,
+          "irritant": true,
+          "taint": {
+            "subtype": "Sulphur Compounds",
+            "code": "S",
+            "severity": 6,
+            "persistence": 3
+          },
+          "characteristic": "",
+          "bar": 1.217771158151479,
+          "gasType": null,
+          "density": "Standard",
+          "hazardCode": null
+        },
+        "hydrographics": {
+          "code": 5,
+          "distribution": 6
+        },
+        "population": {
+          "code": 0,
+          "concentrationRating": null
+        },
+        "governmentCode": 0,
+        "lawLevelCode": 0,
+        "starPort": "X",
+        "techLevel": 0,
+        "tradeCodes": [],
+        "albedo": 0.6400000000000001,
+        "density": 0.7964196099125449,
+        "greenhouse": 2.536699852089676,
+        "meanTemperature": 1188,
+        "nativeSophont": false,
+        "extinctSophont": false,
+        "habitabilityRating": 0,
+        "orbitSequence": "Aa VI",
+        "uwp": "X7B5000-0",
+        "diameter": 12695,
+        "gravity": 0.7926110808905422,
+        "mass": 0.7850485736336786,
+        "escapeVelocity": 9.934911027052422,
+        "jumpShadow": 1269500,
+        "au": 33.80596055514978,
+        "safeJumpTime": "19m"
+      },
+      {
+        "orbitPosition": {
+          "x": 0,
+          "y": 0
+        },
+        "inclination": 0,
+        "eccentricity": 0.3146760750447413,
+        "effectiveHZCODeviation": 0,
+        "orbit": 13.9,
+        "buildLog": [],
+        "stellarClass": "V",
+        "stellarType": "K",
+        "isProtostar": false,
+        "subtype": 3,
+        "totalObjects": 2,
+        "orbitType": 3,
+        "mass": 0.8,
+        "diameter": 0.9,
+        "temperature": 5200,
+        "age": 0.87,
+        "colour": "Light Orange",
+        "companion": null,
+        "period": 31577.888269770756,
+        "baseline": 4,
+        "emptyOrbits": 0,
+        "spread": 0.39538349159970787,
+        "availableOrbits": [
+          [
+            0.02,
+            10.9
+          ]
+        ],
+        "stellarObjects": [
+          {
+            "orbitPosition": {
+              "x": 0,
+              "y": 0
+            },
+            "inclination": 1,
+            "eccentricity": 0.6865208818154989,
+            "effectiveHZCODeviation": 3.250158069834366,
+            "orbit": 0.49446018991964946,
+            "buildLog": [],
+            "sizeVariance": 417,
+            "size": 6,
+            "period": 0.09834266893646881,
+            "composition": "Mostly Ice",
+            "retrograde": false,
+            "trojanOffset": null,
+            "axialTilt": 0.3513607401761513,
+            "moons": [],
+            "biomassRating": 1,
+            "biocomplexityCode": 1,
+            "biodiversityRating": 1,
+            "compatibilityRating": 0,
+            "resourceRating": 3,
+            "hasRing": false,
+            "orbitType": 11,
+            "atmosphere": {
+              "code": 10,
+              "irritant": true,
+              "taint": {
+                "subtype": "Radioactivity",
+                "code": "R",
+                "severity": 4,
+                "persistence": 9
+              },
+              "characteristic": "",
+              "bar": 1.744827283668431,
+              "gasType": null,
+              "density": "Dense",
+              "hazardCode": null
+            },
+            "hydrographics": {
+              "code": 5,
+              "distribution": 10
+            },
+            "population": {
+              "code": 0,
+              "concentrationRating": null
+            },
+            "governmentCode": 0,
+            "lawLevelCode": 0,
+            "starPort": "X",
+            "techLevel": 0,
+            "tradeCodes": [],
+            "albedo": 0.6500000000000001,
+            "density": 0.15395967808389494,
+            "greenhouse": 2.617243146051281,
+            "meanTemperature": 188,
+            "nativeSophont": false,
+            "extinctSophont": false,
+            "habitabilityRating": 0,
+            "orbitSequence": "Aab I",
+            "uwp": "X6A5000-0",
+            "diameter": 10017,
+            "gravity": 0.12090107364113951,
+            "mass": 0.0745549501159018,
+            "escapeVelocity": 3.4466840576631967,
+            "jumpShadow": 1001700,
+            "au": 0.1977840759678598,
+            "safeJumpTime": "17m"
+          },
+          {
+            "orbitPosition": {
+              "x": 0,
+              "y": 0
+            },
+            "inclination": 33,
+            "eccentricity": 0.2307437466064633,
+            "effectiveHZCODeviation": 1.0139985390796202,
+            "orbit": 1.0875354273192113,
+            "buildLog": [],
+            "sizeVariance": 2154,
+            "size": 3,
+            "period": 0.3111485901379052,
+            "composition": "Mostly Rock",
+            "retrograde": false,
+            "trojanOffset": null,
+            "axialTilt": 20.650929885083933,
+            "moons": [
+              {
+                "orbitPosition": {
+                  "x": 0,
+                  "y": 0
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 27.390192632349184
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.0645133181666029,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 249.59884885014452
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "inclination": 0,
+                "eccentricity": 0.02346690347470553,
+                "effectiveHZCODeviation": 0,
+                "orbit": {
+                  "zone": "inner",
+                  "orbit": 7.871556323767786
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 11.371566228693842
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.5334842037137877,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 298.1085636782658
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "buildLog": [],
+                "size": "S",
+                "period": null,
+                "atmosphere": {
+                  "code": 0,
+                  "irritant": false,
+                  "taint": {
+                    "subtype": "",
+                    "code": "",
+                    "severity": 0,
+                    "persistence": 0
+                  },
+                  "characteristic": "",
+                  "bar": 0,
+                  "gasType": null,
+                  "density": "None",
+                  "hazardCode": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 111.08794554561636
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.8178014866899844,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 393.0055535941823
-              },
-              "buildLog": [],
-              "size": 3,
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "hydrographics": {
+                  "code": 0,
+                  "distribution": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 0.09406837508382805
-            }
-          ],
-          "biomassRating": -1,
-          "biocomplexityCode": 1,
-          "biodiversityRating": 1,
-          "compatibilityRating": 0,
-          "resourceRating": 11,
-          "hasRing": false,
-          "orbitType": 11,
-          "atmosphere": {
-            "code": 11,
-            "irritant": true,
-            "taint": {
-              "subtype": "Sulphur Compounds",
-              "code": "S",
-              "severity": 4,
-              "persistence": 5
-            },
-            "characteristic": "",
-            "bar": 1.5433307856489062,
-            "gasType": null,
-            "density": "Dense",
-            "hazardCode": null
-          },
-          "hydrographics": {
-            "code": 8,
-            "distribution": 9
-          },
-          "population": {
-            "code": 0,
-            "concentrationRating": null
-          },
-          "governmentCode": 0,
-          "lawLevelCode": 0,
-          "starPort": "X",
-          "techLevel": 0,
-          "tradeCodes": [],
-          "albedo": 0.53,
-          "density": 1.1653713728825912,
-          "greenhouse": 3.085560786847877,
-          "meanTemperature": 3838,
-          "nativeSophont": false,
-          "extinctSophont": false,
-          "habitabilityRating": 0
-        },
-        {
-          "orbitPosition": {
-            "x": 0,
-            "y": 0
-          },
-          "inclination": 0,
-          "eccentricity": 0.6389452232543814,
-          "effectiveHZCODeviation": -34.76113744670169,
-          "orbit": 6.831029968184716,
-          "buildLog": [],
-          "code": "GM",
-          "diameter": 16704000,
-          "mass": 140,
-          "moons": [
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.30769250356516437,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "inner",
-                "orbit": 12.73689303276846
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "governmentCode": 0,
+                "population": {
+                  "code": 0,
+                  "concentrationRating": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
+                "lawLevelCode": 0,
+                "biomassRating": 0,
+                "axialTilt": 3.5358095969500978,
+                "diameter": null,
+                "jumpShadow": null,
+                "au": null,
+                "safeJumpTime": "0m"
               },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 166.37696894501556
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.5659833721800016,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 19.618993566694822
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+              {
+                "orbitPosition": {
+                  "x": 0,
+                  "y": 0
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 10.87815527262588
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.007668430695759577,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "inner",
-                "orbit": 37.36290862175843
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "inclination": 0,
+                "eccentricity": 0.29807654590416943,
+                "effectiveHZCODeviation": 0,
+                "orbit": {
+                  "zone": "middle",
+                  "orbit": 11.685044292908787
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 92.95883563750297
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.2812691343883995,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 48.021200286705295
-              },
-              "buildLog": [],
-              "size": 1,
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "buildLog": [],
+                "size": "S",
+                "period": null,
+                "atmosphere": {
+                  "code": 0,
+                  "irritant": false,
+                  "taint": {
+                    "subtype": "",
+                    "code": "",
+                    "severity": 0,
+                    "persistence": 0
+                  },
+                  "characteristic": "",
+                  "bar": 0,
+                  "gasType": null,
+                  "density": "None",
+                  "hazardCode": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 0.0910664613342031
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.7171069726507393,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 61.56138474154788
-              },
-              "buildLog": [],
-              "size": 2,
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "hydrographics": {
+                  "code": 0,
+                  "distribution": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 29.186950498437028
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.8826937783586489,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 69.65120689057517
-              },
-              "buildLog": [],
-              "size": 2,
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "governmentCode": 0,
+                "population": {
+                  "code": 0,
+                  "concentrationRating": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
+                "lawLevelCode": 0,
+                "biomassRating": 0,
+                "axialTilt": 0.020781090606064236,
+                "diameter": null,
+                "jumpShadow": null,
+                "au": null,
+                "safeJumpTime": "0m"
               },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 0.07783355083504746
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.21260639498599537,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "middle",
-                "orbit": 78.99976104762614
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+              {
+                "orbitPosition": {
+                  "x": 0,
+                  "y": 0
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 8.101240987921745
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.08547203888743227,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "outer",
-                "orbit": 85.65499211620167
-              },
-              "buildLog": [],
-              "size": "S",
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "inclination": 0,
+                "eccentricity": 0.4870688329875741,
+                "effectiveHZCODeviation": 0,
+                "orbit": {
+                  "zone": "outer",
+                  "orbit": 14.351076739401474
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
-              },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
-              },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 98.23003043546365
-            },
-            {
-              "orbitPosition": {
-                "x": 0,
-                "y": 0
-              },
-              "inclination": 0,
-              "eccentricity": 0.24917353610939866,
-              "effectiveHZCODeviation": 0,
-              "orbit": {
-                "zone": "outer",
-                "orbit": 101.63365228927888
-              },
-              "buildLog": [],
-              "size": 9,
-              "period": null,
-              "atmosphere": {
-                "code": 0,
-                "irritant": false,
-                "taint": {
-                  "subtype": "",
-                  "code": "",
-                  "severity": 0,
-                  "persistence": 0
+                "buildLog": [],
+                "size": 2,
+                "period": null,
+                "atmosphere": {
+                  "code": 0,
+                  "irritant": false,
+                  "taint": {
+                    "subtype": "",
+                    "code": "",
+                    "severity": 0,
+                    "persistence": 0
+                  },
+                  "characteristic": "",
+                  "bar": 0,
+                  "gasType": null,
+                  "density": "None",
+                  "hazardCode": null
                 },
-                "characteristic": "",
-                "bar": 0,
-                "gasType": null,
-                "density": "None",
-                "hazardCode": null
+                "hydrographics": {
+                  "code": 0,
+                  "distribution": null
+                },
+                "governmentCode": 0,
+                "population": {
+                  "code": 0,
+                  "concentrationRating": null
+                },
+                "lawLevelCode": 0,
+                "biomassRating": 0,
+                "axialTilt": 40.14759180947544,
+                "diameter": null,
+                "jumpShadow": null,
+                "au": null,
+                "safeJumpTime": "0m"
               },
-              "hydrographics": {
-                "code": 0,
-                "distribution": null
+              {
+                "orbitPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "inclination": 0,
+                "eccentricity": 0.8726493572742966,
+                "effectiveHZCODeviation": 0,
+                "orbit": {
+                  "zone": "outer",
+                  "orbit": 22.68812444861709
+                },
+                "buildLog": [],
+                "size": 2,
+                "period": null,
+                "atmosphere": {
+                  "code": 0,
+                  "irritant": false,
+                  "taint": {
+                    "subtype": "",
+                    "code": "",
+                    "severity": 0,
+                    "persistence": 0
+                  },
+                  "characteristic": "",
+                  "bar": 0,
+                  "gasType": null,
+                  "density": "None",
+                  "hazardCode": null
+                },
+                "hydrographics": {
+                  "code": 0,
+                  "distribution": null
+                },
+                "governmentCode": 0,
+                "population": {
+                  "code": 0,
+                  "concentrationRating": null
+                },
+                "lawLevelCode": 0,
+                "biomassRating": 0,
+                "axialTilt": 0.0013989058972655789,
+                "diameter": null,
+                "jumpShadow": null,
+                "au": null,
+                "safeJumpTime": "0m"
+              }
+            ],
+            "biomassRating": -8,
+            "biocomplexityCode": 1,
+            "biodiversityRating": 1,
+            "compatibilityRating": 0,
+            "resourceRating": 2,
+            "hasRing": false,
+            "orbitType": 11,
+            "atmosphere": {
+              "code": 0,
+              "irritant": false,
+              "taint": {
+                "subtype": "",
+                "code": "",
+                "severity": 0,
+                "persistence": 0
               },
-              "governmentCode": 0,
-              "population": {
-                "code": 0,
-                "concentrationRating": null
-              },
-              "lawLevelCode": 0,
-              "biomassRating": 0,
-              "axialTilt": 26.595955940822506
-            }
-          ],
-          "hasRing": false,
-          "orbitType": 10,
-          "trojanOffset": null,
-          "axialTilt": 9.562898776502559,
-          "period": 49.2406080554483
-        }
-      ],
-      "occupiedOrbits": [
-        0.8538787460230897,
-        1.3059321998000195,
-        1.9086701381692592,
-        2.410951753476959,
-        3.1141460149077385,
-        3.666655791746208,
-        4.369850053176988,
-        4.721447183892377,
-        5.324185122261617,
-        5.6255540914462365,
-        6.077607545223167,
-        6.529660999000097,
-        6.831029968184716
-      ],
-      "orbitSequence": ""
-    }
-  ],
-  "gasGiants": 1,
-  "planetoidBelts": 2,
-  "terrestrialPlanets": 9,
-  "sector": null,
-  "coordinates": null,
-  "remainingOrbits": [],
-  "name": "New Star System",
-  "scanPoints": 0,
-  "_mainWorld": null,
-  "bases": "",
-  "remarks": "",
-  "surveyIndex": 0,
-  "allegiance": null
+              "characteristic": "",
+              "bar": 0,
+              "gasType": null,
+              "density": "None",
+              "hazardCode": null
+            },
+            "hydrographics": {
+              "code": 0,
+              "distribution": 0
+            },
+            "population": {
+              "code": 0,
+              "concentrationRating": null
+            },
+            "governmentCode": 0,
+            "lawLevelCode": 0,
+            "starPort": "X",
+            "techLevel": 0,
+            "tradeCodes": [],
+            "albedo": 0.12,
+            "density": 0.5044110921000129,
+            "greenhouse": 0,
+            "meanTemperature": 238,
+            "nativeSophont": false,
+            "extinctSophont": false,
+            "habitabilityRating": 0,
+            "orbitSequence": "Aab II",
+            "uwp": "X300000-0",
+            "diameter": 6954,
+            "gravity": 0.27498234042517167,
+            "mass": 0.08172316081871826,
+            "escapeVelocity": 4.330991235707161,
+            "jumpShadow": 695400,
+            "au": 0.4262606281957634,
+            "safeJumpTime": "15m"
+          }
+        ],
+        "occupiedOrbits": [
+          0.49446018991964946,
+          1.0875354273192113
+        ],
+        "orbitSequence": "Aab",
+        "jump": 2.4581502451939863,
+        "minimumOrbit": 0.02,
+        "isAnomaly": false,
+        "isCompanion": false,
+        "minimumAllowableOrbit": 0.02,
+        "luminosity": 0.5335720890574503,
+        "totalLuminosity": 0.5335720890574503,
+        "hzco": 2.1015339663988315,
+        "jumpShadow": 0.8374450735581959,
+        "totalOrbits": 11,
+        "au": 1168.5000000000002,
+        "safeJumpTime": "1m"
+      }
+    ],
+    "occupiedOrbits": [
+      1.328920379839299,
+      5.090766983199416,
+      5.963380569758948,
+      7.272300949598248,
+      8.690298027757489
+    ],
+    "orbitSequence": "A",
+    "jump": 2.4581502451939863,
+    "minimumOrbit": 4,
+    "isAnomaly": false,
+    "isCompanion": false,
+    "minimumAllowableOrbit": 0.02,
+    "luminosity": 0.5335720890574503,
+    "totalLuminosity": 0.5335720890574503,
+    "hzco": 2.1015339663988315,
+    "jumpShadow": 0.8374450735581959,
+    "totalOrbits": 13,
+    "au": 0,
+    "safeJumpTime": "1m"
+  },
+  "starCount": 3,
+  "totalOrbits": 24,
+  "hasNativeSophont": false,
+  "hasExtinctSophont": false,
+  "mainWorld": {
+    "orbitPosition": {
+      "x": 0,
+      "y": 0
+    },
+    "inclination": 7,
+    "eccentricity": 0.012342599747602535,
+    "effectiveHZCODeviation": 0.7726135865595325,
+    "orbit": 1.328920379839299,
+    "buildLog": [],
+    "sizeVariance": 554,
+    "size": 5,
+    "period": 0.2783991201437518,
+    "composition": "Mostly Rock",
+    "retrograde": false,
+    "trojanOffset": null,
+    "axialTilt": 11.086225950513635,
+    "moons": [],
+    "biomassRating": -1,
+    "biocomplexityCode": 1,
+    "biodiversityRating": 2,
+    "compatibilityRating": 0,
+    "resourceRating": 4,
+    "hasRing": false,
+    "orbitType": 11,
+    "atmosphere": {
+      "code": 4,
+      "irritant": false,
+      "taint": {
+        "subtype": "Biological",
+        "code": "B",
+        "severity": 5,
+        "persistence": 5
+      },
+      "characteristic": "",
+      "bar": 0.6469423837044934,
+      "gasType": null,
+      "density": "Thin",
+      "hazardCode": null
+    },
+    "hydrographics": {
+      "code": 1,
+      "distribution": 6
+    },
+    "population": {
+      "code": 0,
+      "concentrationRating": null
+    },
+    "governmentCode": 0,
+    "lawLevelCode": 0,
+    "starPort": "X",
+    "techLevel": 0,
+    "tradeCodes": [],
+    "albedo": 0.27,
+    "density": 0.5190518552612098,
+    "greenhouse": 0.46752913883236524,
+    "meanTemperature": 278,
+    "nativeSophont": false,
+    "extinctSophont": false,
+    "habitabilityRating": 4,
+    "orbitSequence": "Aa II",
+    "uwp": "X541000-0",
+    "diameter": 8554,
+    "gravity": 0.3480691102151449,
+    "mass": 0.1565218432845104,
+    "escapeVelocity": 5.404243690518424,
+    "jumpShadow": 855400,
+    "au": 0.4986761139517897,
+    "safeJumpTime": "16m"
+  }
 }

@@ -1,9 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  code: MyString
-  definition: MyString
+<%
+  require_relative '../../db/seed_data/trade_codes'
+  TRADE_CODES.each do |row|
+%>
+<%= row[:code].downcase %>:
+  code: <%= row[:code] %>
+  definition: <%= row[:definition].inspect %>
 
-two:
-  code: MyString
-  definition: MyString
+<% end %>

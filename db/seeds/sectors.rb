@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# db/seeds.rb
-
 sectors = [
   { x: -22, y: -9,  name: "Acheron",                     abbreviation: "Ach" },
   { x: -23, y: -9,  name: "Acheron Spinward",            abbreviation: "AchS" },

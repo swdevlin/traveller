@@ -62,6 +62,8 @@ class StellarObject < ApplicationRecord
   end
 
   def recalculate_star_system_world_counts_after_destroy
+    return if star_system.destroyed?
+    return if star_system.marked_for_destruction?
     star_system&.recalculate_world_counts!
   end
 

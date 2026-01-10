@@ -1,22 +1,27 @@
-require 'test_helper'
-require 'minitest/spec'
+# frozen_string_literal: true
 
-describe DiceRoller do
-  before do
+require 'test_helper'
+
+class DiceRollerTest < ActiveSupport::TestCase
+  setup do
     @roller = DiceRoller.new
   end
 
-  describe '#roll' do
-    it 'number of dice must be positive' do
-      _ { @roller.roll(n: -1, d: 6, notes: 'dice must be positive') }.must_raise(ArgumentError)
+  test 'number of dice must be positive' do
+    assert_raises(ArgumentError) do
+      @roller.roll(n: -1, d: 6, notes: 'dice must be positive')
     end
+  end
 
-    it 'number of sides must be positive' do
-      _ { @roller.roll(n: 3, d: -1, notes: 'sides must be positive') }.must_raise(ArgumentError)
+  test 'number of sides must be positive' do
+    assert_raises(ArgumentError) do
+      @roller.roll(n: 3, d: -1, notes: 'sides must be positive')
     end
+  end
 
-    it 'note is required' do
-      _ { @roller.roll(n: 3, d: 6) }.must_raise(ArgumentError)
+  test 'note is required' do
+    assert_raises(ArgumentError) do
+      @roller.roll(n: 3, d: 6)
     end
   end
 end

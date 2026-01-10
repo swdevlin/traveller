@@ -11,7 +11,9 @@ class StarSystemImporter
       @star_system.name = data['name']
       @star_system.save!
 
-      set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
+      unless data['mainWorld'].nil?
+        set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
+      end
 
       primary_data = data['primaryStar']
       primary = Star.new

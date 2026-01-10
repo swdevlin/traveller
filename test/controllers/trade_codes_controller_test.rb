@@ -2,7 +2,7 @@ require "test_helper"
 
 class TradeCodesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @trade_code = trade_codes(:one)
+    @trade_code = trade_codes(:fr)
   end
 
   test "should get index" do
@@ -17,7 +17,7 @@ class TradeCodesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create trade_code" do
     assert_difference("TradeCode.count") do
-      post trade_codes_url, params: { trade_code: { code: @trade_code.code, definition: @trade_code.definition } }
+      post trade_codes_url, params: { trade_code: { code: 'XX', definition: 'A new one' } }
     end
 
     assert_redirected_to trade_code_url(TradeCode.last)
@@ -34,7 +34,7 @@ class TradeCodesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update trade_code" do
-    patch trade_code_url(@trade_code), params: { trade_code: { code: @trade_code.code, definition: @trade_code.definition } }
+    patch trade_code_url(@trade_code), params: { trade_code: { code: @trade_code.code, definition: 'new definition' } }
     assert_redirected_to trade_code_url(@trade_code)
   end
 
