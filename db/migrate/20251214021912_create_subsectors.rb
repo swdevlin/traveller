@@ -4,7 +4,7 @@ class CreateSubsectors < ActiveRecord::Migration[8.1]
       t.string :name
       t.integer :x, null: false
       t.integer :y, null: false
-      t.references :sector, foreign_key: true, null: false
+      t.references :sector, null: false, foreign_key: { on_delete: :cascade }
 
       t.timestamps
     end

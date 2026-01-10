@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   resources :star_systems
 
   resources :subsectors, only: %i[index show edit update] do
+    member do
+      post :clear
+    end
     resources :rogues, only: %i[new create index destroy]
     resources :star_systems, only: %i[new create index destroy]
   end

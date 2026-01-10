@@ -158,15 +158,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_203202) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "parsecs", "sectors"
-  add_foreign_key "star_system_trade_codes", "star_systems"
-  add_foreign_key "star_system_trade_codes", "trade_codes"
-  add_foreign_key "star_systems", "parsecs"
-  add_foreign_key "star_systems", "stellar_objects", column: "main_world_id"
-  add_foreign_key "stellar_object_trade_codes", "stellar_objects"
-  add_foreign_key "stellar_object_trade_codes", "trade_codes"
-  add_foreign_key "stellar_objects", "parsecs"
-  add_foreign_key "stellar_objects", "star_systems"
-  add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id"
-  add_foreign_key "subsectors", "sectors"
+  add_foreign_key "parsecs", "sectors", on_delete: :cascade
+  add_foreign_key "star_system_trade_codes", "star_systems", on_delete: :cascade
+  add_foreign_key "star_system_trade_codes", "trade_codes", on_delete: :cascade
+  add_foreign_key "star_systems", "parsecs", on_delete: :cascade
+  add_foreign_key "star_systems", "stellar_objects", column: "main_world_id", on_delete: :nullify
+  add_foreign_key "stellar_object_trade_codes", "stellar_objects", on_delete: :cascade
+  add_foreign_key "stellar_object_trade_codes", "trade_codes", on_delete: :cascade
+  add_foreign_key "stellar_objects", "parsecs", on_delete: :cascade
+  add_foreign_key "stellar_objects", "star_systems", on_delete: :cascade
+  add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id", on_delete: :cascade
+  add_foreign_key "subsectors", "sectors", on_delete: :cascade
 end

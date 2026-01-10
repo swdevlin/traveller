@@ -1,11 +1,15 @@
+# frozen_string_literal: true
+
 class CreateStellarObjects < ActiveRecord::Migration[8.1]
   def change
     create_table :stellar_objects do |t|
       t.string :name
       t.integer :orbit_x
       t.integer :orbit_y
-      t.references :parsec, null: true, foreign_key: true
-      t.references :star_system, null: true, foreign_key: true
+
+      t.references :parsec, null: true, foreign_key: { on_delete: :cascade }
+      t.references :star_system, null: true, index: true # FK added after star_systems exists
+
       t.float :inclination
       t.float :eccentricity
       t.float :orbit
@@ -19,7 +23,7 @@ class CreateStellarObjects < ActiveRecord::Migration[8.1]
     end
 
     add_check_constraint :stellar_objects,
-      "(parsec_id IS NOT NULL) OR (star_system_id IS NOT NULL)",
-      name: "stellar_objects_parsec_or_star_system_present"
+                         '(parsec_id IS NOT NULL) OR (star_system_id IS NOT NULL)',
+                         name: 'stellar_objects_parsec_or_star_system_present'
   end
 end

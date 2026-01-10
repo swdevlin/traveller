@@ -1,5 +1,5 @@
 class SubsectorsController < ApplicationController
-  before_action :set_subsector, only: %i[ show edit update ]
+  before_action :set_subsector, only: %i[ show edit update clear]
 
   # GET /subsectors or /subsectors.json
   def index
@@ -8,11 +8,28 @@ class SubsectorsController < ApplicationController
 
   # GET /subsectors/1 or /subsectors/1.json
   def show
+    @star_system_count =
+      StarSystem.joins(:parsec).where(parsecs: { sector_id: @subsector.sector_id }).count
+
+    @rogue_count =
+      StellarObject
+        .joins(:parsec)
+        .where(parsecs: { sector_id: @subsector.sector_id })
+        .where(star_system_id: nil)
+        .count
   end
 
   # GET /subsectors/1/edit
   def edit
   end
+
+  def clear
+    Subsector.transaction do
+      @subsector.clear
+    end
+    redirect_to subsector_path(@subsector), notice: 'Subsector cleared.'
+  end
+
 
   # PATCH/PUT /subsectors/1 or /subsectors/1.json
   def update

@@ -31,11 +31,19 @@
 
       <%= render 'rogues/table', rogues: @subsector.rogues, new_url: new_subsector_rogue_path(@subsector) %>
 
+      <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the subsector. Are you sure you wish to clear the subsector?" %>
+
       <div class="mt-6 flex flex-col sm:flex-row gap-2">
         <%= link_to "Edit",
                     edit_subsector_path(@subsector),
                     class: "w-full sm:w-auto btn btn-primary" %>
 
+        <%= button_to "Clear",
+                      clear_subsector_path(@subsector),
+                      method: "post",
+                      class: "w-full sm:w-auto btn",
+                      data: {turbo_confirm: confirm_msg}
+        %>
       </div>
     </div>
 
