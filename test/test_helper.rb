@@ -14,5 +14,4 @@ class ActiveSupport::TestCase
   raise "Duplicate trade codes in TRADE_CODES: #{dupes.join(', ')}" if dupes.any?
 
   fixtures :all
-
 end

@@ -25,7 +25,7 @@ class TradeCodesController < ApplicationController
 
     respond_to do |format|
       if @trade_code.save
-        format.html { redirect_to @trade_code, notice: "Trade code was successfully created." }
+        format.html { redirect_to @trade_code, notice: 'Trade code was successfully created.' }
         format.json { render :show, status: :created, location: @trade_code }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class TradeCodesController < ApplicationController
   def update
     respond_to do |format|
       if @trade_code.update(trade_code_params)
-        format.html { redirect_to @trade_code, notice: "Trade code was successfully updated.", status: :see_other }
+        format.html { redirect_to @trade_code, notice: 'Trade code was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @trade_code }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class TradeCodesController < ApplicationController
     @trade_code.destroy!
 
     respond_to do |format|
-      format.html { redirect_to trade_codes_path, notice: "Trade code was successfully destroyed.", status: :see_other }
+      format.html { redirect_to trade_codes_path, notice: 'Trade code was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -65,6 +65,6 @@ class TradeCodesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def trade_code_params
-      params.expect(trade_code: [ :code, :definition ])
+      params.expect(trade_code: [:code, :definition])
     end
 end

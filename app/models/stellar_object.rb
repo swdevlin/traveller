@@ -66,5 +66,4 @@ class StellarObject < ApplicationRecord
     return if star_system.marked_for_destruction?
     star_system&.recalculate_world_counts!
   end
-
 end

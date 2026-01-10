@@ -1,5 +1,4 @@
 module HexDigit
-
   HEX_DIGITS = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ'.freeze
 
   def hex_digit(n)
