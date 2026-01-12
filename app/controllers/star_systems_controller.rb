@@ -19,22 +19,6 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/new
   def new
-    @spectral_type_options = %w[O B A F G K M].map { |t| [t, t] }
-    @spectral_subtype_options = (0..9).map { |n| [n.to_s, n] }
-
-    @luminosity_options = [
-      ['0 (Hypergiant)', '0'],
-      ['Ia (Luminous supergiant)', 'Ia'],
-      ['Iab (Intermediate supergiant)', 'Iab'],
-      ['Ib (Less luminous supergiant)', 'Ib'],
-      ['II (Bright giant)', 'II'],
-      ['III (Giant)', 'III'],
-      ['IV (Subgiant)', 'IV'],
-      ['V (Main sequence)', 'V'],
-      ['VI (Subdwarf)', 'VI'],
-      ['VII (White dwarf)', 'VII']
-    ]
-
     @star_system = StarSystem.new
 
     @luminosity ||= 'V'
@@ -57,6 +41,7 @@ class StarSystemsController < ApplicationController
 
     if @star_system.errors.any?
       flash.now[:alert] = @star_system.errors.full_messages.to_sentence
+
       return render :new, status: :unprocessable_entity
     end
 
@@ -94,9 +79,28 @@ class StarSystemsController < ApplicationController
   end
 
   def generate_star_system
+    unless params[:parsec_id].present?
+      unless params.dig(:star_system, :parsec_id).present?
+        return StarSystem.new(star_system_params).tap do |so|
+          so.errors.add(:base, 'You must select a hex')
+        end
+      end
+    end
+
+    unless star_generate_params_ok?
+      return StarSystem.new(star_system_params).tap do |so|
+        so.errors.add(:base, 'Either select random star, or provide luminosity, spectral type, and spectral subtype')
+      end
+    end
+
+    sgp = star_generator_params
     definition = { name: star_system_params[:name] }
-    unless params.dig(:star_system, :random_star) == '1'
-      # set up the primary
+
+    unless @random
+      definition[:primary] = {
+        type: "#{sgp[:spectral_type]}#{sgp[:spectral_subtype]}",
+        class: sgp[:luminosity]
+      }
     end
 
     base = Rails.application.config.x.generator_service
@@ -146,6 +150,14 @@ class StarSystemsController < ApplicationController
     params.expect(star_system: [:random_star, :luminosity, :spectral_type, :spectral_subtype])
   end
 
+  def star_generate_params_ok?
+    sp = star_generator_params
+    @random = ActiveModel::Type::Boolean.new.cast(sp[:random_star])
+    return true if @random
+    missing = %i[luminosity spectral_type spectral_subtype].select { |k| sp[k].blank? }
+    missing.empty?
+  end
+
   def set_form_context
     @submit_label = action_name == 'edit' ? 'Save changes' : 'Add star system'
 
@@ -155,5 +167,21 @@ class StarSystemsController < ApplicationController
       else
         polymorphic_path([@subsector || @sector, :star_systems])
       end
+    @spectral_type_options = %w[O B A F G K M].map { |t| [t, t] }
+    @spectral_subtype_options = (0..9).map { |n| [n.to_s, n] }
+
+    @luminosity_options = [
+      ['0 (Hypergiant)', '0'],
+      ['Ia (Luminous supergiant)', 'Ia'],
+      ['Iab (Intermediate supergiant)', 'Iab'],
+      ['Ib (Less luminous supergiant)', 'Ib'],
+      ['II (Bright giant)', 'II'],
+      ['III (Giant)', 'III'],
+      ['IV (Subgiant)', 'IV'],
+      ['V (Main sequence)', 'V'],
+      ['VI (Subdwarf)', 'VI'],
+      ['VII (White dwarf)', 'VII']
+    ]
+
   end
 end

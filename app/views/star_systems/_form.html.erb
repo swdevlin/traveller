@@ -1,4 +1,4 @@
-<%= form_with model: @star_system, class: 'flex flex-col space-y-6', data: { controller: 'star-system-form' } do |f| %>
+<%= form_with model: @star_system, url: @form_url, class: 'flex flex-col space-y-6', data: { controller: 'star-system-form' } do |f| %>
   <%= hidden_field_tag :return_to, @return_to if @return_to.present? %>
 
   <div>
