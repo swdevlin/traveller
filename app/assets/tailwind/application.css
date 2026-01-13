@@ -69,9 +69,9 @@
   .link-traveller {
     @apply inline-flex items-center gap-1
     text-sm font-medium
-    text-traveller-red
+    text-slate-100
     underline-offset-2
-    hover:underline hover:text-traveller-red/90
+    hover:underline hover:text-traveller-red
     focus-visible:outline-none
     focus-visible:ring-2 focus-visible:ring-traveller-red
     focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
@@ -79,9 +79,9 @@
 
   .link-traveller-i {
     @apply inline-flex items-center gap-1
-    text-traveller-red
+    text-slate-100
     underline-offset-2
-    hover:underline hover:text-traveller-red/90
+    hover:underline hover:text-traveller-red
     focus-visible:outline-none
     focus-visible:ring-2 focus-visible:ring-traveller-red
     focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
