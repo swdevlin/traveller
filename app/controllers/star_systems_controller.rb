@@ -168,6 +168,8 @@ class StarSystemsController < ApplicationController
     if sp['spectral_type'] == 'K' && sp['spectral_subtype'] >= 5 && sp['luminosity'] == 'VI'
       return "#{sp['spectral_type']} VI stars are not supported by the generator."
     end
+
+    nil
   end
 
   def set_form_context
@@ -194,6 +196,5 @@ class StarSystemsController < ApplicationController
       ['VI (Subdwarf)', 'VI'],
       ['VII (White dwarf)', 'VII']
     ]
-
   end
 end
