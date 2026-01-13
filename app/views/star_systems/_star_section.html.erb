@@ -1,0 +1,24 @@
+<%# Local variables: prefix, label, indent (boolean) %>
+<% prefix ||= "close" %>
+<% label ||= prefix.titleize.gsub('_', ' ') %>
+<% indent ||= false %>
+<% checked = params.dig(:star_system, "#{prefix}_enabled") == '1' %>
+
+<div class="<%= 'ml-6' if indent %>" data-star-system-form-target="<%= prefix %>Section">
+  <div class='flex items-center gap-2 mb-3'>
+    <%= check_box_tag "star_system[#{prefix}_enabled]",
+                      '1',
+                      checked,
+                      class: 'h-4 w-4 rounded border-slate-700 bg-slate-950',
+                      data: {
+                        action: 'star-system-form#toggleSection',
+                        star_system_form_target: "#{prefix}Toggle",
+                        star_system_form_prefix_param: prefix
+                      } %>
+    <%= label_tag "star_system_#{prefix}_enabled", label, class: 'text-sm font-semibold text-slate-300' %>
+  </div>
+
+  <div class="<%= 'hidden' unless checked %>" data-star-system-form-target="<%= prefix %>Container">
+    <%= render 'star_fields', prefix: prefix, disabled: !checked %>
+  </div>
+</div>

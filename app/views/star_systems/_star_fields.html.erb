@@ -1,0 +1,36 @@
+<%# Local variables: prefix (e.g., "primary", "close_companion"), label, disabled %>
+<% prefix ||= "primary" %>
+<% disabled ||= false %>
+
+<div class='grid grid-cols-1 md:grid-cols-3 gap-4'
+     data-star-system-form-target="<%= prefix %>Fields">
+  <div>
+    <%= label_tag "star_system_#{prefix}_spectral_type", 'Spectral type', class: 'block text-sm font-semibold mb-1' %>
+    <%= select_tag "star_system[#{prefix}_spectral_type]",
+                   options_for_select(@spectral_type_options, params.dig(:star_system, "#{prefix}_spectral_type")),
+                   prompt: 'Select type',
+                   disabled: disabled,
+                   class: 'w-full edit-base',
+                   data: { star_system_form_target: "#{prefix}SpectralType" } %>
+  </div>
+
+  <div>
+    <%= label_tag "star_system_#{prefix}_spectral_subtype", 'Subtype', class: 'block text-sm font-semibold mb-1' %>
+    <%= select_tag "star_system[#{prefix}_spectral_subtype]",
+                   options_for_select(@spectral_subtype_options, params.dig(:star_system, "#{prefix}_spectral_subtype")),
+                   prompt: '0-9',
+                   disabled: disabled,
+                   class: 'w-full edit-base',
+                   data: { star_system_form_target: "#{prefix}SpectralSubtype" } %>
+  </div>
+
+  <div>
+    <%= label_tag "star_system_#{prefix}_luminosity", 'Luminosity class', class: 'block text-sm font-semibold mb-1' %>
+    <%= select_tag "star_system[#{prefix}_luminosity]",
+                   options_for_select(@luminosity_options, params.dig(:star_system, "#{prefix}_luminosity")),
+                   prompt: 'Select class',
+                   disabled: disabled,
+                   class: 'w-full edit-base',
+                   data: { star_system_form_target: "#{prefix}Luminosity" } %>
+  </div>
+</div>
