@@ -10,6 +10,7 @@ export default class extends Controller {
     'primarySpectralSubtype',
     'primaryLuminosity',
     // Primary companion
+    'primary_companionSection',
     'primary_companionToggle',
     'primary_companionContainer',
     'primary_companionSpectralType',
@@ -22,6 +23,7 @@ export default class extends Controller {
     'closeSpectralSubtype',
     'closeLuminosity',
     // Close companion
+    'close_companionSection',
     'close_companionToggle',
     'close_companionContainer',
     'close_companionSpectralType',
@@ -34,6 +36,7 @@ export default class extends Controller {
     'nearSpectralSubtype',
     'nearLuminosity',
     // Near companion
+    'near_companionSection',
     'near_companionToggle',
     'near_companionContainer',
     'near_companionSpectralType',
@@ -46,6 +49,7 @@ export default class extends Controller {
     'farSpectralSubtype',
     'farLuminosity',
     // Far companion
+    'far_companionSection',
     'far_companionToggle',
     'far_companionContainer',
     'far_companionSpectralType',
@@ -98,6 +102,27 @@ export default class extends Controller {
     if (!enabled) {
       this.clearFields(prefix);
     }
+
+    // Show/hide companion section based on parent star state
+    const companionPrefix = `${prefix}_companion`;
+    const hasCompanionSection = this[`has${this.capitalize(companionPrefix)}SectionTarget`];
+    if (hasCompanionSection) {
+      const companionSection = this[`${companionPrefix}SectionTarget`];
+      companionSection.classList.toggle('hidden', !enabled);
+
+      // If hiding companion, also uncheck and clear it
+      if (!enabled) {
+        const hasCompanionToggle = this[`has${this.capitalize(companionPrefix)}ToggleTarget`];
+        if (hasCompanionToggle) {
+          const companionToggle = this[`${companionPrefix}ToggleTarget`];
+          companionToggle.checked = false;
+          const companionContainer = this[`${companionPrefix}ContainerTarget`];
+          companionContainer.classList.add('hidden');
+          this.clearFields(companionPrefix);
+          this.setFieldsDisabled(companionPrefix, true);
+        }
+      }
+    }
   }
 
   setFieldsDisabled(prefix, disabled) {
@@ -131,8 +156,6 @@ export default class extends Controller {
   }
 
   capitalize(str) {
-    return str.split('_').map(part =>
-      part.charAt(0).toUpperCase() + part.slice(1)
-    ).join('_');
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }

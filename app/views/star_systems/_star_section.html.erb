@@ -1,10 +1,12 @@
-<%# Local variables: prefix, label, indent (boolean) %>
+<%# Local variables: prefix, label, indent (boolean), parent_prefix (optional) %>
 <% prefix ||= "close" %>
 <% label ||= prefix.titleize.gsub('_', ' ') %>
 <% indent ||= false %>
 <% checked = params.dig(:star_system, "#{prefix}_enabled") == '1' %>
+<% parent_prefix = local_assigns[:parent_prefix] %>
+<% parent_checked = parent_prefix.nil? || params.dig(:star_system, "#{parent_prefix}_enabled") == '1' %>
 
-<div class="<%= 'ml-6' if indent %>" data-star-system-form-target="<%= prefix %>Section">
+<div class="<%= 'ml-6' if indent %> <%= 'hidden' unless parent_checked %>" data-star-system-form-target="<%= prefix %>Section">
   <div class='flex items-center gap-2 mb-3'>
     <%= check_box_tag "star_system[#{prefix}_enabled]",
                       '1',

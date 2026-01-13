@@ -37,13 +37,13 @@
         </div>
 
         <%= render 'star_section', prefix: 'close', label: 'Close Star' %>
-        <%= render 'star_section', prefix: 'close_companion', label: 'Companion', indent: true %>
+        <%= render 'star_section', prefix: 'close_companion', label: 'Companion', indent: true, parent_prefix: 'close' %>
 
         <%= render 'star_section', prefix: 'near', label: 'Near Star' %>
-        <%= render 'star_section', prefix: 'near_companion', label: 'Companion', indent: true %>
+        <%= render 'star_section', prefix: 'near_companion', label: 'Companion', indent: true, parent_prefix: 'near' %>
 
         <%= render 'star_section', prefix: 'far', label: 'Far Star' %>
-        <%= render 'star_section', prefix: 'far_companion', label: 'Companion', indent: true %>
+        <%= render 'star_section', prefix: 'far_companion', label: 'Companion', indent: true, parent_prefix: 'far' %>
       </div>
     </div>
   <% end %>
