@@ -55,42 +55,42 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to star_systems_url
   end
 
-  test 'luminosity is required' do
+  test 'primary luminosity is required' do
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
         random_star: '0',
-        spectral_type: 'G',
-        spectral_subtype: '2'
+        primary_spectral_type: 'G',
+        primary_spectral_subtype: '2'
       }
     }
 
     assert_response :unprocessable_entity
   end
 
-  test 'spectral_type is required' do
+  test 'primary spectral_type is required' do
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
         random_star: '0',
-        luminosity: 'V',
-        spectral_subtype: '2'
+        primary_luminosity: 'V',
+        primary_spectral_subtype: '2'
       }
     }
 
     assert_response :unprocessable_entity
   end
 
-  test 'spectral_subtype is required' do
+  test 'primary spectral_subtype is required' do
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
         random_star: '0',
-        luminosity: 'V',
-        spectral_type: 'G'
+        primary_luminosity: 'V',
+        primary_spectral_type: 'G'
       }
     }
 
@@ -115,7 +115,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
   end
 
-  test 'create succeeds with all star params when random_star is false' do
+  test 'create succeeds with all primary star params when random_star is false' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -127,9 +127,9 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
         name: 'Test',
         parsec_id: @parsec.id,
         random_star: '0',
-        luminosity: 'V',
-        spectral_type: 'G',
-        spectral_subtype: '2'
+        primary_luminosity: 'V',
+        primary_spectral_type: 'G',
+        primary_spectral_subtype: '2'
       }
     }
 

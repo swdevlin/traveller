@@ -98,10 +98,21 @@ class StarSystemsController < ApplicationController
     definition = { name: star_system_params[:name] }
 
     unless @random
-      definition[:primary] = {
-        type: "#{sgp[:spectral_type]}#{sgp[:spectral_subtype]}",
-        class: sgp[:luminosity]
-      }
+      definition[:primary] = build_star_definition(sgp, 'primary')
+
+      if sgp['primary_companion_enabled'] == '1'
+        definition[:primary][:companion] = build_star_definition(sgp, 'primary_companion')
+      end
+
+      %w[close near far].each do |orbit|
+        if sgp["#{orbit}_enabled"] == '1'
+          definition[:primary][orbit.to_sym] = build_star_definition(sgp, orbit)
+
+          if sgp["#{orbit}_companion_enabled"] == '1'
+            definition[:primary][orbit.to_sym][:companion] = build_star_definition(sgp, "#{orbit}_companion")
+          end
+        end
+      end
     end
 
     base = Rails.application.config.x.generator_service
@@ -148,25 +159,81 @@ class StarSystemsController < ApplicationController
   end
 
   def star_generator_params
-    params.expect(star_system: [:random_star, :luminosity, :spectral_type, :spectral_subtype])
+    permitted = [:random_star]
+    %w[primary primary_companion close close_companion near near_companion far far_companion].each do |prefix|
+      permitted << "#{prefix}_enabled".to_sym unless prefix == 'primary'
+      permitted << "#{prefix}_spectral_type".to_sym
+      permitted << "#{prefix}_spectral_subtype".to_sym
+      permitted << "#{prefix}_luminosity".to_sym
+    end
+    params.require(:star_system).permit(*permitted)
   end
 
   def star_generate_params_errors
     sp = star_generator_params
     @random = ActiveModel::Type::Boolean.new.cast(sp[:random_star])
     return nil if @random
-    missing = %i[luminosity spectral_type spectral_subtype].select { |k| sp[k].blank? }
-    unless missing.empty?
-      return "#{missing.join(', ')} must be provided"
+
+    # Validate primary star (required)
+    error = validate_star_params(sp, 'primary', required: true)
+    return error if error
+
+    # Validate optional stars and their companions
+    %w[close near far].each do |orbit|
+      if sp["#{orbit}_enabled"] == '1'
+        error = validate_star_params(sp, orbit, required: true)
+        return error if error
+      end
+
+      if sp["#{orbit}_companion_enabled"] == '1'
+        error = validate_star_params(sp, "#{orbit}_companion", required: true)
+        return error if error
+      end
     end
-    if %w[O M].include?(sp['spectral_type']) && sp['luminosity'] == 'IV'
-      return "#{sp['spectral_type']} IV stars are not supported by the generator."
+
+    # Validate primary companion
+    if sp['primary_companion_enabled'] == '1'
+      error = validate_star_params(sp, 'primary_companion', required: true)
+      return error if error
     end
-    if %w[A F].include?(sp['spectral_type']) && sp['luminosity'] == 'VI'
-      return "#{sp['spectral_type']} VI stars are not supported by the generator."
+
+    nil
+  end
+
+  def build_star_definition(sp, prefix)
+    {
+      type: "#{sp["#{prefix}_spectral_type"]}#{sp["#{prefix}_spectral_subtype"]}",
+      class: sp["#{prefix}_luminosity"]
+    }
+  end
+
+  def validate_star_params(sp, prefix, required: false)
+    type_key = "#{prefix}_spectral_type"
+    subtype_key = "#{prefix}_spectral_subtype"
+    luminosity_key = "#{prefix}_luminosity"
+
+    fields = { type_key => sp[type_key], subtype_key => sp[subtype_key], luminosity_key => sp[luminosity_key] }
+    missing = fields.select { |_, v| v.blank? }.keys
+
+    if required && missing.any?
+      label = prefix.titleize
+      return "#{label}: spectral type, subtype, and luminosity must all be provided"
     end
-    if sp['spectral_type'] == 'K' && sp['spectral_subtype'] >= 5 && sp['luminosity'] == 'VI'
-      return "#{sp['spectral_type']} VI stars are not supported by the generator."
+
+    return nil if missing.size == 3 # All blank is OK for optional stars
+
+    spectral_type = sp[type_key]
+    luminosity = sp[luminosity_key]
+    subtype = sp[subtype_key].to_i
+
+    if %w[O M].include?(spectral_type) && luminosity == 'IV'
+      return "#{prefix.titleize}: #{spectral_type} IV stars are not supported by the generator."
+    end
+    if %w[A F].include?(spectral_type) && luminosity == 'VI'
+      return "#{prefix.titleize}: #{spectral_type} VI stars are not supported by the generator."
+    end
+    if spectral_type == 'K' && subtype >= 5 && luminosity == 'VI'
+      return "#{prefix.titleize}: K#{subtype} VI stars are not supported by the generator."
     end
 
     nil

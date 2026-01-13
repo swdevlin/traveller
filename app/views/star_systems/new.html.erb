@@ -4,63 +4,47 @@
     Add a star system to <span class='text-slate-200'><%= @context_label %></span>
   </h1>
 
-<%= render 'form' do |f| %>
-  <% random_default = params.dig(:star_generator, :random)
-     random_checked = random_default.nil? ? true : random_default == '1' %>
+  <%= render 'form' do |f| %>
+    <% random_checked = params.dig(:star_system, :random_star) != '0' %>
 
-  <% unless @parsec %>
-    <div>
-      <%= f.label :parsec_id, 'Hex', class: 'block text-sm font-semibold mb-1' %>
-      <%= f.select :parsec_id,
-                   options_for_select(@parsec_options, @star_system.parsec_id),
-                   { prompt: 'Select a hex' },
-                   class: 'w-full edit-base' %>
+    <% unless @parsec %>
+      <div>
+        <%= f.label :parsec_id, 'Hex', class: 'block text-sm font-semibold mb-1' %>
+        <%= f.select :parsec_id,
+                     options_for_select(@parsec_options, @star_system.parsec_id),
+                     { prompt: 'Select a hex' },
+                     class: 'w-full edit-base' %>
+      </div>
+    <% end %>
+
+    <div class='space-y-6'>
+      <div class='flex items-center gap-3'>
+        <%= f.check_box :random_star,
+                        { class: 'h-4 w-4 rounded border-slate-700 bg-slate-950',
+                          data: { action: 'star-system-form#toggleRandom', star_system_form_target: 'randomToggle' } },
+                        '1',
+                        '0' %>
+        <%= f.label :random_star, 'Random stars (generate all stars randomly)', class: 'text-sm font-semibold' %>
+      </div>
+
+      <div class="<%= 'hidden' if random_checked %> space-y-6" data-star-system-form-target="starConfig">
+        <div>
+          <h3 class='text-sm font-semibold text-deepnight-orange mb-3'>Primary Star</h3>
+          <%= render 'star_fields', prefix: 'primary', disabled: random_checked %>
+          <div class='mt-4'>
+            <%= render 'star_section', prefix: 'primary_companion', label: 'Companion', indent: true %>
+          </div>
+        </div>
+
+        <%= render 'star_section', prefix: 'close', label: 'Close Star' %>
+        <%= render 'star_section', prefix: 'close_companion', label: 'Companion', indent: true %>
+
+        <%= render 'star_section', prefix: 'near', label: 'Near Star' %>
+        <%= render 'star_section', prefix: 'near_companion', label: 'Companion', indent: true %>
+
+        <%= render 'star_section', prefix: 'far', label: 'Far Star' %>
+        <%= render 'star_section', prefix: 'far_companion', label: 'Companion', indent: true %>
+      </div>
     </div>
   <% end %>
-
-  <div class='space-y-4'>
-    <div class='flex items-center gap-3'>
-      <%= f.check_box :random_star,
-                      { class: 'h-4 w-4 rounded border-slate-700 bg-slate-950',
-                        data: { action: 'star-system-form#toggleRandom', star_system_form_target: 'randomToggle' } },
-                      '1',
-                      '0' %>
-      <%= f.label :random_star, 'Random star (pick type/subtype/luminosity for me)', class: 'text-sm font-semibold' %>
-    </div>
-
-    <div class='grid grid-cols-1 md:grid-cols-3 gap-4'>
-      <div>
-        <%= f.label :spectral_type, 'Spectral type', class: 'block text-sm font-semibold mb-1' %>
-        <%= f.select :spectral_type,
-                     options_for_select(@spectral_type_options, @spectral_type),
-                     { prompt: 'Select type' },
-                     disabled: random_checked,
-                     class: 'w-full edit-base',
-                     data: { star_system_form_target: 'spectralType' } %>
-      </div>
-
-      <div>
-        <%= f.label :spectral_subtype, 'Subtype', class: 'block text-sm font-semibold mb-1' %>
-        <%= f.select :spectral_subtype,
-                     options_for_select(@spectral_subtype_options, @spectral_subtype),
-                     { prompt: '0–9' },
-                     disabled: random_checked,
-                     class: 'w-full edit-base',
-                     data: { star_system_form_target: 'spectralSubtype' } %>
-      </div>
-
-      <div>
-        <%= f.label :luminosity, 'Luminosity class', class: 'block text-sm font-semibold mb-1' %>
-        <%= f.select :luminosity,
-                     options_for_select(@luminosity_options, @luminosity),
-                     { prompt: 'Select class' },
-                     disabled: random_checked,
-                       class: 'w-full edit-base',
-                     data: { star_system_form_target: 'luminosity' } %>
-      </div>
-    </div>
-  </div>
-
-<% end %>
-
 </div>
