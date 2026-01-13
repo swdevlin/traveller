@@ -28,6 +28,8 @@
   * can delete rogue object
 * On-line help
 * Add a star system to a hex
+  * [x] random
+  * [x] Specific class, subtype, and luminosity
   * Support generating by system density
 * Hex display for a subsector
 * Links to the Deepnight navigation console for Travellers

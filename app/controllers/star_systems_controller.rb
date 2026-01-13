@@ -87,9 +87,10 @@ class StarSystemsController < ApplicationController
       end
     end
 
-    unless star_generate_params_ok?
+    error = star_generate_params_errors
+    unless error.nil?
       return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:base, 'Either select random star, or provide luminosity, spectral type, and spectral subtype')
+        so.errors.add(:base, error)
       end
     end
 
@@ -150,12 +151,23 @@ class StarSystemsController < ApplicationController
     params.expect(star_system: [:random_star, :luminosity, :spectral_type, :spectral_subtype])
   end
 
-  def star_generate_params_ok?
+  def star_generate_params_errors
     sp = star_generator_params
     @random = ActiveModel::Type::Boolean.new.cast(sp[:random_star])
-    return true if @random
+    return nil if @random
     missing = %i[luminosity spectral_type spectral_subtype].select { |k| sp[k].blank? }
-    missing.empty?
+    unless missing.empty?
+      return "#{missing.join(', ')} must be provided"
+    end
+    if %w[O M].include?(sp['spectral_type']) && sp['luminosity'] == 'IV'
+      return "#{sp['spectral_type']} IV stars are not supported by the generator."
+    end
+    if %w[A F].include?(sp['spectral_type']) && sp['luminosity'] == 'VI'
+      return "#{sp['spectral_type']} VI stars are not supported by the generator."
+    end
+    if sp['spectral_type'] == 'K' && sp['spectral_subtype'] >= 5 && sp['luminosity'] == 'VI'
+      return "#{sp['spectral_type']} VI stars are not supported by the generator."
+    end
   end
 
   def set_form_context
