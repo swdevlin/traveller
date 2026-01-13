@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_09_203202) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_13_015903) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -42,6 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_203202) do
   create_table "parsecs", force: :cascade do |t|
     t.json "build_log"
     t.datetime "created_at", null: false
+    t.text "note"
     t.integer "sector_id", null: false
     t.float "star_chance", default: 50.0
     t.integer "survey_index", default: 0
