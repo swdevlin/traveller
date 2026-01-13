@@ -44,6 +44,12 @@ class StarSystemImporter
   def import_star(star, data)
     star.assign_data_from_generator(data)
     star.save!
+    if data['companion']
+      companion = Star.new
+      companion.star_system = @star_system
+      companion.orbiting = star
+      import_star(companion, data['companion'])
+    end
     data['stellarObjects'].each do |so_data|
       orbit_type = so_data['orbitType']
       klass = OrbitType::STI_CLASS_FOR_ORBIT_TYPE.fetch(orbit_type) do

@@ -55,4 +55,18 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 2, primary.stellar_objects.count
     assert_equal 1, secondary.stellar_objects.count
   end
+
+  test 'companion added' do
+    star_system = nil
+
+    assert_difference('StellarObject.count', 3) do
+      data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_companion.json')))
+      star_system = @importer.import!(@parsec, data)
+    end
+
+    primary = star_system.stars.order(:created_at).first
+    companion = star_system.stars.order(:created_at).last
+    assert_equal companion.orbiting, primary
+  end
+
 end
