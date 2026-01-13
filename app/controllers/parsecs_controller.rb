@@ -37,6 +37,6 @@ class ParsecsController < ApplicationController
     end
 
     def parsec_params
-      params.expect(parsec: [:sector_id, :x, :y])
+      params.expect(parsec: [:note])
     end
 end
