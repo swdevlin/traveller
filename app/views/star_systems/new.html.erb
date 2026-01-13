@@ -14,7 +14,7 @@
       <%= f.select :parsec_id,
                    options_for_select(@parsec_options, @star_system.parsec_id),
                    { prompt: 'Select a hex' },
-                   class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2' %>
+                   class: 'w-full edit-base' %>
     </div>
   <% end %>
 
@@ -35,7 +35,7 @@
                      options_for_select(@spectral_type_options, @spectral_type),
                      { prompt: 'Select type' },
                      disabled: random_checked,
-                     class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2',
+                     class: 'w-full edit-base',
                      data: { star_system_form_target: 'spectralType' } %>
       </div>
 
@@ -45,7 +45,7 @@
                      options_for_select(@spectral_subtype_options, @spectral_subtype),
                      { prompt: '0–9' },
                      disabled: random_checked,
-                     class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2',
+                     class: 'w-full edit-base',
                      data: { star_system_form_target: 'spectralSubtype' } %>
       </div>
 
@@ -55,7 +55,7 @@
                      options_for_select(@luminosity_options, @luminosity),
                      { prompt: 'Select class' },
                      disabled: random_checked,
-                       class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2',
+                       class: 'w-full edit-base',
                      data: { star_system_form_target: 'luminosity' } %>
       </div>
     </div>

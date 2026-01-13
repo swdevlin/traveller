@@ -13,25 +13,21 @@
 
   <div class="my-5">
     <%= form.label :name %>
-    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": subsector.errors[:name].none?, "border-red-400 focus:outline-red-600": subsector.errors[:name].any?}] %>
+    <%= form.text_field :name, class: [
+      "w-full edit-base",
+      {
+        "border-gray-400 focus:outline-blue-600": subsector.errors[:name].none?,
+        "border-red-400 focus:outline-red-600": subsector.errors[:name].any?
+      }]
+    %>
   </div>
 
   <div class="my-5">
-    <%= form.label :x %>
-    <%= form.number_field :x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": subsector.errors[:x].none?, "border-red-400 focus:outline-red-600": subsector.errors[:x].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :y %>
-    <%= form.number_field :y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": subsector.errors[:y].none?, "border-red-400 focus:outline-red-600": subsector.errors[:y].any?}] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :notes, "Deepnight Log" %>
+    <%= form.label :notes, "Notes" %>
     <%= form.text_area :notes,
                        rows: 6,
                        class: [
-                         "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
+                         "edit-base mt-2 w-full resize-y",
                          {
                            "border-gray-400 focus:outline-blue-600": subsector.errors[:notes].none?,
                            "border-red-400 focus:outline-red-600": subsector.errors[:notes].any?
@@ -40,6 +36,6 @@
   </div>
 
   <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto btn btn-primary cursor-pointer" %>
+    <%= form.submit "Save changes", class: "w-full sm:w-auto btn btn-primary cursor-pointer" %>
   </div>
 <% end %>

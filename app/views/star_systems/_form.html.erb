@@ -3,7 +3,7 @@
 
   <div>
     <%= f.label :name, 'Name', class: 'block text-sm font-semibold mb-1' %>
-    <%= f.text_field :name, class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2' %>
+    <%= f.text_field :name, class: 'w-full edit-base' %>
   </div>
 
   <%# New-only fields get injected here %>
@@ -11,7 +11,7 @@
 
   <div>
     <%= f.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>
-    <%= f.text_area :notes, rows: 6, class: 'w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2' %>
+    <%= f.text_area :notes, rows: 6, class: 'w-full edit-base' %>
   </div>
 
   <%= f.submit @submit_label, class: 'btn btn-primary' %>

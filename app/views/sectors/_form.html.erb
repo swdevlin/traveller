@@ -15,7 +15,7 @@
     <%= form.label :name %>
     <%= form.text_field :name,
                         class: [
-                          "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full",
+                          "w-full rounded-lg bg-slate-950 border-slate-700 px-3 py-2",
                           {
                             "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
                             "border-red-400 focus:outline-red-600": sector.errors[:name].any?
@@ -27,7 +27,7 @@
     <%= form.label :abbreviation %>
     <%= form.text_field :abbreviation,
                         class: [
-                          "block shadow-sm rounded-md border px-3 py-2 mt-2 w-24",
+                          "edit-base mt-2 w-24",
                           {
                             "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
                             "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
@@ -43,7 +43,7 @@
         <%= form.label :x, "X", class: "block text-sm font-medium mb-1" %>
         <%= form.number_field :x,
                               class: [
-                                "coord-input",
+                                "coord-input edit-base",
                                 {
                                   "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
                                   "border-red-400 focus:outline-red-600": sector.errors[:x].any?
@@ -55,7 +55,7 @@
         <%= form.label :y, "Y", class: "block text-sm font-medium mb-1" %>
         <%= form.number_field :y,
                               class: [
-                                "coord-input",
+                                "coord-input edit-base",
                                 {
                                   "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
                                   "border-red-400 focus:outline-red-600": sector.errors[:y].any?
@@ -66,11 +66,11 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :notes, "Deepnight Log" %>
+    <%= form.label :notes, "Notes" %>
     <%= form.text_area :notes,
                        rows: 6,
                        class: [
-                         "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
+                         "mt-2 w-full edit-base resize-y",
                          {
                            "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
                            "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
@@ -79,6 +79,6 @@
   </div>
 
   <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto btn btn-primary cursor-pointer" %>
+    <%= form.submit class: "w-full sm:w-auto btn btn-primary" %>
   </div>
 <% end %>

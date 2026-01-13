@@ -1,10 +1,9 @@
-<% content_for :title, "Editing subsector" %>
+<% content_for :title, "Editing #{@subsector.name}, #{@subsector.sector.name}" %>
 
 <div class="md:w-2/3 w-full">
   <h1 class="font-bold text-4xl">Editing subsector</h1>
 
   <%= render "form", subsector: @subsector %>
 
-  <%= link_to "Show this subsector", @subsector, class: "w-full sm:w-auto btn" %>
-  <%= link_to "Back to subsectors", subsectors_path, class: "w-full sm:w-auto btn" %>
+  <%= link_to "Back to #{@subsector.name}", @subsector, class: "w-full sm:w-auto btn" %>
 </div>

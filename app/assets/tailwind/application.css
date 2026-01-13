@@ -42,8 +42,12 @@
     @apply underline hover:text-traveller-red hover:underline hover:underline-offset-2
   }
 
+  .edit-base {
+    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700;
+  }
+
   .coord-input {
-    @apply w-24 flex-none block shadow-sm rounded-md border px-3 py-2;
+    @apply w-24 flex-none;
   }
 
   .btn-header {
@@ -88,6 +92,8 @@
     bg-slate-700/60 hover:bg-slate-700/80
     text-slate-100
     border border-slate-500/70 hover:border-slate-300/80
+    mr-2
+    cursor-pointer
     transition;
   }
 
