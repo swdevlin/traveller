@@ -20,7 +20,7 @@
 
       <% if @subsector.notes.present? %>
         <div class="mb-4">
-          <strong class="block text-sm font-semibold mb-1">Deepnight Log</strong>
+          <strong class="block text-sm font-semibold mb-1">Notes</strong>
           <p class="text-sm whitespace-pre-line">
             <%= @subsector.notes %>
           </p>
@@ -38,10 +38,15 @@
                     edit_subsector_path(@subsector),
                     class: "w-full sm:w-auto btn btn-primary" %>
 
+        <%= link_to "Populate",
+                      populate_subsector_path(@subsector),
+                      class: "w-full sm:w-auto btn"
+        %>
+
         <%= button_to "Clear",
                       clear_subsector_path(@subsector),
                       method: "post",
-                      class: "w-full sm:w-auto btn",
+                      class: "w-full sm:w-auto btn btn-danger",
                       data: {turbo_confirm: confirm_msg}
         %>
       </div>

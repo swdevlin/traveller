@@ -1,5 +1,5 @@
 class SubsectorsController < ApplicationController
-  before_action :set_subsector, only: %i[ show edit update clear]
+  before_action :set_subsector, only: %i[ show edit update clear populate]
 
   # GET /subsectors or /subsectors.json
   def index
@@ -21,6 +21,16 @@ class SubsectorsController < ApplicationController
 
   # GET /subsectors/1/edit
   def edit
+  end
+
+  def populate
+    unless @subsector.build.present?
+      populate_build_from_template!
+    end
+  end
+
+  def generate
+    redirect_to subsector_path(@subsector), notice: 'Subsector population task created.'
   end
 
   def clear
@@ -53,5 +63,12 @@ class SubsectorsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def subsector_params
       params.expect(subsector: [:name, :x, :y, :notes, :build])
+    end
+
+    def populate_build_from_template!
+      path = Rails.root.join('app', 'templates', 'subsectors', "build_template.yml.erb")
+      erb  = ERB.new(path.read)
+
+      @subsector.build = erb.result_with_hash({})
     end
 end
