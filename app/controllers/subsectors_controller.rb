@@ -66,7 +66,7 @@ class SubsectorsController < ApplicationController
     end
 
     def populate_build_from_template!
-      path = Rails.root.join('app', 'templates', 'subsectors', "build_template.yml.erb")
+      path = Rails.root.join('app', 'templates', 'subsectors', 'build_template.yml.erb')
       erb  = ERB.new(path.read)
 
       @subsector.build = erb.result_with_hash({})

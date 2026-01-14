@@ -68,5 +68,4 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     companion = star_system.stars.order(:created_at).last
     assert_equal companion.orbiting, primary
   end
-
 end
