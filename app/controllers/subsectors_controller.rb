@@ -62,23 +62,22 @@ class SubsectorsController < ApplicationController
     @rogue_count = @subsector.rogues.count
   end
 
-  # Use callbacks to share common setup or constraints between actions.
-    def set_subsector
-      @subsector = Subsector.find(params.expect(:id))
-    end
+  def set_subsector
+    @subsector = Subsector.find(params.expect(:id))
+  end
 
-    def subsector_params
-      params.expect(subsector: [:name, :x, :y, :notes, :build])
-    end
+  def subsector_params
+    params.expect(subsector: [:name, :x, :y, :notes, :build])
+  end
 
-    def subsector_generate_params
-      params.expect(subsector: [:build])
-    end
+  def subsector_generate_params
+    params.expect(subsector: [:build])
+  end
 
-    def populate_build_from_template!
-      path = Rails.root.join('app', 'templates', 'subsectors', 'build_template.yml.erb')
-      erb  = ERB.new(path.read)
+  def populate_build_from_template!
+    path = Rails.root.join('app', 'templates', 'subsectors', 'build_template.yml.erb')
+    erb  = ERB.new(path.read)
 
-      @subsector.build = erb.result_with_hash({})
-    end
+    @subsector.build = erb.result_with_hash({})
+  end
 end
