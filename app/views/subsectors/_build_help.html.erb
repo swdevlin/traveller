@@ -1,0 +1,127 @@
+<aside class='rounded-2xl bg-slate-950/60 p-4'>
+  <div class='flex items-center gap-2 mb-3'>
+    <i class='fa-solid fa-circle-info text-slate-300'></i>
+    <h2 class='text-sm font-semibold text-slate-200'>Build plan specification</h2>
+  </div>
+
+  <dl class='space-y-3 text-sm'>
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-dice text-slate-400 mr-2'></i>
+        unusualChance
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        Chance (typically 0..6) that an &lsquo;unusual&rsquo; result overrides normal generation for a system.
+        Higher means stranger subsector outcomes.
+      </dd>
+    </div>
+
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-signal text-slate-400 mr-2'></i>
+        defaultSI
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        Default Survey Index used when a system does not specify one explicitly. If not specified, defaults to 0.
+      </dd>
+    </div>
+
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-percent text-slate-400 mr-2'></i>
+        chance
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        Density profile name. This controls the per-hex probability that a star system is placed when not using the
+        <span class='font-mono text-slate-200'>systems</span> option.
+      </dd>
+
+      <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+        <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
+
+        <ul class='text-xs text-slate-300 space-y-1'>
+          <li><span class='font-mono text-slate-200'>DENSE</span> – 60%</li>
+          <li><span class='font-mono text-slate-200'>STANDARD</span> – 50%</li>
+          <li><span class='font-mono text-slate-200'>MODERATE</span> – 40%</li>
+          <li><span class='font-mono text-slate-200'>LOW</span> – 30%</li>
+          <li><span class='font-mono text-slate-200'>SPARSE</span> – 20%</li>
+          <li><span class='font-mono text-slate-200'>MINIMAL</span> – 10%</li>
+          <li><span class='font-mono text-slate-200'>RIFT</span> – 3%</li>
+          <li><span class='font-mono text-slate-200'>RIFT_FADE</span> – 2%</li>
+          <li><span class='font-mono text-slate-200'>DEEP_RIFT</span> – 1%</li>
+          <li><span class='font-mono text-slate-200'>EMPTY</span> – 0%</li>
+        </ul>
+
+        <p class='mt-2 text-xs text-slate-400'>
+          Example: <span class='font-mono text-slate-200'>chance: STANDARD</span>
+        </p>
+      </div>
+    </div>
+
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-ban text-slate-400 mr-2'></i>
+        exclude
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        List of subsector hex x and y coordinates (x:1..8, y:1..10)
+        where the generator must <span class='font-semibold text-slate-200'>not</span> place a star system.
+      </dd>
+    </div>
+
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-circle-check text-slate-400 mr-2'></i>
+        required
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        List of hex coordinates that must <span class='font-semibold text-slate-200'>always</span> have a star system.
+        A hex cannot appear in both the <span class='font-mono text-slate-200'>required</span> and
+        <span class='font-mono text-slate-200'>exclude</span> list.
+      </dd>
+    </div>
+
+    <div>
+      <dt class='font-semibold text-slate-200'>
+        <i class='fa-solid fa-grid-2-plus text-slate-400 mr-2'></i>
+        systems
+      </dt>
+      <dd class='text-slate-300 mt-1'>
+        If this list is present and non-empty, the generator will place star systems
+        <span class='font-semibold text-slate-200'>only</span> in these hexes.
+        In this mode, <span class='font-mono text-slate-200'>exclude</span> and
+        <span class='font-mono text-slate-200'>required</span> are ignored.
+      </dd>
+
+      <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+        <p class='text-xs text-slate-300 font-semibold mb-2'>
+          Examples
+        </p>
+
+        <pre class='text-xs font-mono text-slate-200 whitespace-pre-wrap'>exclude:
+  - x: 1
+    y: 1
+  - x: 2
+    y: 3
+required:
+  - x: 4
+    y: 7
+  - x: 8
+    y: 10
+systems:
+  - x: 1
+    y: 6
+  - x: 8
+    y: 10</pre>
+
+        <p class='mt-2 text-xs text-slate-400'>
+          When <span class='font-mono text-slate-200'>systems</span> is set, only those hexes get systems. Nothing else does.
+        </p>
+      </div>
+    </div>
+  </dl>
+
+  <p class='mt-4 text-xs text-slate-400'>
+    Tip: keep indentation at 2 spaces. YAML is picky about that.
+  </p>
+</aside>
