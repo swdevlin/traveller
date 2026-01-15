@@ -34,13 +34,22 @@
 * Hex display for a subsector
 * Links to the Deepnight navigation console for Travellers
 * Populate a subsector
+  * [x] Basic populate
+  * Add populated option
+    * per hex 
+  * Add star definition
+  * Add system definition
+    * hot, habital, goldilocks, cold zones
 * Populate a sector
+  *  verify each subsector has a build plan
+  *  create a job for each subsector
 * Log in
   * Multi-tenancy
   * Start at sectors list if the user is logged in
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
 * In star system editing
+  *  Add option to change main world 
 * Enter configuration for parsec
 * Enter configuration for subsector
 * Enter configuration for sector
@@ -71,7 +80,7 @@ The site is built using Rails 8.1.1 and Ruby 3.5.7.
 
 SQLite is used for the database.
 
-Multi-tenacy is handled via schemas.
+Multi-tenacy will be handled via schemas.
 
 # Dev Notes
 

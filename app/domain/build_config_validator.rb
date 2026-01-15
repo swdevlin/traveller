@@ -1,0 +1,98 @@
+# frozen_string_literal: true
+
+require_relative 'build_config_schema'
+
+class BuildConfigValidator
+  attr_reader :errors, :config
+
+  def initialize(yaml_string)
+    @yaml_string = yaml_string
+    @errors = []
+    @config = nil
+  end
+
+  def valid?
+    @errors = []
+    parse_yaml && validate_schema && validate_business_rules
+    @errors.empty?
+  end
+
+  private
+
+  def parse_yaml
+    @config = YAML.safe_load(
+      @yaml_string,
+      permitted_classes: [],
+      permitted_symbols: [],
+      aliases: false
+    )
+
+    unless @config.is_a?(Hash)
+      @errors << 'Build config must be a YAML hash/map'
+      return false
+    end
+
+    # Normalize keys to strings and handle nil values in arrays
+    @config = normalize_config(@config)
+    true
+  rescue Psych::SyntaxError => e
+    @errors << "Invalid YAML syntax: #{e.message}"
+    false
+  rescue Psych::DisallowedClass => e
+    @errors << "Disallowed YAML content: #{e.message}"
+    false
+  rescue => e
+    @errors << "Failed to parse YAML: #{e.message}"
+    false
+  end
+
+  def normalize_config(hash)
+    hash.transform_keys(&:to_s).transform_values do |value|
+      case value
+      when Array
+        # Remove nil entries from coordinate arrays
+        value.compact
+      else
+        value
+      end
+    end.tap do |h|
+      # Normalize chance to uppercase for case-insensitive matching
+      h['chance'] = h['chance'].upcase if h['chance'].is_a?(String)
+    end
+  end
+
+  def validate_schema
+    result = BuildConfigSchema.call(@config)
+
+    unless result.success?
+      result.errors.to_h.each do |field, messages|
+        messages.each do |message|
+          @errors << "#{field}: #{message}"
+        end
+      end
+      return false
+    end
+
+    true
+  end
+
+  def validate_business_rules
+    validate_systems_exclusivity
+    @errors.empty?
+  end
+
+  def validate_systems_exclusivity
+    systems = @config['systems']
+    return unless systems.is_a?(Array) && systems.compact.any?
+
+    exclude = @config['exclude']
+    required = @config['required']
+
+    exclude_present = exclude.is_a?(Array) && exclude.compact.any?
+    required_present = required.is_a?(Array) && required.compact.any?
+
+    if exclude_present || required_present
+      @errors << 'When systems is specified, exclude and required must be empty'
+    end
+  end
+end

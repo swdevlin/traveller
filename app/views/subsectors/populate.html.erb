@@ -21,7 +21,7 @@
         </div>
       <% end %>
 
-      <%= form_with(model: @subsector, class: 'contents') do |form| %>
+      <%= form_with(model: @subsector, url: generate_subsector_path(@subsector), method: :post, class: 'contents') do |form| %>
         <div class='mt-5'>
           <%= form.label :build, 'Build plan' %>
 
@@ -38,7 +38,7 @@
                                  ] %>
 
               <div class='mt-4 flex flex-col sm:flex-row gap-2'>
-                <% confirm_msg = 'There are stuff. Are you sure you wish to generate?' %>
+                <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the subsector. Are you sure you wish to replace them?" %>
 
                 <%= form.submit 'Generate',
                                 class: 'w-full sm:w-auto btn btn-primary',
@@ -53,7 +53,7 @@
             <aside class='rounded-2xl bg-slate-950/60 p-4'>
               <div class='flex items-center gap-2 mb-3'>
                 <i class='fa-solid fa-circle-info text-slate-300'></i>
-                <h2 class='text-sm font-semibold text-slate-200'>Build plan help</h2>
+                <h2 class='text-sm font-semibold text-slate-200'>Build plan specification</h2>
               </div>
 
               <dl class='space-y-3 text-sm'>
@@ -74,7 +74,7 @@
                     defaultSI
                   </dt>
                   <dd class='text-slate-300 mt-1'>
-                    Default Survey Index used when a system does not specify one explicitly.
+                    Default Survey Index used when a system does not specify one explicitly. If not specified, defaults to 0.
                   </dd>
                 </div>
 
@@ -84,8 +84,8 @@
                     chance
                   </dt>
                   <dd class='text-slate-300 mt-1'>
-                    Density profile name. This controls the per-hex probability that a star system is placed when not using
-                    <span class='font-mono text-slate-200'>systems</span> whitelist mode.
+                    Density profile name. This controls the per-hex probability that a star system is placed when not using the
+                    <span class='font-mono text-slate-200'>systems</span> option.
                   </dd>
 
                   <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
@@ -116,7 +116,7 @@
                     exclude
                   </dt>
                   <dd class='text-slate-300 mt-1'>
-                    List of hex coordinates (e.g. <span class='font-mono text-slate-200'>0101</span> .. <span class='font-mono text-slate-200'>0810</span>)
+                    List of subsector hex x and y coordinates (x:1..8, y:1..10)
                     where the generator must <span class='font-semibold text-slate-200'>not</span> place a star system.
                   </dd>
                 </div>
@@ -128,8 +128,8 @@
                   </dt>
                   <dd class='text-slate-300 mt-1'>
                     List of hex coordinates that must <span class='font-semibold text-slate-200'>always</span> have a star system.
-                    If a coordinate appears in both <span class='font-mono text-slate-200'>required</span> and
-                    <span class='font-mono text-slate-200'>exclude</span>, treat that as a config mistake.
+                    A hex cannot appear in both the <span class='font-mono text-slate-200'>required</span> and
+                    <span class='font-mono text-slate-200'>exclude</span> list.
                   </dd>
                 </div>
 
@@ -151,16 +151,20 @@
                     </p>
 
                     <pre class='text-xs font-mono text-slate-200 whitespace-pre-wrap'>exclude:
-  - 0101
-  - 0203
-
+  - x: 1
+    y: 1
+  - x: 2
+    y: 3
 required:
-  - 0404
-  - 0810
-
+  - x: 4
+    y: 7
+  - x: 8
+    y: 10
 systems:
-  - 0101
-  - 0810</pre>
+  - x: 1
+    y: 6
+  - x: 8
+    y: 10</pre>
 
                     <p class='mt-2 text-xs text-slate-400'>
                       When <span class='font-mono text-slate-200'>systems</span> is set, only those hexes get systems. Nothing else does.

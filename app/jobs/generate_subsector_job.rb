@@ -1,0 +1,57 @@
+require 'net/http'
+require 'uri'
+require 'json'
+require 'yaml'
+
+class GenerateSubsectorJob < ApplicationJob
+  queue_as :default
+
+  def perform(subsector, definition)
+    config =
+      YAML.safe_load(
+        definition,
+        permitted_classes: [Date, Time], # add more if you truly need them
+        aliases: false
+      ) || {}
+
+    config = config.deep_symbolize_keys if config.respond_to?(:deep_symbolize_keys)
+    %i[exclude required systems].each do |key|
+      value = config[key]
+
+      next unless value.is_a?(Array)
+
+      config.delete(key) if value.compact.empty?
+    end
+
+    base = Rails.application.config.x.generator_service
+    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'subsector')
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 50
+    http.read_timeout = 600
+    headers = {
+      'Content-Type' => 'application/json',
+      'Accept' => 'application/json'
+    }
+
+    response = http.post(uri.request_uri, config.to_json, headers)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}" and return
+    end
+
+    systems =
+      begin
+        JSON.parse(response.body)
+      rescue JSON::ParserError => e
+        Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}" and return
+      end
+
+    importer = StarSystemImporter.new
+    ul, = subsector.universal_coordinates
+    systems.each do |system|
+      parsec = Parsec.find_by(x: ul.x + system['x']-1, y: ul.y - (system['y'] - 1))
+      importer.import!(parsec, system)
+    end
+  end
+end
