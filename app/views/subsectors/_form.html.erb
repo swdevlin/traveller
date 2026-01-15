@@ -35,7 +35,25 @@
                        ] %>
   </div>
 
-  <div class="inline">
-    <%= form.submit "Save changes", class: "w-full sm:w-auto btn btn-primary" %>
+  <div class="my-5">
+    <%= form.label :build, 'Build plan' %>
+    <div class='mt-2 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-start'>
+      <div>
+        <%= form.text_area :build,
+                           rows: 16,
+                           class: [
+                             'font-mono edit-base w-full resize-y',
+                             {
+                               'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
+                               'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
+                             }
+                           ] %>
+
+        <div class="mt-4">
+          <%= form.submit "Save changes", class: "w-full sm:w-auto btn btn-primary" %>
+        </div>
+      </div>
+      <%= render 'build_help' %>
+    </div>
   </div>
 <% end %>

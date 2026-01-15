@@ -22,7 +22,7 @@
   * [x] Relic
     * can edit
   * Terrestrial planet
-    * can edit
+    * can edit uwp
   * [x] Unusual Object
     * can edit
   * can delete rogue object
@@ -31,8 +31,8 @@
   * [x] random
   * [x] Specific class, subtype, and luminosity
   * Support generating by system density
+  * support full system specification
 * Hex display for a subsector
-* Links to the Deepnight navigation console for Travellers
 * Populate a subsector
   * [x] Basic populate
   * Add populated option
@@ -41,21 +41,25 @@
   * Add system definition
     * hot, habital, goldilocks, cold zones
 * Populate a sector
-  *  verify each subsector has a build plan
-  *  create a job for each subsector
+  * [x] verify each subsector has a build plan
+  * [x] create a job for each subsector
+  * Add an option to set the subsector type for subsectors without a plan
 * Log in
   * Multi-tenancy
-  * Start at sectors list if the user is logged in
+  * Start at the sectors view if the user is logged in
+  * Links to the Deepnight navigation console for Referee & Travellers
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
-* In star system editing
-  *  Add option to change main world 
-* Enter configuration for parsec
-* Enter configuration for subsector
-* Enter configuration for sector
+* Edit star system
+  *  Add an option to change the main world 
+* [x] Enter configuration for subsector
 * Import default data for sector
 * Import default data for subsector
 * Import default data for parsec
+
+* Import default configuration for sector
+* Import default configuration for subsector
+* Import default configuration for parsec
 
 ### To do?
 

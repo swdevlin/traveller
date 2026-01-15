@@ -1,5 +1,5 @@
 class SectorsController < ApplicationController
-  before_action :set_sector, only: %i[ show edit update destroy clear ]
+  before_action :set_sector, only: %i[ show edit update destroy clear populate generate]
 
   # GET /sectors or /sectors.json
   def index
@@ -7,6 +7,29 @@ class SectorsController < ApplicationController
     scope = Sector.order(:name)
     scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, params: request.query_parameters)
+  end
+
+  def populate
+    @star_system_count =
+      StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
+
+    @rogue_count =
+      StellarObject
+        .joins(:parsec)
+        .where(parsecs: { sector_id: @sector.id })
+        .where(star_system_id: nil)
+        .count
+  end
+
+  def generate
+    if @sector.subsectors.where(build: nil).exists?
+      redirect_to sector_path(@sector), notice: 'Not all subsectors have a build plan. No tasks were created'
+    else
+      @sector.subsectors.each do |subsector|
+        GenerateSubsectorJob.perform_later(subsector, subsector.build)
+      end
+      redirect_to sector_path(@sector), notice: 'Subsector populate tasks created'
+    end
   end
 
   # GET /sectors/1 or /sectors/1.json

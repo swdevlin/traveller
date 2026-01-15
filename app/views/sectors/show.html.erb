@@ -48,6 +48,10 @@
                     new_sector_rogue_path(@sector),
                     class: "w-full sm:w-auto btn" %>
 
+        <%= link_to "Populate",
+                    populate_sector_path(@sector),
+                    class: "w-full sm:w-auto btn" %>
+
         <%= button_to "Clear",
                       clear_sector_path(@sector),
                       method: "post",

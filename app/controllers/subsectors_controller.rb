@@ -28,9 +28,10 @@ class SubsectorsController < ApplicationController
       flash[:alert] = "Invalid build configuration: #{validator.errors.join(', ')}"
       redirect_to populate_subsector_path(@subsector) and return
     end
-    @subsector.build = build_yaml
+    normalized_yaml = normalize_build_yaml(build_yaml)
+    @subsector.build = normalized_yaml
     @subsector.save!
-    GenerateSubsectorJob.perform_later(@subsector, build_yaml)
+    GenerateSubsectorJob.perform_later(@subsector, normalized_yaml)
     redirect_to subsector_path(@subsector), notice: 'Subsector population task created.'
   end
 
@@ -44,8 +45,26 @@ class SubsectorsController < ApplicationController
 
   # PATCH/PUT /subsectors/1 or /subsectors/1.json
   def update
+    params_to_save = subsector_params.to_h
+    build_yaml = params_to_save[:build]
+
+    if build_yaml.blank?
+      params_to_save[:build] = nil
+    else
+      validator = BuildConfigValidator.new(build_yaml)
+      unless validator.valid?
+        @subsector.errors.add(:build, validator.errors.join(', '))
+        respond_to do |format|
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @subsector.errors, status: :unprocessable_entity }
+        end
+        return
+      end
+      params_to_save[:build] = normalize_build_yaml(build_yaml)
+    end
+
     respond_to do |format|
-      if @subsector.update(subsector_params)
+      if @subsector.update(params_to_save)
         format.html { redirect_to @subsector, notice: 'Subsector was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @subsector }
       else
@@ -79,5 +98,13 @@ class SubsectorsController < ApplicationController
     erb  = ERB.new(path.read)
 
     @subsector.build = erb.result_with_hash({})
+  end
+
+  def normalize_build_yaml(yaml_string)
+    config = YAML.safe_load(yaml_string, permitted_classes: [], permitted_symbols: [], aliases: false)
+    return yaml_string unless config.is_a?(Hash)
+
+    config['chance'] = config['chance'].upcase if config['chance'].is_a?(String)
+    YAML.dump(config)
   end
 end

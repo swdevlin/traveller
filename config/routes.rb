@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   resources :sectors do
     member do
       post :clear
+      get :populate, as: :populate
+      post :generate, as: :generate
     end
     resources :rogues, only: %i[index new create destroy]
     resources :star_systems, only: %i[new create index destroy]
