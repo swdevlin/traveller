@@ -43,7 +43,7 @@
 * Populate a sector
   * [x] verify each subsector has a build plan
   * [x] create a job for each subsector
-  * Add an option to set the subsector type for subsectors without a plan
+  * Load default plan
 * Log in
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
@@ -56,7 +56,8 @@
 * Import default data for sector
 * Import default data for subsector
 * Import default data for parsec
-
+* store image of star system
+* store image of stellar object
 * Import default configuration for sector
 * Import default configuration for subsector
 * Import default configuration for parsec

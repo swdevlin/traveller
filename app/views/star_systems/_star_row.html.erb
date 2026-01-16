@@ -1,0 +1,36 @@
+<tr class="transition hover:bg-slate-900/80">
+  <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <%= star.orbit %> XXX
+  </td>
+
+  <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <%= star.orbit_sequence %>
+  </td>
+
+  <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <%= star.name %>
+  </td>
+
+  <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <%= star.type.underscore.humanize %>
+  </td>
+
+  <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
+    <div class="inline-flex items-center justify-end gap-2">
+      <%= link_to edit_stellar_object_path(star),
+                  class: "text-slate-300 hover:text-traveller-red/90",
+                  title: "Edit" do %>
+        <i class="fa-solid fa-pen-to-square"></i>
+      <% end %>
+
+      <%= button_to stellar_object_path(star),
+                    method: :delete,
+                    form_class: "inline",
+                    class: "text-slate-300 hover:text-traveller-red/90",
+                    title: "Delete",
+                    data: { turbo_confirm: "Delete this stellar object?" } do %>
+        <i class="fa-solid fa-trash"></i>
+      <% end %>
+    </div>
+  </td>
+</tr>

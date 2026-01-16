@@ -1,0 +1,41 @@
+<div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl mt-4">
+  <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
+    <div class="flex items-center justify-between gap-3">
+      <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
+        Objects
+      </p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full table-fixed divide-y divide-slate-700 text-sm">
+      <thead class="bg-slate-900/80">
+      <tr>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-20">
+          au
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+          id
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+          name
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+          details
+        </th>
+        <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
+          Actions
+        </th>
+      </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+      <% stars.each do |star| %>
+        <%= render "star_row", star: star %>
+        <%= star.stellar_objects.each do |so| %>
+          <%= render "stellar_object_row", stellar_object: so%>
+        <% end %>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
