@@ -41,7 +41,7 @@ class SectorsController < ApplicationController
       StellarObject
         .joins(:parsec)
         .where(parsecs: { sector_id: @sector.id })
-        .where(star_system_id: nil)
+        .where(orbiting_star_id: nil)
         .count
   end
 

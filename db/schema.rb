@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_13_015903) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_16_160534) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -93,6 +93,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_015903) do
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
+  create_table "stars", force: :cascade do |t|
+    t.float "age"
+    t.float "au"
+    t.float "baseline"
+    t.string "colour"
+    t.integer "companion_id"
+    t.datetime "created_at", null: false
+    t.float "diameter"
+    t.float "eccentricity"
+    t.float "hzco"
+    t.float "inclination"
+    t.boolean "is_protostar"
+    t.float "jump_shadow"
+    t.float "luminosity"
+    t.float "mass"
+    t.float "minimum_orbit"
+    t.string "name"
+    t.float "orbit"
+    t.string "orbit_sequence"
+    t.float "orbit_x"
+    t.float "orbit_y"
+    t.integer "orbiting_id"
+    t.integer "parsec_id"
+    t.float "period"
+    t.integer "scan_points"
+    t.float "spread"
+    t.integer "star_system_id"
+    t.string "stellar_class"
+    t.integer "stellar_subtype"
+    t.string "stellar_type"
+    t.integer "survey_index"
+    t.float "temperature"
+    t.datetime "updated_at", null: false
+    t.index ["companion_id"], name: "index_stars_on_companion_id"
+    t.index ["orbiting_id"], name: "index_stars_on_orbiting_id"
+    t.index ["parsec_id"], name: "index_stars_on_parsec_id"
+    t.index ["star_system_id"], name: "index_stars_on_star_system_id"
+  end
+
   create_table "stellar_object_trade_codes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "stellar_object_id", null: false
@@ -120,17 +159,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_015903) do
     t.string "orbit_sequence"
     t.integer "orbit_x"
     t.integer "orbit_y"
-    t.integer "orbiting_id"
+    t.integer "orbiting_star_id"
     t.integer "parsec_id"
-    t.integer "star_system_id"
     t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false
     t.string "uwp"
-    t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
+    t.index ["orbiting_star_id"], name: "index_stellar_objects_on_orbiting_star_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
-    t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
-    t.check_constraint "(parsec_id IS NOT NULL) OR (star_system_id IS NOT NULL)", name: "stellar_objects_parsec_or_star_system_present"
+    t.check_constraint "(parsec_id IS NULL) <> (orbiting_star_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_star_present"
   end
 
   create_table "subsectors", force: :cascade do |t|
@@ -164,10 +201,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_015903) do
   add_foreign_key "star_system_trade_codes", "trade_codes", on_delete: :cascade
   add_foreign_key "star_systems", "parsecs", on_delete: :cascade
   add_foreign_key "star_systems", "stellar_objects", column: "main_world_id", on_delete: :nullify
+  add_foreign_key "stars", "parsecs", on_delete: :cascade
+  add_foreign_key "stars", "star_systems", on_delete: :cascade
+  add_foreign_key "stars", "stars", column: "companion_id", on_delete: :nullify
+  add_foreign_key "stars", "stars", column: "orbiting_id", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "stellar_objects", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "trade_codes", on_delete: :cascade
   add_foreign_key "stellar_objects", "parsecs", on_delete: :cascade
-  add_foreign_key "stellar_objects", "star_systems", on_delete: :cascade
-  add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id", on_delete: :cascade
+  add_foreign_key "stellar_objects", "stars", column: "orbiting_star_id", on_delete: :cascade
   add_foreign_key "subsectors", "sectors", on_delete: :cascade
 end

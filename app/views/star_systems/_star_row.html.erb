@@ -12,23 +12,23 @@
   </td>
 
   <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <%= star.type.underscore.humanize %>
+
   </td>
 
   <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
     <div class="inline-flex items-center justify-end gap-2">
-      <%= link_to edit_stellar_object_path(star),
+      <%= link_to edit_star_path(star),
                   class: "text-slate-300 hover:text-traveller-red/90",
                   title: "Edit" do %>
         <i class="fa-solid fa-pen-to-square"></i>
       <% end %>
 
-      <%= button_to stellar_object_path(star),
+      <%= button_to star_path(star),
                     method: :delete,
                     form_class: "inline",
                     class: "text-slate-300 hover:text-traveller-red/90",
                     title: "Delete",
-                    data: { turbo_confirm: "Delete this stellar object?" } do %>
+                    data: { turbo_confirm: "Delete this star?" } do %>
         <i class="fa-solid fa-trash"></i>
       <% end %>
     </div>

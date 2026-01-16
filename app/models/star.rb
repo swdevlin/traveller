@@ -1,18 +1,38 @@
-class Star < StellarObject
-  include GeneratorMappings
+class Star < ApplicationRecord
+  belongs_to :star_system, optional: true
+  belongs_to :parsec, optional: true
 
-  generator_data_map(
-    age: 'age',
-    temperature: 'temperature',
-    colour: 'colour',
-    spread: 'spread',
-    baseline: 'baseline',
-    stellar_class: 'stellarClass',
-    stellar_type: 'stellarType',
-    stellar_subtype: 'subtype',
-  )
+  belongs_to :companion, class_name: 'Star', optional: true
+  belongs_to :orbiting, class_name: 'Star', optional: true
+
+  has_many :stellar_objects,
+           foreign_key: :orbiting_star_id,
+           inverse_of: :orbiting_star,
+           dependent: :destroy
 
   def spectral_classification
-    "#{stellar_type}#{stellar_subtype} #{stellar_class}"
+    "#{stellar_class}#{stellar_subtype} #{stellar_type}"
+  end
+
+  def assign_data_from_generator(data)
+    self.name = data['name']
+    self.orbit_sequence = data['orbitSequence']
+    self.orbit = data['orbit']
+    self.stellar_class = data['stellarClass']
+    self.stellar_type = data['stellarType']
+    self.stellar_subtype = data['subtype']
+    self.luminosity = data['luminosity']
+    self.spread = data['spread']
+    self.mass = data['mass']
+    self.diameter = data['diameter']
+    self.temperature = data['temperature']
+    self.age = data['age']
+    self.jump_shadow = data['jumpShadow']
+    self.colour = data['colour']
+    self.is_protostar = data['isProtostar']
+    self.minimum_orbit = data['minimumOrbit']
+    self.hzco = data['hzco']
+    self.survey_index = data['surveyIndex']
+    self.scan_points = data['scanPoints']
   end
 end

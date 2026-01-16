@@ -1,11 +1,14 @@
 class StarSystem < ApplicationRecord
   belongs_to :parsec
   belongs_to :main_world, class_name: 'StellarObject', optional: true
-  has_many :stellar_objects, dependent: :destroy
-  has_many :stars, class_name: 'Star'
+  has_many :stars, dependent: :destroy
   has_many :gas_giants, class_name: 'GasGiant'
   has_many :star_system_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :star_system_trade_codes
+
+  has_many :stellar_objects, through: :stars
+
+  has_many :gas_giants, through: :stars, source: :stellar_objects, class_name: 'GasGiant'
 
   validate :main_world_must_be_in_system
 

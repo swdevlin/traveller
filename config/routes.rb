@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
   resources :star_systems
 
+  resources :stars, only: %i[index show edit update destroy]
+
   resources :subsectors, only: %i[index show edit update] do
     member do
       post :clear
