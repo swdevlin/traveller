@@ -16,6 +16,17 @@
       </li>
     </ul>
   </nav>
-  <div class="ml-6">
+  <div class="ml-6"
+       data-controller="job-count"
+       data-job-count-url-value="<%= job_count_path %>"
+       data-job-count-interval-value="3000">
+    <% job_count = SolidQueue::ReadyExecution.count + SolidQueue::ClaimedExecution.count %>
+    <span class="inline-flex items-center gap-1 text-slate-300 cursor-default"
+          data-job-count-target="container"
+          title="Background tasks"
+          <%= 'hidden' if job_count == 0 %>>
+      <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+      <span class="text-xs" data-job-count-target="count"><%= job_count %></span>
+    </span>
   </div>
 </header>
