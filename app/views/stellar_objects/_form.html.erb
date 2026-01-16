@@ -1,4 +1,4 @@
-<%= form_with(model: stellar_object, class: "contents") do |form| %>
+<%= form_with(model: stellar_object, url: stellar_object.persisted? ? stellar_object_path(stellar_object) : stellar_objects_path, class: "contents") do |form| %>
   <% if stellar_object.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
       <h2><%= pluralize(stellar_object.errors.count, "error") %> prohibited this stellar_object from being saved:</h2>
@@ -27,8 +27,8 @@
   </div>
 
   <div class="my-5">
-    <%= form.label :star_system_id %>
-    <%= form.text_field :star_system_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:star_system_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:StarSystem_id].any?}] %>
+    <%= form.label :orbiting_star_id %>
+    <%= form.text_field :orbiting_star_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbiting_star_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbiting_star_id].any?}] %>
   </div>
 
   <div class="my-5">

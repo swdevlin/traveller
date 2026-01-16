@@ -6,6 +6,7 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     @star_system = star_systems(:in_one)
     @stellar_object = stellar_objects(:one)
     @gas_giant = gas_giants(:small)
+    @star = stars(:one)
   end
 
   # test 'should get index' do
@@ -23,7 +24,7 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
       post stellar_objects_url, params: {
         stellar_object: {
           type: 'GasGiant', # used only to choose class, not permitted
-          star_system_id: @star_system.id,
+          orbiting_star_id: @star.id,
           eccentricity: 0,
           effective_hzco_deviation: 0.4,
           inclination: 0,
@@ -52,7 +53,7 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
   # end
 
   test 'should update stellar_object' do
-    patch stellar_object_url(@stellar_object), params: { stellar_object: { parsec_id: @parsec.id, star_system_id: @star_system.id, eccentricity: 1, effective_hzco_deviation: 2, inclination: 0.3, orbit: 2, orbit_x: 1, orbit_y: 1 } }
+    patch stellar_object_url(@stellar_object), params: { stellar_object: { eccentricity: 1, effective_hzco_deviation: 2, inclination: 0.3, orbit: 2, orbit_x: 1, orbit_y: 1 } }
     assert_redirected_to stellar_object_url(@stellar_object)
   end
 

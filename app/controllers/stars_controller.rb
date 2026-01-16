@@ -20,6 +20,4 @@ class StarsController < ApplicationController
   def set_sta5
     @star = Star(params.expect(:id))
   end
-
 end
-

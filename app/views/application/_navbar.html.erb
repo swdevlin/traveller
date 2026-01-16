@@ -20,7 +20,7 @@
        data-controller="job-count"
        data-job-count-url-value="<%= job_count_path %>"
        data-job-count-interval-value="3000">
-    <% job_count = SolidQueue::ReadyExecution.count + SolidQueue::ClaimedExecution.count %>
+    <% job_count = pending_job_count %>
     <span class="inline-flex items-center gap-1 text-slate-300 cursor-default"
           data-job-count-target="container"
           title="Background tasks"

@@ -1,6 +1,7 @@
 class StatusController < ApplicationController
+  include JobQueueHelper
+
   def job_count
-    count = SolidQueue::ReadyExecution.count + SolidQueue::ClaimedExecution.count
-    render json: { count: count }
+    render json: { count: pending_job_count }
   end
 end

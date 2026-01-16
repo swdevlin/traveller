@@ -13,10 +13,13 @@ class StarSystemImporterTest < ActiveSupport::TestCase
   test 'star system belongs to parsec' do
     star_system = nil
 
-    assert_difference('StellarObject.count', 2) do
-      assert_difference('StarSystem.count', 1) do
-        data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
-        star_system = @importer.import!(@parsec, data)
+    # only stars in the file, so stellar object does not increase, stars increases
+    assert_difference('StellarObject.count', 0) do
+      assert_difference('Star.count', 2) do
+        assert_difference('StarSystem.count', 1) do
+          data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+          star_system = @importer.import!(@parsec, data)
+        end
       end
     end
 
@@ -28,13 +31,14 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
     star_system = @importer.import!(@parsec, data)
 
-    # Every object in the star system points to the star system
-    assert_equal 2, star_system.stellar_objects.count
+    # Only stars in the minimal file
+    assert_equal 0, star_system.stellar_objects.count
+    assert_equal 2, star_system.stars.count
 
-    primary = star_system.stellar_objects.find_by!(type: 'Star')
+    primary = star_system.stars.where(orbiting_id: nil).sole
     orbiters = star_system.stellar_objects.where.not(id: primary.id)
 
-    assert_equal 1, orbiters.count
+    assert_equal 0, orbiters.count
 
     orbiters.each do |so|
       assert_equal star_system, so.star_system
@@ -47,21 +51,25 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     star_system = @importer.import!(@parsec, data)
 
     # Every object in the star system points to the star system
-    assert_equal 4, star_system.stellar_objects.count
+    assert_equal 2, star_system.stellar_objects.count
+    assert_equal 2, star_system.stars.count
 
-    primary = star_system.stellar_objects.find_by!(type: 'Star', orbiting_id: nil)
-    secondary = star_system.stellar_objects.where(type: 'Star').where.not(orbiting_id: nil).sole
+    primary = star_system.stars.where(orbiting_id: nil).sole
+    secondary = Star.where(orbiting: primary).sole
 
-    assert_equal 2, primary.stellar_objects.count
+    assert_equal 1, primary.stellar_objects.count
     assert_equal 1, secondary.stellar_objects.count
   end
 
   test 'companion added' do
     star_system = nil
 
-    assert_difference('StellarObject.count', 3) do
-      data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_companion.json')))
-      star_system = @importer.import!(@parsec, data)
+    # file only has stars, so stellar objects should remain the same but stars should increase by 3
+    assert_difference('StellarObject.count', 0) do
+      assert_difference('Star.count', 3) do
+        data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_companion.json')))
+        star_system = @importer.import!(@parsec, data)
+      end
     end
 
     primary = star_system.stars.order(:created_at).first
