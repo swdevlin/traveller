@@ -1,1 +1,1 @@
-json.array! @allegiances, partial: "allegiances/allegiance", as: :allegiance
+json.array! @allegiances, partial: 'allegiances/allegiance', as: :allegiance

@@ -1,1 +1,1 @@
-json.partial! "allegiances/allegiance", allegiance: @allegiance
+json.partial! 'allegiances/allegiance', allegiance: @allegiance

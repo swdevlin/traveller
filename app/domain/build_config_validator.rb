@@ -90,7 +90,6 @@ class BuildConfigValidator
     unless Allegiance.exists?(abbreviation: allegiance)
       @errors << "unknown allegiance '#{allegiance}'"
     end
-
   end
 
   def validate_systems_exclusivity

@@ -25,7 +25,7 @@ class AllegiancesController < ApplicationController
 
     respond_to do |format|
       if @allegiance.save
-        format.html { redirect_to @allegiance, notice: "Allegiance was successfully created." }
+        format.html { redirect_to @allegiance, notice: 'Allegiance was successfully created.' }
         format.json { render :show, status: :created, location: @allegiance }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class AllegiancesController < ApplicationController
   def update
     respond_to do |format|
       if @allegiance.update(allegiance_params)
-        format.html { redirect_to @allegiance, notice: "Allegiance was successfully updated.", status: :see_other }
+        format.html { redirect_to @allegiance, notice: 'Allegiance was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @allegiance }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class AllegiancesController < ApplicationController
     @allegiance.destroy!
 
     respond_to do |format|
-      format.html { redirect_to allegiances_path, notice: "Allegiance was successfully destroyed.", status: :see_other }
+      format.html { redirect_to allegiances_path, notice: 'Allegiance was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -65,6 +65,6 @@ class AllegiancesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def allegiance_params
-      params.expect(allegiance: [ :abbreviation, :name ])
+      params.expect(allegiance: [:code, :name])
     end
 end
