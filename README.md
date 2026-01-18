@@ -74,6 +74,10 @@
 
 #### To do??
 
+* Foundry VTT integration
+* T5
+* Cepheus Engine
+* Clement Sector
 * Import Traveller Map sector specification file
 * Complete edit of a stellar object
 * Import of Charted Space data

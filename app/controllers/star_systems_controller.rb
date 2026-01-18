@@ -15,6 +15,8 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1 or /star_systems/1.json
   def show
+    @primary = @star_system.primary_star
+    @orbiting_bodies = @star_system.orbiting_bodies
   end
 
   # GET /star_systems/new

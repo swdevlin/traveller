@@ -1,6 +1,6 @@
-<tr class="transition hover:bg-slate-900/80">
+<tr class="transition hover:bg-slate-900/80" style="--indent: <%= (local_assigns[:indent] || 0) %>px;">
   <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <%= star.orbit %> XXX
+    <%= number_with_precision(star.au, precision: 2) %>
   </td>
 
   <td class="px-4 py-3 whitespace-nowrap align-middle">
@@ -11,8 +11,11 @@
     <%= star.name %>
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle">
+  <td class="px-4 py-3 whitespace-nowrap align-middle" style="padding-left: calc(1rem + var(--indent));">
+    <%= star.spectral_classification %>
+  </td>
 
+  <td class="px-4 py-3 whitespace-nowrap align-middle" style="padding-left: calc(1rem + var(--indent));">
   </td>
 
   <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
@@ -34,3 +37,15 @@
     </div>
   </td>
 </tr>
+
+<% if star.companion.present? %>
+  <%= render 'star_row', star: star.companion, indent: indent + 8 %>
+<% end %>
+
+<% star.orbiting_bodies.each do |ob| %>
+  <% if ob.is_a?(Star) %>
+    <%= render 'star_row', star: ob, indent: indent + 8 %>
+  <% else %>
+    <%= render 'stellar_object_row', stellar_object: ob, indent: indent + 8 %>
+  <% end %>
+<% end %>

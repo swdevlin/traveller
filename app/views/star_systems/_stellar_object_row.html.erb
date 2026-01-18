@@ -1,6 +1,6 @@
-<tr class="transition hover:bg-slate-900/80">
+<tr class="transition hover:bg-slate-900/80" style="--indent: <%= (local_assigns[:indent] || 0) %>px;">
   <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <%= stellar_object.orbit %> YYY
+    <%= number_with_precision(stellar_object.au, precision: 2) %>
   </td>
 
   <td class="px-4 py-3 whitespace-nowrap align-middle">
@@ -8,11 +8,22 @@
   </td>
 
   <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <% if stellar_object == @star_system.main_world %>
+      <i class='fa-regular fa-globe mr-2' title='Main world'></i>
+    <% end %>
     <%= stellar_object.name %>
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle">
+  <td class="pl-8 pr-4 py-3 whitespace-nowrap align-middle" style="padding-left: calc(1rem + var(--indent));">
     <%= stellar_object.type.underscore.humanize %>
+  </td>
+
+  <td class="px-4 py-3 whitespace-nowrap align-middle">
+    <% if stellar_object.is_a?(GasGiant) %>
+      <%= stellar_object.code %>
+    <% else %>
+      <%= stellar_object.uwp %>
+    <% end %>
   </td>
 
   <td class="px-2 py-3 whitespace-nowrap align-middle text-right">

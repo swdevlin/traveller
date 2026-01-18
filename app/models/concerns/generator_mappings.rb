@@ -36,6 +36,7 @@ module GeneratorMappings
     self.inclination = payload['inclination']
     self.mass = payload['mass']
     self.orbit = payload['orbit']
+    self.au = payload['au']
     self.orbit_x = payload['orbitX']
     self.orbit_y = payload['orbitY']
     self.survey_index = payload.fetch('surveyIndex', 0)

@@ -20,6 +20,15 @@ class StarSystem < ApplicationRecord
     trade_codes.order(:code).pluck(:code).join(' ')
   end
 
+  def primary_star
+    @primary_star ||= stars.where(orbiting: nil).sole
+  end
+
+  def orbiting_bodies
+    bodies = primary_star.stellar_objects.to_a + primary_star.stars.to_a
+    bodies.sort_by { |b| b.orbit.to_f }
+  end
+
   def has_gas_giant?
     @has_gas_giant ||= gas_giants.exists?
   end

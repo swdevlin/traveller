@@ -3,7 +3,6 @@ class GasGiant < StellarObject
 
   generator_data_map(
     diameter: 'diameter',
-    atmosphere: 'atmosphere',
-    hydrographics: 'hydrographics'
+    code: 'code',
   )
 end
