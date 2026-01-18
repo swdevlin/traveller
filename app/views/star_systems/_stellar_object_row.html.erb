@@ -8,7 +8,7 @@
   </td>
 
   <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <% if stellar_object == @star_system.main_world %>
+    <% if @star_system.main_world.present? && stellar_object == @star_system.main_world %>
       <i class='fa-regular fa-globe mr-2' title='Main world'></i>
     <% end %>
     <%= stellar_object.name %>
