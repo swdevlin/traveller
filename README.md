@@ -35,7 +35,10 @@
 * Hex display for a subsector
 * Populate a subsector
   * [x] Basic populate
-  * Add populated option
+  * Add populated option for generate
+    * allegiance
+    * tech limits
+    * pop limits
     * per hex 
   * Add star definition
   * Add system definition
@@ -61,10 +64,20 @@
 * Import default configuration for sector
 * Import default configuration for subsector
 * Import default configuration for parsec
+* Allegiances for Deepnight campaign
+* import allegiances from TravellerMap
+* CRUD on Allegiances
+* Settings page
 
 ### To do?
 
 * Themes
+  * Imperial
+  * Deepnight
+  * Light
+  * vargr
+  * Zhodani
+  * Solomani
 * Routes
 * Support generation by The Deep Space Exploration Handbook
 * System generation from Deepnight book

@@ -78,7 +78,19 @@ class BuildConfigValidator
 
   def validate_business_rules
     validate_systems_exclusivity
+    validate_populated_allegiance
     @errors.empty?
+  end
+
+  def validate_populated_allegiance
+    return if @config['populated'].nil?
+
+    allegiance = @config['populated']['allegiance']
+
+    unless Allegiance.exists?(abbreviation: allegiance)
+      @errors << "unknown allegiance '#{allegiance}'"
+    end
+
   end
 
   def validate_systems_exclusivity

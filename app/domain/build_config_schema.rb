@@ -7,6 +7,10 @@ CoordinateSchema = Dry::Schema.Params do
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
 end
 
+PopulatedSchema = Dry::Schema.Params do
+  required(:allegiance).filled(:string)
+end
+
 BuildConfigSchema = Dry::Schema.Params do
   config.validate_keys = true
 
@@ -18,4 +22,5 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:exclude).value(:array).each { hash(CoordinateSchema) }
   optional(:required).value(:array).each { hash(CoordinateSchema) }
   optional(:systems).value(:array).each { hash(CoordinateSchema) }
+  optional(:populated).hash(PopulatedSchema)
 end

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :allegiances
   resources :trade_codes
   resources :stellar_objects
 

@@ -1,0 +1,2 @@
+class Allegiance < ApplicationRecord
+end

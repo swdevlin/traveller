@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  code: 3eIm
+  name: 3rd Imperium
+  legacy_code: Im
+
+two:
+  code: ZhCo
+  name: Zhodani Consulate
+  legacy_code: Zh
