@@ -112,6 +112,18 @@
     border border-traveller-red/90;
   }
 
+  .identifier {
+    @apply inline-flex items-center gap-2 rounded-full
+    border border-slate-700/70 bg-slate-900/30
+    px-3 py-1 font-mono text-sm text-slate-100;
+  }
+
+  .identifier-sm {
+    @apply inline-flex items-center gap-2 rounded-full
+    border border-slate-700/70 bg-slate-900/30
+    px-2.5 py-0.5 font-mono text-xs text-slate-100;
+  }
+
   /* Pagy nav button styling */
   .series-nav {
     @apply mt-6 flex flex-wrap items-center justify-center gap-2;

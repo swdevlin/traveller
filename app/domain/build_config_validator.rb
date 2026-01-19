@@ -79,7 +79,33 @@ class BuildConfigValidator
   def validate_business_rules
     validate_systems_exclusivity
     validate_populated_allegiance
+    validate_populated_tech_level
+    validate_populated_population
     @errors.empty?
+  end
+
+  def validate_populated_tech_level
+    return if @config['populated'].nil?
+
+    min = @config['populated']['minTechLevel']
+    max = @config['populated']['maxTechLevel']
+    return if min.nil? || max.nil?
+
+    if min > max
+      @errors << "minTechLevel must be less than or equal to maxTechLevel"
+    end
+  end
+
+  def validate_populated_population
+    return if @config['populated'].nil?
+
+    min = @config['populated']['minPopulationCode']
+    max = @config['populated']['maxPopulationCode']
+    return if min.nil? || max.nil?
+
+    if min > max
+      @errors << "minPopulationCode must be less than or equal to maxPopulationCode"
+    end
   end
 
   def validate_populated_allegiance
@@ -87,7 +113,7 @@ class BuildConfigValidator
 
     allegiance = @config['populated']['allegiance']
 
-    unless Allegiance.exists?(abbreviation: allegiance)
+    unless Allegiance.exists?(code: allegiance)
       @errors << "unknown allegiance '#{allegiance}'"
     end
   end

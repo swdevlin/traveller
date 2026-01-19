@@ -29,6 +29,8 @@ class StellarObject < ApplicationRecord
   validates :type, inclusion: { in: STI_TYPES }
   validate :parsec_xor_orbiting_star_required
 
+  belongs_to :allegiance, optional: true
+
   def trade_codes_string
     trade_codes.order(:code).pluck(:code).join(' ')
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_19_181343) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -87,6 +87,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
   end
 
   create_table "star_systems", force: :cascade do |t|
+    t.integer "allegiance_id"
     t.integer "belt_count", default: 0, null: false
     t.json "build_log"
     t.datetime "created_at", null: false
@@ -98,6 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
     t.integer "parsec_id", null: false
     t.integer "terrestrial_count", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
@@ -152,6 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
   end
 
   create_table "stellar_objects", force: :cascade do |t|
+    t.integer "allegiance_id"
     t.float "au"
     t.json "build_log"
     t.json "characteristics"
@@ -175,6 +178,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
     t.string "type"
     t.datetime "updated_at", null: false
     t.string "uwp"
+    t.index ["allegiance_id"], name: "index_stellar_objects_on_allegiance_id"
     t.index ["orbiting_star_id"], name: "index_stellar_objects_on_orbiting_star_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
     t.check_constraint "(parsec_id IS NULL) <> (orbiting_star_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_star_present"
@@ -209,6 +213,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
   add_foreign_key "parsecs", "sectors", on_delete: :cascade
   add_foreign_key "star_system_trade_codes", "star_systems", on_delete: :cascade
   add_foreign_key "star_system_trade_codes", "trade_codes", on_delete: :cascade
+  add_foreign_key "star_systems", "allegiances", on_delete: :nullify
   add_foreign_key "star_systems", "parsecs", on_delete: :cascade
   add_foreign_key "star_systems", "stellar_objects", column: "main_world_id", on_delete: :nullify
   add_foreign_key "stars", "parsecs", on_delete: :cascade
@@ -217,6 +222,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_043501) do
   add_foreign_key "stars", "stars", column: "orbiting_id", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "stellar_objects", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "trade_codes", on_delete: :cascade
+  add_foreign_key "stellar_objects", "allegiances", on_delete: :nullify
   add_foreign_key "stellar_objects", "parsecs", on_delete: :cascade
   add_foreign_key "stellar_objects", "stars", column: "orbiting_star_id", on_delete: :cascade
   add_foreign_key "subsectors", "sectors", on_delete: :cascade

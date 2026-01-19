@@ -1,80 +1,135 @@
-<% content_for :title, "Showing sector" %>
+<% content_for :title, "Sector #{@sector.name}" %>
 
-<div class="w-full">
-  <h1 class="font-bold text-4xl mb-4"><%= @sector.name %> <span class="text-base">(<%= @sector.abbreviation %>)</span></h1>
-  <div class="flex flex-col md:flex-row md:items-start gap-6">
-    <div class="flex-1 min-w-0">
-      <p class="mb-4">Imperial Coordinates: <%= @sector.x %>/<%= @sector.y %></p>
-
-      <div>
-        <p>
-          <strong>Library data:</strong>
-          <% if (u = safe_external_url(@sector.wiki_link)) %>
-            <%= link_to "Traveller Wiki", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
-          <% else %>
-            <span>Undocumented</span>
-          <% end %>
-        </p>
+<div class='w-full pb-10 space-y-6'>
+  <!-- Header -->
+  <div class='mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
+    <div>
+      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+        Sector Readout
       </div>
 
-      <div>
-        <p>
-          <strong>Imperial star chart:</strong>
-          <% if (u = safe_external_url(@sector.traveller_map_url)) %>
-            <%= link_to "Traveller Map", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
-          <% else %>
-            <span>Undocumented</span>
-          <% end %>
-        </p>
+      <div class="mt-1 flex flex-wrap items-baseline gap-2">
+        <span class='text-2xl font-heading text-deepnight-orange'>
+          <%= @sector.name %>
+        </span>
+        <span class='identifier-sm text-slate-300'>
+          <%= @sector.abbreviation %></span>
+        </span>
+      </div>
+    </div>
+
+    <div class='flex flex-wrap gap-2'>
+    </div>
+  </div>
+
+  <div class='flex flex-col md:flex-row md:items-start gap-6'>
+    <div class='flex-1 min-w-0 space-y-6'>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block',
+                   label: 'Imperial Coordinates',
+                   value: tag.span("#{@sector.x}/#{@sector.y}",
+                   class: 'identifier')
+        %>
+
+        <%= render 'application/data_block',
+                   label: 'Registry',
+                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2',
+                   value: safe_join(
+                     [
+                       tag.span(
+                         safe_join([tag.span('Systems', class: 'text-slate-300'),
+                                    tag.span(@star_system_count)], ' '),
+                         class: 'identifier'
+                       ),
+                       tag.span(
+                         safe_join([tag.span('Rogues', class: 'text-slate-300'),
+                                    tag.span(@rogue_count)], ' '),
+                         class: 'identifier'
+                       )
+                     ],
+                     ''
+                   ) %>
+
+        <%= render 'application/data_block',
+                   label: 'Star chart',
+                   value: (
+                     if (u = safe_external_url(@sector.traveller_map_url))
+                       link_to('Traveller Map', u, target: '_blank', rel: 'noopener',
+                               class: 'hover:underline underline-offset-4')
+                     else
+                       tag.span('Undocumented', class: 'text-slate-400')
+                     end
+                   ) %>
+
+        <%= render 'application/data_block',
+                   label: 'Library data',
+                   value: (
+                     if (u = safe_external_url(@sector.wiki_link))
+                       link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
+                               class: 'hover:underline underline-offset-4')
+                     else
+                       tag.span('Undocumented', class: 'text-slate-400')
+                     end
+                   ) %>
+
       </div>
 
       <% if @sector.notes.present? %>
-        <div class="mb-4">
-          <strong class="block text-sm font-semibold mb-1">Deepnight Log</strong>
-          <p class="text-sm whitespace-pre-line">
+        <div>
+          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+            Deepnight log
+          </div>
+          <div class='mt-2 whitespace-pre-line text-slate-200'>
             <%= @sector.notes %>
-          </p>
+          </div>
         </div>
       <% end %>
 
-      <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to clear the sector?" %>
+      <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
 
-      <div class="mb-4 mt-4 flex flex-col sm:flex-row gap-2">
-        <%= link_to "Edit this sector",
+      <!-- Actions -->
+      <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+        <%= link_to 'Edit',
                     edit_sector_path(@sector),
-                    class: "w-full sm:w-auto btn btn-primary" %>
+                    class: 'w-full sm:w-auto btn btn-primary' %>
 
-        <%= link_to "Add rogue",
-                    new_sector_rogue_path(@sector),
-                    class: "w-full sm:w-auto btn" %>
-
-        <%= link_to "Populate",
+        <%= link_to 'Populate',
                     populate_sector_path(@sector),
-                    class: "w-full sm:w-auto btn" %>
+                    class: 'w-full sm:w-auto btn' %>
 
-        <%= button_to "Clear",
+        <%= button_to 'Clear',
                       clear_sector_path(@sector),
-                      method: "post",
-                      class: "w-full sm:w-auto btn",
-                      data: {turbo_confirm: confirm_msg}
-        %>
+                      method: 'post',
+                      class: 'w-full sm:w-auto btn',
+                      data: { turbo_confirm: confirm_msg } %>
 
-        <%= link_to "Back to sectors",
+        <%= link_to 'Back to sectors',
                     sectors_path,
-                    class: "w-full sm:w-auto btn" %>
+                    class: 'w-full sm:w-auto btn' %>
 
-        <%= button_to "Delete",
+        <%= button_to 'Delete',
                       @sector,
                       method: :delete,
-                      form_class: "w-full sm:w-auto",
-                      class: "w-full sm:w-auto btn btn-danger cursor-pointer",
-                      data: { turbo_confirm: "Are you sure?" } %>
+                      form_class: 'w-full sm:w-auto',
+                      class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                      data: { turbo_confirm: 'Are you sure?' } %>
       </div>
     </div>
-    <div class="w-full md:w-[300px] shrink-0">
-      <%= render "subsector_grid", sector: @sector %>
-      <p class="mt-4">Sectors</p>
-      <%= render "sector_grid", sector: @sector %>
+
+    <div class='w-full md:w-[300px] shrink-0 space-y-6'>
+      <div>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>
+          Subsectors
+        </div>
+        <%= render 'subsector_grid', sector: @sector %>
+      </div>
+
+      <div>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>
+          Neighbouring sectors
+        </div>
+        <%= render 'sector_grid', sector: @sector %>
+      </div>
     </div>
   </div>
 </div>

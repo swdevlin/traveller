@@ -40,6 +40,9 @@
           Stars
         </th>
         <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+          Allegiance
+        </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
           <span class="tracking-[0.2em]">PBG</span>
         </th>
         <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
@@ -74,6 +77,12 @@
 
           <td class="px-4 py-3 whitespace-nowrap align-middle">
             <%= star_system.table_description %>
+          </td>
+
+          <td class="px-4 py-3 whitespace-nowrap align-middle">
+            <% unless star_system.allegiance.nil? %>
+              <%= star_system.allegiance.code %>
+            <% end %>
           </td>
 
           <td class="px-2 py-3 whitespace-nowrap align-middle">

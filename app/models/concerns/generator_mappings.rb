@@ -42,6 +42,10 @@ module GeneratorMappings
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']
     self.orbit_sequence = payload.fetch('orbitSequence', nil)
+    allegiance = payload.fetch('allegiance', nil)
+    unless allegiance.nil?
+      self.allegiance = Allegiance.where(code: allegiance).sole
+    end
     self.uwp = payload.fetch('uwp', nil)
 
     self.data ||= {}
