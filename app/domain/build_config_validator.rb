@@ -92,7 +92,7 @@ class BuildConfigValidator
     return if min.nil? || max.nil?
 
     if min > max
-      @errors << "minTechLevel must be less than or equal to maxTechLevel"
+      @errors << 'minTechLevel must be less than or equal to maxTechLevel'
     end
   end
 
@@ -104,7 +104,7 @@ class BuildConfigValidator
     return if min.nil? || max.nil?
 
     if min > max
-      @errors << "minPopulationCode must be less than or equal to maxPopulationCode"
+      @errors << 'minPopulationCode must be less than or equal to maxPopulationCode'
     end
   end
 
