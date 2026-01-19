@@ -17,7 +17,7 @@ class AllegiancesControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create allegiance' do
     assert_difference('Allegiance.count') do
-      post allegiances_url, params: { allegiance: { code: @allegiance.code, name: @allegiance.name } }
+      post allegiances_url, params: { allegiance: { code: '1243N', name: 'A new one' } }
     end
 
     assert_redirected_to allegiance_url(Allegiance.last)
