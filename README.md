@@ -33,6 +33,8 @@
   * Support generating by system density
   * support full system specification
 * Hex display for a subsector
+* [x] Allegiance CRUD
+  * paginate the list
 * Populate a subsector
   * [x] Basic populate
   * Add populated option for generate

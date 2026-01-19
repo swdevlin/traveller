@@ -16,17 +16,25 @@
       </li>
     </ul>
   </nav>
-  <div class="ml-6"
-       data-controller="job-count"
-       data-job-count-url-value="<%= job_count_path %>"
-       data-job-count-interval-value="3000">
-    <% job_count = pending_job_count %>
-    <span class="inline-flex items-center gap-1 text-slate-300 cursor-default"
-          data-job-count-target="container"
-          title="Background tasks"
-          <%= 'hidden' if job_count == 0 %>>
-      <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+  <div class="justify-self-end flex items-center gap-4">
+    <div class="ml-6"
+         data-controller="job-count"
+         data-job-count-url-value="<%= job_count_path %>"
+         data-job-count-interval-value="3000">
+      <% job_count = pending_job_count %>
+      <span class="inline-flex items-center gap-1 text-slate-300 cursor-default"
+            data-job-count-target="container"
+            title="Background tasks"
+            <%= 'hidden' if job_count == 0 %>>
+        <i class="fa-solid fa-spinner fa-spin text-xs"></i>
       <span class="text-xs" data-job-count-target="count"><%= job_count %></span>
     </span>
+    </div>
+    <%= link_to settings_path,
+                class: 'inline-flex items-center gap-2 text-slate-200 hover:text-traveller-red hover:underline hover:underline-offset-2' do %>
+      <i class="fa-regular fa-sliders"></i>
+      <span>Settings</span>
+    <% end %>
+
   </div>
 </header>

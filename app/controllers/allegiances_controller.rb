@@ -3,7 +3,7 @@ class AllegiancesController < ApplicationController
 
   # GET /allegiances or /allegiances.json
   def index
-    @allegiances = Allegiance.all
+    @allegiances = Allegiance.order(:code)
   end
 
   # GET /allegiances/1 or /allegiances/1.json
@@ -65,6 +65,6 @@ class AllegiancesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def allegiance_params
-      params.expect(allegiance: [:code, :name])
+      params.expect(allegiance: [:code, :name, :legacy_code])
     end
 end

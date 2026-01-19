@@ -1,29 +1,100 @@
 <% content_for :title, "Allegiances" %>
 
-<div class="w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+<div class="w-full max-w-4xl mx-auto space-y-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">Allegiances</h1>
+      <p class="mt-1 text-sm text-slate-300">
+        Political codes and display names for populated systems.
+      </p>
+    </div>
 
-  <div class="flex justify-between items-center">
-    <h1 class="font-bold text-4xl">Allegiances</h1>
-    <%= link_to "New allegiance", new_allegiance_path, class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
-  </div>
-
-  <div id="allegiances" class="min-w-full divide-y divide-gray-200 space-y-5">
-    <% if @allegiances.any? %>
-      <% @allegiances.each do |allegiance| %>
-        <div class="flex flex-col sm:flex-row justify-between items-center pb-5 sm:pb-0">
-          <%= render allegiance %>
-          <div class="w-full sm:w-auto flex flex-col sm:flex-row space-x-2 space-y-2">
-            <%= link_to "Show", allegiance, class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= link_to "Edit", edit_allegiance_path(allegiance), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-            <%= button_to "Destroy", allegiance, method: :delete, class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-          </div>
-        </div>
-      <% end %>
-    <% else %>
-      <p class="text-center my-10">No allegiances found.</p>
+    <%= link_to new_allegiance_path, class: "inline-flex items-center gap-2 btn btn-primary" do %>
+      <i class="fa-solid fa-plus"></i>
+      <span>New allegiance</span>
     <% end %>
   </div>
+
+  <% if @allegiances.any? %>
+    <div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl">
+      <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
+        <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
+          Allegiance registry
+        </p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-700 text-sm">
+          <thead class="bg-slate-900/80">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Code
+              </th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Name
+              </th>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Legacy
+              </th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+            <% @allegiances.each do |allegiance| %>
+              <tr class="transition hover:bg-slate-900/80">
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <span class="inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-2 py-0.5 font-mono tracking-wide text-slate-200">
+                    <%= allegiance.code %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <%= link_to allegiance_path(allegiance),
+                              class: "text-sm font-medium text-slate-50 hover:text-traveller-red hover:underline hover:underline-offset-2" do %>
+                    <%= allegiance.name %>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap align-middle">
+                  <% if allegiance.legacy_code.present? %>
+                    <span class="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-900/30 px-2 py-0.5 font-mono text-amber-100">
+                      <%= allegiance.legacy_code %>
+                    </span>
+                  <% else %>
+                    <span class="text-xs text-slate-500">—</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap align-middle text-right">
+                  <div class="inline-flex items-center gap-2">
+                    <%= link_to edit_allegiance_path(allegiance),
+                                class: "text-xs text-slate-400 hover:text-slate-200" do %>
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    <% end %>
+                    <%= button_to allegiance,
+                                  method: :delete,
+                                  class: "text-xs text-slate-400 hover:text-red-400 cursor-pointer",
+                                  data: { turbo_confirm: "Delete #{allegiance.name}?" } do %>
+                      <i class="fa-regular fa-trash"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% else %>
+    <div class="my-16 text-center">
+      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300">
+        <i class="fa-regular fa-flag"></i>
+      </div>
+      <p class="text-sm text-slate-300">
+        No allegiances defined yet.
+      </p>
+      <p class="mt-1 text-xs text-slate-500">
+        Use <span class="font-mono text-slate-200">New allegiance</span> to add your first political code.
+      </p>
+    </div>
+  <% end %>
 </div>

@@ -3,7 +3,7 @@ class TradeCodesController < ApplicationController
 
   # GET /trade_codes or /trade_codes.json
   def index
-    @trade_codes = TradeCode.all
+    @trade_codes = TradeCode.order(:code)
   end
 
   # GET /trade_codes/1 or /trade_codes/1.json
