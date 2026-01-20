@@ -2,7 +2,7 @@ require 'test_helper'
 
 class TradeCodesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @trade_code = trade_codes(:fr)
+    @trade_code = trade_codes(:tc1)
   end
 
   test 'should get index' do
