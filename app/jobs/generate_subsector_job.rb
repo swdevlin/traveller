@@ -27,6 +27,8 @@ class GenerateSubsectorJob < ApplicationJob
     uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'subsector')
 
     http = Net::HTTP.new(uri.host, uri.port)
+    Rails.logger.error "XXXXXXXXXXXXX   #{uri.host} #{uri.port} uri.request_uri"
+
     http.open_timeout = 50
     http.read_timeout = 600
     headers = {
