@@ -17,7 +17,7 @@ class FacilitiesControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create facility' do
     assert_difference('Facility.count') do
-      post facilities_url, params: { facility: { code: @facility.code, name: @facility.name } }
+      post facilities_url, params: { facility: { code: 'NB', name: 'New Base' } }
     end
 
     assert_redirected_to facility_url(Facility.last)

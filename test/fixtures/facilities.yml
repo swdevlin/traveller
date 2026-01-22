@@ -1,9 +1,10 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  code: MyString
+  name: Base 1
+  code: B1
 
 two:
-  name: MyString
-  code: MyString
+  name: Base 2
+  code: B2
+  traveller_map_code: TMC
