@@ -1,84 +1,110 @@
 <%= form_with(model: sector, class: "contents") do |form| %>
-  <% if sector.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(sector.errors.count, "error") %> prohibited this sector from being saved:</h2>
+  <div class='space-y-6 pb-10'>
+    <% if sector.errors.any? %>
+      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+        <h2><%= pluralize(sector.errors.count, "error") %> prohibited this sector from being saved:</h2>
 
-      <ul class="list-disc ml-6">
-        <% sector.errors.each do |error| %>
-          <li><%= error.full_message.html_safe %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+        <ul class="list-disc ml-6">
+          <% sector.errors.each do |error| %>
+            <li><%= error.full_message.html_safe %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-  <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name,
-                        class: [
-                          "w-full rounded-lg bg-slate-950 border-slate-700 px-3 py-2",
-                          {
-                            "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
-                            "border-red-400 focus:outline-red-600": sector.errors[:name].any?
-                          }
-                        ] %>
-  </div>
+    <div>
+      <div class='mt-4'>
+        <div class='min-w-0'>
+          <div class='edit-label'>
+            Name
+          </div>
 
-  <div class="my-5">
-    <%= form.label :abbreviation %>
-    <%= form.text_field :abbreviation,
-                        class: [
-                          "edit-base mt-2 w-24",
-                          {
-                            "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
-                            "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
-                          }
-                        ] %>
-  </div>
-
-  <div class="my-5">
-    <span class="block font-medium">Imperial Coordinates</span>
-
-    <div class="mt-2 flex flex-wrap gap-6">
-      <div>
-        <%= form.label :x, "X", class: "block text-sm font-medium mb-1" %>
-        <%= form.number_field :x,
+          <%= form.text_field :name,
                               class: [
-                                "coord-input edit-base",
+                                "edit-base mt-2",
                                 {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:x].any?
+                                  "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
+                                  "border-red-400 focus:outline-red-600": sector.errors[:name].any?
                                 }
                               ] %>
-      </div>
-
-      <div>
-        <%= form.label :y, "Y", class: "block text-sm font-medium mb-1" %>
-        <%= form.number_field :y,
-                              class: [
-                                "coord-input edit-base",
-                                {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:y].any?
-                                }
-                              ] %>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="my-5">
-    <%= form.label :notes, "Observations" %>
-    <%= form.text_area :notes,
-                       rows: 6,
-                       class: [
-                         "mt-2 w-full edit-base resize-y",
-                         {
-                           "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
-                           "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
-                         }
-                       ] %>
-  </div>
+    <div>
+      <div class='mt-4'>
+        <div class='min-w-0'>
+          <div class='edit-label'>
+            Abbreviation
+          </div>
 
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto btn btn-primary" %>
+          <%= form.text_field :abbreviation,
+                              class: [
+                                "edit-base mt-2 w-24",
+                                {
+                                  "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
+                                  "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
+                                }
+                              ] %>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class='mt-4'>
+        <span class="edit-label">Imperial Coordinates</span>
+
+        <div class="mt-2 flex flex-wrap gap-6">
+          <div>
+            <div class='edit-label'>
+              X
+            </div>
+            <%= form.number_field :x,
+                                  class: [
+                                    "coord-input edit-base mt-2",
+                                    {
+                                      "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
+                                      "border-red-400 focus:outline-red-600": sector.errors[:x].any?
+                                    }
+                                  ] %>
+          </div>
+
+          <div>
+            <div class='edit-label'>
+              Y
+            </div>
+            <%= form.number_field :y,
+                                  class: [
+                                    "coord-input edit-base mt-2",
+                                    {
+                                      "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
+                                      "border-red-400 focus:outline-red-600": sector.errors[:y].any?
+                                    }
+                                  ] %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class='edit-label'>
+        Observations
+      </div>
+
+      <%= form.text_area :notes,
+                         rows: 6,
+                         class: [
+                           "mt-2 w-full edit-base resize-y",
+                           {
+                             "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
+                             "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
+                           }
+                         ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', sector, class: 'w-full sm:w-auto btn' %>
+    </div>
   </div>
 <% end %>
