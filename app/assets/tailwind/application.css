@@ -15,16 +15,16 @@
 }
 
 @layer base {
-  h1, h2, h3, .font-heading {
+  .font-header {
     font-family: var(--font-heading);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-}
 
-@layer utilities {
-  .caps-small {
-    font-variant-caps: small-caps;
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 }
 
@@ -97,6 +97,7 @@
     border border-slate-500/70 hover:border-slate-300/80
     mr-2
     cursor-pointer
+    no-underline hover:no-underline
     transition;
   }
 
@@ -168,5 +169,113 @@
     @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700;
   }
 
+  /* page components*/
+  .page-shell {
+    @apply w-full pb-10 space-y-6;
+  }
+
+  .page-header {
+    @apply mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
+  }
+
+  .page-kicker {
+    @apply text-xs uppercase tracking-[0.22em] text-slate-400;
+  }
+
+  .page-title {
+    @apply mt-1 text-2xl text-deepnight-orange;
+  }
+
+  .page-actions {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .page-body {
+    @apply flex flex-col md:flex-row md:items-start gap-6;
+  }
+
+  .page-main {
+    @apply flex-1 min-w-0;
+  }
+
+  .page-side {
+    @apply w-full md:w-[300px] shrink-0;
+  }
+
+  /* Table components */
+  .t-card {
+    @apply overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl;
+  }
+
+  .t-card-header {
+    @apply bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4;
+  }
+
+  .t-card-title {
+    @apply text-xs font-medium tracking-[0.2em] text-slate-300 uppercase;
+  }
+
+  .t-scroll-x {
+    @apply overflow-x-auto;
+  }
+
+  .t-table {
+    @apply min-w-full divide-y divide-slate-700 text-sm;
+  }
+
+  .t-thead {
+    @apply bg-slate-900/80;
+  }
+
+  .t-tbody {
+    @apply divide-y divide-slate-800 bg-slate-950/60;
+  }
+
+  /* Row + cells */
+  .t-tr {
+    @apply transition hover:bg-slate-900/80;
+  }
+
+  .t-td {
+    @apply px-4 py-3 align-middle;
+  }
+
+  .t-td-nowrap {
+    @apply px-4 py-3 whitespace-nowrap align-middle;
+  }
+
+  .t-td-right {
+    @apply px-4 py-3 whitespace-nowrap align-middle text-right;
+  }
+
+  /* Headers */
+  .t-th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300;
+  }
+
+  .t-th-right {
+    @apply px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300;
+  }
+
+  /* Common bits used inside tables */
+  .t-pill {
+    @apply inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-2 py-0.5 font-mono tracking-wide text-slate-200;
+  }
+
+  .t-link {
+    @apply text-sm font-medium text-slate-50 hover:text-traveller-red hover:underline hover:underline-offset-2;
+  }
+
+  .t-actions {
+    @apply inline-flex items-center gap-2;
+  }
+
+  .t-action {
+    @apply text-xs text-slate-400 hover:text-slate-200;
+  }
+
+  .t-action-danger {
+    @apply text-xs text-slate-400 hover:text-red-400 cursor-pointer;
+  }
 
 }
