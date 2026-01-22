@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'help/index'
+  get 'help/build_specification'
   resources :allegiances
   resources :trade_codes
   resources :stellar_objects

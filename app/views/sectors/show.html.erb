@@ -5,7 +5,7 @@
   <div class='mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
     <div>
       <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-        Sector Readout
+        IISS Class 0 Sector Survey
       </div>
 
       <div class="mt-1 flex flex-wrap items-baseline gap-2">
@@ -74,16 +74,12 @@
 
       </div>
 
-      <% if @sector.notes.present? %>
-        <div>
-          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-            Deepnight log
-          </div>
-          <div class='mt-2 whitespace-pre-line text-slate-200'>
-            <%= @sector.notes %>
-          </div>
-        </div>
-      <% end %>
+      <%= render 'application/observation_block',
+                 notes: @sector.notes %>
+
+      <div class="iiss-form">
+        FORM 0398D-0
+      </div>
 
       <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
 

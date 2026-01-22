@@ -105,43 +105,43 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   end
 
   # chance validation
-  test 'chance accepts all valid values' do
-    valid_chances = %w[dense standard moderate low sparse minimal rift rift_fade deep_rift empty]
+  test 'type accepts all valid values' do
+    valid_types = %w[dense standard moderate low sparse minimal rift rift_fade deep_rift empty]
 
-    valid_chances.each do |chance|
-      yaml = "chance: #{chance}"
+    valid_types.each do |type|
+      yaml = "type: #{type}"
       validator = BuildConfigValidator.new(yaml)
-      assert validator.valid?, "Expected '#{chance}' to be valid but got errors: #{validator.errors.inspect}"
+      assert validator.valid?, "Expected '#{type}' to be valid but got errors: #{validator.errors.inspect}"
     end
   end
 
-  test 'chance is case insensitive' do
-    %w[STANDARD Standard sTaNdArD].each do |chance|
-      yaml = "chance: #{chance}"
+  test 'type is case insensitive' do
+    %w[STANDARD Standard sTaNdArD].each do |type|
+      yaml = "type: #{type}"
       validator = BuildConfigValidator.new(yaml)
-      assert validator.valid?, "Expected '#{chance}' to be valid but got errors: #{validator.errors.inspect}"
-      assert_equal 'STANDARD', validator.config['chance']
+      assert validator.valid?, "Expected '#{type}' to be valid but got errors: #{validator.errors.inspect}"
+      assert_equal 'STANDARD', validator.config['type']
     end
   end
 
-  test 'chance rejects invalid values' do
-    yaml = 'chance: invalid_chance'
+  test 'type rejects invalid values' do
+    yaml = 'type: invalid_chance'
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
-    assert_includes validator.errors.join, 'chance'
+    assert_includes validator.errors.join, 'type'
   end
 
-  test 'chance is required' do
+  test 'type is required' do
     yaml = "unusualChance: 1\ndefaultSI: 3"
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
-    assert_includes validator.errors.join, 'chance'
+    assert_includes validator.errors.join, 'type'
   end
 
   # Coordinate validation - x range (1-8)
   test 'coordinate x must be at least 1' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 0
           y: 1
@@ -153,7 +153,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinate x must be at most 8' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 9
           y: 1
@@ -165,7 +165,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinate x accepts boundary values 1 and 8' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
           y: 1
@@ -179,7 +179,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   # Coordinate validation - y range (1-10)
   test 'coordinate y must be at least 1' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
           y: 0
@@ -191,7 +191,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinate y must be at most 10' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
           y: 11
@@ -203,7 +203,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinate y accepts boundary values 1 and 10' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
           y: 1
@@ -217,7 +217,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   # Coordinate validation in different arrays
   test 'coordinates work in required array' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       required:
         - x: 1
           y: 1
@@ -230,7 +230,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinates work in systems array' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       systems:
         - x: 1
           y: 1
@@ -243,7 +243,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'coordinate requires both x and y' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
     YAML
@@ -255,7 +255,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   # Systems exclusivity rule
   test 'systems cannot coexist with exclude' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       systems:
         - x: 1
           y: 1
@@ -271,7 +271,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'systems cannot coexist with required' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       systems:
         - x: 1
           y: 1
@@ -287,7 +287,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'systems can coexist with empty exclude and required' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       systems:
         - x: 1
           y: 1
@@ -303,7 +303,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   test 'exclude and required can coexist when systems is empty' do
     yaml = <<~YAML
-      chance: standard
+      type: standard
       exclude:
         - x: 1
           y: 1
@@ -364,7 +364,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     yaml = <<~YAML
       unusualChance: 10
       defaultSI: 5
-      chance: MODERATE
+      type: MODERATE
     YAML
 
     validator = BuildConfigValidator.new(yaml)
@@ -372,6 +372,6 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
     assert_equal 10, validator.config['unusualChance']
     assert_equal 5, validator.config['defaultSI']
-    assert_equal 'MODERATE', validator.config['chance']
+    assert_equal 'MODERATE', validator.config['type']
   end
 end

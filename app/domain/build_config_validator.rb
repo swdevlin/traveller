@@ -57,7 +57,7 @@ class BuildConfigValidator
       end
     end.tap do |h|
       # Normalize chance to uppercase for case-insensitive matching
-      h['chance'] = h['chance'].upcase if h['chance'].is_a?(String)
+      h['type'] = h['type'].upcase if h['type'].is_a?(String)
     end
   end
 
@@ -81,6 +81,7 @@ class BuildConfigValidator
     validate_populated_allegiance
     validate_populated_tech_level
     validate_populated_population
+    validate_primary_star
     @errors.empty?
   end
 
@@ -131,5 +132,46 @@ class BuildConfigValidator
     if exclude_present || required_present
       @errors << 'When systems is specified, exclude and required must be empty'
     end
+  end
+
+  def validate_primary_star
+    errors = []
+
+    @config.fetch(:systems, []).each_with_index do |system, i|
+      next unless system[:primary].is_a?(Hash)
+
+      errors.concat(
+        validate_star_tree(system[:primary], path: [:systems, i, :primary])
+      )
+    end
+
+    errors
+  end
+
+  STAR_CHILD_KEYS = %i[companion close near far].freeze
+
+  def validate_star_tree(star_hash, path:, max_depth: 10)
+    return [] if star_hash.nil?
+    return [[path, ['max recursion depth exceeded']]] if max_depth < 0
+
+    errors = []
+
+    result = StarSchema.call(star_hash)
+    unless result.success?
+      result.errors.to_h.each do |k, msgs|
+        errors << [path + [k], Array(msgs)]
+      end
+    end
+
+    STAR_CHILD_KEYS.each do |key|
+      child = star_hash[key]
+      next unless child.is_a?(Hash)
+
+      errors.concat(
+        validate_star_tree(child, path: path + [key], max_depth: max_depth - 1)
+      )
+    end
+
+    errors
   end
 end

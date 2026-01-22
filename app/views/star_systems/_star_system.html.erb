@@ -2,7 +2,7 @@
   <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
     <div>
       <div class="text-xs uppercase tracking-[0.22em] text-slate-400">
-        Star System Readout
+        IISS Class III Survey
       </div>
       <div class="mt-1 text-2xl font-heading text-deepnight-orange">
         <%= star_system.name.presence || 'Unlabelled System' %>
@@ -44,16 +44,12 @@
                suffix: tag.span(star_system.parsec.hex_code, class: 'identifier') %>
   </div>
 
+  <%= render 'application/observation_block',
+             notes: star_system.notes %>
+
   <%= render 'stellar_objects_table', primary: star_system.primary_star %>
 
-  <% if star_system.notes.present? %>
-    <div>
-      <div class="text-xs uppercase tracking-[0.22em] text-slate-400">
-        Notes
-      </div>
-      <div class="mt-2 whitespace-pre-line text-slate-200">
-        <%= star_system.notes %>
-      </div>
-    </div>
-  <% end %>
+  <div class="iiss-form">
+    FORM 0421D
+  </div>
 </div>

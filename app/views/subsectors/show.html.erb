@@ -62,16 +62,8 @@
 
       </div>
 
-      <% if @subsector.notes.present? %>
-        <div>
-          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-            Notes
-          </div>
-          <div class='mt-2 whitespace-pre-line text-slate-200'>
-            <%= @subsector.notes %>
-          </div>
-        </div>
-      <% end %>
+      <%= render 'application/observation_block',
+                 notes: @subsector.notes %>
 
       <%= render 'star_systems/table',
                  star_systems: @subsector.star_systems,

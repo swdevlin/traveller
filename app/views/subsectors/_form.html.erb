@@ -1,59 +1,85 @@
-<%= form_with(model: subsector, class: "contents") do |form| %>
-  <% if subsector.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(subsector.errors.count, "error") %> prohibited this subsector from being saved:</h2>
+<%= form_with(model: subsector, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <% if subsector.errors.any? %>
+      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Validation
+        </div>
+        <div class='mt-1 text-sm font-semibold text-slate-200'>
+          <%= pluralize(subsector.errors.count, 'error') %> prevented this subsector from being saved
+        </div>
 
-      <ul class="list-disc ml-6">
-        <% subsector.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+          <% subsector.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-  <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: [
-      "w-full edit-base",
-      {
-        "border-gray-400 focus:outline-blue-600": subsector.errors[:name].none?,
-        "border-red-400 focus:outline-red-600": subsector.errors[:name].any?
-      }]
-    %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :notes, "Notes" %>
-    <%= form.text_area :notes,
-                       rows: 6,
-                       class: [
-                         "edit-base mt-2 w-full resize-y",
-                         {
-                           "border-gray-400 focus:outline-blue-600": subsector.errors[:notes].none?,
-                           "border-red-400 focus:outline-red-600": subsector.errors[:notes].any?
-                         }
-                       ] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :build, 'Build plan' %>
-    <div class='mt-2 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-start'>
-      <div>
-        <%= form.text_area :build,
-                           rows: 16,
-                           class: [
-                             'font-mono edit-base w-full resize-y',
-                             {
-                               'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
-                               'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
-                             }
-                           ] %>
-
-        <div class="mt-4">
-          <%= form.submit "Save changes", class: "w-full sm:w-auto btn btn-primary" %>
+    <div>
+      <div class='mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2'>
+        <div class='min-w-0'>
+          <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+          <%= form.text_field :name,
+                              class: [
+                                'w-full edit-base mt-2',
+                                {
+                                  'border-gray-400 focus:outline-blue-600': subsector.errors[:name].none?,
+                                  'border-red-400 focus:outline-red-600': subsector.errors[:name].any?
+                                }
+                              ] %>
         </div>
       </div>
-      <%= render 'build_help' %>
+    </div>
+
+    <div>
+      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+        Notes
+      </div>
+
+      <%= form.text_area :notes, 'Observations',
+                         rows: 6,
+                         class: [
+                           'edit-base mt-2 w-full resize-y',
+                           {
+                             'border-gray-400 focus:outline-blue-600': subsector.errors[:notes].none?,
+                             'border-red-400 focus:outline-red-600': subsector.errors[:notes].any?
+                           }
+                         ] %>
+    </div>
+
+    <div>
+      <div class='flex items-end justify-between gap-3'>
+        <div>
+          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+            Build plan
+          </div>
+          <div class='mt-1 text-lg font-semibold text-slate-400'>
+            YAML input
+          </div>
+        </div>
+
+        <%= link_to 'Build spec reference',
+                    help_build_specification_path,
+                    class: 'link-traveller text-xs' %>
+      </div>
+
+      <%= form.text_area :build,
+                         rows: 16,
+                         aria: { label: 'Build plan YAML' },
+                         class: [
+                           'font-mono edit-base w-full resize-y mt-2',
+                           {
+                             'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
+                             'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
+                           }
+                         ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', subsector, class: 'w-full sm:w-auto btn' %>
     </div>
   </div>
 <% end %>

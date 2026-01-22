@@ -104,7 +104,7 @@ class SubsectorsController < ApplicationController
     config = YAML.safe_load(yaml_string, permitted_classes: [], permitted_symbols: [], aliases: false)
     return yaml_string unless config.is_a?(Hash)
 
-    config['chance'] = config['chance'].upcase if config['chance'].is_a?(String)
+    config['type'] = config['type'].upcase if config['type'].is_a?(String)
     YAML.dump(config)
   end
 end

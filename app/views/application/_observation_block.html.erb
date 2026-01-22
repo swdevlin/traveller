@@ -1,0 +1,9 @@
+<div>
+  <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+    Observations
+  </div>
+
+  <div class='whitespace-pre-line <%= local_assigns[:notes].present? ? 'text-slate-200' : 'text-slate-400 italic' %>'>
+    <%= local_assigns[:notes].presence || 'No findings reported.' %>
+  </div>
+</div>

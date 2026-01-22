@@ -22,6 +22,12 @@
   }
 }
 
+@layer utilities {
+  .caps-small {
+    font-variant-caps: small-caps;
+  }
+}
+
 @layer components {
   h1, h2, h3, h4, h5, h6 {
     @apply text-deepnight-orange;
@@ -150,4 +156,7 @@
     @apply bg-slate-900/30 text-slate-500 border-slate-800 cursor-not-allowed;
   }
 
+  .iiss-form {
+    @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-400;
+  }
 }

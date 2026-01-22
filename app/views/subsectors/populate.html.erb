@@ -2,64 +2,106 @@
 
 <% sector = @subsector.sector %>
 
-<div class='w-full'>
-  <h1 class='font-bold text-4xl mb-4'>
-    <%= @subsector.name %>,
-    <%= link_to sector.name,
-                sector_path(sector),
-                class: 'text-inherit hover:text-traveller-red/90 hover:underline' %>
-  </h1>
+<div class='w-full pb-10 space-y-6'>
+  <div class='mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
+    <div>
+      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+        Subsector Build Plan
+      </div>
+
+      <div class='mt-1 text-2xl font-heading text-deepnight-orange'>
+        <%= @subsector.name %>
+        <span class='text-slate-500'>,</span><%= sector.name %>
+      </div>
+    </div>
+
+    <div class='flex flex-wrap gap-2'>
+    </div>
+  </div>
 
   <div class='flex flex-col md:flex-row md:items-start gap-6'>
-    <div class='flex-1 min-w-0'>
-      <% if @subsector.notes.present? %>
-        <div class='mb-4'>
-          <strong class='block text-sm font-semibold mb-1'>Notes</strong>
-          <p class='text-sm whitespace-pre-line'>
-            <%= @subsector.notes %>
-          </p>
-        </div>
-      <% end %>
+    <div class='flex-1 min-w-0 space-y-6'>
+      <%= render 'application/observation_block',
+                 notes: @subsector.notes %>
 
-      <%= form_with(model: @subsector, url: generate_subsector_path(@subsector), method: :post, class: 'contents') do |form| %>
-        <div class='mt-5'>
-          <%= form.label :build, 'Build plan' %>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block',
+                   label: 'Plan Format',
+                   value: link_to('YAML',
+                                  help_build_specification_path,
+                                  class: 'hover:underline underline-offset-4') %>
 
-          <div class='mt-2 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 items-start'>
-            <div>
-              <%= form.text_area :build,
-                                 rows: 20,
-                                 class: [
-                                   'font-mono edit-base w-full resize-y',
-                                   {
-                                     'border-gray-400 focus:outline-blue-600': @subsector.errors[:build].none?,
-                                     'border-red-400 focus:outline-red-600': @subsector.errors[:build].any?
-                                   }
-                                 ] %>
+        <%= render 'application/data_block',
+                   label: 'Last Survey',
+                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+                   value: safe_join(
+                     [
+                       tag.span(
+                         safe_join([tag.span('Systems', class: 'text-slate-300'),
+                                    tag.span(@star_system_count)], ' '),
+                         class: 'identifier'
+                       ),
+                       tag.span(
+                         safe_join([tag.span('Rogues', class: 'text-slate-300'),
+                                    tag.span(@rogue_count)], ' '),
+                         class: 'identifier'
+                       )
+                     ],
+                     ''
+                   ) %>
 
-              <div class='mt-4 flex flex-col sm:flex-row gap-2'>
-                <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the subsector. Are you sure you wish to replace them?" %>
+        <%= render 'application/data_block',
+                   label: 'Subsector',
+                   value: link_to(@subsector.name,
+                                  subsector_path(@subsector),
+                                  class: 'hover:underline underline-offset-4') %>
 
-                <%= form.submit 'Generate',
-                                class: 'w-full sm:w-auto btn btn-primary',
-                                data: { turbo_confirm: confirm_msg } %>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name,
+                                  sector_path(sector),
+                                  class: 'hover:underline underline-offset-4') %>
+      </div>
 
-                <%= link_to 'Cancel',
-                            @subsector,
-                            class: 'w-full sm:w-auto btn' %>
-              </div>
-            </div>
+      <%= form_with(model: @subsector,
+                    url: generate_subsector_path(@subsector),
+                    method: :post,
+                    class: 'contents') do |form| %>
 
-            <%= render 'build_help' %>
+        <div class='space-y-3'>
+
+          <%= form.text_area :build,
+                             rows: 20,
+                             aria: { label: 'Build plan YAML' },
+                             class: [
+                               'font-mono edit-base w-full resize-y',
+                               {
+                                 'border-gray-400 focus:outline-blue-600': @subsector.errors[:build].none?,
+                                 'border-red-400 focus:outline-red-600': @subsector.errors[:build].any?
+                               }
+                             ] %>
+
+          <div class='mt-2 flex flex-col sm:flex-row gap-2'>
+            <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?" %>
+
+            <%= form.submit 'Generate',
+                            class: 'w-full sm:w-auto btn btn-primary',
+                            data: { turbo_confirm: confirm_msg } %>
+
+            <%= link_to 'Cancel',
+                        @subsector,
+                        class: 'w-full sm:w-auto btn' %>
           </div>
         </div>
       <% end %>
     </div>
 
     <div class='w-full md:w-[300px] shrink-0'>
-      <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
-
       <div class='mt-2'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>
+          Sector grid
+        </div>
+
         <strong class='block font-medium mb-2'>
           <%= link_to sector.name, sector, class: 'link-traveller-i' %>
         </strong>
