@@ -1,37 +1,42 @@
 <% content_for :title, @allegiance.name %>
 
-<div class="w-full max-w-2xl">
-  <h1 class="font-bold text-4xl mb-4">
-    <%= @allegiance.name %>
-    <span class="text-base text-slate-400">(<%= @allegiance.code %>)</span>
-  </h1>
+<div class="md:w-2/3 w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
 
-  <div class="space-y-4 mb-6">
-    <div>
-      <strong class="block text-sm font-semibold text-slate-400 mb-1">Code</strong>
-      <span class="inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-3 py-1 font-mono tracking-wide text-slate-200">
-        <%= @allegiance.code %>
-      </span>
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <div class="page-kicker">
+          Allegiance Classification
+        </div>
+        <div class="page-title">
+          <%= @allegiance.name %>
+        </div>
+      </div>
+      <div class="page-actions">
+      </div>
     </div>
 
-    <% if @allegiance.legacy_code.present? %>
-      <div>
-        <strong class="block text-sm font-semibold text-slate-400 mb-1">Legacy Code</strong>
-        <span class="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-900/30 px-3 py-1 font-mono tracking-wide text-amber-100">
-          <%= @allegiance.legacy_code %>
-        </span>
-      </div>
-    <% end %>
-  </div>
+    <div class="page-body">
+      <div class="page-main">
+        <%= render @allegiance %>
 
-  <div class="flex flex-col sm:flex-row gap-2">
-    <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
-    <%= link_to "Back to allegiances", allegiances_path, class: "w-full sm:w-auto btn" %>
-    <%= button_to "Delete",
-                  @allegiance,
-                  method: :delete,
-                  form_class: "w-full sm:w-auto",
-                  class: "w-full sm:w-auto btn btn-danger cursor-pointer",
-                  data: { turbo_confirm: "Are you sure?" } %>
+        <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn" %>
+        <%= render 'application/back_button',
+                   path: allegiances_path,
+                   label: 'Allegiances',
+                   class: 'w-full sm:w-auto' %>
+        <%= button_to "Delete",
+                      @allegiance,
+                      method: :delete,
+                      form_class: "w-full sm:w-auto inline-flex",
+                      class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                      data: { turbo_confirm: "Are you sure?" } %>
+      </div>
+      <div class="page-side">
+      </div>
+    </div>
   </div>
 </div>
