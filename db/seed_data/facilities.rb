@@ -18,5 +18,5 @@ FACILITIES = [
   { code: 'SB', name: 'Supply base', traveller_map_code: '' },
   { code: 'AT', name: 'Tlaukhu base', traveller_map_code: '' },
   { code: 'T', name: 'Terminus', traveller_map_code: '' },
-  { code: 'W', name: 'Way Station', traveller_map_code: '' },
+  { code: 'W', name: 'Way Station', traveller_map_code: '' }
 ]

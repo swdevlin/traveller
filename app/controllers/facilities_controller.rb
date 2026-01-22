@@ -4,7 +4,6 @@ class FacilitiesController < ApplicationController
   # GET /facilities or /facilities.json
   def index
     @facilities = Facility.all.order(:code)
-
   end
 
   # GET /facilities/1 or /facilities/1.json
@@ -26,7 +25,7 @@ class FacilitiesController < ApplicationController
 
     respond_to do |format|
       if @facility.save
-        format.html { redirect_to @facility, notice: "Base was successfully created." }
+        format.html { redirect_to @facility, notice: 'Base was successfully created.' }
         format.json { render :show, status: :created, location: @facility }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -39,7 +38,7 @@ class FacilitiesController < ApplicationController
   def update
     respond_to do |format|
       if @facility.update(facility_params)
-        format.html { redirect_to @facility, notice: "Base was successfully updated.", status: :see_other }
+        format.html { redirect_to @facility, notice: 'Base was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @facility }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -53,7 +52,7 @@ class FacilitiesController < ApplicationController
     @facility.destroy!
 
     respond_to do |format|
-      format.html { redirect_to facilities_path, notice: "Base was deleted.", status: :see_other }
+      format.html { redirect_to facilities_path, notice: 'Base was deleted.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -66,6 +65,6 @@ class FacilitiesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def facility_params
-      params.expect(facility: [ :name, :code ])
+      params.expect(facility: [:name, :code])
     end
 end
