@@ -1,88 +1,65 @@
 <% content_for :title, "Trade codes" %>
 
-<div class="w-full max-w-4xl mx-auto space-y-4">
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">Trade Codes</h1>
-      <p class="mt-1 text-sm text-slate-300">
-        Classification codes describing world characteristics.
-      </p>
+<div class='w-full pb-10 space-y-6'>
+  <div class='mt-4'>
+    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+      Reference Manual
     </div>
-
-    <%= link_to new_trade_code_path, class: "inline-flex items-center gap-2 btn btn-primary" do %>
-      <i class="fa-solid fa-plus"></i>
-      <span>New trade code</span>
-    <% end %>
+    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
+      Trade Codes
+    </div>
   </div>
 
-  <% if @trade_codes.any? %>
-    <div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl">
-      <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
-        <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
-          Trade code registry
-        </p>
+  <div class='t-card'>
+    <div class='t-card-header'>
+      <div class="flex items-center justify-between gap-3">
+        <p class='t-card-title'>Trade Code Registry</p>
+        <%= link_to new_trade_code_path, class: "btn-header" do %>
+          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+          Add
+        <% end %>
       </div>
+    </div>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-700 text-sm">
-          <thead class="bg-slate-900/80">
-            <tr>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-                Code
-              </th>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-                Definition
-              </th>
-              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800 bg-slate-950/60">
-            <% @trade_codes.each do |trade_code| %>
-              <tr class="transition hover:bg-slate-900/80">
-                <td class="px-4 py-3 whitespace-nowrap align-middle">
-                  <span class="inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-2 py-0.5 font-mono tracking-wide text-slate-200">
-                    <%= trade_code.code %>
-                  </span>
-                </td>
-                <td class="px-4 py-3 align-middle">
-                  <%= link_to trade_code_path(trade_code),
-                              class: "text-sm font-medium text-slate-50 hover:text-traveller-red hover:underline hover:underline-offset-2" do %>
-                    <%= trade_code.definition %>
+    <div class='t-scroll-x'>
+      <table class='t-table'>
+        <thead class='t-thead'>
+          <tr>
+            <th scope='col' class='t-th'>Code</th>
+            <th scope='col' class='t-th'>Definition</th>
+            <th scope='col' class='t-th-right'>Actions</th>
+          </tr>
+        </thead>
+        <tbody class='t-tbody'>
+          <% @trade_codes.each do |trade_code| %>
+            <tr class='t-tr'>
+              <td class='t-td-nowrap'>
+                <span class='t-pill'><%= trade_code.code %></span>
+              </td>
+              <td class='t-td'>
+                <%= link_to trade_code_path(trade_code), class: "t-link" do %>
+                  <%= trade_code.definition %>
+                <% end %>
+              </td>
+
+              <td class='t-td-right'>
+                <div class='t-actions'>
+                  <%= link_to edit_trade_code_path(trade_code),
+                              class: "t-action" do %>
+                    <i class="fa-regular fa-pen-to-square"></i>
                   <% end %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap align-middle text-right">
-                  <div class="inline-flex items-center gap-2">
-                    <%= link_to edit_trade_code_path(trade_code),
-                                class: "text-xs text-slate-400 hover:text-slate-200" do %>
-                      <i class="fa-regular fa-pen-to-square"></i>
-                    <% end %>
-                    <%= button_to trade_code,
-                                  method: :delete,
-                                  class: "text-xs text-slate-400 hover:text-red-400 cursor-pointer",
-                                  data: { turbo_confirm: "Delete #{trade_code.code}?" } do %>
-                      <i class="fa-regular fa-trash"></i>
-                    <% end %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+                  <%= button_to trade_code,
+                                method: :delete,
+                                class: "t-action-danger",
+                                data: { turbo_confirm: "Delete #{trade_code.code}?" } do %>
+                    <i class="fa-regular fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-  <% else %>
-    <div class="my-16 text-center">
-      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-300">
-        <i class="fa-regular fa-tags"></i>
-      </div>
-      <p class="text-sm text-slate-300">
-        No trade codes defined yet.
-      </p>
-      <p class="mt-1 text-xs text-slate-500">
-        Use <span class="font-mono text-slate-200">New trade code</span> to add your first classification.
-      </p>
-    </div>
-  <% end %>
+  </div>
 </div>

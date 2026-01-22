@@ -1,10 +1,19 @@
-<div id="<%= dom_id trade_code %>" class="w-full sm:w-auto my-5 space-y-5">
-  <div>
-    <strong class="block font-medium mb-1">Code:</strong>
-    <%= trade_code.code %>
-  </div>
-  <div>
-    <strong class="block font-medium mb-1">Definition:</strong>
-    <%= trade_code.definition %>
+<div id="<%= dom_id trade_code %>" class='flex flex-col md:flex-row md:items-start gap-6 mb-4'>
+  <div class='flex-1 min-w-0 space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <%= render 'application/data_block',
+                 label: 'Code',
+                 value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+                 value: tag.span(trade_code.code, class: 'identifier')
+
+      %>
+
+      <%= render 'application/data_block',
+                 label: 'Definition',
+                 value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+                 value: trade_code.definition
+      %>
+
+    </div>
   </div>
 </div>

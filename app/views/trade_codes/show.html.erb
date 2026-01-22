@@ -1,33 +1,42 @@
 <% content_for :title, @trade_code.code %>
 
-<div class="w-full max-w-2xl">
-  <h1 class="font-bold text-4xl mb-4">
-    <%= @trade_code.definition %>
-    <span class="text-base text-slate-400">(<%= @trade_code.code %>)</span>
-  </h1>
+<div class="md:w-2/3 w-full">
+  <% if notice.present? %>
+    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+  <% end %>
 
-  <div class="space-y-4 mb-6">
-    <div>
-      <strong class="block text-sm font-semibold text-slate-400 mb-1">Code</strong>
-      <span class="inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-3 py-1 font-mono tracking-wide text-slate-200">
-        <%= @trade_code.code %>
-      </span>
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <div class="page-kicker">
+          Trade Code Classification
+        </div>
+        <div class="page-title">
+          <%= @trade_code.definition %>
+        </div>
+      </div>
+      <div class="page-actions">
+      </div>
     </div>
 
-    <div>
-      <strong class="block text-sm font-semibold text-slate-400 mb-1">Definition</strong>
-      <p class="text-slate-100"><%= @trade_code.definition %></p>
-    </div>
-  </div>
+    <div class="page-body">
+      <div class="page-main">
+        <%= render @trade_code %>
 
-  <div class="flex flex-col sm:flex-row gap-2">
-    <%= link_to "Edit", edit_trade_code_path(@trade_code), class: "w-full sm:w-auto btn btn-primary" %>
-    <%= link_to "Back to trade codes", trade_codes_path, class: "w-full sm:w-auto btn" %>
-    <%= button_to "Delete",
-                  @trade_code,
-                  method: :delete,
-                  form_class: "w-full sm:w-auto",
-                  class: "w-full sm:w-auto btn btn-danger cursor-pointer",
-                  data: { turbo_confirm: "Are you sure?" } %>
+        <%= link_to "Edit", edit_trade_code_path(@trade_code), class: "w-full sm:w-auto btn btn-primary" %>
+        <%= render 'application/back_button',
+                   path: trade_codes_path,
+                   label: 'Trade codes',
+                   class: 'w-full sm:w-auto' %>
+        <%= button_to "Delete",
+                      @trade_code,
+                      method: :delete,
+                      form_class: "w-full sm:w-auto inline-flex m-0",
+                      class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                      data: { turbo_confirm: "Are you sure?" } %>
+      </div>
+      <div class="page-side">
+      </div>
+    </div>
   </div>
 </div>
