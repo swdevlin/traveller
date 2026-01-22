@@ -3,7 +3,7 @@
 <div class='w-full'>
   <div class='flex items-start justify-between gap-4 mb-6'>
     <div>
-      <h1 class='text-3xl font-bold font-heading tracking-wider'>
+      <h1 class='text-3xl font-bold font-header tracking-wider'>
         <i class='fa-regular fa-sliders mr-2 text-slate-300'></i>
         Settings
       </h1>
@@ -56,6 +56,32 @@
                   </h2>
                   <p class='text-sm text-slate-300'>
                     Define political codes and display names used for populated systems. The initial list is from TravellerMap,
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
+              <i class='fa-regular fa-chevron-right'></i>
+            </div>
+          </div>
+
+        <% end %>
+
+        <%= link_to facilities_path,
+                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
+          <div class='flex items-start justify-between gap-4'>
+            <div class='min-w-0'>
+              <div class='flex items-center gap-3'>
+                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
+                  <i class='fa-regular fa-flag text-slate-200'></i>
+                </div>
+                <div>
+                  <h2 class='text-lg font-semibold text-slate-100'>
+                    Bases
+                  </h2>
+                  <p class='text-sm text-slate-300'>
+                    Define bases. The initial list is a modified version from TravellerMap.
                   </p>
                 </div>
               </div>

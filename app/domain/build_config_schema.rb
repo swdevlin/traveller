@@ -59,6 +59,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
   optional(:know).filled(:bool)
+  optional(:bases).array(:string).each(:filled?)
 end
 
 BuildConfigSchema = Dry::Schema.Params do

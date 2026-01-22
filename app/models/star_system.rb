@@ -6,7 +6,9 @@ class StarSystem < ApplicationRecord
   has_many :stars, dependent: :destroy
   has_many :gas_giants, class_name: 'GasGiant'
   has_many :star_system_trade_codes, dependent: :destroy
+  has_many :star_system_facilities, dependent: :destroy
   has_many :trade_codes, through: :star_system_trade_codes
+  has_many :facilities, through: :star_system_facilities
 
   has_many :stellar_objects, through: :stars
 
@@ -20,6 +22,10 @@ class StarSystem < ApplicationRecord
 
   def trade_codes_string
     trade_codes.order(:code).pluck(:code).join(' ')
+  end
+
+  def facilities_string
+    facilities.order(:code).pluck(:code).join(' ')
   end
 
   def primary_star

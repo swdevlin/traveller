@@ -82,6 +82,7 @@ class BuildConfigValidator
     validate_populated_tech_level
     validate_populated_population
     validate_primary_star
+    validate_bases
     @errors.empty?
   end
 
@@ -116,6 +117,16 @@ class BuildConfigValidator
 
     unless Allegiance.exists?(code: allegiance)
       @errors << "unknown allegiance '#{allegiance}'"
+    end
+  end
+
+  def validate_bases
+    return if @config['bases'].nil?
+
+    @config['bases'].each do |base|
+      unless Facility.exists?(code: base)
+        @errors << "unknown base '#{base}'"
+      end
     end
   end
 

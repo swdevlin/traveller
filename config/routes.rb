@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :facilities
   get 'help/index'
   get 'help/build_specification'
   resources :allegiances

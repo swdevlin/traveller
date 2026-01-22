@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_19_181343) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_22_133857) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -48,6 +48,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_181343) do
     t.index ["code"], name: "index_allegiances_on_code", unique: true
   end
 
+  create_table "facilities", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.string "traveller_map_code"
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_facilities_on_code", unique: true
+  end
+
   create_table "parsecs", force: :cascade do |t|
     t.json "build_log"
     t.datetime "created_at", null: false
@@ -74,6 +83,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_181343) do
     t.integer "x"
     t.integer "y"
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
+  end
+
+  create_table "star_system_facilities", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "facility_id", null: false
+    t.integer "star_system_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facility_id"], name: "index_star_system_facilities_on_facility_id"
+    t.index ["star_system_id", "facility_id"], name: "index_star_system_facilities_on_star_system_id_and_facility_id", unique: true
+    t.index ["star_system_id"], name: "index_star_system_facilities_on_star_system_id"
   end
 
   create_table "star_system_trade_codes", force: :cascade do |t|
@@ -211,6 +230,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_19_181343) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "parsecs", "sectors", on_delete: :cascade
+  add_foreign_key "star_system_facilities", "facilities", on_delete: :cascade
+  add_foreign_key "star_system_facilities", "star_systems", on_delete: :cascade
   add_foreign_key "star_system_trade_codes", "star_systems", on_delete: :cascade
   add_foreign_key "star_system_trade_codes", "trade_codes", on_delete: :cascade
   add_foreign_key "star_systems", "allegiances", on_delete: :nullify
