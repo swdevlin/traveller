@@ -7,7 +7,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     yaml = <<~YAML
       unusualChance: 1
       defaultSI: 3
-      chance: standard
+      type: standard
     YAML
 
     validator = BuildConfigValidator.new(yaml)
@@ -18,7 +18,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     yaml = <<~YAML
       unusualChance: 1
       defaultSI: 3
-      chance: standard
+      type: standard
       exclude:
         -
       required:
@@ -35,7 +35,7 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     yaml = <<~YAML
       unusualChance: 50
       defaultSI: 6
-      chance: dense
+      type: dense
       exclude:
         - x: 1
           y: 1
@@ -52,26 +52,26 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   # unusualChance validation
   test 'unusualChance must be between 0 and 100' do
-    yaml = "unusualChance: 150\nchance: standard"
+    yaml = "unusualChance: 150\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
     assert_includes validator.errors.join, 'unusualChance'
   end
 
   test 'unusualChance accepts 0' do
-    yaml = "unusualChance: 0\ndefaultSI: 3\nchance: standard"
+    yaml = "unusualChance: 0\ndefaultSI: 3\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
   test 'unusualChance accepts 100' do
-    yaml = "unusualChance: 100\ndefaultSI: 3\nchance: standard"
+    yaml = "unusualChance: 100\ndefaultSI: 3\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
   test 'unusualChance rejects negative values' do
-    yaml = "unusualChance: -1\nchance: standard"
+    yaml = "unusualChance: -1\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
     assert_includes validator.errors.join, 'unusualChance'
@@ -79,26 +79,26 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
 
   # defaultSI validation
   test 'defaultSI must be between 0 and 12' do
-    yaml = "defaultSI: 15\nchance: standard"
+    yaml = "defaultSI: 15\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
     assert_includes validator.errors.join, 'defaultSI'
   end
 
   test 'defaultSI accepts 0' do
-    yaml = "unusualChance: 1\ndefaultSI: 0\nchance: standard"
+    yaml = "unusualChance: 1\ndefaultSI: 0\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
   test 'defaultSI accepts 12' do
-    yaml = "unusualChance: 1\ndefaultSI: 12\nchance: standard"
+    yaml = "unusualChance: 1\ndefaultSI: 12\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
   test 'defaultSI rejects negative values' do
-    yaml = "defaultSI: -1\nchance: standard"
+    yaml = "defaultSI: -1\ntype: standard"
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid?
     assert_includes validator.errors.join, 'defaultSI'
