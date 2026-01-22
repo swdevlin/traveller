@@ -49,10 +49,6 @@
     @apply underline hover:text-traveller-red hover:underline hover:underline-offset-2
   }
 
-  .edit-base {
-    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700;
-  }
-
   .coord-input {
     @apply w-24 flex-none;
   }
@@ -159,4 +155,18 @@
   .iiss-form {
     @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-400;
   }
+
+  .edit-label {
+    @apply text-xs uppercase tracking-[0.22em] text-slate-400;
+  }
+
+  .edit-field {
+    @apply w-full rounded-lg bg-slate-950 border-slate-700 px-3 py-2;
+  }
+
+  .edit-base {
+    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700;
+  }
+
+
 }
