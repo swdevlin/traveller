@@ -5,5 +5,8 @@
 
   <%= render "form", sector: @sector %>
 
-  <%= link_to "Back to sectors", sectors_path, class: "w-full sm:w-auto btn" %>
+  <%= render 'application/back_button',
+             path: sectors_path,
+             label: 'Sectors',
+             class: 'w-full sm:w-auto' %>
 </div>

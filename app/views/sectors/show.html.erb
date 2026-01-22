@@ -9,7 +9,7 @@
       </div>
 
       <div class="mt-1 flex flex-wrap items-baseline gap-2">
-        <span class='text-2xl font-heading text-deepnight-orange'>
+        <span class='text-2xl font-header text-deepnight-orange'>
           <%= @sector.name %>
         </span>
         <span class='identifier-sm text-slate-300'>
@@ -99,9 +99,10 @@
                       class: 'w-full sm:w-auto btn',
                       data: { turbo_confirm: confirm_msg } %>
 
-        <%= link_to 'Back to sectors',
-                    sectors_path,
-                    class: 'w-full sm:w-auto btn' %>
+        <%= render 'application/back_button',
+                   path: sectors_path,
+                   label: 'Sectors',
+                   class: 'w-full sm:w-auto' %>
 
         <%= button_to 'Delete',
                       @sector,

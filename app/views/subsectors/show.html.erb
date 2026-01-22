@@ -3,14 +3,13 @@
 <% sector = @subsector.sector %>
 
 <div class='w-full pb-10 space-y-6'>
-  <!-- Header (same layout vibe as the system view) -->
   <div class='mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
     <div>
       <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-        Subsector Readout
+        IISS CLASS I Subsector Survey
       </div>
 
-      <div class='mt-1 text-2xl font-heading text-deepnight-orange'>
+      <div class='mt-1 text-2xl font-header text-deepnight-orange'>
         <%= @subsector.name %>
         <span class='text-slate-500'>,</span>
         <%= sector.name %>
