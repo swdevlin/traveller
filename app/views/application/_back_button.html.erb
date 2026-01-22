@@ -1,0 +1,10 @@
+<%# locals: path:, label: 'Back', class: nil %>
+
+<%= link_to path,
+            class: [
+              'btn inline-flex items-center gap-2',
+              (local_assigns[:class] if local_assigns[:class].present?)
+            ].compact.join(' ') do %>
+  <i class='fa-regular fa-chevron-left'></i>
+  <%= local_assigns.fetch(:label, 'Back') %>
+<% end %>
