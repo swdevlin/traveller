@@ -10,5 +10,7 @@ class TerrestrialPlanet < StellarObject
     greenhouse: 'greenhouse',
     retrograde: 'retrograde',
     biomass_rating: 'biomassRating',
+    extinct_sophont: 'extinctSophont',
+    native_sophont: 'nativeSophont',
   )
 end
