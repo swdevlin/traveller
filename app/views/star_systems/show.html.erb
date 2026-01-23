@@ -1,7 +1,12 @@
 <% content_for :title, "Showing star system" %>
 
-<div class="md:w-2/3 w-full">
+<div class="w-full">
   <%= render @star_system %>
-  <%= link_to "Edit this star system", edit_star_system_path(@star_system), class: "w-full sm:w-auto btn" %>
-  <%= button_to "Delete star system", @star_system, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0", class: "w-full btn btn-danger", data: { turbo_confirm: "Are you sure?" } %>
+  <%= link_to "Edit", edit_star_system_path(@star_system), class: "w-full sm:w-auto btn" %>
+  <%= button_to "Delete",
+                @star_system,
+                method: :delete,
+                form_class: "sm:inline-block mt-2 sm:mt-0",
+                class: "w-full btn btn-danger",
+                data: { turbo_confirm: "Are you sure?" } %>
 </div>

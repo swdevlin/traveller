@@ -1,0 +1,86 @@
+<div class='t-card'>
+  <div class='t-card-header'>
+    <div class="flex items-center justify-between gap-3">
+      <p class='t-card-title'>Stars</p>
+    </div>
+  </div>
+
+  <div class='t-scroll-x'>
+    <table class='t-table'>
+      <thead class='t-thead'>
+      <tr>
+        <th scope='col' class='t-th'>ID</th>
+        <th scope='col' class='t-th'>Class</th>
+        <th scope='col' class='t-th'>Mass</th>
+        <th scope='col' class='t-th'>Temp</th>
+        <th scope='col' class='t-th'>Diameter</th>
+        <th scope='col' class='t-th'>Luminosity</th>
+        <th scope='col' class='t-th'>Orbit #</th>
+        <th scope='col' class='t-th'>AU</th>
+        <th scope='col' class='t-th'>Ecc</th>
+        <th scope='col' class='t-th'>Period</th>
+        <th scope='col' class='t-th'>MAO</th>
+        <th scope='col' class='t-th'>HZCO</th>
+        <th scope='col' class='t-th-right'>Actions</th>
+      </tr>
+      </thead>
+      <tbody class='t-tbody'>
+      <% stars.each do |star| %>
+        <tr class='t-tr'>
+          <td class='t-td-nowrap'>
+            <span class='t-pill'><%= star.orbit_sequence %></span>
+          </td>
+          <td class='t-td'>
+            <%= star.spectral_classification %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.mass, precision: 3, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.temperature, precision: 0) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.luminosity, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td-right'>
+            <div class='t-actions'>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

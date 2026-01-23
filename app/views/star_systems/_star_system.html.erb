@@ -10,22 +10,22 @@
     </div>
 
     <div class="flex flex-wrap gap-2">
-      <span class="identifier">
-        <span class="text-slate-300">Allegiance</span>
-        <% if star_system.allegiance.present? %>
-          <span><%= star_system.allegiance.code %></span>
-        <% else %>
-          <span>UNSPEC</span>
-        <% end %>
-      </span>
     </div>
   </div>
 
   <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-    <%= render 'application/data_block',
-               label: 'Main world UWP',
-               value: (star_system.main_world_uwp.presence || '???????-?'),
-               value_class: 'font-mono text-lg text-slate-100' %>
+    <% allegiance = star_system.allegiance %>
+
+    <% allegiance_value =
+         if allegiance
+           safe_join([
+                       allegiance.name,
+                       content_tag(:span, allegiance.code, class: "identifier")
+                     ])
+         else
+           "None"
+         end
+    %>
 
     <%= render 'application/data_block',
                label: 'Subsector',
@@ -42,10 +42,33 @@
                ),
                value_wrap_class: 'flex flex-wrap items-center gap-2',
                suffix: tag.span(star_system.parsec.hex_code, class: 'identifier') %>
+
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
+
+  </div>
+
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <%= render 'application/data_block',
+               label: 'Main world UWP',
+               value: (star_system.main_world_uwp.presence || '???????-?'),
+               value_class: 'font-mono text-lg text-slate-100' %>
+
+    <%= render 'application/data_block',
+               label: 'System Age',
+               value: star_system.age,
+               value_class: 'font-mono text-lg text-slate-100' %>
+
+    <%= render 'application/data_block',
+               label: 'P B G',
+               value: tag.span(star_system.pbg, class: 'tracking-[0.2em]') %>
   </div>
 
   <%= render 'application/observation_block',
              notes: star_system.notes %>
+
+  <%= render 'stars_table', stars: star_system.stars %>
 
   <%= render 'stellar_objects_table', primary: star_system.primary_star %>
 
