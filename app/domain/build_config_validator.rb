@@ -65,25 +65,127 @@ class BuildConfigValidator
     result = BuildConfigSchema.call(@config)
 
     unless result.success?
-      result.errors.to_h.each do |field, messages|
-        messages.each do |message|
-          @errors << "#{field}: #{message}"
-        end
-      end
+      @errors.concat(humanise_schema_errors(result.errors.to_h))
       return false
     end
 
     true
   end
 
+  def humanise_schema_errors(errors_hash)
+    out = []
+    flatten_errors(errors_hash, [], out)
+    out
+  end
+
+  # Recursively walks Dry::Schema error hashes and produces friendly strings.
+  def flatten_errors(node, path, out)
+    case node
+    when Hash
+      node.each do |k, v|
+        flatten_errors(v, path + [k], out)
+      end
+    when Array
+      node.each do |v|
+        flatten_errors(v, path, out)
+      end
+    else
+      # node is a message string
+      out << format_error(path, node.to_s)
+    end
+  end
+
+  def format_error(path, message)
+    friendly_path = path.map { |p| humanise_path_part(p) }.join(' → ')
+    "#{friendly_path}: #{humanise_message(message)}"
+  end
+
+  def humanise_path_part(part)
+    case part
+    when Integer
+      # 1-based indexing for humans
+      "##{part + 1}"
+    when 'systems' then 'Systems'
+    when 'required' then 'Required systems'
+    when 'exclude' then 'Excluded hexes'
+    when 'primary' then 'Primary star'
+    when 'companion' then 'Companion star'
+    when 'close' then 'Close companion'
+    when 'near' then 'Near companion'
+    when 'far' then 'Far companion'
+    when 'bodies' then 'Bodies'
+    when 'uwp' then 'UWP'
+    when 'type' then 'Type'
+    when 'class' then 'Luminosity class'
+    when 'surveyIndex' then 'Survey index'
+    when 'minTechLevel' then 'Min tech level'
+    when 'maxTechLevel' then 'Max tech level'
+    else
+      # Title-case unknown keys a bit
+      part.to_s.gsub(/([a-z])([A-Z])/, '\1 \2').tr('_', ' ').capitalize
+    end
+  end
+
+  def humanise_message(message)
+    message
+      .gsub('is in invalid format', 'has an invalid format')
+      .gsub('must be one of:', 'must be one of:')
+  end
+
+  STAR_LINK_KEYS = %w[companion close near far].freeze
+
   def validate_business_rules
     validate_systems_exclusivity
     validate_populated_allegiance
     validate_populated_tech_level
     validate_populated_population
-    validate_primary_star
     validate_bases
+
+    systems = Array(config['systems']) + Array(config['required'])
+    systems.each_with_index do |sys, idx|
+      validate_allegiance(sys)
+      primary = sys['primary']
+      next unless primary.is_a?(Hash)
+
+      validate_star_tree(primary, "systems[#{idx}].primary")
+    end
+
     @errors.empty?
+  end
+
+  STAR_LINK_KEYS = %w[companion close near far].freeze
+  STAR_SCHEMA_CHILD_KEYS = STAR_LINK_KEYS.freeze
+
+  def validate_star_tree(star, path, max_depth: 10)
+    return if star.nil?
+    return @errors << "#{path}: max recursion depth exceeded" if max_depth < 0
+    return unless star.is_a?(Hash)
+
+    # 1) Schema validation (note: StarSchema expects symbol keys unless it’s Params + string keys)
+    # If your schema is Dry::Schema.Params, it will coerce string keys fine.
+    result = StarSchema.call(star)
+    unless result.success?
+      result.errors.to_h.each do |k, msgs|
+        Array(msgs).each { |msg| @errors << "#{path}.#{k}: #{msg}" }
+      end
+    end
+
+    # 2) BD/class conditional
+    type  = star['type']
+    klass = star['class']
+
+    if type == 'BD'
+      # Optional strictness:
+      # @errors << "#{path}.class must be omitted for BD" if klass
+    else
+      @errors << "#{path}.class is required unless type is BD" if klass.nil?
+    end
+
+    # 3) Recurse into nested stars
+    STAR_SCHEMA_CHILD_KEYS.each do |key|
+      child = star[key]
+      validate_star_tree(child, "#{path}.#{key}", max_depth: max_depth - 1) if child.is_a?(Hash)
+    end
   end
 
   def validate_populated_tech_level
@@ -120,6 +222,16 @@ class BuildConfigValidator
     end
   end
 
+  def validate_allegiance(path)
+    return if path['allegiance'].nil?
+
+    allegiance = path['allegiance']
+
+    unless Allegiance.exists?(code: allegiance)
+      @errors << "unknown allegiance '#{allegiance}'"
+    end
+  end
+
   def validate_bases
     return if @config['bases'].nil?
 
@@ -145,44 +257,4 @@ class BuildConfigValidator
     end
   end
 
-  def validate_primary_star
-    errors = []
-
-    @config.fetch(:systems, []).each_with_index do |system, i|
-      next unless system[:primary].is_a?(Hash)
-
-      errors.concat(
-        validate_star_tree(system[:primary], path: [:systems, i, :primary])
-      )
-    end
-
-    errors
-  end
-
-  STAR_CHILD_KEYS = %i[companion close near far].freeze
-
-  def validate_star_tree(star_hash, path:, max_depth: 10)
-    return [] if star_hash.nil?
-    return [[path, ['max recursion depth exceeded']]] if max_depth < 0
-
-    errors = []
-
-    result = StarSchema.call(star_hash)
-    unless result.success?
-      result.errors.to_h.each do |k, msgs|
-        errors << [path + [k], Array(msgs)]
-      end
-    end
-
-    STAR_CHILD_KEYS.each do |key|
-      child = star_hash[key]
-      next unless child.is_a?(Hash)
-
-      errors.concat(
-        validate_star_tree(child, path: path + [key], max_depth: max_depth - 1)
-      )
-    end
-
-    errors
-  end
 end

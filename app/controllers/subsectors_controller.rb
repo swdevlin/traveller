@@ -25,9 +25,13 @@ class SubsectorsController < ApplicationController
     validator = BuildConfigValidator.new(build_yaml)
 
     unless validator.valid?
-      flash[:alert] = "Invalid build configuration: #{validator.errors.join(', ')}"
-      redirect_to populate_subsector_path(@subsector) and return
+      @build_yaml = build_yaml
+      @build_errors = validator.errors
+
+      flash.now[:alert] = "Invalid build configuration (#{@build_errors.size} issues)."
+      render :populate, status: :unprocessable_entity and return
     end
+
     normalized_yaml = normalize_build_yaml(build_yaml)
     @subsector.build = normalized_yaml
     @subsector.save!

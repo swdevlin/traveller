@@ -7,8 +7,10 @@ ORBIT_TYPES = %w[habitable warm cold].freeze
 UWP_CODE = /\A[0-9A-Z][0-9A-F]{6}-[0-9A-F]\z/i
 UWP_LABELS = [
   'terrestrial',
-  'Small Gas Giant',
-  'Large Gas Giant',
+  'small gas giant',
+  'gas giant',
+  'large gas giant',
+  'super earth',
   'empty'
 ].freeze
 
@@ -17,16 +19,25 @@ CoordinateSchema = Dry::Schema.Params do
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
 end
 
+CountsSchema = Dry::Schema.Params do
+  required(:terrestrialPlanets).filled(:integer, gteq?: 0, lteq?: 20)
+  required(:planetoidBelts).filled(:integer, gteq?: 0, lteq?: 20)
+  required(:gasGiants).filled(:integer, gteq?: 0, lteq?: 20)
+end
+
 BaseStarSchema = Dry::Schema.Params do
   CLASS_TYPES = %w[Ia Ib II III IV V VI giant].freeze
-  SPECTRAL_TYPES = /\A[OBAFGKM][0-9]\z/
+  SPECTRAL_OR_BD = /\A(?:BD|[OBAFGKM][0-9])\z/
 
-  required(:type).filled(:string, format?: SPECTRAL_TYPES)
-  required(:class).filled(:string, included_in?: CLASS_TYPES)
+  required(:type).filled(:string, format?: SPECTRAL_OR_BD)
+
+  # Make class optional here; enforce “required unless BD” elsewhere
+  optional(:class).filled(:string, included_in?: CLASS_TYPES)
 
   optional(:bodies).array(:hash) do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
     optional(:orbit).filled(:string, included_in?: ORBIT_TYPES)
+    optional(:name).filled(:string)
     optional(:mainWorld).filled(:bool)
   end
 end
@@ -58,8 +69,10 @@ SystemSchema = Dry::Schema.Params do
   optional(:populated).hash(PopulatedSchema)
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
-  optional(:know).filled(:bool)
   optional(:bases).array(:string).each(:filled?)
+  optional(:known).filled(:bool)
+  optional(:allegiance).filled(:string)
+  optional(:counts).hash(CountsSchema)
 end
 
 BuildConfigSchema = Dry::Schema.Params do

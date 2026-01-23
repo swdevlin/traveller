@@ -20,6 +20,10 @@ class StarSystem < ApplicationRecord
     stars.map(&:spectral_classification).join(', ')
   end
 
+  def age
+    primary_star.age || ''
+  end
+
   def trade_codes_string
     trade_codes.order(:code).pluck(:code).join(' ')
   end

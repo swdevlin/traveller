@@ -40,6 +40,8 @@ class Star < ApplicationRecord
     self.colour = data['colour']
     self.is_protostar = data['isProtostar']
     self.minimum_orbit = data['minimumOrbit']
+    self.eccentricity = data['eccentricity']
+    self.period = data['period']
     self.hzco = data['hzco']
     self.au = data['au']
     self.survey_index = data['surveyIndex']
