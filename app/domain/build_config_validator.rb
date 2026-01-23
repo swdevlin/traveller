@@ -121,8 +121,9 @@ class BuildConfigValidator
     when 'minTechLevel' then 'Min tech level'
     when 'maxTechLevel' then 'Max tech level'
     else
+      part
       # Title-case unknown keys a bit
-      part.to_s.gsub(/([a-z])([A-Z])/, '\1 \2').tr('_', ' ').capitalize
+      # part.to_s.gsub(/([a-z])([A-Z])/, '\1 \2').tr('_', ' ').capitalize
     end
   end
 
