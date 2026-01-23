@@ -256,5 +256,4 @@ class BuildConfigValidator
       @errors << 'When systems is specified, exclude and required must be empty'
     end
   end
-
 end
