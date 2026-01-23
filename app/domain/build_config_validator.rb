@@ -105,21 +105,6 @@ class BuildConfigValidator
     when Integer
       # 1-based indexing for humans
       "##{part + 1}"
-    when 'systems' then 'Systems'
-    when 'required' then 'Required systems'
-    when 'exclude' then 'Excluded hexes'
-    when 'primary' then 'Primary star'
-    when 'companion' then 'Companion star'
-    when 'close' then 'Close companion'
-    when 'near' then 'Near companion'
-    when 'far' then 'Far companion'
-    when 'bodies' then 'Bodies'
-    when 'uwp' then 'UWP'
-    when 'type' then 'Type'
-    when 'class' then 'Luminosity class'
-    when 'surveyIndex' then 'Survey index'
-    when 'minTechLevel' then 'Min tech level'
-    when 'maxTechLevel' then 'Max tech level'
     else
       part
       # Title-case unknown keys a bit
