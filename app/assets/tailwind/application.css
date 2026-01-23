@@ -278,4 +278,8 @@
     @apply text-xs text-slate-400 hover:text-red-400 cursor-pointer;
   }
 
+  .pill-toggle-active {
+    @apply border-deepnight-orange/80 text-deepnight-orange;
+    box-shadow: 0 0 0 3px rgba(222, 128, 52, 0.18);
+  }
 }

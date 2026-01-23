@@ -38,13 +38,15 @@
 * Populate a subsector
   * [x] Basic populate
   * Add populated option for generate
-    * allegiance
-    * tech limits
-    * pop limits
-    * per hex 
+    * [x] allegiance
+    * [x] tech limits
+    * [x] pop limits
+    * [x] survey index
+    * [x] bases
   * Add star definition
   * Add system definition
     * hot, habital, goldilocks, cold zones
+  * UI updates as systems are added
 * Populate a sector
   * [x] verify each subsector has a build plan
   * [x] create a job for each subsector

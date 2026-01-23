@@ -3,17 +3,36 @@
 <div class='w-full pb-10 space-y-6'>
   <div class='mt-4'>
     <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Reference Manual
+      Reference manual
     </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      Subsector build Specification
+    <div class='mt-1 text-2xl font-heading text-deepnight-orange'>
+      Subsector build specification
     </div>
   </div>
 
-  <div class='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+  <div class='grid grid-cols-1 gap-6 lg:grid-cols-3' data-controller='sample-toggle'>
+    <!-- Left: Sample YAML (1/3) -->
     <section class='min-w-0 lg:col-span-1'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-        Sample specification
+      <div class='flex items-end justify-between gap-3'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Sample specification
+        </div>
+
+        <div class='flex gap-2'>
+          <button type='button'
+                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  data-sample-toggle-target='minimalButton'
+                  data-action='sample-toggle#showMinimal'>
+            Minimal
+          </button>
+
+          <button type='button'
+                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  data-sample-toggle-target='fullButton'
+                  data-action='sample-toggle#showFull'>
+            Full
+          </button>
+        </div>
       </div>
 
       <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 overflow-hidden'>
@@ -22,29 +41,29 @@
           <span class='text-xs text-slate-500 font-mono'>2-space indentation</span>
         </div>
 
-        <pre class='p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
+        <pre data-sample-toggle-target='minimal' class='hidden peer-checked/min:block p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD</code></pre>
+
+        <pre data-sample-toggle-target='full'  class='hidden peer-checked/full:block p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
 unusualChance: 4
 defaultSI: 2
+
 populated:
   type: full
-  allegiance: IM
+  allegiance: Im
   minTechLevel: 2
   maxTechLevel: 10
   minPopulationCode: 3
   maxPopulationCode: 12
+
 exclude:
   - x: 1
     y: 1
   - x: 2
     y: 3
+
 required:
   - x: 4
     y: 7
-systems:
-  - x: 1
-    y: 6
-  - x: 8
-    y: 10
     name: Muir Station
     primary:
       type: G2
@@ -52,135 +71,289 @@ systems:
       companion:
         type: M7
         class: V
+      close:
+        type: M9
+        class: V
+      near:
+        type: M9
+        class: V
+      far:
+        type: K8
+        class: V
       bodies:
-        - uwp: X301000-0
-        - uwp: terrestrial
-          orbit: habitable
-        - uwp: Small Gas Giant</code></pre>
+        bodies:
+          - uwp: X301000-0
+          - uwp: terrestrial
+            orbit: habitable
+          - uwp: ''
+          - uwp: Small Gas Giant
+
+systems:
+  - x: 1
+    y: 6
+  - x: 8
+    y: 10
+    name: Waypoint Echo
+    primary:
+      type: K4
+      class: V</code></pre>
       </div>
     </section>
 
-    <!-- Right: Documentation -->
+    <!-- Right: Documentation (2/3) -->
     <section class='min-w-0 lg:col-span-2'>
       <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
         Reference
       </div>
 
-      <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5'>
-        <p class='mt-3 text-slate-400'>The format of the specification file is YAML. Keep indentation at 2 spaces. YAML is picky about that.</p>
-        <p class="mt-3 mb-2">Properties</p>
+      <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
+        <div class='space-y-3 text-sm text-slate-300'>
+          <p class='text-slate-400'>
+            The build specification is YAML. Use 2-space indentation. Unknown keys are rejected.
+          </p>
 
-        <dl class='space-y-5 text-sm'>
-          <div>
-            <dt class='font-semibold text-slate-200'>type</dt>
-            <dd class='mt-1 text-slate-300'>
-              The subsector's star density type. Controls the per-hex probability that a star system is placed when not using
-              <span class='font-mono text-slate-200'>systems</span>.
-            </dd>
+          <div class='rounded-xl bg-slate-900/30 p-3'>
+            <p class='text-xs text-slate-200 font-semibold mb-2'>Precedence</p>
+            <ul class='text-xs text-slate-300 space-y-1 list-disc ml-5'>
+              <li>
+                If <span class='font-mono text-slate-200'>systems</span> is present and non-empty, the generator places systems
+                <span class='font-semibold text-slate-200'>only</span> in those hexes. In this mode,
+                <span class='font-mono text-slate-200'>exclude</span>, <span class='font-mono text-slate-200'>required</span>,
+                and density <span class='font-mono text-slate-200'>type</span> are ignored.
+              </li>
+              <li>
+                <span class='font-mono text-slate-200'>required</span> may include full system definitions (not just coordinates).
+              </li>
+              <li>
+                <span class='font-mono text-slate-200'>populated</span> is top-level and applies globally. It is not part of a system entry.
+              </li>
+            </ul>
+          </div>
+        </div>
 
-            <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-              <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
-              <ul class='text-xs text-slate-300 space-y-1'>
-                <li><span class='font-mono text-slate-200'>DENSE</span> – 60%</li>
-                <li><span class='font-mono text-slate-200'>STANDARD</span> – 50%</li>
-                <li><span class='font-mono text-slate-200'>MODERATE</span> – 40%</li>
-                <li><span class='font-mono text-slate-200'>LOW</span> – 30%</li>
-                <li><span class='font-mono text-slate-200'>SPARSE</span> – 20%</li>
-                <li><span class='font-mono text-slate-200'>MINIMAL</span> – 10%</li>
-                <li><span class='font-mono text-slate-200'>RIFT</span> – 3%</li>
-                <li><span class='font-mono text-slate-200'>RIFT_FADE</span> – 2%</li>
-                <li><span class='font-mono text-slate-200'>DEEP_RIFT</span> – 1%</li>
-                <li><span class='font-mono text-slate-200'>EMPTY</span> – 0%</li>
-              </ul>
-              <p class='mt-2 text-xs text-slate-400'>
-                Example: <span class='font-mono text-slate-200'>type: STANDARD</span>
-              </p>
+        <div>
+          <p class='text-sm font-semibold text-slate-200 mb-2'>Top-level properties</p>
+
+          <dl class='space-y-5 text-sm'>
+            <div>
+              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-slate-300'>
+                Subsector star density profile. Controls the per-hex probability that a star system is placed when not using
+                <span class='font-mono text-slate-200'>systems</span>.
+              </dd>
+
+              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
+                <ul class='text-xs text-slate-300 space-y-1'>
+                  <li><span class='font-mono text-slate-200'>DENSE</span> – 60%</li>
+                  <li><span class='font-mono text-slate-200'>STANDARD</span> – 50%</li>
+                  <li><span class='font-mono text-slate-200'>MODERATE</span> – 40%</li>
+                  <li><span class='font-mono text-slate-200'>LOW</span> – 30%</li>
+                  <li><span class='font-mono text-slate-200'>SPARSE</span> – 20%</li>
+                  <li><span class='font-mono text-slate-200'>MINIMAL</span> – 10%</li>
+                  <li><span class='font-mono text-slate-200'>RIFT</span> – 3%</li>
+                  <li><span class='font-mono text-slate-200'>RIFT_FADE</span> – 2%</li>
+                  <li><span class='font-mono text-slate-200'>DEEP_RIFT</span> – 1%</li>
+                  <li><span class='font-mono text-slate-200'>EMPTY</span> – 0%</li>
+                </ul>
+                <p class='mt-2 text-xs text-slate-400'>
+                  Example: <span class='font-mono text-slate-200'>type: STANDARD</span>
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <dt class='font-semibold text-slate-200'>unusualChance</dt>
-            <dd class='mt-1 text-slate-300'>
-              Percentage chance that an ‘unusual’ result overrides normal generation for a system.
-              Higher means stranger subsector outcomes.
-            </dd>
-          </div>
-
-          <div>
-            <dt class='font-semibold text-slate-200'>defaultSI</dt>
-            <dd class='mt-1 text-slate-300'>
-              Default Survey Index used when a system does not specify one explicitly. If not specified, defaults to 0.
-            </dd>
-          </div>
-
-          <div>
-            <dt class='font-semibold text-slate-200'>exclude</dt>
-            <dd class='mt-1 text-slate-300'>
-              List of subsector hex coordinates (x:1..8, y:1..10) where the generator must
-              <span class='font-semibold text-slate-200'>not</span> place a star system.
-            </dd>
-          </div>
-
-          <div>
-            <dt class='font-semibold text-slate-200'>required</dt>
-            <dd class='mt-1 text-slate-300'>
-              List of hex coordinates that must <span class='font-semibold text-slate-200'>always</span> have a star system.
-              A hex cannot appear in both <span class='font-mono text-slate-200'>required</span> and
-              <span class='font-mono text-slate-200'>exclude</span>.
-            </dd>
-          </div>
-
-          <div>
-            <dt class='font-semibold text-slate-200'>systems</dt>
-            <dd class='mt-1 text-slate-300'>
-              If present and non-empty, the generator will place star systems
-              <span class='font-semibold text-slate-200'>only</span> in these hexes. Only hex addresses included in
-              the list will have star systems. In this mode, <span class='font-mono text-slate-200'>exclude</span> and
-              <span class='font-mono text-slate-200'>required</span> are ignored.
-            </dd>
-
-            <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-              <p class='text-xs text-slate-300 font-semibold mb-2'>Example behaviour</p>
-              <p class='text-xs text-slate-300'>
-                When <span class='font-mono text-slate-200'>systems</span> is set, only those hexes get systems. Nothing else does.
-              </p>
+            <div>
+              <dt class='font-semibold text-slate-200'>unusualChance</dt>
+              <dd class='mt-1 text-slate-300'>
+                Percentage chance (0–100) that an ‘unusual’ result overrides normal generation for a system.
+              </dd>
             </div>
-          </div>
 
-          <div>
-            <dt class='font-semibold text-slate-200'>populated</dt>
-            <dd class='mt-1 text-slate-300'>
-              Optional defaults for population generation (applies to systems created by the build).
-            </dd>
-            <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-              <ul class='text-xs text-slate-300 space-y-1'>
-                <li><span class='font-mono text-slate-200'>type</span> – layout preset for how populated worlds are distributed</li>
-                <li><span class='font-mono text-slate-200'>allegiance</span> – default allegiance code</li>
-                <li><span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span></li>
-                <li><span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span></li>
-              </ul>
+            <div>
+              <dt class='font-semibold text-slate-200'>defaultSI</dt>
+              <dd class='mt-1 text-slate-300'>
+                Default survey index (0–12) applied when a system does not specify one.
+              </dd>
             </div>
-          </div>
 
-          <div>
-            <dt class='font-semibold text-slate-200'>primary</dt>
-            <dd class='mt-1 text-slate-300'>
-              Optional star data for a specific system when using <span class='font-mono text-slate-200'>systems</span>.
-              Star <span class='font-mono text-slate-200'>type</span> is spectral class + subtype (OBAFGKM + 0–9), like
-              <span class='font-mono text-slate-200'>G2</span>. Star <span class='font-mono text-slate-200'>class</span> is luminosity class (V, IV, III, etc.).
-            </dd>
-          </div>
+            <div>
+              <dt class='font-semibold text-slate-200'>populated</dt>
+              <dd class='mt-1 text-slate-300'>
+                Global population constraint used by the generator. This is a top-level key.
+              </dd>
 
-          <div>
-            <dt class='font-semibold text-slate-200'>bodies</dt>
-            <dd class='mt-1 text-slate-300'>
-              Optional list of bodies. Each body requires <span class='font-mono text-slate-200'>uwp</span> and may include
-              <span class='font-mono text-slate-200'>orbit</span> which must be one of
-              <span class='font-mono text-slate-200'>habitable</span>, <span class='font-mono text-slate-200'>warm</span>, or
-              <span class='font-mono text-slate-200'>cold</span>.
-            </dd>
-          </div>
-        </dl>
+              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                <ul class='text-slate-300 space-y-1'>
+                  <li>
+                    <span class='font-mono text-slate-200'>type</span> –
+                    layout preset for how populated worlds are distributed
+                    (<span class='font-mono text-slate-200'>full</span>,
+                    <span class='font-mono text-slate-200'>hard-horizontal</span>,
+                    <span class='font-mono text-slate-200'>hard-vertical</span>,
+                    <span class='font-mono text-slate-200'>split-horizontal</span>,
+                    <span class='font-mono text-slate-200'>split-vertical</span>)
+                  </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>allegiance</span> –
+                    default allegiance code. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
+                  </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span> –
+                    constraints for generated tech level.
+                  </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
+                    constraints for generated population code (0–16).
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>exclude</dt>
+              <dd class='mt-1 text-slate-300'>
+                List of subsector hex coordinates (x: 1–8, y: 1–10) where the generator must
+                <span class='font-semibold text-slate-200'>not</span> place a star system.
+                Ignored when <span class='font-mono text-slate-200'>systems</span> is present.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>required</dt>
+              <dd class='mt-1 text-slate-300'>
+                List of systems that must <span class='font-semibold text-slate-200'>always</span> exist.
+                Entries may be coordinates only, or a full system definition.
+                Ignored when <span class='font-mono text-slate-200'>systems</span> is present.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>systems</dt>
+              <dd class='mt-1 text-slate-300'>
+                Explicit list of systems. If present and non-empty, the generator places systems
+                <span class='font-semibold text-slate-200'>only</span> in these hexes.
+              </dd>
+
+              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                <p class='text-xs text-slate-300 font-semibold mb-2'>Example behaviour</p>
+                <p class='text-xs text-slate-300'>
+                  When <span class='font-mono text-slate-200'>systems</span> is set, only those hexes get systems. Nothing else does.
+                </p>
+              </div>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <p class='text-sm font-semibold text-slate-200 mb-2'>System definition (entries in required/systems)</p>
+
+          <dl class='space-y-5 text-sm'>
+            <div>
+              <dt class='font-semibold text-slate-200'>x, y <span class='text-slate-500 font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-slate-300'>
+                Hex coordinates for the system (x: 1–8, y: 1–10).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>name</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional name for the system entry.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>primary</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional star definition for the system.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <p class='text-sm font-semibold text-slate-200 mb-2'>Star definition</p>
+
+          <dl class='space-y-5 text-sm'>
+            <div>
+              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-slate-300'>
+                Spectral type in the form <span class='font-mono text-slate-200'>OBAFGKM</span> + <span class='font-mono text-slate-200'>0..9</span>,
+                for example <span class='font-mono text-slate-200'>G2</span>.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>class <span class='text-slate-500 font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-slate-300'>
+                Luminosity class (for example <span class='font-mono text-slate-200'>V</span>, <span class='font-mono text-slate-200'>IV</span>, <span class='font-mono text-slate-200'>III</span>).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>companion</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional companion star (another star definition).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>close</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional star in close orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>near</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional star in near orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>far</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional star in far orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>bodies</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional orbital bodies. Structure is <span class='font-mono text-slate-200'>bodies: { bodies: [...] }</span>.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <p class='text-sm font-semibold text-slate-200 mb-2'>Orbital bodies</p>
+
+          <dl class='space-y-5 text-sm'>
+            <div>
+              <dt class='font-semibold text-slate-200'>uwp <span class='text-slate-500 font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-slate-300'>
+                UWP code (e.g. <span class='font-mono text-slate-200'>X674000-0</span>), a known label
+                (<span class='font-mono text-slate-200'>terrestrial</span>, <span class='font-mono text-slate-200'>Small Gas Giant</span>, <span class='font-mono text-slate-200'>Large Gas Giant</span>),
+                or empty (<span class='font-mono text-slate-200'>uwp: 'empty'</span>) to indicate no orbital body at that position.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>orbit</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional orbit classification. Must be one of
+                <span class='font-mono text-slate-200'>habitable</span>, <span class='font-mono text-slate-200'>warm</span>,
+                or <span class='font-mono text-slate-200'>cold</span>.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+          REFERENCE 0421RD
+        </div>
       </div>
     </section>
   </div>
