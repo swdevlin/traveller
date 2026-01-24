@@ -1,0 +1,55 @@
+name: No Prospect
+abbreviation: NoP
+X: -18
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NoP A
+    type: DEEP_RIFT
+    index: A
+  - name: NoP B
+    type: RIFT_FADE
+    index: B
+  - name: NoP C
+    type: DEEP_RIFT
+    index: C
+  - name: NoP D
+    type: RIFT_FADE
+    index: D
+  - name: NoP E
+    type: RIFT_FADE
+    index: E
+  - name: NoP F
+    type: DEEP_RIFT
+    index: F
+  - name: NoP G
+    type: EMPTY
+    index: G
+  - name: NoP H
+    type: DEEP_RIFT
+    index: H
+  - name: NoP I
+    type: EMPTY
+    index: I
+  - name: NoP J
+    type: DEEP_RIFT
+    index: J
+  - name: NoP K
+    type: DEEP_RIFT
+    index: K
+  - name: NoP L
+    type: DEEP_RIFT
+    index: L
+  - name: NoP M
+    type: EMPTY
+    index: M
+  - name: NoP N
+    type: DEEP_RIFT
+    index: N
+  - name: NoP O
+    type: EMPTY
+    index: O
+  - name: NoP P
+    type: DEEP_RIFT
+    index: P

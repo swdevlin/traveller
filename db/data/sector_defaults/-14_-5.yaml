@@ -1,0 +1,55 @@
+name: Unnamed 5
+abbreviation: Un5
+X: -14
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Un5 A
+    type: SPARSE
+    index: A
+  - name: Un5 B
+    type: SPARSE
+    index: B
+  - name: Un5 C
+    type: SPARSE
+    index: C
+  - name: Un5 D
+    type: SPARSE
+    index: D
+  - name: Un5 E
+    type: LOW
+    index: E
+  - name: Un5 F
+    type: LOW
+    index: F
+  - name: Un5 G
+    type: LOW
+    index: G
+  - name: Un5 H
+    type: LOW
+    index: H
+  - name: Un5 I
+    type: LOW
+    index: I
+  - name: Un5 J
+    type: SPARSE
+    index: J
+  - name: Un5 K
+    type: MINIMAL
+    index: K
+  - name: Un5 L
+    type: MINIMAL
+    index: L
+  - name: Un5 M
+    type: LOW
+    index: M
+  - name: Un5 N
+    type: SPARSE
+    index: N
+  - name: Un5 O
+    type: LOW
+    index: O
+  - name: Un5 P
+    type: SPARSE
+    index: P

@@ -1,0 +1,55 @@
+name: Big Island
+abbreviation: BigI
+X: -15
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: BigI A
+    type: LOW
+    index: A
+  - name: BigI B
+    type: LOW
+    index: B
+  - name: BigI C
+    type: LOW
+    index: C
+  - name: BigI D
+    type: LOW
+    index: D
+  - name: BigI E
+    type: LOW
+    index: E
+  - name: BigI F
+    type: STANDARD
+    index: F
+  - name: BigI G
+    type: STANDARD
+    index: G
+  - name: BigI H
+    type: LOW
+    index: H
+  - name: BigI I
+    type: LOW
+    index: I
+  - name: BigI J
+    type: DENSE
+    index: J
+  - name: BigI K
+    type: DENSE
+    index: K
+  - name: BigI L
+    type: LOW
+    index: L
+  - name: BigI M
+    type: LOW
+    index: M
+  - name: BigI N
+    type: LOW
+    index: N
+  - name: BigI O
+    type: LOW
+    index: O
+  - name: BigI P
+    type: LOW
+    index: P

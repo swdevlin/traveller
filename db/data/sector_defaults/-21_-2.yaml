@@ -1,0 +1,55 @@
+name: Coreward Shore
+abbreviation: CShore
+X: -21
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CShore A
+    type: MODERATE
+    index: A
+  - name: CShore B
+    type: LOW
+    index: B
+  - name: CShore C
+    type: LOW
+    index: C
+  - name: CShore D
+    type: LOW
+    index: D
+  - name: CShore E
+    type: SPARSE
+    index: E
+  - name: CShore F
+    type: SPARSE
+    index: F
+  - name: CShore G
+    type: SPARSE
+    index: G
+  - name: CShore H
+    type: SPARSE
+    index: H
+  - name: CShore I
+    type: MINIMAL
+    index: I
+  - name: CShore J
+    type: MINIMAL
+    index: J
+  - name: CShore K
+    type: RIFT
+    index: K
+  - name: CShore L
+    type: RIFT
+    index: L
+  - name: CShore M
+    type: RIFT
+    index: M
+  - name: CShore N
+    type: RIFT
+    index: N
+  - name: CShore O
+    type: RIFT
+    index: O
+  - name: CShore P
+    type: RIFT
+    index: P

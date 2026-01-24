@@ -1,0 +1,80 @@
+name: Olympus
+abbreviation: Oly
+X: -20
+Y: -8
+unusualChance: 1
+defaultSI: 3
+populated:
+  type: full
+  minTechLevel: 5
+  maxTechLevel: 12
+  allegiance: C
+subsectors:
+  - name: Oly A
+    type: STANDARD
+    index: A
+  - name: Oly B
+    type: STANDARD
+    index: B
+  - name: Oly C
+    type: MODERATE
+    index: C
+  - name: Oly D
+    type: MODERATE
+    index: D
+    populated:
+      type: split-horizontal
+      demarcation: 4
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+  - name: Oly E
+    type: MODERATE
+    index: E
+  - name: Oly F
+    type: LOW
+    index: F
+  - name: Oly G
+    type: LOW
+    index: G
+  - name: Oly H
+    type: MODERATE
+    index: H
+  - name: Oly I
+    type: STANDARD
+    index: I
+  - name: Oly J
+    type: STANDARD
+    index: J
+  - name: Oly K
+    type: MODERATE
+    index: K
+  - name: Oly L
+    type: STANDARD
+    index: L
+  - name: Oly M
+    type: STANDARD
+    index: M
+  - name: Oly N
+    type: MODERATE
+    index: N
+  - name: Oly O
+    type: MODERATE
+    index: O
+  - name: Oly P
+    type: STANDARD
+    index: P
+    populated:
+      type: split-vertical
+      demarcation: 8
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR

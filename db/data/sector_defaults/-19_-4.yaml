@@ -1,0 +1,55 @@
+name: Best Prospect
+abbreviation: Best
+X: -19
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Best A
+    type: SPARSE
+    index: A
+  - name: Best B
+    type: SPARSE
+    index: B
+  - name: Best C
+    type: RIFT
+    index: C
+  - name: Best D
+    type: RIFT_FADE
+    index: D
+  - name: Best E
+    type: MINIMAL
+    index: E
+  - name: Best F
+    type: RIFT
+    index: F
+  - name: Best G
+    type: RIFT
+    index: G
+  - name: Best H
+    type: RIFT_FADE
+    index: H
+  - name: Best I
+    type: RIFT
+    index: I
+  - name: Best J
+    type: RIFT_FADE
+    index: J
+  - name: Best K
+    type: RIFT_FADE
+    index: K
+  - name: Best L
+    type: EMPTY
+    index: L
+  - name: Best M
+    type: RIFT_FADE
+    index: M
+  - name: Best N
+    type: DEEP_RIFT
+    index: N
+  - name: Best O
+    type: DEEP_RIFT
+    index: O
+  - name: Best P
+    type: EMPTY
+    index: P

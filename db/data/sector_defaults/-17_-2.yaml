@@ -1,0 +1,55 @@
+name: Pytheas Interior
+abbreviation: PyI
+X: -17
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: PyI A
+    type: LOW
+    index: A
+  - name: PyI B
+    type: LOW
+    index: B
+  - name: PyI C
+    type: MODERATE
+    index: C
+  - name: PyI D
+    type: MODERATE
+    index: D
+  - name: PyI E
+    type: MODERATE
+    index: E
+  - name: PyI F
+    type: MODERATE
+    index: F
+  - name: PyI G
+    type: STANDARD
+    index: G
+  - name: PyI H
+    type: STANDARD
+    index: H
+  - name: PyI I
+    type: LOW
+    index: I
+  - name: PyI J
+    type: STANDARD
+    index: J
+  - name: PyI K
+    type: MODERATE
+    index: K
+  - name: PyI L
+    type: MODERATE
+    index: L
+  - name: PyI M
+    type: SPARSE
+    index: M
+  - name: PyI N
+    type: LOW
+    index: N
+  - name: PyI O
+    type: LOW
+    index: O
+  - name: PyI P
+    type: MODERATE
+    index: P

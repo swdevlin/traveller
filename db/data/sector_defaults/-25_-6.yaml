@@ -1,0 +1,55 @@
+name: Anwnn Spinward 4
+abbreviation: AnwnnS4
+X: -25
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AnwnnS4 A
+    type: MODERATE
+    index: A
+  - name: AnwnnS4 B
+    type: LOW
+    index: B
+  - name: AnwnnS4 C
+    type: SPARSE
+    index: C
+  - name: AnwnnS4 D
+    type: SPARSE
+    index: D
+  - name: AnwnnS4 E
+    type: SPARSE
+    index: E
+  - name: AnwnnS4 F
+    type: SPARSE
+    index: F
+  - name: AnwnnS4 G
+    type: SPARSE
+    index: G
+  - name: AnwnnS4 H
+    type: MINIMAL
+    index: H
+  - name: AnwnnS4 I
+    type: RIFT
+    index: I
+  - name: AnwnnS4 J
+    type: RIFT
+    index: J
+  - name: AnwnnS4 K
+    type: RIFT
+    index: K
+  - name: AnwnnS4 L
+    type: RIFT
+    index: L
+  - name: AnwnnS4 M
+    type: RIFT
+    index: M
+  - name: AnwnnS4 N
+    type: RIFT
+    index: N
+  - name: AnwnnS4 O
+    type: RIFT
+    index: O
+  - name: AnwnnS4 P
+    type: RIFT
+    index: P

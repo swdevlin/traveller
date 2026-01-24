@@ -1,0 +1,55 @@
+name: Unnamed 4
+abbreviation: Un4
+X: -14
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Un4 A
+    type: RIFT_FADE
+    index: A
+  - name: Un4 B
+    type: RIFT_FADE
+    index: B
+  - name: Un4 C
+    type: RIFT_FADE
+    index: C
+  - name: Un4 D
+    type: RIFT_FADE
+    index: D
+  - name: Un4 E
+    type: RIFT_FADE
+    index: E
+  - name: Un4 F
+    type: RIFT_FADE
+    index: F
+  - name: Un4 G
+    type: DEEP_RIFT
+    index: G
+  - name: Un4 H
+    type: RIFT
+    index: H
+  - name: Un4 I
+    type: RIFT
+    index: I
+  - name: Un4 J
+    type: RIFT_FADE
+    index: J
+  - name: Un4 K
+    type: DEEP_RIFT
+    index: K
+  - name: Un4 L
+    type: MINIMAL
+    index: L
+  - name: Un4 M
+    type: RIFT
+    index: M
+  - name: Un4 N
+    type: RIFT
+    index: N
+  - name: Un4 O
+    type: MINIMAL
+    index: O
+  - name: Un4 P
+    type: SPARSE
+    index: P

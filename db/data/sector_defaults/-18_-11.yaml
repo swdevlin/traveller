@@ -1,0 +1,55 @@
+name: LSD Transition Three
+abbreviation: LSD 3
+X: -18
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: LSD 3 A
+    type: RIFT_FADE
+    index: A
+  - name: LSD 3 B
+    type: RIFT_FADE
+    index: B
+  - name: LSD 3 C
+    type: RIFT_FADE
+    index: C
+  - name: LSD 3 D
+    type: RIFT
+    index: D
+  - name: LSD 3 E
+    type: RIFT_FADE
+    index: E
+  - name: LSD 3 F
+    type: RIFT_FADE
+    index: F
+  - name: LSD 3 G
+    type: RIFT_FADE
+    index: G
+  - name: LSD 3 H
+    type: RIFT
+    index: H
+  - name: LSD 3 I
+    type: RIFT_FADE
+    index: I
+  - name: LSD 3 J
+    type: RIFT_FADE
+    index: J
+  - name: LSD 3 K
+    type: RIFT_FADE
+    index: K
+  - name: LSD 3 L
+    type: RIFT
+    index: L
+  - name: LSD 3 M
+    type: RIFT_FADE
+    index: M
+  - name: LSD 3 N
+    type: RIFT_FADE
+    index: N
+  - name: LSD 3 O
+    type: RIFT_FADE
+    index: O
+  - name: LSD 3 P
+    type: RIFT
+    index: P

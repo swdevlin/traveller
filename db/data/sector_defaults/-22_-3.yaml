@@ -1,0 +1,55 @@
+name: Central Bay Spinward
+abbreviation: CBayS
+X: -22
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CBayS A
+    type: MINIMAL
+    index: A
+  - name: CBayS B
+    type: RIFT
+    index: B
+  - name: CBayS C
+    type: RIFT
+    index: C
+  - name: CBayS D
+    type: RIFT_FADE
+    index: D
+  - name: CBayS E
+    type: RIFT
+    index: E
+  - name: CBayS F
+    type: RIFT
+    index: F
+  - name: CBayS G
+    type: RIFT
+    index: G
+  - name: CBayS H
+    type: RIFT_FADE
+    index: H
+  - name: CBayS I
+    type: RIFT
+    index: I
+  - name: CBayS J
+    type: RIFT
+    index: J
+  - name: CBayS K
+    type: RIFT
+    index: K
+  - name: CBayS L
+    type: RIFT
+    index: L
+  - name: CBayS M
+    type: DEEP_RIFT
+    index: M
+  - name: CBayS N
+    type: RIFT
+    index: N
+  - name: CBayS O
+    type: RIFT
+    index: O
+  - name: CBayS P
+    type: RIFT_FADE
+    index: P

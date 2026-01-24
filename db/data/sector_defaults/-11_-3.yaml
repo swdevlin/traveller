@@ -1,0 +1,55 @@
+name: No Shore
+abbreviation: NS
+X: -11
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NS A
+    type: DEEP_RIFT
+    index: A
+  - name: NS B
+    type: DEEP_RIFT
+    index: B
+  - name: NS C
+    type: DEEP_RIFT
+    index: C
+  - name: NS D
+    type: DEEP_RIFT
+    index: D
+  - name: NS E
+    type: DEEP_RIFT
+    index: E
+  - name: NS F
+    type: EMPTY
+    index: F
+  - name: NS G
+    type: DEEP_RIFT
+    index: G
+  - name: NS H
+    type: EMPTY
+    index: H
+  - name: NS I
+    type: EMPTY
+    index: I
+  - name: NS J
+    type: EMPTY
+    index: J
+  - name: NS K
+    type: EMPTY
+    index: K
+  - name: NS L
+    type: DEEP_RIFT
+    index: L
+  - name: NS M
+    type: EMPTY
+    index: M
+  - name: NS N
+    type: EMPTY
+    index: N
+  - name: NS O
+    type: EMPTY
+    index: O
+  - name: NS P
+    type: DEEP_RIFT
+    index: P

@@ -1,0 +1,55 @@
+name: Ifingr
+abbreviation: Ifingr
+X: -17
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Ifingr A
+    type: MODERATE
+    index: A
+  - name: Ifingr B
+    type: MODERATE
+    index: B
+  - name: Ifingr C
+    type: LOW
+    index: C
+  - name: Ifingr D
+    type: MODERATE
+    index: D
+  - name: Ifingr E
+    type: STANDARD
+    index: E
+  - name: Ifingr F
+    type: STANDARD
+    index: F
+  - name: Ifingr G
+    type: MODERATE
+    index: G
+  - name: Ifingr H
+    type: STANDARD
+    index: H
+  - name: Ifingr I
+    type: STANDARD
+    index: I
+  - name: Ifingr J
+    type: MODERATE
+    index: J
+  - name: Ifingr K
+    type: STANDARD
+    index: K
+  - name: Ifingr L
+    type: LOW
+    index: L
+  - name: Ifingr M
+    type: STANDARD
+    index: M
+  - name: Ifingr N
+    type: STANDARD
+    index: N
+  - name: Ifingr O
+    type: MODERATE
+    index: O
+  - name: Ifingr P
+    type: STANDARD
+    index: P

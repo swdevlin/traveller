@@ -1,0 +1,55 @@
+name: Incognita Ulterior
+abbreviation: IU
+X: -10
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: UC A
+    type: STANDARD
+    index: A
+  - name: UC B
+    type: STANDARD
+    index: B
+  - name: UC C
+    type: STANDARD
+    index: C
+  - name: UC D
+    type: STANDARD
+    index: D
+  - name: UC E
+    type: STANDARD
+    index: E
+  - name: UC F
+    type: STANDARD
+    index: F
+  - name: UC G
+    type: STANDARD
+    index: G
+  - name: UC H
+    type: LOW
+    index: H
+  - name: UC I
+    type: STANDARD
+    index: I
+  - name: UC J
+    type: STANDARD
+    index: J
+  - name: UC K
+    type: LOW
+    index: K
+  - name: UC L
+    type: SPARSE
+    index: L
+  - name: UC M
+    type: SPARSE
+    index: M
+  - name: UC N
+    type: SPARSE
+    index: N
+  - name: UC O
+    type: SPARSE
+    index: O
+  - name: UC P
+    type: SPARSE
+    index: P

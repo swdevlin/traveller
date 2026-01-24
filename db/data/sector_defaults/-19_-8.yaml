@@ -1,0 +1,145 @@
+name: Bifrost
+abbreviation: Bi
+X: -19
+Y: -8
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Bit A
+    type: MODERATE
+    index: A
+  - name: Bit B
+    type: MODERATE
+    index: B
+  - name: Bit C
+    type: MODERATE
+    index: C
+  - name: Bit D
+    type: LOW
+    index: D
+  - name: Bit E
+    type: STANDARD
+    index: E
+    populated:
+      type: split-horizontal
+      demarcation: 3
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        allegiance: null
+  - name: Bit F
+    type: STANDARD
+    index: F
+    populated:
+      type: split-vertical
+      demarcation: 6
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        allegiance: null
+  - name: Bit G
+    type: MODERATE
+    index: G
+  - name: Bit H
+    type: LOW
+    index: H
+  - name: Bit I
+    type: MODERATE
+    index: I
+    populated:
+      type: split-vertical
+      demarcation: 6
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit J
+    type: STANDARD
+    index: J
+    populated:
+      type: split-vertical
+      demarcation: 3
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit K
+    type: MODERATE
+    index: K
+    populated:
+      type: split-horizontal
+      demarcation: 3
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit L
+    type: STANDARD
+    index: L
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit M
+    type: STANDARD
+    index: M
+    populated:
+      type: split-vertical
+      demarcation: 1
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit N
+    type: MODERATE
+    index: N
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Bit O
+    type: MODERATE
+    index: O
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Bit P
+    type: STANDARD
+    index: P
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR

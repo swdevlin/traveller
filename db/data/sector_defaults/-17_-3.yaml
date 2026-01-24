@@ -1,0 +1,55 @@
+name: Pytheas
+abbreviation: Pytheas
+X: -17
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Pytheas A
+    type: MODERATE
+    index: A
+  - name: Pytheas B
+    type: MODERATE
+    index: B
+  - name: Pytheas C
+    type: MODERATE
+    index: C
+  - name: Pytheas D
+    type: MODERATE
+    index: D
+  - name: Pytheas E
+    type: MODERATE
+    index: E
+  - name: Pytheas F
+    type: MODERATE
+    index: F
+  - name: Pytheas G
+    type: MODERATE
+    index: G
+  - name: Pytheas H
+    type: MODERATE
+    index: H
+  - name: Pytheas I
+    type: SPARSE
+    index: I
+  - name: Pytheas J
+    type: SPARSE
+    index: J
+  - name: Pytheas K
+    type: SPARSE
+    index: K
+  - name: Pytheas L
+    type: MODERATE
+    index: L
+  - name: Pytheas M
+    type: DEEP_RIFT
+    index: M
+  - name: Pytheas N
+    type: RIFT
+    index: N
+  - name: Pytheas O
+    type: RIFT
+    index: O
+  - name: Pytheas P
+    type: RIFT
+    index: P

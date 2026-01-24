@@ -1,0 +1,55 @@
+name: LSD Transition Rimward
+abbreviation: LSD TR
+X: -19
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: LSD TR A
+    type: MINIMAL
+    index: A
+  - name: LSD TR B
+    type: MINIMAL
+    index: B
+  - name: LSD TR C
+    type: MINIMAL
+    index: C
+  - name: LSD TR D
+    type: MINIMAL
+    index: D
+  - name: LSD TR E
+    type: MINIMAL
+    index: E
+  - name: LSD TR F
+    type: MINIMAL
+    index: F
+  - name: LSD TR G
+    type: MINIMAL
+    index: G
+  - name: LSD TR H
+    type: MINIMAL
+    index: H
+  - name: LSD TR I
+    type: SPARSE
+    index: I
+  - name: LSD TR J
+    type: SPARSE
+    index: J
+  - name: LSD TR K
+    type: SPARSE
+    index: K
+  - name: LSD TR L
+    type: SPARSE
+    index: L
+  - name: LSD TR M
+    type: LOW
+    index: M
+  - name: LSD TR N
+    type: LOW
+    index: N
+  - name: LSD TR O
+    type: LOW
+    index: O
+  - name: LSD TR P
+    type: LOW
+    index: P

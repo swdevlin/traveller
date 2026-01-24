@@ -1,0 +1,109 @@
+name: Niflheim
+abbreviation: Nif
+X: -17
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Nif A
+    type: MODERATE
+    index: A
+    populated:
+      type: split-horizontal
+      demarcation: 4
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif B
+    type: MODERATE
+    index: B
+    populated:
+      type: split-horizontal
+      demarcation: 4
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif C
+    type: MODERATE
+    index: C
+    populated:
+      type: split-horizontal
+      demarcation: 4
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif D
+    type: MODERATE
+    index: D
+    populated:
+      type: split-horizontal
+      demarcation: 3
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif E
+    type: STANDARD
+    index: E
+    populated:
+      type: split-vertical
+      demarcation: 1
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif F
+    type: MODERATE
+    index: F
+  - name: Nif G
+    type: MODERATE
+    index: G
+  - name: Nif H
+    type: STANDARD
+    index: H
+  - name: Nif I
+    type: MODERATE
+    index: I
+    populated:
+      type: split-vertical
+      demarcation: 1
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Nif J
+    type: STANDARD
+    index: J
+  - name: Nif K
+    type: MODERATE
+    index: K
+  - name: Nif L
+    type: MODERATE
+    index: L
+  - name: Nif M
+    type: LOW
+    index: M
+  - name: Nif N
+    type: STANDARD
+    index: N
+  - name: Nif O
+    type: MODERATE
+    index: O
+  - name: Nif P
+    type: STANDARD
+    index: P

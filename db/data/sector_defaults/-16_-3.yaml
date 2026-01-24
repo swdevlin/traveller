@@ -1,0 +1,55 @@
+name: Diamond Scatter
+abbreviation: DS
+X: -16
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: DS A
+    type: LOW
+    index: A
+  - name: DS B
+    type: LOW
+    index: B
+  - name: DS C
+    type: LOW
+    index: C
+  - name: DS D
+    type: LOW
+    index: D
+  - name: DS E
+    type: SPARSE
+    index: E
+  - name: DS F
+    type: SPARSE
+    index: F
+  - name: DS G
+    type: SPARSE
+    index: G
+  - name: DS H
+    type: SPARSE
+    index: H
+  - name: DS I
+    type: SPARSE
+    index: I
+  - name: DS J
+    type: MINIMAL
+    index: J
+  - name: DS K
+    type: RIFT
+    index: K
+  - name: DS L
+    type: RIFT
+    index: L
+  - name: DS M
+    type: DEEP_RIFT
+    index: M
+  - name: DS N
+    type: RIFT_FADE
+    index: N
+  - name: DS O
+    type: DEEP_RIFT
+    index: O
+  - name: DS P
+    type: RIFT_FADE
+    index: P

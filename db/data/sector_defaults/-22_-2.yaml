@@ -1,0 +1,55 @@
+name: Coreward Shore Spinward
+abbreviation: CShoreS
+X: -22
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CShoreS A
+    type: MODERATE
+    index: A
+  - name: CShoreS B
+    type: MODERATE
+    index: B
+  - name: CShoreS C
+    type: MODERATE
+    index: C
+  - name: CShoreS D
+    type: MODERATE
+    index: D
+  - name: CShoreS E
+    type: MODERATE
+    index: E
+  - name: CShoreS F
+    type: LOW
+    index: F
+  - name: CShoreS G
+    type: SPARSE
+    index: G
+  - name: CShoreS H
+    type: SPARSE
+    index: H
+  - name: CShoreS I
+    type: MODERATE
+    index: I
+  - name: CShoreS J
+    type: LOW
+    index: J
+  - name: CShoreS K
+    type: SPARSE
+    index: K
+  - name: CShoreS L
+    type: RIFT
+    index: L
+  - name: CShoreS M
+    type: SPARSE
+    index: M
+  - name: CShoreS N
+    type: SPARSE
+    index: N
+  - name: CShoreS O
+    type: RIFT
+    index: O
+  - name: CShoreS P
+    type: RIFT
+    index: P

@@ -1,0 +1,55 @@
+name: Muspelheim Trailing 4
+abbreviation: MuspT4
+X: -13
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: MuspT3 A
+    type: LOW
+    index: A
+  - name: MuspT3 B
+    type: SPARSE
+    index: B
+  - name: MuspT3 C
+    type: SPARSE
+    index: C
+  - name: MuspT3 D
+    type: SPARSE
+    index: D
+  - name: MuspT3 E
+    type: SPARSE
+    index: E
+  - name: MuspT3 F
+    type: MINIMAL
+    index: F
+  - name: MuspT3 G
+    type: MINIMAL
+    index: G
+  - name: MuspT3 H
+    type: MINIMAL
+    index: H
+  - name: MuspT3 I
+    type: MINIMAL
+    index: I
+  - name: MuspT3 J
+    type: SPARSE
+    index: J
+  - name: MuspT3 K
+    type: LOW
+    index: K
+  - name: MuspT3 L
+    type: SPARSE
+    index: L
+  - name: MuspT3 M
+    type: MINIMAL
+    index: M
+  - name: MuspT3 N
+    type: MODERATE
+    index: N
+  - name: MuspT3 O
+    type: SPARSE
+    index: O
+  - name: MuspT3 P
+    type: LOW
+    index: P

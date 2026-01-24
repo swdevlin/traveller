@@ -1,0 +1,55 @@
+name: Harappa
+abbreviation: Hara
+X: -20
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Hara A
+    type: LOW
+    index: A
+  - name: Hara B
+    type: MODERATE
+    index: B
+  - name: Hara C
+    type: MODERATE
+    index: C
+  - name: Hara D
+    type: MODERATE
+    index: D
+  - name: Hara E
+    type: MODERATE
+    index: E
+  - name: Hara F
+    type: LOW
+    index: F
+  - name: Hara G
+    type: MODERATE
+    index: G
+  - name: Hara H
+    type: LOW
+    index: H
+  - name: Hara I
+    type: STANDARD
+    index: I
+  - name: Hara J
+    type: MODERATE
+    index: J
+  - name: Hara K
+    type: STANDARD
+    index: K
+  - name: Hara L
+    type: SPARSE
+    index: L
+  - name: Hara M
+    type: STANDARD
+    index: M
+  - name: Hara N
+    type: STANDARD
+    index: N
+  - name: Hara O
+    type: MODERATE
+    index: O
+  - name: Hara P
+    type: STANDARD
+    index: P

@@ -1,0 +1,55 @@
+name: Voidshore Six
+abbreviation: VS 6
+X: -16
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 6 A
+    type: SPARSE
+    index: A
+  - name: VS 6 B
+    type: RIFT
+    index: B
+  - name: VS 6 C
+    type: LOW
+    index: C
+  - name: VS 6 D
+    type: LOW
+    index: D
+  - name: VS 6 E
+    type: LOW
+    index: E
+  - name: VS 6 F
+    type: MODERATE
+    index: F
+  - name: VS 6 G
+    type: SPARSE
+    index: G
+  - name: VS 6 H
+    type: MODERATE
+    index: H
+  - name: VS 6 I
+    type: LOW
+    index: I
+  - name: VS 6 J
+    type: MODERATE
+    index: J
+  - name: VS 6 K
+    type: SPARSE
+    index: K
+  - name: VS 6 L
+    type: RIFT
+    index: L
+  - name: VS 6 M
+    type: SPARSE
+    index: M
+  - name: VS 6 N
+    type: RIFT
+    index: N
+  - name: VS 6 O
+    type: SPARSE
+    index: O
+  - name: VS 6 P
+    type: MINIMAL
+    index: P

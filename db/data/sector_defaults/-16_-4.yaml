@@ -1,0 +1,55 @@
+name: Few Glimmers
+abbreviation: FewG
+X: -16
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FewG A
+    type: DEEP_RIFT
+    index: A
+  - name: FewG B
+    type: RIFT_FADE
+    index: B
+  - name: FewG C
+    type: RIFT_FADE
+    index: C
+  - name: FewG D
+    type: RIFT_FADE
+    index: D
+  - name: FewG E
+    type: DEEP_RIFT
+    index: E
+  - name: FewG F
+    type: DEEP_RIFT
+    index: F
+  - name: FewG G
+    type: DEEP_RIFT
+    index: G
+  - name: FewG H
+    type: DEEP_RIFT
+    index: H
+  - name: FewG I
+    type: DEEP_RIFT
+    index: I
+  - name: FewG J
+    type: DEEP_RIFT
+    index: J
+  - name: FewG K
+    type: DEEP_RIFT
+    index: K
+  - name: FewG L
+    type: DEEP_RIFT
+    index: L
+  - name: FewG M
+    type: DEEP_RIFT
+    index: M
+  - name: FewG N
+    type: DEEP_RIFT
+    index: N
+  - name: FewG O
+    type: DEEP_RIFT
+    index: O
+  - name: FewG P
+    type: DEEP_RIFT
+    index: P

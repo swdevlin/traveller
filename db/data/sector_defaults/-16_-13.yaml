@@ -1,0 +1,55 @@
+name: Voidshore Eleven
+abbreviation: VS11
+X: -16
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 11 A
+    type: LOW
+    index: A
+  - name: VS 11 B
+    type: SPARSE
+    index: B
+  - name: VS 11 C
+    type: MINIMAL
+    index: C
+  - name: VS 11 D
+    type: LOW
+    index: D
+  - name: VS 11 E
+    type: LOW
+    index: E
+  - name: VS 11 F
+    type: SPARSE
+    index: F
+  - name: VS 11 G
+    type: MODERATE
+    index: G
+  - name: VS 11 H
+    type: SPARSE
+    index: H
+  - name: VS 11 I
+    type: SPARSE
+    index: I
+  - name: VS 11 J
+    type: LOW
+    index: J
+  - name: VS 11 K
+    type: RIFT
+    index: K
+  - name: VS 11 L
+    type: LOW
+    index: L
+  - name: VS 11 M
+    type: SPARSE
+    index: M
+  - name: VS 11 N
+    type: RIFT
+    index: N
+  - name: VS 11 O
+    type: LOW
+    index: O
+  - name: VS 11 P
+    type: MODERATE
+    index: P

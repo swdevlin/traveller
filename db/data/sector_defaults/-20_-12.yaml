@@ -1,0 +1,55 @@
+name: Voidshore Three
+abbreviation: VS 3
+X: -20
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 3 A
+    type: MODERATE
+    index: A
+  - name: VS 3 B
+    type: SPARSE
+    index: B
+  - name: VS 3 C
+    type: SPARSE
+    index: C
+  - name: VS 3 D
+    type: MODERATE
+    index: D
+  - name: VS 3 E
+    type: SPARSE
+    index: E
+  - name: VS 3 F
+    type: LOW
+    index: F
+  - name: VS 3 G
+    type: SPARSE
+    index: G
+  - name: VS 3 H
+    type: SPARSE
+    index: H
+  - name: VS 3 I
+    type: MODERATE
+    index: I
+  - name: VS 3 J
+    type: SPARSE
+    index: J
+  - name: VS 3 K
+    type: SPARSE
+    index: K
+  - name: VS 3 L
+    type: SPARSE
+    index: L
+  - name: VS 3 M
+    type: LOW
+    index: M
+  - name: VS 3 N
+    type: SPARSE
+    index: N
+  - name: VS 3 O
+    type: SPARSE
+    index: O
+  - name: VS 3 P
+    type: LOW
+    index: P

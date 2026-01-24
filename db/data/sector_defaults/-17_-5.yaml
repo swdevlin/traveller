@@ -1,0 +1,55 @@
+name: Far Shore 2
+abbreviation: FarS2
+X: -17
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FarS2 A
+    type: RIFT_FADE
+    index: A
+  - name: FarS2 B
+    type: RIFT_FADE
+    index: B
+  - name: FarS2 C
+    type: RIFT_FADE
+    index: C
+  - name: FarS2 D
+    type: DEEP_RIFT
+    index: D
+  - name: FarS2 E
+    type: RIFT_FADE
+    index: E
+  - name: FarS2 F
+    type: RIFT
+    index: F
+  - name: FarS2 G
+    type: RIFT
+    index: G
+  - name: FarS2 H
+    type: RIFT_FADE
+    index: H
+  - name: FarS2 I
+    type: RIFT_FADE
+    index: I
+  - name: FarS2 J
+    type: MINIMAL
+    index: J
+  - name: FarS2 K
+    type: SPARSE
+    index: K
+  - name: FarS2 L
+    type: SPARSE
+    index: L
+  - name: FarS2 M
+    type: SPARSE
+    index: M
+  - name: FarS2 N
+    type: SPARSE
+    index: N
+  - name: FarS2 O
+    type: LOW
+    index: O
+  - name: FarS2 P
+    type: LOW
+    index: P

@@ -1,0 +1,55 @@
+name: Lethe
+abbreviation: Lethe
+X: -22
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Lethe A
+    type: SPARSE
+    index: A
+  - name: Lethe B
+    type: LOW
+    index: B
+  - name: Lethe C
+    type: LOW
+    index: C
+  - name: Lethe D
+    type: MODERATE
+    index: D
+  - name: Lethe E
+    type: SPARSE
+    index: E
+  - name: Lethe F
+    type: SPARSE
+    index: F
+  - name: Lethe G
+    type: LOW
+    index: G
+  - name: Lethe H
+    type: MODERATE
+    index: H
+  - name: Lethe I
+    type: SPARSE
+    index: I
+  - name: Lethe J
+    type: LOW
+    index: J
+  - name: Lethe K
+    type: MODERATE
+    index: K
+  - name: Lethe L
+    type: MODERATE
+    index: L
+  - name: Lethe M
+    type: LOW
+    index: M
+  - name: Lethe N
+    type: SPARSE
+    index: N
+  - name: Lethe O
+    type: LOW
+    index: O
+  - name: Lethe P
+    type: MODERATE
+    index: P

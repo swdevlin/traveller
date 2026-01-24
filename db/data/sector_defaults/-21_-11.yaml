@@ -1,0 +1,55 @@
+name: FSD Transition Spinward
+abbreviation: FSD TS
+X: -21
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FSD TS A
+    type: MODERATE
+    index: A
+  - name: FSD TS B
+    type: LOW
+    index: B
+  - name: FSD TS C
+    type: SPARSE
+    index: C
+  - name: FSD TS D
+    type: MINIMAL
+    index: D
+  - name: FSD TS E
+    type: MODERATE
+    index: E
+  - name: FSD TS F
+    type: LOW
+    index: F
+  - name: FSD TS G
+    type: SPARSE
+    index: G
+  - name: FSD TS H
+    type: MINIMAL
+    index: H
+  - name: FSD TS I
+    type: MODERATE
+    index: I
+  - name: FSD TS J
+    type: LOW
+    index: J
+  - name: FSD TS K
+    type: SPARSE
+    index: K
+  - name: FSD TS L
+    type: MINIMAL
+    index: L
+  - name: FSD TS M
+    type: MODERATE
+    index: M
+  - name: FSD TS N
+    type: LOW
+    index: N
+  - name: FSD TS O
+    type: SPARSE
+    index: O
+  - name: FSD TS P
+    type: MINIMAL
+    index: P

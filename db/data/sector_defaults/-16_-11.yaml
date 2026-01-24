@@ -1,0 +1,55 @@
+name: LSD Transition Trailing
+abbreviation: LSD TT
+X: -16
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: LSD TT A
+    type: SPARSE
+    index: A
+  - name: LSD TT B
+    type: SPARSE
+    index: B
+  - name: LSD TT C
+    type: SPARSE
+    index: C
+  - name: LSD TT D
+    type: SPARSE
+    index: D
+  - name: LSD TT E
+    type: SPARSE
+    index: E
+  - name: LSD TT F
+    type: SPARSE
+    index: F
+  - name: LSD TT G
+    type: SPARSE
+    index: G
+  - name: LSD TT H
+    type: SPARSE
+    index: H
+  - name: LSD TT I
+    type: SPARSE
+    index: I
+  - name: LSD TT J
+    type: SPARSE
+    index: J
+  - name: LSD TT K
+    type: SPARSE
+    index: K
+  - name: LSD TT L
+    type: SPARSE
+    index: L
+  - name: LSD TT M
+    type: SPARSE
+    index: M
+  - name: LSD TT N
+    type: SPARSE
+    index: N
+  - name: LSD TT O
+    type: SPARSE
+    index: O
+  - name: LSD TT P
+    type: SPARSE
+    index: P

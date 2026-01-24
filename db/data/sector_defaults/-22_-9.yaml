@@ -1,0 +1,55 @@
+name: Acheron
+abbreviation: Ach
+X: -22
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Ach A
+    type: RIFT_FADE
+    index: A
+  - name: Ach B
+    type: RIFT_FADE
+    index: B
+  - name: Ach C
+    type: RIFT
+    index: C
+  - name: Ach D
+    type: MINIMAL
+    index: D
+  - name: Ach E
+    type: RIFT_FADE
+    index: E
+  - name: Ach F
+    type: RIFT_FADE
+    index: F
+  - name: Ach G
+    type: RIFT
+    index: G
+  - name: Ach H
+    type: MINIMAL
+    index: H
+  - name: Ach I
+    type: RIFT_FADE
+    index: I
+  - name: Ach J
+    type: RIFT
+    index: J
+  - name: Ach K
+    type: MINIMAL
+    index: K
+  - name: Ach L
+    type: MINIMAL
+    index: L
+  - name: Ach M
+    type: RIFT
+    index: M
+  - name: Ach N
+    type: MINIMAL
+    index: N
+  - name: Ach O
+    type: SPARSE
+    index: O
+  - name: Ach P
+    type: SPARSE
+    index: P

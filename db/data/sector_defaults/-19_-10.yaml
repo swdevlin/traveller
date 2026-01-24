@@ -1,0 +1,55 @@
+name: Naraka
+abbreviation: Naraka
+X: -19
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Naraka A
+    type: MODERATE
+    index: A
+  - name: Naraka B
+    type: MODERATE
+    index: B
+  - name: Naraka C
+    type: MODERATE
+    index: C
+  - name: Naraka D
+    type: MODERATE
+    index: D
+  - name: Naraka E
+    type: MODERATE
+    index: E
+  - name: Naraka F
+    type: MODERATE
+    index: F
+  - name: Naraka G
+    type: MODERATE
+    index: G
+  - name: Naraka H
+    type: SPARSE
+    index: H
+  - name: Naraka I
+    type: MINIMAL
+    index: I
+  - name: Naraka J
+    type: MINIMAL
+    index: J
+  - name: Naraka K
+    type: MODERATE
+    index: K
+  - name: Naraka L
+    type: MINIMAL
+    index: L
+  - name: Naraka M
+    type: RIFT
+    index: M
+  - name: Naraka N
+    type: RIFT
+    index: N
+  - name: Naraka O
+    type: RIFT
+    index: O
+  - name: Naraka P
+    type: RIFT
+    index: P

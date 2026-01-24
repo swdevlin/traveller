@@ -1,0 +1,55 @@
+name: Riftsedge Coreward
+abbreviation: ReCo
+X: -23
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ReCo A
+    type: RIFT_FADE
+    index: A
+  - name: ReCo B
+    type: RIFT
+    index: B
+  - name: ReCo C
+    type: RIFT
+    index: C
+  - name: ReCo D
+    type: RIFT
+    index: D
+  - name: ReCo E
+    type: RIFT
+    index: E
+  - name: ReCo F
+    type: MINIMAL
+    index: F
+  - name: ReCo G
+    type: MINIMAL
+    index: G
+  - name: ReCo H
+    type: SPARSE
+    index: H
+  - name: ReCo I
+    type: RIFT
+    index: I
+  - name: ReCo J
+    type: MINIMAL
+    index: J
+  - name: ReCo K
+    type: SPARSE
+    index: K
+  - name: ReCo L
+    type: SPARSE
+    index: L
+  - name: ReCo M
+    type: RIFT_FADE
+    index: M
+  - name: ReCo N
+    type: RIFT_FADE
+    index: N
+  - name: ReCo O
+    type: RIFT
+    index: O
+  - name: ReCo P
+    type: RIFT
+    index: P

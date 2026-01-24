@@ -1,0 +1,55 @@
+name: Hubur
+abbreviation: Hubur
+X: -21
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Hubur A
+    type: MODERATE
+    index: A
+  - name: Hubur B
+    type: MODERATE
+    index: B
+  - name: Hubur C
+    type: MODERATE
+    index: C
+  - name: Hubur D
+    type: STANDARD
+    index: D
+  - name: Hubur E
+    type: MODERATE
+    index: E
+  - name: Hubur F
+    type: MODERATE
+    index: F
+  - name: Hubur G
+    type: MODERATE
+    index: G
+  - name: Hubur H
+    type: STANDARD
+    index: H
+  - name: Hubur I
+    type: STANDARD
+    index: I
+  - name: Hubur J
+    type: STANDARD
+    index: J
+  - name: Hubur K
+    type: MODERATE
+    index: K
+  - name: Hubur L
+    type: STANDARD
+    index: L
+  - name: Hubur M
+    type: MODERATE
+    index: M
+  - name: Hubur N
+    type: STANDARD
+    index: N
+  - name: Hubur O
+    type: MODERATE
+    index: O
+  - name: Hubur P
+    type: STANDARD
+    index: P

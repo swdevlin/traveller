@@ -1,0 +1,55 @@
+name: Voidshore Five
+abbreviation: VS 5
+X: -17
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 5 A
+    type: SPARSE
+    index: A
+  - name: VS 5 B
+    type: RIFT
+    index: B
+  - name: VS 5 C
+    type: LOW
+    index: C
+  - name: VS 5 D
+    type: LOW
+    index: D
+  - name: VS 5 E
+    type: LOW
+    index: E
+  - name: VS 5 F
+    type: MODERATE
+    index: F
+  - name: VS 5 G
+    type: SPARSE
+    index: G
+  - name: VS 5 H
+    type: MODERATE
+    index: H
+  - name: VS 5 I
+    type: LOW
+    index: I
+  - name: VS 5 J
+    type: MODERATE
+    index: J
+  - name: VS 5 K
+    type: SPARSE
+    index: K
+  - name: VS 5 L
+    type: RIFT
+    index: L
+  - name: VS 5 M
+    type: SPARSE
+    index: M
+  - name: VS 5 N
+    type: RIFT
+    index: N
+  - name: VS 5 O
+    type: SPARSE
+    index: O
+  - name: VS 5 P
+    type: MINIMAL
+    index: P

@@ -1,0 +1,55 @@
+name: Narrow Transit
+abbreviation: NT
+X: -19
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NT A
+    type: SPARSE
+    index: A
+  - name: NT B
+    type: MINIMAL
+    index: B
+  - name: NT C
+    type: SPARSE
+    index: C
+  - name: NT D
+    type: MINIMAL
+    index: D
+  - name: NT E
+    type: LOW
+    index: E
+  - name: NT F
+    type: LOW
+    index: F
+  - name: NT G
+    type: SPARSE
+    index: G
+  - name: NT H
+    type: MODERATE
+    index: H
+  - name: NT I
+    type: RIFT
+    index: I
+  - name: NT J
+    type: RIFT
+    index: J
+  - name: NT K
+    type: LOW
+    index: K
+  - name: NT L
+    type: SPARSE
+    index: L
+  - name: NT M
+    type: RIFT
+    index: M
+  - name: NT N
+    type: RIFT
+    index: N
+  - name: NT O
+    type: SPARSE
+    index: O
+  - name: NT P
+    type: SPARSE
+    index: P

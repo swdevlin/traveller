@@ -1,0 +1,55 @@
+name: Anwnn Spinward 3
+abbreviation: AnwnnS3
+X: -24
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AnwnnS3 A
+    type: SPARSE
+    index: A
+  - name: AnwnnS3 B
+    type: RIFT
+    index: B
+  - name: AnwnnS3 C
+    type: RIFT
+    index: C
+  - name: AnwnnS3 D
+    type: RIFT_FADE
+    index: D
+  - name: AnwnnS3 E
+    type: RIFT
+    index: E
+  - name: AnwnnS3 F
+    type: RIFT
+    index: F
+  - name: AnwnnS3 G
+    type: RIFT_FADE
+    index: G
+  - name: AnwnnS3 H
+    type: RIFT_FADE
+    index: H
+  - name: AnwnnS3 I
+    type: RIFT
+    index: I
+  - name: AnwnnS3 J
+    type: RIFT_FADE
+    index: J
+  - name: AnwnnS3 K
+    type: RIFT_FADE
+    index: K
+  - name: AnwnnS3 L
+    type: RIFT_FADE
+    index: L
+  - name: AnwnnS3 M
+    type: RIFT_FADE
+    index: M
+  - name: AnwnnS3 N
+    type: RIFT_FADE
+    index: N
+  - name: AnwnnS3 O
+    type: RIFT_FADE
+    index: O
+  - name: AnwnnS3 P
+    type: RIFT_FADE
+    index: P

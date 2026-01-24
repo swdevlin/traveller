@@ -1,0 +1,55 @@
+name: Voidshore Ten
+abbreviation: VS10
+X: -17
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 10 A
+    type: LOW
+    index: A
+  - name: VS 10 B
+    type: LOW
+    index: B
+  - name: VS 10 C
+    type: MODERATE
+    index: C
+  - name: VS 10 D
+    type: SPARSE
+    index: D
+  - name: VS 10 E
+    type: MINIMAL
+    index: E
+  - name: VS 10 F
+    type: LOW
+    index: F
+  - name: VS 10 G
+    type: LOW
+    index: G
+  - name: VS 10 H
+    type: SPARSE
+    index: H
+  - name: VS 10 I
+    type: SPARSE
+    index: I
+  - name: VS 10 J
+    type: MINIMAL
+    index: J
+  - name: VS 10 K
+    type: SPARSE
+    index: K
+  - name: VS 10 L
+    type: MODERATE
+    index: L
+  - name: VS 10 M
+    type: LOW
+    index: M
+  - name: VS 10 N
+    type: SPARSE
+    index: N
+  - name: VS 10 O
+    type: LOW
+    index: O
+  - name: VS 10 P
+    type: SPARSE
+    index: P

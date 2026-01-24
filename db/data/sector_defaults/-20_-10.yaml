@@ -1,0 +1,55 @@
+name: Celadon
+abbreviation: Cela
+X: -20
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Cela A
+    type: MODERATE
+    index: A
+  - name: Cela B
+    type: MODERATE
+    index: B
+  - name: Cela C
+    type: MODERATE
+    index: C
+  - name: Cela D
+    type: MODERATE
+    index: D
+  - name: Cela E
+    type: MODERATE
+    index: E
+  - name: Cela F
+    type: MODERATE
+    index: F
+  - name: Cela G
+    type: MODERATE
+    index: G
+  - name: Cela H
+    type: STANDARD
+    index: H
+  - name: Cela I
+    type: STANDARD
+    index: I
+  - name: Cela J
+    type: STANDARD
+    index: J
+  - name: Cela K
+    type: MODERATE
+    index: K
+  - name: Cela L
+    type: STANDARD
+    index: L
+  - name: Cela M
+    type: MODERATE
+    index: M
+  - name: Cela N
+    type: STANDARD
+    index: N
+  - name: Cela O
+    type: MODERATE
+    index: O
+  - name: Cela P
+    type: STANDARD
+    index: P

@@ -1,0 +1,55 @@
+name: Voidshore Rimward
+abbreviation: VSRim
+X: -15
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VSRim A
+    type: MODERATE
+    index: A
+  - name: VSRim B
+    type: MODERATE
+    index: B
+  - name: VSRim C
+    type: MODERATE
+    index: C
+  - name: VSRim D
+    type: MODERATE
+    index: D
+  - name: VSRim E
+    type: LOW
+    index: E
+  - name: VSRim F
+    type: LOW
+    index: F
+  - name: VSRim G
+    type: LOW
+    index: G
+  - name: VSRim H
+    type: LOW
+    index: H
+  - name: VSRim I
+    type: SPARSE
+    index: I
+  - name: VSRim J
+    type: SPARSE
+    index: J
+  - name: VSRim K
+    type: SPARSE
+    index: K
+  - name: VSRim L
+    type: SPARSE
+    index: L
+  - name: VSRim M
+    type: MINIMAL
+    index: M
+  - name: VSRim N
+    type: MINIMAL
+    index: N
+  - name: VSRim O
+    type: MINIMAL
+    index: O
+  - name: VSRim P
+    type: MINIMAL
+    index: P

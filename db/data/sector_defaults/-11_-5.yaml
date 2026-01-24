@@ -1,0 +1,55 @@
+name: No Shore R2
+abbreviation: NSR2
+X: -11
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NSR2 A
+    type: SPARSE
+    index: A
+  - name: NSR2 B
+    type: SPARSE
+    index: B
+  - name: NSR2 C
+    type: SPARSE
+    index: C
+  - name: NSR2 D
+    type: SPARSE
+    index: D
+  - name: NSR2 E
+    type: LOW
+    index: E
+  - name: NSR2 F
+    type: LOW
+    index: F
+  - name: NSR2 G
+    type: LOW
+    index: G
+  - name: NSR2 H
+    type: LOW
+    index: H
+  - name: NSR2 I
+    type: MODERATE
+    index: I
+  - name: NSR2 J
+    type: LOW
+    index: J
+  - name: NSR2 K
+    type: MODERATE
+    index: K
+  - name: NSR2 L
+    type: MODERATE
+    index: L
+  - name: NSR2 M
+    type: MODERATE
+    index: M
+  - name: NSR2 N
+    type: MODERATE
+    index: N
+  - name: NSR2 O
+    type: MODERATE
+    index: O
+  - name: NSR2 P
+    type: MODERATE
+    index: P

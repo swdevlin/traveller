@@ -1,0 +1,55 @@
+name: Central Bay
+abbreviation: CBay
+X: -21
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CBay A
+    type: DEEP_RIFT
+    index: A
+  - name: CBay B
+    type: RIFT_FADE
+    index: B
+  - name: CBay C
+    type: RIFT
+    index: C
+  - name: CBay D
+    type: RIFT
+    index: D
+  - name: CBay E
+    type: DEEP_RIFT
+    index: E
+  - name: CBay F
+    type: RIFT_FADE
+    index: F
+  - name: CBay G
+    type: RIFT
+    index: G
+  - name: CBay H
+    type: RIFT
+    index: H
+  - name: CBay I
+    type: DEEP_RIFT
+    index: I
+  - name: CBay J
+    type: RIFT_FADE
+    index: J
+  - name: CBay K
+    type: RIFT_FADE
+    index: K
+  - name: CBay L
+    type: RIFT
+    index: L
+  - name: CBay M
+    type: DEEP_RIFT
+    index: M
+  - name: CBay N
+    type: RIFT_FADE
+    index: N
+  - name: CBay O
+    type: RIFT_FADE
+    index: O
+  - name: CBay P
+    type: RIFT_FADE
+    index: P

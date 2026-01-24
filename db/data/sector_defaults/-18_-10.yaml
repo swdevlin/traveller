@@ -1,0 +1,55 @@
+name: Malvam
+abbreviation: Malvam
+X: -18
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Malvam A
+    type: MODERATE
+    index: A
+  - name: Malvam B
+    type: MODERATE
+    index: B
+  - name: Malvam C
+    type: MODERATE
+    index: C
+  - name: Malvam D
+    type: MODERATE
+    index: D
+  - name: Malvam E
+    type: MODERATE
+    index: E
+  - name: Malvam F
+    type: MODERATE
+    index: F
+  - name: Malvam G
+    type: MODERATE
+    index: G
+  - name: Malvam H
+    type: STANDARD
+    index: H
+  - name: Malvam I
+    type: STANDARD
+    index: I
+  - name: Malvam J
+    type: MINIMAL
+    index: J
+  - name: Malvam K
+    type: MODERATE
+    index: K
+  - name: Malvam L
+    type: MINIMAL
+    index: L
+  - name: Malvam M
+    type: RIFT
+    index: M
+  - name: Malvam N
+    type: RIFT
+    index: N
+  - name: Malvam O
+    type: RIFT
+    index: O
+  - name: Malvam P
+    type: RIFT
+    index: P

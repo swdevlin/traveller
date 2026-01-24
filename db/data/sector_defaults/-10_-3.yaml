@@ -1,0 +1,55 @@
+name: Big Empty
+abbreviation: BigE
+X: -10
+Y: -3
+unusualChance: 0
+defaultSI: 3
+subsectors:
+  - name: BigE A
+    type: RIFT_FADE
+    index: A
+  - name: BigE B
+    type: DEEP_RIFT
+    index: B
+  - name: BigE C
+    type: DEEP_RIFT
+    index: C
+  - name: BigE D
+    type: DEEP_RIFT
+    index: D
+  - name: BigE E
+    type: DEEP_RIFT
+    index: E
+  - name: BigE F
+    type: DEEP_RIFT
+    index: F
+  - name: BigE G
+    type: DEEP_RIFT
+    index: G
+  - name: BigE H
+    type: DEEP_RIFT
+    index: H
+  - name: BigE I
+    type: EMPTY
+    index: I
+  - name: BigE J
+    type: DEEP_RIFT
+    index: J
+  - name: BigE K
+    type: EMPTY
+    index: K
+  - name: BigE L
+    type: DEEP_RIFT
+    index: L
+  - name: BigE M
+    type: DEEP_RIFT
+    index: M
+  - name: BigE N
+    type: DEEP_RIFT
+    index: N
+  - name: BigE O
+    type: DEEP_RIFT
+    index: O
+  - name: BigE P
+    type: DEEP_RIFT
+    index: P

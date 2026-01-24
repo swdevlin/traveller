@@ -1,0 +1,55 @@
+name: Kaalin Unnamed
+abbreviation: KU
+X: -15
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: KU A
+    type: STANDARD
+    index: A
+  - name: KU B
+    type: STANDARD
+    index: B
+  - name: KU C
+    type: STANDARD
+    index: C
+  - name: KU D
+    type: LOW
+    index: D
+  - name: KU E
+    type: STANDARD
+    index: E
+  - name: KU F
+    type: STANDARD
+    index: F
+  - name: KU G
+    type: STANDARD
+    index: G
+  - name: KU H
+    type: STANDARD
+    index: H
+  - name: KU I
+    type: MODERATE
+    index: I
+  - name: KU J
+    type: MODERATE
+    index: J
+  - name: KU K
+    type: STANDARD
+    index: K
+  - name: KU L
+    type: STANDARD
+    index: L
+  - name: KU M
+    type: MODERATE
+    index: M
+  - name: KU N
+    type: LOW
+    index: N
+  - name: KU O
+    type: STANDARD
+    index: O
+  - name: KU P
+    type: MODERATE
+    index: P

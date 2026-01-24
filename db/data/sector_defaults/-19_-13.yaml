@@ -1,0 +1,55 @@
+name: Voidshore Eight
+abbreviation: VS8
+X: -19
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 8 A
+    type: SPARSE
+    index: A
+  - name: VS 8 B
+    type: MODERATE
+    index: B
+  - name: VS 8 C
+    type: LOW
+    index: C
+  - name: VS 8 D
+    type: LOW
+    index: D
+  - name: VS 8 E
+    type: SPARSE
+    index: E
+  - name: VS 8 F
+    type: MINIMAL
+    index: F
+  - name: VS 8 G
+    type: LOW
+    index: G
+  - name: VS 8 H
+    type: LOW
+    index: H
+  - name: VS 8 I
+    type: SPARSE
+    index: I
+  - name: VS 8 J
+    type: SPARSE
+    index: J
+  - name: VS 8 K
+    type: SPARSE
+    index: K
+  - name: VS 8 L
+    type: MODERATE
+    index: L
+  - name: VS 8 M
+    type: SPARSE
+    index: M
+  - name: VS 8 N
+    type: MODERATE
+    index: N
+  - name: VS 8 O
+    type: LOW
+    index: O
+  - name: VS 8 P
+    type: SPARSE
+    index: P

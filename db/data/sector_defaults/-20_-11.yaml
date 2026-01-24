@@ -1,0 +1,55 @@
+name: LSD Transition One
+abbreviation: LSD One
+X: -20
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: LSD One A
+    type: MINIMAL
+    index: A
+  - name: LSD One B
+    type: MINIMAL
+    index: B
+  - name: LSD One C
+    type: MINIMAL
+    index: C
+  - name: LSD One D
+    type: MINIMAL
+    index: D
+  - name: LSD One E
+    type: MINIMAL
+    index: E
+  - name: LSD One F
+    type: MINIMAL
+    index: F
+  - name: LSD One G
+    type: MINIMAL
+    index: G
+  - name: LSD One H
+    type: MINIMAL
+    index: H
+  - name: LSD One I
+    type: MINIMAL
+    index: I
+  - name: LSD One J
+    type: MINIMAL
+    index: J
+  - name: LSD One K
+    type: MINIMAL
+    index: K
+  - name: LSD One L
+    type: MINIMAL
+    index: L
+  - name: LSD One M
+    type: MINIMAL
+    index: M
+  - name: LSD One N
+    type: MINIMAL
+    index: N
+  - name: LSD One O
+    type: MINIMAL
+    index: O
+  - name: LSD One P
+    type: MINIMAL
+    index: P

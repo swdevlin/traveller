@@ -1,0 +1,55 @@
+name: Atlantis
+abbreviation: Atl
+X: -19
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Atl A
+    type: MODERATE
+    index: A
+  - name: Atl B
+    type: LOW
+    index: B
+  - name: Atl C
+    type: STANDARD
+    index: C
+  - name: Atl D
+    type: MODERATE
+    index: D
+  - name: Atl E
+    type: STANDARD
+    index: E
+  - name: Atl F
+    type: STANDARD
+    index: F
+  - name: Atl G
+    type: MODERATE
+    index: G
+  - name: Atl H
+    type: LOW
+    index: H
+  - name: Atl I
+    type: STANDARD
+    index: I
+  - name: Atl J
+    type: MODERATE
+    index: J
+  - name: Atl K
+    type: STANDARD
+    index: K
+  - name: Atl L
+    type: SPARSE
+    index: L
+  - name: Atl M
+    type: STANDARD
+    index: M
+  - name: Atl N
+    type: STANDARD
+    index: N
+  - name: Atl O
+    type: MODERATE
+    index: O
+  - name: Atl P
+    type: STANDARD
+    index: P

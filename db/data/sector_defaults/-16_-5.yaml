@@ -1,0 +1,55 @@
+name: Far Shore 3
+abbreviation: FarS3
+X: -16
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FarS3 A
+    type: RIFT_FADE
+    index: A
+  - name: FarS3 B
+    type: RIFT_FADE
+    index: B
+  - name: FarS3 C
+    type: RIFT_FADE
+    index: C
+  - name: FarS3 D
+    type: RIFT_FADE
+    index: D
+  - name: FarS3 E
+    type: RIFT
+    index: E
+  - name: FarS3 F
+    type: RIFT
+    index: F
+  - name: FarS3 G
+    type: RIFT
+    index: G
+  - name: FarS3 H
+    type: MINIMAL
+    index: H
+  - name: FarS3 I
+    type: MINIMAL
+    index: I
+  - name: FarS3 J
+    type: MINIMAL
+    index: J
+  - name: FarS3 K
+    type: MINIMAL
+    index: K
+  - name: FarS3 L
+    type: SPARSE
+    index: L
+  - name: FarS3 M
+    type: SPARSE
+    index: M
+  - name: FarS3 N
+    type: SPARSE
+    index: N
+  - name: FarS3 O
+    type: LOW
+    index: O
+  - name: FarS3 P
+    type: LOW
+    index: P

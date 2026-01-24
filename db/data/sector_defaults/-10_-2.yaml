@@ -1,0 +1,119 @@
+name: Incognita Citerior
+abbreviation: IC
+X: -10
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: IC A
+    type: LOW
+    index: A
+  - name: IC B
+    type: LOW
+    index: B
+  - name: IC C
+    type: LOW
+    index: C
+  - name: IC D
+    type: LOW
+    index: D
+  - name: IC E
+    type: LOW
+    index: E
+  - name: IC F
+    type: LOW
+    index: F
+  - name: IC G
+    type: SPARSE
+    index: G
+  - name: IC H
+    type: SPARSE
+    index: H
+  - name: IC I
+    type: SPARSE
+    index: I
+  - name: IC J
+    type: SPARSE
+    index: J
+  - name: IC K
+    type: SPARSE
+    index: K
+  - name: IC L
+    type: SPARSE
+    index: L
+    systems:
+      - x: 1
+        y: 4
+      - x: 2
+        y: 1
+      - x: 2
+        y: 7
+        surveyIndex: 5
+      - x: 2
+        y: 10
+      - x: 3
+        y: 3
+      - x: 3
+        y: 9
+      - x: 4
+        y: 3
+        surveyIndex: 5
+      - x: 5
+        y: 2
+      - x: 5
+        y: 6
+        known: true
+        name: Garva-411
+        uwp: X310000-0
+        remarks: "{Anomaly}"
+        primary:
+          type: NS
+          bodies:
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - uwp: X000000-0
+            - uwp: X310000-0
+            - uwp: Small Gas Giant
+            - uwp: terrestrial
+      - x: 7
+        y: 2
+        surveyIndex: 5
+      - x: 7
+        y: 4
+        known: true
+        name: Demnan
+        bases: SN
+        uwp: E567000-0
+        surveyIndex: 10
+        primary:
+          type: F7
+          companion:
+            type: K2
+          bodies:
+            - uwp: terrestrial
+            - uwp: Large Gas Giant
+            - uwp: X000000-0
+            - uwp: E567000-0
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+            - uwp: terrestrial
+            - uwp: Small Gas Giant
+          far:
+            type: G2
+  - name: IC M
+    type: RIFT
+    index: M
+  - name: IC N
+    type: RIFT
+    index: N
+  - name: IC O
+    type: DEEP_RIFT
+    index: O
+  - name: IC P
+    type: RIFT
+    index: P

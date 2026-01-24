@@ -1,0 +1,55 @@
+name: Muspelheim Trailing 2
+abbreviation: MuspT2
+X: -15
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: MuspT2 A
+    type: LOW
+    index: A
+  - name: MuspT2 B
+    type: LOW
+    index: B
+  - name: MuspT2 C
+    type: SPARSE
+    index: C
+  - name: MuspT2 D
+    type: SPARSE
+    index: D
+  - name: MuspT2 E
+    type: MODERATE
+    index: E
+  - name: MuspT2 F
+    type: LOW
+    index: F
+  - name: MuspT2 G
+    type: SPARSE
+    index: G
+  - name: MuspT2 H
+    type: LOW
+    index: H
+  - name: MuspT2 I
+    type: LOW
+    index: I
+  - name: MuspT2 J
+    type: MODERATE
+    index: J
+  - name: MuspT2 K
+    type: MODERATE
+    index: K
+  - name: MuspT2 L
+    type: SPARSE
+    index: L
+  - name: MuspT2 M
+    type: LOW
+    index: M
+  - name: MuspT2 N
+    type: SPARSE
+    index: N
+  - name: MuspT2 O
+    type: SPARSE
+    index: O
+  - name: MuspT2 P
+    type: MODERATE
+    index: P

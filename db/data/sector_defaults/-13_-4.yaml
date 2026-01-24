@@ -1,0 +1,55 @@
+name: First Prospect R1
+abbreviation: FirstR1
+X: -13
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FirstR1 A
+    type: RIFT_FADE
+    index: A
+  - name: FirstR1 B
+    type: RIFT_FADE
+    index: B
+  - name: FirstR1 C
+    type: RIFT_FADE
+    index: C
+  - name: FirstR1 D
+    type: RIFT_FADE
+    index: D
+  - name: FirstR1 E
+    type: RIFT
+    index: E
+  - name: FirstR1 F
+    type: RIFT
+    index: F
+  - name: FirstR1 G
+    type: RIFT
+    index: G
+  - name: FirstR1 H
+    type: RIFT
+    index: H
+  - name: FirstR1 I
+    type: SPARSE
+    index: I
+  - name: FirstR1 J
+    type: SPARSE
+    index: J
+  - name: FirstR1 K
+    type: SPARSE
+    index: K
+  - name: FirstR1 L
+    type: SPARSE
+    index: L
+  - name: FirstR1 M
+    type: LOW
+    index: M
+  - name: FirstR1 N
+    type: LOW
+    index: N
+  - name: FirstR1 O
+    type: LOW
+    index: O
+  - name: FirstR1 P
+    type: LOW
+    index: P

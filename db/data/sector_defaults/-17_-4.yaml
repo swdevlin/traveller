@@ -1,0 +1,55 @@
+name: Black Night
+abbreviation: BN
+X: -17
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: BN A
+    type: RIFT_FADE
+    index: A
+  - name: BN B
+    type: RIFT_FADE
+    index: B
+  - name: BN C
+    type: RIFT_FADE
+    index: C
+  - name: BN D
+    type: RIFT_FADE
+    index: D
+  - name: BN E
+    type: DEEP_RIFT
+    index: E
+  - name: BN F
+    type: DEEP_RIFT
+    index: F
+  - name: BN G
+    type: DEEP_RIFT
+    index: G
+  - name: BN H
+    type: EMPTY
+    index: H
+  - name: BN I
+    type: EMPTY
+    index: I
+  - name: BN J
+    type: DEEP_RIFT
+    index: J
+  - name: BN K
+    type: RIFT
+    index: K
+  - name: BN L
+    type: DEEP_RIFT
+    index: L
+  - name: BN M
+    type: RIFT_FADE
+    index: M
+  - name: BN N
+    type: RIFT_FADE
+    index: N
+  - name: BN O
+    type: EMPTY
+    index: O
+  - name: BN P
+    type: EMPTY
+    index: P

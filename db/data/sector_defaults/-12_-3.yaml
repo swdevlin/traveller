@@ -1,0 +1,55 @@
+name: Few Stars
+abbreviation: FewS
+X: -12
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FewS A
+    type: RIFT_FADE
+    index: A
+  - name: FewS B
+    type: RIFT_FADE
+    index: B
+  - name: FewS C
+    type: RIFT_FADE
+    index: C
+  - name: FewS D
+    type: RIFT_FADE
+    index: D
+  - name: FewS E
+    type: EMPTY
+    index: E
+  - name: FewS F
+    type: DEEP_RIFT
+    index: F
+  - name: FewS G
+    type: DEEP_RIFT
+    index: G
+  - name: FewS H
+    type: DEEP_RIFT
+    index: H
+  - name: FewS I
+    type: DEEP_RIFT
+    index: I
+  - name: FewS J
+    type: EMPTY
+    index: J
+  - name: FewS K
+    type: EMPTY
+    index: K
+  - name: FewS L
+    type: EMPTY
+    index: L
+  - name: FewS M
+    type: EMPTY
+    index: M
+  - name: FewS N
+    type: EMPTY
+    index: N
+  - name: FewS O
+    type: EMPTY
+    index: O
+  - name: FewS P
+    type: EMPTY
+    index: P

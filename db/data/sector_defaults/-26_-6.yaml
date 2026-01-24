@@ -1,0 +1,55 @@
+name: Anwnn Spinward 5
+abbreviation: AnwnnS5
+X: -26
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AnwnnS5 A
+    type: MODERATE
+    index: A
+  - name: AnwnnS5 B
+    type: MODERATE
+    index: B
+  - name: AnwnnS5 C
+    type: MODERATE
+    index: C
+  - name: AnwnnS5 D
+    type: MODERATE
+    index: D
+  - name: AnwnnS5 E
+    type: MODERATE
+    index: E
+  - name: AnwnnS5 F
+    type: MODERATE
+    index: F
+  - name: AnwnnS5 G
+    type: LOW
+    index: G
+  - name: AnwnnS5 H
+    type: SPARSE
+    index: H
+  - name: AnwnnS5 I
+    type: MODERATE
+    index: I
+  - name: AnwnnS5 J
+    type: SPARSE
+    index: J
+  - name: AnwnnS5 K
+    type: SPARSE
+    index: K
+  - name: AnwnnS5 L
+    type: RIFT
+    index: L
+  - name: AnwnnS5 M
+    type: SPARSE
+    index: M
+  - name: AnwnnS5 N
+    type: SPARSE
+    index: N
+  - name: AnwnnS5 O
+    type: RIFT
+    index: O
+  - name: AnwnnS5 P
+    type: RIFT
+    index: P

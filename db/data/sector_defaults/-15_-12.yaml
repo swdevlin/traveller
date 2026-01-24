@@ -1,0 +1,55 @@
+name: Voidshore Trailing
+abbreviation: VS Trail
+X: -15
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS Trail A
+    type: MODERATE
+    index: A
+  - name: VS Trail B
+    type: MODERATE
+    index: B
+  - name: VS Trail C
+    type: MODERATE
+    index: C
+  - name: VS Trail D
+    type: MODERATE
+    index: D
+  - name: VS Trail E
+    type: MODERATE
+    index: E
+  - name: VS Trail F
+    type: MODERATE
+    index: F
+  - name: VS Trail G
+    type: MODERATE
+    index: G
+  - name: VS Trail H
+    type: MODERATE
+    index: H
+  - name: VS Trail I
+    type: MODERATE
+    index: I
+  - name: VS Trail J
+    type: MODERATE
+    index: J
+  - name: VS Trail K
+    type: MODERATE
+    index: K
+  - name: VS Trail L
+    type: MODERATE
+    index: L
+  - name: VS Trail M
+    type: MODERATE
+    index: M
+  - name: VS Trail N
+    type: MODERATE
+    index: N
+  - name: VS Trail O
+    type: MODERATE
+    index: O
+  - name: VS Trail P
+    type: MODERATE
+    index: P

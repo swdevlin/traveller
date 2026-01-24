@@ -1,0 +1,55 @@
+name: Voidshore Two
+abbreviation: VS 2
+X: -21
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 2 A
+    type: LOW
+    index: A
+  - name: VS 2 B
+    type: SPARSE
+    index: B
+  - name: VS 2 C
+    type: SPARSE
+    index: C
+  - name: VS 2 D
+    type: LOW
+    index: D
+  - name: VS 2 E
+    type: SPARSE
+    index: E
+  - name: VS 2 F
+    type: MINIMAL
+    index: F
+  - name: VS 2 G
+    type: SPARSE
+    index: G
+  - name: VS 2 H
+    type: SPARSE
+    index: H
+  - name: VS 2 I
+    type: LOW
+    index: I
+  - name: VS 2 J
+    type: SPARSE
+    index: J
+  - name: VS 2 K
+    type: SPARSE
+    index: K
+  - name: VS 2 L
+    type: SPARSE
+    index: L
+  - name: VS 2 M
+    type: MINIMAL
+    index: M
+  - name: VS 2 N
+    type: SPARSE
+    index: N
+  - name: VS 2 O
+    type: SPARSE
+    index: O
+  - name: VS 2 P
+    type: MINIMAL
+    index: P

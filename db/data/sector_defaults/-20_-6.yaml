@@ -1,0 +1,55 @@
+name: Baltia
+abbreviation: Balt
+X: -20
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Balt A
+    type: RIFT_FADE
+    index: A
+  - name: Balt B
+    type: RIFT_FADE
+    index: B
+  - name: Balt C
+    type: RIFT_FADE
+    index: C
+  - name: Balt D
+    type: RIFT_FADE
+    index: D
+  - name: Balt E
+    type: RIFT
+    index: E
+  - name: Balt F
+    type: RIFT
+    index: F
+  - name: Balt G
+    type: RIFT
+    index: G
+  - name: Balt H
+    type: RIFT
+    index: H
+  - name: Balt I
+    type: MINIMAL
+    index: I
+  - name: Balt J
+    type: SPARSE
+    index: J
+  - name: Balt K
+    type: SPARSE
+    index: K
+  - name: Balt L
+    type: LOW
+    index: L
+  - name: Balt M
+    type: MODERATE
+    index: M
+  - name: Balt N
+    type: MODERATE
+    index: N
+  - name: Balt O
+    type: MODERATE
+    index: O
+  - name: Balt P
+    type: MODERATE
+    index: P

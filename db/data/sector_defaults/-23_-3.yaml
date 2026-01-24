@@ -1,0 +1,55 @@
+name: Central Bay Spinward 2
+abbreviation: CBayS2
+X: -23
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CBayS2 A
+    type: MODERATE
+    index: A
+  - name: CBayS2 B
+    type: LOW
+    index: B
+  - name: CBayS2 C
+    type: SPARSE
+    index: C
+  - name: CBayS2 D
+    type: MINIMAL
+    index: D
+  - name: CBayS2 E
+    type: MODERATE
+    index: E
+  - name: CBayS2 F
+    type: LOW
+    index: F
+  - name: CBayS2 G
+    type: SPARSE
+    index: G
+  - name: CBayS2 H
+    type: MINIMAL
+    index: H
+  - name: CBayS2 I
+    type: LOW
+    index: I
+  - name: CBayS2 J
+    type: SPARSE
+    index: J
+  - name: CBayS2 K
+    type: SPARSE
+    index: K
+  - name: CBayS2 L
+    type: SPARSE
+    index: L
+  - name: CBayS2 M
+    type: LOW
+    index: M
+  - name: CBayS2 N
+    type: SPARSE
+    index: N
+  - name: CBayS2 O
+    type: MINIMAL
+    index: O
+  - name: CBayS2 P
+    type: RIFT
+    index: P

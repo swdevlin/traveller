@@ -1,0 +1,55 @@
+name: Riftsedge Central
+abbreviation: ReCe
+X: -23
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ReCe A
+    type: RIFT_FADE
+    index: A
+  - name: ReCe B
+    type: RIFT_FADE
+    index: B
+  - name: ReCe C
+    type: RIFT
+    index: C
+  - name: ReCe D
+    type: MINIMAL
+    index: D
+  - name: ReCe E
+    type: RIFT_FADE
+    index: E
+  - name: ReCe F
+    type: RIFT_FADE
+    index: F
+  - name: ReCe G
+    type: RIFT_FADE
+    index: G
+  - name: ReCe H
+    type: RIFT
+    index: H
+  - name: ReCe I
+    type: RIFT_FADE
+    index: I
+  - name: ReCe J
+    type: RIFT
+    index: J
+  - name: ReCe K
+    type: RIFT
+    index: K
+  - name: ReCe L
+    type: MINIMAL
+    index: L
+  - name: ReCe M
+    type: RIFT_FADE
+    index: M
+  - name: ReCe N
+    type: RIFT
+    index: N
+  - name: ReCe O
+    type: SPARSE
+    index: O
+  - name: ReCe P
+    type: LOW
+    index: P

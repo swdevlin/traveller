@@ -1,0 +1,55 @@
+name: Voidshore One
+abbreviation: VS 1
+X: -22
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 1 A
+    type: SPARSE
+    index: A
+  - name: VS 1 B
+    type: MINIMAL
+    index: B
+  - name: VS 1 C
+    type: SPARSE
+    index: C
+  - name: VS 1 D
+    type: MINIMAL
+    index: D
+  - name: VS 1 E
+    type: LOW
+    index: E
+  - name: VS 1 F
+    type: SPARSE
+    index: F
+  - name: VS 1 G
+    type: LOW
+    index: G
+  - name: VS 1 H
+    type: SPARSE
+    index: H
+  - name: VS 1 I
+    type: LOW
+    index: I
+  - name: VS 1 J
+    type: LOW
+    index: J
+  - name: VS 1 K
+    type: SPARSE
+    index: K
+  - name: VS 1 L
+    type: MINIMAL
+    index: L
+  - name: VS 1 M
+    type: SPARSE
+    index: M
+  - name: VS 1 N
+    type: SPARSE
+    index: N
+  - name: VS 1 O
+    type: MINIMAL
+    index: O
+  - name: VS 1 P
+    type: SPARSE
+    index: P

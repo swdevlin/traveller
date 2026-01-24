@@ -1,0 +1,55 @@
+name: Colaeus
+abbreviation: Col
+X: -19
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Col A
+    type: MINIMAL
+    index: A
+  - name: Col B
+    type: SPARSE
+    index: B
+  - name: Col C
+    type: SPARSE
+    index: C
+  - name: Col D
+    type: SPARSE
+    index: D
+  - name: Col E
+    type: MODERATE
+    index: E
+  - name: Col F
+    type: LOW
+    index: F
+  - name: Col G
+    type: LOW
+    index: G
+  - name: Col H
+    type: MODERATE
+    index: H
+  - name: Col I
+    type: LOW
+    index: I
+  - name: Col J
+    type: LOW
+    index: J
+  - name: Col K
+    type: LOW
+    index: K
+  - name: Col L
+    type: SPARSE
+    index: L
+  - name: Col M
+    type: SPARSE
+    index: M
+  - name: Col N
+    type: MINIMAL
+    index: N
+  - name: Col O
+    type: MINIMAL
+    index: O
+  - name: Col P
+    type: RIFT
+    index: P

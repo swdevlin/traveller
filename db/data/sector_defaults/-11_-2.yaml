@@ -1,0 +1,205 @@
+name: Vilaakasii
+abbreviation: Vilaa
+X: -11
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Vilaa A
+    type: LOW
+    index: A
+  - name: Vilaa B
+    type: LOW
+    index: B
+  - name: Vilaa C
+    type: LOW
+    index: C
+  - name: Vilaa D
+    type: LOW
+    index: D
+  - name: Vilaa E
+    type: SPARSE
+    index: E
+  - name: Vilaa F
+    type: LOW
+    index: F
+    required:
+      - x: 6
+        y: 8
+        name: DDQ-23
+        known: false
+        primary:
+          type: K9
+          bodies:
+            - uwp: X866000-0
+            - uwp: XAAA000-0
+            - uwp: X210000-0
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+            - uwp: X833000-0
+            - uwp: Small Gas Giant
+            - uwp: Large Gas Giant
+            - uwp: X8A1000-0
+            - uwp: X511000-0
+  - name: Vilaa G
+    type: SPARSE
+    index: G
+  - name: Vilaa H
+    type: SPARSE
+    index: H
+  - name: Vilaa I
+    type: SPARSE
+    index: I
+    required:
+      - x: 2
+        y: 6
+        name: VDZ-A
+        known: false
+        primary:
+          type: K6
+          bodies: []
+      - x: 3
+        y: 5
+        name: VDZ-B
+        known: false
+        primary:
+          type: M3
+          bodies: []
+          far:
+            type: M3
+            bodies: []
+      - x: 3
+        y: 6
+        name: Vilaakasii
+        known: true
+        primary:
+          type: BH
+          bodies: []
+          close:
+            type: G7
+            bodies:
+              - uwp: Small Gas Giant
+              - uwp: Small Gas Giant
+          far:
+            type: BD
+            bodies:
+              - uwp: X830000-0
+              - uwp: Small Gas Giant
+      - x: 3
+        y: 8
+        name: HDZ-A
+        known: false
+        primary:
+          type: G4
+          bodies:
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - terrestrial
+            - terrestrial
+            - empty
+            - empty
+            - empty
+            - uwp: Medium Gas Giant
+      - x: 4
+        y: 3
+        name: HDZ-B
+        known: false
+        primary:
+          type: BD
+          bodies:
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+      - x: 5
+        y: 6
+        name: HDZ-C
+        known: false
+        primary:
+          type: G2
+          bodies:
+            - uwp: X7A3000-0
+            - uwp: Large Gas Giant
+            - uwp: X421000-0
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+      - x: 5
+        y: 8
+        name: HDZ-D
+        known: false
+        primary:
+          type: G4
+          bodies:
+            - uwp: terrestrial
+            - uwp: terrestrial
+          close:
+            type: M5
+          far:
+            type: M5
+      - x: 6
+        y: 7
+        known: false
+        name: QVS-122
+        primary:
+          type: G6
+          bodies:
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+            - uwp: X778000-0
+            - uwp: X420000-0
+            - uwp: X8AA000-0
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+            - uwp: X235000-0
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X334000-0
+      - x: 8
+        y: 6
+        name: QVS-88
+        known: false
+        primary:
+          type: K4
+          companion:
+            type: K0
+          bodies:
+            - uwp: X401000-0
+            - uwp: Small Gas Giant
+            - uwp: X662000-0
+            - uwp: Large Gas Giant
+            - uwp: X8AA000-0
+            - uwp: X3A2000-0
+            - uwp: Large Gas Giant
+            - uwp: X8A0000-0
+  - name: Vilaa J
+    type: MINIMAL
+    index: J
+  - name: Vilaa K
+    type: MINIMAL
+    index: K
+  - name: Vilaa L
+    type: MINIMAL
+    index: L
+    required:
+      - x: 5
+        y: 4
+        name: QQ-784
+        known: true
+        primary:
+          type: M1
+          bodies: []
+  - name: Vilaa M
+    type: RIFT_FADE
+    index: M
+  - name: Vilaa N
+    type: DEEP_RIFT
+    index: N
+  - name: Vilaa O
+    type: DEEP_RIFT
+    index: O
+  - name: Vilaa P
+    type: DEEP_RIFT
+    index: P

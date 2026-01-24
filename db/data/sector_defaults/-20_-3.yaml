@@ -1,0 +1,55 @@
+name: Far Shore of Yonder
+abbreviation: FSoY
+X: -20
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FSoY A
+    type: EMPTY
+    index: A
+  - name: FSoY B
+    type: RIFT_FADE
+    index: B
+  - name: FSoY C
+    type: RIFT_FADE
+    index: C
+  - name: FSoY D
+    type: MINIMAL
+    index: D
+  - name: FSoY E
+    type: EMPTY
+    index: E
+  - name: FSoY F
+    type: RIFT_FADE
+    index: F
+  - name: FSoY G
+    type: RIFT_FADE
+    index: G
+  - name: FSoY H
+    type: MINIMAL
+    index: H
+  - name: FSoY I
+    type: RIFT_FADE
+    index: I
+  - name: FSoY J
+    type: RIFT_FADE
+    index: J
+  - name: FSoY K
+    type: RIFT
+    index: K
+  - name: FSoY L
+    type: RIFT_FADE
+    index: L
+  - name: FSoY M
+    type: DEEP_RIFT
+    index: M
+  - name: FSoY N
+    type: RIFT
+    index: N
+  - name: FSoY O
+    type: MINIMAL
+    index: O
+  - name: FSoY P
+    type: LOW
+    index: P

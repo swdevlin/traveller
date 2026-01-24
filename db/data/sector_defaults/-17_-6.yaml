@@ -1,0 +1,55 @@
+name: Muspelheim
+abbreviation: Musp
+X: -17
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Musp A
+    type: MODERATE
+    index: A
+  - name: Musp B
+    type: MODERATE
+    index: B
+  - name: Musp C
+    type: MODERATE
+    index: C
+  - name: Musp D
+    type: MODERATE
+    index: D
+  - name: Musp E
+    type: STANDARD
+    index: E
+  - name: Musp F
+    type: MODERATE
+    index: F
+  - name: Musp G
+    type: STANDARD
+    index: G
+  - name: Musp H
+    type: MODERATE
+    index: H
+  - name: Musp I
+    type: STANDARD
+    index: I
+  - name: Musp J
+    type: LOW
+    index: J
+  - name: Musp K
+    type: MODERATE
+    index: K
+  - name: Musp L
+    type: SPARSE
+    index: L
+  - name: Musp M
+    type: MODERATE
+    index: M
+  - name: Musp N
+    type: STANDARD
+    index: N
+  - name: Musp O
+    type: MODERATE
+    index: O
+  - name: Musp P
+    type: STANDARD
+    index: P
