@@ -87,6 +87,11 @@
       </div>
 
       <div class='mt-4 flex flex-col sm:flex-row gap-2'>
+        <%= button_to 'Load Defaults',
+                      load_defaults_sector_path(@sector),
+                      method: :post,
+                      class: 'w-full sm:w-auto btn' %>
+
         <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to replace them?" %>
         <%= form_with(model: @sector, url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
           <%= form.submit 'Generate',

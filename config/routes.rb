@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   resources :sectors do
     member do
       post :clear
+      post :load_defaults
       get :populate, as: :populate
       post :generate, as: :generate
     end

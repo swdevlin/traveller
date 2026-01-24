@@ -1,5 +1,5 @@
 class SectorsController < ApplicationController
-  before_action :set_sector, only: %i[ show edit update destroy clear populate generate]
+  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate]
 
   # GET /sectors or /sectors.json
   def index
@@ -19,6 +19,22 @@ class SectorsController < ApplicationController
         .where(parsecs: { sector_id: @sector.id })
         .where(orbiting_star_id: nil)
         .count
+  end
+
+  def load_defaults
+    count = 0
+    @sector.subsectors.where(build: nil).find_each do |subsector|
+      subsector.load_sector_defaults!
+      if subsector.build.present? && subsector.save
+        count += 1
+      end
+    end
+
+    if count > 0
+      redirect_to populate_sector_path(@sector), notice: "Defaults loaded for #{count} #{'subsector'.pluralize(count)}."
+    else
+      redirect_to populate_sector_path(@sector), alert: 'No defaults found for this sector.'
+    end
   end
 
   def generate
