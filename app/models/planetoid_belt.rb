@@ -9,7 +9,7 @@ class PlanetoidBelt < StellarObject
     resource_rating: 'resourceRating',
     bulk: 'bulk',
     span: 'span',
-    temperature: 'temperature',
+    temperature: 'meanTemperature',
     retrograde: 'retrograde',
     period: 'period'
   )

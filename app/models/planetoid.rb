@@ -3,7 +3,7 @@ class Planetoid < StellarObject
 
   generator_data_map(
     albedo: 'albedo',
-    temperature: 'temperature',
+    temperature: 'meanTemperature',
     period: 'period',
     density: 'density',
     gravity: 'gravity',
