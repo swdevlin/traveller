@@ -1,36 +1,49 @@
-<div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl mt-4">
-  <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
+<div class="t-card">
+  <div class="t-card-header">
     <div class="flex items-center justify-between gap-3">
-      <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
+      <p class="t-card-title">
         Star System
       </p>
     </div>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-fixed divide-y divide-slate-700 text-sm">
-      <thead class="bg-slate-900/80">
+  <div class="t-scroll-x">
+    <table class="t-table">
+      <thead class="t-thead">
       <tr>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-20">
-          au
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+        <th scope="col" class="t-th">
           id
         </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+        <th scope="col" class="t-th">
+          au
+        </th>
+        <th scope="col" class="t-th">
           name
         </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          details
+        <th scope="col" class="t-th">
+          Orbit #
         </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+        <th scope="col" class="t-th">
+          Eccentricity
         </th>
-        <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
+        <th scope="col" class="t-th">
+          Period
+        </th>
+        <th scope="col" class="t-th">
+          SAH/UWP
+        </th>
+        <th scope="col" class="t-th">
+          Sub
+        </th>
+        <th scope="col" class="t-th">
+          notes
+        </th>
+        <th scope="col" class="t-th">
           Actions
         </th>
       </tr>
       </thead>
-      <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+      <tbody class="t-tbody">
       <%= render "star_row", star: primary, indent: 0 %>
       </tbody>
     </table>

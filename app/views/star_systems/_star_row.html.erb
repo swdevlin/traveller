@@ -1,25 +1,25 @@
-<tr class="transition hover:bg-slate-900/80" style="--indent: <%= (local_assigns[:indent] || 0) %>px;">
-  <td class="px-4 py-3 whitespace-nowrap align-middle">
+<tr class="t-tr">
+  <td class="t-td">
+    <span class="identifier"><%= star.orbit_sequence %></span>
+  </td>
+
+  <td class="t-td">
     <%= number_with_precision(star.au, precision: 2) %>
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <%= star.orbit_sequence %>
+  <td class="t-td">
+    <%= star.name %> <%= star.spectral_classification %>
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle">
-    <%= star.name %>
+  <td class="t-td">
+    <%= star.orbit %>
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle" style="padding-left: calc(1rem + var(--indent));">
-    <%= star.spectral_classification %>
+  <td colspan="5" class="t-td">
   </td>
 
-  <td class="px-4 py-3 whitespace-nowrap align-middle" style="padding-left: calc(1rem + var(--indent));">
-  </td>
-
-  <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
-    <div class="inline-flex items-center justify-end gap-2">
+  <td class="t-td-right">
+    <div class="t-actions">
       <%= link_to edit_star_path(star),
                   class: "text-slate-300 hover:text-traveller-red/90",
                   title: "Edit" do %>
