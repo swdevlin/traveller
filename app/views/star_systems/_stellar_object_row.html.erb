@@ -23,7 +23,9 @@
   </td>
 
   <td class="t-td">
-    <%= number_with_precision(stellar_object.period, precision: 2, strip_insignificant_zeros: true) %>
+    <% if stellar_object.respond_to?(:period) %>
+      <%= number_with_precision(stellar_object.period, precision: 2, strip_insignificant_zeros: true) %>
+    <% end %>
   </td>
 
   <td class="t-td">
