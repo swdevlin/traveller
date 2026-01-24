@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :subsectors, only: %i[index show edit update] do
     member do
       post :clear
+      post :load_defaults
       get :populate, as: :populate
       post :generate, as: :generate
     end

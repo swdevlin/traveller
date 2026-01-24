@@ -1,5 +1,5 @@
 class SubsectorsController < ApplicationController
-  before_action :set_subsector, only: %i[ show edit update clear populate generate]
+  before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate]
   before_action :set_counts, only: %i[show populate]
   # GET /subsectors or /subsectors.json
   def index
@@ -37,6 +37,15 @@ class SubsectorsController < ApplicationController
     @subsector.save!
     GenerateSubsectorJob.perform_later(@subsector, normalized_yaml)
     redirect_to subsector_path(@subsector), notice: 'Subsector population task created.'
+  end
+
+  def load_defaults
+    @subsector.load_sector_defaults!
+    if @subsector.build.present? && @subsector.save
+      redirect_to subsector_path(@subsector), notice: 'Defaults loaded.'
+    else
+      redirect_to subsector_path(@subsector), alert: 'No defaults found for this sector.'
+    end
   end
 
   def clear
