@@ -40,6 +40,10 @@
   <td class="t-td">
     <% if stellar_object.is_a?(GasGiant) %>
       <%= stellar_object.type.underscore.humanize %>
+    <% elsif stellar_object.is_a?(PlanetoidBelt) %>
+      Rating: <%= stellar_object.resource_rating %>
+    <% else %>
+      <%= temperature_label(stellar_object.temperature) %>
     <% end %>
   </td>
 

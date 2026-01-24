@@ -4,6 +4,7 @@ class TerrestrialPlanet < StellarObject
   generator_data_map(
     albedo: 'albedo',
     period: 'period',
+    temperature: 'temperature',
     density: 'density',
     gravity: 'gravity',
     axial_tilt: 'axialTilt',
