@@ -118,8 +118,6 @@ class BuildConfigValidator
       .gsub('must be one of:', 'must be one of:')
   end
 
-  STAR_LINK_KEYS = %w[companion close near far].freeze
-
   def validate_business_rules
     validate_systems_exclusivity
     validate_populated_allegiance
