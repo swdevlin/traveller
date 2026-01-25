@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       post :load_defaults
       get :populate, as: :populate
       post :generate, as: :generate
+      get :star_systems_table
     end
     resources :rogues, only: %i[new create index destroy]
     resources :star_systems, only: %i[new create index destroy]

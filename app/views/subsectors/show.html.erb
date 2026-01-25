@@ -64,13 +64,20 @@
       <%= render 'application/observation_block',
                  notes: @subsector.notes %>
 
-      <%= render 'star_systems/table',
-                 star_systems: @subsector.star_systems,
-                 new_url: new_subsector_star_system_path(@subsector) %>
+      <turbo-frame id="<%= dom_id(@subsector, :star_systems) %>"
+                   src="<%= star_systems_table_subsector_path(@subsector) %>"
+                   data-controller="subsector-refresh"
+                   data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
+        <%= render 'star_systems/table',
+                   star_systems: @subsector.star_systems,
+                   new_url: new_subsector_star_system_path(@subsector) %>
+      </turbo-frame>
 
-      <%= render 'rogues/table',
-                 rogues: @subsector.rogues,
-                 new_url: new_subsector_rogue_path(@subsector) %>
+      <div id="<%= dom_id(@subsector, :rogues) %>">
+        <%= render 'rogues/table',
+                   rogues: @subsector.rogues,
+                   new_url: new_subsector_rogue_path(@subsector) %>
+      </div>
 
       <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
 

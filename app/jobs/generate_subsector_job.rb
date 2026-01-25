@@ -23,6 +23,11 @@ class GenerateSubsectorJob < ApplicationJob
       config.delete(key) if value.compact.empty?
     end
 
+    SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
+    Subsector.transaction do
+      subsector.clear
+    end
+
     base = Rails.application.config.x.generator_service
     uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'subsector')
 
@@ -50,13 +55,11 @@ class GenerateSubsectorJob < ApplicationJob
     importer = StarSystemImporter.new
     ul, = subsector.universal_coordinates
 
-    Subsector.transaction do
-      subsector.clear
-    end
-
     systems.each do |system|
       parsec = Parsec.find_by(x: ul.x + system['x']-1, y: ul.y - (system['y'] - 1))
       importer.import!(parsec, system)
     end
+
+    SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
   end
 end
