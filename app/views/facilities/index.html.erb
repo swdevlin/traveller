@@ -1,24 +1,17 @@
 <% content_for :title, "Bases" %>
+<% content_for :page_kicker, "Reference Manual" %>
+<% content_for :page_title, "Base Classifications" %>
+<% content_for :page_actions do %>
+  <%= link_to new_facility_path, class: "btn-header" do %>
+    <i class="fa-solid fa-plus text-[0.7rem]"></i>
+    Add
+  <% end %>
+<% end %>
 
-<div class='w-full pb-10 space-y-6'>
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Reference Manual
-    </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      Base Classifications
-    </div>
-  </div>
-
+<%= render 'application/page' do %>
   <div class='t-card'>
     <div class='t-card-header'>
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Base registry</p>
-        <%= link_to new_facility_path, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
-          Add
-        <% end %>
-      </div>
+      <p class='t-card-title'>Base registry</p>
     </div>
 
     <div class='t-scroll-x'>
@@ -33,42 +26,42 @@
         </thead>
 
         <tbody class='t-tbody'>
-        <% @facilities.each do |facility| %>
-          <tr class='t-tr'>
-            <td class='t-td-nowrap'>
-              <span class='t-pill'><%= facility.code %></span>
-            </td>
+          <% @facilities.each do |facility| %>
+            <tr class='t-tr'>
+              <td class='t-td-nowrap'>
+                <span class='t-pill'><%= facility.code %></span>
+              </td>
 
-            <td class='t-td'>
-              <%= link_to facility_path(facility), class: 't-link' do %>
-                <%= facility.name %>
-              <% end %>
-            </td>
-
-            <td class='t-td-nowrap'>
-              <% if facility.traveller_map_code.present? %>
-                <span class='t-pill'><%= facility.traveller_map_code %></span>
-              <% end %>
-            </td>
-
-            <td class='t-td-right'>
-              <div class='t-actions'>
-                <%= link_to edit_facility_path(facility), class: 't-action' do %>
-                  <i class='fa-regular fa-pen-to-square'></i>
+              <td class='t-td'>
+                <%= link_to facility_path(facility), class: 't-link' do %>
+                  <%= facility.name %>
                 <% end %>
+              </td>
 
-                <%= button_to facility,
-                              method: :delete,
-                              class: 't-action-danger',
-                              data: { turbo_confirm: "Delete #{facility.code}?" } do %>
-                  <i class='fa-regular fa-trash'></i>
+              <td class='t-td-nowrap'>
+                <% if facility.traveller_map_code.present? %>
+                  <span class='t-pill'><%= facility.traveller_map_code %></span>
                 <% end %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
+              </td>
+
+              <td class='t-td-right'>
+                <div class='t-actions'>
+                  <%= link_to edit_facility_path(facility), class: 't-action' do %>
+                    <i class='fa-regular fa-pen-to-square'></i>
+                  <% end %>
+
+                  <%= button_to facility,
+                                method: :delete,
+                                class: 't-action-danger',
+                                data: { turbo_confirm: "Delete #{facility.code}?" } do %>
+                    <i class='fa-regular fa-trash'></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
         </tbody>
       </table>
     </div>
   </div>
-</div>
+<% end %>
