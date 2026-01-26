@@ -35,6 +35,10 @@
 * Hex display for a subsector
 * [x] Allegiance CRUD
   * paginate the list
+  * Import from TravellerMap
+* [x] CRUD on bases
+* [x] CRUD on trade codes
+    * Add Mongoose ones to seed
 * Populate a subsector
   * [x] Basic populate
   * Add populated option for generate
@@ -50,7 +54,7 @@
 * Populate a sector
   * [x] verify each subsector has a build plan
   * [x] create a job for each subsector
-  * Load default plan
+  * [x] Load default plan
 * Log in
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
@@ -70,7 +74,6 @@
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
 * import allegiances from TravellerMap
-* CRUD on Allegiances
 * Settings page
 
 ### To do?
