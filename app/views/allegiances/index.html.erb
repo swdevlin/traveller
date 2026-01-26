@@ -1,75 +1,67 @@
 <% content_for :title, "Allegiances" %>
+<% content_for :page_kicker, "Reference Manual" %>
+<% content_for :page_title, "Allegiances" %>
+<% content_for :page_actions do %>
+  <%= link_to new_allegiance_path, class: "btn-header" do %>
+    <i class="fa-solid fa-plus text-[0.7rem]"></i>
+    Add
+  <% end %>
+<% end %>
 
-<div class='w-full pb-10 space-y-6'>
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Reference Manual
-    </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      Allegiances
-    </div>
-  </div>
-
+<%= render 'application/page' do %>
   <div class='t-card'>
     <div class='t-card-header'>
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Allegience registry</p>
-        <%= link_to new_allegiance_path, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
-          Add
-        <% end %>
-      </div>
+      <p class='t-card-title'>Allegiance registry</p>
     </div>
 
     <div class='t-scroll-x'>
       <table class='t-table'>
         <thead class='t-thead'>
-        <tr>
-          <th scope='col' class='t-th'>Code</th>
-          <th scope='col' class='t-th'>Name</th>
-          <th scope='col' class='t-th'>Legacy</th>
-          <th scope='col' class='t-th-right'>Actions</th>
-        </tr>
+          <tr>
+            <th scope='col' class='t-th'>Code</th>
+            <th scope='col' class='t-th'>Name</th>
+            <th scope='col' class='t-th'>Legacy</th>
+            <th scope='col' class='t-th-right'>Actions</th>
+          </tr>
         </thead>
 
         <tbody class='t-tbody'>
-        <% @allegiances.each do |allegiance| %>
-          <tr class='t-tr'>
-            <td class='t-td-nowrap'>
-              <span class='t-pill'><%= allegiance.code %></span>
-            </td>
+          <% @allegiances.each do |allegiance| %>
+            <tr class='t-tr'>
+              <td class='t-td-nowrap'>
+                <span class='t-pill'><%= allegiance.code %></span>
+              </td>
 
-            <td class='t-td'>
-              <%= link_to allegiance_path(allegiance),
-                          class: "text-sm font-medium text-slate-50 hover:text-traveller-red hover:underline hover:underline-offset-2" do %>
-                <%= allegiance.name %>
-              <% end %>
-            </td>
-
-            <td class='t-td-nowrap'>
-              <% if allegiance.legacy_code.present? %>
-                <span class='t-pill'><%= allegiance.legacy_code %></span>
-              <% end %>
-            </td>
-
-            <td class='t-td-right'>
-              <div class='t-actions'>
-                <%= link_to edit_allegiance_path(allegiance), class: 't-action' do %>
-                  <i class='fa-regular fa-pen-to-square'></i>
+              <td class='t-td'>
+                <%= link_to allegiance_path(allegiance), class: "t-link" do %>
+                  <%= allegiance.name %>
                 <% end %>
+              </td>
 
-                <%= button_to allegiance,
-                              method: :delete,
-                              class: 't-action-danger',
-                              data: { turbo_confirm: "Delete #{allegiance.code}?" } do %>
-                  <i class='fa-regular fa-trash'></i>
+              <td class='t-td-nowrap'>
+                <% if allegiance.legacy_code.present? %>
+                  <span class='t-pill'><%= allegiance.legacy_code %></span>
                 <% end %>
-              </div>
-            </td>
-          </tr>
-        <% end %>
+              </td>
+
+              <td class='t-td-right'>
+                <div class='t-actions'>
+                  <%= link_to edit_allegiance_path(allegiance), class: 't-action' do %>
+                    <i class='fa-regular fa-pen-to-square'></i>
+                  <% end %>
+
+                  <%= button_to allegiance,
+                                method: :delete,
+                                class: 't-action-danger',
+                                data: { turbo_confirm: "Delete #{allegiance.code}?" } do %>
+                    <i class='fa-regular fa-trash'></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
         </tbody>
       </table>
     </div>
   </div>
-</div>
+<% end %>

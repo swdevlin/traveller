@@ -1,14 +1,7 @@
 <% content_for :title, "New allegiance" %>
+<% content_for :page_kicker, "Allegiance edit console" %>
+<% content_for :page_title, "New Allegiance" %>
 
-<div class="w-full">
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Allegiance edit console
-    </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      New Allegiance
-    </div>
-  </div>
-
+<%= render 'application/page' do %>
   <%= render "form", allegiance: @allegiance %>
-</div>
+<% end %>

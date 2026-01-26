@@ -1,42 +1,19 @@
 <% content_for :title, @allegiance.name %>
+<% content_for :page_kicker, "Allegiance Classification" %>
+<% content_for :page_title, @allegiance.name %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+<%= render 'application/page' do %>
+  <%= render @allegiance %>
 
-  <div class="page-shell">
-    <div class="page-header">
-      <div>
-        <div class="page-kicker">
-          Allegiance Classification
-        </div>
-        <div class="page-title">
-          <%= @allegiance.name %>
-        </div>
-      </div>
-      <div class="page-actions">
-      </div>
-    </div>
-
-    <div class="page-body">
-      <div class="page-main">
-        <%= render @allegiance %>
-
-        <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn" %>
-        <%= render 'application/back_button',
-                   path: allegiances_path,
-                   label: 'Allegiances',
-                   class: 'w-full sm:w-auto' %>
-        <%= button_to "Delete",
-                      @allegiance,
-                      method: :delete,
-                      form_class: "w-full sm:w-auto inline-flex",
-                      class: "w-full sm:w-auto btn btn-danger cursor-pointer",
-                      data: { turbo_confirm: "Are you sure?" } %>
-      </div>
-      <div class="page-side">
-      </div>
-    </div>
-  </div>
-</div>
+  <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: allegiances_path,
+             label: 'Allegiances',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @allegiance,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>
