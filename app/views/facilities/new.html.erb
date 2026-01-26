@@ -1,9 +1,14 @@
-<% content_for :title, "New facility" %>
+<% content_for :title, "New base" %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New facility</h1>
+<div class="w-full">
+  <div class='mt-4'>
+    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+      Base edit console
+    </div>
+    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
+      New Base
+    </div>
+  </div>
 
   <%= render "form", facility: @facility %>
-
-  <%= link_to "Back to facilities", facilities_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
 </div>

@@ -1,27 +1,61 @@
-<%= form_with(model: facility, class: "contents") do |form| %>
-  <% if facility.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(facility.errors.count, "error") %> prohibited this facility from being saved:</h2>
+<%= form_with(model: facility, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <% if facility.errors.any? %>
+      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Validation
+        </div>
+        <div class='mt-1 text-sm font-semibold text-slate-200'>
+          <%= pluralize(facility.errors.count, 'error') %> prevented this base from being saved
+        </div>
 
-      <ul class="list-disc ml-6">
-        <% facility.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+          <% facility.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class='mt-4'>
+      <%= form.label :code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :code,
+                          class: [
+                            'w-24 edit-base mt-2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': facility.errors[:code].none?,
+                              'border-red-400 focus:outline-red-600': facility.errors[:code].any?
+                            }
+                          ] %>
     </div>
-  <% end %>
 
-  <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:name].none?, "border-red-400 focus:outline-red-600": facility.errors[:name].any?}] %>
-  </div>
+    <div>
+      <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :name,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': facility.errors[:name].none?,
+                              'border-red-400 focus:outline-red-600': facility.errors[:name].any?
+                            }
+                          ] %>
+    </div>
 
-  <div class="my-5">
-    <%= form.label :code %>
-    <%= form.text_field :code, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": facility.errors[:code].none?, "border-red-400 focus:outline-red-600": facility.errors[:code].any?}] %>
-  </div>
+    <div>
+      <%= form.label :traveller_map_code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :traveller_map_code,
+                          class: [
+                            'w-24 edit-base mt-2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': facility.errors[:traveller_map_code].none?,
+                              'border-red-400 focus:outline-red-600': facility.errors[:traveller_map_code].any?
+                            }
+                          ] %>
+    </div>
 
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', facility.persisted? ? facility : facilities_path, class: 'w-full sm:w-auto btn' %>
+    </div>
   </div>
 <% end %>
