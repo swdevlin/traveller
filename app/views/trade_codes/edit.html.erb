@@ -1,10 +1,14 @@
-<% content_for :title, "Editing trade code" %>
+<% content_for :title, "Editing #{@trade_code.code}" %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing trade code</h1>
+<div class="w-full">
+  <div class='mt-4'>
+    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+      Trade code edit console
+    </div>
+    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
+      <%= @trade_code.code %>
+    </div>
+  </div>
 
   <%= render "form", trade_code: @trade_code %>
-
-  <%= link_to "Show this trade code", @trade_code, class: "w-full sm:w-auto btn" %>
-  <%= link_to "Back to trade codes", trade_codes_path, class: "w-full sm:w-auto btn" %>
 </div>
