@@ -8,14 +8,15 @@
   </td>
 
   <td class="t-td">
-    <%= star.name %> <%= star.spectral_classification %>
+    <%= star.name %>
   </td>
 
-  <td class="t-td">
-    <%= star.orbit %>
+  <td colspan="3" class="t-td">
+    <%= number_with_precision(star.orbit, precision: 3, strip_insignificant_zeros: true) %>
   </td>
 
-  <td colspan="5" class="t-td">
+  <td colspan="3" class="t-td">
+    <%= star.spectral_classification %>
   </td>
 
   <td class="t-td-right">
