@@ -1,24 +1,17 @@
 <% content_for :title, "Trade codes" %>
+<% content_for :page_kicker, "Reference Manual" %>
+<% content_for :page_title, "Trade Codes" %>
+<% content_for :page_actions do %>
+  <%= link_to new_trade_code_path, class: "btn-header" do %>
+    <i class="fa-solid fa-plus text-[0.7rem]"></i>
+    Add
+  <% end %>
+<% end %>
 
-<div class='w-full pb-10 space-y-6'>
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Reference Manual
-    </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      Trade Codes
-    </div>
-  </div>
-
+<%= render 'application/page' do %>
   <div class='t-card'>
     <div class='t-card-header'>
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Trade Code Registry</p>
-        <%= link_to new_trade_code_path, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
-          Add
-        <% end %>
-      </div>
+      <p class='t-card-title'>Trade Code Registry</p>
     </div>
 
     <div class='t-scroll-x'>
@@ -62,4 +55,4 @@
       </table>
     </div>
   </div>
-</div>
+<% end %>

@@ -1,14 +1,7 @@
 <% content_for :title, "Editing #{@trade_code.code}" %>
+<% content_for :page_kicker, "Trade code edit console" %>
+<% content_for :page_title, @trade_code.code %>
 
-<div class="w-full">
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Trade code edit console
-    </div>
-    <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-      <%= @trade_code.code %>
-    </div>
-  </div>
-
+<%= render 'application/page' do %>
   <%= render "form", trade_code: @trade_code %>
-</div>
+<% end %>
