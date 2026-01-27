@@ -183,7 +183,7 @@
   }
 
   .page-title {
-    @apply mt-1 text-2xl text-deepnight-orange;
+    @apply mt-1 text-2xl text-deepnight-orange uppercase;
   }
 
   .page-actions {
