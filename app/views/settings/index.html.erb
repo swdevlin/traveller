@@ -93,6 +93,32 @@
           </div>
 
         <% end %>
+
+        <%= link_to law_levels_path,
+                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
+          <div class='flex items-start justify-between gap-4'>
+            <div class='min-w-0'>
+              <div class='flex items-center gap-3'>
+                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
+                  <i class='fa-regular fa-flag text-slate-200'></i>
+                </div>
+                <div>
+                  <h2 class='text-lg font-semibold text-slate-100'>
+                    Law Level
+                  </h2>
+                  <p class='text-sm text-slate-300'>
+                    Law level codes and descriptions. The initial list is from the Traveller Core Rulebook and World Builder's Handbook.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
+              <i class='fa-regular fa-chevron-right'></i>
+            </div>
+          </div>
+
+        <% end %>
       </div>
     </div>
   </div>

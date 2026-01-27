@@ -1,0 +1,122 @@
+<%= form_with(model: law_level, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <% if law_level.errors.any? %>
+      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Validation
+        </div>
+        <div class='mt-1 text-sm font-semibold text-slate-200'>
+          <%= pluralize(law_level.errors.count, 'error') %> prevented this law level from being saved
+        </div>
+
+        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+          <% law_level.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class='mt-4'>
+      <%= form.label :code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.number_field :code,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:code].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:code].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :armour, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :armour,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:armour].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:armour].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :weapons, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :weapons,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:weapons].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:weapons].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :economic_law, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :economic_law,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:economic_law].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:economic_law].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :criminal_law, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :criminal_law,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:criminal_law].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:criminal_law].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :private_law, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :private_law,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:private_law].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:private_law].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :personal_law, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :personal_law,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:personal_law].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:personal_law].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :notes, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_area :notes,
+                          rows: 4,
+                          class: [
+                            'w-full edit-base mt-2 resize-y',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:notes].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:notes].any?
+                            }
+                          ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', law_level.persisted? ? law_level : law_levels_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

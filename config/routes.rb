@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :law_levels
   resources :facilities
   get 'help/index'
   get 'help/build_specification'

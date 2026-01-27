@@ -8,3 +8,6 @@ require_relative "seeds/sectors"
 
 puts "Seeding bases..."
 require_relative "seeds/facilities"
+
+puts "Seeding law levels..."
+require_relative "seeds/law_levels"
