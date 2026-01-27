@@ -1,125 +1,93 @@
+<%= content_for :title, "Settings" %>
+<%= content_for :page_kicker, "System Configuration" %>
+<%= content_for :page_title, "Settings" %>
+
 <% content_for :title, 'Settings' %>
 
-<div class='w-full'>
-  <div class='flex items-start justify-between gap-4 mb-6'>
-    <div>
-      <h1 class='text-3xl font-bold font-header tracking-wider'>
-        <i class='fa-regular fa-sliders mr-2 text-slate-300'></i>
-        Settings
-      </h1>
-    </div>
-
-    <div class='hidden sm:flex items-center gap-2 text-xs text-slate-400'>
-    </div>
-  </div>
-
-  <div class='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-    <div class='lg:col-span-2'>
-      <div class='grid grid-cols-1 md:grid-cols-2 gap-6'>
+<%= render 'application/page' do %>
+  <div class='lg:w-2/3'>
+    <div class='overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl'>
+      <div class='divide-y divide-slate-800 bg-slate-950/60'>
         <%= link_to trade_codes_path,
-                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
-          <div class='flex items-start justify-between gap-4'>
-            <div class='min-w-0'>
-              <div class='flex items-center gap-3'>
-                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
-                  <i class='fa-regular fa-tags text-slate-200'></i>
-                </div>
-                <div>
-                  <h2 class='text-lg font-semibold text-slate-100'>
-                    Trade Codes
-                  </h2>
-                  <p class='text-sm text-slate-300'>
-                    Initial trade codes are from T5.
-                  </p>
-                </div>
-              </div>
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class='fa-regular fa-tags text-slate-200'></i>
             </div>
-
-            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
-              <i class='fa-regular fa-chevron-right'></i>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Trade Codes
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Initial trade codes are from T5.
+              </p>
             </div>
           </div>
-
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
         <% end %>
 
         <%= link_to allegiances_path,
-                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
-          <div class='flex items-start justify-between gap-4'>
-            <div class='min-w-0'>
-              <div class='flex items-center gap-3'>
-                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
-                  <i class='fa-regular fa-flag text-slate-200'></i>
-                </div>
-                <div>
-                  <h2 class='text-lg font-semibold text-slate-100'>
-                    Allegiances
-                  </h2>
-                  <p class='text-sm text-slate-300'>
-                    Define political codes and display names used for populated systems. The initial list is from TravellerMap,
-                  </p>
-                </div>
-              </div>
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class='fa-regular fa-flag text-slate-200'></i>
             </div>
-
-            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
-              <i class='fa-regular fa-chevron-right'></i>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Allegiances
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Define political codes and display names used for populated systems.
+              </p>
             </div>
           </div>
-
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
         <% end %>
 
         <%= link_to facilities_path,
-                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
-          <div class='flex items-start justify-between gap-4'>
-            <div class='min-w-0'>
-              <div class='flex items-center gap-3'>
-                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
-                  <i class='fa-regular fa-flag text-slate-200'></i>
-                </div>
-                <div>
-                  <h2 class='text-lg font-semibold text-slate-100'>
-                    Bases
-                  </h2>
-                  <p class='text-sm text-slate-300'>
-                    Define bases. The initial list is a modified version from TravellerMap.
-                  </p>
-                </div>
-              </div>
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class='fa-regular fa-building text-slate-200'></i>
             </div>
-
-            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
-              <i class='fa-regular fa-chevron-right'></i>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Bases
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Define bases and facilities.
+              </p>
             </div>
           </div>
-
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
         <% end %>
 
         <%= link_to law_levels_path,
-                    class: 'group rounded-2xl border border-slate-700/70 bg-slate-950/40 p-6 shadow-sm hover:border-deepnight-orange/50 hover:bg-slate-950/60 transition' do %>
-          <div class='flex items-start justify-between gap-4'>
-            <div class='min-w-0'>
-              <div class='flex items-center gap-3'>
-                <div class='h-11 w-11 rounded-xl border border-slate-700/70 bg-slate-900/60 flex items-center justify-center'>
-                  <i class='fa-regular fa-flag text-slate-200'></i>
-                </div>
-                <div>
-                  <h2 class='text-lg font-semibold text-slate-100'>
-                    Law Level
-                  </h2>
-                  <p class='text-sm text-slate-300'>
-                    Law level codes and descriptions. The initial list is from the Traveller Core Rulebook and World Builder's Handbook.
-                  </p>
-                </div>
-              </div>
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class='fa-regular fa-gavel text-slate-200'></i>
             </div>
-
-            <div class='pt-1 text-slate-400 group-hover:text-deepnight-orange transition'>
-              <i class='fa-regular fa-chevron-right'></i>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Law Level
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Law level codes and descriptions.
+              </p>
             </div>
           </div>
-
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
         <% end %>
       </div>
     </div>
   </div>
-</div>
+<% end %>
