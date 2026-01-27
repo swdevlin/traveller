@@ -1,0 +1,7 @@
+<%%= content_for :title, "Editing #{@<%= singular_table_name %>.to_s}" %>
+<%%= content_for :page_kicker, "<%= human_name %> edit console" %>
+<%%= content_for :page_title, @<%= singular_table_name %>.to_s %>
+
+<%%= render 'application/page' do %>
+  <%%= render "form", <%= singular_table_name %>: @<%= singular_table_name %> %>
+<%% end %>

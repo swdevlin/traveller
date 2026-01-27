@@ -1,0 +1,93 @@
+<%%= form_with(model: <%= singular_table_name %>, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <%% if <%= singular_table_name %>.errors.any? %>
+      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Validation
+        </div>
+        <div class='mt-1 text-sm font-semibold text-slate-200'>
+          <%%= pluralize(<%= singular_table_name %>.errors.count, 'error') %> prevented this <%= human_name.downcase %> from being saved
+        </div>
+
+        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+          <%% <%= singular_table_name %>.errors.each do |error| %>
+            <li><%%= error.full_message %></li>
+          <%% end %>
+        </ul>
+      </div>
+    <%% end %>
+<% attributes.each_with_index do |attribute, index| -%>
+
+<% if attribute.password_digest? -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :password, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.password_field :password,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': <%= singular_table_name %>.errors[:password].none?,
+                              'border-red-400 focus:outline-red-600': <%= singular_table_name %>.errors[:password].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%%= form.label :password_confirmation, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.password_field :password_confirmation,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': <%= singular_table_name %>.errors[:password_confirmation].none?,
+                              'border-red-400 focus:outline-red-600': <%= singular_table_name %>.errors[:password_confirmation].any?
+                            }
+                          ] %>
+    </div>
+<% elsif attribute.attachments? -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :<%= attribute.column_name %>, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %>, multiple: true, class: 'edit-base mt-2' %>
+    </div>
+<% elsif attribute.attachment? -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :<%= attribute.column_name %>, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %>, class: 'edit-base mt-2' %>
+    </div>
+<% elsif attribute.type == :text -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :<%= attribute.column_name %>, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.text_area :<%= attribute.column_name %>,
+                          rows: 4,
+                          class: [
+                            'w-full edit-base mt-2 resize-y',
+                            {
+                              'border-gray-400 focus:outline-blue-600': <%= singular_table_name %>.errors[:<%= attribute.column_name %>].none?,
+                              'border-red-400 focus:outline-red-600': <%= singular_table_name %>.errors[:<%= attribute.column_name %>].any?
+                            }
+                          ] %>
+    </div>
+<% elsif attribute.type == :boolean -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :<%= attribute.column_name %>, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.check_box :<%= attribute.column_name %>, class: 'mt-2 rounded border-slate-700 bg-slate-950 text-traveller-red focus:ring-traveller-red' %>
+    </div>
+<% else -%>
+    <div<%= index == 0 ? " class='mt-4'" : "" %>>
+      <%%= form.label :<%= attribute.column_name %>, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %>,
+                          class: [
+                            'w-full edit-base mt-2 sm:w-1/2',
+                            {
+                              'border-gray-400 focus:outline-blue-600': <%= singular_table_name %>.errors[:<%= attribute.column_name %>].none?,
+                              'border-red-400 focus:outline-red-600': <%= singular_table_name %>.errors[:<%= attribute.column_name %>].any?
+                            }
+                          ] %>
+    </div>
+<% end -%>
+<% end -%>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%%= link_to 'Cancel', <%= singular_table_name %>.persisted? ? <%= singular_table_name %> : <%= plural_table_name %>_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<%% end %>

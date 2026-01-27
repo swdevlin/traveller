@@ -1,0 +1,63 @@
+<%%= content_for :title, "<%= human_name.pluralize %>" %>
+<%%= content_for :page_kicker, "Reference Manual" %>
+<%%= content_for :page_title, "<%= human_name.pluralize %>" %>
+<%%= content_for :page_actions do %>
+  <%%= link_to new_<%= singular_table_name %>_path, class: "btn-header" do %>
+    <i class="fa-solid fa-plus text-[0.7rem]"></i>
+    Add
+  <%% end %>
+<%% end %>
+
+<%%= render 'application/page' do %>
+  <div class='t-card'>
+    <div class='t-card-header'>
+      <p class='t-card-title'><%= human_name %> registry</p>
+    </div>
+
+    <div class='t-scroll-x'>
+      <table class='t-table'>
+        <thead class='t-thead'>
+          <tr>
+<% attributes.reject(&:password_digest?).each do |attribute| -%>
+            <th scope='col' class='t-th'><%= attribute.human_name %></th>
+<% end -%>
+            <th scope='col' class='t-th-right'>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class='t-tbody'>
+          <%% @<%= plural_table_name %>.each do |<%= singular_table_name %>| %>
+            <tr class='t-tr'>
+<% attributes.reject(&:password_digest?).each do |attribute| -%>
+              <td class='t-td'>
+<% if attribute.name == 'name' || attribute.name == 'title' -%>
+                <%%= link_to <%= singular_table_name %>_path(<%= singular_table_name %>), class: "t-link" do %>
+                  <%%= <%= singular_table_name %>.<%= attribute.column_name %> %>
+                <%% end %>
+<% else -%>
+                <%%= <%= singular_table_name %>.<%= attribute.column_name %> %>
+<% end -%>
+              </td>
+<% end -%>
+
+              <td class='t-td-right'>
+                <div class='t-actions'>
+                  <%%= link_to edit_<%= singular_table_name %>_path(<%= singular_table_name %>), class: 't-action' do %>
+                    <i class='fa-regular fa-pen-to-square'></i>
+                  <%% end %>
+
+                  <%%= button_to <%= singular_table_name %>,
+                                method: :delete,
+                                class: 't-action-danger',
+                                data: { turbo_confirm: "Delete this <%= human_name.downcase %>?" } do %>
+                    <i class='fa-regular fa-trash'></i>
+                  <%% end %>
+                </div>
+              </td>
+            </tr>
+          <%% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<%% end %>
