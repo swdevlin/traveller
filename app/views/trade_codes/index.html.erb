@@ -1,56 +1,56 @@
 <% content_for :title, "Trade codes" %>
 <% content_for :page_kicker, "Reference Manual" %>
 <% content_for :page_title, "Trade Codes" %>
-<% content_for :page_actions do %>
-  <%= link_to new_trade_code_path, class: "btn-header" do %>
-    <i class="fa-solid fa-plus text-[0.7rem]"></i>
-    Add
-  <% end %>
-<% end %>
 
 <%= render 'application/page' do %>
   <div class='t-card'>
     <div class='t-card-header'>
-      <p class='t-card-title'>Trade Code Registry</p>
+      <div class="flex items-center justify-between gap-3">
+        <p class='t-card-title'>Trade Code Registry</p>
+        <%= link_to new_trade_code_path, class: "btn-header" do %>
+          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+          Add
+        <% end %>
+      </div>
     </div>
 
     <div class='t-scroll-x'>
       <table class='t-table'>
         <thead class='t-thead'>
-          <tr>
-            <th scope='col' class='t-th'>Code</th>
-            <th scope='col' class='t-th'>Definition</th>
-            <th scope='col' class='t-th-right'>Actions</th>
-          </tr>
+        <tr>
+          <th scope='col' class='t-th'>Code</th>
+          <th scope='col' class='t-th'>Definition</th>
+          <th scope='col' class='t-th-right'>Actions</th>
+        </tr>
         </thead>
         <tbody class='t-tbody'>
-          <% @trade_codes.each do |trade_code| %>
-            <tr class='t-tr'>
-              <td class='t-td-nowrap'>
-                <span class='t-pill'><%= trade_code.code %></span>
-              </td>
-              <td class='t-td'>
-                <%= link_to trade_code_path(trade_code), class: "t-link" do %>
-                  <%= trade_code.definition %>
-                <% end %>
-              </td>
+        <% @trade_codes.each do |trade_code| %>
+          <tr class='t-tr'>
+            <td class='t-td-nowrap'>
+              <span class='t-pill'><%= trade_code.code %></span>
+            </td>
+            <td class='t-td'>
+              <%= link_to trade_code_path(trade_code), class: "t-link" do %>
+                <%= trade_code.definition %>
+              <% end %>
+            </td>
 
-              <td class='t-td-right'>
-                <div class='t-actions'>
-                  <%= link_to edit_trade_code_path(trade_code),
-                              class: "t-action" do %>
-                    <i class="fa-regular fa-pen-to-square"></i>
-                  <% end %>
-                  <%= button_to trade_code,
-                                method: :delete,
-                                class: "t-action-danger",
-                                data: { turbo_confirm: "Delete #{trade_code.code}?" } do %>
-                    <i class="fa-regular fa-trash"></i>
-                  <% end %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
+            <td class='t-td-right'>
+              <div class='t-actions'>
+                <%= link_to edit_trade_code_path(trade_code),
+                            class: "t-action" do %>
+                  <i class="fa-regular fa-pen-to-square"></i>
+                <% end %>
+                <%= button_to trade_code,
+                              method: :delete,
+                              class: "t-action-danger",
+                              data: { turbo_confirm: "Delete #{trade_code.code}?" } do %>
+                  <i class="fa-regular fa-trash"></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
         </tbody>
       </table>
     </div>

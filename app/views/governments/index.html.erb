@@ -1,58 +1,58 @@
 <%= content_for :title, "Governments" %>
 <%= content_for :page_kicker, "Reference Manual" %>
 <%= content_for :page_title, "Governments" %>
-<%= content_for :page_actions do %>
-  <%= link_to new_government_path, class: "btn-header" do %>
-    <i class="fa-solid fa-plus text-[0.7rem]"></i>
-    Add
-  <% end %>
-<% end %>
 
 <%= render 'application/page' do %>
   <div class='t-card'>
     <div class='t-card-header'>
-      <p class='t-card-title'>Government registry</p>
+      <div class="flex items-center justify-between gap-3">
+        <p class='t-card-title'>Government registry</p>
+        <%= link_to new_government_path, class: "btn-header" do %>
+          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+          Add
+        <% end %>
+      </div>
     </div>
 
     <div class='t-scroll-x'>
       <table class='t-table'>
         <thead class='t-thead'>
-          <tr>
-            <th scope='col' class='t-th'>Code</th>
-            <th scope='col' class='t-th'>Type</th>
-            <th scope='col' class='t-th-right'>Actions</th>
-          </tr>
+        <tr>
+          <th scope='col' class='t-th'>Code</th>
+          <th scope='col' class='t-th'>Type</th>
+          <th scope='col' class='t-th-right'>Actions</th>
+        </tr>
         </thead>
 
         <tbody class='t-tbody'>
-          <% @governments.each do |government| %>
-            <tr class='t-tr'>
-              <td class='t-td'>
-                <%= link_to government_path(government), class: "no-underline" do %>
-                  <%= traveller_hex(government.code) %>
+        <% @governments.each do |government| %>
+          <tr class='t-tr'>
+            <td class='t-td'>
+              <%= link_to government_path(government), class: "no-underline" do %>
+                <%= traveller_hex(government.code) %>
+              <% end %>
+
+            </td>
+            <td class='t-td'>
+              <%= government.government_type %>
+            </td>
+
+            <td class='t-td-right'>
+              <div class='t-actions'>
+                <%= link_to edit_government_path(government), class: 't-action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
                 <% end %>
 
-              </td>
-              <td class='t-td'>
-                <%= government.government_type %>
-              </td>
-
-              <td class='t-td-right'>
-                <div class='t-actions'>
-                  <%= link_to edit_government_path(government), class: 't-action' do %>
-                    <i class='fa-regular fa-pen-to-square'></i>
-                  <% end %>
-
-                  <%= button_to government,
-                                method: :delete,
-                                class: 't-action-danger',
-                                data: { turbo_confirm: "Delete this government?" } do %>
-                    <i class='fa-regular fa-trash'></i>
-                  <% end %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
+                <%= button_to government,
+                              method: :delete,
+                              class: 't-action-danger',
+                              data: { turbo_confirm: "Delete this government?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
         </tbody>
       </table>
     </div>
