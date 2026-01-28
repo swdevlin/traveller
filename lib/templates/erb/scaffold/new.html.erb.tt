@@ -1,5 +1,5 @@
 <%%= content_for :title, "New <%= human_name.downcase %>" %>
-<%%= content_for :page_kicker, "<%= human_name %> edit console" %>
+<%%= content_for :page_kicker, "<%= human_name %> Data Core" %>
 <%%= content_for :page_title, "New <%= human_name %>" %>
 
 <%%= render 'application/page' do %>
