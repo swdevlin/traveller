@@ -64,6 +64,8 @@
 * Edit star system
   *  Add an option to change the main world 
 * [x] Enter configuration for subsector
+* [x] Government type
+* [x] Law level
 * Import default data for sector
 * Import default data for subsector
 * Import default data for parsec
