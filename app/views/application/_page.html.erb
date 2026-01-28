@@ -21,6 +21,13 @@
     <div class="page-body">
       <div class="page-main">
         <%= yield %>
+        <% if content_for?(:iiss_form) %>
+          <div class="iiss-form">
+            FORM <%= yield :iiss_form %>
+          </div>
+        <% end %>
+
+        <%= yield :page_buttons if content_for?(:page_buttons)%>
       </div>
     </div>
   </div>

@@ -1,10 +1,9 @@
 <%= content_for :title, @government.government_type %>
 <%= content_for :page_kicker, "Government Classification" %>
 <%= content_for :page_title, @government.government_type %>
+<%= content_for :iiss_form, 'IC6-9676G' %>
 
-<%= render 'application/page' do %>
-  <%= render @government %>
-
+<%= content_for :page_buttons do %>
   <%= link_to "Edit", edit_government_path(@government), class: "w-full sm:w-auto btn btn-primary" %>
   <%= render 'application/back_button',
              path: governments_path,
@@ -16,4 +15,8 @@
                 form_class: "w-full sm:w-auto inline-flex m-0",
                 class: "w-full sm:w-auto btn btn-danger cursor-pointer",
                 data: { turbo_confirm: "Are you sure?" } %>
+<% end %>
+
+<%= render 'application/page' do %>
+  <%= render @government %>
 <% end %>

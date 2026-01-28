@@ -8,26 +8,6 @@
   <div class='lg:w-2/3'>
     <div class='overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl'>
       <div class='divide-y divide-slate-800 bg-slate-950/60'>
-        <%= link_to trade_codes_path,
-                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
-          <div class='flex items-center gap-4'>
-            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
-              <i class='fa-regular fa-tags text-slate-200'></i>
-            </div>
-            <div>
-              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
-                Trade Codes
-              </h2>
-              <p class='text-sm text-slate-400'>
-                Initial trade codes are from T5.
-              </p>
-            </div>
-          </div>
-          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
-            <i class='fa-regular fa-chevron-right'></i>
-          </div>
-        <% end %>
-
         <%= link_to allegiances_path,
                     class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
           <div class='flex items-center gap-4'>
@@ -52,7 +32,7 @@
                     class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
           <div class='flex items-center gap-4'>
             <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
-              <i class='fa-regular fa-building text-slate-200'></i>
+              <i class="fa-regular fa-space-station-moon text-slate-200"></i>
             </div>
             <div>
               <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
@@ -60,6 +40,26 @@
               </h2>
               <p class='text-sm text-slate-400'>
                 Define bases and facilities.
+              </p>
+            </div>
+          </div>
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
+        <% end %>
+
+        <%= link_to governments_path,
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class="fa-regular fa-building-columns text-slate-200"></i>
+            </div>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Governments
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Government codes and descriptions.
               </p>
             </div>
           </div>
@@ -88,18 +88,18 @@
           </div>
         <% end %>
 
-        <%= link_to governments_path,
+        <%= link_to trade_codes_path,
                     class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
           <div class='flex items-center gap-4'>
             <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
-              <i class="fa-regular fa-building-column text-slate-200"></i>
+              <i class='fa-regular fa-tags text-slate-200'></i>
             </div>
             <div>
               <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
-                Governments
+                Trade Codes
               </h2>
               <p class='text-sm text-slate-400'>
-                Government codes and descriptions.
+                Initial trade codes are from T5.
               </p>
             </div>
           </div>
@@ -107,6 +107,7 @@
             <i class='fa-regular fa-chevron-right'></i>
           </div>
         <% end %>
+
       </div>
     </div>
   </div>

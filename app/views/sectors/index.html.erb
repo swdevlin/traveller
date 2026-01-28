@@ -1,12 +1,10 @@
 <% content_for :title, "Sectors" %>
 <% content_for :page_kicker, "IISS Sector Survey Registry" %>
 <% content_for :page_title, "Sectors" %>
+<%= content_for :iiss_form, '0420A-ISSR' %>
 
 <%= render 'application/page' do %>
   <turbo-frame id="sectors">
     <%= render "list", sectors: @sectors, pagy: @pagy %>
   </turbo-frame>
-  <div class="iiss-form">
-    FORM 0420A-ISSR
-  </div>
 <% end %>
