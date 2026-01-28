@@ -1,4 +1,15 @@
 class Star < ApplicationRecord
+  SPECIAL_SPECTRAL_TYPES = {
+    'BD' => 'Brown Dwarf',
+    'D' => 'White Dwarf',
+    'BH' => 'Black Hole',
+    'PSR' => 'Pulsar',
+    'NS' => 'Neutron Star',
+    'NB' => 'Nebula',
+    'PS' => 'Protostar',
+    'AN' => 'Anomaly'
+  }.freeze
+
   belongs_to :star_system, optional: true
   belongs_to :parsec, optional: true
 
@@ -15,7 +26,11 @@ class Star < ApplicationRecord
            dependent: :destroy
 
   def spectral_classification
-    "#{stellar_type}#{stellar_subtype} #{stellar_class}"
+    if SPECIAL_SPECTRAL_TYPES.key?(stellar_type)
+      SPECIAL_SPECTRAL_TYPES[stellar_type]
+    else
+      "#{stellar_type}#{stellar_subtype} #{stellar_class}"
+    end
   end
 
   def orbiting_bodies

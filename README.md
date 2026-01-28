@@ -50,8 +50,8 @@
   * Add star definition
   * Add system definition
     * hot, habital, goldilocks, cold zones
-  * UI updates as systems are added
-* Populate a sector
+  * [x] UI updates as systems are added
+* [x] Populate a sector
   * [x] verify each subsector has a build plan
   * [x] create a job for each subsector
   * [x] Load default plan

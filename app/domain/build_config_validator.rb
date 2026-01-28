@@ -158,11 +158,8 @@ class BuildConfigValidator
     type  = star['type']
     klass = star['class']
 
-    if type == 'BD'
-      # Optional strictness:
-      # @errors << "#{path}.class must be omitted for BD" if klass
-    else
-      @errors << "#{path}.class is required unless type is BD" if klass.nil?
+    unless Star::SPECIAL_SPECTRAL_TYPES.key?(type&.upcase)
+      @errors << "#{path}.class is required unless type is one of #{Star::SPECIAL_SPECTRAL_TYPES.keys.join(', ')}" if klass.nil?
     end
 
     # 3) Recurse into nested stars

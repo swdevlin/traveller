@@ -27,11 +27,11 @@ end
 
 BaseStarSchema = Dry::Schema.Params do
   CLASS_TYPES = %w[Ia Ib II III IV V VI giant].freeze
-  SPECTRAL_OR_BD = /\A(?:BD|[OBAFGKM][0-9])\z/
+  SPECIAL_TYPES = Star::SPECIAL_SPECTRAL_TYPES.keys.join('|')
+  SPECTRAL_TYPES = /\A(?:[OBAFGKM][0-9]|#{SPECIAL_TYPES})\z/
 
-  required(:type).filled(:string, format?: SPECTRAL_OR_BD)
+  required(:type).filled(:string, format?: SPECTRAL_TYPES)
 
-  # Make class optional here; enforce “required unless BD” elsewhere
   optional(:class).filled(:string, included_in?: CLASS_TYPES)
 
   optional(:bodies).array(:hash) do
