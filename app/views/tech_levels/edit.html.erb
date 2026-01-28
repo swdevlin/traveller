@@ -1,0 +1,7 @@
+<%= content_for :title, "Editing Tech Level #{@tech_level.code}" %>
+<%= content_for :page_kicker, "Tech Level Data Core" %>
+<%= content_for :page_title, @tech_level.code %>
+
+<%= render 'application/page' do %>
+  <%= render "form", tech_level: @tech_level %>
+<% end %>

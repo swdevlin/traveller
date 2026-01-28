@@ -1,0 +1,99 @@
+<%= content_for :title, "Tech levels" %>
+<%= content_for :page_kicker, "Reference Manual" %>
+<%= content_for :page_title, "Tech levels" %>
+
+<%= render 'application/page' do %>
+  <div class='t-card'>
+    <div class='t-card-header'>
+      <div class="flex items-center justify-between gap-3">
+        <p class='t-card-title'>Tech level registry</p>
+        <%= link_to new_tech_level_path, class: "btn-header" do %>
+          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='t-scroll-x'>
+      <table class='t-table'>
+        <thead class='t-thead'>
+        <tr>
+          <th scope='col' class='t-th'>Code</th>
+          <th scope='col' class='t-th'>Energy</th>
+          <th scope='col' class='t-th'>Electronics</th>
+          <th scope='col' class='t-th'>Manufacturing</th>
+          <th scope='col' class='t-th'>Medical</th>
+          <th scope='col' class='t-th'>Environmental</th>
+          <th scope='col' class='t-th'>Land</th>
+          <th scope='col' class='t-th'>Sea</th>
+          <th scope='col' class='t-th'>Air</th>
+          <th scope='col' class='t-th'>Space</th>
+          <th scope='col' class='t-th'>Personal military</th>
+          <th scope='col' class='t-th'>Heavy military</th>
+          <th scope='col' class='t-th-right'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody class='t-tbody'>
+        <% @tech_levels.each do |tech_level| %>
+          <tr class='t-tr'>
+            <td class='t-td'>
+              <%= link_to tech_level_path(tech_level), class: "no-underline" do %>
+                <%= traveller_hex(tech_level.code) %>
+              <% end %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.energy %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.electronics %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.manufacturing %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.medical %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.environmental %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.land %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.sea %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.air %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.space %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.personal_military %>
+            </td>
+            <td class='t-td'>
+              <%= tech_level.heavy_military %>
+            </td>
+
+            <td class='t-td-right'>
+              <div class='t-actions'>
+                <%= link_to edit_tech_level_path(tech_level), class: 't-action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to tech_level,
+                              method: :delete,
+                              class: 't-action-danger',
+                              data: { turbo_confirm: "Delete this tech level?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_28_002451) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_28_180139) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -240,6 +240,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_28_002451) do
     t.integer "y", null: false
     t.index ["sector_id", "x", "y"], name: "index_subsectors_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
+  end
+
+  create_table "tech_levels", force: :cascade do |t|
+    t.string "air"
+    t.integer "code"
+    t.datetime "created_at", null: false
+    t.string "electronics"
+    t.string "energy"
+    t.string "environmental"
+    t.string "heavy_military"
+    t.string "land"
+    t.string "manufacturing"
+    t.string "medical"
+    t.string "notes"
+    t.string "personal_military"
+    t.string "sea"
+    t.string "space"
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_tech_levels_on_code", unique: true
   end
 
   create_table "trade_codes", force: :cascade do |t|

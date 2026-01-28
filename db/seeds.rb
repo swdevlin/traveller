@@ -14,3 +14,6 @@ require_relative "seeds/law_levels"
 
 puts "Seeding governments..."
 require_relative "seeds/governments"
+
+puts "Seeding tech levels..."
+require_relative "seeds/tech_levels"

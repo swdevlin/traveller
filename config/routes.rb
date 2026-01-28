@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :tech_levels
   resources :governments
   resources :law_levels
   resources :facilities
