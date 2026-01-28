@@ -1,0 +1,62 @@
+<%= form_with(model: government, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <% if government.errors.any? %>
+      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Validation
+        </div>
+        <div class='mt-1 text-sm font-semibold text-slate-200'>
+          <%= pluralize(government.errors.count, 'error') %> prevented this government from being saved
+        </div>
+
+        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+          <% government.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class='mt-4'>
+      <%= form.label :code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.number_field :code,
+                          class: [
+                            'edit-base mt-2 sm:w-28 w-24',
+                            {
+                              'border-gray-400 focus:outline-blue-600': government.errors[:code].none?,
+                              'border-red-400 focus:outline-red-600': government.errors[:code].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :government_type, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_field :government_type,
+                          class: [
+                            'edit-base mt-2 w-full sm:max-w-xl',
+                            {
+                              'border-gray-400 focus:outline-blue-600': government.errors[:government_type].none?,
+                              'border-red-400 focus:outline-red-600': government.errors[:government_type].any?
+                            }
+                          ] %>
+    </div>
+
+    <div>
+      <%= form.label :description, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.text_area :description,
+                          rows: 4,
+                          class: [
+                            'w-full edit-base mt-2 resize-y',
+                            {
+                              'border-gray-400 focus:outline-blue-600': government.errors[:description].none?,
+                              'border-red-400 focus:outline-red-600': government.errors[:description].any?
+                            }
+                          ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Save changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', government.persisted? ? government : governments_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :governments
   resources :law_levels
   resources :facilities
   get 'help/index'
@@ -19,10 +20,10 @@ Rails.application.routes.draw do
   resources :subsectors, only: %i[index show edit update] do
     member do
       post :clear
-      post :load_defaults
       get :populate, as: :populate
       post :generate, as: :generate
       get :star_systems_table
+      post :load_defaults
     end
     resources :rogues, only: %i[new create index destroy]
     resources :star_systems, only: %i[new create index destroy]
@@ -31,7 +32,6 @@ Rails.application.routes.draw do
   resources :sectors do
     member do
       post :clear
-      post :load_defaults
       get :populate, as: :populate
       post :generate, as: :generate
     end

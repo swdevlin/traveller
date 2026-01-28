@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  code: 1
+  government_type: Code 1 
+  description: Code 1 government
+
+two:
+  code: 2
+  government_type: Code 2
+  description: Code 2 government

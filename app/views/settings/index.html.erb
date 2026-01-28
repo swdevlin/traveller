@@ -76,10 +76,30 @@
             </div>
             <div>
               <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
-                Law Level
+                Law Levels
               </h2>
               <p class='text-sm text-slate-400'>
                 Law level codes and descriptions.
+              </p>
+            </div>
+          </div>
+          <div class='text-slate-500 group-hover:text-deepnight-orange transition'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
+        <% end %>
+
+        <%= link_to governments_path,
+                    class: 'group flex items-center justify-between p-4 transition hover:bg-slate-900/80 no-underline' do %>
+          <div class='flex items-center gap-4'>
+            <div class='h-10 w-10 rounded-lg border border-slate-700/70 bg-slate-900/60 flex items-center justify-center shrink-0'>
+              <i class="fa-regular fa-building-column text-slate-200"></i>
+            </div>
+            <div>
+              <h2 class='text-base font-semibold text-slate-100 mb-0.5'>
+                Governments
+              </h2>
+              <p class='text-sm text-slate-400'>
+                Government codes and descriptions.
               </p>
             </div>
           </div>

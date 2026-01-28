@@ -11,3 +11,6 @@ require_relative "seeds/facilities"
 
 puts "Seeding law levels..."
 require_relative "seeds/law_levels"
+
+puts "Seeding governments..."
+require_relative "seeds/governments"

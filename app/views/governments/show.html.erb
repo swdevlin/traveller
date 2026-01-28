@@ -1,0 +1,19 @@
+<%= content_for :title, @government.government_type %>
+<%= content_for :page_kicker, "Government Classification" %>
+<%= content_for :page_title, @government.government_type %>
+
+<%= render 'application/page' do %>
+  <%= render @government %>
+
+  <%= link_to "Edit", edit_government_path(@government), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: governments_path,
+             label: 'Governments',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @government,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>
