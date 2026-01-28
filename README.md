@@ -66,18 +66,15 @@
 * [x] Enter configuration for subsector
 * [x] Government type
 * [x] Law level
-* [ ] tech levels
-* Import default data for sector
-* Import default data for subsector
-* Import default data for parsec
+* [x] tech levels
 * store image of star system
 * store image of stellar object
-* Import default configuration for sector
-* Import default configuration for subsector
+* [x] Import default configuration for sector
+* [x] Import default configuration for subsector
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
 * import allegiances from TravellerMap
-* Settings page
+* [x] Settings page
 
 ### To do?
 
