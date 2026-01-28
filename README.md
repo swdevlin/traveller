@@ -66,6 +66,7 @@
 * [x] Enter configuration for subsector
 * [x] Government type
 * [x] Law level
+* [ ] tech levels
 * Import default data for sector
 * Import default data for subsector
 * Import default data for parsec
