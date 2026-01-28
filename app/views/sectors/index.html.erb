@@ -1,20 +1,12 @@
 <% content_for :title, "Sectors" %>
+<% content_for :page_kicker, "IISS Sector Survey Registry" %>
+<% content_for :page_title, "Sectors" %>
 
-<div class="w-full max-w-6xl mx-auto space-y-4">
-
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">
-        Sectors
-      </h1>
-      <p class="mt-1 text-sm text-slate-300">
-        Strategic astrography overlay for your Deepnight campaign.
-      </p>
-    </div>
-
-  </div>
-
+<%= render 'application/page' do %>
   <turbo-frame id="sectors">
     <%= render "list", sectors: @sectors, pagy: @pagy %>
   </turbo-frame>
-</div>
+  <div class="iiss-form">
+    FORM 0420A-ISSR
+  </div>
+<% end %>
