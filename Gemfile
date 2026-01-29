@@ -77,3 +77,5 @@ end
 gem 'pagy'
 
 gem 'dry-schema'
+
+gem 'commonmarker'

@@ -25,7 +25,7 @@ class TechLevelsController < ApplicationController
 
     respond_to do |format|
       if @tech_level.save
-        format.html { redirect_to @tech_level, notice: "Tech level was successfully created." }
+        format.html { redirect_to @tech_level, notice: 'Tech level was successfully created.' }
         format.json { render :show, status: :created, location: @tech_level }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -38,7 +38,7 @@ class TechLevelsController < ApplicationController
   def update
     respond_to do |format|
       if @tech_level.update(tech_level_params)
-        format.html { redirect_to @tech_level, notice: "Tech level was successfully updated.", status: :see_other }
+        format.html { redirect_to @tech_level, notice: 'Tech level was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @tech_level }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class TechLevelsController < ApplicationController
     @tech_level.destroy!
 
     respond_to do |format|
-      format.html { redirect_to tech_levels_path, notice: "Tech level was successfully destroyed.", status: :see_other }
+      format.html { redirect_to tech_levels_path, notice: 'Tech level was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -65,6 +65,6 @@ class TechLevelsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def tech_level_params
-      params.expect(tech_level: [ :code, :energy, :electronics, :manufacturing, :medical, :environmental, :land, :sea, :air, :space, :personal_military, :heavy_military, :notes ])
+      params.expect(tech_level: [:code, :energy, :electronics, :manufacturing, :medical, :environmental, :land, :sea, :air, :space, :personal_military, :heavy_military, :notes])
     end
 end
