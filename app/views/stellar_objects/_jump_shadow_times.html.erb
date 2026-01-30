@@ -1,0 +1,23 @@
+<% effective_shadow = local_assigns[:stellar_object]&.effective_jump_shadow_km || 0 %>
+
+<% if effective_shadow > 0 %>
+  <div class="flex items-center gap-4">
+    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+      Jump Shadow
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <%= render 'application/data_block',
+               label: 'Distance to Clear',
+               value: number_with_delimiter(number_with_precision(effective_shadow, precision: 0)),
+               suffix: 'km' %>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-4">
+    <% jump_shadow_travel_times(effective_shadow).each do |g, time| %>
+      <%= render 'application/data_block', label: "#{g}G", value: time %>
+    <% end %>
+  </div>
+<% end %>
