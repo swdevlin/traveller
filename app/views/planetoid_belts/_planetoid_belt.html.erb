@@ -66,9 +66,10 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid_belt.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid_belt.au, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'Period', value: number_with_precision(planetoid_belt.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(planetoid_belt.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Retrograde', value: planetoid_belt.retrograde ? 'Yes' : 'No' %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(planetoid_belt.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>

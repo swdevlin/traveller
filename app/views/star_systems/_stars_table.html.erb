@@ -31,7 +31,7 @@
             <span class='t-pill'><%= star.orbit_sequence %></span>
           </td>
           <td class='t-td'>
-            <%= star.spectral_classification %>
+            <%= link_to star.spectral_classification, star, class: 't-link' %>
           </td>
 
           <td class='t-td'>

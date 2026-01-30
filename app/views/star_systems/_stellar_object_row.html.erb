@@ -29,7 +29,7 @@
   </td>
 
   <td class="t-td">
-    <%= link_to stellar_object_path(stellar_object), class: "text-slate-300 hover:text-traveller-red/90" do %>
+    <%= link_to stellar_object_path(stellar_object), class: "hover:text-traveller-red/90" do %>
       <% if stellar_object.is_a?(GasGiant) %>
         <%= stellar_object.code %>
       <% else %>

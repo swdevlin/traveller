@@ -6,8 +6,6 @@
 
 <div id="<%= dom_id star %>" class="space-y-6">
   <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
-    <%= render 'application/data_block', label: 'Classification', value: star.spectral_classification, value_style: :mono %>
-
     <% if orbiting %>
       <%= render 'application/data_block',
                  label: 'Orbiting',
@@ -52,7 +50,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
     <%= render 'application/data_block', label: 'Spectral Type', value: star.stellar_type %>
     <%= render 'application/data_block', label: 'Subtype', value: star.stellar_subtype %>
     <%= render 'application/data_block', label: 'Luminosity Class', value: star.stellar_class %>
@@ -73,7 +71,7 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Period', value: number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true), suffix: 'years' %>
@@ -89,8 +87,8 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <%= render 'application/data_block', label: 'HZCO', value: number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
+    <%= render 'application/data_block', label: 'HZCO', value: number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Jump Shadow', value: number_with_delimiter(number_with_precision(star.jump_shadow, precision: 0)), suffix: 'km' %>
   </div>
 
