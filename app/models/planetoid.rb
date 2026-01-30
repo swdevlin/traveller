@@ -10,6 +10,7 @@ class Planetoid < StellarObject
     axial_tilt: 'axialTilt',
     greenhouse: 'greenhouse',
     retrograde: 'retrograde',
-    biomass_rating: 'biomassRating'
+    biomass_rating: 'biomassRating',
+    rotation: 'rotation'
   )
 end
