@@ -55,4 +55,55 @@ module StellarObjectsHelper
       [g, format_travel_time(hours)]
     end
   end
+
+  def biodiversity_description(rating)
+    return nil if rating.nil?
+
+    if rating >= 10
+      'Complexity equivalent to pre-human Terra'
+    elsif rating < 3
+      'Very uniform biosphere'
+    else
+      'Moderate species diversity'
+    end
+  end
+
+  RESOURCE_RATING_DESCRIPTIONS = {
+    2 => 'No economically extractable resources',
+    3 => 'Marginal at best',
+    4 => 'Marginal at best',
+    5 => 'Marginal at best',
+    6 => 'Worthwhile with considerable effort',
+    7 => 'Worthwhile with considerable effort',
+    8 => 'Worthwhile with considerable effort',
+    9 => 'Priority target',
+    10 => 'Priority target',
+    11 => 'Liable to experience a resource rush',
+    12 => 'Liable to experience a resource rush'
+  }.freeze
+
+  def resource_rating_description(rating)
+    return nil if rating.nil?
+
+    RESOURCE_RATING_DESCRIPTIONS[rating]
+  end
+
+  BIOCOMPLEXITY_DESCRIPTIONS = {
+    1 => 'Primitive single-cell organisms',
+    2 => 'Advanced cellular organisms',
+    3 => 'Primitive multicellular organisms',
+    4 => 'Differentiated multicellular organisms',
+    5 => 'Complex multicellular organisms',
+    6 => 'Advanced multicellular organisms',
+    7 => 'Socially advanced organisms',
+    8 => 'Mentally advanced organisms',
+    9 => 'Extant or extinct sophonts',
+    10 => 'Ecosystem-wide superorganisms'
+  }.freeze
+
+  def biocomplexity_description(rating)
+    return nil if rating.nil?
+
+    BIOCOMPLEXITY_DESCRIPTIONS[rating]
+  end
 end
