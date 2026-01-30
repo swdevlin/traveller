@@ -25,6 +25,14 @@ class Star < ApplicationRecord
            inverse_of: :orbiting_star,
            dependent: :destroy
 
+  def display_name
+    if name.present?
+      "#{name} (#{spectral_classification})"
+    else
+      spectral_classification
+    end
+  end
+
   def spectral_classification
     if SPECIAL_SPECTRAL_TYPES.key?(stellar_type)
       SPECIAL_SPECTRAL_TYPES[stellar_type]
@@ -36,6 +44,39 @@ class Star < ApplicationRecord
   def orbiting_bodies
     bodies = stellar_objects.to_a + stars.to_a
     bodies.sort_by { |b| b.orbit.to_f }
+  end
+
+  # Returns the primary star (the one not orbiting anything)
+  def primary_star
+    current = self
+    current = current.orbiting while current.orbiting.present?
+    current
+  end
+
+  # Returns array of stars from this star up to (but not including) the primary
+  # e.g., if this star orbits star B which orbits primary A, returns [B]
+  def ancestor_stars
+    ancestors = []
+    current = orbiting
+    while current.present?
+      ancestors << current
+      current = current.orbiting
+    end
+    ancestors
+  end
+
+  # Distance from the primary star in km
+  def distance_from_primary_km
+    return 0.0 if orbiting.nil? # This is the primary
+
+    # Sum up AU distances through the chain and convert to km
+    total_au = au.to_f
+    current = orbiting
+    while current.orbiting.present?
+      total_au += current.au.to_f
+      current = current.orbiting
+    end
+    total_au * StellarConstants::AU_TO_KM
   end
 
   def assign_data_from_generator(data)

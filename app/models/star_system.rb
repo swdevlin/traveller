@@ -65,6 +65,13 @@ class StarSystem < ApplicationRecord
     )
   end
 
+  def display_name
+    return name if name.present?
+
+    'Unnamed Star System'
+  end
+
+
   private
 
   def main_world_must_be_in_system

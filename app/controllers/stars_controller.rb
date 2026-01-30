@@ -17,7 +17,7 @@ class StarsController < ApplicationController
 
   private
 
-  def set_sta5
-    @star = Star(params.expect(:id))
+  def set_star
+    @star = Star.find(params.expect(:id))
   end
 end

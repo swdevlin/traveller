@@ -59,3 +59,58 @@ two:
   scan_points: 1
   star_system: in_two
   parsec: two
+
+# Star hierarchy for jump shadow tests
+# primary_for_hierarchy is the primary star (not orbiting anything)
+# secondary_star orbits primary_for_hierarchy
+# tertiary_star orbits secondary_star
+
+primary_for_hierarchy:
+  name: Primary (Sol-like)
+  stellar_class: G
+  stellar_type: V
+  stellar_subtype: 2
+  is_protostar: false
+  mass: 1.0
+  diameter: 1392700
+  temperature: 5800
+  age: 4.5
+  colour: Yellow
+  jump_shadow: 139270000
+  au: 0
+  star_system: hierarchy_system
+  parsec: one
+
+secondary_star:
+  name: Secondary (orbits primary at 10 AU)
+  stellar_class: M
+  stellar_type: V
+  stellar_subtype: 5
+  is_protostar: false
+  mass: 0.2
+  diameter: 278540
+  temperature: 3200
+  age: 5.0
+  colour: Red
+  jump_shadow: 27854000
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  parsec: one
+
+tertiary_star:
+  name: Tertiary (orbits secondary at 0.5 AU)
+  stellar_class: M
+  stellar_type: V
+  stellar_subtype: 8
+  is_protostar: false
+  mass: 0.1
+  diameter: 139270
+  temperature: 2800
+  age: 5.0
+  colour: Red
+  jump_shadow: 13927000
+  au: 0.5
+  orbiting: secondary_star
+  star_system: hierarchy_system
+  parsec: one

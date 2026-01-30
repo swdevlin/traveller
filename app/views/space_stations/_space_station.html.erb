@@ -1,0 +1,82 @@
+<% allegiance = space_station.allegiance %>
+<% star = space_station.orbiting_star %>
+<% star_system = star&.star_system %>
+<% parsec = space_station.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+
+<% allegiance_value =
+     if allegiance
+       safe_join([
+                   allegiance.name,
+                   content_tag(:span, allegiance.code, class: "identifier")
+                 ])
+     else
+       "None"
+     end
+%>
+
+<div id="<%= dom_id space_station %>" class="space-y-6">
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <% if star %>
+      <%= render 'application/data_block',
+                 label: 'Orbiting',
+                 value: link_to(star.display_name,
+                                star_path(star),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+    <% if star_system %>
+      <%= render 'application/data_block',
+                 label: 'Star System',
+                 value: link_to(star_system.display_name,
+                                star_system_path(star_system),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if subsector %>
+      <%= render 'application/data_block',
+                 label: 'Subsector',
+                 value: link_to(subsector.name,
+                                subsector_path(subsector),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if sector %>
+      <%= render 'application/data_block',
+                 label: 'Sector',
+                 value: link_to(
+                   sector.name,
+                   sector_path(sector),
+                   class: 'hover:underline underline-offset-4'
+                 ),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2',
+                 suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+    <% end %>
+
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
+  </div>
+
+  <% if star %>
+    <div class="flex items-center gap-4 pt-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+        Orbital Data
+      </div>
+      <div class="h-px flex-1 bg-slate-700/70"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(space_station.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'AU', value: number_with_precision(space_station.au, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(space_station.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(space_station.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+      <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(space_station.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+    </div>
+
+    <%= render 'stellar_objects/jump_shadow_times', stellar_object: space_station %>
+  <% end %>
+
+  <%= render 'application/observation_block',
+             notes: space_station.notes %>
+</div>

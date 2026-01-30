@@ -14,3 +14,8 @@ also_in_one:
   name: Second in One
   parsec: one
   meta: {}
+
+hierarchy_system:
+  name: Hierarchy Test System
+  parsec: one
+  meta: {}

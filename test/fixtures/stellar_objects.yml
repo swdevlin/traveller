@@ -26,3 +26,37 @@ rogue:
   parsec: two
   name: Rogue object
   type: 'GasCloud'
+
+# Stellar objects for jump shadow tests
+
+# Planet orbiting primary star at 1 AU (inside primary's shadow)
+planet_near_primary:
+  name: Inner Planet
+  type: 'TerrestrialPlanet'
+  orbiting_star: primary_for_hierarchy
+  au: 1.0
+  diameter: 12742
+
+# Planet orbiting primary star at 2 AU (outside primary's shadow)
+planet_far_from_primary:
+  name: Outer Planet
+  type: 'GasGiant'
+  orbiting_star: primary_for_hierarchy
+  au: 2.0
+  diameter: 139820
+
+# Planet orbiting secondary star at 0.1 AU
+planet_orbiting_secondary:
+  name: Planet Around Secondary
+  type: 'TerrestrialPlanet'
+  orbiting_star: secondary_star
+  au: 0.1
+  diameter: 6371
+
+# Planet orbiting tertiary star at 0.05 AU
+planet_orbiting_tertiary:
+  name: Planet Around Tertiary
+  type: 'TerrestrialPlanet'
+  orbiting_star: tertiary_star
+  au: 0.05
+  diameter: 4879
