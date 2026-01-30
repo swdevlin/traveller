@@ -1,0 +1,144 @@
+<% star_system = star.star_system %>
+<% parsec = star.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+<% orbiting = star.orbiting %>
+
+<div id="<%= dom_id star %>" class="space-y-6">
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <%= render 'application/data_block', label: 'Classification', value: star.spectral_classification, value_style: :mono %>
+
+    <% if orbiting %>
+      <%= render 'application/data_block',
+                 label: 'Orbiting',
+                 value: link_to(orbiting.display_name,
+                                star_path(orbiting),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if star_system %>
+      <%= render 'application/data_block',
+                 label: 'Star System',
+                 value: link_to(star_system.display_name,
+                                star_system_path(star_system),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if subsector %>
+      <%= render 'application/data_block',
+                 label: 'Subsector',
+                 value: link_to(subsector.name,
+                                subsector_path(subsector),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if sector %>
+      <%= render 'application/data_block',
+                 label: 'Sector',
+                 value: link_to(
+                   sector.name,
+                   sector_path(sector),
+                   class: 'hover:underline underline-offset-4'
+                 ),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2',
+                 suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-4 pt-2">
+    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+      Stellar Properties
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <%= render 'application/data_block', label: 'Spectral Type', value: star.stellar_type %>
+    <%= render 'application/data_block', label: 'Subtype', value: star.stellar_subtype %>
+    <%= render 'application/data_block', label: 'Luminosity Class', value: star.stellar_class %>
+    <%= render 'application/data_block', label: 'Colour', value: star.colour %>
+    <%= render 'application/data_block', label: 'Temperature', value: number_with_delimiter(star.temperature), suffix: 'K' %>
+    <%= render 'application/data_block', label: 'Age', value: number_with_precision(star.age, precision: 2, strip_insignificant_zeros: true), suffix: 'Gyr' %>
+    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(star.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'M☉' %>
+    <%= render 'application/data_block', label: 'Diameter', value: number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true), suffix: 'km' %>
+    <%= render 'application/data_block', label: 'Luminosity', value: number_with_precision(star.luminosity, precision: 3, strip_insignificant_zeros: true), suffix: 'L☉' %>
+    <%= render 'application/data_block', label: 'Protostar', value: star.is_protostar ? 'Yes' : 'No' %>
+  </div>
+
+  <% if orbiting %>
+    <div class="flex items-center gap-4">
+      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+        Orbital Data
+      </div>
+      <div class="h-px flex-1 bg-slate-700/70"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'Period', value: number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true), suffix: 'years' %>
+      <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+    </div>
+  <% end %>
+
+  <div class="flex items-center gap-4">
+    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+      System Data
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <%= render 'application/data_block', label: 'HZCO', value: number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
+    <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
+    <%= render 'application/data_block', label: 'Jump Shadow', value: number_with_delimiter(number_with_precision(star.jump_shadow, precision: 0)), suffix: 'km' %>
+  </div>
+
+  <% if star.stellar_objects.any? || star.stars.any? %>
+    <div class="flex items-center gap-4">
+      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+        Orbiting Bodies
+      </div>
+      <div class="h-px flex-1 bg-slate-700/70"></div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="t-table w-full">
+        <thead>
+          <tr>
+            <th class="t-th text-left">Name</th>
+            <th class="t-th text-left">Type</th>
+            <th class="t-th text-right">Orbit</th>
+            <th class="t-th text-right">AU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% star.orbiting_bodies.each do |body| %>
+            <tr>
+              <td class="t-td">
+                <% if body.is_a?(Star) %>
+                  <%= link_to body.display_name, star_path(body), class: 'hover:underline underline-offset-4' %>
+                <% else %>
+                  <%= link_to body.display_name, stellar_object_path(body), class: 'hover:underline underline-offset-4' %>
+                <% end %>
+              </td>
+              <td class="t-td">
+                <% if body.is_a?(Star) %>
+                  <%= body.spectral_classification %>
+                <% else %>
+                  <%= body.type_title %>
+                <% end %>
+              </td>
+              <td class="t-td text-right font-mono">
+                <%= number_with_precision(body.orbit, precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+              <td class="t-td text-right font-mono">
+                <%= number_with_precision(body.au, precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,8 @@
+<%= content_for :title, @star.display_name %>
+<%= content_for :page_kicker, "IISS Class IV Survey" %>
+<%= content_for :page_title, @star.display_name %>
+<%= content_for :iiss_form, '0407F-IV.STR' %>
+
+<%= render 'application/page' do %>
+  <%= render @star %>
+<% end %>
