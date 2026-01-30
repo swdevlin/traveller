@@ -19,7 +19,7 @@
       <% end %>
     <% end %>
 
-    <%= link_to new_sector_path, class: "inline-flex items-center gap-2 btn btn-primary" do %>
+    <%= link_to new_sector_path, data: { turbo_frame: "_top"}, class: "inline-flex items-center gap-2 btn btn-primary" do %>
       <i class="fa-solid fa-plus"></i>
       <span>New sector</span>
     <% end %>

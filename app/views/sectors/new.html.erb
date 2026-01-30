@@ -1,12 +1,15 @@
-<% content_for :title, "New sector" %>
+<% content_for :title, 'New sector' %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New sector</h1>
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>IISS Registry</div>
+    <h1 class='text-2xl font-header text-deepnight-orange'>New sector</h1>
 
-  <%= render "form", sector: @sector %>
+    <%= render 'form', sector: @sector %>
 
-  <%= render 'application/back_button',
-             path: sectors_path,
-             label: 'Sectors',
-             class: 'w-full sm:w-auto' %>
-</div>
+    <%= render 'application/back_button',
+               path: sectors_path,
+               label: 'Sectors',
+               class: 'w-full sm:w-auto' %>
+  </div>
+<% end %>
