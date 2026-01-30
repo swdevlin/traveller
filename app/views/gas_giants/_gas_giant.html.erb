@@ -66,7 +66,7 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gas_giant.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(gas_giant.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Period', value: number_with_precision(gas_giant.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
@@ -85,7 +85,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(gas_giant.diameter), suffix: 'km' %>
     <%= render 'application/data_block', label: 'Mass', value: number_with_precision(gas_giant.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(gas_giant.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
