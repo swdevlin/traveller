@@ -88,6 +88,7 @@ class Star < ApplicationRecord
     self.stellar_subtype = data['subtype']
     self.luminosity = data['luminosity']
     self.spread = data['spread']
+    self.baseline = data['baseline']
     self.mass = data['mass']
     self.diameter = data['diameter']
     self.temperature = data['temperature']

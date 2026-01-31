@@ -1,0 +1,48 @@
+<div class='t-card'>
+  <div class='t-card-header'>
+    <div class="flex items-center justify-between gap-3">
+      <p class='t-card-title'>Orbiting Bodies</p>
+    </div>
+  </div>
+
+  <div class='t-scroll-x'>
+    <table class='t-table'>
+      <thead class='t-thead'>
+      <tr>
+        <th scope='col' class='t-th'>Name</th>
+        <th scope='col' class='t-th'>Type</th>
+        <th scope='col' class='t-th'>Orbit</th>
+        <th scope='col' class='t-th'>AU</th>
+      </tr>
+      </thead>
+      <tbody class='t-tbody'>
+      <% bodies.each do |body| %>
+        <tr class='t-tr'>
+          <td class='t-td-nowrap'>
+            <% if body.is_a?(Star) %>
+              <%= link_to body.display_name, star_path(body), class: 'hover:underline underline-offset-4' %>
+            <% else %>
+              <%= link_to body.display_name, stellar_object_path(body), class: 'hover:underline underline-offset-4' %>
+            <% end %>
+          </td>
+          <td class='t-td'>
+            <% if body.is_a?(Star) %>
+              <%= body.spectral_classification %>
+            <% else %>
+              <%= body.type_title %>
+            <% end %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(body.orbit, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <%= number_with_precision(body.au, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
