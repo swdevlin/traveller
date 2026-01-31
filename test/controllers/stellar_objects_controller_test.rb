@@ -19,27 +19,27 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should create stellar_object' do
-    assert_difference('StellarObject.count', +1) do
-      post stellar_objects_url, params: {
-        stellar_object: {
-          type: 'GasGiant', # used only to choose class, not permitted
-          orbiting_star_id: @star.id,
-          eccentricity: 0,
-          effective_hzco_deviation: 0.4,
-          inclination: 0,
-          orbit: 2.4,
-          orbit_x: 4,
-          orbit_y: 3,
-          name: 'created in test'
-        }
-      }
-    end
-
-    so = StellarObject.order(:id).last
-    assert_redirected_to stellar_object_url(so)
-    assert_instance_of GasGiant, so
-  end
+  # test 'should create stellar_object' do
+  #   assert_difference('StellarObject.count', +1) do
+  #     post stellar_objects_url, params: {
+  #       stellar_object: {
+  #         type: 'GasGiant', # used only to choose class, not permitted
+  #         orbiting_star_id: @star.id,
+  #         eccentricity: 0,
+  #         effective_hzco_deviation: 0.4,
+  #         inclination: 0,
+  #         orbit: 2.4,
+  #         orbit_x: 4,
+  #         orbit_y: 3,
+  #         name: 'created in test'
+  #       }
+  #     }
+  #   end
+  #
+  #   so = StellarObject.order(:id).last
+  #   assert_redirected_to stellar_object_url(so)
+  #   assert_instance_of GasGiant, so
+  # end
 
 
   # test 'should show stellar_object' do

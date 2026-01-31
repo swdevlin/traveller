@@ -45,6 +45,10 @@ class StellarObject < ApplicationRecord
     type.to_s.safe_constantize
   end
 
+  def self.permitted_params
+    [:name, :notes]
+  end
+
   def jump_shadow
     (diameter || 0) * 100
   end

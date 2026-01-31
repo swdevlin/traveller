@@ -2,6 +2,9 @@
 <%= content_for :page_kicker, "IISS Class IV Survey" %>
 <%= content_for :page_title, @stellar_object.display_name %>
 <%= content_for :iiss_form, '0407F-IV PART P' %>
+<%= content_for :page_buttons do %>
+  <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+<% end %>
 
 <%= render 'application/page' do %>
   <%= render @stellar_object %>
