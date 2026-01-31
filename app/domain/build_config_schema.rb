@@ -2,7 +2,7 @@
 
 require 'dry-schema'
 
-ORBIT_TYPES = %w[habitable warm cold].freeze
+ORBIT_TYPES = %w[hzco inner outer habitable warm cold].freeze
 
 UWP_CODE = /\A[0-9A-Z][0-9A-F]{6}-[0-9A-F]\z/i
 UWP_LABELS = [
@@ -23,6 +23,13 @@ CountsSchema = Dry::Schema.Params do
   required(:terrestrialPlanets).filled(:integer, gteq?: 0, lteq?: 20)
   required(:planetoidBelts).filled(:integer, gteq?: 0, lteq?: 20)
   required(:gasGiants).filled(:integer, gteq?: 0, lteq?: 20)
+  optional(:mainWorld).filled(:hash) do
+    required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
+    optional(:orbit).maybe do
+      (int? & gteq?(1)) | (str? & included_in?(ORBIT_TYPES))
+    end
+    optional(:name).filled(:string)
+  end
 end
 
 BaseStarSchema = Dry::Schema.Params do
