@@ -55,9 +55,9 @@ class GenerateSubsectorJob < ApplicationJob
     importer = StarSystemImporter.new
     ul, = subsector.universal_coordinates
 
-    systems.each do |system|
-      parsec = Parsec.find_by(x: ul.x + system['x']-1, y: ul.y - (system['y'] - 1))
-      importer.import!(parsec, system)
+    systems.each do |s|
+      parsec = Parsec.find_by(x: ul.x + s['x']-1, y: ul.y - (s['y'] - 1))
+      importer.import!(parsec, s)
     end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
