@@ -17,7 +17,7 @@
 %>
 
 <div id="<%= dom_id unusual_object %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
     <% if star %>
       <%= render 'application/data_block',
                  label: 'Orbiting',
@@ -59,14 +59,14 @@
   </div>
 
   <% if star %>
-    <div class="flex items-center gap-4 pt-2">
+    <div class="flex items-center gap-2 pt-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
         Orbital Data
       </div>
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(unusual_object.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(unusual_object.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(unusual_object.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>

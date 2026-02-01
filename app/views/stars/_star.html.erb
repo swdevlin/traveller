@@ -5,7 +5,7 @@
 <% orbiting = star.orbiting %>
 
 <div id="<%= dom_id star %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
     <% if orbiting %>
       <%= render 'application/data_block',
                  label: 'Orbiting',
@@ -43,14 +43,14 @@
     <% end %>
   </div>
 
-  <div class="flex items-center gap-4 pt-2">
+  <div class="flex items-center gap-2 pt-2">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Stellar Properties
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
     <%= render 'application/data_block', label: 'Spectral Type', value: star.stellar_type %>
     <%= render 'application/data_block', label: 'Subtype', value: star.stellar_subtype %>
     <%= render 'application/data_block', label: 'Luminosity Class', value: star.stellar_class %>
@@ -64,14 +64,14 @@
   </div>
 
   <% if orbiting %>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
         Orbital Data
       </div>
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Period', value: number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true), suffix: 'years' %>
@@ -79,14 +79,14 @@
     </div>
   <% end %>
 
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       System Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
     <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'HZCO', value: number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Jump Shadow', value: number_with_delimiter(number_with_precision(star.jump_shadow, precision: 0)), suffix: 'km' %>

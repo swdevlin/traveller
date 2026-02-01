@@ -17,7 +17,7 @@
 %>
 
 <div id="<%= dom_id planetoid %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
     <%= render 'application/data_block', label: 'UWP', value: planetoid.uwp, value_style: :mono %>
     <% if star %>
       <%= render 'application/data_block',
@@ -60,14 +60,14 @@
   </div>
 
   <% if star %>
-    <div class="flex items-center gap-4 pt-2">
+    <div class="flex items-center gap-2 pt-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
         Orbital Data
       </div>
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Period', value: number_with_precision(planetoid.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
@@ -80,28 +80,28 @@
     <%= render 'stellar_objects/jump_shadow_times', stellar_object: planetoid %>
   <% end %>
 
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Physical Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
     <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(planetoid.diameter), suffix: 'km' %>
     <%= render 'application/data_block', label: 'Mass', value: number_with_precision(planetoid.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
     <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(planetoid.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'G' %>
     <%= render 'application/data_block', label: 'Density', value: number_with_precision(planetoid.density, precision: 2, strip_insignificant_zeros: true) %>
   </div>
 
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Environmental Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(planetoid.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
     <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid.temperature), suffix: '°C' %>
     <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(planetoid.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
@@ -109,14 +109,14 @@
     <%= render 'application/data_block', label: 'Greenhouse', value: number_with_precision(planetoid.greenhouse, precision: 2, strip_insignificant_zeros: true) %>
   </div>
 
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Biological Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
     <%= render 'application/data_block', label: 'Biomass Rating', value: planetoid.biomass_rating %>
   </div>
 
