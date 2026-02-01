@@ -1,5 +1,5 @@
 <div id="<%= dom_id star_system %>" class="w-full sm:w-auto my-5 space-y-6 pb-18">
-  <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
     <div>
       <div class="text-xs uppercase tracking-[0.22em] text-slate-400">
         IISS Class III Survey
@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
     <% allegiance = star_system.allegiance %>
 
     <% allegiance_value =
@@ -49,7 +49,7 @@
 
   </div>
 
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
     <%= render 'application/data_block',
                label: 'Main world UWP',
                value: (star_system.main_world_uwp.presence || '???????-?'),
