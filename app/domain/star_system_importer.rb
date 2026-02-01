@@ -33,18 +33,31 @@ class StarSystemImporter
 
   def set_star_system_trade_codes(codes)
     return if codes.nil?
-    codes.each do |code|
-      StarSystemTradeCode.create!(star_system: @star_system, trade_code: TradeCode.find_by(code: code))
+
+    codes.uniq.each do |code|
+      trade_code = TradeCode.find_by(code: code)
+      next unless trade_code
+
+      StarSystemTradeCode.find_or_create_by!(
+        star_system: @star_system,
+        trade_code: trade_code
+      )
     end
   end
 
-  def set_stellar_object_trade_codes(so, codes)
+  def set_stellar_object_trade_codes(stellar_object, codes)
     return if codes.nil?
-    codes.each do |code|
-      StellarObjectTradeCode.create!(stellar_object: so, trade_code: TradeCode.find_by(code: code))
+
+    codes.uniq.each do |code|
+      trade_code = TradeCode.find_by(code: code)
+      next unless trade_code
+
+      StellarObjectTradeCode.find_or_create_by!(
+        stellar_object: stellar_object,
+        trade_code: trade_code
+      )
     end
   end
-
   def import_star(star, data)
     star.assign_data_from_generator(data)
     star.save!
