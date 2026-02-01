@@ -8,7 +8,7 @@
       <%= text_field_tag :q, params[:q],
                          placeholder: "Filter sectors…",
                          autocomplete: "off",
-                         data: { action: "input->autosubmit#queue" },
+                         data: { controller: params[:q].present? ? "autofocus" : nil, action: "input->autosubmit#queue" },
                          class: "w-56 rounded-lg bg-slate-900/50 border border-slate-700 px-3 py-2" %>
 
       <% if params[:q].present? %>
