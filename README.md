@@ -46,25 +46,7 @@
 * [x] Allegiance CRUD
   * paginate the list
   * Import from TravellerMap
-* [x] CRUD on bases
-* [x] CRUD on trade codes
     * Add Mongoose ones to seed
-* Populate a subsector
-  * [x] Basic populate
-  * Add populated option for generate
-    * [x] allegiance
-    * [x] tech limits
-    * [x] pop limits
-    * [x] survey index
-    * [x] bases
-  * Add star definition
-  * Add system definition
-    * hot, habital, goldilocks, cold zones
-  * [x] UI updates as systems are added
-* [x] Populate a sector
-  * [x] verify each subsector has a build plan
-  * [x] create a job for each subsector
-  * [x] Load default plan
 * Log in
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
@@ -73,14 +55,8 @@
 * Export subsector file that can be used by Traveller Map
 * Edit star system
   *  Add an option to change the main world 
-* [x] Enter configuration for subsector
-* [x] Government type
-* [x] Law level
-* [x] tech levels
 * store image of star system
 * store image of stellar object
-* [x] Import default configuration for sector
-* [x] Import default configuration for subsector
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
 * import allegiances from TravellerMap
