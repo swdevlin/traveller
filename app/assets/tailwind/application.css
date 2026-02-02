@@ -282,4 +282,34 @@
     @apply border-deepnight-orange/80 text-deepnight-orange;
     box-shadow: 0 0 0 3px rgba(222, 128, 52, 0.18);
   }
+
+  /* markdown */
+
+  .callout {
+    @apply rounded-2xl border bg-slate-950/40 p-4 shadow-sm;
+  }
+
+  .callout-title {
+    @apply text-xs uppercase tracking-[0.22em] text-slate-300;
+  }
+
+  .callout-body {
+    @apply mt-2 text-sm text-slate-200;
+  }
+
+  .callout-note {
+    @apply border-slate-600/70;
+  }
+
+  .callout-tip {
+    @apply border-emerald-500/40;
+  }
+
+  .callout-warning {
+    @apply border-deepnight-orange/50;
+  }
+
+  .callout-danger {
+    @apply border-traveller-red/50;
+  }
 }

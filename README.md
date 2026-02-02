@@ -4,12 +4,10 @@
 
 * Which are the "required" fields? Get error message after, but should have an indication on the screen
 * YAML error - resets screen to empty. YAML cleared and name reverted
-* Settings "add" need an "add" button in addition to edit, delete - allegiances, bases, probably the others too
 * Ability to edit data/adjust orbits etc would be valuable for known systems or just tweaking for story/plot. This might be fixed using the orbit number.
 * Ability to "lock in" generation of specific details like diameter and temperature so that future generations (e.g. other systems) did not overwrite them
 * Need ability to include all the specific data in the YAML for that "body" like trade codes
 * System level  allegiance does not seem to be taken from "systems" element. Tried to remove Global Allegiance but it is required in yaml. So everything was the global not the system setting
-* Looking at main planet it is unnamed - should be system name as default. Or have mainWorld:name element
 * Allegiance not carried through to planet details - should default to system allegiance
 
 ## To Do

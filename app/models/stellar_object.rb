@@ -17,6 +17,8 @@ class StellarObject < ApplicationRecord
     UnusualObject
   ].freeze
 
+  include ScrubsMailtoLinks
+
   belongs_to :parsec, optional: true
   belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects
 
