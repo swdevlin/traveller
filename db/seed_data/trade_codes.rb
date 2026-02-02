@@ -52,5 +52,9 @@ TRADE_CODES = [
   { code: 'Pz', definition: 'Puzzle (Amber Zone)' },
   { code: 'Da', definition: 'Dangerous (Amber Zone)' },
   { code: 'Ab', definition: 'Data Repository' },
-  { code: 'An', definition: 'Ancient Site' }
+  { code: 'An', definition: 'Ancient Site' },
+
+  { code: 'Ht', definition: 'High Tech' },
+  { code: 'Lt', definition: 'Low Tech' },
+
 ]
