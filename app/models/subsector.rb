@@ -68,13 +68,13 @@ class Subsector < ApplicationRecord
 
   def normalize_config!(node)
     case node
-    when Hash
-      normalize_bodies!(node)
-      normalize_bases!(node)
-      normalize_star!(node)
-      node.each_value { |v| normalize_config!(v) }
-    when Array
-      node.each { |v| normalize_config!(v) }
+      when Hash
+        normalize_bodies!(node)
+        normalize_bases!(node)
+        normalize_star!(node)
+        node.each_value { |v| normalize_config!(v) }
+      when Array
+        node.each { |v| normalize_config!(v) }
     end
   end
 
