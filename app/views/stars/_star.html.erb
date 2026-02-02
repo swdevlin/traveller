@@ -74,7 +74,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Period', value: number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true), suffix: 'years' %>
+      <%= render 'application/data_block', label: 'Period', value: format_period(star.period) %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
     </div>
   <% end %>

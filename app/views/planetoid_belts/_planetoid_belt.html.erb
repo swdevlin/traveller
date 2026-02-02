@@ -66,10 +66,10 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid_belt.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid_belt.au, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Period', value: number_with_precision(planetoid_belt.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
+      <%= render 'application/data_block', label: 'Period', value: format_period(planetoid_belt.period) %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(planetoid_belt.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Retrograde', value: planetoid_belt.retrograde ? 'Yes' : 'No' %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(planetoid_belt.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
@@ -86,7 +86,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
     <%= render 'application/data_block', label: 'M-Type', value: planetoid_belt.m_type %>
     <%= render 'application/data_block', label: 'S-Type', value: planetoid_belt.s_type %>
     <%= render 'application/data_block', label: 'C-Type', value: planetoid_belt.c_type %>
@@ -100,12 +100,12 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
     <%= render 'application/data_block', label: 'Resource Rating', value: planetoid_belt.resource_rating %>
     <%= render 'application/data_block', label: 'Bulk', value: planetoid_belt.bulk %>
     <%= render 'application/data_block', label: 'Span', value: number_with_precision(planetoid_belt.span, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid_belt.temperature), suffix: '°C' %>
-    <%= render 'application/data_block', label: 'Period', value: number_with_precision(planetoid_belt.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
+    <%= render 'application/data_block', label: 'Period', value: format_period(planetoid_belt.period) %>
     <%= render 'application/data_block', label: 'Significant Bodies', value: planetoid_belt.significant_bodies.length %>
   </div>
 

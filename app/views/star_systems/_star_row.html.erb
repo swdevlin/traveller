@@ -3,16 +3,16 @@
     <span class="identifier"><%= star.orbit_sequence %></span>
   </td>
 
-  <td class="t-td">
-    <%= number_with_precision(star.au, precision: 2) %>
+  <td class="t-td text-right">
+    <%= number_with_precision(star.au, precision: 1) %>
   </td>
 
   <td class="t-td">
     <%= star.name %>
   </td>
 
-  <td colspan="3" class="t-td">
-    <%= number_with_precision(star.orbit, precision: 3, strip_insignificant_zeros: true) %>
+  <td colspan="3" class="t-td text-right">
+    <%= number_with_precision(star.orbit, precision: 1) %>
   </td>
 
   <td colspan="3" class="t-td">

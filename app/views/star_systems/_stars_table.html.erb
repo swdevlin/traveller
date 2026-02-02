@@ -11,16 +11,16 @@
       <tr>
         <th scope='col' class='t-th'>ID</th>
         <th scope='col' class='t-th'>Class</th>
-        <th scope='col' class='t-th'>Mass</th>
-        <th scope='col' class='t-th'>Temp</th>
-        <th scope='col' class='t-th'>Diameter</th>
-        <th scope='col' class='t-th'>Luminosity</th>
-        <th scope='col' class='t-th'>Orbit #</th>
-        <th scope='col' class='t-th'>AU</th>
-        <th scope='col' class='t-th'>Ecc</th>
-        <th scope='col' class='t-th'>Period</th>
-        <th scope='col' class='t-th'>MAO</th>
-        <th scope='col' class='t-th'>HZCO</th>
+        <th scope='col' class='t-th text-right'>Mass</th>
+        <th scope='col' class='t-th text-right'>Temp</th>
+        <th scope='col' class='t-th text-right'>Diameter</th>
+        <th scope='col' class='t-th text-right'>Luminosity</th>
+        <th scope='col' class='t-th text-right'>Orbit #</th>
+        <th scope='col' class='t-th text-right'>AU</th>
+        <th scope='col' class='t-th text-right'>Ecc</th>
+        <th scope='col' class='t-th text-right'>Period</th>
+        <th scope='col' class='t-th text-right'>MAO</th>
+        <th scope='col' class='t-th text-right'>HZCO</th>
         <th scope='col' class='t-th-right'>Actions</th>
       </tr>
       </thead>
@@ -34,43 +34,43 @@
             <%= link_to star.spectral_classification, star, class: 't-link' %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.mass, precision: 3, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.temperature, precision: 0) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.luminosity, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
-            <%= number_with_precision(star.period, precision: 2, strip_insignificant_zeros: true) %>
+          <td class='t-td text-right'>
+            <%= format_period(star.period) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='t-td text-right'>
             <%= number_with_precision(star.hzco, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 

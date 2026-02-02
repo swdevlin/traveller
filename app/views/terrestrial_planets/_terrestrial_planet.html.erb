@@ -58,10 +58,10 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(terrestrial_planet.orbit, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'AU', value: number_with_precision(terrestrial_planet.au, precision: 2, strip_insignificant_zeros: true) %>
-    <%= render 'application/data_block', label: 'Period', value: number_with_precision(terrestrial_planet.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
+    <%= render 'application/data_block', label: 'Period', value: format_period(terrestrial_planet.period) %>
     <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(terrestrial_planet.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Retrograde', value: terrestrial_planet.retrograde ? 'Yes' : 'No' %>
     <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(terrestrial_planet.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
@@ -77,7 +77,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(terrestrial_planet.diameter), suffix: 'km' %>
     <%= render 'application/data_block', label: 'Mass', value: number_with_precision(terrestrial_planet.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
     <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(terrestrial_planet.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'G' %>
@@ -90,7 +90,7 @@
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(terrestrial_planet.temperature), suffix: '°C' %>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(terrestrial_planet.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
     <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(terrestrial_planet.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
@@ -104,7 +104,7 @@
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Native Sophont', value: terrestrial_planet.native_sophont ? 'Yes' : 'No' %>
     <%= render 'application/data_block', label: 'Extinct Sophont', value: terrestrial_planet.extinct_sophont ? 'Yes' : 'No' %>
     <%= render 'application/data_block', label: 'Biomass Rating', value: terrestrial_planet.biomass_rating %>

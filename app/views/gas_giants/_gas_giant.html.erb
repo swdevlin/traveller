@@ -66,10 +66,10 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gas_giant.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(gas_giant.au, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Period', value: number_with_precision(gas_giant.period, precision: 2, strip_insignificant_zeros: true), suffix: 'days' %>
+      <%= render 'application/data_block', label: 'Period', value: format_period(gas_giant.period) %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gas_giant.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gas_giant.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gas_giant.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
@@ -85,7 +85,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
     <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(gas_giant.diameter), suffix: 'km' %>
     <%= render 'application/data_block', label: 'Mass', value: number_with_precision(gas_giant.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(gas_giant.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>

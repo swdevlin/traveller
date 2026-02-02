@@ -3,8 +3,8 @@
     <span class="t-pill"><%= stellar_object.orbit_sequence %></span>
   </td>
 
-  <td class="t-td">
-    <%= number_with_precision(stellar_object.au, precision: 2) %>
+  <td class="t-td text-right">
+    <%= number_with_precision(stellar_object.au, precision: 1) %>
   </td>
 
   <td class="t-td">
@@ -14,17 +14,17 @@
     <%= stellar_object.name %>
   </td>
 
-  <td class="t-td">
-    <%= number_with_precision(stellar_object.orbit, precision: 2, strip_insignificant_zeros: true) %>
+  <td class="t-td text-right">
+    <%= number_with_precision(stellar_object.orbit, precision: 1) %>
   </td>
 
-  <td class="t-td">
-    <%= number_with_precision(stellar_object.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+  <td class="t-td text-right">
+    <%= number_with_precision(stellar_object.eccentricity, precision: 1) %>
   </td>
 
-  <td class="t-td">
+  <td class="t-td text-right">
     <% if stellar_object.respond_to?(:period) %>
-      <%= number_with_precision(stellar_object.period, precision: 2, strip_insignificant_zeros: true) %>
+      <%= format_period(stellar_object.period) %>
     <% end %>
   </td>
 
