@@ -24,6 +24,12 @@ class StarSystemImporter
       primary.star_system = @star_system
       import_star(primary, primary_data)
       @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
+      unless @star_system.main_world.nil?
+        if @star_system.main_world.name.blank? && @star_system.name.present?
+          @star_system.main_world.name = @star_system.name
+          @star_system.main_world.save!
+        end
+      end
       @star_system.save!
     end
     @star_system
