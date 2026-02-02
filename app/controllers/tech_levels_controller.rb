@@ -13,6 +13,7 @@ class TechLevelsController < ApplicationController
   # GET /tech_levels/new
   def new
     @tech_level = TechLevel.new
+    @return_to = request.referer
   end
 
   # GET /tech_levels/1/edit
@@ -25,7 +26,7 @@ class TechLevelsController < ApplicationController
 
     respond_to do |format|
       if @tech_level.save
-        format.html { redirect_to @tech_level, notice: 'Tech level was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @tech_level, notice: 'Tech level was successfully created.' }
         format.json { render :show, status: :created, location: @tech_level }
       else
         format.html { render :new, status: :unprocessable_entity }

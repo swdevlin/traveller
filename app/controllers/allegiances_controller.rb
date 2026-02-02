@@ -13,6 +13,7 @@ class AllegiancesController < ApplicationController
   # GET /allegiances/new
   def new
     @allegiance = Allegiance.new
+    @return_to = request.referer
   end
 
   # GET /allegiances/1/edit
@@ -25,7 +26,7 @@ class AllegiancesController < ApplicationController
 
     respond_to do |format|
       if @allegiance.save
-        format.html { redirect_to @allegiance, notice: 'Allegiance was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @allegiance, notice: 'Allegiance was successfully created.' }
         format.json { render :show, status: :created, location: @allegiance }
       else
         format.html { render :new, status: :unprocessable_entity }

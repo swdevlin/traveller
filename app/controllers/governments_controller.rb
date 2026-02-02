@@ -13,6 +13,7 @@ class GovernmentsController < ApplicationController
   # GET /governments/new
   def new
     @government = Government.new
+    @return_to = request.referer
   end
 
   # GET /governments/1/edit
@@ -25,7 +26,7 @@ class GovernmentsController < ApplicationController
 
     respond_to do |format|
       if @government.save
-        format.html { redirect_to @government, notice: 'Government was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @government, notice: 'Government was successfully created.' }
         format.json { render :show, status: :created, location: @government }
       else
         format.html { render :new, status: :unprocessable_entity }

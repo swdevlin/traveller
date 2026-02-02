@@ -13,6 +13,7 @@ class LawLevelsController < ApplicationController
   # GET /law_levels/new
   def new
     @law_level = LawLevel.new
+    @return_to = request.referer
   end
 
   # GET /law_levels/1/edit
@@ -25,7 +26,7 @@ class LawLevelsController < ApplicationController
 
     respond_to do |format|
       if @law_level.save
-        format.html { redirect_to @law_level, notice: 'Law level was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @law_level, notice: 'Law level was successfully created.' }
         format.json { render :show, status: :created, location: @law_level }
       else
         format.html { render :new, status: :unprocessable_entity }

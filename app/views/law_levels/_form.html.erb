@@ -1,4 +1,5 @@
 <%= form_with(model: law_level, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to %>
   <div class='space-y-6 pb-10'>
     <% if law_level.errors.any? %>
       <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>

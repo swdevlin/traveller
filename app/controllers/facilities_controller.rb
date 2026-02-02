@@ -13,6 +13,7 @@ class FacilitiesController < ApplicationController
   # GET /facilities/new
   def new
     @facility = Facility.new
+    @return_to = request.referer
   end
 
   # GET /facilities/1/edit
@@ -25,7 +26,7 @@ class FacilitiesController < ApplicationController
 
     respond_to do |format|
       if @facility.save
-        format.html { redirect_to @facility, notice: 'Base was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @facility, notice: 'Base was successfully created.' }
         format.json { render :show, status: :created, location: @facility }
       else
         format.html { render :new, status: :unprocessable_entity }

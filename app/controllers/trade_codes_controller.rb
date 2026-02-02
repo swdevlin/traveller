@@ -13,6 +13,7 @@ class TradeCodesController < ApplicationController
   # GET /trade_codes/new
   def new
     @trade_code = TradeCode.new
+    @return_to = request.referer
   end
 
   # GET /trade_codes/1/edit
@@ -25,7 +26,7 @@ class TradeCodesController < ApplicationController
 
     respond_to do |format|
       if @trade_code.save
-        format.html { redirect_to @trade_code, notice: 'Trade code was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @trade_code, notice: 'Trade code was successfully created.' }
         format.json { render :show, status: :created, location: @trade_code }
       else
         format.html { render :new, status: :unprocessable_entity }
