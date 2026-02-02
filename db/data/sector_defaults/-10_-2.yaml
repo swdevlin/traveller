@@ -65,7 +65,6 @@ subsectors:
         known: true
         name: Garva-411
         uwp: X310000-0
-        remarks: "{Anomaly}"
         primary:
           type: NS
           bodies:
