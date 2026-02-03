@@ -10,7 +10,11 @@
             prose-a:text-deepnight-orange prose-a:no-underline hover:prose-a:underline
             prose-code:text-slate-200 prose-code:bg-slate-900/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
             prose-pre:bg-slate-950/60 prose-pre:border prose-pre:border-slate-700/70 prose-pre:rounded-2xl'>
-        <%= render_markdown(notes) %>
+        <% if local_assigns[:notes].present? %>
+          <%= render_markdown(notes) %>
+        <% else %>
+          No findings reported.
+        <% end %>
       </div>
     </div>
   </div>
