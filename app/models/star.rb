@@ -106,5 +106,6 @@ class Star < ApplicationRecord
     self.au = data['au']
     self.survey_index = data['surveyIndex']
     self.scan_points = data['scanPoints']
+    self.build_log = data['buildLog']
   end
 end
