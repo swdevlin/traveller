@@ -55,6 +55,6 @@ TRADE_CODES = [
   { code: 'An', definition: 'Ancient Site' },
 
   { code: 'Ht', definition: 'High Tech' },
-  { code: 'Lt', definition: 'Low Tech' },
+  { code: 'Lt', definition: 'Low Tech' }
 
 ]
