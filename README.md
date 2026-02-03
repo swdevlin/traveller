@@ -4,8 +4,6 @@
 
 * Which are the "required" fields? Get error message after, but should have an indication on the screen
 * YAML error - resets screen to empty. YAML cleared and name reverted
-* Ability to edit data/adjust orbits etc would be valuable for known systems or just tweaking for story/plot. This might be fixed using the orbit number.
-* Ability to "lock in" generation of specific details like diameter and temperature so that future generations (e.g. other systems) did not overwrite them
 
 ## To Do
 
@@ -33,7 +31,6 @@
   * [x] Unusual Object
     * can edit
   * can delete rogue object
-* On-line help
 * Add a star system to a hex
   * [x] random
   * [x] Specific class, subtype, and luminosity
