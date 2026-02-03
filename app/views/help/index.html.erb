@@ -1,4 +1,15 @@
-<div>
-  <h1 class="font-bold text-4xl">Help#index</h1>
-  <p>Find me in app/views/help/index.html.erb</p>
-</div>
+<% content_for :title, "Operations Manual" %>
+<% content_for :page_kicker, "Operations Manual" %>
+<% content_for :page_title, "Reference Codex" %>
+
+<%= render 'application/page' do %>
+  <ul class="space-y-2">
+    <% @entries.each do |entry| %>
+      <li>
+        <%= link_to entry.titleize,
+                    send("help_#{entry}_path"),
+                    class: 'text-slate-200 hover:text-traveller-red hover:underline hover:underline-offset-4' %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
