@@ -87,8 +87,9 @@ class Star < ApplicationRecord
     self.stellar_type = data['stellarType']
     self.stellar_subtype = data['subtype']
     self.luminosity = data['luminosity']
-    self.orbit_x = data['orbitPosition']['x']
-    self.orbit_y = data['orbitPosition']['y']
+    orbitPosition = data.fetch('orbitPosition', {})
+    self.orbit_x = orbitPosition.fetch('x', nil)
+    self.orbit_y = orbitPosition.fetch('y', nil)
     self.spread = data['spread']
     self.baseline = data['baseline']
     self.mass = data['mass']
