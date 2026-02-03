@@ -4,4 +4,7 @@ class MarketingController < ApplicationController
 
   def fairuse
   end
+
+  def deltas
+  end
 end

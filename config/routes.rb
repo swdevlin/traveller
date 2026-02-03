@@ -3,8 +3,6 @@ Rails.application.routes.draw do
   resources :governments
   resources :law_levels
   resources :facilities
-  get 'help/index'
-  get 'help/build_specification'
   resources :allegiances
   resources :trade_codes
   resources :stellar_objects
@@ -55,6 +53,11 @@ Rails.application.routes.draw do
   get '/settings', to: 'settings#index'
 
   get '/fairuse', to: 'marketing#fairuse'
+
+  get '/help', to: 'help#index'
+  get 'help/build_specification'
+
+  get '/deltas', to: 'marketing#deltas'
 
   # Defines the root path route ("/")
   root 'marketing#index'
