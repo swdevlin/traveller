@@ -38,11 +38,11 @@ module GeneratorMappings
     self.orbit = payload['orbit']
     self.name = payload['name']
     self.au = payload['au']
-    self.orbit_x = payload['orbitX']
-    self.orbit_y = payload['orbitY']
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']
     self.orbit_sequence = payload.fetch('orbitSequence', nil)
+    self.orbit_x = payload['orbitPosition']['x']
+    self.orbit_y = payload['orbitPosition']['y']
 
     allegiance = payload.fetch('allegiance', nil)
     unless allegiance.nil?
