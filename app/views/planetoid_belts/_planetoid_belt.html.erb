@@ -87,10 +87,10 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-    <%= render 'application/data_block', label: 'M-Type', value: planetoid_belt.m_type %>
-    <%= render 'application/data_block', label: 'S-Type', value: planetoid_belt.s_type %>
-    <%= render 'application/data_block', label: 'C-Type', value: planetoid_belt.c_type %>
-    <%= render 'application/data_block', label: 'O-Type', value: planetoid_belt.o_type %>
+    <%= render 'application/data_block', label: 'Metalic', value: planetoid_belt.m_type, suffix: ' %' %>
+    <%= render 'application/data_block', label: 'Stony', value: planetoid_belt.s_type, suffix: ' %' %>
+    <%= render 'application/data_block', label: 'Carbonaceous', value: planetoid_belt.c_type, suffix: ' %' %>
+    <%= render 'application/data_block', label: 'Other (ice)', value: planetoid_belt.o_type, suffix: ' %' %>
   </div>
 
   <div class="flex items-center gap-2">
