@@ -60,15 +60,17 @@
   </main>
 
   <footer class="mt-auto border-t border-slate-800 bg-slate-950/80 py-6 mb-4">
-    <div class="container mx-auto px-5 flex justify-end gap-4 text-sm text-slate-400">
+    <div class="container mx-auto px-5 flex justify-end gap-2 text-sm text-slate-400">
       <%= link_to 'https://github.com/swdevlin/traveller',
                   target: '_blank',
                   rel: 'noopener',
-                  class: 'hover:text-slate-200 transition-colors' do %>
-        <i class="fa-brands fa-github mr-1"></i> GitHub
+                  class: 'no-underline hover:text-traveller-red transition-colors' do %>
+        <i class="fa-brands fa-github mr-1"></i>
       <% end %>
-      <%= link_to 'Fair Use', fairuse_path, class: 'hover:text-slate-200 transition-colors' %>
-      <%= link_to 'Δ', deltas_path, class: 'no-underline hover:text-traveller-red transition-colors' %>
+      <%= link_to fairuse_path, class: 'no-underline hover:text-traveller-red transition-colors' do %>
+        <i class="fa-regular fa-scale-balanced"></i>
+      <% end %>
+      <%= link_to 'Δ', deltas_path, class: 'no-underline hover:text-traveller-red transition-colors font-bold' %>
     </div>
   </footer>
 </body>
