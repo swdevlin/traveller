@@ -2,6 +2,6 @@
 
 class UiUpdatesChannel < ApplicationCable::Channel
   def subscribed
-    stream_from "ui_updates"
+    stream_from 'ui_updates'
   end
 end
