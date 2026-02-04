@@ -90,7 +90,7 @@
     <%= render 'application/data_block', label: 'Metalic', value: planetoid_belt.m_type, suffix: ' %' %>
     <%= render 'application/data_block', label: 'Stony', value: planetoid_belt.s_type, suffix: ' %' %>
     <%= render 'application/data_block', label: 'Carbonaceous', value: planetoid_belt.c_type, suffix: ' %' %>
-    <%= render 'application/data_block', label: 'Other (ice)', value: planetoid_belt.o_type, suffix: ' %' %>
+    <%= render 'application/data_block', label: 'Other', value: planetoid_belt.o_type, suffix: ' %' %>
   </div>
 
   <div class="flex items-center gap-2">
@@ -101,11 +101,12 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-    <%= render 'application/data_block', label: 'Resource Rating', value: planetoid_belt.resource_rating %>
+    <%= render 'application/data_block',
+               label: 'Resource Rating',
+               value: safe_join([tag.span(HexDigit.hex_digit(planetoid_belt.resource_rating), class: 'identifier-sm'), resource_rating_description(planetoid_belt.resource_rating)], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
     <%= render 'application/data_block', label: 'Bulk', value: planetoid_belt.bulk %>
     <%= render 'application/data_block', label: 'Span', value: number_with_precision(planetoid_belt.span, precision: 2, strip_insignificant_zeros: true) %>
-    <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid_belt.temperature), suffix: '°C' %>
-    <%= render 'application/data_block', label: 'Period', value: format_period(planetoid_belt.period) %>
     <%= render 'application/data_block', label: 'Significant Bodies', value: planetoid_belt.significant_bodies.length %>
   </div>
 
