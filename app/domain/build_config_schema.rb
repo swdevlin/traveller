@@ -20,9 +20,10 @@ CoordinateSchema = Dry::Schema.Params do
 end
 
 CountsSchema = Dry::Schema.Params do
-  required(:terrestrialPlanets).filled(:integer, gteq?: 0, lteq?: 20)
-  required(:planetoidBelts).filled(:integer, gteq?: 0, lteq?: 20)
-  required(:gasGiants).filled(:integer, gteq?: 0, lteq?: 20)
+  optional(:density).filled(:integer, gteq?: 0, lteq?: 30)
+  optional(:terrestrialPlanets).filled(:integer, gteq?: 0, lteq?: 20)
+  optional(:planetoidBelts).filled(:integer, gteq?: 0, lteq?: 20)
+  optional(:gasGiants).filled(:integer, gteq?: 0, lteq?: 20)
   optional(:mainWorld).filled(:hash) do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
     optional(:orbit).maybe do

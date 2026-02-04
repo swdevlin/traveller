@@ -268,7 +268,68 @@ systems:
                 Optional star definition for the system.
               </dd>
             </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>counts</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional orbital body counts for the system. See counts definition below.
+              </dd>
+            </div>
           </dl>
+        </div>
+
+        <div>
+          <p class='text-sm font-semibold text-slate-200 mb-2'>Counts definition</p>
+
+          <dl class='space-y-5 text-sm'>
+            <div>
+              <dt class='font-semibold text-slate-200'>density</dt>
+              <dd class='mt-1 text-slate-300'>
+                Orbital body density modifier (0–30). When specified, the generator determines
+                the number of terrestrial planets, planetoid belts, and gas giants automatically.
+                Rules on density can be found in <cite>Book 3 – Referee's Handbook</cite>.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>terrestrialPlanets</dt>
+              <dd class='mt-1 text-slate-300'>
+                Explicit count of terrestrial planets (0–20).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>planetoidBelts</dt>
+              <dd class='mt-1 text-slate-300'>
+                Explicit count of planetoid belts (0–20).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>gasGiants</dt>
+              <dd class='mt-1 text-slate-300'>
+                Explicit count of gas giants (0–20).
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>mainWorld</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional main world definition. See orbital bodies for structure.
+              </dd>
+            </div>
+          </dl>
+
+          <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+            <p class='text-xs text-slate-300 font-semibold mb-2'>Requirements</p>
+            <p class='text-xs text-slate-300'>
+              Counts must specify either <span class='font-mono text-slate-200'>density</span> alone,
+              or all three of <span class='font-mono text-slate-200'>terrestrialPlanets</span>,
+              <span class='font-mono text-slate-200'>planetoidBelts</span>, and
+              <span class='font-mono text-slate-200'>gasGiants</span>.
+              The <span class='font-mono text-slate-200'>mainWorld</span> field is optional in both cases.
+            </p>
+          </div>
         </div>
 
         <div>

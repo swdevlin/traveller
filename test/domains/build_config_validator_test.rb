@@ -359,6 +359,123 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_not validator.valid?
   end
 
+  # Counts validation
+  test 'counts with density only is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            density: 5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'counts with all three explicit counts is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            terrestrialPlanets: 3
+            planetoidBelts: 2
+            gasGiants: 1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'counts with density and mainWorld is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            density: 5
+            mainWorld:
+              uwp: X674000-0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'counts with explicit counts and mainWorld is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            terrestrialPlanets: 3
+            planetoidBelts: 2
+            gasGiants: 1
+            mainWorld:
+              uwp: terrestrial
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'counts with only partial explicit counts is invalid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            terrestrialPlanets: 3
+            planetoidBelts: 2
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'must specify either density or all of'
+  end
+
+  test 'counts with only one explicit count is invalid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            gasGiants: 1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'must specify either density or all of'
+  end
+
+  test 'empty counts is invalid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts: {}
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'must specify either density or all of'
+  end
+
+  test 'counts density must be between 0 and 30' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            density: 31
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'density'
+  end
+
   # Config accessor
   test 'config returns parsed and normalized hash' do
     yaml = <<~YAML

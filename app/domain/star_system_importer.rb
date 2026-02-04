@@ -9,6 +9,7 @@ class StarSystemImporter
       @star_system = StarSystem.new
       @star_system.parsec = parsec
       @star_system.name = data['name']
+      @star_system.build_log = data['buildLog']
       allegiance = data.fetch('allegiance')
       unless allegiance.nil?
         @star_system.allegiance = Allegiance.where(code: allegiance).sole

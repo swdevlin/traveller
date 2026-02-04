@@ -128,6 +128,7 @@ class BuildConfigValidator
     systems = Array(config['systems']) + Array(config['required'])
     systems.each_with_index do |sys, idx|
       validate_allegiance(sys)
+      validate_counts(sys['counts'], "systems[#{idx}].counts")
       primary = sys['primary']
       next unless primary.is_a?(Hash)
 
@@ -220,6 +221,19 @@ class BuildConfigValidator
       unless Facility.exists?(code: base)
         @errors << "unknown base '#{base}'"
       end
+    end
+  end
+
+  def validate_counts(counts, path)
+    return unless counts.is_a?(Hash)
+
+    has_density = counts.key?('density')
+    has_explicit = counts.key?('terrestrialPlanets') &&
+                   counts.key?('planetoidBelts') &&
+                   counts.key?('gasGiants')
+
+    unless has_density || has_explicit
+      @errors << "#{path}: must specify either density or all of terrestrialPlanets, planetoidBelts, and gasGiants"
     end
   end
 
