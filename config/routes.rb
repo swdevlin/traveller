@@ -3,9 +3,15 @@ Rails.application.routes.draw do
   resources :governments
   resources :law_levels
   resources :facilities
-  resources :allegiances
   resources :trade_codes
   resources :stellar_objects
+
+  resources :allegiances do
+    collection do
+      post 'import_from_traveller_map'
+      get 'table'
+    end
+  end
 
   resources :parsecs, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]

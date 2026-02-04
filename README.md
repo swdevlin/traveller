@@ -53,8 +53,6 @@
 * store image of stellar object
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
-* import allegiances from TravellerMap
-* [x] Settings page
 
 ### To do?
 

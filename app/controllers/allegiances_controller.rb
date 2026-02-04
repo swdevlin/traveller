@@ -6,10 +6,19 @@ class AllegiancesController < ApplicationController
     @allegiances = Allegiance.order(:code)
   end
 
+  # GET /allegiances/table
+  def table
+    @allegiances = Allegiance.order(:code)
+  end
+
   # GET /allegiances/1 or /allegiances/1.json
   def show
   end
 
+  def import_from_traveller_map
+    ImportTravellerMapAllegiancesJob.perform_later
+    redirect_to allegiances_path, notice: 'Importing job queued'#
+  end
   # GET /allegiances/new
   def new
     @allegiance = Allegiance.new

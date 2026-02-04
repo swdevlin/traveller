@@ -1,0 +1,49 @@
+<div class='t-scroll-x'>
+  <table class='t-table'>
+    <thead class='t-thead'>
+    <tr>
+      <th scope='col' class='t-th'>Code</th>
+      <th scope='col' class='t-th'>Name</th>
+      <th scope='col' class='t-th'>Legacy</th>
+      <th scope='col' class='t-th-right'>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody class='t-tbody'>
+    <% allegiances.each do |allegiance| %>
+      <tr class='t-tr'>
+        <td class='t-td-nowrap'>
+          <span class='t-pill'><%= allegiance.code %></span>
+        </td>
+
+        <td class='t-td'>
+          <%= link_to allegiance_path(allegiance), class: "t-link" do %>
+            <%= allegiance.name %>
+          <% end %>
+        </td>
+
+        <td class='t-td-nowrap'>
+          <% if allegiance.legacy_code.present? %>
+            <span class='t-pill'><%= allegiance.legacy_code %></span>
+          <% end %>
+        </td>
+
+        <td class='t-td-right'>
+          <div class='t-actions'>
+            <%= link_to edit_allegiance_path(allegiance), class: 't-action' do %>
+              <i class='fa-regular fa-pen-to-square'></i>
+            <% end %>
+
+            <%= button_to allegiance,
+                          method: :delete,
+                          class: 't-action-danger',
+                          data: { turbo_confirm: "Delete #{allegiance.code}?" } do %>
+              <i class='fa-regular fa-trash'></i>
+            <% end %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
