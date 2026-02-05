@@ -29,6 +29,7 @@ Rails.application.routes.draw do
       post :generate, as: :generate
       get :star_systems_table
       post :load_defaults
+      get :map
     end
     resources :rogues, only: %i[new create index destroy]
     resources :star_systems, only: %i[new create index destroy]

@@ -6,7 +6,11 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-
+* Display error messages from background jobs
+* Verify social UWP characteristic calculations for other worlds
+* Display atmosphere data for worlds
+* Display hydrosphere data for worlds
+* UI for sectors list uses standard code
 * Add a rogue stellar object
   * Brown dwarf
     * can edit
@@ -37,14 +41,14 @@
   * Support generating by system density
   * support full system specification
 * Hex display for a subsector
-* [x] Allegiance CRUD
-  * paginate the list
-  * Import from TravellerMap
-    * Add Mongoose ones to seed
+* Display star system map
+* Paginate allegiance list
+* Mongoose allegiance codes
 * Log in
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
   * Links to the Deepnight navigation console for Referee & Travellers
+* Edit forms should show field errors at the field 
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
 * Edit star system
@@ -53,9 +57,15 @@
 * store image of stellar object
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
+* Support generation by The Deep Space Exploration Handbook
+* System generation from Deepnight book
+  * [x] Density specification in counts block
+  * [ ] Barycenter support
+* Quickly set survey index for a subsector
 
 ### To do?
 
+* Integrate into Deepnight campaign 
 * Themes
   * Imperial
   * Deepnight
@@ -64,11 +74,8 @@
   * Zhodani
   * Solomani
 * Routes
-* Support generation by The Deep Space Exploration Handbook
-* System generation from Deepnight book
 * Communication routes
 * Name generation
-* Make generic for any custom Traveller universe
 
 #### To do??
 

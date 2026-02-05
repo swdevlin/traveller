@@ -57,9 +57,9 @@
     <%= render 'application/data_block', label: 'Colour', value: star.colour %>
     <%= render 'application/data_block', label: 'Temperature', value: number_with_delimiter(star.temperature), suffix: 'K' %>
     <%= render 'application/data_block', label: 'Age', value: number_with_precision(star.age, precision: 2, strip_insignificant_zeros: true), suffix: 'Gyr' %>
-    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(star.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'M☉' %>
-    <%= render 'application/data_block', label: 'Diameter', value: number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true), suffix: 'km' %>
-    <%= render 'application/data_block', label: 'Luminosity', value: number_with_precision(star.luminosity, precision: 3, strip_insignificant_zeros: true), suffix: 'L☉' %>
+    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(star.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+    <%= render 'application/data_block', label: 'Diameter', value: number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+    <%= render 'application/data_block', label: 'Luminosity', value: number_with_precision(star.luminosity, precision: 3, strip_insignificant_zeros: true), suffix: '☉' %>
     <%= render 'application/data_block', label: 'Protostar', value: star.is_protostar ? 'Yes' : 'No' %>
   </div>
 
