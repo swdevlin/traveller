@@ -3,6 +3,30 @@
 <%= content_for :page_title, @star.display_name %>
 <%= content_for :iiss_form, 'FORM 0421B-0I' %>
 
+<%
+  star_system = @star.star_system
+  parsec = star_system&.parsec
+  subsector = parsec&.subsector
+%>
+
 <%= render 'application/page' do %>
-  <%= render @star %>
+  <div class='flex flex-col md:flex-row md:items-start gap-6'>
+    <div class='flex-1 min-w-0'>
+      <%= render @star %>
+    </div>
+
+    <% if subsector %>
+      <div class='w-full md:w-[300px] shrink-0'>
+        <div class='mt-2'>
+          <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
+            <object type="image/svg+xml"
+                    data="<%= map_subsector_path(subsector, highlight: parsec.id) %>"
+                    class="block h-full w-full">
+              Subsector map
+            </object>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 <% end %>
