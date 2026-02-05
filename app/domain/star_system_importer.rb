@@ -73,6 +73,8 @@ class StarSystemImporter
       companion.star_system = @star_system
       companion.orbiting = star
       import_star(companion, data['companion'])
+      star.companion = companion
+      star.save!
     end
     data['stellarObjects'].each do |so_data|
       orbit_type = so_data['orbitType']
