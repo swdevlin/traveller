@@ -1,5 +1,5 @@
 class SubsectorsController < ApplicationController
-  before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate star_systems_table]
+  before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate star_systems_table map]
   before_action :set_counts, only: %i[show populate]
   # GET /subsectors or /subsectors.json
   def index
@@ -50,6 +50,18 @@ class SubsectorsController < ApplicationController
 
   def star_systems_table
     render layout: false
+  end
+
+  def map
+    @star_systems = @subsector.star_systems.includes(:parsec, stars: [])
+    if params[:highlight].present?
+      highlighted_system = StarSystem.includes(:parsec).find_by(id: params[:highlight])
+      @highlight_hex = highlighted_system&.parsec&.hex_code
+    end
+    respond_to do |format|
+      format.svg { render layout: false }
+      format.html { render layout: false, content_type: 'image/svg+xml' }
+    end
   end
 
   def clear
