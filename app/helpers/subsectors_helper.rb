@@ -1,5 +1,5 @@
 module SubsectorsHelper
-  HEX_SIZE = 30
+  HEX_SIZE = 40
   HEX_WIDTH = HEX_SIZE * 2
   HEX_HEIGHT = HEX_SIZE * Math.sqrt(3)
   SVG_PADDING = 20
