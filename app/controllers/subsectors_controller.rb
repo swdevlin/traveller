@@ -55,8 +55,8 @@ class SubsectorsController < ApplicationController
   def map
     @star_systems = @subsector.star_systems.includes(:parsec, stars: [])
     if params[:highlight].present?
-      highlighted_system = StarSystem.includes(:parsec).find_by(id: params[:highlight])
-      @highlight_hex = highlighted_system&.parsec&.hex_code
+      highlighted_parsec = Parsec.find_by(id: params[:highlight])
+      @highlight_hex = highlighted_parsec&.hex_code
     end
     respond_to do |format|
       format.svg { render layout: false }
