@@ -36,6 +36,11 @@ Rails.application.routes.draw do
   end
 
   resources :sectors do
+    collection do
+      get :new_modal
+      get :new_from_traveller_map
+      get :new_from_default
+    end
     member do
       post :clear
       get :populate, as: :populate

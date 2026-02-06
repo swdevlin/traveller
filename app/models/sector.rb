@@ -58,35 +58,23 @@ class Sector < ApplicationRecord
 
   def create_subsectors_and_parsecs
     return if Rails.env.test?
-    create_subsectors
-    create_parsecs
-  end
 
-  def create_subsectors
-    letters = ('A'..'P').to_a
+    subsector_names = fetch_subsector_names_from_traveller_map if source == 'traveller_map'
 
-    letters.each_with_index do |letter, index|
+    ('A'..'P').each_with_index do |letter, index|
       x = (index % 4) + 1
       y = (index / 4) + 1
-
-      subsectors.create!(
-        x: x,
-        y: y,
-        abbreviation: letter,
-        name: letter
-      )
+      subsector_name = subsector_names&.dig(letter, 'Name') || letter
+      CreateSubsectorJob.perform_later(self, letter, x, y, subsector_name)
     end
   end
 
-  def create_parsecs
-    ul, lr = universal_coordinates
-    (0...32).each do |x|
-      (0...40).each do |y|
-        parsecs.create!(
-          x: ul.x + x,
-          y: ul.y - y
-        )
-      end
-    end
+  def fetch_subsector_names_from_traveller_map
+    traveller_map = TravellerMap.new
+    metadata = traveller_map.fetch("metadata?sx=#{x}&sy=#{y}")
+    return nil if metadata.nil?
+
+    data = JSON.parse(metadata)
+    (data['Subsectors'] || []).index_by { |s| s['Index'] }
   end
 end

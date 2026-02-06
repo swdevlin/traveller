@@ -5,6 +5,6 @@ class GasGiant < StellarObject
     diameter: 'diameter',
     code: 'code',
     period: 'period',
-    rotation: 'rotation',
+    rotation: 'rotation'
   )
 end

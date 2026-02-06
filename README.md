@@ -6,6 +6,12 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
+* start with just the foreven sector
+* Add Button to create all deepnight sectors
+  * create with confiuration for each sector
+  * Option to generate blank?
+* Quickly toggle known state
+* Quickly set surveyIndex
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
 * Display atmosphere data for worlds
@@ -40,7 +46,6 @@
   * [x] Specific class, subtype, and luminosity
   * Support generating by system density
   * support full system specification
-* Hex display for a subsector
 * Display star system map
 * Paginate allegiance list
 * Mongoose allegiance codes

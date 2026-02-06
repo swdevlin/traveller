@@ -1,0 +1,67 @@
+<div class="t-card">
+  <div class="t-card-header">
+    <p class="t-card-title">
+      <% if query.present? && query.length >= 3 %>
+        Search Results
+        <span class="t-pill ml-2"><%= sectors.length %></span>
+      <% else %>
+        Enter at least 3 characters to search
+      <% end %>
+    </p>
+  </div>
+
+  <% if sectors.any? %>
+    <div class="t-scroll-x">
+      <table class="t-table">
+        <thead class="t-thead">
+          <tr>
+            <th scope="col" class="t-th">Sector Name</th>
+            <th scope="col" class="t-th">Coordinates</th>
+            <th scope="col" class="t-th">Tags</th>
+            <th scope="col" class="t-th"></th>
+          </tr>
+        </thead>
+        <tbody class="t-tbody">
+          <% sectors.each do |sector| %>
+            <% existing = existing_sectors[[sector['SectorX'], sector['SectorY']]] %>
+            <tr class="t-tr">
+              <td class="t-td font-medium"><%= sector['Name'] %></td>
+              <td class="t-td">
+                <span class="t-pill"><%= sector['SectorX'] %>/<%= sector['SectorY'] %></span>
+              </td>
+              <td class="t-td text-xs text-slate-400"><%= sector['SectorTags'] %></td>
+              <td class="t-td text-right">
+                <% if existing %>
+                  <span class="text-xs text-slate-400 mr-2">Already imported</span>
+                  <%= link_to existing.name,
+                              sector_path(existing),
+                              class: "btn btn-sm" %>
+                <% else %>
+                  <%= button_to "Import",
+                                sectors_path(sector: {
+                                  name: sector['Name'],
+                                  x: sector['SectorX'],
+                                  y: sector['SectorY'],
+                                  source: 'traveller_map'
+                                }),
+                                method: :post,
+                                data: { turbo_confirm: "Import #{sector['Name']} sector? This will create 16 subsectors." },
+                                class: "btn-header" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% elsif query.present? && query.length >= 3 %>
+    <div class="p-6 text-center text-slate-400">
+      No sectors found matching "<%= query %>"
+    </div>
+  <% else %>
+    <div class="p-6 text-center text-slate-400">
+      <i class="fa-regular fa-globe text-2xl block mb-2"></i>
+      <p>Search the Traveller Map database for sectors to import.</p>
+    </div>
+  <% end %>
+</div>

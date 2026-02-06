@@ -61,6 +61,23 @@ class SectorsController < ApplicationController
         .count
   end
 
+  def new_from_traveller_map
+    @query = params[:q].to_s.strip
+    @sectors = []
+    @existing_sectors = {}
+
+    if @query.length >= 3
+      traveller_map = TravellerMap.new
+      @sectors = traveller_map.find_sectors(name: @query)
+
+      # Build a lookup of existing sectors by coordinates
+      coords = @sectors.map { |s| [s['SectorX'], s['SectorY']] }
+      Sector.where(x: coords.map(&:first), y: coords.map(&:second)).find_each do |sector|
+        @existing_sectors[[sector.x, sector.y]] = sector
+      end
+    end
+  end
+
   # GET /sectors/new
   def new
     @sector = Sector.new
@@ -83,7 +100,11 @@ class SectorsController < ApplicationController
 
     respond_to do |format|
       if @sector.save
-        format.html { redirect_to @sector, notice: 'Sector was successfully created.' }
+        if @sector.source == 'traveller_map'
+          format.html { redirect_to sectors_path, notice: "#{@sector.name} sector import started. Subsectors are being created in the background." }
+        else
+          format.html { redirect_to @sector, notice: 'Sector was successfully created.' }
+        end
         format.json { render :show, status: :created, location: @sector }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -123,6 +144,6 @@ class SectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def sector_params
-      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build])
+      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source])
     end
 end
