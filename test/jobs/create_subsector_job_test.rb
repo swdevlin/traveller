@@ -62,10 +62,9 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
         'RU' => '3960'
       }
     ]
-
   end
 
-  test "systems_to_build_plan converts systems to YAML with type STANDARD" do
+  test 'systems_to_build_plan converts systems to YAML with type STANDARD' do
     result = @job.send(:systems_to_build_plan, @systems)
     parsed = YAML.safe_load(result)
 
@@ -73,13 +72,13 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 3, parsed['systems'].length
   end
 
-  test "systems_to_build_plan converts hex to subsector coordinates" do
+  test 'systems_to_build_plan converts hex to subsector coordinates' do
     result = @job.send(:build_system_definition, @systems.first)
     assert_equal 1, result['x']
     assert_equal 1, result['y']
   end
 
-  test "systems_to_build_plan handles sector hex codes for subsector B (columns 9-16)" do
+  test 'systems_to_build_plan handles sector hex codes for subsector B (columns 9-16)' do
     @systems.first['Hex'] = '0901'
     # Subsector B would have hex codes like 0901-1610
     # 0901 should become subsector coords 1,1
@@ -89,7 +88,7 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 1, result['y']
   end
 
-  test "systems_to_build_plan handles sector hex codes for subsector E (rows 11-20)" do
+  test 'systems_to_build_plan handles sector hex codes for subsector E (rows 11-20)' do
     @systems.first['Hex'] = '0313'
     # Subsector E would have hex codes like 0111-0820
     # 0313 should become subsector coords 3,3
@@ -98,14 +97,14 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 3, result['y']
   end
 
-  test "systems_to_build_plan includes name" do
+  test 'systems_to_build_plan includes name' do
     result = @job.send(:systems_to_build_plan, @systems)
     parsed = YAML.safe_load(result)
 
     assert_equal 'Didraga', parsed['systems'].first['name']
   end
 
-  test "systems_to_build_plan handles multiple systems" do
+  test 'systems_to_build_plan handles multiple systems' do
     result = @job.send(:systems_to_build_plan, @systems)
     parsed = YAML.safe_load(result)
 
@@ -115,7 +114,7 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 'San Nuska Kilna', parsed['systems'][2]['name']
   end
 
-  test "systems_to_build_plan returns valid YAML" do
+  test 'systems_to_build_plan returns valid YAML' do
     result = @job.send(:systems_to_build_plan, @systems)
 
     assert_nothing_raised do
@@ -127,7 +126,7 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert validator.valid?
   end
 
-  test "PBG mapped to counts" do
+  test 'PBG mapped to counts' do
     systems = [
       { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A' }
     ]
@@ -135,10 +134,9 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 6, result['counts']['terrestrialPlanets']
     assert_equal 0, result['counts']['planetoidBelts']
     assert_equal 3, result['counts']['gasGiants']
-
   end
 
-  test "Mainworld included in counts" do
+  test 'Mainworld included in counts' do
     systems = [
       { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A' }
     ]
@@ -147,43 +145,42 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
     assert_equal 'hzco', result['counts']['mainWorld']['orbit']
   end
 
-  test "No bases is an empty array" do
+  test 'No bases is an empty array' do
     @systems.first['Bases'] = nil
     result = @job.send(:build_system_definition, @systems.first)
     assert_equal [], result['bases']
   end
 
-  test "bases added" do
+  test 'bases added' do
     @systems.first['Bases'] = 'S'
     result = @job.send(:build_system_definition, @systems.first)
     assert_equal ['S'], result['bases']
   end
 
-  test "Multiple bases added" do
+  test 'Multiple bases added' do
     @systems.first['Bases'] = 'SN'
     result = @job.send(:build_system_definition, @systems.first)
     assert_equal ['S', 'N'], result['bases']
   end
 
-  test "No allegiance is nil" do
+  test 'No allegiance is nil' do
     @systems.first['Allegiance'] = ''
     result = @job.send(:build_system_definition, @systems.first)
     assert_nil result['allegiance']
   end
 
-  test "allegiance added" do
+  test 'allegiance added' do
     result = @job.send(:build_system_definition, @systems.first)
     assert_equal 'ImDi',  result['allegiance']
   end
 
-  test "stars added" do
+  test 'stars added' do
     result = @job.send(:build_system_definition, @systems.first)
-    expected = { 'type' => 'K0', 'class' => 'V'}
+    expected = { 'type' => 'K0', 'class' => 'V' }
     assert_equal expected,  result['primary']
 
     result = @job.send(:build_system_definition, @systems.second)
-    primary = {'type' => 'M3', 'class' => 'V', 'near' => {'type' => 'M5', 'class' => 'V'}}
+    primary = { 'type' => 'M3', 'class' => 'V', 'near' => { 'type' => 'M5', 'class' => 'V' } }
     assert_equal primary,  result['primary']
-
   end
 end
