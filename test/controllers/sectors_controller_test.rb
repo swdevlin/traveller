@@ -39,7 +39,7 @@ class SectorsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should destroy sector' do
-    assert_difference('Sector.count', -1) do
+    assert_difference('Sector.kept.count', -1) do
       delete sector_url(@sector)
     end
 
