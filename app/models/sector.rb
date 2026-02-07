@@ -1,13 +1,13 @@
 class Sector < ApplicationRecord
+  include Discard::Model
   include ClearableParsecs
   validates :x, :y, presence: true
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
-  after_create :create_subsectors_and_parsecs
+  after_create_commit :create_subsectors_and_parsecs
 
   validate :coordinates_unique_with_link
-
 
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
@@ -46,7 +46,7 @@ class Sector < ApplicationRecord
   def coordinates_unique_with_link
     return if x.blank? || y.blank?
 
-    existing = Sector.where(x: x, y: y).where.not(id: id).first
+    existing = Sector.kept.where(x: x, y: y).where.not(id: id).first
     return unless existing
 
     safe_name = ERB::Util.h(existing.name)
@@ -65,7 +65,7 @@ class Sector < ApplicationRecord
       x = (index % 4) + 1
       y = (index / 4) + 1
       subsector_name = subsector_names&.dig(letter, 'Name') || letter
-      CreateSubsectorJob.perform_later(self, letter, x, y, subsector_name)
+      CreateSubsectorJob.perform_later(id, letter, x, y, subsector_name)
     end
   end
 

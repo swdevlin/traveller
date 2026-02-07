@@ -4,7 +4,7 @@ class SectorsController < ApplicationController
   # GET /sectors or /sectors.json
   def index
     @q = params[:q].to_s.strip
-    scope = Sector.order(:name)
+    scope = Sector.kept.order(:name)
     scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, params: request.query_parameters)
   end
@@ -72,7 +72,7 @@ class SectorsController < ApplicationController
 
       # Build a lookup of existing sectors by coordinates
       coords = @sectors.map { |s| [s['SectorX'], s['SectorY']] }
-      Sector.where(x: coords.map(&:first), y: coords.map(&:second)).find_each do |sector|
+      Sector.kept.where(x: coords.map(&:first), y: coords.map(&:second)).find_each do |sector|
         @existing_sectors[[sector.x, sector.y]] = sector
       end
     end
@@ -128,7 +128,9 @@ class SectorsController < ApplicationController
 
   # DELETE /sectors/1 or /sectors/1.json
   def destroy
-    @sector.destroy!
+    @sector.discard
+    @sector.save
+    DeleteSectorJob.perform_later(@sector)
 
     respond_to do |format|
       format.html { redirect_to sectors_path, notice: 'Sector deleted.', status: :see_other }
@@ -139,7 +141,7 @@ class SectorsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sector
-      @sector = Sector.find(params.expect(:id))
+      @sector = Sector.kept.find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.

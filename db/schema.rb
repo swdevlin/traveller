@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_165153) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_06_225308) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -99,6 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_06_165153) do
     t.text "build"
     t.json "build_log"
     t.datetime "created_at", null: false
+    t.datetime "discarded_at"
     t.string "name"
     t.text "notes"
     t.string "source", default: "manual"
@@ -106,6 +107,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_06_165153) do
     t.datetime "updated_at", null: false
     t.integer "x"
     t.integer "y"
+    t.index ["discarded_at"], name: "index_sectors_on_discarded_at"
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 

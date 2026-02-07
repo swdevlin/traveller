@@ -1,0 +1,35 @@
+<% content_for :title, "Import from Default" %>
+<% content_for :page_kicker, "IISS Sector Registry" %>
+<% content_for :page_title, "Import from Default" %>
+
+<%= render 'application/page' do %>
+  <div class="max-w-2xl">
+    <p class="text-slate-300 mb-6">
+      Create a sector from a default template.
+    </p>
+
+    <%= form_with url: sectors_path, method: :post, class: "space-y-6" do |f| %>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-200 mb-2">Select Template</label>
+          <select name="template"
+                  class="w-full rounded-lg bg-slate-900/50 border border-slate-700 px-4 py-2 text-slate-100 focus:border-sky-500 focus:ring-1 focus:ring-sky-500">
+            <option value="">Choose a template...</option>
+            <option value="empty">Empty Sector</option>
+            <option value="spinward_marches">Spinward Marches</option>
+            <option value="deneb">Deneb</option>
+          </select>
+          <p class="mt-1 text-xs text-slate-400">Select a pre-configured sector template</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <%= link_to "Cancel", sectors_path, class: "btn" %>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-file-import mr-2"></i>
+          Create from Template
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>

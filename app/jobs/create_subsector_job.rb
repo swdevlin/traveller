@@ -3,7 +3,9 @@
 class CreateSubsectorJob < ApplicationJob
   queue_as :default
 
-  def perform(sector, letter, x, y, subsector_name = nil)
+  def perform(sector_id, letter, x, y, subsector_name = nil)
+    sector = Sector.find(sector_id)
+
     subsector = sector.subsectors.create!(
       x: x,
       y: y,
@@ -21,6 +23,19 @@ class CreateSubsectorJob < ApplicationJob
       'ui_updates',
       { event: 'subsector_created', sector_id: sector.id, subsector_id: subsector.id }
     )
+  rescue StandardError => e
+    Rails.logger.error(
+      [
+        '[CreateSubsectorJob] failed',
+        "sector_id=#{sector&.id}",
+        "letter=#{letter.inspect} x=#{x.inspect} y=#{y.inspect}",
+        "subsector_name=#{subsector_name.inspect}",
+        "error=#{e.class}: #{e.message}",
+        e.backtrace&.join("\n")
+      ].compact.join("\n")
+    )
+
+    raise
   end
 
   private
