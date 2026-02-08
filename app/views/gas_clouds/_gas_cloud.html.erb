@@ -1,20 +1,8 @@
-<% allegiance = gas_cloud.allegiance %>
 <% star = gas_cloud.orbiting_star %>
 <% star_system = star&.star_system %>
 <% parsec = gas_cloud.parsec || star_system&.parsec %>
 <% subsector = parsec&.subsector %>
 <% sector = parsec&.sector %>
-
-<% allegiance_value =
-     if allegiance
-       safe_join([
-                   allegiance.name,
-                   content_tag(:span, allegiance.code, class: "identifier")
-                 ])
-     else
-       "None"
-     end
-%>
 
 <div id="<%= dom_id gas_cloud %>" class="space-y-6">
   <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
@@ -53,10 +41,6 @@
                  value_wrap_class: 'flex flex-wrap items-center gap-2',
                  suffix: tag.span(parsec.hex_code, class: 'identifier') %>
     <% end %>
-
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
   </div>
 
   <% if star %>
