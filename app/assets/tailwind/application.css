@@ -123,13 +123,13 @@
 
   .identifier {
     @apply inline-flex items-center gap-2 rounded-full
-    border border-slate-700/70 bg-slate-900/30
+    border border-sky-400/40 bg-slate-900/30
     px-3 py-1 font-mono text-sm text-slate-100;
   }
 
   .identifier-sm {
     @apply inline-flex items-center gap-2 rounded-full
-    border border-slate-700/70 bg-slate-900/30
+    border border-sky-400/40 bg-slate-900/30
     px-2.5 py-0.5 font-mono text-xs text-slate-100;
   }
 
@@ -265,7 +265,10 @@
 
   /* Common bits used inside tables */
   .t-pill {
-    @apply inline-flex items-center rounded-full border border-slate-600/70 bg-slate-900/80 px-2 py-0.5 font-mono tracking-wide text-slate-200;
+    @apply inline-flex items-center
+    rounded-full border border-sky-400/40 bg-slate-900/80
+    px-2 py-0.5
+    font-mono tracking-wide text-slate-200;
   }
 
   .t-link {
