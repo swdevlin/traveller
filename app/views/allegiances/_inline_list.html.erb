@@ -1,0 +1,11 @@
+<%= safe_join(
+      allegiances.map { |a|
+        if a.name == a.code
+          link_to a.name, allegiance_path(a), class: 't-link no-underline'
+        else
+          link_to(a.name, allegiance_path(a), class: 't-link no-underline') +
+            content_tag(:span, a.code, class: 't-pill ml-1')
+        end
+      },
+      ", "
+    ) %>

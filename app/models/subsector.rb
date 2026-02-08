@@ -8,6 +8,15 @@ class Subsector < ApplicationRecord
     message: 'Subsector already exists'
   }
 
+  def star_systems_scope
+    ul, lr = universal_coordinates
+    in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }
+
+    StarSystem
+      .joins(:parsec)
+      .where(parsecs: in_subsector)
+  end
+
   def universal_coordinates
     ul,  = sector.universal_coordinates
     ul = ul.dup
@@ -39,6 +48,31 @@ class Subsector < ApplicationRecord
       .joins(:parsec)
       .where(parsecs: in_subsector)
       .order('parsecs.x ASC, parsecs.y DESC')
+  end
+
+  def number_of_star_systems
+    star_systems.count
+  end
+
+  def number_of_stars
+    ul, lr = universal_coordinates
+    in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }
+
+    Star
+      .joins(star_system: :parsec)
+      .where(parsecs: in_subsector)
+      .count
+  end
+
+  def allegiances
+    ul, lr = universal_coordinates
+    in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }
+
+    Allegiance
+      .joins(star_systems: :parsec)
+      .where(parsecs: in_subsector.merge(sector_id: sector_id))
+      .where.not(allegiances: { id: nil })
+      .distinct
   end
 
   def wiki_link

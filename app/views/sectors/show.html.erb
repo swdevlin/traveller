@@ -76,6 +76,8 @@
       <%= render 'application/observation_block',
                  notes: @sector.notes %>
 
+      <%= render 'subsectors/table', subsectors: @sector.subsectors.order(:name) %>
+
       <div class="iiss-form">
         FORM 0398D-0
       </div>

@@ -41,6 +41,14 @@ class Sector < ApplicationRecord
         .index_by { |s| [s.x, s.y] }
   end
 
+  def get_allegiances
+    Allegiance
+      .joins(star_systems: :parsec)
+      .where(parsecs: { sector_id: id })
+      .where.not(allegiances: { id: nil })
+      .distinct
+  end
+
   private
 
   def coordinates_unique_with_link
