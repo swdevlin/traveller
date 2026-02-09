@@ -13,8 +13,21 @@
 
     <div>
       <div class="edit-label">Name</div>
-      <%= form.text_field :name, class: "edit-base mt-2 w-full" %>
+      <%= form.text_field :name, class: "edit-base mt-2 w-100" %>
     </div>
+
+    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+      <div>
+        <div class="edit-label">Comet type</div>
+        <%= df.select :comet_type,
+                      options_for_select(
+                        Comet::DESCRIPTIONS.map { |value, label| [label, value] },
+                        stellar_object.comet_type
+                      ),
+                      { include_blank: "Select a type" },
+                      class: "edit-base mt-2 w-100" %>
+      </div>
+    <% end %>
 
     <div>
       <div class="edit-label">Observations</div>
