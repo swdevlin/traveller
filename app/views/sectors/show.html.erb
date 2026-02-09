@@ -101,7 +101,7 @@
                       data: { turbo_confirm: confirm_msg } %>
 
         <%= render 'application/back_button',
-                   path: sectors_path,
+                   path: sectors_path(page: @page),
                    label: 'Sectors',
                    class: 'w-full sm:w-auto' %>
 
