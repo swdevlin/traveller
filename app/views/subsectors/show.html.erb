@@ -80,7 +80,6 @@
 
       <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
 
-      <!-- Actions (kept at bottom, with breathing room via pb-10 on page container) -->
       <div class='mt-6 flex flex-col sm:flex-row gap-2'>
         <%= link_to 'Edit',
                     edit_subsector_path(@subsector),
