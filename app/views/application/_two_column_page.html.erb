@@ -1,4 +1,4 @@
-<div class="md:w-2/3 w-full">
+<div class="w-full">
   <div class="page-shell">
     <div class="page-header">
       <div>
@@ -21,6 +21,13 @@
     <div class="page-body">
       <div class="page-main">
         <%= yield %>
+        <% if content_for?(:iiss_form) %>
+          <div class="pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-400">
+            FORM <%= yield :iiss_form %>
+          </div>
+        <% end %>
+
+        <%= yield :page_buttons if content_for?(:page_buttons) %>
       </div>
 
       <div class="page-side">
