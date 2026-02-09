@@ -6,7 +6,7 @@ class SectorsController < ApplicationController
     @q = params[:q].to_s.strip
     scope = Sector.kept.order(:name)
     scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
-    @pagy, @sectors = pagy(scope, params: request.query_parameters)
+    @pagy, @sectors = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
   def populate
@@ -59,6 +59,9 @@ class SectorsController < ApplicationController
         .where(parsecs: { sector_id: @sector.id })
         .where(orbiting_star_id: nil)
         .count
+
+    position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
+    @page = (position + 9) / 10
   end
 
   def new_from_traveller_map
