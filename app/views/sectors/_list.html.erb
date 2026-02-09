@@ -29,7 +29,7 @@
         <p class='t-card-title'>Sector Registry</p>
         <div class="flex items-center gap-2">
           <div class="flex gap-2">
-            <%= link_to new_sector_path, data: { turbo_frame: "_top"}, class: "btn-header" do %>
+            <%= link_to new_sector_path, data: { turbo_frame: "_top" }, class: "btn-header" do %>
               <i class="fa-solid fa-plus"></i>
               <span>Blank</span>
             <% end %>
@@ -45,23 +45,23 @@
     <div class="t-scroll-x">
       <table class="t-table">
         <thead class="t-thead">
-          <tr>
-            <th scope="col" class="t-th">Sector</th>
-            <th scope="col" class="t-th">Star Chart</th>
-            <th scope="col" class="t-th">Library</th>
-          </tr>
+        <tr>
+          <th scope="col" class="t-th">Sector</th>
+          <th scope="col" class="t-th">Star Chart</th>
+          <th scope="col" class="t-th">Library</th>
+        </tr>
         </thead>
         <tbody class="t-tbody">
         <% if @sectors.any? %>
           <% @sectors.each do |sector| %>
             <tr class="t-tr">
               <td class="t-td">
-                  <%= link_to sector_path(sector),
-                              data: { turbo_frame: "_top"},
-                              class: "no-underline t-link" do %>
-                    <span><%= sector.name %></span>
-                  <% end %>
-                  <span class="t-pill ml-4"><%= sector.x %>/<%= sector.y %></span>
+                <%= link_to sector_path(sector),
+                            data: { turbo_frame: "_top" },
+                            class: "no-underline t-link" do %>
+                  <span><%= sector.name %></span>
+                <% end %>
+                <span class="t-pill ml-4"><%= sector.x %>/<%= sector.y %></span>
               </td>
 
               <td class="t-td">
@@ -76,7 +76,6 @@
                               target: "_blank",
                               rel: "noopener",
                               class: "no-underline t-link" do %>
-                    <span class="text-base">📡</span>
                     <span>Traveller Wiki</span>
                   <% end %>
                 <% else %>
@@ -97,7 +96,7 @@
     </div>
   </div>
 
-<div class="w-full pb-4">
-  <%== @pagy.series_nav %>
-</div>
+  <div class="w-full pb-4">
+    <%== @pagy.series_nav %>
+  </div>
 </div>
