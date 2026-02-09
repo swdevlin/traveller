@@ -17,7 +17,7 @@
         </td>
 
         <td class='t-td'>
-          <%= link_to allegiance_path(allegiance), class: "t-link" do %>
+          <%= link_to allegiance_path(allegiance), class: "t-link", data: { turbo_frame: "_top" } do %>
             <%= allegiance.name %>
           <% end %>
         </td>
@@ -30,7 +30,7 @@
 
         <td class='t-td-right'>
           <div class='t-actions'>
-            <%= link_to edit_allegiance_path(allegiance), class: 't-action' do %>
+            <%= link_to edit_allegiance_path(allegiance), class: 't-action', data: { turbo_frame: "_top" } do %>
               <i class='fa-regular fa-pen-to-square'></i>
             <% end %>
 
@@ -46,4 +46,7 @@
     <% end %>
     </tbody>
   </table>
+  <div class="w-full pb-4">
+    <%== pagy.series_nav %>
+  </div>
 </div>

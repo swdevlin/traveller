@@ -3,16 +3,24 @@ class AllegiancesController < ApplicationController
 
   # GET /allegiances or /allegiances.json
   def index
-    @allegiances = Allegiance.order(:code)
+    scope = Allegiance.order(:code)
+    @pagy, @allegiances = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
   # GET /allegiances/table
   def table
-    @allegiances = Allegiance.order(:code)
+    scope = Allegiance.order(:code)
+    if params[:q].present?
+      q = "%#{params[:q].to_s.strip.downcase}%"
+      scope = scope.where('LOWER(code) LIKE ? OR LOWER(name) LIKE ?', q, q)
+    end
+    @pagy, @allegiances = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
   # GET /allegiances/1 or /allegiances/1.json
   def show
+    position = Allegiance.where('code < ?', @allegiance.code).count + 1
+    @page = (position + 9) / 10
   end
 
   def import_from_traveller_map

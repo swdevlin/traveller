@@ -3,6 +3,27 @@
 <% content_for :page_title, "Allegiances" %>
 
 <%= render 'application/page' do %>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2">
+    <%= form_with url: table_allegiances_path,
+                  method: :get,
+                  data: { turbo_frame: "allegiances", controller: "autosubmit", autosubmit_delay_value: 250 },
+                  class: "flex items-center gap-2" do %>
+
+      <%= text_field_tag :q, params[:q],
+                         placeholder: "Filter allegiances\u2026",
+                         autocomplete: "off",
+                         data: { controller: params[:q].present? ? "autofocus" : nil, action: "input->autosubmit#queue" },
+                         class: "w-56 rounded-lg bg-slate-900/50 border border-slate-700 px-3 py-2" %>
+
+      <% if params[:q].present? %>
+        <%= link_to "Clear",
+                    table_allegiances_path,
+                    data: { turbo_frame: "allegiances" },
+                    class: "btn" %>
+      <% end %>
+    <% end %>
+  </div>
+
   <div class='t-card'>
     <div class='t-card-header'>
       <div class="flex items-center justify-between gap-3">
@@ -25,11 +46,10 @@
     </div>
 
     <turbo-frame id="allegiances"
-                 src="<%= table_allegiances_path %>"
-                 target="_top"
+                 src="<%= table_allegiances_path(page: params[:page]) %>"
                  data-controller="ui-updates"
                  data-ui-updates-event-value="allegiances_updated">
-      <%= render 'table', allegiances: @allegiances %>
+      <%= render 'table', allegiances: @allegiances, pagy: @pagy %>
     </turbo-frame>
   </div>
 <% end %>
