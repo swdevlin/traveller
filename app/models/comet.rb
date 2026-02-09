@@ -1,5 +1,4 @@
 class Comet < StellarObject
-  before_validation :default_notes_from_comet_type, on: :create
   store_accessor :data, :comet_type
   DESCRIPTIONS = {
     'tiny'      => 'Tiny, ice-bearing suitable for one refuelling only',
@@ -14,18 +13,15 @@ class Comet < StellarObject
     %i[comet_type]
   end
 
+  def self.permitted_params
+    [:name, :notes, data: [:comet_type]]
+  end
+
   def comet_type_description
     DESCRIPTIONS[comet_type] || comet_type&.humanize
   end
 
   private
-
-  def default_notes_from_comet_type
-    return if comet_type.blank?
-    return if notes.present?
-
-    self.notes = comet_type_description
-  end
 
   def comet_type_is_valid
     return if comet_type.blank?
