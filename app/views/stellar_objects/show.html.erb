@@ -1,3 +1,10 @@
+<%
+  star = @stellar_object.orbiting_star
+  star_system = star&.star_system
+  parsec = @stellar_object.parsec || star_system&.parsec
+  subsector = parsec&.subsector
+%>
+
 <%= content_for :title, @stellar_object.class.model_name.human %>
 <%= content_for :page_kicker, "IISS Class IV Survey" %>
 <%= content_for :page_title, @stellar_object.display_name %>
@@ -6,31 +13,20 @@
   <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
 <% end %>
 
-<%
-  star = @stellar_object.orbiting_star
-  star_system = star&.star_system
-  parsec = @stellar_object.parsec || star_system&.parsec
-  subsector = parsec&.subsector
-%>
-
-<%= render 'application/page' do %>
-  <div class='flex flex-col md:flex-row md:items-start gap-6'>
-    <div class='flex-1 min-w-0'>
-      <%= render @stellar_object %>
-    </div>
-
-    <% if subsector %>
-      <div class='w-full md:w-[300px] shrink-0'>
-        <div class='mt-2'>
-          <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
-            <object type="image/svg+xml"
-                    data="<%= map_subsector_path(subsector, highlight: parsec.id) %>"
-                    class="block h-full w-full">
-              Subsector map
-            </object>
-          </div>
-        </div>
+<%= content_for :page_side do %>
+  <% if subsector %>
+    <div class='mt-2'>
+      <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
+        <object type="image/svg+xml"
+                data="<%= map_subsector_path(subsector, highlight: parsec.id) %>"
+                class="block h-full w-full">
+          Subsector map
+        </object>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <%= render @stellar_object %>
 <% end %>
