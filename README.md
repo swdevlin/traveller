@@ -6,48 +6,42 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* start with just the foreven sector
-* Add Button to create all deepnight sectors
-  * create with configuration for each sector
-  * Option to generate blank?
 * Quickly toggle known state
 * Quickly set surveyIndex
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
 * Display atmosphere data for worlds
 * Display hydrosphere data for worlds
-* UI for sectors list uses standard code
+* Add star systen to parsec
+  * Use build configuration, limited to just a system. Pass the block to the generator
+* edit star system
+  * [] edit details
+  * [] delete orbiting body
+  * [] delete secondary or companion stars
+  * [] reorder secondary stars
+  * [] reorder orbiting bodies
+* edit terrestrial planet
+  * [] edit details
+* edit gas giant
+    * [] edit details
+* edit star
+  * [] edit details
+    * includes WBH values like spread, baseline, and baseline orbit number
+  * [] reorder orbiting bodies
+  * [] delete orbiting body
+* edit planetoid belt
+    * [] edit details
 * Add a rogue stellar object
   * Brown dwarf
     * can edit
-  * [x] Comet
-    * can edit
-  * [x] Gas cloud
-    * can edit
-  * [x] Gas giant
-    * can edit
-  * [x] Gravity anomaly
-    * can edit
-  * [x] Interstellar wreck
-    * can edit
-  * Planetoid belt
-    * can edit
-  * [x] Radiation cloud
-    * can edit
-  * [x] Relic
-    * can edit
-  * Terrestrial planet
-    * can edit uwp
-  * [x] Unusual Object
-    * can edit
-  * can delete rogue object
+  * Planetoid belt - no need to generate, just use edit form
+  * Terrestrial planet - no need to generate, just use edit form
 * Add a star system to a hex
   * [x] random
   * [x] Specific class, subtype, and luminosity
   * Support generating by system density
   * support full system specification
 * Display star system map
-* Paginate allegiance list
 * Mongoose allegiance codes
 * Log in
   * Multi-tenancy
@@ -62,14 +56,21 @@
 * store image of stellar object
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
-* Support generation by The Deep Space Exploration Handbook
 * System generation from Deepnight book
   * [x] Density specification in counts block
   * [ ] Barycenter support
 * Quickly set survey index for a subsector
+* start with just the foreven sector
+* Add Button to create all deepnight sectors
+    * create with configuration for each sector
+    * Option to generate blank?
 
 ### To do?
 
+* Moons
+* significant bodies for planetoid belts
+* Support generation by CRB
+* Support generation by The Deep Space Exploration Handbook
 * Integrate into Deepnight campaign 
 * Themes
   * Imperial
@@ -81,6 +82,8 @@
 * Routes
 * Communication routes
 * Name generation
+* Labels
+* Regions
 
 #### To do??
 
