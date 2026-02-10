@@ -88,6 +88,29 @@
             Build configuration (<%= link_to 'YAML', help_star_system_build_specification_path, class: 't-link' %>)
           <% end %>
 
+          <% if @build_errors.present? %>
+            <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div class="text-xs uppercase tracking-[0.22em] text-red-200/80">
+                  Build errors
+                </div>
+
+                <span class="identifier border-red-900/60 bg-red-950/60 text-red-100">
+                  <%= pluralize(@build_errors.size, "issue") %>
+                </span>
+              </div>
+
+              <ul class="mt-3 space-y-1 text-sm text-red-100">
+                <% @build_errors.each do |err| %>
+                  <li class="flex gap-2">
+                    <span class="select-none text-red-300">•</span>
+                    <span class="font-mono break-words"><%= err %></span>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
           <%= f.text_area :build_configuration,
                           rows: 12,
                           class: 'w-full edit-base font-mono',

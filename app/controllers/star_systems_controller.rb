@@ -40,9 +40,9 @@ class StarSystemsController < ApplicationController
     when 'empty'
       create_empty_star_system(create_params)
     when 'random'
-      generate_star_system(random: true)
+      generate_random_star_system(create_params)
     when 'build_configuration'
-      generate_build_configuration_star_system
+      generate_build_configuration_star_system(create_params)
     else
       StarSystem.new.tap { |s| s.errors.add(:base, 'Invalid create mode') }
     end
@@ -90,101 +90,88 @@ class StarSystemsController < ApplicationController
   end
 
   def create_empty_star_system(params)
-    @parsec ||= Parsec.find(params[:parsec_id].to_i)
+    build_config = {
+      'name' => params['name'],
+      'counts' => {
+        'gasGiants' => 0,
+        'planetoidBelts' => 0,
+        'terrestrialPlanets' => 0,
+      },
+      'primary' => {
+        'type' => "#{params['primary_spectral_type']}#{params['primary_spectral_subtype']}",
+        'class' => params['primary_luminosity']
+        }
+    }
+    result = GeneratorService.new.generate_star_system(build_config)
 
-    # create the star system
-    @star_system = StarSystem.new
-    @star_system.parsec = @parsec
-    @star_system.name = params['name']
-    @star_system.save!
+    unless result.success?
+      return StarSystem.new(star_system_params).tap do |so|
+        so.errors.add(:base, result.errors.to_sentence)
+      end
+    end
+    payload = result.value
 
-    # create the primary star
-    primary = Star.new
-    primary.star_system = @star_system
-    primary.stellar_subtype = params['primary_spectral_subtype']
-    primary.stellar_type = params['primary_spectral_type']
-    primary.stellar_class = params['primary_luminosity']
-    primary.save!
-
-    @star_system
+    importer = StarSystemImporter.new
+    @parsec ||= Parsec.find(star_system_params[:parsec_id])
+    importer.import!(@parsec, payload)
   rescue ActiveRecord::RecordInvalid => e
     e.record
   end
 
-  def generate_build_configuration_star_system
-    StarSystem.new.tap { |s| s.errors.add(:base, 'Build configuration mode is not yet implemented') }
-  end
+  def generate_build_configuration_star_system(params)
+    build_yaml = params['build_configuration']
+    validator = BuildConfigValidator.new(build_yaml)
 
-  def generate_star_system(random: true)
-    unless star_system_params[:parsec_id].present?
+    unless validator.valid_for_star_system?
+      @build_errors = validator.errors
       return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:parsec_id, 'You must select a hex')
+        so.errors.add(:build_configuration, 'Invalid build specification')
       end
     end
 
-    unless random
-      error = star_generate_params_errors
-      unless error.nil?
-        return StarSystem.new(star_system_params).tap do |so|
-          so.errors.add(:base, error)
-        end
-      end
-    end
+    config =
+      YAML.safe_load(
+        build_yaml,
+        permitted_classes: [Date, Time], # add more if you truly need them
+        aliases: false
+      ) || {}
 
-    sgp = star_generator_params
-    definition = { name: star_system_params[:name] }
+    result = GeneratorService.new.generate_star_system(config)
 
-    unless random
-      definition[:primary] = build_star_definition(sgp, 'primary')
-
-      if sgp['primary_companion_enabled'] == '1'
-        definition[:primary][:companion] = build_star_definition(sgp, 'primary_companion')
-      end
-
-      %w[close near far].each do |orbit|
-        if sgp["#{orbit}_enabled"] == '1'
-          definition[:primary][orbit.to_sym] = build_star_definition(sgp, orbit)
-
-          if sgp["#{orbit}_companion_enabled"] == '1'
-            definition[:primary][orbit.to_sym][:companion] = build_star_definition(sgp, "#{orbit}_companion")
-          end
-        end
-      end
-    end
-
-    base = Rails.application.config.x.generator_service
-    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'star_system')
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 50
-    http.read_timeout = 50
-    headers = {
-      'Content-Type' => 'application/json',
-      'Accept' => 'application/json'
-    }
-
-    response = http.post(uri.request_uri, definition.to_json, headers)
-
-    unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+    unless result.success?
       return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:base, 'Cannot create star system at this time')
+        so.errors.add(:base, result.errors.to_sentence)
       end
     end
-
-    data =
-      begin
-        JSON.parse(response.body)
-      rescue JSON::ParserError => e
-        Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
-        return StarSystem.new(star_system_params).tap do |so|
-          so.errors.add(:base, 'Cannot create star system at this time')
-        end
-      end
+    payload = result.value
 
     importer = StarSystemImporter.new
     @parsec ||= Parsec.find(star_system_params[:parsec_id])
-    importer.import!(@parsec, data)
+    importer.import!(@parsec, payload)
+  rescue ActiveRecord::RecordInvalid => e
+    e.record
+
+    StarSystem.new.tap { |s| s.errors.add(:base, 'Build configuration mode is not yet implemented') }
+  end
+
+  def generate_random_star_system(params)
+    build_config = {
+      'name' => params['name'],
+    }
+    result = GeneratorService.new.generate_star_system(build_config)
+
+    unless result.success?
+      return StarSystem.new(star_system_params).tap do |so|
+        so.errors.add(:base, result.errors.to_sentence)
+      end
+    end
+    payload = result.value
+
+    importer = StarSystemImporter.new
+    @parsec ||= Parsec.find(star_system_params[:parsec_id])
+    importer.import!(@parsec, payload)
+  rescue ActiveRecord::RecordInvalid => e
+    e.record
   end
 
   def star_system_edit_params

@@ -11,6 +11,12 @@ class BuildConfigValidator
     @config = nil
   end
 
+  def valid_for_star_system?
+    @errors = []
+    parse_yaml && validate_star_system_schema && validate_star_system_business_rules
+    @errors.empty?
+  end
+
   def valid?
     @errors = []
     parse_yaml && validate_schema && validate_business_rules
@@ -63,6 +69,17 @@ class BuildConfigValidator
 
   def validate_schema
     result = BuildConfigSchema.call(@config)
+
+    unless result.success?
+      @errors.concat(humanise_schema_errors(result.errors.to_h))
+      return false
+    end
+
+    true
+  end
+
+  def validate_star_system_schema
+    result = SingleSystemSchema.call(@config)
 
     unless result.success?
       @errors.concat(humanise_schema_errors(result.errors.to_h))
@@ -134,6 +151,21 @@ class BuildConfigValidator
 
       validate_star_tree(primary, "systems[#{idx}].primary")
     end
+
+    @errors.empty?
+  end
+
+  def validate_star_system_business_rules
+    validate_populated_allegiance
+    validate_populated_tech_level
+    validate_populated_population
+    validate_bases
+
+    validate_allegiance(config)
+    validate_counts(config['counts'], config['counts'])
+    primary = config['primary']
+
+    validate_star_tree(primary, config['primary'])
 
     @errors.empty?
   end

@@ -9,6 +9,7 @@ UWP_LABELS = [
   'terrestrial',
   'small gas giant',
   'gas giant',
+  'planetoid belt',
   'large gas giant',
   'super earth',
   'empty'
@@ -73,6 +74,17 @@ end
 SystemSchema = Dry::Schema.Params do
   required(:x).filled(:integer, gteq?: 1, lteq?: 8)
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
+  optional(:name).filled(:string)
+  optional(:populated).hash(PopulatedSchema)
+  optional(:primary).hash(StarSchema)
+  optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
+  optional(:bases).array(:string).each(:filled?)
+  optional(:known).filled(:bool)
+  optional(:allegiance).filled(:string)
+  optional(:counts).hash(CountsSchema)
+end
+
+SingleSystemSchema = Dry::Schema.Params do
   optional(:name).filled(:string)
   optional(:populated).hash(PopulatedSchema)
   optional(:primary).hash(StarSchema)
