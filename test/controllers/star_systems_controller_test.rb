@@ -17,7 +17,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should create star_system' do
+  test 'should create star_system with random mode' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -25,7 +25,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
 
     assert_difference('StarSystem.count') do
-      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', random_star: '1', parsec_id: @parsec.id } }
+      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', create_mode: 'random', parsec_id: @parsec.id } }
     end
 
     star_system = StarSystem.order(:created_at).last
@@ -55,49 +55,33 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to star_systems_url
   end
 
-  test 'primary luminosity is required' do
+  test 'should create empty star_system' do
+    assert_difference('StarSystem.count') do
+      post subsector_star_systems_url(@subsector), params: {
+        star_system: {
+          name: 'Empty One',
+          parsec_id: @parsec.id,
+          create_mode: 'empty'
+        }
+      }
+    end
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+  end
+
+  test 'empty mode requires parsec' do
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
         name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
-        primary_spectral_type: 'G',
-        primary_spectral_subtype: '2'
+        create_mode: 'empty'
       }
     }
 
     assert_response :unprocessable_entity
   end
 
-  test 'primary spectral_type is required' do
-    post subsector_star_systems_url(@subsector), params: {
-      star_system: {
-        name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
-        primary_spectral_subtype: '2'
-      }
-    }
-
-    assert_response :unprocessable_entity
-  end
-
-  test 'primary spectral_subtype is required' do
-    post subsector_star_systems_url(@subsector), params: {
-      star_system: {
-        name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
-        primary_spectral_type: 'G'
-      }
-    }
-
-    assert_response :unprocessable_entity
-  end
-
-  test 'create succeeds with random_star true even without star params' do
+  test 'create succeeds with random mode' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -108,14 +92,14 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
-        random_star: '1'
+        create_mode: 'random'
       }
     }
 
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
   end
 
-  test 'create succeeds with all primary star params when random_star is false' do
+  test 'create succeeds with empty mode and primary star params' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -126,10 +110,10 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
+        create_mode: 'empty',
         primary_spectral_type: 'G',
-        primary_spectral_subtype: '2'
+        primary_spectral_subtype: '2',
+        primary_luminosity: 'V'
       }
     }
 

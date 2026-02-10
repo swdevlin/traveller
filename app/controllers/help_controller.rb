@@ -7,6 +7,9 @@ class HelpController < ApplicationController
                   .sort
   end
 
-  def build_specification
+  def subsector_build_specification
+  end
+
+  def star_system_build_specification
   end
 end

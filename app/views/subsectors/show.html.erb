@@ -74,9 +74,9 @@
                    new_url: new_subsector_star_system_path(@subsector) %>
       </turbo-frame>
 
-        <%= render 'rogues/table',
-                   rogues: @subsector.rogues,
-                   new_url: new_subsector_rogue_path(@subsector) %>
+      <%= render 'rogues/table',
+                 rogues: @subsector.rogues,
+                 new_url: new_subsector_rogue_path(@subsector) %>
 
       <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
 

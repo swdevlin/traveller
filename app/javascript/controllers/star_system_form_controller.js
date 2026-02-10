@@ -1,161 +1,53 @@
-import {Controller} from '@hotwired/stimulus';
+import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = [
-    'randomToggle',
-    'starConfig',
-    // Primary star
-    'primaryFields',
-    'primarySpectralType',
-    'primarySpectralSubtype',
-    'primaryLuminosity',
-    // Primary companion
-    'primary_companionSection',
-    'primary_companionToggle',
-    'primary_companionContainer',
-    'primary_companionSpectralType',
-    'primary_companionSpectralSubtype',
-    'primary_companionLuminosity',
-    // Close star
-    'closeToggle',
-    'closeContainer',
-    'closeSpectralType',
-    'closeSpectralSubtype',
-    'closeLuminosity',
-    // Close companion
-    'close_companionSection',
-    'close_companionToggle',
-    'close_companionContainer',
-    'close_companionSpectralType',
-    'close_companionSpectralSubtype',
-    'close_companionLuminosity',
-    // Near star
-    'nearToggle',
-    'nearContainer',
-    'nearSpectralType',
-    'nearSpectralSubtype',
-    'nearLuminosity',
-    // Near companion
-    'near_companionSection',
-    'near_companionToggle',
-    'near_companionContainer',
-    'near_companionSpectralType',
-    'near_companionSpectralSubtype',
-    'near_companionLuminosity',
-    // Far star
-    'farToggle',
-    'farContainer',
-    'farSpectralType',
-    'farSpectralSubtype',
-    'farLuminosity',
-    // Far companion
-    'far_companionSection',
-    'far_companionToggle',
-    'far_companionContainer',
-    'far_companionSpectralType',
-    'far_companionSpectralSubtype',
-    'far_companionLuminosity'
-  ];
+  static targets = ['starConfig', 'buildConfigSection', 'buildConfig']
 
   connect() {
-    this.applyRandom();
+    this.sync()
   }
 
-  toggleRandom() {
-    this.applyRandom();
-  }
-
-  toggleSection(event) {
-    const prefix = event.params.prefix;
-    this.applySection(prefix);
-  }
-
-  applyRandom() {
-    const random = this.randomToggleTarget.checked;
+  sync() {
+    const mode = this.element.querySelector('input[name="star_system[create_mode]"]:checked')?.value
 
     if (this.hasStarConfigTarget) {
-      this.starConfigTarget.classList.toggle('hidden', random);
-    }
-
-    this.setFieldsDisabled('primary', random);
-
-    const sections = ['primary_companion', 'close', 'close_companion', 'near', 'near_companion', 'far', 'far_companion'];
-    sections.forEach(prefix => {
-      const toggleTarget = `${prefix}ToggleTarget`;
-      const hasToggle = `has${this.capitalize(prefix)}ToggleTarget`;
-
-      if (this[hasToggle]) {
-        const enabled = this[toggleTarget].checked && !random;
-        this.setFieldsDisabled(prefix, !enabled || random);
-      }
-    })
-  }
-
-  applySection(prefix) {
-    const toggleTarget = this[`${prefix}ToggleTarget`];
-    const containerTarget = this[`${prefix}ContainerTarget`];
-    const enabled = toggleTarget.checked;
-
-    containerTarget.classList.toggle('hidden', !enabled);
-    this.setFieldsDisabled(prefix, !enabled);
-
-    if (!enabled) {
-      this.clearFields(prefix);
-    }
-
-    // Show/hide companion section based on parent star state
-    const companionPrefix = `${prefix}_companion`;
-    const hasCompanionSection = this[`has${this.capitalize(companionPrefix)}SectionTarget`];
-    if (hasCompanionSection) {
-      const companionSection = this[`${companionPrefix}SectionTarget`];
-      companionSection.classList.toggle('hidden', !enabled);
-
-      // If hiding companion, also uncheck and clear it
-      if (!enabled) {
-        const hasCompanionToggle = this[`has${this.capitalize(companionPrefix)}ToggleTarget`];
-        if (hasCompanionToggle) {
-          const companionToggle = this[`${companionPrefix}ToggleTarget`];
-          companionToggle.checked = false;
-          const companionContainer = this[`${companionPrefix}ContainerTarget`];
-          companionContainer.classList.add('hidden');
-          this.clearFields(companionPrefix);
-          this.setFieldsDisabled(companionPrefix, true);
+      const show = mode === 'empty'
+      this.starConfigTarget.classList.toggle('hidden', !show)
+      this.starConfigTarget.querySelectorAll('select').forEach(el => {
+        if (show) {
+          const container = el.closest('[data-star-system-form-section]')
+          el.disabled = container ? container.classList.contains('hidden') : false
+        } else {
+          el.disabled = true
         }
-      }
+      })
+    }
+
+    if (this.hasBuildConfigSectionTarget) {
+      this.buildConfigSectionTarget.classList.toggle('hidden', mode !== 'build_configuration')
+    }
+
+    if (this.hasBuildConfigTarget) {
+      this.buildConfigTarget.disabled = mode !== 'build_configuration'
     }
   }
 
-  setFieldsDisabled(prefix, disabled) {
-    const fields = ['SpectralType', 'SpectralSubtype', 'Luminosity'];
-    fields.forEach(field => {
-      const targetName = `${prefix}${field}Target`;
-      const hasTarget = `has${this.capitalize(prefix)}${field}Target`;
+  toggleSection({ params: { prefix } }) {
+    const toggle = this.element.querySelector(`[data-star-system-form-prefix="${prefix}"][data-star-system-form-role="toggle"]`)
+    const container = this.element.querySelector(`[data-star-system-form-prefix="${prefix}"][data-star-system-form-role="container"]`)
+    if (!toggle || !container) return
 
-      if (this[hasTarget]) {
-        this.setDisabled(this[targetName], disabled);
+    const checked = toggle.checked
+    container.classList.toggle('hidden', !checked)
+    container.querySelectorAll('select').forEach(el => el.disabled = !checked)
+
+    // Hide companion section when parent is unchecked
+    const companionSection = this.element.querySelector(`[data-star-system-form-prefix="${prefix}_companion"][data-star-system-form-role="section"]`)
+    if (companionSection) {
+      companionSection.classList.toggle('hidden', !checked)
+      if (!checked) {
+        companionSection.querySelectorAll('select').forEach(el => el.disabled = true)
       }
-    })
-  }
-
-  clearFields(prefix) {
-    const fields = ['SpectralType', 'SpectralSubtype', 'Luminosity'];
-    fields.forEach(field => {
-      const targetName = `${prefix}${field}Target`;
-      const hasTarget = `has${this.capitalize(prefix)}${field}Target`;
-
-      if (this[hasTarget]) {
-        this[targetName].value = '';
-      }
-    })
-  }
-
-  setDisabled(el, disabled) {
-    if (!el) return;
-    el.disabled = disabled;
-    el.classList.toggle('opacity-50', disabled);
-  }
-
-  capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    }
   }
 }

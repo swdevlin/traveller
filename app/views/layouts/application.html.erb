@@ -42,11 +42,10 @@
          when :notice
            "border-emerald-500/40 bg-emerald-900/30 text-emerald-200"
          when :alert, :error
-           "border-traveller-red/60 bg-traveller-red/15 text-traveller-red-foreground"
+           "border-deepnight-orange/40 bg-deepnight-orange/15 text-deepnight-orange-foreground"
          else
            "border-slate-500/40 bg-slate-900/60 text-slate-100"
          end %>
-
     <p
       class="mb-4 inline-flex w-full items-center justify-between rounded-lg border px-4 py-2 text-sm font-medium shadow-sm <%= classes %>"
       role="status"
@@ -55,7 +54,16 @@
     </p>
   <% end %>
 
-  <main class="container mx-auto mt-8 px-5 flex pb-16">
+  <% form_object = content_for?(:form_object) ? yield(:form_object) : nil %>
+  <% if form_object&.respond_to?(:errors) && form_object.errors[:base].any? %>
+  <p class='mb-4 inline-flex w-full items-start gap-2 rounded-lg border border-deepnight-orange/40 bg-slate-950/40 px-4 py-2 text-sm font-medium text-slate-100 shadow-sm'
+     role='alert'>
+    <i class='fa-regular fa-triangle-exclamation mt-0.5 text-deepnight-orange/90' aria-hidden='true'></i>
+    <span><%= form_object.errors[:base].to_sentence %></span>
+  </p>
+<% end %>
+
+<main class="container mx-auto mt-8 px-5 flex pb-16">
     <%= yield %>
   </main>
 

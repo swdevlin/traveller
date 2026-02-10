@@ -3,6 +3,8 @@ class StarSystem < ApplicationRecord
   belongs_to :main_world, class_name: 'StellarObject', optional: true
   belongs_to :allegiance, optional: true
 
+  validates :parsec_id, presence: { message: 'You must select a hex' }
+
   has_many :stars, dependent: :destroy
   has_many :gas_giants, class_name: 'GasGiant'
   has_many :star_system_trade_codes, dependent: :destroy

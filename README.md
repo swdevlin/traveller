@@ -6,14 +6,24 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
+* Add star systen to parsec
+  * Use build configuration, limited to just a system. Pass the block to the generator
+* Add a rogue stellar object
+  * Brown dwarf
+    * can edit
+  * Planetoid belt - no need to generate, just use edit form
+  * Terrestrial planet - no need to generate, just use edit form
+* Add a star system to a hex
+  * [x] random
+  * [x] Specific class, subtype, and luminosity
+  * Support generating by system density
+  * support full system specification
 * Quickly toggle known state
 * Quickly set surveyIndex
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
 * Display atmosphere data for worlds
 * Display hydrosphere data for worlds
-* Add star systen to parsec
-  * Use build configuration, limited to just a system. Pass the block to the generator
 * edit star system
   * [] edit details
   * [] delete orbiting body
@@ -31,16 +41,6 @@
   * [] delete orbiting body
 * edit planetoid belt
     * [] edit details
-* Add a rogue stellar object
-  * Brown dwarf
-    * can edit
-  * Planetoid belt - no need to generate, just use edit form
-  * Terrestrial planet - no need to generate, just use edit form
-* Add a star system to a hex
-  * [x] random
-  * [x] Specific class, subtype, and luminosity
-  * Support generating by system density
-  * support full system specification
 * Display star system map
 * Mongoose allegiance codes
 * Log in

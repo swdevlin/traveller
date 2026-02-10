@@ -67,7 +67,8 @@ Rails.application.routes.draw do
   get '/fairuse', to: 'marketing#fairuse'
 
   get '/help', to: 'help#index'
-  get 'help/build_specification'
+  get 'help/subsector_build_specification'
+  get 'help/star_system_build_specification'
 
   get '/deltas', to: 'marketing#deltas'
 

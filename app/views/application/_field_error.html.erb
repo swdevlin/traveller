@@ -1,0 +1,14 @@
+<%# locals: form:, attribute:, id: (optional), class: (optional) %>
+<% object = form.object %>
+<% return unless object&.respond_to?(:errors) %>
+<% return if object.errors[attribute].blank? %>
+
+<% error_id = "#{object.model_name.singular}_#{attribute}_error" %>
+<% extra_class = local_assigns[:class].presence || '' %>
+
+<p id="<%= error_id %>"
+   class="mt-2 text-sm text-deepnight-orange/90 <%= extra_class %>"
+   role="alert">
+  <i class="fa-regular fa-triangle-exclamation mr-1" aria-hidden="true"></i>
+  <%= object.errors.full_messages_for(attribute).to_sentence %>
+</p>

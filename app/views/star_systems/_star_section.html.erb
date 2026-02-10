@@ -1,12 +1,15 @@
 <%# Local variables: prefix, label, indent (boolean), parent_prefix (optional) %>
-<% prefix ||= "close" %>
+<% prefix ||= 'close' %>
 <% label ||= prefix.titleize.gsub('_', ' ') %>
 <% indent ||= false %>
 <% checked = params.dig(:star_system, "#{prefix}_enabled") == '1' %>
 <% parent_prefix = local_assigns[:parent_prefix] %>
 <% parent_checked = parent_prefix.nil? || params.dig(:star_system, "#{parent_prefix}_enabled") == '1' %>
 
-<div class="<%= 'ml-6' if indent %> <%= 'hidden' unless parent_checked %>" data-star-system-form-target="<%= prefix %>Section">
+<div class="<%= 'ml-6' if indent %> <%= 'hidden' unless parent_checked %>"
+     data-star-system-form-prefix='<%= prefix %>'
+     data-star-system-form-role='section'
+     data-star-system-form-section>
   <div class='flex items-center gap-2 mb-3'>
     <%= check_box_tag "star_system[#{prefix}_enabled]",
                       '1',
@@ -14,13 +17,17 @@
                       class: 'h-4 w-4 rounded border-slate-700 bg-slate-950',
                       data: {
                         action: 'star-system-form#toggleSection',
-                        star_system_form_target: "#{prefix}Toggle",
-                        star_system_form_prefix_param: prefix
+                        star_system_form_prefix_param: prefix,
+                        star_system_form_prefix: prefix,
+                        star_system_form_role: 'toggle'
                       } %>
     <%= label_tag "star_system_#{prefix}_enabled", label, class: 'text-sm font-semibold text-slate-300' %>
   </div>
 
-  <div class="<%= 'hidden' unless checked %>" data-star-system-form-target="<%= prefix %>Container">
+  <div class="<%= 'hidden' unless checked %>"
+       data-star-system-form-prefix='<%= prefix %>'
+       data-star-system-form-role='container'
+       data-star-system-form-section>
     <%= render 'star_fields', prefix: prefix, disabled: !checked %>
   </div>
 </div>

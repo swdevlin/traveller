@@ -1,24 +1,22 @@
 import { Controller } from '@hotwired/stimulus'
 
 // Usage: data-controller="sample-toggle"
+//   Tabs:   data-sample-toggle-target="tab"   data-name="minimal"  data-action="sample-toggle#show"  data-sample-toggle-name-param="minimal"
+//   Panels: data-sample-toggle-target="panel"  data-name="minimal"
 export default class extends Controller {
-    static targets =  ['minimal', 'full', 'minimalButton', 'fullButton'];
+    static targets = ['panel', 'tab']
 
     connect() {
-        this.showMinimal()
+        const first = this.tabTargets[0]?.dataset.name
+        if (first) this.select(first)
     }
 
-    showMinimal() {
-        this.minimalTarget.classList.remove('hidden');
-        this.fullTarget.classList.add('hidden');
-        this.minimalButtonTarget.classList.add('pill-toggle-active');
-        this.fullButtonTarget.classList.remove('pill-toggle-active');
+    show({ params: { name } }) {
+        this.select(name)
     }
 
-    showFull() {
-        this.fullTarget.classList.remove('hidden')
-        this.minimalTarget.classList.add('hidden')
-        this.minimalButtonTarget.classList.remove('pill-toggle-active');
-        this.fullButtonTarget.classList.add('pill-toggle-active');
+    select(name) {
+        this.panelTargets.forEach(el => el.classList.toggle('hidden', el.dataset.name !== name))
+        this.tabTargets.forEach(el => el.classList.toggle('pill-toggle-active', el.dataset.name === name))
     }
 }

@@ -23,11 +23,6 @@ class StarSystemsController < ApplicationController
   def new
     @star_system = StarSystem.new
 
-    @luminosity ||= 'V'
-
-    @spectral_type = ''
-    @spectral_subtype = ''
-
     @star_system.parsec_id = @parsec.id if @parsec
 
     @return_to = request.referer
@@ -39,10 +34,24 @@ class StarSystemsController < ApplicationController
 
   # POST /star_systems or /star_systems.json
   def create
-    @star_system = generate_star_system
+    create_params = new_star_system_params
+
+    @star_system = case create_params[:create_mode]
+    when 'empty'
+      create_empty_star_system(create_params)
+    when 'random'
+      generate_star_system(random: true)
+    when 'build_configuration'
+      generate_build_configuration_star_system
+    else
+      StarSystem.new.tap { |s| s.errors.add(:base, 'Invalid create mode') }
+    end
 
     if @star_system.errors.any?
-      flash.now[:alert] = @star_system.errors.full_messages.to_sentence
+      if @star_system.errors[:base].any?
+        message = @star_system.errors.full_messages_for(:base).to_sentence
+        flash.now[:alert] = [flash.now[:alert], message].compact.join(' ')
+      end
 
       return render :new, status: :unprocessable_entity
     end
@@ -80,26 +89,52 @@ class StarSystemsController < ApplicationController
     @star_system = StarSystem.find(params.expect(:id))
   end
 
-  def generate_star_system
-    unless params[:parsec_id].present?
-      unless params.dig(:star_system, :parsec_id).present?
-        return StarSystem.new(star_system_params).tap do |so|
-          so.errors.add(:base, 'You must select a hex')
-        end
+  def create_empty_star_system(params)
+    @parsec ||= Parsec.find(params[:parsec_id].to_i)
+
+    # create the star system
+    @star_system = StarSystem.new
+    @star_system.parsec = @parsec
+    @star_system.name = params['name']
+    @star_system.save!
+
+    # create the primary star
+    primary = Star.new
+    primary.star_system = @star_system
+    primary.stellar_subtype = params['primary_spectral_subtype']
+    primary.stellar_type = params['primary_spectral_type']
+    primary.stellar_class = params['primary_luminosity']
+    primary.save!
+
+    @star_system
+  rescue ActiveRecord::RecordInvalid => e
+    e.record
+  end
+
+  def generate_build_configuration_star_system
+    StarSystem.new.tap { |s| s.errors.add(:base, 'Build configuration mode is not yet implemented') }
+  end
+
+  def generate_star_system(random: true)
+    unless star_system_params[:parsec_id].present?
+      return StarSystem.new(star_system_params).tap do |so|
+        so.errors.add(:parsec_id, 'You must select a hex')
       end
     end
 
-    error = star_generate_params_errors
-    unless error.nil?
-      return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:base, error)
+    unless random
+      error = star_generate_params_errors
+      unless error.nil?
+        return StarSystem.new(star_system_params).tap do |so|
+          so.errors.add(:base, error)
+        end
       end
     end
 
     sgp = star_generator_params
     definition = { name: star_system_params[:name] }
 
-    unless @random
+    unless random
       definition[:primary] = build_star_definition(sgp, 'primary')
 
       if sgp['primary_companion_enabled'] == '1'
@@ -149,11 +184,15 @@ class StarSystemsController < ApplicationController
 
     importer = StarSystemImporter.new
     @parsec ||= Parsec.find(star_system_params[:parsec_id])
-    @star_system = importer.import!(@parsec, data)
+    importer.import!(@parsec, data)
   end
 
   def star_system_edit_params
     params.expect(star_system: [:name, :notes])
+  end
+
+  def new_star_system_params
+    params.expect(star_system: [:name, :parsec_id, :create_mode, :build_configuration, :primary_spectral_type, :primary_spectral_subtype, :primary_luminosity])
   end
 
   def star_system_params
@@ -173,8 +212,6 @@ class StarSystemsController < ApplicationController
 
   def star_generate_params_errors
     sp = star_generator_params
-    @random = ActiveModel::Type::Boolean.new.cast(sp[:random_star])
-    return nil if @random
 
     # Validate primary star (required)
     error = validate_star_params(sp, 'primary', required: true)
