@@ -95,7 +95,7 @@ class StarSystemsController < ApplicationController
       'counts' => {
         'gasGiants' => 0,
         'planetoidBelts' => 0,
-        'terrestrialPlanets' => 0,
+        'terrestrialPlanets' => 0
       },
       'primary' => {
         'type' => "#{params['primary_spectral_type']}#{params['primary_spectral_subtype']}",
@@ -156,7 +156,7 @@ class StarSystemsController < ApplicationController
 
   def generate_random_star_system(params)
     build_config = {
-      'name' => params['name'],
+      'name' => params['name']
     }
     result = GeneratorService.new.generate_star_system(build_config)
 
