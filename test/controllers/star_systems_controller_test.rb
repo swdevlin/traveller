@@ -80,16 +80,10 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'empty mode requires parsec' do
-    stub_request(:post, 'http://192.168.1.106:3007/star_system').
-      with(
-        body: '{"name":"Test","counts":{"gasGiants":0,"planetoidBelts":0,"terrestrialPlanets":0},"primary":{"type":"G7","class":"V"}}',
-        headers: {
-          'Accept'=>'application/json',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type'=>'application/json',
-          'User-Agent'=>'Ruby'
-        }).
-      to_return(status: 200, body: '', headers: {})
+    base = Rails.application.config.x.generator_service
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, body: '', headers: {})
 
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
