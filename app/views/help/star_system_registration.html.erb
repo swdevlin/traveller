@@ -1,0 +1,97 @@
+<% content_for :title, 'Star system registration' %>
+
+<%= render 'help/page', title: 'Star System Registration' do %>
+  <div class='max-w-2xl space-y-6'>
+    <div class='rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
+      <div class='space-y-3 text-sm text-slate-300'>
+        <p>
+          The registration form creates a new star system in a selected parsec hex.
+          Enter a name, choose a hex (if not already selected from context), and pick
+          one of three initialisation modes. Press <span class='font-semibold text-slate-200'>Commit Core</span> to create the system.
+        </p>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Initialization modes</p>
+
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Empty</dt>
+            <dd class='mt-1 text-slate-300'>
+              Creates a star system with no orbital bodies. When this mode is selected you
+              configure the primary star by choosing a spectral type, subtype,
+              and luminosity class. A primary star is required for a star system.
+            </dd>
+            <dd class='mt-2 text-slate-300'>
+              Use this when you have existing star systems you want added to the app.
+            </dd>
+          </div>
+
+          <div>
+            <dt class='font-semibold text-slate-200'>Random</dt>
+            <dd class='mt-1 text-slate-300'>
+              This option generates a fully populated star system with stars, orbital bodies, and a main world. No
+              additional input is needed.
+            </dd>
+            <dd class='mt-2 text-slate-300'>
+              Use this when you want a complete system quickly and don't need control
+              over its composition.
+            </dd>
+          </div>
+
+          <div>
+            <dt class='font-semibold text-slate-200'>Build configuration</dt>
+            <dd class='mt-1 text-slate-300'>
+              Accepts a YAML configuration that tells the generator how to construct the system.
+              You can specify the primary star and its companions, orbital body counts or
+              density, allegiance, bases, and individual orbital bodies with specific UWP codes.
+            </dd>
+            <dd class='mt-2 text-slate-300'>
+              Use this when you need a generated system but want to constrain some of its
+              properties. See the
+              <%= link_to 'star system build specification',
+                          help_star_system_build_specification_path,
+                          class: 'hover:underline underline-offset-4' %>
+              for the full YAML reference.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Primary star fields (Empty mode)</p>
+
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Type</dt>
+            <dd class='mt-1 text-slate-300'>
+              The spectral type of the star: O, B, A, F, G, K, or M. Special types
+              (Brown Dwarf, White Dwarf, Black Hole, Pulsar, Neutron Star) are also available.
+            </dd>
+          </div>
+
+          <div>
+            <dt class='font-semibold text-slate-200'>Subtype</dt>
+            <dd class='mt-1 text-slate-300'>
+              A digit from 0 to 9 that refines the spectral type. Lower numbers are
+              hotter within the class. Not required for special types.
+            </dd>
+          </div>
+
+          <div>
+            <dt class='font-semibold text-slate-200'>Luminosity class</dt>
+            <dd class='mt-1 text-slate-300'>
+              The size classification of the star, from Ia (luminous supergiant)
+              through VI (subdwarf). Main sequence stars are class V. Not required
+              for special types.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+        REFERENCE 0423RD
+      </div>
+    </div>
+  </div>
+<% end %>

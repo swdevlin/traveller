@@ -68,6 +68,7 @@ Rails.application.routes.draw do
   get '/help', to: 'help#index'
   get 'help/subsector_build_specification'
   get 'help/star_system_build_specification'
+  get 'help/star_system_registration'
 
   get '/deltas', to: 'marketing#deltas'
 
