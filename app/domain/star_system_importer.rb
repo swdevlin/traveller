@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 
-ORBIT_TYPES = {
+IMPORT_ORBIT_TYPES = {
   primary: 0,
   close: 1,
   near: 2,
@@ -13,7 +13,7 @@ ORBIT_TYPES = {
   planetoid_belt_object: 13
 }.freeze
 
-STAR_ORBIT_TYPES = ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
+IMPORT_STAR_ORBIT_TYPES = IMPORT_ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
 
 class StarSystemImporter
   def import!(parsec, data)
@@ -92,8 +92,8 @@ class StarSystemImporter
     end
     data['stellarObjects'].each do |so_data|
       orbit_type = so_data['orbitType']
-      if STAR_ORBIT_TYPES.include?(orbit_type)
-        unless orbit_type == ORBIT_TYPES[:companion]
+      if IMPORT_STAR_ORBIT_TYPES.include?(orbit_type)
+        unless orbit_type == IMPORT_ORBIT_TYPES[:companion]
           so = Star.new
           so.orbiting = star
           so.star_system = @star_system
