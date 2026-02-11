@@ -4,15 +4,23 @@
   </td>
 
   <td class="t-td text-right">
-    <%= number_with_precision(star.au, precision: 1) %>
+    <%= number_with_precision(star.au, precision: 1)  if star.au > 0 %>
   </td>
 
   <td class="t-td">
     <%= star.name %>
   </td>
 
-  <td colspan="3" class="t-td text-right">
-    <%= number_with_precision(star.orbit, precision: 1) %>
+  <td class="t-td text-right">
+    <%= number_with_precision(star.orbit, precision: 1) if star.orbit > 0 %>
+  </td>
+
+  <td class="t-td text-right">
+    <%= number_with_precision(star.eccentricity, precision: 1) if star.eccentricity > 0 %>
+  </td>
+
+  <td class="t-td text-right">
+    <%= format_period(star.period) if star.period > 0 %>
   </td>
 
   <td colspan="3" class="t-td">
@@ -38,10 +46,6 @@
     </div>
   </td>
 </tr>
-
-<% if star.companion.present? %>
-  <%= render 'star_row', star: star.companion, indent: indent + 8 %>
-<% end %>
 
 <% star.orbiting_bodies.each do |ob| %>
   <% if ob.is_a?(Star) %>
