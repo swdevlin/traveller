@@ -1,40 +1,27 @@
-import { Controller } from "@hotwired/stimulus";
+import { Controller } from '@hotwired/stimulus'
+import { createConsumer } from '@rails/actioncable'
+
+const consumer = createConsumer()
 
 export default class extends Controller {
-    static targets = ["count", "container"];
-    static values = { url: String, interval: { type: Number, default: 7000 } };
+    static targets = ['container', 'count']
 
     connect() {
-        this.poll();
-        this.timer = setInterval(() => this.poll(), 7000);
+        this.subscription = consumer.subscriptions.create(
+          { channel: 'JobsChannel' },
+          { received: (data) => this.update(data) }
+        )
     }
 
     disconnect() {
-        if (this.timer) {
-            clearInterval(this.timer);
-        }
+        this.subscription?.unsubscribe()
     }
 
-    async poll() {
-        try {
-            const response = await fetch(this.urlValue);
-            if (response.ok) {
-                const data = await response.json();
-                this.updateDisplay(data.count);
-            }
-        } catch (error) {
-            // Silently ignore fetch errors
-        }
-    }
+    update(data) {
+        const count = Number(data?.count || 0)
 
-    updateDisplay(count) {
-        if (!this.hasContainerTarget || !this.hasCountTarget) return;
+        this.countTarget.textContent = String(count)
 
-        if (count > 0) {
-            this.countTarget.textContent = count;
-            this.containerTarget.hidden = false;
-        } else {
-            this.containerTarget.hidden = true;
-        }
+        this.containerTarget.hidden = count === 0
     }
 }
