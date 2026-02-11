@@ -195,11 +195,22 @@ class BuildConfigValidator
       @errors << "#{path}.class is required unless type is one of #{Star::SPECIAL_SPECTRAL_TYPES.keys.join(', ')}" if klass.nil?
     end
 
-    # 3) Recurse into nested stars
+    # 3) Validate body orbit uniqueness
+    bodies = star['bodies']
+    validate_body_orbits(bodies, path) if bodies.is_a?(Array)
+
+    # 4) Recurse into nested stars
     STAR_SCHEMA_CHILD_KEYS.each do |key|
       child = star[key]
       validate_star_tree(child, "#{path}.#{key}", max_depth: max_depth - 1) if child.is_a?(Hash)
     end
+  end
+
+  def validate_body_orbits(bodies, path)
+    orbits = bodies.select { |b| b.is_a?(Hash) && b['orbit'].present? }
+    return if orbits.size <= 1
+
+    @errors << "#{path}.bodies: only one body may specify an orbit label"
   end
 
   def validate_populated_tech_level

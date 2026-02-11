@@ -477,6 +477,84 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   end
 
   # Config accessor
+  # Body orbit validation
+  test 'bodies with one orbit label is valid' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+            orbit: hzco
+          - uwp: gas giant
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'bodies with no orbit labels is valid' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+          - uwp: gas giant
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'bodies with two different orbit labels is invalid' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+            orbit: warm
+          - uwp: terrestrial
+            orbit: cold
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'only one body may specify an orbit label'
+  end
+
+  test 'bodies with duplicate orbit labels is invalid' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+            orbit: hzco
+          - uwp: terrestrial
+            orbit: hzco
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'only one body may specify an orbit label'
+  end
+
+  test 'bodies orbit rejects integers' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+            orbit: 3
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+  end
+
   test 'config returns parsed and normalized hash' do
     yaml = <<~YAML
       unusualChance: 10

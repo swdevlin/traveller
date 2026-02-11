@@ -1,6 +1,20 @@
 # frozen_string_literal: true
 
 
+ORBIT_TYPES = {
+  primary: 0,
+  close: 1,
+  near: 2,
+  far: 3,
+  companion: 4,
+  gas_giant: 10,
+  terrestrial: 11,
+  planetoid_belt: 12,
+  planetoid_belt_object: 13
+}.freeze
+
+STAR_ORBIT_TYPES = ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
+
 class StarSystemImporter
   def import!(parsec, data)
     @parsec = parsec
@@ -78,11 +92,13 @@ class StarSystemImporter
     end
     data['stellarObjects'].each do |so_data|
       orbit_type = so_data['orbitType']
-      if orbit_type < 10
-        so = Star.new
-        so.orbiting = star
-        so.star_system = @star_system
-        import_star(so, so_data)
+      if STAR_ORBIT_TYPES.include?(orbit_type)
+        unless orbit_type == ORBIT_TYPES[:companion]
+          so = Star.new
+          so.orbiting = star
+          so.star_system = @star_system
+          import_star(so, so_data)
+        end
       else
         klass = OrbitType::STI_CLASS_FOR_ORBIT_TYPE.fetch(orbit_type) do
           raise ArgumentError, "Unknown orbitType: #{orbit_type.inspect}"

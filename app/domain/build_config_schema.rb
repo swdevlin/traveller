@@ -3,6 +3,7 @@
 require 'dry-schema'
 
 ORBIT_TYPES = %w[hzco inner outer habitable warm cold].freeze
+BODY_ORBIT_TYPES = %w[inner warm hzco cold outer habitable].freeze
 
 UWP_CODE = /\A[0-9A-Z][0-9A-F]{6}-[0-9A-H]\z/i
 UWP_LABELS = [
@@ -45,7 +46,7 @@ BaseStarSchema = Dry::Schema.Params do
 
   optional(:bodies).array(:hash) do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
-    optional(:orbit).filled(:string, included_in?: ORBIT_TYPES)
+    optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
     optional(:name).filled(:string)
     optional(:mainWorld).filled(:bool)
   end

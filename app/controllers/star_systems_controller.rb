@@ -90,6 +90,12 @@ class StarSystemsController < ApplicationController
   end
 
   def create_empty_star_system(params)
+    if params['primary_spectral_type'].blank? || params['primary_spectral_subtype'].blank? || params['primary_luminosity'].blank?
+      return StarSystem.new(star_system_params).tap do |so|
+        so.errors.add(:base, 'Spectral type, subtype, and luminosity class must all be provided')
+      end
+    end
+
     build_config = {
       'name' => params['name'],
       'counts' => {
