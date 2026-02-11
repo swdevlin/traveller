@@ -31,7 +31,7 @@
                           class: 'inline-flex items-center gap-2 text-slate-200 hover:text-traveller-red hover:underline hover:underline-offset-2' do %>
       <span>Settings</span>
     <% end %>
-    <%= link_to help_path,
+    <%= link_to (content_for?(:help_path) ? yield(:help_path) : help_path),
                 class: 'text-slate-200 no-underline hover:text-traveller-red hover:underline hover:underline-offset-2' do %>
       <i class="fa-regular fa-square-info"></i>
     <% end %>

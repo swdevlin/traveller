@@ -1,66 +1,55 @@
 <% content_for :title, 'Star system build specification' %>
 
-<div class='w-full pb-10 space-y-6'>
-  <div class='mt-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-      Operations manual
-    </div>
-    <div class='mt-1 text-2xl font-heading text-deepnight-orange'>
-      Star system build specification
-    </div>
-  </div>
+<%= render 'help/page', title: 'Star system build specification' do %>
+    <div class='grid grid-cols-1 gap-6 lg:grid-cols-3' data-controller='sample-toggle'>
+      <section class='min-w-0 lg:col-span-1'>
+        <div class='flex flex-wrap gap-2'>
+          <div class='w-full text-xs uppercase tracking-[0.22em] text-slate-400'>
+            Sample specification
+          </div>
 
-  <div class='grid grid-cols-1 gap-6 lg:grid-cols-3' data-controller='sample-toggle'>
-    <!-- Left: Sample YAML (1/3) -->
-    <section class='min-w-0 lg:col-span-1'>
-      <div class='flex items-end justify-between gap-3'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-          Sample specification
+          <div class='w-full flex flex-wrap gap-2 justify-start'>
+            <button type='button'
+                    class='identifier-sm shrink-0 cursor-pointer select-none text-slate-200'
+                    data-sample-toggle-target='tab'
+                    data-name='minimal'
+                    data-action='sample-toggle#show'
+                    data-sample-toggle-name-param='minimal'>
+              Minimal
+            </button>
+
+            <button type='button'
+                    class='identifier-sm shrink-0 cursor-pointer select-none text-slate-200'
+                    data-sample-toggle-target='tab'
+                    data-name='with-bodies'
+                    data-action='sample-toggle#show'
+                    data-sample-toggle-name-param='with-bodies'>
+              With bodies
+            </button>
+
+            <button type='button'
+                    class='identifier-sm shrink-0 cursor-pointer select-none text-slate-200'
+                    data-sample-toggle-target='tab'
+                    data-name='without-bodies'
+                    data-action='sample-toggle#show'
+                    data-sample-toggle-name-param='without-bodies'>
+              Without bodies
+            </button>
+          </div>
         </div>
 
-        <div class='flex gap-2'>
-          <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
-                  data-sample-toggle-target='tab'
-                  data-name='minimal'
-                  data-action='sample-toggle#show'
-                  data-sample-toggle-name-param='minimal'>
-            Minimal
-          </button>
+        <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 overflow-hidden'>
+          <div class='flex items-center justify-between px-4 py-3 border-b border-slate-800/70'>
+            <span class='identifier-sm text-slate-200'>YAML</span>
+            <span class='text-xs text-slate-500 font-mono'>2-space indentation</span>
+          </div>
 
-          <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
-                  data-sample-toggle-target='tab'
-                  data-name='with-bodies'
-                  data-action='sample-toggle#show'
-                  data-sample-toggle-name-param='with-bodies'>
-            With bodies
-          </button>
-
-          <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
-                  data-sample-toggle-target='tab'
-                  data-name='without-bodies'
-                  data-action='sample-toggle#show'
-                  data-sample-toggle-name-param='without-bodies'>
-            Without bodies
-          </button>
-
-        </div>
-      </div>
-
-      <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 overflow-hidden'>
-        <div class='flex items-center justify-between px-4 py-3 border-b border-slate-800/70'>
-          <span class='identifier-sm text-slate-200'>YAML</span>
-          <span class='text-xs text-slate-500 font-mono'>2-space indentation</span>
-        </div>
-
-        <pre data-sample-toggle-target='panel' data-name='minimal' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Catanach
+          <pre data-sample-toggle-target='panel' data-name='minimal' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Catanach
 primary:
   type: G2
   class: V</code></pre>
 
-        <pre data-sample-toggle-target='panel' data-name='without-bodies' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: ALS-BMM
+          <pre data-sample-toggle-target='panel' data-name='without-bodies' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: ALS-BMM
 surveyIndex: 3
 primary:
   type: M6
@@ -72,7 +61,7 @@ counts:
   density: 12
 </code></pre>
 
-        <pre data-sample-toggle-target='panel' data-name='with-bodies' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Demnan
+          <pre data-sample-toggle-target='panel' data-name='with-bodies' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Demnan
 primary:
   type: F7
   class: V
@@ -97,317 +86,317 @@ primary:
     - uwp: terrestrial
     - uwp: small gas giant
 </code></pre>
-      </div>
-    </section>
+        </div>
+      </section>
 
-    <!-- Right: Documentation (2/3) -->
-    <section class='min-w-0 lg:col-span-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-        Reference
-      </div>
-
-      <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
-        <div class='space-y-3 text-sm text-slate-300'>
-          <p class='text-slate-400'>
-            The build specification is YAML. Use 2-space indentation. Unknown keys are rejected.
-            This schema is used when creating a single star system via build configuration mode.
-          </p>
+      <!-- Right: Documentation (2/3) -->
+      <section class='min-w-0 lg:col-span-2'>
+        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          Reference
         </div>
 
-        <div>
-          <p class='text-sm font-semibold text-slate-200 mb-2'>Top-level properties</p>
-
-          <dl class='space-y-5 text-sm'>
-            <div>
-              <dt class='font-semibold text-slate-200'>name</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional name for the star system.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>primary</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional star definition for the primary star. See star definition below.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>surveyIndex</dt>
-              <dd class='mt-1 text-slate-300'>
-                Survey index (0–12). Controls the level of detail generated for orbital bodies.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>allegiance</dt>
-              <dd class='mt-1 text-slate-300'>
-                Allegiance code for the system. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>bases</dt>
-              <dd class='mt-1 text-slate-300'>
-                Array of base facility codes present in the system. See <%= link_to 'bases', facilities_path, class: 'hover:underline underline-offset-4' %>.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>known</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>true</span>, marks the system as a known/charted system.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>counts</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional orbital body counts. See counts definition below.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>populated</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional population constraints used by the generator. See populated definition below.
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div>
-          <p class='text-sm font-semibold text-slate-200 mb-2'>Star definition</p>
-
-          <dl class='space-y-5 text-sm'>
-            <div>
-              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Spectral type in the form <span class='font-mono text-slate-200'>OBAFGKM</span> + <span class='font-mono text-slate-200'>0..9</span>,
-                for example <span class='font-mono text-slate-200'>G2</span>.
-              </dd>
-
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Special types</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>BD</span> – Brown Dwarf</li>
-                  <li><span class='font-mono text-slate-200'>D</span> – White Dwarf</li>
-                  <li><span class='font-mono text-slate-200'>BH</span> – Black Hole</li>
-                  <li><span class='font-mono text-slate-200'>PSR</span> – Pulsar</li>
-                  <li><span class='font-mono text-slate-200'>NS</span> – Neutron Star</li>
-                </ul>
-                <p class='mt-2 text-xs text-slate-400'>
-                  Special types do not require a <span class='font-mono text-slate-200'>class</span>.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>class <span class='text-slate-500 font-normal'>(conditionally required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Luminosity class. Required unless <span class='font-mono text-slate-200'>type</span> is a special type.
-              </dd>
-
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>Ia</span> – Luminous supergiant</li>
-                  <li><span class='font-mono text-slate-200'>Ib</span> – Less luminous supergiant</li>
-                  <li><span class='font-mono text-slate-200'>II</span> – Bright giant</li>
-                  <li><span class='font-mono text-slate-200'>III</span> – Giant</li>
-                  <li><span class='font-mono text-slate-200'>IV</span> – Subgiant</li>
-                  <li><span class='font-mono text-slate-200'>V</span> – Main sequence</li>
-                  <li><span class='font-mono text-slate-200'>VI</span> – Subdwarf</li>
-                  <li><span class='font-mono text-slate-200'>giant</span> – Gas giant star</li>
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>companion</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional companion star (another star definition).
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>close</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional star in close orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>near</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional star in near orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>far</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional star in far orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>bodies</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional list of orbital bodies for this star. See orbital bodies below.
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div>
-          <p class='text-sm font-semibold text-slate-200 mb-2'>Counts definition</p>
-
-          <dl class='space-y-5 text-sm'>
-            <div>
-              <dt class='font-semibold text-slate-200'>density</dt>
-              <dd class='mt-1 text-slate-300'>
-                Orbital body density modifier (0–30). When specified, the generator determines
-                the number of terrestrial planets, planetoid belts, and gas giants automatically.
-                Rules on density can be found in <cite>Book 3 – Referee's Handbook</cite>.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>terrestrialPlanets</dt>
-              <dd class='mt-1 text-slate-300'>
-                Explicit count of terrestrial planets (0–20).
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>planetoidBelts</dt>
-              <dd class='mt-1 text-slate-300'>
-                Explicit count of planetoid belts (0–20).
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>gasGiants</dt>
-              <dd class='mt-1 text-slate-300'>
-                Explicit count of gas giants (0–20).
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>mainWorld</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional main world definition. See orbital bodies for structure.
-              </dd>
-            </div>
-          </dl>
-
-          <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-            <p class='text-xs text-slate-300 font-semibold mb-2'>Requirements</p>
-            <p class='text-xs text-slate-300'>
-              Counts must specify either <span class='font-mono text-slate-200'>density</span> alone,
-              or all three of <span class='font-mono text-slate-200'>terrestrialPlanets</span>,
-              <span class='font-mono text-slate-200'>planetoidBelts</span>, and
-              <span class='font-mono text-slate-200'>gasGiants</span>.
-              The <span class='font-mono text-slate-200'>mainWorld</span> field is optional in both cases.
+        <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
+          <div class='space-y-3 text-sm text-slate-300'>
+            <p class='text-slate-400'>
+              The build specification is YAML. Use 2-space indentation. Unknown keys are rejected.
+              This schema is used when creating a single star system via build configuration mode.
             </p>
           </div>
-        </div>
 
-        <div>
-          <p class='text-sm font-semibold text-slate-200 mb-2'>Orbital bodies</p>
+          <div>
+            <p class='text-sm font-semibold text-slate-200 mb-2'>Top-level properties</p>
 
-          <dl class='space-y-5 text-sm'>
-            <div>
-              <dt class='font-semibold text-slate-200'>uwp <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                UWP code (e.g. <span class='font-mono text-slate-200'>X674000-0</span>), a known label
-                (<span class='font-mono text-slate-200'>terrestrial</span>, <span class='font-mono text-slate-200'>small gas giant</span>,
-                <span class='font-mono text-slate-200'>gas giant</span>, <span class='font-mono text-slate-200'>large gas giant</span>,
-                <span class='font-mono text-slate-200'>super earth</span>),
-                or empty (<span class='font-mono text-slate-200'>uwp: 'empty'</span>) to indicate no orbital body at that position.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>orbit</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional orbit placement label. Must be one of
-                <span class='font-mono text-slate-200'>inner</span>,
-                <span class='font-mono text-slate-200'>warm</span>,
-                <span class='font-mono text-slate-200'>hzco</span>,
-                <span class='font-mono text-slate-200'>cold</span>,
-                <span class='font-mono text-slate-200'>outer</span>, or
-                <span class='font-mono text-slate-200'>habitable</span>.
-                Only one body per star may specify an orbit label.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>name</dt>
-              <dd class='mt-1 text-slate-300'>
-                Optional name for the orbital body.
-              </dd>
-            </div>
-
-            <div>
-              <dt class='font-semibold text-slate-200'>mainWorld</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>true</span>, designates this body as the main world.
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div>
-          <p class='text-sm font-semibold text-slate-200 mb-2'>Populated definition</p>
-
-          <dl class='space-y-5 text-sm'>
-            <div>
-              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Layout preset for how populated worlds are distributed.
-              </dd>
-
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>full</span></li>
-                  <li><span class='font-mono text-slate-200'>hard-horizontal</span></li>
-                  <li><span class='font-mono text-slate-200'>hard-vertical</span></li>
-                  <li><span class='font-mono text-slate-200'>split-horizontal</span></li>
-                  <li><span class='font-mono text-slate-200'>split-vertical</span></li>
-                </ul>
+            <dl class='space-y-5 text-sm'>
+              <div>
+                <dt class='font-semibold text-slate-200'>name</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional name for the star system.
+                </dd>
               </div>
-            </div>
 
-            <div>
-              <dt class='font-semibold text-slate-200'>allegiance <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Default allegiance code. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
-              </dd>
-            </div>
+              <div>
+                <dt class='font-semibold text-slate-200'>primary</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional star definition for the primary star. See star definition below.
+                </dd>
+              </div>
 
-            <div>
-              <dt class='font-semibold text-slate-200'>minTechLevel, maxTechLevel</dt>
-              <dd class='mt-1 text-slate-300'>
-                Constraints for generated tech level (0–100).
-              </dd>
-            </div>
+              <div>
+                <dt class='font-semibold text-slate-200'>surveyIndex</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Survey index (0–12). Controls the level of detail generated for orbital bodies.
+                </dd>
+              </div>
 
-            <div>
-              <dt class='font-semibold text-slate-200'>minPopulationCode, maxPopulationCode</dt>
-              <dd class='mt-1 text-slate-300'>
-                Constraints for generated population code (0–16).
-              </dd>
+              <div>
+                <dt class='font-semibold text-slate-200'>allegiance</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Allegiance code for the system. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>bases</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Array of base facility codes present in the system. See <%= link_to 'bases', facilities_path, class: 'hover:underline underline-offset-4' %>.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>known</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Boolean. When <span class='font-mono text-slate-200'>true</span>, marks the system as a known/charted system.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>counts</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional orbital body counts. See counts definition below.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>populated</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional population constraints used by the generator. See populated definition below.
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div>
+            <p class='text-sm font-semibold text-slate-200 mb-2'>Star definition</p>
+
+            <dl class='space-y-5 text-sm'>
+              <div>
+                <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
+                <dd class='mt-1 text-slate-300'>
+                  Spectral type in the form <span class='font-mono text-slate-200'>OBAFGKM</span> + <span class='font-mono text-slate-200'>0..9</span>,
+                  for example <span class='font-mono text-slate-200'>G2</span>.
+                </dd>
+
+                <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                  <p class='text-xs text-slate-300 font-semibold mb-2'>Special types</p>
+                  <ul class='text-xs text-slate-300 space-y-1'>
+                    <li><span class='font-mono text-slate-200'>BD</span> – Brown Dwarf</li>
+                    <li><span class='font-mono text-slate-200'>D</span> – White Dwarf</li>
+                    <li><span class='font-mono text-slate-200'>BH</span> – Black Hole</li>
+                    <li><span class='font-mono text-slate-200'>PSR</span> – Pulsar</li>
+                    <li><span class='font-mono text-slate-200'>NS</span> – Neutron Star</li>
+                  </ul>
+                  <p class='mt-2 text-xs text-slate-400'>
+                    Special types do not require a <span class='font-mono text-slate-200'>class</span>.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>class <span class='text-slate-500 font-normal'>(conditionally required)</span></dt>
+                <dd class='mt-1 text-slate-300'>
+                  Luminosity class. Required unless <span class='font-mono text-slate-200'>type</span> is a special type.
+                </dd>
+
+                <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                  <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
+                  <ul class='text-xs text-slate-300 space-y-1'>
+                    <li><span class='font-mono text-slate-200'>Ia</span> – Luminous supergiant</li>
+                    <li><span class='font-mono text-slate-200'>Ib</span> – Less luminous supergiant</li>
+                    <li><span class='font-mono text-slate-200'>II</span> – Bright giant</li>
+                    <li><span class='font-mono text-slate-200'>III</span> – Giant</li>
+                    <li><span class='font-mono text-slate-200'>IV</span> – Subgiant</li>
+                    <li><span class='font-mono text-slate-200'>V</span> – Main sequence</li>
+                    <li><span class='font-mono text-slate-200'>VI</span> – Subdwarf</li>
+                    <li><span class='font-mono text-slate-200'>giant</span> – Gas giant star</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>companion</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional companion star (another star definition).
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>close</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional star in close orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>near</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional star in near orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>far</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional star in far orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>bodies</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional list of orbital bodies for this star. See orbital bodies below.
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div>
+            <p class='text-sm font-semibold text-slate-200 mb-2'>Counts definition</p>
+
+            <dl class='space-y-5 text-sm'>
+              <div>
+                <dt class='font-semibold text-slate-200'>density</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Orbital body density modifier (0–30). When specified, the generator determines
+                  the number of terrestrial planets, planetoid belts, and gas giants automatically.
+                  Rules on density can be found in <cite>Book 3 – Referee's Handbook</cite>.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>terrestrialPlanets</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Explicit count of terrestrial planets (0–20).
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>planetoidBelts</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Explicit count of planetoid belts (0–20).
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>gasGiants</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Explicit count of gas giants (0–20).
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>mainWorld</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional main world definition. See orbital bodies for structure.
+                </dd>
+              </div>
+            </dl>
+
+            <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+              <p class='text-xs text-slate-300 font-semibold mb-2'>Requirements</p>
+              <p class='text-xs text-slate-300'>
+                Counts must specify either <span class='font-mono text-slate-200'>density</span> alone,
+                or all three of <span class='font-mono text-slate-200'>terrestrialPlanets</span>,
+                <span class='font-mono text-slate-200'>planetoidBelts</span>, and
+                <span class='font-mono text-slate-200'>gasGiants</span>.
+                The <span class='font-mono text-slate-200'>mainWorld</span> field is optional in both cases.
+              </p>
             </div>
-          </dl>
+          </div>
+
+          <div>
+            <p class='text-sm font-semibold text-slate-200 mb-2'>Orbital bodies</p>
+
+            <dl class='space-y-5 text-sm'>
+              <div>
+                <dt class='font-semibold text-slate-200'>uwp <span class='text-slate-500 font-normal'>(required)</span></dt>
+                <dd class='mt-1 text-slate-300'>
+                  UWP code (e.g. <span class='font-mono text-slate-200'>X674000-0</span>), a known label
+                  (<span class='font-mono text-slate-200'>terrestrial</span>, <span class='font-mono text-slate-200'>small gas giant</span>,
+                  <span class='font-mono text-slate-200'>gas giant</span>, <span class='font-mono text-slate-200'>large gas giant</span>,
+                  <span class='font-mono text-slate-200'>super earth</span>),
+                  or empty (<span class='font-mono text-slate-200'>uwp: 'empty'</span>) to indicate no orbital body at that position.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>orbit</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional orbit placement label. Must be one of
+                  <span class='font-mono text-slate-200'>inner</span>,
+                  <span class='font-mono text-slate-200'>warm</span>,
+                  <span class='font-mono text-slate-200'>hzco</span>,
+                  <span class='font-mono text-slate-200'>cold</span>,
+                  <span class='font-mono text-slate-200'>outer</span>, or
+                  <span class='font-mono text-slate-200'>habitable</span>.
+                  Only one body per star may specify an orbit label.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>name</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Optional name for the orbital body.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>mainWorld</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Boolean. When <span class='font-mono text-slate-200'>true</span>, designates this body as the main world.
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div>
+            <p class='text-sm font-semibold text-slate-200 mb-2'>Populated definition</p>
+
+            <dl class='space-y-5 text-sm'>
+              <div>
+                <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
+                <dd class='mt-1 text-slate-300'>
+                  Layout preset for how populated worlds are distributed.
+                </dd>
+
+                <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                  <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
+                  <ul class='text-xs text-slate-300 space-y-1'>
+                    <li><span class='font-mono text-slate-200'>full</span></li>
+                    <li><span class='font-mono text-slate-200'>hard-horizontal</span></li>
+                    <li><span class='font-mono text-slate-200'>hard-vertical</span></li>
+                    <li><span class='font-mono text-slate-200'>split-horizontal</span></li>
+                    <li><span class='font-mono text-slate-200'>split-vertical</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>allegiance <span class='text-slate-500 font-normal'>(required)</span></dt>
+                <dd class='mt-1 text-slate-300'>
+                  Default allegiance code. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>minTechLevel, maxTechLevel</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Constraints for generated tech level (0–100).
+                </dd>
+              </div>
+
+              <div>
+                <dt class='font-semibold text-slate-200'>minPopulationCode, maxPopulationCode</dt>
+                <dd class='mt-1 text-slate-300'>
+                  Constraints for generated population code (0–16).
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+            REFERENCE 0422RD
+          </div>
         </div>
-
-        <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
-          REFERENCE 0422RD
-        </div>
-      </div>
-    </section>
+      </section>
   </div>
-</div>
+<% end %>

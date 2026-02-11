@@ -1,6 +1,40 @@
 <div class="space-y-6">
   <div class="flex items-center gap-4">
     <div class="text-sm uppercase tracking-[0.22em] font-semibold text-deepnight-orange">
+      2026.042
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-sm uppercase tracking-[0.2em] text-slate-200">Star System Initialization Modes</h3>
+    <p class="text-slate-300 leading-relaxed">
+      The Star System Registration Console now supports three initialization modes,
+      selectable at time of core commit. The operator must designate one mode before
+      registration will proceed.
+    </p>
+    <p class="text-slate-300 leading-relaxed">
+      EMPTY mode registers a star system with only the primary star configuration.
+      The operator specifies spectral type and luminosity class; all orbital bodies
+      may be surveyed and entered at a later time. This mode is appropriate when
+      manual data entry is preferred or when survey data is incomplete.
+    </p>
+    <p class="text-slate-300 leading-relaxed">
+      RANDOM mode delegates system generation to the onboard procedural synthesis
+      engine. No additional parameters are required. The generator will produce a
+      complete star system in accordance with standard IISS probability tables.
+    </p>
+    <p class="text-slate-300 leading-relaxed">
+      BUILD CONFIGURATION mode accepts a YAML directive packet specifying
+      system composition constraints. This mode permits the operator to define
+      stellar primaries, orbital body counts, and other generation parameters
+      prior to synthesis. A reference specification is available via the linked
+      documentation module on the registration form.
+    </p>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <div class="text-sm uppercase tracking-[0.22em] font-semibold text-deepnight-orange">
       2026.039
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>

@@ -2,6 +2,7 @@
 <% content_for :title, 'New star system' %>
 <% content_for :page_kicker, @context_label %>
 <% content_for :page_title, 'Register Star System' %>
+<% content_for :help_path, help_star_system_registration_path %>
 
 <% create_mode = params.dig(:star_system, :create_mode).presence || 'empty' %>
 

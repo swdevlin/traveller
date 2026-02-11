@@ -12,4 +12,7 @@ class HelpController < ApplicationController
 
   def star_system_build_specification
   end
+
+  def star_system_registration
+  end
 end
