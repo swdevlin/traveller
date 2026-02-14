@@ -42,7 +42,7 @@ class SectorsController < ApplicationController
       redirect_to sector_path(@sector), notice: 'Not all subsectors have a build plan. No tasks were created'
     else
       @sector.subsectors.each do |subsector|
-        GenerateSubsectorJob.perform_later(subsector, subsector.build)
+        GenerateSubsectorJob.set(priority: subsector.y * 10 + subsector.x).perform_later(subsector, subsector.build)
       end
       redirect_to sector_path(@sector), notice: 'Subsector populate tasks created'
     end
