@@ -35,6 +35,7 @@ module GeneratorMappings
     self.eccentricity = payload['eccentricity']
     self.inclination = payload['inclination']
     self.mass = payload['mass']
+    self.build_log = payload['buildLog']
     self.orbit = payload['orbit']
     self.name = payload['name']
     self.au = payload['au']
