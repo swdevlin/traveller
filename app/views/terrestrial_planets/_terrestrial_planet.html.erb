@@ -98,6 +98,45 @@
     <%= render 'application/data_block', label: 'Greenhouse', value: number_with_precision(terrestrial_planet.greenhouse, precision: 2, strip_insignificant_zeros: true) %>
   </div>
 
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <% atmosphere =  terrestrial_planet.atmosphere %>
+    <% code =  atmosphere['code'] %>
+    <% taint = atmosphere['taint'] %>
+    <% taint_code = taint['code'] %>
+    <%= render 'application/data_block',
+               label: 'Atmosphere',
+               value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), atmosphere_description(code)], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% if taint_code.present? %>
+      <% severity = taint['severity'] %>
+      <% persistence = taint['persistence'] %>
+      <%= render 'application/data_block', label: 'Irritant', value: safe_join([tag.span(taint_code, class: 'identifier-sm'), taint_description(taint_code)], ' ') %>
+      <%= render 'application/data_block', label: 'Severity', value: safe_join([tag.span(severity, class: 'identifier-sm'), taint_severity_description(severity)], ' ') %>
+      <%= render 'application/data_block', label: 'Persistence', value: safe_join([tag.span(persistence, class: 'identifier-sm'), taint_persistence_description(persistence)], ' ') %>
+    <% end %>
+    <% if atmosphere['composition'] %>
+      <%= render 'application/data_block', label: 'Composition', value: atmosphere['composition'] %>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <% hydrographics =  terrestrial_planet.hydrographics %>
+    <% code =  hydrographics['code'] %>
+    <% distribution = hydrographics['distribution'] %>
+    <%= render 'application/data_block',
+               label: 'Hydrographics',
+               value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), hydrographics_description(code)], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <%= render 'application/data_block',
+               label: 'Liquid',
+               value: hydrographics['liquid'],
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <%= render 'application/data_block',
+               label: 'Distribution',
+               value: safe_join([tag.span(HexDigit.hex_digit(distribution), class: 'identifier-sm'), hydrographics_distribution_description(distribution)], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+  </div>
+
   <div class="flex items-center gap-4">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Biological Data

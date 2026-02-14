@@ -106,4 +106,122 @@ module StellarObjectsHelper
 
     BIOCOMPLEXITY_DESCRIPTIONS[rating]
   end
+
+  ATMOSPHERE_DESCRIPTIONS = {
+    0 => 'None',
+    1 => 'Trace',
+    2 => 'Very Thin',
+    3 => 'Very Thin',
+    4 => 'Thin',
+    5 => 'Thin',
+    6 => 'Standard',
+    7 => 'Standard',
+    8 => 'Dense',
+    9 => 'Dense',
+    10 => 'Exotic',
+    11 => 'Corrosive',
+    12 => 'Insidious',
+    13 => 'Very Dense',
+    14 => 'Low',
+    15 => 'Unusual',
+    16 => 'Gas, Helium',
+    17 => 'Gas, Hydrogen'
+  }.freeze
+
+  def atmosphere_description(code)
+    return nil if code.nil?
+
+    ATMOSPHERE_DESCRIPTIONS[code]
+  end
+
+  TAINT_DESCRIPTIONS = {
+    'L' => 'Low Oxygen',
+    'R' => 'Radioactive',
+    'B' => 'Biological',
+    'G' => 'Gas Mix',
+    'P' => 'Particulates',
+    'S' => 'Sulphur Compounds',
+    'H' => 'High Oxygen'
+  }.freeze
+
+  def taint_description(code)
+    return if code.blank?
+
+    TAINT_DESCRIPTIONS[code]
+  end
+
+  HYDROGRAPHICS_DESCRIPTIONS = {
+    0  => '0%–5%',
+    1  => '6%–15%',
+    2  => '16%–25%',
+    3  => '26%–35%',
+    4  => '36%–45%',
+    5  => '46%–55%',
+    6  => '56%–65%',
+    7  => '66%–75%',
+    8  => '76%–85%',
+    9  => '86%–95%',
+    10 => '96%–100%'
+  }.freeze
+
+  def hydrographics_description(code)
+    return if code.blank?
+
+    HYDROGRAPHICS_DESCRIPTIONS[code]
+  end
+
+  HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS = {
+    0 => 'Extremely Dispersed',
+    1 => 'Very Dispersed',
+    2 => 'Dispersed',
+    3 => 'Scattered',
+    4 => 'Slightly Scattered',
+    5 => 'Mixed',
+    6 => 'Slightly Skewed',
+    7 => 'Skewed',
+    8 => 'Concentrated',
+    9 => 'Very Concentrated',
+    10 => 'Extremely Concentrated'
+  }.freeze
+
+  def hydrographics_distribution_description(code)
+    return if code.blank?
+
+    HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS[code]
+  end
+
+  TAINT_SEVERITY_DESCRIPTIONS = {
+    1  => 'Trivial irritant',
+    2  => 'Surmountable irritant',
+    3  => 'Minor irritant',
+    4  => 'Major irritant',
+    5  => 'Serious irritant',
+    6  => 'Hazardous irritant',
+    7  => 'Long term lethal',
+    8  => 'Inevitably lethal',
+    9  => 'Rapidly lethal'
+  }.freeze
+
+  def taint_severity_description(code)
+    return if code.blank?
+
+    TAINT_SEVERITY_DESCRIPTIONS[code]
+  end
+
+  TAINT_PERSISTENCE_DESCRIPTIONS = {
+    2  => 'Occasional and brief: Occurs periodically or on a 2D roll of 12 per day and lasts 1D hours',
+    3  => 'Occasional and lingering: Occurs periodically or on a 2D roll of 12 per day and lasts 1D days',
+    4  => 'Irregular: Occurs on a 2D roll of 9+ and lasts for D3 days',
+    5  => 'Fluctuating: roll 2D daily: on 6-, reduce severity by one level; on 12 increase severity by one level',
+    6  => 'Varying: Always present but roll 2D daily: on 6-, reduce severity by one level for 1D hours',
+    7  => 'Varying: Always present but roll 2D daily: on 4-, reduce severity by one level for 1D hours',
+    8  => 'Varying: Always present but roll 2D daily: on 2, reduce severity by one level for 1D hours',
+    9  => 'Constant: Ever-present at indicated severity'
+  }.freeze
+
+  def taint_persistence_description(code)
+    return if code.blank?
+
+    TAINT_PERSISTENCE_DESCRIPTIONS[code]
+  end
 end
