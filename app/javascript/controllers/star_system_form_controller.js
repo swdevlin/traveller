@@ -16,7 +16,12 @@ export default class extends Controller {
       this.starConfigTarget.querySelectorAll('select').forEach(el => {
         if (show) {
           const container = el.closest('[data-star-system-form-section]')
-          el.disabled = container ? container.classList.contains('hidden') : false
+          const sectionHidden = container ? container.classList.contains('hidden') : false
+          if (sectionHidden) {
+            el.disabled = true
+          } else {
+            el.disabled = this.#shouldDisableForDwarfType(el)
+          }
         } else {
           el.disabled = true
         }
@@ -29,6 +34,25 @@ export default class extends Controller {
 
     if (this.hasBuildConfigTarget) {
       this.buildConfigTarget.disabled = mode !== 'build_configuration'
+    }
+  }
+
+  spectralTypeChanged(event) {
+    const select = event.currentTarget
+    const section = select.closest('[data-star-system-form-section]')
+    if (!section) return
+
+    const noSubtype = ['BD', 'D'].includes(select.value)
+    const subtypeSelect = section.querySelector('[data-role="spectral-subtype"]')
+    const luminositySelect = section.querySelector('[data-role="luminosity"]')
+
+    if (subtypeSelect) {
+      subtypeSelect.disabled = noSubtype
+      if (noSubtype) subtypeSelect.value = ''
+    }
+    if (luminositySelect) {
+      luminositySelect.disabled = noSubtype
+      if (noSubtype) luminositySelect.value = ''
     }
   }
 
@@ -49,5 +73,16 @@ export default class extends Controller {
         companionSection.querySelectorAll('select').forEach(el => el.disabled = true)
       }
     }
+  }
+
+  #shouldDisableForDwarfType(el) {
+    const role = el.dataset.role
+    if (role !== 'spectral-subtype' && role !== 'luminosity') return false
+
+    const section = el.closest('[data-star-system-form-section]')
+    if (!section) return false
+
+    const typeSelect = section.querySelector('select:not([data-role])')
+    return typeSelect && ['BD', 'D'].includes(typeSelect.value)
   }
 }

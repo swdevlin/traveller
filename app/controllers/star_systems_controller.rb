@@ -90,10 +90,22 @@ class StarSystemsController < ApplicationController
   end
 
   def create_empty_star_system(params)
-    if params['primary_spectral_type'].blank? || params['primary_spectral_subtype'].blank? || params['primary_luminosity'].blank?
+    spectral_type = params['primary_spectral_type']
+    dwarf_type = %w[BD D].include?(spectral_type)
+
+    if spectral_type.blank? || (!dwarf_type && (params['primary_spectral_subtype'].blank? || params['primary_luminosity'].blank?))
       return StarSystem.new(star_system_params).tap do |so|
         so.errors.add(:base, 'Spectral type, subtype, and luminosity class must all be provided')
       end
+    end
+
+    primary = if dwarf_type
+      { 'type' => spectral_type }
+    else
+      {
+        'type' => "#{spectral_type}#{params['primary_spectral_subtype']}",
+        'class' => params['primary_luminosity']
+      }
     end
 
     build_config = {
@@ -103,10 +115,7 @@ class StarSystemsController < ApplicationController
         'planetoidBelts' => 0,
         'terrestrialPlanets' => 0
       },
-      'primary' => {
-        'type' => "#{params['primary_spectral_type']}#{params['primary_spectral_subtype']}",
-        'class' => params['primary_luminosity']
-        }
+      'primary' => primary
     }
     result = GeneratorService.new.generate_star_system(build_config)
 
@@ -239,6 +248,10 @@ class StarSystemsController < ApplicationController
     }
   end
 
+  def spectral_type_valid(type)
+    spectral_type_options.any? { |a| a.second == type }
+  end
+
   def validate_star_params(sp, prefix, required: false)
     type_key = "#{prefix}_spectral_type"
     subtype_key = "#{prefix}_spectral_subtype"
@@ -258,6 +271,8 @@ class StarSystemsController < ApplicationController
     luminosity = sp[luminosity_key]
     subtype = sp[subtype_key].to_i
 
+    return "#{prefix.titleize}: #{spectral_type} not valid." unless spectral_type_valid(spectral_type)
+
     if %w[O M].include?(spectral_type) && luminosity == 'IV'
       return "#{prefix.titleize}: #{spectral_type} IV stars are not supported by the generator."
     end
@@ -271,6 +286,12 @@ class StarSystemsController < ApplicationController
     nil
   end
 
+  def spectral_type_options
+    types = %w[O B A F G K M].map { |t| [t, t] }
+    types << ['Brown Dwarf', 'BD']
+    types << ['White Dwarf', 'D']
+  end
+
   def set_form_context
     @submit_label = action_name == 'edit' ? 'Save changes' : 'Add star system'
 
@@ -280,7 +301,9 @@ class StarSystemsController < ApplicationController
       else
         polymorphic_path([@subsector || @sector, :star_systems])
       end
-    @spectral_type_options = %w[O B A F G K M].map { |t| [t, t] }
+
+    @spectral_type_options = spectral_type_options
+
     @spectral_subtype_options = (0..9).map { |n| [n.to_s, n] }
 
     @luminosity_options = [

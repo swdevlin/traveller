@@ -172,7 +172,8 @@
   }
 
   .edit-base {
-    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700;
+    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   /* page components*/

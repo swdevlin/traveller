@@ -45,6 +45,9 @@
         <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
           <span class="tracking-[0.2em]">PBG</span>
         </th>
+        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
+          SI
+        </th>
         <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
           Actions
         </th>
@@ -91,6 +94,10 @@
             <% if star_system.has_gas_giant? %>
               <i class="fa-regular fa-planet-ringed"></i>
             <% end %>
+          </td>
+
+          <td class="px-4 py-3 whitespace-nowrap align-middle">
+            <%= star_system.survey_index %>
           </td>
 
           <td class="px-2 py-3 whitespace-nowrap align-middle text-right">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_225308) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_14_141555) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -142,6 +142,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_06_225308) do
     t.string "name"
     t.text "notes"
     t.integer "parsec_id", null: false
+    t.integer "survey_index", default: 0
     t.integer "terrestrial_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
