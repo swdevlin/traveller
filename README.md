@@ -6,8 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* Display atmosphere data for worlds
-* Display hydrosphere data for worlds
 * Add a rogue stellar object
   * Brown dwarf
     * can edit
