@@ -18,5 +18,10 @@ class TerrestrialPlanet < StellarObject
     native_sophont: 'nativeSophont',
     rotation: 'rotation',
     resource_rating: 'resourceRating',
+    atmosphere: 'atmosphere',
+    hydrographics: 'hydrographics',
+    population: 'population',
+    government_code: 'governmentCode',
+    law_level_code: 'lawLevelCode',
   )
 end
