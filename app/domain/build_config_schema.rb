@@ -76,7 +76,6 @@ SystemSchema = Dry::Schema.Params do
   required(:x).filled(:integer, gteq?: 1, lteq?: 8)
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
   optional(:name).filled(:string)
-  optional(:populated).hash(PopulatedSchema)
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
   optional(:bases).array(:string).each(:filled?)
