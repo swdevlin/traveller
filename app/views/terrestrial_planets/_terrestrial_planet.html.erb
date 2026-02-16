@@ -51,11 +51,11 @@
                value: allegiance_value %>
   </div>
 
-  <div class="flex items-center gap-4 pt-2">
-    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+  <div class="dg-subsection">
+    <div class="dg-subsection-label">
       Orbital Data
     </div>
-    <div class="h-px flex-1 bg-slate-700/70"></div>
+    <div class="db-subsection-line"></div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -70,7 +70,7 @@
 
   <%= render 'stellar_objects/jump_shadow_times', stellar_object: terrestrial_planet %>
 
-  <div class="flex items-center gap-4">
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Physical Data
     </div>
@@ -84,7 +84,7 @@
     <%= render 'application/data_block', label: 'Density', value: number_with_precision(terrestrial_planet.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
   </div>
 
-  <div class="flex items-center gap-4">
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Environmental Data
     </div>
@@ -137,7 +137,7 @@
                value_wrap_class: 'flex flex-wrap items-center gap-2' %>
   </div>
 
-  <div class="flex items-center gap-4">
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Biological Data
     </div>

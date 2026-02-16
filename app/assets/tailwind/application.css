@@ -293,6 +293,18 @@
     box-shadow: 0 0 0 3px rgba(222, 128, 52, 0.18);
   }
 
+    /* Data grid */
+    .dg-subsection {
+        @apply flex items-center gap-2 pt-1 mb-1;
+    }
+
+    .dg-subsection-label {
+        @apply text-xs uppercase tracking-[0.22em] text-deepnight-orange;
+    }
+
+    .dg-subsection-line {
+        @apply h-px flex-1 bg-slate-700/70;
+    }
   /* markdown */
 
   .callout {
@@ -322,4 +334,110 @@
   .callout-danger {
     @apply border-traveller-red/50;
   }
+
+  /* Subway map */
+
+    .subway-map-container {
+        @apply overflow-x-auto overflow-y-hidden rounded-xl border border-slate-700/60 bg-slate-950/70 p-4 shadow-xl;
+    }
+
+    .subway-map {
+        display: block; /* avoids baseline whitespace */
+    }
+
+  .subway-map a {
+    text-decoration: none;
+  }
+
+  .subway-map a:hover {
+    text-decoration: none;
+  }
+
+}
+
+/* SVG subway map styles (outside @layer to avoid Tailwind selector conflicts) */
+
+.subway-track {
+  stroke: #475569;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.subway-branch {
+  stroke: #475569;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 8 4;
+}
+
+.subway-star {
+  stroke: #1e293b;
+  stroke-width: 2;
+}
+
+.subway-gas-giant {
+  stroke: #7c3aed;
+  stroke-width: 2;
+}
+
+.subway-terrestrial {
+  stroke: #1e293b;
+  stroke-width: 1.5;
+}
+
+.subway-planetoid-belt {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+}
+
+.subway-junction {
+  fill: #475569;
+  stroke: none;
+}
+
+.subway-other-body {
+  fill: #64748b;
+  stroke: #334155;
+  stroke-width: 2;
+}
+
+.subway-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: #cbd5e1;
+}
+
+.subway-star-label {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  fill: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.subway-au-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  fill: #94a3b8;
+}
+
+.subway-sublabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: #cbd5e1;
+}
+
+.subway-clickable {
+  cursor: pointer;
+}
+
+.subway-clickable:hover circle {
+  opacity: 0.75;
+}
+
+.subway-clickable:hover .subway-label,
+.subway-clickable:hover .subway-star-label {
+  fill: #e10600;
 }
