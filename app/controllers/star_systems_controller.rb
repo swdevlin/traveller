@@ -2,10 +2,11 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'yaml'
+require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
-  before_action :set_star_system, only: %i[ show edit update destroy ]
+  before_action :set_star_system, only: %i[ show edit update destroy map ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -17,6 +18,18 @@ class StarSystemsController < ApplicationController
   def show
     @primary = @star_system.primary_star
     @orbiting_bodies = @star_system.orbiting_bodies
+  end
+
+  # GET /star_systems/1/map.svg or .webp
+  def map
+    fresh_when @star_system
+    return if performed?
+
+    respond_to do |format|
+      format.svg  { send_data cached_svg, type: 'image/svg+xml', disposition: 'inline' }
+      format.html { send_data cached_svg, type: 'image/svg+xml', disposition: 'inline' }
+      format.webp { send_data cached_webp, type: 'image/webp', disposition: 'inline' }
+    end
   end
 
   # GET /star_systems/new
@@ -83,6 +96,19 @@ class StarSystemsController < ApplicationController
   end
 
   private
+
+  def cached_svg
+    Rails.cache.fetch("system_map_svg/#{@star_system.cache_key_with_version}") do
+      render_to_string(formats: [:svg], layout: false)
+    end
+  end
+
+  def cached_webp
+    Rails.cache.fetch("system_map_webp/#{@star_system.cache_key_with_version}") do
+      image = Vips::Image.new_from_buffer(cached_svg, '')
+      image.webpsave_buffer
+    end
+  end
 
   # Use callbacks to share common setup or constraints between actions.
   def set_star_system

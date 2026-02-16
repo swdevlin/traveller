@@ -53,14 +53,27 @@ class SubsectorsController < ApplicationController
   end
 
   def map
-    @star_systems = @subsector.star_systems.includes(:parsec, stars: [])
+    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, stars: [])
     if params[:highlight].present?
       highlighted_parsec = Parsec.find_by(id: params[:highlight])
       @highlight_hex = highlighted_parsec&.hex_code
     end
+
+    max_updated = @star_systems.maximum(:updated_at)
+    cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}"
+
+    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated].compact.max
+    return if performed?
+
     respond_to do |format|
-      format.svg { render layout: false }
-      format.html { render layout: false, content_type: 'image/svg+xml' }
+      format.svg do
+        svg = Rails.cache.fetch(cache_key) { render_to_string(layout: false) }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+      format.html do
+        svg = Rails.cache.fetch(cache_key) { render_to_string(layout: false, content_type: 'image/svg+xml') }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
     end
   end
 

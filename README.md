@@ -30,7 +30,6 @@
   * [] delete orbiting body
 * edit planetoid belt
     * [] edit details
-* Display star system map
 * Mongoose allegiance codes
 * Log in
   * Multi-tenancy

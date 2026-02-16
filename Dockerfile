@@ -16,9 +16,18 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips fontconfig unzip sqlite3 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install Google Fonts for SVG rasterisation (Orbitron + JetBrains Mono)
+RUN mkdir -p /usr/local/share/fonts && \
+    curl -fsSL -o /tmp/orbitron.zip "https://fonts.google.com/download?family=Orbitron" && \
+    curl -fsSL -o /tmp/jetbrains.zip "https://fonts.google.com/download?family=JetBrains+Mono" && \
+    unzip -o /tmp/orbitron.zip -d /usr/local/share/fonts/orbitron && \
+    unzip -o /tmp/jetbrains.zip -d /usr/local/share/fonts/jetbrains-mono && \
+    fc-cache -f && \
+    rm /tmp/*.zip
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
 ENV RAILS_ENV="production" \

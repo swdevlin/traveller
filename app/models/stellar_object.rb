@@ -20,7 +20,7 @@ class StellarObject < ApplicationRecord
   include ScrubsMailtoLinks
 
   belongs_to :parsec, optional: true
-  belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects
+  belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects, touch: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes

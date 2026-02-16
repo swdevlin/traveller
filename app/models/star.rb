@@ -10,7 +10,7 @@ class Star < ApplicationRecord
     'AN' => 'Anomaly'
   }.freeze
 
-  belongs_to :star_system, optional: true
+  belongs_to :star_system, optional: true, touch: true
   belongs_to :parsec, optional: true
 
   belongs_to :companion, class_name: 'Star', optional: true

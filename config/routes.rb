@@ -18,7 +18,11 @@ Rails.application.routes.draw do
     resources :star_systems, only: %i[new create index destroy]
   end
 
-  resources :star_systems
+  resources :star_systems do
+    member do
+      get :map
+    end
+  end
 
   resources :stars, only: %i[index show edit update destroy]
 

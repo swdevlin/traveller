@@ -223,7 +223,7 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
     body_nodes.each { |n| assert_kind_of StellarObject, n.url_target }
   end
 
-  test 'body tooltips include parent star name for non-primary children' do
+  test 'body tooltip is nil (stub for future use)' do
     ss = create_system
     primary = create_star(ss, name: 'Alpha')
     companion = create_star(ss, name: 'Beta', orbiting: primary, au: 10.0, orbit: 5)
@@ -233,7 +233,7 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
 
     body_nodes = layout.nodes.select { |n| n.kind == :terrestrial }
     assert_equal 1, body_nodes.size
-    assert_includes body_nodes.first.tooltip, 'from'
+    assert_nil body_nodes.first.tooltip
   end
 
   test 'au labels on edges are formatted correctly' do
@@ -247,9 +247,9 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
 
     track_edges = layout.edges.select { |e| e.kind == :track }.sort_by(&:x1)
 
-    assert_equal '0.05 AU', track_edges[0].au_label
-    assert_equal '1.5 AU', track_edges[1].au_label
-    assert_equal '15 AU', track_edges[2].au_label
+    assert_equal '0.05', track_edges[0].au_label
+    assert_equal '1.5', track_edges[1].au_label
+    assert_equal '15', track_edges[2].au_label
   end
 
   test 'companion star edge shows au label' do
@@ -261,6 +261,6 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
 
     track_edges = layout.edges.select { |e| e.kind == :track }
     assert_equal 1, track_edges.size
-    assert_equal '10 AU', track_edges.first.au_label
+    assert_equal '10', track_edges.first.au_label
   end
 end

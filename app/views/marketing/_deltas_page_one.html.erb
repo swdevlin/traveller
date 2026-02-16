@@ -1,6 +1,42 @@
 <div class="space-y-6">
   <div class="flex items-center gap-4">
     <div class="text-sm uppercase tracking-[0.22em] font-semibold text-deepnight-orange">
+      2026.047
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-sm uppercase tracking-[0.2em] text-slate-200">Orbital Transit Diagram</h3>
+    <p class="text-slate-300 leading-relaxed">
+      The star system survey display now renders an orbital transit diagram
+      depicting the spatial hierarchy of all catalogued bodies within the system.
+      Selecting any body on the diagram navigates directly to its survey record.
+    </p>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-sm uppercase tracking-[0.2em] text-slate-200">Standalone Cartographic Export</h3>
+    <p class="text-slate-300 leading-relaxed">
+      Star system transit diagrams may now be retrieved as standalone imagery independent of the survey console
+      interface. The export subsystem supports SVG vector output and WebP raster encoding. Standalone renders are
+      suitable for inclusion in external briefing documents and operational planning materials.
+    </p>
+  </div>
+
+  <div class="space-y-4">
+    <h3 class="text-sm uppercase tracking-[0.2em] text-slate-200">Cartographic Cache Subsystem</h3>
+    <p class="text-slate-300 leading-relaxed">
+      A two-tier caching architecture has been installed for all map rendering operations. Server-side frame buffers
+      retain previously computed cartographic output, eliminating redundant render cycles when multiple
+      operators access the same survey data. An additional HTTP-level freshness protocol permits the operator's local
+      terminal to bypass the data link entirely when no upstream modifications have been recorded. These optimisations
+      apply to both star system transit diagrams and subsector hex grid displays.
+    </p>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <div class="text-sm uppercase tracking-[0.22em] font-semibold text-deepnight-orange">
       2026.045
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>

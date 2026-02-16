@@ -1,0 +1,88 @@
+<%
+  layout = StarSystemMapLayout.new(@star_system)
+-%><svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="<%= layout.svg_width %>" height="<%= layout.svg_height %>"
+     viewBox="0 0 <%= layout.svg_width %> <%= layout.svg_height %>"
+     preserveAspectRatio="xMinYMid meet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500');
+
+    .subway-track {
+      stroke: #475569;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .subway-branch {
+      stroke: #475569;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 8 4;
+    }
+    .subway-star {
+      stroke: #1e293b;
+      stroke-width: 2;
+    }
+    .subway-gas-giant {
+      stroke: #7c3aed;
+      stroke-width: 2;
+    }
+    .subway-terrestrial {
+      stroke: #1e293b;
+      stroke-width: 1.5;
+    }
+    .subway-planetoid-belt {
+      fill: none;
+      stroke: #94a3b8;
+      stroke-width: 2;
+      stroke-dasharray: 3 3;
+    }
+    .subway-junction {
+      fill: #475569;
+      stroke: none;
+    }
+    .subway-other-body {
+      fill: #64748b;
+      stroke: #334155;
+      stroke-width: 2;
+    }
+    .subway-label {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      fill: #cbd5e1;
+    }
+    .subway-star-label {
+      font-family: "Orbitron", system-ui, sans-serif;
+      font-size: 12px;
+      fill: #f8fafc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .subway-au-label {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 12px;
+      fill: #94a3b8;
+    }
+    .subway-sublabel {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 10px;
+      fill: #cbd5e1;
+    }
+    .subway-clickable {
+      cursor: pointer;
+    }
+    .subway-clickable:hover circle {
+      opacity: 0.75;
+    }
+    .subway-clickable:hover .subway-label,
+    .subway-clickable:hover .subway-star-label {
+      fill: #e10600;
+    }
+    a { text-decoration: none; }
+    a:hover { text-decoration: none; }
+  </style>
+
+  <rect width="100%" height="100%" fill="#000000"/>
+
+  <%= render partial: 'system_map_inner', formats: [:svg], locals: { layout: layout, linkable: false } %>
+</svg>
