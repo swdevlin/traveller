@@ -144,6 +144,56 @@
       </div>
     <% end %>
 
+    <div>
+      <div class="edit-label">Atmosphere<%= required_icon(stellar_object, :atmosphere_code) %></div>
+      <%= form.select :atmosphere_code,
+                      options_for_select(
+                        StellarObjectsHelper::ATMOSPHERE_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                        stellar_object.atmosphere_code
+                      ),
+                      { include_blank: 'Select atmosphere' },
+                      class: 'edit-base mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :atmosphere_code %>
+    </div>
+
+    <div>
+      <div class="edit-label">Composition<%= required_icon(stellar_object, :atmosphere_composition) %></div>
+      <%= form.text_field :atmosphere_composition, value: stellar_object.atmosphere_composition,
+                          class: 'edit-base mt-2 w-full sm:max-w-xl' %>
+      <%= render 'application/field_error', form: form, attribute: :atmosphere_composition %>
+    </div>
+
+    <div>
+      <div class="edit-label">Hydrographics<%= required_icon(stellar_object, :hydrographics_code) %></div>
+      <%= form.select :hydrographics_code,
+                      options_for_select(
+                        StellarObjectsHelper::HYDROGRAPHICS_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                        stellar_object.hydrographics_code
+                      ),
+                      { include_blank: 'Select hydrographics' },
+                      class: 'edit-base mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :hydrographics_code %>
+    </div>
+
+    <div>
+      <div class="edit-label">Liquid<%= required_icon(stellar_object, :hydrographics_liquid) %></div>
+      <%= form.text_field :hydrographics_liquid, value: stellar_object.hydrographics_liquid,
+                          class: 'edit-base mt-2 w-full sm:max-w-xl' %>
+      <%= render 'application/field_error', form: form, attribute: :hydrographics_liquid %>
+    </div>
+
+    <div>
+      <div class="edit-label">Distribution<%= required_icon(stellar_object, :hydrographics_distribution) %></div>
+      <%= form.select :hydrographics_distribution,
+                      options_for_select(
+                        StellarObjectsHelper::HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                        stellar_object.hydrographics_distribution
+                      ),
+                      { include_blank: 'Select distribution' },
+                      class: 'edit-base mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :hydrographics_distribution %>
+    </div>
+
     <div class="flex items-center gap-2 pt-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Biological Data</div>
       <div class="h-px flex-1 bg-slate-700/70"></div>

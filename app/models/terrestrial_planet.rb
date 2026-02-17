@@ -29,9 +29,51 @@ class TerrestrialPlanet < StellarObject
     law_level_code: 'lawLevelCode',
   )
 
+  def atmosphere_code
+    atmosphere&.dig('code')
+  end
+
+  def atmosphere_code=(val)
+    self.atmosphere = (atmosphere || {}).merge('code' => val.present? ? val.to_i : nil)
+  end
+
+  def atmosphere_composition
+    atmosphere&.dig('composition')
+  end
+
+  def atmosphere_composition=(val)
+    self.atmosphere = (atmosphere || {}).merge('composition' => val.presence)
+  end
+
+  def hydrographics_code
+    hydrographics&.dig('code')
+  end
+
+  def hydrographics_code=(val)
+    self.hydrographics = (hydrographics || {}).merge('code' => val.present? ? val.to_i : nil)
+  end
+
+  def hydrographics_liquid
+    hydrographics&.dig('liquid')
+  end
+
+  def hydrographics_liquid=(val)
+    self.hydrographics = (hydrographics || {}).merge('liquid' => val.presence)
+  end
+
+  def hydrographics_distribution
+    hydrographics&.dig('distribution')
+  end
+
+  def hydrographics_distribution=(val)
+    self.hydrographics = (hydrographics || {}).merge('distribution' => val.present? ? val.to_i : nil)
+  end
+
   def self.permitted_params
     [
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass,
+      :atmosphere_code, :atmosphere_composition,
+      :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
       data: [
         :period, :rotation, :retrograde, :density, :gravity,
         :temperature, :axial_tilt, :albedo, :greenhouse,
