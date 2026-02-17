@@ -87,7 +87,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
     <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(gas_giant.diameter), suffix: 'km' %>
-    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(gas_giant.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
+    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(gas_giant.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(gas_giant.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
     <%= render 'application/data_block', label: 'Code', value: gas_giant.code %>
   </div>
