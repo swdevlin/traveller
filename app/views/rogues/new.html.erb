@@ -1,88 +1,93 @@
-<%= form_with model: @rogue, scope: :stellar_object, url: request.path.include?("/parsecs/") ? parsec_rogues_path(@parsec) : polymorphic_path([@subsector || @sector, :rogues]), class: "space-y-6" do |f| %>
-  <%= hidden_field_tag :return_to, @return_to %>
-  <h1 class="text-3xl font-bold mb-6">
-    <i class="fa-solid fa-meteor mr-2 text-slate-300"></i>
-    Add rogue to <span class="text-slate-200"><%= @context_label %></span>
-  </h1>
+<% content_for :title, 'Add rogue object' %>
+<% content_for :page_kicker, 'Add Rogue Object' %>
+<% content_for :page_title, @context_label %>
 
-  <% unless @parsec %>
-    <div>
-      <%= f.label :parsec_id, "Hex", class: "block text-sm font-semibold mb-1" %>
-      <%= f.select :parsec_id,
-                   options_for_select(@parsec_options, @rogue.parsec_id),
-                   { prompt: "Select a hex" },
-                   class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2" %>
+<%= render 'application/page' do %>
+  <%= form_with model: @rogue, scope: :stellar_object, url: request.path.include?("/parsecs/") ? parsec_rogues_path(@parsec) : polymorphic_path([@subsector || @sector, :rogues]), class: "contents" do |f| %>
+    <%= hidden_field_tag :return_to, @return_to %>
+
+    <div class="space-y-6 pb-10">
+      <% base_errors = @rogue.errors.where(:base) %>
+      <% if base_errors.any? %>
+        <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+          <ul class="space-y-1 text-sm text-red-100">
+            <% base_errors.each do |error| %>
+              <li class="flex gap-2">
+                <span class="select-none text-red-300">&bull;</span>
+                <span class="font-mono break-words"><%= error.full_message %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% unless @parsec %>
+        <div>
+          <div class="edit-label">Hex<i class="fa-thin fa-microchip ml-1 align-middle" aria-hidden="true"></i></div>
+          <%= f.select :parsec_id,
+                       options_for_select(@parsec_options, @rogue.parsec_id),
+                       { prompt: 'Select a hex' },
+                       class: 'edit-base mt-2 w-40' %>
+          <%= render 'application/field_error', form: f, attribute: :parsec_id %>
+        </div>
+      <% end %>
+
+      <div>
+        <div class="edit-label">Name<%= required_icon(@rogue, :name) %></div>
+        <%= f.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
+        <%= render 'application/field_error', form: f, attribute: :name %>
+      </div>
+
+      <div data-controller="rogue-form">
+        <div>
+          <div class="edit-label">Rogue type<i class="fa-thin fa-microchip ml-1 align-middle" aria-hidden="true"></i></div>
+          <%= f.select :type,
+                       options_for_select(
+                         StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
+                         params.dig(:stellar_object, :type) || @rogue.class.name
+                       ),
+                       { prompt: 'Select a type' },
+                       class: 'edit-base mt-2 w-60',
+                       data: { action: 'change->rogue-form#typeChanged', rogue_form_target: 'typeSelect' } %>
+          <%= render 'application/field_error', form: f, attribute: :type %>
+        </div>
+
+        <%= f.fields_for :data, (@rogue.data || {}) do |df| %>
+          <div data-rogue-form-target="section" data-type="GasGiant" class="hidden mt-4">
+            <div class="edit-label">Gas giant size</div>
+            <%= df.select :size,
+                          options_for_select([['Random', 'random'], ['Small', 'GS'], ['Medium', 'GM'], ['Large', 'GL']], (@rogue.data || {})['size']),
+                          { prompt: 'Select a size' },
+                          class: 'edit-base mt-2' %>
+            <%= render 'application/field_error', form: f, attribute: :size %>
+          </div>
+
+          <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4 space-y-4">
+            <fieldset class="space-y-2">
+              <% current_type = (@rogue.data || {})['comet_type'] %>
+              <legend class="edit-label">Comet type</legend>
+              <% Comet::DESCRIPTIONS.each do |value, label| %>
+                <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+                  <%= df.radio_button :comet_type, value,
+                                      checked: current_type == value,
+                                      class: 'mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40' %>
+                  <span class="text-sm text-slate-100"><%= label %></span>
+                </label>
+              <% end %>
+            </fieldset>
+          </div>
+        <% end %>
+      </div>
+
+      <div>
+        <div class="edit-label">Observations<%= required_icon(@rogue, :notes) %></div>
+        <%= f.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
+        <%= render 'application/field_error', form: f, attribute: :notes %>
+      </div>
+
+      <div class="pt-2 flex flex-col sm:flex-row gap-2">
+        <%= f.submit 'Add rogue', class: 'w-full sm:w-auto btn btn-primary' %>
+      </div>
     </div>
   <% end %>
-
-  <div>
-    <%= f.label :name, class: "block text-sm font-semibold mb-1" %>
-    <%= f.text_field :name,
-                     class: class_names(
-                       "block w-full mt-2 px-3 py-2 rounded-md border shadow-sm",
-                       "bg-slate-900 text-slate-100 caret-slate-100 placeholder:text-slate-400",
-                       "border-gray-400 focus:border-blue-600" => @rogue.errors[:name].none?,
-                       "border-red-400 focus:border-red-600"   => @rogue.errors[:name].any?
-                     ) %>
-  </div>
-
-  <div data-controller="rogue-form">
-    <div>
-      <%= f.label :type, "Rogue type", class: "block text-sm font-semibold mb-1" %>
-      <%= f.select :type,
-                   options_for_select(
-                     StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
-                     params.dig(:stellar_object, :type) || @rogue.class.name
-                   ),
-                   { prompt: "Select a type" },
-                   class: "w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2",
-                   data: { action: "change->rogue-form#typeChanged", rogue_form_target: "typeSelect" } %>
-    </div>
-
-    <%= f.fields_for :data, (@rogue.data || {}) do |df| %>
-      <div data-rogue-form-target="section" data-type="GasGiant" class="hidden mt-4">
-        <%= df.label :size, "Gas giant size", class: "block text-sm font-semibold mb-1" %>
-        <%= df.select :size,
-                      options_for_select([["Random", "random"], ["Small", "GS"], ["Medium", "GM"], ["Large", "GL"]], (@rogue.data || {})["size"]),
-                      { prompt: "Select a size" },
-                      class: class_names(
-                        "w-full rounded-lg bg-slate-950 border px-3 py-2",
-                        "border-slate-700" => @rogue.errors[:size].none?,
-                        "border-red-500" => @rogue.errors[:size].any?,
-                        )%>
-      </div>
-
-      <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4 space-y-4">
-        <!-- Comet type -->
-        <fieldset class="space-y-2">
-          <% current_type = (@rogue.data || {})["comet_type"] %>
-          <legend class="block text-sm font-semibold mb-1">Comet type</legend>
-          <% Comet::DESCRIPTIONS.each do |value, label| %>
-            <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
-              <%= df.radio_button :comet_type, value,
-                                  checked: current_type == value,
-                                  class: "mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40" %>
-              <span class="text-sm text-slate-100"><%= label %></span>
-            </label>
-          <% end %>
-
-        </fieldset>
-      </div>
-    <% end %>
-  </div>
-
-  <div>
-    <%= f.label :notes, "Observations" %>
-    <%= f.text_area :notes,
-                       rows: 6,
-                       class: [
-                         "block shadow-sm rounded-md border px-3 py-2 mt-2 w-full bg-slate-950 text-slate-100 resize-y",
-                         {
-                           "border-gray-400 focus:border-blue-600": @rogue.errors[:notes].none?,
-                           "border-red-400 focus:border-red-600": @rogue.errors[:notes].any?
-                         }
-                       ] %>
-  </div>
-
-  <%= f.submit "Add rogue", class: "btn btn-primary" %>
 <% end %>

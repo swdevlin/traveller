@@ -55,7 +55,7 @@ class RoguesController < ApplicationController
       if @rogue.is_a?(TerrestrialPlanet)
         redirect_to edit_stellar_object_path(@rogue), notice: 'Rogue terrestrial planet created. Fill in the details.'
       else
-        redirect_to safe_return_to || after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
+        redirect_to after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
       end
     else
       render :new, status: :unprocessable_entity
