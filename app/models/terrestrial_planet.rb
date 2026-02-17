@@ -1,6 +1,8 @@
 class TerrestrialPlanet < StellarObject
   include GeneratorMappings
 
+  after_initialize :set_default_data
+  after_initialize :normalize_data_types
   before_validation :normalize_data_types
 
   generator_data_map(
@@ -40,6 +42,11 @@ class TerrestrialPlanet < StellarObject
   end
 
   private
+
+  def set_default_data
+    self.atmosphere ||= { 'code' => nil, 'taint' => { 'code' => nil } }
+    self.hydrographics ||= { 'code' => nil, 'distribution' => nil, 'liquid' => nil }
+  end
 
   def normalize_data_types
     self.period = period.to_f if period.present?

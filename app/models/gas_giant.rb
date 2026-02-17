@@ -1,6 +1,7 @@
 class GasGiant < StellarObject
   include GeneratorMappings
 
+  after_initialize :normalize_data_types
   before_validation :normalize_data_types
 
   generator_data_map(

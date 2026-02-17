@@ -22,6 +22,8 @@ class RoguesController < ApplicationController
         generate_gas_giant
     when 'PlanetoidBelt'
         generate_stellar_object(PlanetoidBelt)
+    when 'TerrestrialPlanet'
+        TerrestrialPlanet.new(rogue_params)
     else
         StellarObject.new(rogue_params)
     end
@@ -50,7 +52,11 @@ class RoguesController < ApplicationController
     end
 
     if @rogue.save
-      redirect_to safe_return_to || after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
+      if @rogue.is_a?(TerrestrialPlanet)
+        redirect_to edit_stellar_object_path(@rogue), notice: 'Rogue terrestrial planet created. Fill in the details.'
+      else
+        redirect_to safe_return_to || after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
+      end
     else
       render :new, status: :unprocessable_entity
     end
