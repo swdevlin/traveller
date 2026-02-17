@@ -6,8 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* Add a rogue stellar object
-  * Terrestrial planet - no need to generate, just use edit form
 * Quickly toggle known state
 * Quickly set surveyIndex
 * Display error messages from background jobs
@@ -18,17 +16,11 @@
   * [] delete secondary or companion stars
   * [] reorder secondary stars
   * [] reorder orbiting bodies
-* edit terrestrial planet
-  * [] edit details
-* edit gas giant
-    * [] edit details
 * edit star
   * [] edit details
     * includes WBH values like spread, baseline, and baseline orbit number
   * [] reorder orbiting bodies
   * [] delete orbiting body
-* edit planetoid belt
-    * [] edit details
 * Mongoose allegiance codes
 * Log in
   * Multi-tenancy
