@@ -43,7 +43,9 @@
           </td>
 
           <td class="t-td align-middle">
-            <%= link_to rogue.name, stellar_object_path(rogue), class: "t-link" %>
+            <% if rogue.name.present? %>
+              <%= link_to rogue.name, stellar_object_path(rogue), class: "t-link" %>
+            <% end %>
           </td>
           <td class="t-td whitespace-nowrap align-middle text-right">
             <div class="inline-flex items-center justify-end gap-2">
