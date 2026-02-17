@@ -28,39 +28,51 @@
       <%= form.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
     </div>
 
-    <div>
-      <%= form.label :orbit, class: 'edit-label' %>
-      <%= form.number_field :orbit, value: format_precision(stellar_object.orbit, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
-                            min: star&.minimum_orbit, required: true %>
-      <%= render 'application/field_error', form: form, attribute: :orbit %>
-    </div>
-
-    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-      <div>
-        <%= df.label :period, class: 'edit-label' %>
-        <%= df.number_field :period, value: format_precision(stellar_object.period, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+    <% if star %>
+      <div class="flex items-center gap-2 pt-2">
+        <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Orbital Data</div>
+        <div class="h-px flex-1 bg-slate-700/70"></div>
       </div>
 
       <div>
-        <%= df.label :retrograde, class: 'edit-label' %>
-        <div class="mt-2">
-          <%= df.check_box :retrograde, { checked: stellar_object.retrograde, class: 'rounded bg-slate-950 border-slate-700' }, 'true', 'false' %>
+        <%= form.label :orbit, class: 'edit-label' %>
+        <%= form.number_field :orbit, value: format_precision(stellar_object.orbit, precision: 5),
+                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
+                              min: star.minimum_orbit, required: true %>
+        <%= render 'application/field_error', form: form, attribute: :orbit %>
+      </div>
+
+      <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+        <div>
+          <%= df.label :period, class: 'edit-label' %>
+          <%= df.number_field :period, value: format_precision(stellar_object.period, precision: 5),
+                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
         </div>
+
+        <div>
+          <%= df.label :retrograde, class: 'edit-label' %>
+          <div class="mt-2">
+            <%= df.check_box :retrograde, { checked: stellar_object.retrograde, class: 'rounded bg-slate-950 border-slate-700' }, 'true', 'false' %>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label :inclination, class: 'edit-label' %>
+        <%= form.number_field :inclination, value: format_precision(stellar_object.inclination, precision: 5),
+                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+      </div>
+
+      <div>
+        <%= form.label :eccentricity, class: 'edit-label' %>
+        <%= form.number_field :eccentricity, value: format_precision(stellar_object.eccentricity, precision: 5),
+                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
       </div>
     <% end %>
 
-    <div>
-      <%= form.label :inclination, class: 'edit-label' %>
-      <%= form.number_field :inclination, value: format_precision(stellar_object.inclination, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-    </div>
-
-    <div>
-      <%= form.label :eccentricity, class: 'edit-label' %>
-      <%= form.number_field :eccentricity, value: format_precision(stellar_object.eccentricity, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+    <div class="flex items-center gap-2 pt-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Composition</div>
+      <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
