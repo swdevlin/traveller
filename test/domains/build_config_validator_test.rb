@@ -555,6 +555,72 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_not validator.valid_for_star_system?
   end
 
+  # Nested star validation (companion inside far, etc.)
+  test 'star with companion inside far is valid' do
+    yaml = <<~YAML
+      type: sparse
+      systems:
+        - x: 2
+          y: 6
+          name: Test System
+          primary:
+            type: G1
+            class: V
+            far:
+              type: K3
+              class: V
+              companion:
+                type: K3
+                class: V
+          counts:
+            gasGiants: 1
+            planetoidBelts: 0
+            terrestrialPlanets: 0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'star with companion inside near is valid' do
+    yaml = <<~YAML
+      type: sparse
+      systems:
+        - x: 1
+          y: 1
+          primary:
+            type: F6
+            class: V
+            near:
+              type: K3
+              class: V
+              companion:
+                type: M2
+                class: V
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'nested star without required class is invalid' do
+    yaml = <<~YAML
+      type: sparse
+      systems:
+        - x: 2
+          y: 6
+          primary:
+            type: G1
+            class: V
+            far:
+              type: K3
+              class: V
+              companion:
+                type: K3
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'class'
+  end
+
   test 'config returns parsed and normalized hash' do
     yaml = <<~YAML
       unusualChance: 10

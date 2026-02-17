@@ -52,12 +52,21 @@ BaseStarSchema = Dry::Schema.Params do
   end
 end
 
-StarSchema = BaseStarSchema.merge(
+NestedStarSchema = BaseStarSchema.merge(
   Dry::Schema.Params do
     optional(:companion).hash(BaseStarSchema)
     optional(:close).hash(BaseStarSchema)
     optional(:near).hash(BaseStarSchema)
     optional(:far).hash(BaseStarSchema)
+  end
+)
+
+StarSchema = BaseStarSchema.merge(
+  Dry::Schema.Params do
+    optional(:companion).hash(NestedStarSchema)
+    optional(:close).hash(NestedStarSchema)
+    optional(:near).hash(NestedStarSchema)
+    optional(:far).hash(NestedStarSchema)
   end
 )
 
