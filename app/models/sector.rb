@@ -60,7 +60,7 @@ class Sector < ApplicationRecord
     safe_name = ERB::Util.h(existing.name)
 
     path = Rails.application.routes.url_helpers.sector_path(existing)
-    message = %(<a href="#{path}">#{safe_name} already exists at #{x}/#{y}.)
+    message = %(<a href="#{path}">#{safe_name}</a> already exists at #{x}/#{y}.)
     errors.add(:base, message)
   end
 

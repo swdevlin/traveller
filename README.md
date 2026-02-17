@@ -7,7 +7,6 @@
 
 ## To Do
 * Add a rogue stellar object
-  * Planetoid belt - no need to generate, just use edit form
   * Terrestrial planet - no need to generate, just use edit form
 * Quickly toggle known state
 * Quickly set surveyIndex

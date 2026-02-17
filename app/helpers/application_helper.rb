@@ -1,4 +1,11 @@
 module ApplicationHelper
+  def required_icon(model, attribute)
+    validators = model.class.validators_on(attribute)
+    return unless validators.any? { |v| v.is_a?(ActiveRecord::Validations::PresenceValidator) }
+
+    tag.i(class: 'fa-thin fa-microchip ml-1 align-middle', aria: { hidden: true })
+  end
+
   def format_precision(value, precision: 2)
     return if value.nil?
 

@@ -1,10 +1,24 @@
 <%= form_with(model: sector, class: "contents") do |form| %>
   <div class='space-y-6 pb-10'>
+    <% base_errors = sector.errors.where(:base) %>
+    <% if base_errors.any? %>
+      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+        <ul class="space-y-1 text-sm text-red-100">
+          <% base_errors.each do |error| %>
+            <li class="flex gap-2">
+              <span class="select-none text-red-300">&bull;</span>
+              <span class="font-mono break-words"><%= error.full_message.html_safe %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
     <div>
       <div class='mt-4'>
         <div class='min-w-0'>
           <div class='edit-label'>
-            Name
+            Name<%= required_icon(sector, :name) %>
           </div>
 
           <%= form.text_field :name,
@@ -18,7 +32,7 @@
       <div class='mt-4'>
         <div class='min-w-0'>
           <div class='edit-label'>
-            Abbreviation
+            Abbreviation<%= required_icon(sector, :abbreviation) %>
           </div>
 
           <%= form.text_field :abbreviation,
@@ -35,7 +49,7 @@
         <div class="mt-2 flex flex-wrap gap-6">
           <div>
             <div class='edit-label'>
-              X
+              X<%= required_icon(sector, :x) %>
             </div>
             <%= form.number_field :x,
                                   class: 'coord-input edit-base mt-2' %>
@@ -44,7 +58,7 @@
 
           <div>
             <div class='edit-label'>
-              Y
+              Y<%= required_icon(sector, :y) %>
             </div>
             <%= form.number_field :y,
                                   class: 'coord-input edit-base mt-2' %>
@@ -56,7 +70,7 @@
 
     <div>
       <div class='edit-label'>
-        Observations
+        Observations<%= required_icon(sector, :notes) %>
       </div>
 
       <%= form.text_area :notes,
@@ -66,8 +80,8 @@
     </div>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', sector, class: 'w-full sm:w-auto btn' %>
+      <%= form.submit sector.persisted? ? 'Update core' : 'Commit Core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', sector.persisted? ? sector : sectors_path, class: 'w-full sm:w-auto btn' %>
     </div>
   </div>
 <% end %>

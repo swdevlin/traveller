@@ -1,4 +1,3 @@
-<% content_for :form_object, @star_system %>
 <% content_for :title, 'New star system' %>
 <% content_for :page_kicker, @context_label %>
 <% content_for :page_title, 'Register Star System' %>
@@ -11,7 +10,7 @@
                 data: { controller: 'star-system-form' } do |f| %>
 
     <div>
-      <%= f.label :name, 'Name', class: 'block text-sm font-semibold mb-1' %>
+      <%= f.label :name, class: 'block text-sm font-semibold mb-1' do %>Name<%= required_icon(@star_system, :name) %><% end %>
       <%= f.text_field :name,
                        class: 'w-160 edit-base' %>
       <%= render 'application/field_error', form: f, attribute: :name %>
@@ -24,7 +23,7 @@
       ].compact.join(' ')
       %>
       <div>
-        <%= f.label :parsec_id, 'Hex', class: 'block text-sm font-semibold mb-1' %>
+        <%= f.label :parsec_id, class: 'block text-sm font-semibold mb-1' do %>Hex<%= required_icon(@star_system, :parsec_id) %><% end %>
         <%= f.select :parsec_id,
                      options_for_select(@parsec_options, @star_system.parsec_id),
                      { prompt: 'Select a hex' },

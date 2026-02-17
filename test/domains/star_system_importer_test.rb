@@ -72,7 +72,7 @@ class StarSystemImporterTest < ActiveSupport::TestCase
       end
     end
 
-    primary = star_system.stars.find_by(orbiting: nil)
+    primary = star_system.primary_star
     assert primary.companion.present?
     assert_equal primary.companion.orbiting, primary
   end
