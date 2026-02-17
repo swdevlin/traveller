@@ -239,17 +239,17 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
   test 'au labels on edges are formatted correctly' do
     ss = create_system
     star = create_star(ss, name: 'Sol')
-    create_body(star, type: 'TerrestrialPlanet', name: 'Close', orbit: 1, au: 0.05)
-    create_body(star, type: 'TerrestrialPlanet', name: 'Mid', orbit: 2, au: 1.5)
-    create_body(star, type: 'GasGiant', name: 'Far', orbit: 3, au: 15.0)
+    create_body(star, type: 'TerrestrialPlanet', name: 'Close', orbit: 1, au: 0.4)
+    create_body(star, type: 'TerrestrialPlanet', name: 'Mid', orbit: 2, au: 0.7)
+    create_body(star, type: 'GasGiant', name: 'Far', orbit: 3, au: 1.0)
 
     layout = StarSystemMapLayout.new(ss)
 
     track_edges = layout.edges.select { |e| e.kind == :track }.sort_by(&:x1)
 
-    assert_equal '0.05', track_edges[0].au_label
-    assert_equal '1.5', track_edges[1].au_label
-    assert_equal '15', track_edges[2].au_label
+    assert_equal '0.4', track_edges[0].au_label
+    assert_equal '0.7', track_edges[1].au_label
+    assert_equal '1.0', track_edges[2].au_label
   end
 
   test 'companion star edge shows au label' do

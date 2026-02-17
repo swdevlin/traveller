@@ -25,6 +25,8 @@ class Star < ApplicationRecord
            inverse_of: :orbiting_star,
            dependent: :destroy
 
+  after_save_commit :reassign_orbit_sequences, if: :saved_change_to_orbit?
+
   def display_name
     if name.present?
       "#{name} (#{spectral_classification})"
@@ -107,5 +109,12 @@ class Star < ApplicationRecord
     self.survey_index = data['surveyIndex']
     self.scan_points = data['scanPoints']
     self.build_log = data['buildLog']
+  end
+
+  private
+
+  def reassign_orbit_sequences
+    system = star_system || orbiting&.star_system
+    OrbitSequenceAssigner.new(system).assign! if system
   end
 end

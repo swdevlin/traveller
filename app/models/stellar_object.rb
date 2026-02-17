@@ -25,7 +25,9 @@ class StellarObject < ApplicationRecord
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes
 
+  before_validation :recalculate_orbit_derived_fields, if: :orbit_changed?
   after_save_commit :recalculate_star_system_world_counts_if_needed
+  after_save_commit :reassign_orbit_sequences, if: :saved_change_to_orbit?
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
@@ -103,6 +105,13 @@ class StellarObject < ApplicationRecord
 
   private
 
+  def recalculate_orbit_derived_fields
+    self.au = OrbitToAu.convert(orbit)
+    if orbiting_star&.hzco.present?
+      self.effective_hzco_deviation = orbit - orbiting_star.hzco
+    end
+  end
+
   def parsec_xor_orbiting_star_required
     if parsec_id.present? && orbiting_star_id.present?
       errors.add(:base, 'Cannot have both parsec and orbiting star')
@@ -129,5 +138,10 @@ class StellarObject < ApplicationRecord
     return if orbiting_star.destroyed?
     return if orbiting_star.marked_for_destruction?
     orbiting_star.star_system&.recalculate_world_counts!
+  end
+
+  def reassign_orbit_sequences
+    star_system = orbiting_star&.star_system
+    OrbitSequenceAssigner.new(star_system).assign! if star_system
   end
 end

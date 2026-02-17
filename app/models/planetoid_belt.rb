@@ -1,6 +1,24 @@
 class PlanetoidBelt < StellarObject
   include GeneratorMappings
 
+  before_validation :normalize_data_types
+
+  validates :orbit, presence: true
+  validate :orbit_above_minimum, if: -> { orbit.present? && orbiting_star.present? }
+  validate :orbit_not_occupied, if: -> { orbit.present? && orbiting_star.present? }
+  validate :composition_sums_to_100
+  validates :bulk, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
+  validates :resource_rating, numericality: { only_integer: true, in: 2..12 }, allow_blank: true
+  validates :span, numericality: { greater_than_or_equal_to: -1, less_than_or_equal_to: 1 }, allow_blank: true
+
+  def self.permitted_params
+    [
+      :name, :notes, :orbit, :inclination, :eccentricity,
+      data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
+             :temperature, :retrograde, :period]
+    ]
+  end
+
   def diameter
     0
   end
@@ -18,4 +36,42 @@ class PlanetoidBelt < StellarObject
     period: 'period',
     significant_bodies: 'significantBodies'
   )
+
+  private
+
+  def orbit_above_minimum
+    min = orbiting_star.minimum_orbit
+    if min.present? && orbit < min
+      errors.add(:orbit, "must be at least #{min} (star's minimum orbit)")
+    end
+  end
+
+  def orbit_not_occupied
+    siblings = orbiting_star.stellar_objects.where(orbit: orbit).where.not(id: id)
+    sibling_stars = orbiting_star.stars.where(orbit: orbit)
+    if siblings.exists? || sibling_stars.exists?
+      errors.add(:orbit, "#{orbit} is already occupied by another body")
+    end
+  end
+
+  def normalize_data_types
+    self.period = period.to_f if period.present?
+    self.span = span.to_f if span.present?
+    self.temperature = temperature.to_f if temperature.present?
+    self.m_type = m_type.to_i if m_type.present?
+    self.s_type = s_type.to_i if s_type.present?
+    self.c_type = c_type.to_i if c_type.present?
+    self.o_type = o_type.to_i if o_type.present?
+    self.resource_rating = resource_rating.to_i if resource_rating.present?
+    self.bulk = bulk.to_i if bulk.present?
+  end
+
+  def composition_sums_to_100
+    values = [m_type, s_type, c_type, o_type].map(&:to_i)
+    return if values.all?(&:zero?)
+
+    unless values.sum == 100
+      errors.add(:base, "Belt composition must total 100% (currently #{values.sum}%)")
+    end
+  end
 end

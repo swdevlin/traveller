@@ -1,24 +1,122 @@
+<% star = stellar_object.orbiting_star %>
+
 <%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
-  <div class="space-y-6">
+  <div class="space-y-6 pb-10">
     <% if stellar_object.errors.any? %>
-      <div class="bg-red-900/50 text-red-200 px-4 py-3 rounded-md">
-        <h2 class="font-semibold"><%= pluralize(stellar_object.errors.count, "error") %> prohibited this record from being saved:</h2>
-        <ul class="list-disc ml-6 mt-2">
+      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-xs uppercase tracking-[0.22em] text-red-200/80">
+            Validation errors
+          </div>
+          <span class="identifier border-red-900/60 bg-red-950/60 text-red-100">
+            <%= pluralize(stellar_object.errors.count, "issue") %>
+          </span>
+        </div>
+        <ul class="mt-3 space-y-1 text-sm text-red-100">
           <% stellar_object.errors.each do |error| %>
-            <li><%= error.full_message %></li>
+            <li class="flex gap-2">
+              <span class="select-none text-red-300">&bull;</span>
+              <span class="font-mono break-words"><%= error.full_message %></span>
+            </li>
           <% end %>
         </ul>
       </div>
     <% end %>
 
     <div>
-      <div class="edit-label">Name</div>
-      <%= form.text_field :name, class: "edit-base mt-2 w-full" %>
+      <%= form.label :name, class: 'edit-label' %>
+      <%= form.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
     </div>
 
     <div>
-      <div class="edit-label">Observations</div>
-      <%= form.text_area :notes, rows: 6, class: "edit-base mt-2 w-full resize-y" %>
+      <%= form.label :orbit, class: 'edit-label' %>
+      <%= form.number_field :orbit, value: format_precision(stellar_object.orbit, precision: 5),
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
+                            min: star&.minimum_orbit, required: true %>
+      <%= render 'application/field_error', form: form, attribute: :orbit %>
+    </div>
+
+    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+      <div>
+        <%= df.label :period, class: 'edit-label' %>
+        <%= df.number_field :period, value: format_precision(stellar_object.period, precision: 5),
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+      </div>
+
+      <div>
+        <%= df.label :retrograde, class: 'edit-label' %>
+        <div class="mt-2">
+          <%= df.check_box :retrograde, { checked: stellar_object.retrograde, class: 'rounded bg-slate-950 border-slate-700' }, 'true', 'false' %>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :inclination, class: 'edit-label' %>
+      <%= form.number_field :inclination, value: format_precision(stellar_object.inclination, precision: 5),
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+    </div>
+
+    <div>
+      <%= form.label :eccentricity, class: 'edit-label' %>
+      <%= form.number_field :eccentricity, value: format_precision(stellar_object.eccentricity, precision: 5),
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
+    </div>
+
+    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+      <div>
+        <%= df.label :m_type, 'Metallic %', class: 'edit-label' %>
+        <%= df.number_field :m_type, value: stellar_object.m_type,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 0, max: 100 %>
+        <%= render 'application/field_error', form: form, attribute: :m_type %>
+      </div>
+
+      <div>
+        <%= df.label :s_type, 'Stony %', class: 'edit-label' %>
+        <%= df.number_field :s_type, value: stellar_object.s_type,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 0, max: 100 %>
+        <%= render 'application/field_error', form: form, attribute: :s_type %>
+      </div>
+
+      <div>
+        <%= df.label :c_type, 'Carbonaceous %', class: 'edit-label' %>
+        <%= df.number_field :c_type, value: stellar_object.c_type,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 0, max: 100 %>
+        <%= render 'application/field_error', form: form, attribute: :c_type %>
+      </div>
+
+      <div>
+        <%= df.label :o_type, 'Other %', class: 'edit-label' %>
+        <%= df.number_field :o_type, value: stellar_object.o_type,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 0, max: 100 %>
+        <%= render 'application/field_error', form: form, attribute: :o_type %>
+      </div>
+
+      <div>
+        <%= df.label :resource_rating, class: 'edit-label' %>
+        <%= df.number_field :resource_rating, value: stellar_object.resource_rating,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 2, max: 12 %>
+        <%= render 'application/field_error', form: form, attribute: :resource_rating %>
+      </div>
+
+      <div>
+        <%= df.label :bulk, class: 'edit-label' %>
+        <%= df.number_field :bulk, value: stellar_object.bulk,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 1 %>
+        <%= render 'application/field_error', form: form, attribute: :bulk %>
+      </div>
+
+      <div>
+        <%= df.label :span, class: 'edit-label' %>
+        <%= df.number_field :span, value: format_precision(stellar_object.span, precision: 5),
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any', min: -1, max: 1 %>
+        <%= render 'application/field_error', form: form, attribute: :span %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.label :notes, 'Observations', class: 'edit-label' %>
+      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
 
     <div class="pt-2 flex flex-col sm:flex-row gap-2">

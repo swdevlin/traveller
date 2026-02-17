@@ -107,7 +107,7 @@
                value_wrap_class: 'flex flex-wrap items-center gap-2' %>
     <%= render 'application/data_block', label: 'Bulk', value: planetoid_belt.bulk %>
     <%= render 'application/data_block', label: 'Span', value: number_with_precision(planetoid_belt.span, precision: 2, strip_insignificant_zeros: true) %>
-    <%= render 'application/data_block', label: 'Significant Bodies', value: planetoid_belt.significant_bodies.length %>
+    <%= render 'application/data_block', label: 'Significant Bodies', value: planetoid_belt.significant_bodies&.length || 0 %>
   </div>
 
   <%= render 'application/observation_block',

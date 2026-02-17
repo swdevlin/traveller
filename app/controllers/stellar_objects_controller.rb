@@ -77,6 +77,10 @@ class StellarObjectsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def stellar_object_params
-      params.require(:stellar_object).permit(*@stellar_object.class.permitted_params)
+      permitted = params.require(:stellar_object).permit(*@stellar_object.class.permitted_params)
+      if permitted[:data].present?
+        permitted[:data] = (@stellar_object.data || {}).merge(permitted[:data].to_h)
+      end
+      permitted
     end
 end
