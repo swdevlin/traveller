@@ -242,7 +242,7 @@ subsectors:
         y: 1
         primary:
           type: M6
-          class: Giant
+          class: giant
           bodies:
             - uwp: terrestrial
             - uwp: terrestrial

@@ -166,7 +166,7 @@ subsectors:
         known: false
         primary:
           type: K5
-          class: Giant
+          class: giant
           bodies:
             - empty
             - empty

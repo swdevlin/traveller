@@ -351,7 +351,7 @@ subsectors:
           far:
             type: K3
             companion:
-              type: k3
+              type: K3
         counts:
           gasGiants: 1
           planetoidBelts: 0
@@ -361,13 +361,13 @@ subsectors:
         name: NSY-X  Phi
         primary:
           type: A3
-          class: Giant
+          class: giant
           companion:
             type: A3
-            class: Giant
+            class: giant
           close:
             type: A3
-            class: Giant
+            class: giant
           near:
             type: F6
             companion:
@@ -392,7 +392,8 @@ subsectors:
       - x: 5
         y: 3
         name: NSY-X BKK
-        densityIndex: 23
+        counts:
+          density: 23
         primary:
           type: K3
           near:
@@ -443,7 +444,8 @@ subsectors:
         name: NSY-X SM2
         primary:
           type: M6
-        densityIndex: 23
+        counts:
+          density: 23
       - x: 6
         y: 8
         name: NSY-X BLL1
@@ -460,7 +462,7 @@ subsectors:
         name: NSY-X SGM1
         primary:
           type: M1
-          class: Giant
+          class: giant
         counts:
           gasGiants: 0
           planetoidBelts: 0
