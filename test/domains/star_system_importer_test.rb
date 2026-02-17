@@ -72,8 +72,8 @@ class StarSystemImporterTest < ActiveSupport::TestCase
       end
     end
 
-    primary = star_system.stars.order(:created_at).first
-    companion = star_system.stars.order(:created_at).last
-    assert_equal companion.orbiting, primary
+    primary = star_system.stars.find_by(orbiting: nil)
+    assert primary.companion.present?
+    assert_equal primary.companion.orbiting, primary
   end
 end
