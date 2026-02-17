@@ -1,17 +1,5 @@
 <%= form_with(model: sector, class: "contents") do |form| %>
   <div class='space-y-6 pb-10'>
-    <% if sector.errors.any? %>
-      <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-        <h2><%= pluralize(sector.errors.count, "error") %> prohibited this sector from being saved:</h2>
-
-        <ul class="list-disc ml-6">
-          <% sector.errors.each do |error| %>
-            <li><%= error.full_message.html_safe %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-
     <div>
       <div class='mt-4'>
         <div class='min-w-0'>
@@ -20,13 +8,8 @@
           </div>
 
           <%= form.text_field :name,
-                              class: [
-                                "edit-base mt-2",
-                                {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:name].any?
-                                }
-                              ] %>
+                              class: 'edit-base mt-2' %>
+          <%= render 'application/field_error', form: form, attribute: :name %>
         </div>
       </div>
     </div>
@@ -39,13 +22,8 @@
           </div>
 
           <%= form.text_field :abbreviation,
-                              class: [
-                                "edit-base mt-2 w-24",
-                                {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
-                                }
-                              ] %>
+                              class: 'edit-base mt-2 w-24' %>
+          <%= render 'application/field_error', form: form, attribute: :abbreviation %>
         </div>
       </div>
     </div>
@@ -60,13 +38,8 @@
               X
             </div>
             <%= form.number_field :x,
-                                  class: [
-                                    "coord-input edit-base mt-2",
-                                    {
-                                      "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
-                                      "border-red-400 focus:outline-red-600": sector.errors[:x].any?
-                                    }
-                                  ] %>
+                                  class: 'coord-input edit-base mt-2' %>
+            <%= render 'application/field_error', form: form, attribute: :x %>
           </div>
 
           <div>
@@ -74,13 +47,8 @@
               Y
             </div>
             <%= form.number_field :y,
-                                  class: [
-                                    "coord-input edit-base mt-2",
-                                    {
-                                      "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
-                                      "border-red-400 focus:outline-red-600": sector.errors[:y].any?
-                                    }
-                                  ] %>
+                                  class: 'coord-input edit-base mt-2' %>
+            <%= render 'application/field_error', form: form, attribute: :y %>
           </div>
         </div>
       </div>
@@ -93,13 +61,8 @@
 
       <%= form.text_area :notes,
                          rows: 6,
-                         class: [
-                           "mt-2 w-full edit-base resize-y",
-                           {
-                             "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
-                             "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
-                           }
-                         ] %>
+                         class: 'mt-2 w-full edit-base resize-y' %>
+      <%= render 'application/field_error', form: form, attribute: :notes %>
     </div>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>

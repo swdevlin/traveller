@@ -27,7 +27,8 @@ class StellarObject < ApplicationRecord
 
   before_validation :recalculate_orbit_derived_fields, if: :orbit_changed?
   after_save_commit :recalculate_star_system_world_counts_if_needed
-  after_save_commit :reassign_orbit_sequences, if: :saved_change_to_orbit?
+  attr_accessor :skip_orbit_sequence_assignment
+  after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }

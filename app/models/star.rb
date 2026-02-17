@@ -25,7 +25,8 @@ class Star < ApplicationRecord
            inverse_of: :orbiting_star,
            dependent: :destroy
 
-  after_save_commit :reassign_orbit_sequences, if: :saved_change_to_orbit?
+  attr_accessor :skip_orbit_sequence_assignment
+  after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
 
   def display_name
     if name.present?

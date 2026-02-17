@@ -37,6 +37,7 @@ class StarSystemImporter
 
       primary_data = data['primaryStar']
       primary = Star.new
+      primary.skip_orbit_sequence_assignment = true
       primary.star_system = @star_system
       import_star(primary, primary_data)
       @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
@@ -85,6 +86,7 @@ class StarSystemImporter
     star.save!
     if data['companion']
       companion = Star.new
+      companion.skip_orbit_sequence_assignment = true
       companion.star_system = @star_system
       companion.orbiting = star
       import_star(companion, data['companion'])
@@ -96,6 +98,7 @@ class StarSystemImporter
       if IMPORT_STAR_ORBIT_TYPES.include?(orbit_type)
         unless orbit_type == IMPORT_ORBIT_TYPES[:companion]
           so = Star.new
+          so.skip_orbit_sequence_assignment = true
           so.orbiting = star
           so.star_system = @star_system
           import_star(so, so_data)
@@ -105,6 +108,7 @@ class StarSystemImporter
           raise ArgumentError, "Unknown orbitType: #{orbit_type.inspect}"
         end
         so = klass.new
+        so.skip_orbit_sequence_assignment = true
         so.orbiting_star = star
         so.assign_data_from_generator(so_data)
         so.save!
