@@ -76,6 +76,22 @@
 
           <td class='t-td-right'>
             <div class='t-actions'>
+              <%= link_to edit_star_path(star),
+                          class: 'text-slate-300 hover:text-traveller-red/90',
+                          title: 'Edit' do %>
+                <i class='fa-solid fa-pen-to-square'></i>
+              <% end %>
+
+              <% unless star.orbiting.nil? %>
+                <%= button_to star_path(star),
+                              method: :delete,
+                              form_class: 'inline',
+                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete #{star.spectral_classification}?" } do %>
+                  <i class='fa-solid fa-trash'></i>
+                <% end %>
+              <% end %>
             </div>
           </td>
         </tr>

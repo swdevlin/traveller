@@ -172,6 +172,27 @@ class OrbitSequenceAssignerTest < ActiveSupport::TestCase
     assert_equal 'Bab I', planet.orbit_sequence
   end
 
+  test 'destroying a body reassigns orbit sequences' do
+    ss = create_system
+    star = create_star(ss, name: 'Sol')
+    mercury = create_body(star, type: 'TerrestrialPlanet', name: 'Mercury', orbit: 1)
+    venus = create_body(star, type: 'TerrestrialPlanet', name: 'Venus', orbit: 2)
+    earth = create_body(star, type: 'TerrestrialPlanet', name: 'Earth', orbit: 3)
+
+    OrbitSequenceAssigner.new(ss).assign!
+    [mercury, venus, earth].each(&:reload)
+
+    assert_equal 'A I', mercury.orbit_sequence
+    assert_equal 'A II', venus.orbit_sequence
+    assert_equal 'A III', earth.orbit_sequence
+
+    venus.destroy!
+    [mercury, earth].each(&:reload)
+
+    assert_equal 'A I', mercury.orbit_sequence
+    assert_equal 'A II', earth.orbit_sequence
+  end
+
   test 'body numbering is per star not global' do
     ss = create_system
     primary = create_star(ss, name: 'Alpha')

@@ -30,6 +30,7 @@ class StellarObject < ApplicationRecord
   attr_accessor :skip_orbit_sequence_assignment
   after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
+  after_destroy_commit :reassign_orbit_sequences_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
   validate :parsec_xor_orbiting_star_required
@@ -143,6 +144,15 @@ class StellarObject < ApplicationRecord
 
   def reassign_orbit_sequences
     star_system = orbiting_star&.star_system
+    OrbitSequenceAssigner.new(star_system).assign! if star_system
+  end
+
+  def reassign_orbit_sequences_after_destroy
+    return if orbiting_star.nil?
+    return if orbiting_star.destroyed?
+    return if orbiting_star.marked_for_destruction?
+
+    star_system = orbiting_star.star_system
     OrbitSequenceAssigner.new(star_system).assign! if star_system
   end
 end

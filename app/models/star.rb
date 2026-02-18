@@ -27,6 +27,7 @@ class Star < ApplicationRecord
 
   attr_accessor :skip_orbit_sequence_assignment
   after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
+  after_destroy_commit :reassign_orbit_sequences_after_destroy
 
   def display_name
     if name.present?
@@ -117,5 +118,13 @@ class Star < ApplicationRecord
   def reassign_orbit_sequences
     system = star_system || orbiting&.star_system
     OrbitSequenceAssigner.new(system).assign! if system
+  end
+
+  def reassign_orbit_sequences_after_destroy
+    system = star_system
+    return unless system
+    return if system.destroyed?
+
+    OrbitSequenceAssigner.new(system).assign!
   end
 end

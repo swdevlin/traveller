@@ -38,6 +38,7 @@ module GeneratorMappings
     self.build_log = payload['buildLog']
     self.orbit = payload['orbit']
     self.name = payload['name']
+    self.size_code = payload['size']
     self.au = payload['au']
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']

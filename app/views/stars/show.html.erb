@@ -2,6 +2,9 @@
 <%= content_for :page_kicker, "IISS Class 0/I Survey" %>
 <%= content_for :page_title, @star.display_name %>
 <%= content_for :iiss_form, 'FORM 0421B-0I' %>
+<%= content_for :page_buttons do %>
+  <%= link_to 'Edit', edit_star_path(@star), class: 'w-full sm:w-auto btn btn-primary' %>
+<% end %>
 
 <%
   star_system = @star.star_system

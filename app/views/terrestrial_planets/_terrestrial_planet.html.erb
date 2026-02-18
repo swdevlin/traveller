@@ -89,7 +89,12 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(terrestrial_planet.diameter), suffix: 'km' %>
+    <%= render 'application/data_block',
+               label: 'Diameter',
+               value: safe_join([tag.span(HexDigit.hex_digit(terrestrial_planet.size_code), class: 'identifier-sm'), number_with_precision(terrestrial_planet.diameter, precision: 0)]),
+               value_wrap_class: 'flex flex-wrap items-center gap-2',
+               suffix: 'km'
+    %>
     <%= render 'application/data_block', label: 'Mass', value: number_with_precision(terrestrial_planet.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
     <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(terrestrial_planet.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'g' %>
     <%= render 'application/data_block', label: 'Density', value: number_with_precision(terrestrial_planet.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>

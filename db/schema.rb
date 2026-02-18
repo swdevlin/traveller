@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_14_141555) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -221,6 +221,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_14_141555) do
     t.integer "orbit_y"
     t.integer "orbiting_star_id"
     t.integer "parsec_id"
+    t.integer "size_code"
     t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false

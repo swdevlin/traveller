@@ -10,17 +10,22 @@
 * Quickly set surveyIndex
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
+* Population, government, and law levels
+* tech level
+  * view
+  * edit
+* starport
+  * view
+  * edit
 * edit star system
-  * [] edit details
-  * [] delete orbiting body
-  * [] delete secondary or companion stars
-  * [] reorder secondary stars
-  * [] reorder orbiting bodies
+  * edit details
+  * reorder secondary stars
+  * reorder orbiting bodies
+  * Add an option to change the main world
 * edit star
-  * [] edit details
+  * edit details
     * includes WBH values like spread, baseline, and baseline orbit number
-  * [] reorder orbiting bodies
-  * [] delete orbiting body
+  * reorder orbiting bodies
 * Mongoose allegiance codes
 * Log in
   * Multi-tenancy
@@ -29,15 +34,12 @@
 * Edit forms should show field errors at the field 
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
-* Edit star system
-  *  Add an option to change the main world 
 * store image of star system
 * store image of stellar object
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
 * System generation from Deepnight book
-  * [x] Density specification in counts block
-  * [ ] Barycenter support
+  * Barycenter support
 * Quickly set survey index for a subsector
 * start with just the foreven sector
 * Add Button to create all deepnight sectors

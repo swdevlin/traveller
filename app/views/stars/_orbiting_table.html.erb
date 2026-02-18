@@ -13,6 +13,8 @@
         <th scope='col' class='t-th'>Type</th>
         <th scope='col' class='t-th'>Orbit</th>
         <th scope='col' class='t-th'>AU</th>
+        <th scope='col' class='t-th'>UWP</th>
+        <th scope='col' class='t-th-right'>Actions</th>
       </tr>
       </thead>
       <tbody class='t-tbody'>
@@ -39,6 +41,52 @@
 
           <td class='t-td'>
             <%= number_with_precision(body.au, precision: 2, strip_insignificant_zeros: true) %>
+          </td>
+
+          <td class='t-td'>
+            <% unless body.is_a?(Star) %>
+              <% if body.is_a?(GasGiant) %>
+                <%= body.code %>
+              <% else %>
+                <%= body.uwp %>
+              <% end %>
+            <% end %>
+          </td>
+
+          <td class='t-td-right'>
+            <div class='t-actions'>
+              <% if body.is_a?(Star) %>
+                <%= link_to edit_star_path(body),
+                            class: 'text-slate-300 hover:text-traveller-red/90',
+                            title: 'Edit' do %>
+                  <i class='fa-solid fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to star_path(body),
+                              method: :delete,
+                              form_class: 'inline',
+                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete #{body.spectral_classification}?" } do %>
+                  <i class='fa-solid fa-trash'></i>
+                <% end %>
+              <% else %>
+                <%= link_to edit_stellar_object_path(body),
+                            class: 'text-slate-300 hover:text-traveller-red/90',
+                            title: 'Edit' do %>
+                  <i class='fa-solid fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to stellar_object_path(body),
+                              method: :delete,
+                              form_class: 'inline',
+                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete this #{body.type_title.downcase}?" } do %>
+                  <i class='fa-solid fa-trash'></i>
+                <% end %>
+              <% end %>
+            </div>
           </td>
         </tr>
       <% end %>

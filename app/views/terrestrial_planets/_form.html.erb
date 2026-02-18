@@ -80,6 +80,13 @@
     </div>
 
     <div>
+      <div class="edit-label">Size<%= required_icon(stellar_object, :size_code) %></div>
+      <%= form.number_field :size_code, value: stellar_object.size_code,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1 %>
+      <%= render 'application/field_error', form: form, attribute: :size_code %>
+    </div>
+
+    <div>
       <div class="edit-label">Diameter<%= required_icon(stellar_object, :diameter) %></div>
       <%= form.number_field :diameter, value: format_precision(stellar_object.diameter, precision: 5),
                             class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>

@@ -64,7 +64,7 @@
                     form_class: "inline",
                     class: "text-slate-300 hover:text-traveller-red/90",
                     title: "Delete",
-                    data: { turbo_confirm: "Delete this stellar object?" } do %>
+                    data: { turbo_confirm: "Delete this #{stellar_object.type.underscore.humanize(capitalize: false)}?" } do %>
         <i class="fa-solid fa-trash"></i>
       <% end %>
     </div>

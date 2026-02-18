@@ -71,7 +71,7 @@ class TerrestrialPlanet < StellarObject
 
   def self.permitted_params
     [
-      :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass,
+      :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
       :atmosphere_code, :atmosphere_composition,
       :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
       data: [
