@@ -6,10 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* Quickly toggle known state
-* Quickly set surveyIndex
-* Display error messages from background jobs
-* Verify social UWP characteristic calculations for other worlds
 * Population, government, and law levels
 * tech level
   * view
@@ -26,6 +22,10 @@
   * edit details
     * includes WBH values like spread, baseline, and baseline orbit number
   * reorder orbiting bodies
+* Quickly toggle known state
+* Quickly set surveyIndex
+* Display error messages from background jobs
+* Verify social UWP characteristic calculations for other worlds
 * Mongoose allegiance codes
 * Log in
   * Multi-tenancy

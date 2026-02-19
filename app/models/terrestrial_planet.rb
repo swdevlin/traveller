@@ -74,12 +74,10 @@ class TerrestrialPlanet < StellarObject
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
       :atmosphere_code, :atmosphere_composition,
       :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
-      data: [
-        :period, :rotation, :retrograde, :density, :gravity,
-        :temperature, :axial_tilt, :albedo, :greenhouse,
-        :native_sophont, :extinct_sophont, :biomass_rating,
-        :biodiversity_rating, :biocomplexity_rating, :resource_rating
-      ]
+      :period, :rotation, :retrograde, :density, :gravity,
+      :temperature, :axial_tilt, :albedo, :greenhouse,
+      :native_sophont, :extinct_sophont, :biomass_rating,
+      :biodiversity_rating, :biocomplexity_rating, :resource_rating
     ]
   end
 

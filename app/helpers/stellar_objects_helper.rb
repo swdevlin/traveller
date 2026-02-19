@@ -107,6 +107,24 @@ module StellarObjectsHelper
     BIOCOMPLEXITY_DESCRIPTIONS[rating]
   end
 
+  SIZE_DESCRIPTIONS = {
+    1  => '1,600 km',
+    2  => '3,200 km',
+    3  => '4,800 km',
+    4  => '6,400 km',
+    5  => '8,000 km',
+    6  => '9,600 km',
+    7  => '11,200 km',
+    8  => '12,800 km',
+    9  => '14,400 km',
+    10 => '16,000 km',
+    11 => '17,600 km',
+    12 => '19,200 km',
+    13 => '20,800 km',
+    14 => '22,400 km',
+    15 => '24,000 km'
+  }.freeze
+
   ATMOSPHERE_DESCRIPTIONS = {
     0 => 'None',
     1 => 'Trace',
