@@ -1,50 +1,31 @@
-<div class="t-card">
-  <div class="t-card-header">
-    <div class="flex items-center justify-between gap-3">
-      <p class="t-card-title">
-        Star System
-      </p>
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Star system</p>
+
+    <div class='actions'>
+      <%# buttons/links will live here %>
     </div>
   </div>
 
-  <div class="t-scroll-x">
-    <table class="t-table">
-      <thead class="t-thead">
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope="col" class="t-th">
-          id
-        </th>
-        <th scope="col" class="t-th text-right">
-          au
-        </th>
-        <th scope="col" class="t-th">
-          name
-        </th>
-        <th scope="col" class="t-th text-right">
-          Orbit #
-        </th>
-        <th scope="col" class="t-th text-right">
-          Eccentricity
-        </th>
-        <th scope="col" class="t-th text-right">
-          Period
-        </th>
-        <th scope="col" class="t-th">
-          SAH/UWP
-        </th>
-        <th scope="col" class="t-th">
-          Sub
-        </th>
-        <th scope="col" class="t-th">
-          notes
-        </th>
-        <th scope="col" class="t-th">
-          Actions
-        </th>
+        <th scope='col'>ID</th>
+        <th scope='col' class='text-right'>AU</th>
+        <th scope='col'>Name</th>
+        <th scope='col' class='text-right'>Orbit #</th>
+        <th scope='col' class='text-right'>Eccentricity</th>
+        <th scope='col' class='text-right'>Period</th>
+        <th scope='col'>SAH/UWP</th>
+        <th scope='col'>Sub</th>
+        <th scope='col'>Notes</th>
+        <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class="t-tbody">
-      <%= render "star_row", star: primary, indent: 0 %>
+
+      <tbody>
+      <%= render 'star_row', star: primary, indent: 0 %>
       </tbody>
     </table>
   </div>

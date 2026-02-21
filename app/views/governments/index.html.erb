@@ -3,50 +3,51 @@
 <%= content_for :page_title, "Governments" %>
 
 <%= render 'application/page' do %>
-  <div class='t-card'>
-    <div class='t-card-header'>
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Government registry</p>
-        <%= link_to new_government_path, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Government registry</p>
+
+      <div class='actions'>
+        <%= link_to new_government_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
       </div>
     </div>
 
-    <div class='t-scroll-x'>
-      <table class='t-table'>
-        <thead class='t-thead'>
+    <div class='table-scroll'>
+      <table>
+        <thead>
         <tr>
-          <th scope='col' class='t-th'>Code</th>
-          <th scope='col' class='t-th'>Type</th>
-          <th scope='col' class='t-th-right'>Actions</th>
+          <th scope='col'>Code</th>
+          <th scope='col'>Type</th>
+          <th scope='col' class='text-right actions-cell'>Actions</th>
         </tr>
         </thead>
 
-        <tbody class='t-tbody'>
+        <tbody>
         <% @governments.each do |government| %>
-          <tr class='t-tr'>
-            <td class='t-td'>
-              <%= link_to government_path(government), class: "no-underline" do %>
-                <%= traveller_hex(government.code) %>
+          <tr>
+            <td class='whitespace-nowrap'>
+              <%= link_to government_path(government), class: 't-link' do %>
+                <span class='pill'><%= traveller_hex(government.code) %></span>
               <% end %>
-
             </td>
-            <td class='t-td'>
+
+            <td>
               <%= government.government_type %>
             </td>
 
-            <td class='t-td-right'>
-              <div class='t-actions'>
-                <%= link_to edit_government_path(government), class: 't-action' do %>
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_government_path(government), class: 'action' do %>
                   <i class='fa-regular fa-pen-to-square'></i>
                 <% end %>
 
                 <%= button_to government,
                               method: :delete,
-                              class: 't-action-danger',
-                              data: { turbo_confirm: "Delete this government?" } do %>
+                              class: 'action danger',
+                              data: { turbo_confirm: 'Delete this government?' } do %>
                   <i class='fa-regular fa-trash'></i>
                 <% end %>
               </div>

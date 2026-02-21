@@ -77,7 +77,7 @@
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div data-controller="planet-size" class="contents">
+    <div data-controller="planet-size" class="space-y-6">
       <div>
         <div class="edit-label">Size<%= required_icon(stellar_object, :size_code) %></div>
         <%= form.select :size_code,
@@ -108,7 +108,7 @@
       </div>
 
       <div>
-        <div class="edit-label">Mass ☉<%= required_icon(stellar_object, :mass) %></div>
+        <div class="edit-label">Mass ☉<%= required_icon(stellar_object, :mass) %> <i class="fa-thin fa-calculator"></i></div>
         <%= form.number_field :mass, value: format_precision(stellar_object.mass, precision: 5),
                               class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
                               data: { planet_size_target: 'mass' } %>
@@ -116,7 +116,7 @@
       </div>
 
       <div>
-        <div class="edit-label">Gravity<%= required_icon(stellar_object, :gravity) %></div>
+        <div class="edit-label">Gravity<%= required_icon(stellar_object, :gravity) %> <i class="fa-thin fa-calculator"></i></div>
         <%= form.number_field :gravity, value: format_precision(stellar_object.gravity, precision: 5),
                               class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
                               data: { planet_size_target: 'gravity' } %>
@@ -252,6 +252,42 @@
       <%= form.number_field :resource_rating, value: stellar_object.resource_rating,
                             class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 2, max: 12 %>
       <%= render 'application/field_error', form: form, attribute: :resource_rating %>
+    </div>
+
+    <div class="flex items-center gap-2 pt-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Social Data</div>
+      <div class="h-px flex-1 bg-slate-700/70"></div>
+    </div>
+
+    <div>
+      <div class="edit-label">Population<%= required_icon(stellar_object, :population_code) %></div>
+      <%= form.number_field :population_code, value: stellar_object.population_code,
+                            class: 'edit-base mt-2 sm:w-28 w-24', step: 1, min: 0, max: 12 %>
+      <%= render 'application/field_error', form: form, attribute: :population_code %>
+    </div>
+
+    <div>
+      <div class="edit-label">Government<%= required_icon(stellar_object, :government_code) %></div>
+      <%= form.select :government_code,
+                      options_for_select(
+                        Government.order(:code).map { |g| ["#{HexDigit.hex_digit(g.code)} – #{g.government_type}", g.code] },
+                        stellar_object.government_code
+                      ),
+                      { include_blank: 'Select government' },
+                      class: 'edit-base mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :government_code %>
+    </div>
+
+    <div>
+      <div class="edit-label">Law Level<%= required_icon(stellar_object, :law_level_code) %></div>
+      <%= form.select :law_level_code,
+                      options_for_select(
+                        LawLevel.where.not(weapons: [nil, '']).order(:code).map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                        stellar_object.law_level_code
+                      ),
+                      { include_blank: 'Select law level' },
+                      class: 'edit-base mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :law_level_code %>
     </div>
 
     <div>

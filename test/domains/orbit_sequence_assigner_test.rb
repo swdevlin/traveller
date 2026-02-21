@@ -29,12 +29,9 @@ class OrbitSequenceAssignerTest < ActiveSupport::TestCase
   end
 
   def create_body(star, type:, name:, orbit:)
-    type.constantize.create!(
-      name: name,
-      orbiting_star: star,
-      orbit: orbit,
-      au: OrbitToAu.convert(orbit)
-    )
+    attrs = { name: name, orbiting_star: star, orbit: orbit, au: OrbitToAu.convert(orbit) }
+    attrs.merge!(size_code: 5, atmosphere_code: 6, hydrographics_code: 3) if type == 'TerrestrialPlanet'
+    type.constantize.create!(**attrs)
   end
 
   test 'single star system assigns A to primary' do

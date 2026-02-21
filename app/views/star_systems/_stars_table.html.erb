@@ -1,95 +1,63 @@
-<div class='t-card'>
-  <div class='t-card-header'>
-    <div class="flex items-center justify-between gap-3">
-      <p class='t-card-title'>Stars</p>
-    </div>
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Stars</p>
   </div>
 
-  <div class='t-scroll-x'>
-    <table class='t-table'>
-      <thead class='t-thead'>
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope='col' class='t-th'>ID</th>
-        <th scope='col' class='t-th'>Class</th>
-        <th scope='col' class='t-th text-right'>Mass</th>
-        <th scope='col' class='t-th text-right'>Temp</th>
-        <th scope='col' class='t-th text-right'>Diameter</th>
-        <th scope='col' class='t-th text-right'>Luminosity</th>
-        <th scope='col' class='t-th text-right'>Orbit #</th>
-        <th scope='col' class='t-th text-right'>AU</th>
-        <th scope='col' class='t-th text-right'>Ecc</th>
-        <th scope='col' class='t-th text-right'>Period</th>
-        <th scope='col' class='t-th text-right'>MAO</th>
-        <th scope='col' class='t-th text-right'>HZCO</th>
-        <th scope='col' class='t-th-right'>Actions</th>
+        <th scope='col'>ID</th>
+        <th scope='col'>Class</th>
+        <th scope='col' class='text-right'>Mass</th>
+        <th scope='col' class='text-right'>Temp</th>
+        <th scope='col' class='text-right'>Diameter</th>
+        <th scope='col' class='text-right'>Luminosity</th>
+        <th scope='col' class='text-right'>Orbit #</th>
+        <th scope='col' class='text-right'>AU</th>
+        <th scope='col' class='text-right'>Ecc</th>
+        <th scope='col' class='text-right'>Period</th>
+        <th scope='col' class='text-right'>MAO</th>
+        <th scope='col' class='text-right'>HZCO</th>
+        <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class='t-tbody'>
+
+      <tbody>
       <% stars.each do |star| %>
-        <tr class='t-tr'>
-          <td class='t-td-nowrap'>
-            <span class='t-pill'><%= star.orbit_sequence %></span>
+        <tr>
+          <td class='whitespace-nowrap'>
+            <span class='pill'><%= star.orbit_sequence %></span>
           </td>
-          <td class='t-td'>
+
+          <td class='whitespace-nowrap'>
             <%= link_to star.spectral_classification, star, class: 't-link' %>
           </td>
 
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.mass, precision: 3, strip_insignificant_zeros: true) %>
-          </td>
+          <td class='text-right'><%= number_with_precision(star.mass, precision: 3, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= number_with_precision(star.temperature, precision: 0) %></td>
+          <td class='text-right'><%= number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= number_with_precision(star.luminosity, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= format_period(star.period) %></td>
+          <td class='text-right'><%= number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %></td>
+          <td class='text-right'><%= format_precision(star.hzco) %></td>
 
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.temperature, precision: 0) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.luminosity, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= format_period(star.period) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
-          </td>
-
-          <td class='t-td text-right'>
-            <%= format_precision(star.hzco) %>
-          </td>
-
-          <td class='t-td-right'>
-            <div class='t-actions'>
-              <%= link_to edit_star_path(star),
-                          class: 'text-slate-300 hover:text-traveller-red/90',
-                          title: 'Edit' do %>
-                <i class='fa-solid fa-pen-to-square'></i>
+          <td class='actions-cell'>
+            <div class='action-group'>
+              <%= link_to edit_star_path(star), class: 'action', title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
               <% unless star.orbiting.nil? %>
                 <%= button_to star_path(star),
                               method: :delete,
-                              form_class: 'inline',
-                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              class: 'action danger',
                               title: 'Delete',
                               data: { turbo_confirm: "Delete #{star.spectral_classification}?" } do %>
-                  <i class='fa-solid fa-trash'></i>
+                  <i class='fa-regular fa-trash'></i>
                 <% end %>
               <% end %>
             </div>

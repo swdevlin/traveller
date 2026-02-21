@@ -1,33 +1,36 @@
-<tr class="t-tr">
-  <td class="t-td">
-    <span class="t-pill"><%= star.orbit_sequence %></span>
+<tr>
+  <td class='whitespace-nowrap'>
+    <span class='pill'><%= star.orbit_sequence %></span>
   </td>
 
-  <td class="t-td text-right">
-    <%= number_with_precision(star.au, precision: 1)  if star.au > 0 %>
+  <td class='text-right whitespace-nowrap'>
+    <%= number_with_precision(star.au, precision: 1) if star.au > 0 %>
   </td>
 
-  <td class="t-td">
+  <td style='padding-left: <%= indent %>px;'>
     <%= star.name %>
   </td>
 
-  <td class="t-td text-right">
+  <td class='text-right whitespace-nowrap'>
     <%= number_with_precision(star.orbit, precision: 1) if star.orbit > 0 %>
   </td>
 
-  <td class="t-td text-right">
+  <td class='text-right whitespace-nowrap'>
     <%= number_with_precision(star.eccentricity, precision: 1) if star.eccentricity > 0 %>
   </td>
 
-  <td class="t-td text-right">
+  <td class='text-right whitespace-nowrap'>
     <%= format_period(star.period) if star.period > 0 %>
   </td>
 
-  <td colspan="3" class="t-td">
-    <%= link_to star.spectral_classification, star_path(star), class: "hover:text-traveller-red/90" %>
+  <td colspan='3'>
+    <%= link_to star.spectral_classification, star_path(star), class: 't-link' %>
   </td>
 
-  <td class="t-td-right">
+  <td class='actions-cell'>
+    <div class='action-group'>
+      <%# buttons/links can go here later %>
+    </div>
   </td>
 </tr>
 

@@ -6,7 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* Population, government, and law levels
 * tech level
   * view
   * edit

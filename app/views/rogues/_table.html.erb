@@ -1,67 +1,59 @@
-<div class="t-card mt-4">
-  <div class="t-card-header">
-    <div class="flex items-center justify-between gap-3">
-      <p class="t-card-title">Rogue objects</p>
-      <% if local_assigns[:new_url].present? %>
-        <div class="flex items-center gap-2">
-        <%= link_to new_url, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+<div class='table-card mt-4'>
+  <div class='table-banner'>
+    <p>Rogue objects</p>
+
+    <% if local_assigns[:new_url].present? %>
+      <div class='actions'>
+        <%= link_to new_url, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
-        </div>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   </div>
 
-  <div class="t-scroll-x">
-    <table class="t-table">
-      <thead class="t-thead">
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope="col" class="t-th w-20">
-          Hex
-        </th>
-        <th scope="col" class="t-th w-40">
-          Type
-        </th>
-        <th scope="col" class="t-th">
-          Name
-        </th>
-        <th scope="col" class="t-th w-16 whitespace-nowrap">
-          Actions
-        </th>
+        <th scope='col' class='w-20'>Hex</th>
+        <th scope='col' class='w-40'>Type</th>
+        <th scope='col'>Name</th>
+        <th scope='col' class='text-right w-16 whitespace-nowrap actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class="t-tbody">
+
+      <tbody>
       <% rogues.each do |rogue| %>
-        <tr class="t-tr">
-          <td class="t-td whitespace-nowrap align-middle">
-            <%= rogue.parsec.subsector_hex_code %>
+        <tr>
+          <td class='whitespace-nowrap'>
+            <span class='pill'><%= rogue.parsec.subsector_hex_code %></span>
           </td>
 
-          <td class="t-td whitespace-nowrap align-middle">
+          <td class='whitespace-nowrap'>
             <%= rogue.type.underscore.humanize %>
           </td>
 
-          <td class="t-td align-middle">
+          <td>
             <% if rogue.name.present? %>
-              <%= link_to rogue.name, stellar_object_path(rogue), class: "t-link" %>
+              <%= link_to rogue.name, stellar_object_path(rogue), class: 't-link' %>
             <% end %>
           </td>
-          <td class="t-td whitespace-nowrap align-middle text-right">
-            <div class="inline-flex items-center justify-end gap-2">
+
+          <td class='actions-cell'>
+            <div class='action-group'>
               <%= link_to edit_stellar_object_path(rogue),
-                          class: "text-slate-300 hover:text-traveller-red/90",
-                          title: "Edit" do %>
-                <i class="fa-solid fa-pen-to-square"></i>
+                          class: 'action',
+                          title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
               <%= button_to stellar_object_path(rogue),
                             method: :delete,
-                            form_class: "inline",
-                            class: "text-slate-300 hover:text-traveller-red/90",
-                            title: "Delete",
+                            class: 'action danger',
+                            title: 'Delete',
                             data: { turbo_confirm: "Delete this #{rogue.type.underscore.humanize(capitalize: false)}?" } do %>
-                <i class="fa-solid fa-trash"></i>
+                <i class='fa-regular fa-trash'></i>
               <% end %>
             </div>
           </td>

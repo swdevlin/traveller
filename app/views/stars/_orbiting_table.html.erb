@@ -1,33 +1,37 @@
-<div class='t-card'>
-  <div class='t-card-header'>
-    <div class="flex items-center justify-between gap-3">
-      <p class='t-card-title'>Orbiting Bodies</p>
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Orbiting bodies</p>
+
+    <div class='actions'>
+      <%# buttons/links can go here later %>
     </div>
   </div>
 
-  <div class='t-scroll-x'>
-    <table class='t-table'>
-      <thead class='t-thead'>
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope='col' class='t-th'>Name</th>
-        <th scope='col' class='t-th'>Type</th>
-        <th scope='col' class='t-th'>Orbit</th>
-        <th scope='col' class='t-th'>AU</th>
-        <th scope='col' class='t-th'>UWP</th>
-        <th scope='col' class='t-th-right'>Actions</th>
+        <th scope='col'>Name</th>
+        <th scope='col'>Type</th>
+        <th scope='col'>Orbit</th>
+        <th scope='col'>AU</th>
+        <th scope='col'>UWP</th>
+        <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class='t-tbody'>
+
+      <tbody>
       <% bodies.each do |body| %>
-        <tr class='t-tr'>
-          <td class='t-td-nowrap'>
+        <tr>
+          <td class='whitespace-nowrap'>
             <% if body.is_a?(Star) %>
-              <%= link_to body.display_name, star_path(body), class: 'hover:underline underline-offset-4' %>
+              <%= link_to body.display_name, star_path(body), class: 't-link' %>
             <% else %>
-              <%= link_to body.display_name, stellar_object_path(body), class: 'hover:underline underline-offset-4' %>
+              <%= link_to body.display_name, stellar_object_path(body), class: 't-link' %>
             <% end %>
           </td>
-          <td class='t-td'>
+
+          <td class='whitespace-nowrap'>
             <% if body.is_a?(Star) %>
               <%= body.spectral_classification %>
             <% else %>
@@ -35,55 +39,49 @@
             <% end %>
           </td>
 
-          <td class='t-td'>
+          <td class='whitespace-nowrap'>
             <%= number_with_precision(body.orbit, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='whitespace-nowrap'>
             <%= number_with_precision(body.au, precision: 2, strip_insignificant_zeros: true) %>
           </td>
 
-          <td class='t-td'>
+          <td class='whitespace-nowrap'>
             <% unless body.is_a?(Star) %>
               <% if body.is_a?(GasGiant) %>
-                <%= body.code %>
+                <span class='pill'><%= body.code %></span>
               <% else %>
-                <%= body.uwp %>
+                <span class='pill'><%= body.uwp %></span>
               <% end %>
             <% end %>
           </td>
 
-          <td class='t-td-right'>
-            <div class='t-actions'>
+          <td class='actions-cell'>
+            <div class='action-group'>
               <% if body.is_a?(Star) %>
-                <%= link_to edit_star_path(body),
-                            class: 'text-slate-300 hover:text-traveller-red/90',
-                            title: 'Edit' do %>
-                  <i class='fa-solid fa-pen-to-square'></i>
+                <%= link_to edit_star_path(body), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
                 <% end %>
 
                 <%= button_to star_path(body),
                               method: :delete,
-                              form_class: 'inline',
-                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              class: 'action danger',
                               title: 'Delete',
                               data: { turbo_confirm: "Delete #{body.spectral_classification}?" } do %>
-                  <i class='fa-solid fa-trash'></i>
+                  <i class='fa-regular fa-trash'></i>
                 <% end %>
               <% else %>
-                <%= link_to edit_stellar_object_path(body),
-                            class: 'text-slate-300 hover:text-traveller-red/90',
-                            title: 'Edit' do %>
-                  <i class='fa-solid fa-pen-to-square'></i>
+                <%= link_to edit_stellar_object_path(body), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
                 <% end %>
 
                 <%= button_to stellar_object_path(body),
                               method: :delete,
-                              form_class: 'inline',
-                              class: 'text-slate-300 hover:text-traveller-red/90',
+                              class: 'action danger',
                               title: 'Delete',
                               data: { turbo_confirm: "Delete this #{body.type_title.downcase}?" } do %>
-                  <i class='fa-solid fa-trash'></i>
+                  <i class='fa-regular fa-trash'></i>
                 <% end %>
               <% end %>
             </div>

@@ -24,31 +24,31 @@
     <% end %>
   </div>
 
-  <div class='t-card'>
-    <div class='t-card-header'>
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Allegiance registry</p>
-        <div class='flex gap-2'>
-          <%= link_to new_allegiance_path, class: "btn-header" do %>
-            <i class="fa-solid fa-plus text-[0.7rem]"></i>
-            Add
-          <% end %>
-          <% confirm_msg = "Import allegiances from TravellerMap?" %>
-          <%= button_to import_from_traveller_map_allegiances_path,
-                        method: :post,
-                        data: { turbo_confirm: confirm_msg },
-                        class: 'btn-header' do %>
-            <i class="fa-regular fa-cloud-arrow-down"></i>
-            Import
-          <% end %>
-        </div>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Allegiance registry</p>
+
+      <div class='actions'>
+        <%= link_to new_allegiance_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+
+        <% confirm_msg = 'Import allegiances from TravellerMap?' %>
+        <%= button_to import_from_traveller_map_allegiances_path,
+                      method: :post,
+                      data: { turbo_confirm: confirm_msg },
+                      class: 'btn-header' do %>
+          <i class='fa-regular fa-cloud-arrow-down'></i>
+          Import
+        <% end %>
       </div>
     </div>
 
-    <turbo-frame id="allegiances"
-                 src="<%= table_allegiances_path(page: params[:page]) %>"
-                 data-controller="ui-updates"
-                 data-ui-updates-event-value="allegiances_updated">
+    <turbo-frame id='allegiances'
+                 src='<%= table_allegiances_path(page: params[:page]) %>'
+                 data-controller='ui-updates'
+                 data-ui-updates-event-value='allegiances_updated'>
       <%= render 'table', allegiances: @allegiances, pagy: @pagy %>
     </turbo-frame>
   </div>

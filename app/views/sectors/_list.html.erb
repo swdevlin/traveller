@@ -23,80 +23,75 @@
     </div>
   </div>
 
-  <div class="t-card">
-    <div class="t-card-header">
-      <div class="flex items-center justify-between gap-3">
-        <p class='t-card-title'>Sector Registry</p>
-        <div class="flex items-center gap-2">
-          <div class="flex gap-2">
-            <%= link_to new_sector_path, data: { turbo_frame: "_top" }, class: "btn-header" do %>
-              <i class="fa-solid fa-plus"></i>
-              <span>Blank</span>
-            <% end %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Sector registry</p>
 
-            <%= link_to new_from_traveller_map_sectors_path, data: { turbo_frame: "_top" }, class: "btn-header" do %>
-              <i class="fa-regular fa-cloud-arrow-down"></i>
-              <span>Import</span>
-            <% end %>
-          </div>
-        </div>
+      <div class='actions'>
+        <%= link_to new_sector_path, data: { turbo_frame: '_top' }, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          <span>Blank</span>
+        <% end %>
+
+        <%= link_to new_from_traveller_map_sectors_path, data: { turbo_frame: '_top' }, class: 'btn-header' do %>
+          <i class='fa-regular fa-cloud-arrow-down'></i>
+          <span>Import</span>
+        <% end %>
       </div>
     </div>
-    <div class="t-scroll-x">
-      <table class="t-table">
-        <thead class="t-thead">
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
         <tr>
-          <th scope="col" class="t-th">Sector</th>
-          <th scope="col" class="t-th">Star Chart</th>
-          <th scope="col" class="t-th">Library</th>
+          <th scope='col'>Sector</th>
+          <th scope='col'>Star chart</th>
+          <th scope='col'>Library</th>
         </tr>
         </thead>
-        <tbody class="t-tbody">
+
+        <tbody>
         <% if @sectors.any? %>
           <% @sectors.each do |sector| %>
-            <tr class="t-tr">
-              <td class="t-td">
+            <tr>
+              <td>
                 <%= link_to sector_path(sector),
-                            data: { turbo_frame: "_top" },
-                            class: "no-underline t-link" do %>
+                            data: { turbo_frame: '_top' },
+                            class: 't-link' do %>
                   <span><%= sector.name %></span>
                 <% end %>
-                <span class="t-pill ml-4"><%= sector.x %>/<%= sector.y %></span>
+
+                <span class='pill ml-4'><%= sector.x %>/<%= sector.y %></span>
               </td>
 
-              <td class="t-td">
-                <%= link_to sector.traveller_map_url, target: "_blank", rel: "noopener", class: "no-underline t-link" do %>
+              <td>
+                <%= link_to sector.traveller_map_url, target: '_blank', rel: 'noopener', class: 't-link' do %>
                   Traveller Map
                 <% end %>
               </td>
 
-              <td class="t-td">
+              <td>
                 <% if sector.wiki_link.present? %>
-                  <%= link_to sector.wiki_link,
-                              target: "_blank",
-                              rel: "noopener",
-                              class: "no-underline t-link" do %>
+                  <%= link_to sector.wiki_link, target: '_blank', rel: 'noopener', class: 't-link' do %>
                     <span>Traveller Wiki</span>
                   <% end %>
                 <% else %>
-                      <span class="text-xs text-slate-500">
-                        No registry link
-                      </span>
+                  <span class='text-xs text-slate-500'>No registry link</span>
                 <% end %>
               </td>
             </tr>
           <% end %>
         <% else %>
-          <tr class="t-tr">
-            <td colspan="3" class="t-td">No sectors recorded in this quadrant yet.</td>
+          <tr>
+            <td colspan='3'>No sectors recorded in this quadrant yet.</td>
           </tr>
         <% end %>
         </tbody>
       </table>
     </div>
+    <div class="w-full pb-4">
+      <%== @pagy.series_nav %>
+    </div>
   </div>
 
-  <div class="w-full pb-4">
-    <%== @pagy.series_nav %>
-  </div>
 </div>

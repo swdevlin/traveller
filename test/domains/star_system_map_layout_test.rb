@@ -28,12 +28,9 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
   end
 
   def create_body(star, type:, name:, orbit:, au:)
-    type.constantize.create!(
-      name: name,
-      orbiting_star: star,
-      orbit: orbit,
-      au: au
-    )
+    attrs = { name: name, orbiting_star: star, orbit: orbit, au: au }
+    attrs.merge!(size_code: 5, atmosphere_code: 6, hydrographics_code: 3) if type == 'TerrestrialPlanet'
+    type.constantize.create!(**attrs)
   end
 
   test 'single star with no bodies produces one node and no edges' do

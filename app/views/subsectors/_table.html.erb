@@ -1,42 +1,47 @@
-<div class="t-card">
-  <div class="t-card-header">
-    <div class="flex items-center justify-between gap-3">
-      <p class='t-card-title'>Subsector Registry</p>
-      <div class="flex items-center gap-2">
-      </div>
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Subsector registry</p>
+
+    <div class='actions'>
+      <%# buttons/links can go here later %>
     </div>
   </div>
-  <div class="t-scroll-x">
-    <table class="t-table">
-      <thead class="t-thead">
+
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope="col" class="t-th">Subsector</th>
-        <th scope="col" class="t-th">Star Systems</th>
-        <th scope="col" class="t-th">Stars</th>
-        <th scope="col" class="t-th">Allegiances</th>
-        <th scope="col" class="t-th"></th>
+        <th scope='col'>Subsector</th>
+        <th scope='col' class='text-right'>Star systems</th>
+        <th scope='col' class='text-right'>Stars</th>
+        <th scope='col'>Allegiances</th>
+        <th scope='col'></th>
       </tr>
       </thead>
-      <tbody class="t-tbody">
+
+      <tbody>
       <% if subsectors.any? %>
         <% subsectors.each do |subsector| %>
-          <tr class="t-tr">
-            <td class="t-td">
+          <tr>
+            <td>
               <%= link_to subsector_path(subsector),
-                          data: { turbo_frame: "_top"},
-                          class: "no-underline t-link" do %>
+                          data: { turbo_frame: '_top' },
+                          class: 't-link' do %>
                 <span><%= subsector.name %></span>
               <% end %>
             </td>
-            <td class="t-td align-right"><%= subsector.number_of_star_systems %></td>
-            <td class="t-td align-right"><%= subsector.number_of_stars %></td>
-            <td class="t-td"><%=  render "allegiances/inline_list", allegiances: subsector.allegiances %></td>
-            <td class="t-td"></td>
+
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_star_systems %></td>
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_stars %></td>
+
+            <td><%= render 'allegiances/inline_list', allegiances: subsector.allegiances %></td>
+
+            <td></td>
           </tr>
         <% end %>
       <% else %>
-        <tr class="t-tr">
-          <td colspan="5" class="t-td">No subsectors recorded yet.</td>
+        <tr>
+          <td colspan='5'>No subsectors recorded yet.</td>
         </tr>
       <% end %>
       </tbody>

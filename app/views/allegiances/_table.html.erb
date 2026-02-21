@@ -1,42 +1,44 @@
-<div class='t-scroll-x'>
-  <table class='t-table'>
-    <thead class='t-thead'>
+<div class="table-card">
+
+<div class='table-scroll'>
+  <table>
+    <thead>
     <tr>
-      <th scope='col' class='t-th'>Code</th>
-      <th scope='col' class='t-th'>Name</th>
-      <th scope='col' class='t-th'>Legacy</th>
-      <th scope='col' class='t-th-right'>Actions</th>
+      <th scope='col'>Code</th>
+      <th scope='col'>Name</th>
+      <th scope='col'>Legacy</th>
+      <th scope='col' class='text-right'>Actions</th>
     </tr>
     </thead>
 
-    <tbody class='t-tbody'>
+    <tbody>
     <% allegiances.each do |allegiance| %>
-      <tr class='t-tr'>
-        <td class='t-td-nowrap'>
-          <span class='t-pill'><%= allegiance.code %></span>
+      <tr>
+        <td class='whitespace-nowrap'>
+          <span class='pill'><%= allegiance.code %></span>
         </td>
 
-        <td class='t-td'>
-          <%= link_to allegiance_path(allegiance), class: "t-link", data: { turbo_frame: "_top" } do %>
+        <td>
+          <%= link_to allegiance_path(allegiance), class: 't-link', data: { turbo_frame: '_top' } do %>
             <%= allegiance.name %>
           <% end %>
         </td>
 
-        <td class='t-td-nowrap'>
+        <td class='whitespace-nowrap'>
           <% if allegiance.legacy_code.present? %>
-            <span class='t-pill'><%= allegiance.legacy_code %></span>
+            <span class='pill'><%= allegiance.legacy_code %></span>
           <% end %>
         </td>
 
-        <td class='t-td-right'>
-          <div class='t-actions'>
-            <%= link_to edit_allegiance_path(allegiance), class: 't-action', data: { turbo_frame: "_top" } do %>
+        <td class='actions-cell'>
+          <div class='action-group'>
+            <%= link_to edit_allegiance_path(allegiance), class: 'action', data: { turbo_frame: '_top' } do %>
               <i class='fa-regular fa-pen-to-square'></i>
             <% end %>
 
             <%= button_to allegiance,
                           method: :delete,
-                          class: 't-action-danger',
+                          class: 'action danger',
                           data: { turbo_confirm: "Delete #{allegiance.code}?" } do %>
               <i class='fa-regular fa-trash'></i>
             <% end %>
@@ -46,7 +48,9 @@
     <% end %>
     </tbody>
   </table>
-  <div class="w-full pb-4">
+
+  <div class='w-full pb-4'>
     <%== pagy.series_nav %>
   </div>
+</div>
 </div>

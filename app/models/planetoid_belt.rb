@@ -9,7 +9,7 @@ class PlanetoidBelt < StellarObject
   validate :composition_sums_to_100
   validates :bulk, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
   validates :resource_rating, numericality: { only_integer: true, in: 2..12 }, allow_blank: true
-  validates :span, numericality: { greater_than_or_equal_to: -1, less_than_or_equal_to: 1 }, allow_blank: true
+  validates :span, numericality: { greater_than_or_equal_to: 0 }, allow_blank: true
 
   def self.permitted_params
     [
