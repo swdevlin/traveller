@@ -6,7 +6,7 @@ require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -38,6 +38,16 @@ class StarSystemsController < ApplicationController
 
   def set_main_world
     @star_system.update(main_world_id: params[:main_world_id].presence)
+    redirect_to @star_system, status: :see_other
+  end
+
+  def edit_bases
+    @facilities = Facility.order(:code)
+    @current_ids = @star_system.facility_ids.to_set
+  end
+
+  def update_bases
+    @star_system.facility_ids = params[:facility_ids]&.reject(&:blank?)&.map(&:to_i) || []
     redirect_to @star_system, status: :see_other
   end
 

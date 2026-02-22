@@ -1,0 +1,13 @@
+<div>
+  <%= render 'application/data_block',
+             label: 'Bases',
+             value: star_system.facilities.any? ?
+               safe_join(star_system.facilities.order(:code).map { |f| tag.span(f.code, class: 'identifier-sm') }, ' ') :
+               tag.span('None', class: 'text-slate-500'),
+             value_wrap_class: 'flex flex-wrap items-center gap-2',
+             suffix: link_to(edit_bases_star_system_path(star_system),
+                             data: { turbo_frame: 'modal' },
+                             class: 'btn-header') {
+               tag.i(class: 'fa-regular fa-pen-to-square')
+             } %>
+</div>

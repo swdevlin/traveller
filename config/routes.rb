@@ -24,6 +24,8 @@ Rails.application.routes.draw do
       get :map
       get :select_main_world
       patch :set_main_world
+      get :edit_bases
+      post :update_bases
     end
   end
 

@@ -10,7 +10,6 @@
   * edit details
   * reorder secondary stars
   * reorder orbiting bodies
-  * Add an option to change the main world
 * edit star
   * edit details
     * includes WBH values like spread, baseline, and baseline orbit number
