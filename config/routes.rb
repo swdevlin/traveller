@@ -29,7 +29,11 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :stars, only: %i[index show edit update destroy]
+  resources :stars, only: %i[index show edit update destroy] do
+    collection do
+      get :lookup
+    end
+  end
 
   resources :subsectors, only: %i[index show edit update] do
     member do

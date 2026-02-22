@@ -4,6 +4,20 @@ class StarsController < ApplicationController
   before_action :set_star, only: %i[ show edit update destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :star_not_found
 
+  def lookup
+    result = GeneratorService.new.lookup_star(
+      stellar_type: params[:stellar_type],
+      stellar_subtype: params[:stellar_subtype],
+      stellar_class: params[:stellar_class]
+    )
+
+    if result.success?
+      render json: result.value
+    else
+      render json: { error: result.errors.to_sentence }, status: :bad_request
+    end
+  end
+
   def show
   end
 
@@ -42,7 +56,7 @@ class StarsController < ApplicationController
     params.require(:star).permit(
       :name, :stellar_type, :stellar_subtype, :stellar_class,
       :mass, :diameter, :temperature, :luminosity, :age,
-      :minimum_orbit, :hzco, :orbit, :eccentricity
+      :minimum_orbit, :hzco, :colour, :orbit, :eccentricity
     )
   end
 
