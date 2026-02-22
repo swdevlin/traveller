@@ -8,6 +8,16 @@
       <%= form.text_field :name, class: 'edit-base w-100' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
+      <%= form.select :starport_code,
+                      options_for_select(
+                        StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.starport_code
+                      ),
+                      { include_blank: 'Select starport' },
+                      class: 'edit-base' %>
+    <% end %>
+
     <% if star %>
       <div class='flex items-center gap-2 pt-2'>
         <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital Data</div>

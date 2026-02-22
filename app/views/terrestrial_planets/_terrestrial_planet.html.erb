@@ -17,9 +17,19 @@
 %>
 
 <div id="<%= dom_id terrestrial_planet %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <% if terrestrial_planet.starport_code.present? %>
+      <%= render 'application/data_block',
+                 label: 'Starport',
+                 value: tag.span(terrestrial_planet.starport_code, class: 'identifier-sm') %>
+    <% end %>
     <%= render 'application/data_block', label: 'UWP', value: terrestrial_planet.uwp, value_style: :mono %>
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
+  </div>
 
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
     <% if star %>
       <%= render 'application/data_block',
                  label: 'Orbiting',
@@ -55,9 +65,6 @@
                  suffix: tag.span(parsec.hex_code, class: 'identifier') %>
     <% end %>
 
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
   </div>
 
   <% if star %>

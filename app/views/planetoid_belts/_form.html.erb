@@ -8,6 +8,16 @@
       <%= form.text_field :name, class: 'edit-base w-100' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
+      <%= form.select :starport_code,
+                      options_for_select(
+                        StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.starport_code
+                      ),
+                      { include_blank: 'Select starport' },
+                      class: 'edit-base' %>
+    <% end %>
+
     <% if star %>
       <div class='flex items-center gap-2 pt-2'>
         <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital Data</div>
@@ -122,9 +132,51 @@
       <% end %>
     <% end %>
 
-    <!-- Notes stays stacked -->
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Social Data</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
+      <%= form.number_field :population_code,
+                            value: stellar_object.population_code,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 12 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
+      <%= form.select :government_code,
+                      options_for_select(
+                        Government.order(:code).map { |g| ["#{HexDigit.hex_digit(g.code)} – #{g.government_type}", g.code] },
+                        stellar_object.government_code
+                      ),
+                      { include_blank: 'Select government' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
+      <%= form.select :law_level_code,
+                      options_for_select(
+                        LawLevel.where.not(weapons: [nil, '']).order(:code).map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                        stellar_object.law_level_code
+                      ),
+                      { include_blank: 'Select law level' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :tech_level_code, field_label: 'Tech Level' do %>
+      <%= form.number_field :tech_level_code,
+                            value: stellar_object.tech_level_code,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 35 %>
+    <% end %>
+
     <div class='edit-row-notes'>
-      <%= form.label :notes, 'Observations', class: 'edit-label' %>
+      <div class='edit-label'>Observations</div>
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
 

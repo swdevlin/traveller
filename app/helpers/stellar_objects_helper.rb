@@ -107,6 +107,15 @@ module StellarObjectsHelper
     BIOCOMPLEXITY_DESCRIPTIONS[rating]
   end
 
+  STARPORT_CODES = {
+    'A' => 'Excellent',
+    'B' => 'Good',
+    'C' => 'Routine',
+    'D' => 'Poor',
+    'E' => 'Frontier',
+    'X' => 'None'
+  }.freeze
+
   SIZE_DESCRIPTIONS = {
     1  => '1,600 km',
     2  => '3,200 km',

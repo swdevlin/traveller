@@ -17,6 +17,18 @@
 %>
 
 <div id="<%= dom_id planetoid_belt %>" class="space-y-6">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <% if planetoid_belt.starport_code.present? %>
+      <%= render 'application/data_block',
+                 label: 'Starport',
+                 value: tag.span(planetoid_belt.starport_code, class: 'identifier-sm') %>
+    <% end %>
+    <%= render 'application/data_block', label: 'UWP', value: planetoid_belt.uwp, value_style: :mono %>
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
+  </div>
+
   <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
     <% if star %>
       <%= render 'application/data_block',
@@ -52,10 +64,6 @@
                  value_wrap_class: 'flex flex-wrap items-center gap-2',
                  suffix: tag.span(parsec.hex_code, class: 'identifier') %>
     <% end %>
-
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
   </div>
 
   <% if star %>

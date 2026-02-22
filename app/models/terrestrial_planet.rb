@@ -1,5 +1,6 @@
 class TerrestrialPlanet < StellarObject
   include GeneratorMappings
+  include HasUwpAttributes
 
   after_initialize :set_default_data
   after_initialize :normalize_data_types
@@ -36,64 +37,14 @@ class TerrestrialPlanet < StellarObject
     starport_code: 'starPort',
   )
 
-  def atmosphere_code
-    atmosphere&.dig('code')
-  end
-
-  def atmosphere_code=(val)
-    self.atmosphere = (atmosphere || {}).merge('code' => val.present? ? val.to_i : nil)
-  end
-
-  def atmosphere_composition
-    atmosphere&.dig('composition')
-  end
-
-  def atmosphere_composition=(val)
-    self.atmosphere = (atmosphere || {}).merge('composition' => val.presence)
-  end
-
-  def hydrographics_code
-    hydrographics&.dig('code')
-  end
-
-  def hydrographics_code=(val)
-    self.hydrographics = (hydrographics || {}).merge('code' => val.present? ? val.to_i : nil)
-  end
-
-  def hydrographics_liquid
-    hydrographics&.dig('liquid')
-  end
-
-  def hydrographics_liquid=(val)
-    self.hydrographics = (hydrographics || {}).merge('liquid' => val.presence)
-  end
-
-  def hydrographics_distribution
-    hydrographics&.dig('distribution')
-  end
-
-  def hydrographics_distribution=(val)
-    self.hydrographics = (hydrographics || {}).merge('distribution' => val.present? ? val.to_i : nil)
-  end
-
-  def population_code
-    population&.dig('code')
-  end
-
-  def population_code=(val)
-    self.population = (population || {}).merge('code' => val.present? ? val.to_i : nil)
-  end
-
   def self.permitted_params
     [
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
-      :atmosphere_code, :atmosphere_composition,
-      :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
       :period, :rotation, :retrograde, :density, :gravity,
       :temperature, :axial_tilt, :albedo, :greenhouse,
       :native_sophont, :extinct_sophont, :biomass_rating,
       :biodiversity_rating, :biocomplexity_rating, :resource_rating,
-      :population_code, :government_code, :law_level_code
+      *uwp_permitted_params
     ]
   end
 
@@ -117,8 +68,6 @@ class TerrestrialPlanet < StellarObject
     self.biomass_rating = biomass_rating.to_i if biomass_rating.present?
     self.biodiversity_rating = biodiversity_rating.to_i if biodiversity_rating.present?
     self.resource_rating = resource_rating.to_i if resource_rating.present?
-    self.government_code = government_code.to_i if government_code.present?
-    self.law_level_code = law_level_code.to_i if law_level_code.present?
     self.retrograde = ActiveModel::Type::Boolean.new.cast(retrograde)
     self.native_sophont = ActiveModel::Type::Boolean.new.cast(native_sophont)
     self.extinct_sophont = ActiveModel::Type::Boolean.new.cast(extinct_sophont)
