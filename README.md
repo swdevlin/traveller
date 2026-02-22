@@ -8,8 +8,6 @@
 ## To Do
 * edit star system
   * edit details
-  * reorder secondary stars
-  * reorder orbiting bodies
 * edit star
   * edit details
     * includes WBH values like spread, baseline, and baseline orbit number
