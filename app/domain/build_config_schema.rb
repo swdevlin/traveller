@@ -44,6 +44,8 @@ BaseStarSchema = Dry::Schema.Params do
 
   optional(:class).filled(:string, included_in?: CLASS_TYPES)
 
+  optional(:name).filled(:string)
+
   optional(:bodies).array(:hash) do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
     optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
