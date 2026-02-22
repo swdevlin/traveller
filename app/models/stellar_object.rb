@@ -150,5 +150,4 @@ class StellarObject < ApplicationRecord
     return if orbiting_star.marked_for_destruction?
     orbiting_star.star_system&.recalculate_world_counts!
   end
-
 end
