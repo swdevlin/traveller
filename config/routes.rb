@@ -26,6 +26,8 @@ Rails.application.routes.draw do
       patch :set_main_world
       get :edit_bases
       post :update_bases
+      get :edit_trade_codes
+      post :update_trade_codes
     end
   end
 

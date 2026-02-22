@@ -1,0 +1,24 @@
+<%= modal(title: 'Edit Trade Codes', padding: true, advance: false) do %>
+  <%= form_with url: update_trade_codes_star_system_path(@star_system) do |f| %>
+    <input type="hidden" name="trade_code_ids[]" value="">
+
+    <div class='grid grid-cols-2 sm:grid-cols-3 gap-2'>
+      <% @trade_codes.each do |tc| %>
+        <label class='flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition
+                      <%= @current_ids.include?(tc.id) ? "border-deepnight-orange bg-deepnight-orange/10" : "border-slate-700 bg-slate-800 hover:border-slate-500" %>'>
+          <input type="checkbox" name="trade_code_ids[]" value="<%= tc.id %>"
+                 <%= 'checked' if @current_ids.include?(tc.id) %>
+                 class="rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50 shrink-0">
+          <div class='min-w-0'>
+            <span class='identifier-sm'><%= tc.code %></span>
+            <div class='text-xs text-slate-400 mt-0.5 truncate'><%= tc.definition %></div>
+          </div>
+        </label>
+      <% end %>
+    </div>
+
+    <div class='mt-4 flex justify-end'>
+      <%= f.submit 'Save', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>
