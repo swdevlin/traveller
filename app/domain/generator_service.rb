@@ -15,10 +15,49 @@ class GeneratorService
     call_service('subsector', definition)
   end
 
+  def lookup_star(stellar_type:, stellar_subtype: nil, stellar_class: nil)
+    query = { stellarType: stellar_type }
+    query[:subtype] = stellar_subtype if stellar_subtype.present?
+    query[:stellarClass] = stellar_class if stellar_class.present?
+    get_service('star', query)
+  end
+
   private
 
   def base_url
     Rails.application.config.x.generator_service
+  end
+
+  def get_service(endpoint, query = {})
+    uri = URI.join(base_url.end_with?('/') ? base_url : "#{base_url}/", endpoint)
+    uri.query = URI.encode_www_form(query)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 10
+    http.read_timeout = 10
+
+    response = http.get(uri.request_uri, 'Accept' => 'application/json')
+
+    if response.is_a?(Net::HTTPBadRequest)
+      begin
+        msg = JSON.parse(response.body)['message'].presence || 'Invalid star classification'
+      rescue JSON::ParserError
+        msg = 'Invalid star classification'
+      end
+      return Result.new(errors: [msg])
+    end
+
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+      return Result.new(errors: ['Cannot look up star at this time'])
+    end
+
+    begin
+      Result.new(value: JSON.parse(response.body))
+    rescue JSON::ParserError => e
+      Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
+      Result.new(errors: ['Cannot look up star at this time'])
+    end
   end
 
   def call_service(endpoint, data)
