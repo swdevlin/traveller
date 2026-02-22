@@ -160,19 +160,19 @@
   }
 
   .iiss-form {
-    @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-400;
+    @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.18em] text-slate-400;
   }
 
   .edit-label {
-    @apply text-xs uppercase tracking-[0.22em] text-slate-400;
+    @apply text-xs uppercase tracking-[0.18em] text-slate-400;
   }
 
   .edit-field {
-    @apply w-full rounded-lg bg-slate-950 border-slate-700 px-3 py-2;
+    @apply w-full rounded-lg border-slate-700 px-3 py-2;
   }
 
   .edit-base {
-    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950 border-slate-700
+    @apply block shadow-sm rounded-md px-3 py-2 bg-slate-950/60 border-slate-700
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -184,6 +184,25 @@
 
   .edit-base[step="any"] {
     -moz-appearance: textfield;
+  }
+
+  .edit-row {
+    @apply grid gap-2 md:grid-cols-[14rem_1fr] md:items-center md:gap-4;
+  }
+
+  /* label column */
+  .edit-row > .edit-label {
+    @apply md:mt-0;
+  }
+
+  /* field column container (so checkbox/inputs align consistently) */
+  .edit-field {
+    @apply mt-2 md:mt-0;
+  }
+
+  /* notes stays stacked */
+  .edit-row-notes {
+    @apply space-y-2;
   }
 
   /* page components*/

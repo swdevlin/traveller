@@ -1,58 +1,20 @@
 <%= form_with(model: allegiance, class: 'contents') do |form| %>
   <%= hidden_field_tag :return_to, @return_to %>
-  <div class='space-y-6 pb-10'>
-    <% if allegiance.errors.any? %>
-      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-          Validation
-        </div>
-        <div class='mt-1 text-sm font-semibold text-slate-200'>
-          <%= pluralize(allegiance.errors.count, 'error') %> prevented this allegiance from being saved
-        </div>
 
-        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
-          <% allegiance.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: allegiance.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :code do %>
+      <%= form.text_field :code, class: 'edit-base w-24' %>
     <% end %>
 
-    <div class='mt-4'>
-      <%= form.label :code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :code,
-                          class: [
-                            'w-24 edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': allegiance.errors[:code].none?,
-                              'border-red-400 focus:outline-red-600': allegiance.errors[:code].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
 
-    <div>
-      <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :name,
-                          class: [
-                            'w-full edit-base mt-2 sm:w-1/2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': allegiance.errors[:name].none?,
-                              'border-red-400 focus:outline-red-600': allegiance.errors[:name].any?
-                            }
-                          ] %>
-    </div>
-
-    <div>
-      <%= form.label :legacy_code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :legacy_code,
-                          class: [
-                            'w-24 edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': allegiance.errors[:legacy_code].none?,
-                              'border-red-400 focus:outline-red-600': allegiance.errors[:legacy_code].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :legacy_code do %>
+      <%= form.text_field :legacy_code, class: 'edit-base w-24' %>
+    <% end %>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>

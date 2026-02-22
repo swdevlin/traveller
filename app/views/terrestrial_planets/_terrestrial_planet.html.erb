@@ -230,6 +230,14 @@
     <% end %>
     </div>
 
+  <div class="grid grid-cols-1 gap-4">
+    <% if terrestrial_planet.tech_level_code.present? %>
+      <%= render 'application/data_block',
+                 label: 'Tech Level',
+                 value: tag.span(HexDigit.hex_digit(terrestrial_planet.tech_level_code), class: 'identifier-sm') %>
+    <% end %>
+  </div>
+
   <%= render 'application/observation_block',
              notes: terrestrial_planet.notes %>
 

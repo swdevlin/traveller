@@ -2,111 +2,77 @@
 
 <%= form_with(model: star, class: 'contents') do |form| %>
   <div class="space-y-6 pb-10">
-    <% base_errors = star.errors.where(:base) %>
-    <% if base_errors.any? %>
-      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
-        <ul class="space-y-1 text-sm text-red-100">
-          <% base_errors.each do |error| %>
-            <li class="flex gap-2">
-              <span class="select-none text-red-300">&bull;</span>
-              <span class="font-mono break-words"><%= error.full_message %></span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+    <%= render 'application/form_errors', errors: star.errors.where(:base) %>
 
-    <div>
-      <div class="edit-label">Name<%= required_icon(star, :name) %></div>
-      <%= form.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
-      <%= render 'application/field_error', form: form, attribute: :name %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
 
     <div class="flex items-center gap-2 pt-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Stellar Classification</div>
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div>
-      <div class="edit-label">Spectral Type<%= required_icon(star, :stellar_type) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :stellar_type, field_label: 'Spectral Type' do %>
       <%= form.select :stellar_type,
                       options_for_select(@spectral_type_options, star.stellar_type),
                       { prompt: 'Select type' },
-                      class: 'edit-base mt-2' %>
-      <%= render 'application/field_error', form: form, attribute: :stellar_type %>
-    </div>
+                      class: 'edit-base' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Subtype<%= required_icon(star, :stellar_subtype) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :stellar_subtype, field_label: 'Subtype' do %>
       <%= form.select :stellar_subtype,
                       options_for_select(@spectral_subtype_options, star.stellar_subtype),
                       { prompt: '0-9' },
-                      class: 'edit-base mt-2' %>
-      <%= render 'application/field_error', form: form, attribute: :stellar_subtype %>
-    </div>
+                      class: 'edit-base' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Luminosity Class<%= required_icon(star, :stellar_class) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :stellar_class, field_label: 'Luminosity Class' do %>
       <%= form.select :stellar_class,
                       options_for_select(@luminosity_options, star.stellar_class),
                       { prompt: 'Select class' },
-                      class: 'edit-base mt-2' %>
-      <%= render 'application/field_error', form: form, attribute: :stellar_class %>
-    </div>
+                      class: 'edit-base' %>
+    <% end %>
 
     <div class="flex items-center gap-2 pt-2">
       <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Stellar Properties</div>
       <div class="h-px flex-1 bg-slate-700/70"></div>
     </div>
 
-    <div>
-      <div class="edit-label">Mass ☉<%= required_icon(star, :mass) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉' do %>
       <%= form.number_field :mass, value: format_precision(star.mass, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :mass %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Diameter ☉<%= required_icon(star, :diameter) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :diameter, field_label: 'Diameter ☉' do %>
       <%= form.number_field :diameter, value: format_precision(star.diameter, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :diameter %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Temperature<%= required_icon(star, :temperature) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :temperature do %>
       <%= form.number_field :temperature, value: format_precision(star.temperature, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :temperature %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Luminosity ☉<%= required_icon(star, :luminosity) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :luminosity, field_label: 'Luminosity ☉' do %>
       <%= form.number_field :luminosity, value: format_precision(star.luminosity, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :luminosity %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Age<%= required_icon(star, :age) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :age do %>
       <%= form.number_field :age, value: format_precision(star.age, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :age %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Minimum Orbit<%= required_icon(star, :minimum_orbit) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :minimum_orbit, field_label: 'Minimum Orbit' do %>
       <%= form.number_field :minimum_orbit, value: format_precision(star.minimum_orbit, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :minimum_orbit %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">HZCO<%= required_icon(star, :hzco) %></div>
+    <%= render 'application/edit_field', form: form, attribute: :hzco, field_label: 'HZCO' do %>
       <%= form.number_field :hzco, value: format_precision(star.hzco, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :hzco %>
-    </div>
+                            class: 'edit-base sm:w-28 w-24', step: 'any' %>
+    <% end %>
 
     <% if orbiting %>
       <div class="flex items-center gap-2 pt-2">
@@ -114,19 +80,15 @@
         <div class="h-px flex-1 bg-slate-700/70"></div>
       </div>
 
-      <div>
-        <div class="edit-label">Orbit<%= required_icon(star, :orbit) %></div>
+      <%= render 'application/edit_field', form: form, attribute: :orbit do %>
         <%= form.number_field :orbit, value: format_precision(star.orbit, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-        <%= render 'application/field_error', form: form, attribute: :orbit %>
-      </div>
+                              class: 'edit-base sm:w-28 w-24', step: 'any' %>
+      <% end %>
 
-      <div>
-        <div class="edit-label">Eccentricity<%= required_icon(star, :eccentricity) %></div>
+      <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
         <%= form.number_field :eccentricity, value: format_precision(star.eccentricity, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-        <%= render 'application/field_error', form: form, attribute: :eccentricity %>
-      </div>
+                              class: 'edit-base sm:w-28 w-24', step: 'any' %>
+      <% end %>
     <% end %>
 
     <div class="pt-2 flex flex-col sm:flex-row gap-2">

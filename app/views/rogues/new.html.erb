@@ -7,59 +7,41 @@
     <%= hidden_field_tag :return_to, @return_to %>
 
     <div class="space-y-6 pb-10">
-      <% base_errors = @rogue.errors.where(:base) %>
-      <% if base_errors.any? %>
-        <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
-          <ul class="space-y-1 text-sm text-red-100">
-            <% base_errors.each do |error| %>
-              <li class="flex gap-2">
-                <span class="select-none text-red-300">&bull;</span>
-                <span class="font-mono break-words"><%= error.full_message %></span>
-              </li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render 'application/form_errors', errors: @rogue.errors.where(:base) %>
 
       <% unless @parsec %>
-        <div>
-          <div class="edit-label">Hex<i class="fa-thin fa-microchip ml-1 align-middle" aria-hidden="true"></i></div>
+        <%= render 'application/edit_field', form: f, attribute: :parsec_id, field_label: 'Hex' do %>
           <%= f.select :parsec_id,
                        options_for_select(@parsec_options, @rogue.parsec_id),
                        { prompt: 'Select a hex' },
-                       class: 'edit-base mt-2 w-40' %>
-          <%= render 'application/field_error', form: f, attribute: :parsec_id %>
-        </div>
+                       class: 'edit-base w-40' %>
+        <% end %>
       <% end %>
 
-      <div>
-        <div class="edit-label">Name<%= required_icon(@rogue, :name) %></div>
-        <%= f.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
-        <%= render 'application/field_error', form: f, attribute: :name %>
-      </div>
+      <%= render 'application/edit_field', form: f, attribute: :name do %>
+        <%= f.text_field :name, class: 'edit-base w-full sm:max-w-xl' %>
+      <% end %>
 
       <div data-controller="rogue-form">
-        <div>
-          <div class="edit-label">Rogue type<i class="fa-thin fa-microchip ml-1 align-middle" aria-hidden="true"></i></div>
+        <%= render 'application/edit_field', form: f, attribute: :type, field_label: 'Rogue type' do %>
           <%= f.select :type,
                        options_for_select(
                          StellarObject::STI_TYPES.map { |t| [t.underscore.humanize, t] },
                          params.dig(:stellar_object, :type) || @rogue.class.name
                        ),
                        { prompt: 'Select a type' },
-                       class: 'edit-base mt-2 w-60',
+                       class: 'edit-base w-60',
                        data: { action: 'change->rogue-form#typeChanged', rogue_form_target: 'typeSelect' } %>
-          <%= render 'application/field_error', form: f, attribute: :type %>
-        </div>
+        <% end %>
 
         <%= f.fields_for :data, (@rogue.data || {}) do |df| %>
           <div data-rogue-form-target="section" data-type="GasGiant" class="hidden mt-4">
-            <div class="edit-label">Gas giant size</div>
-            <%= df.select :size,
-                          options_for_select([['Random', 'random'], ['Small', 'GS'], ['Medium', 'GM'], ['Large', 'GL']], (@rogue.data || {})['size']),
-                          { prompt: 'Select a size' },
-                          class: 'edit-base mt-2' %>
-            <%= render 'application/field_error', form: f, attribute: :size %>
+            <%= render 'application/edit_field', form: f, attribute: :size, field_label: 'Gas giant size' do %>
+              <%= df.select :size,
+                            options_for_select([['Random', 'random'], ['Small', 'GS'], ['Medium', 'GM'], ['Large', 'GL']], (@rogue.data || {})['size']),
+                            { prompt: 'Select a size' },
+                            class: 'edit-base' %>
+            <% end %>
           </div>
 
           <div data-rogue-form-target="section" data-type="Comet" class="hidden mt-4 space-y-4">
@@ -79,8 +61,8 @@
         <% end %>
       </div>
 
-      <div>
-        <div class="edit-label">Observations<%= required_icon(@rogue, :notes) %></div>
+      <div class='edit-row-notes'>
+        <div class='edit-label'>Observations</div>
         <%= f.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
         <%= render 'application/field_error', form: f, attribute: :notes %>
       </div>

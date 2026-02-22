@@ -1,20 +1,10 @@
 <%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
-  <div class="space-y-6">
-    <% if stellar_object.errors.any? %>
-      <div class="bg-red-900/50 text-red-200 px-4 py-3 rounded-md">
-        <h2 class="font-semibold"><%= pluralize(stellar_object.errors.count, "error") %> prohibited this record from being saved:</h2>
-        <ul class="list-disc ml-6 mt-2">
-          <% stellar_object.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+  <div class="space-y-2 pb-10">
+    <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
-    <div>
-      <div class="edit-label">Name</div>
-      <%= form.text_field :name, class: "edit-base mt-2 w-full" %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
 
     <div>
       <div class="edit-label">Observations</div>

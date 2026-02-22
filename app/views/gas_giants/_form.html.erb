@@ -1,109 +1,93 @@
 <% star = stellar_object.orbiting_star %>
 
-<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
-  <div class="space-y-6 pb-10">
-    <% base_errors = stellar_object.errors.where(:base) %>
-    <% if base_errors.any? %>
-      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
-        <ul class="space-y-1 text-sm text-red-100">
-          <% base_errors.each do |error| %>
-            <li class="flex gap-2">
-              <span class="select-none text-red-300">&bull;</span>
-              <span class="font-mono break-words"><%= error.full_message %></span>
-            </li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
+<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
-    <div>
-      <div class="edit-label">Name<%= required_icon(stellar_object, :name) %></div>
-      <%= form.text_field :name, class: 'edit-base mt-2 w-full sm:max-w-xl' %>
-      <%= render 'application/field_error', form: form, attribute: :name %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
 
     <% if star %>
-      <div class="flex items-center gap-2 pt-2">
-        <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Orbital Data</div>
-        <div class="h-px flex-1 bg-slate-700/70"></div>
+      <div class='flex items-center gap-2 pt-2'>
+        <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital Data</div>
+        <div class='h-px flex-1 bg-slate-700/70'></div>
       </div>
 
-      <div>
-        <div class="edit-label">Orbit<%= required_icon(stellar_object, :orbit) %></div>
-        <%= form.number_field :orbit, value: format_precision(stellar_object.orbit, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any',
+      <%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
+        <%= form.number_field :orbit,
+                              value: format_precision(stellar_object.orbit, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any',
                               min: star.minimum_orbit %>
-        <%= render 'application/field_error', form: form, attribute: :orbit %>
-      </div>
-
-      <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-        <div>
-          <div class="edit-label">Period<%= required_icon(stellar_object, :period) %></div>
-          <%= df.number_field :period, value: format_precision(stellar_object.period, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-          <%= render 'application/field_error', form: form, attribute: :period %>
-        </div>
-
-        <div>
-          <div class="edit-label">Rotation<%= required_icon(stellar_object, :rotation) %></div>
-          <%= df.number_field :rotation, value: format_precision(stellar_object.rotation, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-          <%= render 'application/field_error', form: form, attribute: :rotation %>
-        </div>
       <% end %>
 
-      <div>
-        <div class="edit-label">Inclination<%= required_icon(stellar_object, :inclination) %></div>
-        <%= form.number_field :inclination, value: format_precision(stellar_object.inclination, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-        <%= render 'application/field_error', form: form, attribute: :inclination %>
-      </div>
+      <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+        <%= render 'application/edit_field', form: form, attribute: :period do %>
+          <%= df.number_field :period,
+                              value: format_precision(stellar_object.period, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+        <% end %>
 
-      <div>
-        <div class="edit-label">Eccentricity<%= required_icon(stellar_object, :eccentricity) %></div>
-        <%= form.number_field :eccentricity, value: format_precision(stellar_object.eccentricity, precision: 5),
-                              class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-        <%= render 'application/field_error', form: form, attribute: :eccentricity %>
-      </div>
+        <%= render 'application/edit_field', form: form, attribute: :rotation do %>
+          <%= df.number_field :rotation,
+                              value: format_precision(stellar_object.rotation, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+        <% end %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :inclination do %>
+        <%= form.number_field :inclination,
+                              value: format_precision(stellar_object.inclination, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
+        <%= form.number_field :eccentricity,
+                              value: format_precision(stellar_object.eccentricity, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+      <% end %>
     <% end %>
 
-    <div class="flex items-center gap-2 pt-2">
-      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Physical Data</div>
-      <div class="h-px flex-1 bg-slate-700/70"></div>
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Physical Data</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
     </div>
 
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-      <div>
-        <div class="edit-label">Code<%= required_icon(stellar_object, :code) %></div>
+      <%= render 'application/edit_field', form: form, attribute: :code do %>
         <%= df.select :code,
                       options_for_select([['GS', 'GS'], ['GM', 'GM'], ['GL', 'GL']], stellar_object.code),
                       { include_blank: 'Select code' },
-                      class: 'edit-base mt-2 w-24' %>
-        <%= render 'application/field_error', form: form, attribute: :code %>
-      </div>
+                      class: 'edit-base w-24' %>
+      <% end %>
     <% end %>
 
-    <div>
-      <div class="edit-label">Diameter<%= required_icon(stellar_object, :diameter) %></div>
-      <%= form.number_field :diameter, value: format_precision(stellar_object.diameter, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :diameter %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :diameter do %>
+      <%= form.number_field :diameter,
+                            value: format_precision(stellar_object.diameter, precision: 5),
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Mass ☉<%= required_icon(stellar_object, :mass) %></div>
-      <%= form.number_field :mass, value: format_precision(stellar_object.mass, precision: 5),
-                            class: 'edit-base mt-2 sm:w-28 w-24', step: 'any' %>
-      <%= render 'application/field_error', form: form, attribute: :mass %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉' do %>
+      <%= form.number_field :mass,
+                            value: format_precision(stellar_object.mass, precision: 5),
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 'any' %>
+    <% end %>
 
-    <div>
-      <div class="edit-label">Observations<%= required_icon(stellar_object, :notes) %></div>
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Observations<%= required_icon(stellar_object, :notes) %></div>
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
       <%= render 'application/field_error', form: form, attribute: :notes %>
     </div>
 
-    <div class="pt-2 flex flex-col sm:flex-row gap-2">
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
     </div>

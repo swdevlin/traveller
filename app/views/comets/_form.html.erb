@@ -1,40 +1,29 @@
-<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
-  <div class="space-y-6">
-    <% if stellar_object.errors.any? %>
-      <div class="bg-red-900/50 text-red-200 px-4 py-3 rounded-md">
-        <h2 class="font-semibold"><%= pluralize(stellar_object.errors.count, "error") %> prohibited this record from being saved:</h2>
-        <ul class="list-disc ml-6 mt-2">
-          <% stellar_object.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
+<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: 'contents') do |form| %>
+  <div class='space-y-2'>
+    <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
     <% end %>
 
-    <div>
-      <div class="edit-label">Name</div>
-      <%= form.text_field :name, class: "edit-base mt-2 w-100" %>
-    </div>
-
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-      <div>
-        <div class="edit-label">Comet type</div>
+      <%= render 'application/edit_field', form: form, attribute: :comet_type do %>
         <%= df.select :comet_type,
                       options_for_select(
                         Comet::DESCRIPTIONS.map { |value, label| [label, value] },
                         stellar_object.comet_type
                       ),
-                      { include_blank: "Select a type" },
-                      class: "edit-base mt-2 w-100" %>
-      </div>
+                      { include_blank: 'Select a type' },
+                      class: 'edit-base w-full' %>
+      <% end %>
     <% end %>
 
-    <div>
-      <div class="edit-label">Observations</div>
-      <%= form.text_area :notes, rows: 6, class: "edit-base mt-2 w-full resize-y" %>
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Observations</div>
+      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
 
-    <div class="pt-2 flex flex-col sm:flex-row gap-2">
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
     </div>

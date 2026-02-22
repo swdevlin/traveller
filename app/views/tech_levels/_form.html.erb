@@ -1,179 +1,59 @@
 <%= form_with(model: tech_level, class: 'contents') do |form| %>
   <%= hidden_field_tag :return_to, @return_to %>
-  <div class='space-y-6 pb-10'>
-    <% if tech_level.errors.any? %>
-      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-          Validation
-        </div>
-        <div class='mt-1 text-sm font-semibold text-slate-200'>
-          <%= pluralize(tech_level.errors.count, 'error') %> prevented this tech level from being saved
-        </div>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: tech_level.errors.where(:base) %>
 
-        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
-          <% tech_level.errors.each do |error| %>
-            <li><%= error.full_message %></li>
-          <% end %>
-        </ul>
-      </div>
+    <%= render 'application/edit_field', form: form, attribute: :code, required: true do %>
+      <%= form.number_field :code, class: 'edit-base w-24' %>
     <% end %>
 
-    <div class='mt-4'>
-      <%= form.label :code, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.number_field :code,
-                          class: [
-                            'w-full edit-base mt-2 sm:w-1/2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:code].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:code].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :energy do %>
+      <%= form.text_field :energy, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :energy, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :energy,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:energy].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:energy].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :electronics do %>
+      <%= form.text_field :electronics, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :electronics, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :electronics,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:electronics].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:electronics].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :manufacturing do %>
+      <%= form.text_field :manufacturing, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :manufacturing, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :manufacturing,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:manufacturing].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:manufacturing].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :medical do %>
+      <%= form.text_field :medical, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :medical, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :medical,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:medical].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:medical].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :environmental do %>
+      <%= form.text_field :environmental, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :environmental, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :environmental,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:environmental].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:environmental].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :land do %>
+      <%= form.text_field :land, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :land, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :land,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:land].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:land].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :sea do %>
+      <%= form.text_field :sea, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :sea, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :sea,
-                          rows: 4,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:sea].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:sea].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :air do %>
+      <%= form.text_field :air, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :air, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :air,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:air].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:air].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :space do %>
+      <%= form.text_field :space, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :space, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :space,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:space].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:space].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :personal_military do %>
+      <%= form.text_field :personal_military, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :personal_military, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :personal_military,
-                          class: [
-                            'w-full edit-base mt-2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:personal_military].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:personal_military].any?
-                            }
-                          ] %>
-    </div>
+    <%= render 'application/edit_field', form: form, attribute: :heavy_military do %>
+      <%= form.text_field :heavy_military, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
 
-    <div>
-      <%= form.label :heavy_military, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_field :heavy_military,
-                          class: [
-                            'w-full edit-base mt-2 resize-y',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:heavy_military].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:heavy_military].any?
-                            }
-                          ] %>
-    </div>
-
-    <div>
-      <%= form.label :notes, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
-      <%= form.text_area :notes,
-                          rows: 4,
-                          class: [
-                            'w-full edit-base mt-2 resize-y',
-                            {
-                              'border-gray-400 focus:outline-blue-600': tech_level.errors[:notes].none?,
-                              'border-red-400 focus:outline-red-600': tech_level.errors[:notes].any?
-                            }
-                          ] %>
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Notes</div>
+      <%= form.text_area :notes, rows: 4, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>

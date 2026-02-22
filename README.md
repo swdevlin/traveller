@@ -6,9 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* tech level
-  * view
-  * edit
 * starport
   * view
   * edit

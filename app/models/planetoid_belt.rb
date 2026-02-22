@@ -34,7 +34,14 @@ class PlanetoidBelt < StellarObject
     temperature: 'meanTemperature',
     retrograde: 'retrograde',
     period: 'period',
-    significant_bodies: 'significantBodies'
+    significant_bodies: 'significantBodies',
+    atmosphere: 'atmosphere',
+    hydrographics: 'hydrographics',
+    population: 'population',
+    government_code: 'governmentCode',
+    law_level_code: 'lawLevelCode',
+    tech_level_code: 'techLevel',
+    starport_code: 'starPort',
   )
 
   private

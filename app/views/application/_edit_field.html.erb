@@ -1,0 +1,17 @@
+<%# locals: form:, attribute:, field_label: nil, required: false, calculated: false %>
+<div class='edit-row'>
+  <div class='edit-label'>
+    <%= local_assigns.fetch(:field_label, nil).presence || attribute.to_s.humanize %>
+    <% if local_assigns.fetch(:required, false) %>
+      <%= required_icon(form.object, attribute) %>
+    <% end %>
+    <% if local_assigns.fetch(:calculated, false) %>
+      <i class='fa-regular fa-calculator ml-1'></i>
+    <% end %>
+  </div>
+
+  <div class='edit-field'>
+    <%= yield %>
+    <%= render 'application/field_error', form: form, attribute: attribute %>
+  </div>
+</div>
