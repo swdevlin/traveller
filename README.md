@@ -6,12 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* edit star system
-  * edit details
-* edit star
-  * edit details
-    * includes WBH values like spread, baseline, and baseline orbit number
-  * reorder orbiting bodies
 * Quickly toggle known state
 * Quickly set surveyIndex
 * Display error messages from background jobs
