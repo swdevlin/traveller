@@ -80,10 +80,19 @@
         <div class="h-px flex-1 bg-slate-700/70"></div>
       </div>
 
-      <%= render 'application/edit_field', form: form, attribute: :orbit do %>
-        <%= form.number_field :orbit, value: format_precision(star.orbit, precision: 5),
-                              class: 'edit-base sm:w-28 w-24', step: 'any' %>
-      <% end %>
+      <div data-controller='star-orbit'>
+        <%= render 'application/edit_field', form: form, attribute: :orbit do %>
+          <%= form.number_field :orbit, value: format_precision(star.orbit, precision: 5),
+                                class: 'edit-base sm:w-28 w-24', step: 'any',
+                                data: { star_orbit_target: 'orbit', action: 'input->star-orbit#recalculate' } %>
+        <% end %>
+
+        <%= render 'application/edit_field', form: form, attribute: :au, field_label: 'AU', calculated: true do %>
+          <%= form.number_field :au, value: format_precision(star.au, precision: 5),
+                                class: 'edit-base sm:w-28 w-24', step: 'any', disabled: true,
+                                data: { star_orbit_target: 'au' } %>
+        <% end %>
+      </div>
 
       <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
         <%= form.number_field :eccentricity, value: format_precision(star.eccentricity, precision: 5),

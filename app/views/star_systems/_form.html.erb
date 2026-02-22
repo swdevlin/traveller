@@ -6,6 +6,34 @@
     <%= f.text_field :name, class: 'w-full edit-base' %>
   </div>
 
+  <div>
+    <%= f.label :allegiance_id, 'Allegiance', class: 'block text-sm font-semibold mb-1' %>
+    <% current_allegiance = f.object.allegiance %>
+    <div class='relative'
+         data-controller='allegiance-combobox'
+         data-allegiance-combobox-search-url-value='<%= search_allegiances_path %>'>
+      <%= f.hidden_field :allegiance_id, data: { allegiance_combobox_target: 'hidden' } %>
+      <input type='text'
+             placeholder='Search by code or name&hellip;'
+             autocomplete='off'
+             value='<%= current_allegiance ? "#{current_allegiance.code} \u2014 #{current_allegiance.name}" : "" %>'
+             data-allegiance-combobox-target='input'
+             data-action='input->allegiance-combobox#search focus->allegiance-combobox#open'
+             class='w-full edit-base pr-8' />
+      <button type='button'
+              class='<%= current_allegiance ? "" : "hidden" %> absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200'
+              data-allegiance-combobox-target='clear'
+              data-action='click->allegiance-combobox#clear'>
+        <i class='fa-regular fa-xmark'></i>
+      </button>
+      <div class='hidden absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg overflow-hidden'
+           data-allegiance-combobox-target='dropdown'>
+        <ul data-allegiance-combobox-target='list'
+            data-action='click->allegiance-combobox#select'></ul>
+      </div>
+    </div>
+  </div>
+
   <%# New-only fields get injected here %>
   <%= yield f if block_given? %>
 

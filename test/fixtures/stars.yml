@@ -114,3 +114,19 @@ tertiary_star:
   orbiting: secondary_star
   star_system: hierarchy_system
   parsec: one
+
+companion_no_system:
+  name: Companion (no direct star_system)
+  stellar_class: M
+  stellar_type: V
+  stellar_subtype: 5
+  is_protostar: false
+  mass: 0.2
+  diameter: 278540
+  temperature: 3200
+  age: 5.0
+  colour: Red
+  jump_shadow: 27854000
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  parsec: one

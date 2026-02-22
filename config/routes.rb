@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     collection do
       post 'import_from_traveller_map'
       get 'table'
+      get 'search'
     end
   end
 

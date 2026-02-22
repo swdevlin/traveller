@@ -18,6 +18,7 @@ class StellarObject < ApplicationRecord
   ].freeze
 
   include ScrubsMailtoLinks
+  include HasOrbit
 
   belongs_to :parsec, optional: true
   belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects, touch: true
@@ -27,10 +28,7 @@ class StellarObject < ApplicationRecord
 
   before_validation :recalculate_orbit_derived_fields, if: :orbit_changed?
   after_save_commit :recalculate_star_system_world_counts_if_needed
-  attr_accessor :skip_orbit_sequence_assignment
-  after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
-  after_destroy_commit :reassign_orbit_sequences_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
   validate :parsec_xor_orbiting_star_required
@@ -107,6 +105,17 @@ class StellarObject < ApplicationRecord
 
   private
 
+  def orbit_star_system
+    orbiting_star&.star_system
+  end
+
+  def orbit_star_system_for_destroy
+    return nil if orbiting_star.nil?
+    return nil if orbiting_star.destroyed?
+    return nil if orbiting_star.marked_for_destruction?
+    orbiting_star.star_system
+  end
+
   def recalculate_orbit_derived_fields
     self.au = OrbitToAu.convert(orbit)
     if orbiting_star&.hzco.present?
@@ -142,17 +151,4 @@ class StellarObject < ApplicationRecord
     orbiting_star.star_system&.recalculate_world_counts!
   end
 
-  def reassign_orbit_sequences
-    star_system = orbiting_star&.star_system
-    OrbitSequenceAssigner.new(star_system).assign! if star_system
-  end
-
-  def reassign_orbit_sequences_after_destroy
-    return if orbiting_star.nil?
-    return if orbiting_star.destroyed?
-    return if orbiting_star.marked_for_destruction?
-
-    star_system = orbiting_star.star_system
-    OrbitSequenceAssigner.new(star_system).assign! if star_system
-  end
 end

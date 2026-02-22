@@ -6,9 +6,6 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
-* starport
-  * view
-  * edit
 * edit star system
   * edit details
   * reorder secondary stars

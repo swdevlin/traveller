@@ -216,7 +216,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_edit_params
-    params.expect(star_system: [:name, :notes])
+    params.expect(star_system: [:name, :notes, :allegiance_id])
   end
 
   def new_star_system_params

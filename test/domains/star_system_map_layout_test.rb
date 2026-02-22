@@ -252,7 +252,7 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
   test 'companion star edge shows au label' do
     ss = create_system
     primary = create_star(ss, name: 'Alpha')
-    create_star(ss, name: 'Beta', orbiting: primary, au: 10.0, orbit: 5)
+    create_star(ss, name: 'Beta', orbiting: primary, orbit: 7)
 
     layout = StarSystemMapLayout.new(ss)
 

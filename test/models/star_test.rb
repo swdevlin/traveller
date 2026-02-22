@@ -72,4 +72,26 @@ class StarTest < ActiveSupport::TestCase
 
     assert_in_delta expected_km, tertiary.distance_from_primary_km, 1.0
   end
+
+  # reassign_orbit_sequences_after_destroy tests
+
+  test 'deleting a star with direct star_system reassigns orbit sequences' do
+    star = stars(:secondary_star)
+    primary = stars(:primary_for_hierarchy)
+
+    star.destroy!
+
+    assert_equal 'A', primary.reload.orbit_sequence
+  end
+
+  test 'deleting a companion star without direct star_system reassigns orbit sequences' do
+    # companion_no_system has orbiting: primary_for_hierarchy but no star_system association.
+    # Without the fix, orbit_star_system_for_destroy returned nil and no reassignment happened.
+    star = stars(:companion_no_system)
+    primary = stars(:primary_for_hierarchy)
+
+    star.destroy!
+
+    assert_equal 'A', primary.reload.orbit_sequence
+  end
 end

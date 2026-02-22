@@ -2,6 +2,7 @@
 
 class StarsController < ApplicationController
   before_action :set_star, only: %i[ show edit update destroy ]
+  rescue_from ActiveRecord::RecordNotFound, with: :star_not_found
 
   def show
   end
@@ -31,6 +32,10 @@ class StarsController < ApplicationController
 
   def set_star
     @star = Star.find(params.expect(:id))
+  end
+
+  def star_not_found
+    redirect_to root_path, alert: 'That star no longer exists.'
   end
 
   def star_params

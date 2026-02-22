@@ -25,9 +25,9 @@ class Star < ApplicationRecord
            inverse_of: :orbiting_star,
            dependent: :destroy
 
-  attr_accessor :skip_orbit_sequence_assignment
-  after_save_commit :reassign_orbit_sequences, if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
-  after_destroy_commit :reassign_orbit_sequences_after_destroy
+  include HasOrbit
+
+  before_validation :recalculate_au, if: :orbit_changed?
 
   def display_name
     if name.present?
@@ -115,16 +115,18 @@ class Star < ApplicationRecord
 
   private
 
-  def reassign_orbit_sequences
-    system = star_system || orbiting&.star_system
-    OrbitSequenceAssigner.new(system).assign! if system
+  def orbit_star_system
+    star_system || orbiting&.star_system
   end
 
-  def reassign_orbit_sequences_after_destroy
-    system = star_system
-    return unless system
-    return if system.destroyed?
+  def orbit_star_system_for_destroy
+    system = star_system || orbiting&.star_system
+    return nil unless system
+    return nil if system.destroyed?
+    system
+  end
 
-    OrbitSequenceAssigner.new(system).assign!
+  def recalculate_au
+    self.au = OrbitToAu.convert(orbit)
   end
 end
