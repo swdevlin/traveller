@@ -120,6 +120,10 @@
     box-shadow: 0 0 0 3px rgba(222, 128, 52, 0.18);
   }
 
+  .btn-sm {
+    @apply px-2.5 py-1.5 text-xs;
+  }
+
   .btn-danger {
     @apply hover:bg-traveller-red/90 text-white
     border border-traveller-red/90;

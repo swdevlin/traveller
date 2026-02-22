@@ -1,26 +1,61 @@
-<%= modal(title: 'Select Main World', padding: true, advance: false) do %>
+<%= modal(title: 'Select Main World', padding: false, advance: false) do %>
   <% if @worlds.empty? %>
-    <p class='text-slate-400 text-sm'>No worlds with a UWP in this system.</p>
+    <p class='p-5 text-slate-400 text-sm'>No worlds with a UWP in this system.</p>
   <% else %>
-    <div class='space-y-2'>
-      <% @worlds.each do |world| %>
-        <% is_current = world.id == @star_system.main_world_id %>
-        <div class='flex items-center justify-between gap-4 rounded-lg border px-4 py-3 <%= is_current ? "border-deepnight-orange bg-deepnight-orange/10" : "border-slate-700 bg-slate-800" %>'>
-          <div class='min-w-0'>
-            <div class='font-semibold truncate'><%= world.display_name %></div>
-            <div class='font-mono text-sm text-slate-300'><%= world.uwp %></div>
-          </div>
-          <% unless is_current %>
-            <%= button_to 'Select',
-                          set_main_world_star_system_path(@star_system),
-                          params: { main_world_id: world.id },
-                          method: :patch,
-                          class: 'btn btn-primary shrink-0' %>
-          <% else %>
-            <span class='text-xs text-deepnight-orange shrink-0'>Current</span>
-          <% end %>
-        </div>
-      <% end %>
+    <div class='table-card rounded-none border-x-0 border-b-0'>
+      <div class='table-scroll'>
+        <table>
+          <thead>
+            <tr>
+              <th scope='col'>ID</th>
+              <th scope='col'>Name</th>
+              <th scope='col'>UWP</th>
+              <th scope='col' class='text-right'>Avg Temp</th>
+              <th scope='col' class='text-right'>HZCO Δ</th>
+              <th scope='col' class='actions-cell'></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @worlds.each do |world| %>
+              <% is_current = world.id == @star_system.main_world_id %>
+              <tr class='<%= is_current ? "text-deepnight-orange" : "" %>'>
+                <td class='whitespace-nowrap'>
+                  <% if world.orbit_sequence.present? %>
+                    <span class='pill'><%= world.orbit_sequence %></span>
+                  <% end %>
+                </td>
+                <td class='whitespace-nowrap'><%= world.display_name %></td>
+                <td class='font-mono whitespace-nowrap'><%= world.uwp %></td>
+                <td class='text-right whitespace-nowrap'>
+                  <% if world.temperature.present? %>
+                    <%= format_temperature_celsius(world.temperature) %> °C
+                  <% else %>
+                    <span class='text-slate-500'>—</span>
+                  <% end %>
+                </td>
+                <td class='text-right whitespace-nowrap'>
+                  <% if world.effective_hzco_deviation.present? %>
+                    <%= number_with_precision(world.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+                  <% else %>
+                    <span class='text-slate-500'>—</span>
+                  <% end %>
+                </td>
+                <td class='actions-cell'>
+                  <% unless is_current %>
+                    <%= button_to 'Select',
+                                  set_main_world_star_system_path(@star_system),
+                                  params: { main_world_id: world.id },
+                                  method: :patch,
+                                  class: 'btn btn-primary btn-sm' %>
+                  <% else %>
+                    <span class='text-xs text-deepnight-orange block text-center'>Current</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
   <% end %>
 <% end %>
