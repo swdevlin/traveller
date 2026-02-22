@@ -1,0 +1,26 @@
+<%= modal(title: 'Select Main World', padding: true, advance: false) do %>
+  <% if @worlds.empty? %>
+    <p class='text-slate-400 text-sm'>No worlds with a UWP in this system.</p>
+  <% else %>
+    <div class='space-y-2'>
+      <% @worlds.each do |world| %>
+        <% is_current = world.id == @star_system.main_world_id %>
+        <div class='flex items-center justify-between gap-4 rounded-lg border px-4 py-3 <%= is_current ? "border-deepnight-orange bg-deepnight-orange/10" : "border-slate-700 bg-slate-800" %>'>
+          <div class='min-w-0'>
+            <div class='font-semibold truncate'><%= world.display_name %></div>
+            <div class='font-mono text-sm text-slate-300'><%= world.uwp %></div>
+          </div>
+          <% unless is_current %>
+            <%= button_to 'Select',
+                          set_main_world_star_system_path(@star_system),
+                          params: { main_world_id: world.id },
+                          method: :patch,
+                          class: 'btn btn-primary shrink-0' %>
+          <% else %>
+            <span class='text-xs text-deepnight-orange shrink-0'>Current</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

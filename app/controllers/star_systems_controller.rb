@@ -6,7 +6,7 @@ require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
-  before_action :set_star_system, only: %i[ show edit update destroy map ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -30,6 +30,15 @@ class StarSystemsController < ApplicationController
       format.html { send_data cached_svg, type: 'image/svg+xml', disposition: 'inline' }
       format.webp { send_data cached_webp, type: 'image/webp', disposition: 'inline' }
     end
+  end
+
+  def select_main_world
+    @worlds = @star_system.stellar_objects.where.not(uwp: nil).order(:orbit_sequence)
+  end
+
+  def set_main_world
+    @star_system.update(main_world_id: params[:main_world_id].presence)
+    redirect_to @star_system, status: :see_other
   end
 
   # GET /star_systems/new

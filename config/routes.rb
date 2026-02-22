@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   resources :star_systems do
     member do
       get :map
+      get :select_main_world
+      patch :set_main_world
     end
   end
 

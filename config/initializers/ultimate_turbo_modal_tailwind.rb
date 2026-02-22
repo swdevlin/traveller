@@ -11,16 +11,16 @@ module UltimateTurboModal::Flavors
 
     # Dialog wrapper: keep sizing, add a bit more breathing room on small screens
     DIV_DIALOG_CLASSES =
-      'fixed inset-0 overflow-y-auto sm:max-w-[80%] md:max-w-3xl sm:mx-auto m-4 opacity-0'
+      'fixed inset-0 overflow-y-auto sm:max-w-[80%] md:max-w-3xl sm:mx-auto m-4 opacity-0 transition-opacity'
 
     DIV_INNER_CLASSES =
       'flex min-h-full items-start justify-center pt-[10vh] sm:p-4'
 
     # Content shell: dark panel, orange edge glow, subtle “console” texture via gradient
     DIV_CONTENT_CLASSES =
-      'relative transform max-h-screen overflow-hidden rounded-2xl ' \
+      'relative max-h-screen overflow-hidden rounded-2xl ' \
         'bg-gradient-to-b from-slate-950/95 to-slate-950/80 ' \
-        'text-left text-slate-100 shadow-2xl transition-all sm:my-8 sm:max-w-3xl ' \
+        'text-left text-slate-100 shadow-2xl sm:my-8 sm:max-w-3xl ' \
         'border border-slate-700/60 ' \
         'ring-1 ring-deepnight-orange/10'
 
@@ -76,14 +76,14 @@ module UltimateTurboModal::Flavors
       },
       dialog: {
         enter: {
-          animation: 'ease-out duration-300',
-          start: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
-          end: 'opacity-100 translate-y-0 sm:scale-100'
+          animation: 'ease-out duration-200',
+          start: 'opacity-0',
+          end: 'opacity-100'
         },
         leave: {
-          animation: 'ease-in duration-200',
-          start: 'opacity-100 translate-y-0 sm:scale-100',
-          end: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'
+          animation: 'ease-in duration-150',
+          start: 'opacity-100',
+          end: 'opacity-0'
         }
       }
     }
