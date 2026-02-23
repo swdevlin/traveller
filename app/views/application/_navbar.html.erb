@@ -16,6 +16,24 @@
       </li>
     </ul>
   </nav>
+
+  <div class="flex-1 mx-6 max-w-sm relative"
+       data-controller="global-search"
+       data-global-search-search-url-value="<%= search_path %>">
+    <input type="text"
+           placeholder="Search systems, sectors&hellip;"
+           autocomplete="off"
+           data-global-search-target="input"
+           data-action="input->global-search#search"
+           class="w-full bg-slate-900/60 border border-slate-700/60 rounded-lg px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500
+                  focus:outline-none focus:border-deepnight-orange/50 focus:ring-1 focus:ring-deepnight-orange/30 transition">
+    <div data-global-search-target="dropdown"
+         class="hidden absolute top-full left-0 right-0 mt-1 z-50
+                bg-slate-900 border border-slate-700/60 rounded-lg shadow-xl overflow-hidden">
+      <ul data-global-search-target="list"></ul>
+    </div>
+  </div>
+
   <div class="justify-self-end flex items-center gap-4">
     <div class="ml-6"
          data-controller="job-count">
