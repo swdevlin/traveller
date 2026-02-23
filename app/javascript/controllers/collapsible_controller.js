@@ -4,10 +4,12 @@ export default class extends Controller {
   static targets = ['content', 'icon']
 
   toggle() {
-    this.contentTarget.classList.toggle('hidden')
+    this.contentTarget.classList.toggle('max-h-14')
+    this.contentTarget.classList.toggle('overflow-hidden')
+    this.contentTarget.classList.toggle('notes-fade')
 
-    const isHidden = this.contentTarget.classList.contains('hidden')
-    this.iconTarget.classList.toggle('fa-square-chevron-up', !isHidden)
-    this.iconTarget.classList.toggle('fa-square-chevron-down', isHidden)
+    const isCollapsed = this.contentTarget.classList.contains('max-h-14')
+    this.iconTarget.classList.toggle('fa-square-chevron-down', isCollapsed)
+    this.iconTarget.classList.toggle('fa-square-chevron-up', !isCollapsed)
   }
 }

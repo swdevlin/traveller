@@ -9,8 +9,9 @@
               class='rounded-lg p-1 -mt-1 text-slate-700 hover:text-deepnight-orange hover:bg-slate-900/40'
               data-action='collapsible#toggle'
               aria-label='Collapse/expand observations'>
-        <i class='fa-regular fa-square-chevron-up' data-collapsible-target='icon'></i>
-      </button>    <% end %>
+        <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>
+      </button>
+    <% end %>
   </div>
 
   <div class='<%= local_assigns[:notes].present? ? 'text-slate-200' : 'text-slate-400 italic' %>'>
@@ -20,7 +21,8 @@
                   prose-headings:tracking-[0.2em] prose-headings:uppercase
                   prose-a:text-deepnight-orange prose-a:no-underline hover:prose-a:underline
                   prose-code:text-slate-200 prose-code:bg-slate-900/60 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                  prose-pre:bg-slate-950/60 prose-pre:border prose-pre:border-slate-700/70 prose-pre:rounded-2xl'>
+                  prose-pre:bg-slate-950/60 prose-pre:border prose-pre:border-slate-700/70 prose-pre:rounded-2xl
+                  <%= local_assigns[:notes].present? ? "max-h-14 overflow-hidden notes-fade" : "" %>'>
         <% if local_assigns[:notes].present? %>
           <%= render_markdown(notes) %>
         <% else %>
