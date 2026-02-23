@@ -15,7 +15,6 @@
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
   * Links to the Deepnight navigation console for Referee & Travellers
-* Edit forms should show field errors at the field 
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
 * store image of star system
@@ -25,7 +24,6 @@
 * System generation from Deepnight book
   * Barycenter support
 * Quickly set survey index for a subsector
-* start with just the foreven sector
 * Add Button to create all deepnight sectors
     * create with configuration for each sector
     * Option to generate blank?

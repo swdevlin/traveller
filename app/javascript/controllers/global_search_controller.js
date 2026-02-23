@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['input', 'dropdown', 'list']
+  static targets = ['input', 'dropdown', 'list', 'hint']
   static values = { searchUrl: String }
 
   connect() {
@@ -16,6 +16,14 @@ export default class extends Controller {
     document.removeEventListener('click', this.boundHandleOutsideClick)
     document.removeEventListener('keydown', this.boundHandleKeydown)
     clearTimeout(this.timer)
+  }
+
+  inputFocused() {
+    if (this.hasHintTarget) this.hintTarget.classList.add('hidden')
+  }
+
+  inputBlurred() {
+    if (this.hasHintTarget && !this.inputTarget.value) this.hintTarget.classList.remove('hidden')
   }
 
   search() {
@@ -97,6 +105,22 @@ export default class extends Controller {
     if (event.key === 'Escape') {
       this.#closeDropdown()
       this.inputTarget.blur()
+      return
+    }
+
+    const isMac = navigator.platform.toUpperCase().includes('MAC')
+    const activationKey = isMac ? event.metaKey : event.ctrlKey
+    if (activationKey && event.key === 'k') {
+      event.preventDefault()
+      this.inputTarget.focus()
+      this.inputTarget.select()
+      return
+    }
+
+    if (event.key === '/' && document.activeElement !== this.inputTarget &&
+        !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+      event.preventDefault()
+      this.inputTarget.focus()
     }
   }
 }
