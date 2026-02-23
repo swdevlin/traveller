@@ -3,7 +3,11 @@ Rails.application.routes.draw do
   resources :governments
   resources :law_levels
   resources :facilities
-  resources :trade_codes
+  resources :trade_codes do
+    collection do
+      post 'import_t5'
+    end
+  end
   resources :stellar_objects
 
   resources :allegiances do
