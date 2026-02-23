@@ -12,6 +12,14 @@
           <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
+
+        <%= button_to import_t5_trade_codes_path,
+                      method: :post,
+                      class: 'btn-header',
+                      data: { turbo_confirm: 'Import T5 trade codes?' } do %>
+          <i class='fa-regular fa-cloud-arrow-down'></i>
+          Import T5
+        <% end %>
       </div>
     </div>
 
