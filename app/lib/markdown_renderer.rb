@@ -6,7 +6,7 @@ class MarkdownRenderer
       smart: true
     },
     render: {
-      hardbreaks: true,
+      hardbreaks: false,
       unsafe: false
     },
     extension: {
