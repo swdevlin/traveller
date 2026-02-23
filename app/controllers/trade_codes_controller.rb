@@ -6,6 +6,19 @@ class TradeCodesController < ApplicationController
     @trade_codes = TradeCode.order(:code)
   end
 
+  # POST /trade_codes/import_t5
+  def import_t5
+    load Rails.root.join('db/seed_data/t5_trade_codes.rb')
+    created = TRADE_CODES.count do |attrs|
+      TradeCode.find_or_create_by!(code: attrs[:code]) do |tc|
+        tc.definition = attrs[:definition]
+      end.previously_new_record?
+    end
+    redirect_to trade_codes_path,
+                notice: created > 0 ? "#{created} trade #{'code'.pluralize(created)} added." : 'All T5 trade codes already present.',
+                status: :see_other
+  end
+
   # GET /trade_codes/1 or /trade_codes/1.json
   def show
   end
