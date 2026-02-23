@@ -99,39 +99,44 @@ class CreateSubsectorJob < ApplicationJob
     y = ((hex[2, 2].to_i - 1) % 10) + 1
 
     entry = { 'x' => x, 'y' => y }
-    entry['name'] = sys['Name']
-    entry['counts'] = {
-      'mainWorld' => {
-        'uwp' => sys['UWP'],
-        'orbit' => 'hzco',
-        'name' => sys['Name']
-      },
-      'terrestrialPlanets' => sys['PBG'][0].to_i,
-      'planetoidBelts' => sys['PBG'][1].to_i,
-      'gasGiants' => sys['PBG'][2].to_i
-    }
+    if sys['Name'].present?
+      entry['name'] = sys['Name']
+    end
+    unless sys['PBG'] == '???'
+      entry['counts'] = {
+        'mainWorld' => {
+          'uwp' => sys['UWP'],
+          'orbit' => 'hzco',
+          'name' => sys['Name']
+        },
+        'terrestrialPlanets' => sys['PBG'][0].to_i,
+        'planetoidBelts' => sys['PBG'][1].to_i,
+        'gasGiants' => sys['PBG'][2].to_i
+      }
+      stars = parse_stars(sys['Stars'])
 
-    entry['bases'] = []
+      entry['primary'] = stars.first
+      case stars.length
+      when 2
+        entry['primary']['near'] = stars[1]
+      when 3
+        entry['primary']['near'] = stars[1]
+        entry['primary']['far'] = stars[2]
+      when 4..9
+        entry['primary']['close'] = stars[1]
+        entry['primary']['near'] = stars[2]
+        entry['primary']['far'] = stars[3]
+      end
+    end
+
     if sys['Bases'].present?
       entry['bases'] = sys['Bases'].split(//)
     end
 
-    entry['allegiance'] = ensure_allegiance(sys['Allegiance'])
-
-    stars = parse_stars(sys['Stars'])
-
-    entry['primary'] = stars.first
-    case stars.length
-    when 2
-      entry['primary']['near'] = stars[1]
-    when 3
-      entry['primary']['near'] = stars[1]
-      entry['primary']['far'] = stars[2]
-    when 4..9
-      entry['primary']['close'] = stars[1]
-      entry['primary']['near'] = stars[2]
-      entry['primary']['far'] = stars[3]
+    if sys['Allegiance'].present?
+      entry['allegiance'] = ensure_allegiance(sys['Allegiance'])
     end
+
 
     entry
   end

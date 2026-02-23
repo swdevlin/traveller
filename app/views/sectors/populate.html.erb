@@ -1,115 +1,101 @@
-<% content_for :title, 'Populating sector' %>
+<% content_for :title, "Populate #{@sector.name}" %>
+<% content_for :page_kicker, 'Sector Build Plan' %>
+<% content_for :page_title, @sector.name %>
 
-<div class='w-full'>
-  <h1 class='font-bold text-4xl mb-4'>
-    Populating <%= @sector.name %>
-  </h1>
+<% content_for :page_side do %>
+  <div>
+    <div class='page-kicker mb-2'>Subsectors</div>
+    <%= render 'subsector_grid', sector: @sector %>
+  </div>
+  <div>
+    <div class='page-kicker mb-2'>Neighbouring Sectors</div>
+    <%= render 'sector_grid', sector: @sector %>
+  </div>
+<% end %>
 
-  <div class='flex flex-col md:flex-row md:items-start gap-6'>
-    <div class='flex-1 min-w-0'>
-      <% if @sector.notes.present? %>
-        <div class='mb-4'>
-          <strong class='block text-sm font-semibold mb-1'>Observations</strong>
-          <p class='text-sm whitespace-pre-line'>
-            <%= @sector.notes %>
-          </p>
-        </div>
-      <% end %>
+<%= render 'application/two_column_page' do %>
+  <% subsectors = @sector.subsectors.order(:y, :x) %>
+  <% all_have_build = subsectors.all? { |s| s.build.present? } %>
 
-      <% subsectors = @sector.subsectors.order(:y, :x) %>
-      <% all_have_build = subsectors.all? { |s| s.build.present? } %>
-
-      <div class='table-card'>
-        <div class='table-banner'>
-          <p>Subsectors</p>
-        </div>
-
-        <div class='table-scroll'>
-          <table>
-            <thead>
-            <tr>
-              <th scope='col' class='w-16'>Code</th>
-              <th scope='col'>Name</th>
-              <th scope='col' class='w-32'>Type</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <% subsectors.each do |subsector| %>
-              <tr>
-                <td class='whitespace-nowrap'>
-                  <span class='pill'><%= subsector.abbreviation %></span>
-                </td>
-
-                <td class='whitespace-nowrap'>
-                  <%= link_to subsector.name, subsector, class: 't-link' %>
-                </td>
-
-                <td class='whitespace-nowrap'>
-                  <% if subsector.build.present? %>
-                    <%
-                      begin
-                        config = YAML.safe_load(subsector.build, permitted_classes: [], permitted_symbols: [], aliases: false)
-                        chance_value = config['chance']&.upcase if config.is_a?(Hash)
-                      rescue
-                        chance_value = nil
-                      end
-                    %>
-
-                    <% if chance_value.present? %>
-                      <span class='font-mono text-slate-200'><%= chance_value %></span>
-                    <% else %>
-                  <span class='text-green-400'>
-                    <i class='fa-regular fa-circle-check mr-1'></i>
-                    Configured
-                  </span>
-                    <% end %>
-                  <% else %>
-                    <%= link_to edit_subsector_path(subsector), class: 't-link text-slate-400 hover:text-traveller-red/90' do %>
-                      <i class='fa-regular fa-circle-minus mr-1'></i>
-                      Not configured
-                    <% end %>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class='mt-4 flex flex-col sm:flex-row gap-2'>
-        <%= button_to 'Load Defaults',
-                      load_defaults_sector_path(@sector),
-                      method: :post,
-                      class: 'w-full sm:w-auto btn' %>
-
-        <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to replace them?" %>
-        <%= form_with(model: @sector, url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
-          <%= form.submit 'Generate',
-                          class: ['w-full sm:w-auto btn btn-primary', { 'opacity-50 cursor-not-allowed' => !all_have_build }],
-                          disabled: !all_have_build,
-                          data: { turbo_confirm: confirm_msg },
-                          title: all_have_build ? 'Generate all subsectors' : 'All subsectors must have a build configuration' %>
-        <% end %>
-
-        <%= link_to 'Cancel',
-                    @sector,
-                    class: 'w-full sm:w-auto btn' %>
-      </div>
-
-      <% unless all_have_build %>
-        <p class="mt-2 text-sm text-slate-400">
-          <i class="fa-solid fa-circle-info mr-1"></i>
-          Configure a build for each subsector before generating the sector.
-        </p>
-      <% end %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Subsectors</p>
     </div>
 
-    <div class='w-full md:w-[300px] shrink-0'>
-      <%= render 'subsector_grid', sector: @sector %>
-      <p class="mt-4">Sectors</p>
-      <%= render 'sector_grid', sector: @sector %>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col' class='w-16'>Code</th>
+            <th scope='col'>Name</th>
+            <th scope='col' class='w-32'>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% subsectors.each do |subsector| %>
+            <tr>
+              <td class='whitespace-nowrap'>
+                <span class='pill'><%= subsector.abbreviation %></span>
+              </td>
+              <td class='whitespace-nowrap'>
+                <%= link_to subsector.name, subsector, class: 't-link' %>
+              </td>
+              <td class='whitespace-nowrap'>
+                <% if subsector.build.present? %>
+                  <%
+                    begin
+                      config = YAML.safe_load(subsector.build, permitted_classes: [], permitted_symbols: [], aliases: false)
+                      chance_value = config['chance']&.upcase if config.is_a?(Hash)
+                    rescue
+                      chance_value = nil
+                    end
+                  %>
+                  <% if chance_value.present? %>
+                    <span class='font-mono text-slate-200'><%= chance_value %></span>
+                  <% else %>
+                    <span class='text-green-400'>
+                      <i class='fa-regular fa-circle-check mr-1'></i>
+                      Configured
+                    </span>
+                  <% end %>
+                <% else %>
+                  <%= link_to edit_subsector_path(subsector), class: 't-link text-slate-400 hover:text-traveller-red/90' do %>
+                    <i class='fa-regular fa-circle-minus mr-1'></i>
+                    Not configured
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
+
+  <% unless all_have_build %>
+    <p class="mt-2 text-sm text-slate-400">
+      <i class="fa-regular fa-circle-info mr-1"></i>
+      Configure a build for each subsector before generating the sector.
+    </p>
+  <% end %>
+
+  <% content_for :page_buttons do %>
+    <div class='mt-4 flex flex-wrap gap-2'>
+      <%= button_to 'Load Defaults',
+                    load_defaults_sector_path(@sector),
+                    method: :post,
+                    class: 'btn' %>
+
+      <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to replace them?" %>
+      <%= form_with(model: @sector, url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
+        <%= form.submit 'Generate',
+                        class: ['btn btn-primary', { 'opacity-50 cursor-not-allowed' => !all_have_build }],
+                        disabled: !all_have_build,
+                        data: { turbo_confirm: confirm_msg },
+                        title: all_have_build ? 'Generate all subsectors' : 'All subsectors must have a build configuration' %>
+      <% end %>
+
+      <%= link_to 'Cancel', @sector, class: 'btn' %>
+    </div>
+  <% end %>
+<% end %>
