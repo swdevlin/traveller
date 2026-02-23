@@ -348,14 +348,18 @@ class StarSystemsController < ApplicationController
   end
 
   def set_form_context
-    @submit_label = action_name == 'edit' ? 'Save changes' : 'Add star system'
-
-    @form_url =
-      if request.path.include?('/parsecs/')
-        parsec_star_systems_path(@parsec)
-      else
-        polymorphic_path([@subsector || @sector, :star_systems])
-      end
+    if %w[edit update].include?(action_name)
+      @submit_label = 'Update core'
+      @form_url = star_system_path(@star_system)
+    else
+      @submit_label = 'Add star system'
+      @form_url =
+        if request.path.include?('/parsecs/')
+          parsec_star_systems_path(@parsec)
+        else
+          polymorphic_path([@subsector || @sector, :star_systems])
+        end
+    end
 
     @spectral_type_options = spectral_type_options
 
