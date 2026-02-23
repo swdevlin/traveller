@@ -20,6 +20,8 @@ class StellarObject < ApplicationRecord
   include ScrubsMailtoLinks
   include HasOrbit
 
+  normalizes *attribute_names, with: -> { it.presence }
+
   belongs_to :parsec, optional: true
   belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects, touch: true
 

@@ -10,6 +10,10 @@ class Star < ApplicationRecord
     'AN' => 'Anomaly'
   }.freeze
 
+  include HasOrbit
+
+  normalizes *attribute_names, with: -> { it.presence }
+
   belongs_to :star_system, optional: true, touch: true
   belongs_to :parsec, optional: true
 
@@ -25,7 +29,6 @@ class Star < ApplicationRecord
            inverse_of: :orbiting_star,
            dependent: :destroy
 
-  include HasOrbit
 
   before_validation :recalculate_au, if: :orbit_changed?
 

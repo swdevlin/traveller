@@ -1,4 +1,6 @@
 class StarSystem < ApplicationRecord
+  normalizes *attribute_names, with: -> { it.presence }
+
   belongs_to :parsec
   belongs_to :main_world, class_name: 'StellarObject', optional: true
   belongs_to :allegiance, optional: true

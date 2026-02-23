@@ -1,5 +1,8 @@
 class Subsector < ApplicationRecord
   include ClearableParsecs
+
+  normalizes *attribute_names, with: -> { it.presence }
+
   validates :x, :y, :sector, presence: true
   belongs_to :sector
 
