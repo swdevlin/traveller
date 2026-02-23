@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
+
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -108,6 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
     t.integer "x"
     t.integer "y"
     t.index ["discarded_at"], name: "index_sectors_on_discarded_at"
+    t.index ["name"], name: "index_sectors_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
@@ -147,6 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
+    t.index ["name"], name: "index_star_systems_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
@@ -217,8 +223,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
     t.text "notes"
     t.float "orbit"
     t.string "orbit_sequence"
-    t.integer "orbit_x"
-    t.integer "orbit_y"
+    t.float "orbit_x"
+    t.float "orbit_y"
     t.integer "orbiting_star_id"
     t.integer "parsec_id"
     t.integer "size_code"
@@ -244,6 +250,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_135149) do
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
+    t.index ["name"], name: "index_subsectors_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["sector_id", "x", "y"], name: "index_subsectors_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
   end
