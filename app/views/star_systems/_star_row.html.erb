@@ -16,14 +16,10 @@
   </td>
 
   <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(star.eccentricity, precision: 1) if star.eccentricity > 0 %>
-  </td>
-
-  <td class='text-right whitespace-nowrap'>
     <%= format_period(star.period) if star.period > 0 %>
   </td>
 
-  <td colspan='3'>
+  <td colspan='2'>
     <%= link_to star.spectral_classification, star_path(star), class: 't-link' %>
   </td>
 

@@ -19,10 +19,6 @@
   </td>
 
   <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(stellar_object.eccentricity, precision: 1) %>
-  </td>
-
-  <td class='text-right whitespace-nowrap'>
     <% if stellar_object.respond_to?(:period) %>
       <%= format_period(stellar_object.period) %>
     <% end %>
@@ -39,8 +35,6 @@
         <% end %>
     <% end %>
   </td>
-
-  <td></td>
 
   <td class='whitespace-nowrap'>
     <% if stellar_object.is_a?(GasGiant) %>
