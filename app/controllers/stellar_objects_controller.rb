@@ -1,4 +1,6 @@
 class StellarObjectsController < ApplicationController
+  ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
+
   before_action :set_stellar_object, only: %i[ show edit update destroy ]
 
   # GET /stellar_objects or /stellar_objects.json
@@ -63,11 +65,7 @@ class StellarObjectsController < ApplicationController
   private
     def sti_class
       t = params.dig(:stellar_object, :type)
-
-      allowed = StellarObject::STI_TYPES - ['Star'] # Stars are created through the star system flow
-      raise ActionController::BadRequest, 'Invalid type' unless allowed.include?(t)
-
-      t.constantize
+      ALLOWED_STI_CLASSES.fetch(t) { raise ActionController::BadRequest, 'Invalid type' }
     end
 
     # Use callbacks to share common setup or constraints between actions.
