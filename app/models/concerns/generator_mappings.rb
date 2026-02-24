@@ -5,7 +5,6 @@ module GeneratorMappings
 
   included do
     class_attribute :generator_api_data_map, default: {}
-    store_accessor :data, :build_log
   end
 
   class_methods do

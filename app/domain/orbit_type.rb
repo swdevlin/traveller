@@ -10,13 +10,13 @@ module OrbitType
     gas_giant: 10,
     terrestrial_planet: 11,
     planetoid_belt: 12,
-    planetoid_belt_object: 13
+    planetoid: 13
   }.freeze
 
   STI_CLASS_FOR_ORBIT_TYPE = {
     VALUES[:gas_giant] => GasGiant,
     VALUES[:planetoid_belt] => PlanetoidBelt,
-    VALUES[:planetoid_belt_object] => Planetoid,
+    VALUES[:planetoid] => Planetoid,
     VALUES[:terrestrial_planet] => TerrestrialPlanet,
     VALUES[:primary] => Star,
     VALUES[:close] => Star,

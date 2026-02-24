@@ -10,7 +10,7 @@ IMPORT_ORBIT_TYPES = {
   gas_giant: 10,
   terrestrial: 11,
   planetoid_belt: 12,
-  planetoid_belt_object: 13
+  planetoid: 13
 }.freeze
 
 IMPORT_STAR_ORBIT_TYPES = IMPORT_ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
@@ -35,11 +35,19 @@ class StarSystemImporter
         set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
       end
 
+      @deferred_belt_assignments = []
+
       primary_data = data['primaryStar']
       primary = Star.new
       primary.skip_orbit_sequence_assignment = true
       primary.star_system = @star_system
       import_star(primary, primary_data)
+
+      @deferred_belt_assignments.each do |entry|
+        belt = entry[:star].stellar_objects
+                           .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
+        entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
+      end
       @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
       unless @star_system.main_world.nil?
         if @star_system.main_world.name.blank? && @star_system.name.present?
@@ -113,6 +121,13 @@ class StarSystemImporter
         so.assign_data_from_generator(so_data)
         so.save!
         set_stellar_object_trade_codes(so, so_data['tradeCodes'])
+        if klass == Planetoid && so_data['belt'].present?
+          @deferred_belt_assignments << {
+            planetoid: so,
+            star: star,
+            belt_orbit_seq: so_data['belt']['orbitSequence']
+          }
+        end
       end
     end
   end

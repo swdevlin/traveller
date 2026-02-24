@@ -21,6 +21,12 @@ class PlanetoidBelt < StellarObject
     ]
   end
 
+  def significant_bodies
+    Planetoid
+      .where(star_system_id: star_system_id)
+      .where("(data ->> 'planetoid_belt_id')::int = ?", id)
+  end
+
   def diameter
     0
   end
@@ -36,7 +42,6 @@ class PlanetoidBelt < StellarObject
     temperature: 'meanTemperature',
     retrograde: 'retrograde',
     period: 'period',
-    significant_bodies: 'significantBodies',
     atmosphere: 'atmosphere',
     hydrographics: 'hydrographics',
     population: 'population',

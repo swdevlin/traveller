@@ -1,6 +1,8 @@
 class Planetoid < StellarObject
   include GeneratorMappings
 
+  store_accessor :data, :planetoid_belt_id
+
   validates :size_code, inclusion: { in: %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F] }
 
   generator_data_map(

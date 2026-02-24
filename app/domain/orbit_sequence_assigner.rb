@@ -11,6 +11,7 @@ class OrbitSequenceAssigner
     return unless primary
 
     assign_star(primary, '')
+    assign_planetoid_objects(primary)
   end
 
   private
@@ -35,7 +36,7 @@ class OrbitSequenceAssigner
       if body.is_a?(Star)
         child_letter = assign_star(body, '')
         orbiting += child_letter
-      else
+      elsif !body.is_a?(Planetoid)
         index += 1
         prefix = star.companion_id.present? && orbiting.length == 1 ? orbiting + 'ab' : orbiting
         body.update_column(:orbit_sequence, "#{prefix} #{RomanNumeral.convert(index)}")
@@ -43,6 +44,32 @@ class OrbitSequenceAssigner
     end
 
     letter
+  end
+
+  def assign_planetoid_objects(star)
+    belt_counters = Hash.new(0)
+    belt_cache    = {} # belt_id => PlanetoidBelt (or nil)
+
+    # Recurse into child stars
+    star.stars.find_each { |child_star| assign_planetoid_objects(child_star) }
+
+    # Number planetoids per belt
+    star.stellar_objects.find_each do |body|
+      next unless body.is_a?(Planetoid)
+
+      belt_id = body.data&.dig('planetoid_belt_id') || body.data&.dig(:planetoid_belt_id)
+      next if belt_id.blank?
+
+      belt_id = belt_id.to_i
+
+      belt = belt_cache.fetch(belt_id) do
+        belt_cache[belt_id] = StellarObject.find_by(id: belt_id, type: 'PlanetoidBelt')
+      end
+      next unless belt
+
+      belt_counters[belt_id] += 1
+      body.update_column(:orbit_sequence, "#{belt.orbit_sequence}.#{belt_counters[belt_id]}")
+    end
   end
 
   def non_companion_bodies(star)
