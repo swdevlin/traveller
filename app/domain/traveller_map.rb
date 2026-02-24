@@ -135,7 +135,7 @@ class TravellerMap
       end
     end
 
-    entry['bases'] = sys['Bases'].chars if sys['Bases'].present?
+    entry['bases'] = sys['Bases'].present? ? sys['Bases'].chars : []
     entry['allegiance'] = sys['Allegiance'].presence
 
     entry.compact

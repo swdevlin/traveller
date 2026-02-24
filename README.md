@@ -10,7 +10,6 @@
 * Quickly set surveyIndex
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
-* Mongoose allegiance codes
 * Log in
   * Multi-tenancy
   * Start at the sectors view if the user is logged in
@@ -21,17 +20,17 @@
 * store image of stellar object
 * Import default configuration for parsec
 * Allegiances for Deepnight campaign
-* System generation from Deepnight book
-  * Barycenter support
 * Quickly set survey index for a subsector
 * Add Button to create all deepnight sectors
     * create with configuration for each sector
     * Option to generate blank?
+* Moons
+* significant bodies for planetoid belts
 
 ### To do?
 
-* Moons
-* significant bodies for planetoid belts
+* System generation from Deepnight book
+  * Barycenter support
 * Support generation by CRB
 * Support generation by The Deep Space Exploration Handbook
 * Integrate into Deepnight campaign 
