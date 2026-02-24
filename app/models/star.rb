@@ -1,4 +1,6 @@
-class Star < ApplicationRecord
+class Star < StellarObject
+  include GeneratorMappings
+
   SPECIAL_SPECTRAL_TYPES = {
     'BD' => 'Brown Dwarf',
     'D' => 'White Dwarf',
@@ -10,27 +12,36 @@ class Star < ApplicationRecord
     'AN' => 'Anomaly'
   }.freeze
 
-  include HasOrbit
-
-  normalizes *attribute_names, with: -> { it.presence }
+  generator_data_map(
+    stellar_class: 'stellarClass',
+    stellar_type: 'stellarType',
+    stellar_subtype: 'subtype',
+    luminosity: 'luminosity',
+    hzco: 'hzco',
+    minimum_orbit: 'minimumOrbit',
+    jump_shadow: 'jumpShadow',
+    colour: 'colour',
+    is_protostar: 'isProtostar',
+    temperature: 'temperature',
+    age: 'age',
+    period: 'period',
+    baseline: 'baseline',
+    spread: 'spread',
+    scan_points: 'scanPoints'
+  )
 
   belongs_to :star_system, optional: true, touch: true
-  belongs_to :parsec, optional: true
-
-  belongs_to :companion, class_name: 'Star', optional: true
-  belongs_to :orbiting, class_name: 'Star', optional: true
+  belongs_to :companion, class_name: 'Star', foreign_key: :companion_id, optional: true
 
   has_many :stars,
+           class_name: 'Star',
            foreign_key: :orbiting_id,
            dependent: :destroy
 
   has_many :stellar_objects,
-           foreign_key: :orbiting_star_id,
-           inverse_of: :orbiting_star,
+           -> { where.not(type: 'Star') },
+           foreign_key: :orbiting_id,
            dependent: :destroy
-
-
-  before_validation :recalculate_au, if: :orbit_changed?
 
   def display_name
     if name.present?
@@ -86,36 +97,6 @@ class Star < ApplicationRecord
     total_au * StellarConstants::AU_TO_KM
   end
 
-  def assign_data_from_generator(data)
-    self.name = data['name']
-    self.orbit_sequence = data['orbitSequence']
-    self.orbit = data['orbit']
-    self.stellar_class = data['stellarClass']
-    self.stellar_type = data['stellarType']
-    self.stellar_subtype = data['subtype']
-    self.luminosity = data['luminosity']
-    orbitPosition = data.fetch('orbitPosition', {})
-    self.orbit_x = orbitPosition.fetch('x', nil)
-    self.orbit_y = orbitPosition.fetch('y', nil)
-    self.spread = data['spread']
-    self.baseline = data['baseline']
-    self.mass = data['mass']
-    self.diameter = data['diameter']
-    self.temperature = data['temperature']
-    self.age = data['age']
-    self.jump_shadow = data['jumpShadow']
-    self.colour = data['colour']
-    self.is_protostar = data['isProtostar']
-    self.minimum_orbit = data['minimumOrbit']
-    self.eccentricity = data['eccentricity']
-    self.period = data['period']
-    self.hzco = data['hzco']
-    self.au = data['au']
-    self.survey_index = data['surveyIndex']
-    self.scan_points = data['scanPoints']
-    self.build_log = data['buildLog']
-  end
-
   private
 
   def orbit_star_system
@@ -127,9 +108,5 @@ class Star < ApplicationRecord
     return nil unless system
     return nil if system.destroyed?
     system
-  end
-
-  def recalculate_au
-    self.au = OrbitToAu.convert(orbit)
   end
 end

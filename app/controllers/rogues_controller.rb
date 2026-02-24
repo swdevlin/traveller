@@ -33,7 +33,7 @@ class RoguesController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    @rogue.orbiting_star_id = nil
+    @rogue.orbiting_id = nil
 
     unless StellarObject::STI_TYPES.include?(@rogue.type)
       @rogue.errors.add(:type, 'is not a valid type')
@@ -68,7 +68,7 @@ class RoguesController < ApplicationController
     parsec = @stellar_object.parsec
     # Try to find a subsector if it's a rogue object (not orbiting a star)
     subsector = nil
-    if @stellar_object.sorbiting_star_id.nil? && parsec
+    if @stellar_object.orbiting_id.nil? && parsec
       subsector = Subsector.all.find { |s| s.parsecs.include?(parsec) }
     end
 

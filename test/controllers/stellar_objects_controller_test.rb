@@ -6,7 +6,6 @@ class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     @star_system = star_systems(:in_one)
     @stellar_object = stellar_objects(:one)
     @gas_giant = gas_giants(:small)
-    @star = stars(:one)
   end
 
   # test 'should get index' do

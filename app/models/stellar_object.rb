@@ -13,6 +13,7 @@ class StellarObject < ApplicationRecord
     RadiationCloud
     Relic
     SpaceStation
+    Star
     TerrestrialPlanet
     UnusualObject
   ].freeze
@@ -20,10 +21,11 @@ class StellarObject < ApplicationRecord
   include ScrubsMailtoLinks
   include HasOrbit
 
-  normalizes *attribute_names, with: -> { it.presence }
+  normalizes *(attribute_names - %w[data build_log characteristics]), with: -> { it.presence }
+  before_validation { self.data ||= {} }
 
   belongs_to :parsec, optional: true
-  belongs_to :orbiting_star, class_name: 'Star', optional: true, inverse_of: :stellar_objects, touch: true
+  belongs_to :orbiting, class_name: 'Star', foreign_key: :orbiting_id, optional: true, touch: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes
@@ -33,7 +35,7 @@ class StellarObject < ApplicationRecord
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
-  validate :parsec_xor_orbiting_star_required
+  validate :parsec_xor_orbiting_required
 
   belongs_to :allegiance, optional: true
 
@@ -65,7 +67,7 @@ class StellarObject < ApplicationRecord
   # - Any ancestor stars' jump shadows minus cumulative distance
   # Returns the maximum distance needed to clear all shadows
   def effective_jump_shadow_km
-    return jump_shadow if orbiting_star.nil?
+    return jump_shadow if orbiting.nil?
 
     shadows = []
 
@@ -76,7 +78,7 @@ class StellarObject < ApplicationRecord
     object_distance_km = (au || 0) * StellarConstants::AU_TO_KM
 
     # Orbiting star's shadow minus object's distance from it
-    star = orbiting_star
+    star = orbiting
     cumulative_distance_km = object_distance_km
     star_shadow_remaining = (star.jump_shadow || 0) - object_distance_km
     shadows << star_shadow_remaining if star_shadow_remaining > 0
@@ -108,48 +110,52 @@ class StellarObject < ApplicationRecord
   private
 
   def orbit_star_system
-    orbiting_star&.star_system
+    orbiting&.star_system
   end
 
   def orbit_star_system_for_destroy
-    return nil if orbiting_star.nil?
-    return nil if orbiting_star.destroyed?
-    return nil if orbiting_star.marked_for_destruction?
-    orbiting_star.star_system
+    return nil if orbiting.nil?
+    return nil if orbiting.destroyed?
+    return nil if orbiting.marked_for_destruction?
+    orbiting.star_system
   end
 
   def recalculate_orbit_derived_fields
     self.au = OrbitToAu.convert(orbit)
-    if orbiting_star&.hzco.present?
-      self.effective_hzco_deviation = orbit - orbiting_star.hzco
+    if orbiting&.hzco.present?
+      self.effective_hzco_deviation = orbit - orbiting.hzco
     end
   end
 
-  def parsec_xor_orbiting_star_required
-    if parsec_id.present? && orbiting_star_id.present?
-      errors.add(:base, 'Cannot have both parsec and orbiting star')
-    elsif parsec_id.blank? && orbiting_star_id.blank?
-      errors.add(:base, 'Must have either parsec or orbiting star')
+  def parsec_xor_orbiting_required
+    return if is_a?(Star)
+
+    if parsec_id.present? && orbiting_id.present?
+      errors.add(:base, 'Cannot have both parsec and orbiting')
+    elsif parsec_id.blank? && orbiting_id.blank?
+      errors.add(:base, 'Must have either parsec or orbiting')
     end
   end
 
   def recalculate_star_system_world_counts_if_needed
-    return unless saved_change_to_orbiting_star_id? || saved_change_to_type?
+    return if is_a?(Star)
+    return unless saved_change_to_orbiting_id? || saved_change_to_type?
 
-    new_star_system = orbiting_star&.star_system
+    new_star_system = orbiting&.star_system
     new_star_system&.recalculate_world_counts!
 
-    return unless saved_change_to_orbiting_star_id?
+    return unless saved_change_to_orbiting_id?
 
-    old_star_id = saved_change_to_orbiting_star_id.first
+    old_star_id = saved_change_to_orbiting_id.first
     old_star_system = Star.find_by(id: old_star_id)&.star_system
     old_star_system&.recalculate_world_counts!
   end
 
   def recalculate_star_system_world_counts_after_destroy
-    return if orbiting_star.nil?
-    return if orbiting_star.destroyed?
-    return if orbiting_star.marked_for_destruction?
-    orbiting_star.star_system&.recalculate_world_counts!
+    return if is_a?(Star)
+    return if orbiting.nil?
+    return if orbiting.destroyed?
+    return if orbiting.marked_for_destruction?
+    orbiting.star_system&.recalculate_world_counts!
   end
 end

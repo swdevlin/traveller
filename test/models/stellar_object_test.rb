@@ -34,7 +34,7 @@ class StellarObjectTest < ActiveSupport::TestCase
 
   test 'effective_jump_shadow_km considers star shadow when inside it' do
     planet = stellar_objects(:planet_near_primary)
-    primary = stars(:primary_for_hierarchy)
+    primary = stellar_objects(:primary_for_hierarchy)
 
     # Planet at 1 AU = 149,597,870.7 km
     # Primary shadow = 139,270,000 km
@@ -53,9 +53,9 @@ class StellarObjectTest < ActiveSupport::TestCase
 
   test 'effective_jump_shadow_km handles star hierarchy' do
     planet = stellar_objects(:planet_orbiting_tertiary)
-    tertiary = stars(:tertiary_star)
-    secondary = stars(:secondary_star)
-    primary = stars(:primary_for_hierarchy)
+    tertiary = stellar_objects(:tertiary_star)
+    secondary = stellar_objects(:secondary_star)
+    primary = stellar_objects(:primary_for_hierarchy)
 
     # Planet orbits tertiary at 0.05 AU
     # Tertiary orbits secondary at 0.5 AU
@@ -73,7 +73,7 @@ class StellarObjectTest < ActiveSupport::TestCase
   test 'effective_jump_shadow_km returns max of all shadows' do
     # Create a scenario where we know which shadow should dominate
     planet = stellar_objects(:planet_orbiting_secondary)
-    secondary = stars(:secondary_star)
+    secondary = stellar_objects(:secondary_star)
 
     # Planet at 0.1 AU from secondary
     # Secondary shadow = 27,854,000 km

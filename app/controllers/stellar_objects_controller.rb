@@ -64,7 +64,7 @@ class StellarObjectsController < ApplicationController
     def sti_class
       t = params.dig(:stellar_object, :type)
 
-      allowed = StellarObject::STI_TYPES # e.g. ["GasGiant", "Comet", ...]
+      allowed = StellarObject::STI_TYPES - ['Star'] # Stars are created through the star system flow
       raise ActionController::BadRequest, 'Invalid type' unless allowed.include?(t)
 
       t.constantize

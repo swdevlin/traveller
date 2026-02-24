@@ -7,8 +7,7 @@ class StarSystem < ApplicationRecord
 
   validates :parsec_id, presence: { message: 'You must select a hex' }
 
-  has_many :stars, dependent: :destroy
-  has_many :gas_giants, class_name: 'GasGiant'
+  has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
   has_many :star_system_trade_codes, dependent: :destroy
   has_many :star_system_facilities, dependent: :destroy
   has_many :trade_codes, through: :star_system_trade_codes
@@ -37,7 +36,7 @@ class StarSystem < ApplicationRecord
   end
 
   def primary_star
-    @primary_star ||= stars.where(orbiting: nil).sole
+    @primary_star ||= stars.find_by(orbiting_id: nil)
   end
 
   def orbiting_bodies

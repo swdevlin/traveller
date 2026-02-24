@@ -109,7 +109,7 @@ class StarSystemImporter
         end
         so = klass.new
         so.skip_orbit_sequence_assignment = true
-        so.orbiting_star = star
+        so.orbiting = star
         so.assign_data_from_generator(so_data)
         so.save!
         set_stellar_object_trade_codes(so, so_data['tradeCodes'])

@@ -8,7 +8,7 @@ small:
   orbit_x: 1
   orbit_y: 1
   name: Small gas giant in star system one
-  orbiting_star: one
+  orbiting: star_one
   inclination: 1.5
   eccentricity: 1.5
   orbit: 1.5

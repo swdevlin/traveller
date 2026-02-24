@@ -5,8 +5,8 @@ class PlanetoidBelt < StellarObject
   before_validation :normalize_data_types
 
   validates :orbit, presence: true
-  validate :orbit_above_minimum, if: -> { orbit.present? && orbiting_star.present? }
-  validate :orbit_not_occupied, if: -> { orbit.present? && orbiting_star.present? }
+  validate :orbit_above_minimum, if: -> { orbit.present? && orbiting.present? }
+  validate :orbit_not_occupied, if: -> { orbit.present? && orbiting.present? }
   validate :composition_sums_to_100
   validates :bulk, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
   validates :resource_rating, numericality: { only_integer: true, in: 2..12 }, allow_blank: true
@@ -49,15 +49,15 @@ class PlanetoidBelt < StellarObject
   private
 
   def orbit_above_minimum
-    min = orbiting_star.minimum_orbit
+    min = orbiting.minimum_orbit
     if min.present? && orbit < min
       errors.add(:orbit, "must be at least #{min} (star's minimum orbit)")
     end
   end
 
   def orbit_not_occupied
-    siblings = orbiting_star.stellar_objects.where(orbit: orbit).where.not(id: id)
-    sibling_stars = orbiting_star.stars.where(orbit: orbit)
+    siblings = orbiting.stellar_objects.where(orbit: orbit).where.not(id: id)
+    sibling_stars = orbiting.stars.where(orbit: orbit)
     if siblings.exists? || sibling_stars.exists?
       errors.add(:orbit, "#{orbit} is already occupied by another body")
     end

@@ -6,7 +6,7 @@ class TerrestrialPlanet < StellarObject
   after_initialize :normalize_data_types
   before_validation :normalize_data_types
 
-  validates :orbit, presence: true, if: -> { orbiting_star_id.present? }
+  validates :orbit, presence: true, if: -> { orbiting_id.present? }
   validates :size_code, presence: true
   validates :atmosphere_code, presence: true
   validates :hydrographics_code, presence: true

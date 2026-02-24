@@ -85,10 +85,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
   end
 
   create_table "parsecs", force: :cascade do |t|
-    t.json "build_log"
+    t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.text "note"
-    t.integer "sector_id", null: false
+    t.bigint "sector_id", null: false
     t.float "star_chance", default: 50.0
     t.integer "survey_index", default: 0
     t.datetime "updated_at", null: false
@@ -101,7 +101,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
   create_table "sectors", force: :cascade do |t|
     t.string "abbreviation"
     t.text "build"
-    t.json "build_log"
+    t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.datetime "discarded_at"
     t.string "name"
@@ -118,8 +118,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
 
   create_table "star_system_facilities", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "facility_id", null: false
-    t.integer "star_system_id", null: false
+    t.bigint "facility_id", null: false
+    t.bigint "star_system_id", null: false
     t.datetime "updated_at", null: false
     t.index ["facility_id"], name: "index_star_system_facilities_on_facility_id"
     t.index ["star_system_id", "facility_id"], name: "index_star_system_facilities_on_star_system_id_and_facility_id", unique: true
@@ -128,8 +128,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
 
   create_table "star_system_trade_codes", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "star_system_id", null: false
-    t.integer "trade_code_id", null: false
+    t.bigint "star_system_id", null: false
+    t.bigint "trade_code_id", null: false
     t.datetime "updated_at", null: false
     t.index ["star_system_id", "trade_code_id"], name: "idx_on_star_system_id_trade_code_id_9139c73bd8", unique: true
     t.index ["star_system_id"], name: "index_star_system_trade_codes_on_star_system_id"
@@ -137,16 +137,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
   end
 
   create_table "star_systems", force: :cascade do |t|
-    t.integer "allegiance_id"
+    t.bigint "allegiance_id"
     t.integer "belt_count", default: 0, null: false
-    t.json "build_log"
+    t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.integer "gas_giant_count", default: 0, null: false
-    t.integer "main_world_id"
+    t.bigint "main_world_id"
     t.json "meta"
     t.string "name"
     t.text "notes"
-    t.integer "parsec_id", null: false
+    t.bigint "parsec_id", null: false
     t.integer "survey_index", default: 0
     t.integer "terrestrial_count", default: 0, null: false
     t.datetime "updated_at", null: false
@@ -156,50 +156,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
-  create_table "stars", force: :cascade do |t|
-    t.float "age"
-    t.float "au"
-    t.float "baseline"
-    t.json "build_log"
-    t.string "colour"
-    t.integer "companion_id"
-    t.datetime "created_at", null: false
-    t.float "diameter"
-    t.float "eccentricity"
-    t.float "hzco"
-    t.float "inclination"
-    t.boolean "is_protostar"
-    t.float "jump_shadow"
-    t.float "luminosity"
-    t.float "mass"
-    t.float "minimum_orbit"
-    t.string "name"
-    t.float "orbit"
-    t.string "orbit_sequence"
-    t.float "orbit_x"
-    t.float "orbit_y"
-    t.integer "orbiting_id"
-    t.integer "parsec_id"
-    t.float "period"
-    t.integer "scan_points"
-    t.float "spread"
-    t.integer "star_system_id"
-    t.string "stellar_class"
-    t.integer "stellar_subtype"
-    t.string "stellar_type"
-    t.integer "survey_index"
-    t.float "temperature"
-    t.datetime "updated_at", null: false
-    t.index ["companion_id"], name: "index_stars_on_companion_id"
-    t.index ["orbiting_id"], name: "index_stars_on_orbiting_id"
-    t.index ["parsec_id"], name: "index_stars_on_parsec_id"
-    t.index ["star_system_id"], name: "index_stars_on_star_system_id"
-  end
-
   create_table "stellar_object_trade_codes", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "stellar_object_id", null: false
-    t.integer "trade_code_id", null: false
+    t.bigint "stellar_object_id", null: false
+    t.bigint "trade_code_id", null: false
     t.datetime "updated_at", null: false
     t.index ["stellar_object_id", "trade_code_id"], name: "idx_on_stellar_object_id_trade_code_id_0e62e9d1bb", unique: true
     t.index ["stellar_object_id"], name: "index_stellar_object_trade_codes_on_stellar_object_id"
@@ -207,10 +167,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
   end
 
   create_table "stellar_objects", force: :cascade do |t|
-    t.integer "allegiance_id"
+    t.bigint "allegiance_id"
     t.float "au"
-    t.json "build_log"
+    t.jsonb "build_log"
     t.json "characteristics"
+    t.bigint "companion_id"
     t.datetime "created_at", null: false
     t.json "data", default: {}, null: false
     t.integer "detect_si"
@@ -225,27 +186,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
     t.string "orbit_sequence"
     t.float "orbit_x"
     t.float "orbit_y"
-    t.integer "orbiting_star_id"
-    t.integer "parsec_id"
+    t.bigint "orbiting_id"
+    t.bigint "parsec_id"
     t.integer "size_code"
+    t.bigint "star_system_id"
     t.integer "survey_index"
     t.string "type"
     t.datetime "updated_at", null: false
     t.string "uwp"
     t.index ["allegiance_id"], name: "index_stellar_objects_on_allegiance_id"
-    t.index ["orbiting_star_id"], name: "index_stellar_objects_on_orbiting_star_id"
+    t.index ["companion_id"], name: "index_stellar_objects_on_companion_id"
+    t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
-    t.check_constraint "(parsec_id IS NULL) <> (orbiting_star_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_star_present"
+    t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
+    t.check_constraint "type::text = 'Star'::text OR (parsec_id IS NULL) <> (orbiting_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_present"
   end
 
   create_table "subsectors", force: :cascade do |t|
     t.string "abbreviation"
     t.text "build"
-    t.json "build_log"
+    t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.string "name"
     t.text "notes"
-    t.integer "sector_id", null: false
+    t.bigint "sector_id", null: false
     t.float "star_chance", default: 50.0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
@@ -292,14 +256,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
   add_foreign_key "star_systems", "allegiances", on_delete: :nullify
   add_foreign_key "star_systems", "parsecs", on_delete: :cascade
   add_foreign_key "star_systems", "stellar_objects", column: "main_world_id", on_delete: :nullify
-  add_foreign_key "stars", "parsecs", on_delete: :cascade
-  add_foreign_key "stars", "star_systems", on_delete: :cascade
-  add_foreign_key "stars", "stars", column: "companion_id", on_delete: :nullify
-  add_foreign_key "stars", "stars", column: "orbiting_id", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "stellar_objects", on_delete: :cascade
   add_foreign_key "stellar_object_trade_codes", "trade_codes", on_delete: :cascade
   add_foreign_key "stellar_objects", "allegiances", on_delete: :nullify
   add_foreign_key "stellar_objects", "parsecs", on_delete: :cascade
-  add_foreign_key "stellar_objects", "stars", column: "orbiting_star_id", on_delete: :cascade
+  add_foreign_key "stellar_objects", "star_systems", on_delete: :cascade
+  add_foreign_key "stellar_objects", "stellar_objects", column: "companion_id", on_delete: :nullify
+  add_foreign_key "stellar_objects", "stellar_objects", column: "orbiting_id", on_delete: :cascade
   add_foreign_key "subsectors", "sectors", on_delete: :cascade
 end

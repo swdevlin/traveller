@@ -15,7 +15,6 @@ class OrbitSequenceAssignerTest < ActiveSupport::TestCase
     Star.create!(
       name: name,
       star_system: star_system,
-      parsec: @parsec,
       colour: 'Yellow',
       stellar_type: 'G',
       stellar_subtype: 2,
@@ -29,7 +28,7 @@ class OrbitSequenceAssignerTest < ActiveSupport::TestCase
   end
 
   def create_body(star, type:, name:, orbit:)
-    attrs = { name: name, orbiting_star: star, orbit: orbit, au: OrbitToAu.convert(orbit) }
+    attrs = { name: name, orbiting: star, orbit: orbit, au: OrbitToAu.convert(orbit) }
     attrs.merge!(size_code: 5, atmosphere_code: 6, hydrographics_code: 3) if type == 'TerrestrialPlanet'
     type.constantize.create!(**attrs)
   end

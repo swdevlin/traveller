@@ -10,6 +10,7 @@ one:
   orbit: 1.5
   effective_hzco_deviation: 1.5
   type: 'Comet'
+  data: {}
 
 two:
   parsec: two
@@ -21,11 +22,85 @@ two:
   orbit: 1.5
   effective_hzco_deviation: 1.5
   type: 'TerrestrialPlanet'
+  data: {}
 
 rogue:
   parsec: two
   name: Rogue object
   type: 'GasCloud'
+  data: {}
+
+# Star hierarchy — Star is an STI subclass of StellarObject loaded into this table
+
+primary_for_hierarchy:
+  type: Star
+  name: Primary (Sol-like)
+  mass: 1.0
+  diameter: 1392700
+  au: 0
+  star_system: hierarchy_system
+  data:
+    stellar_class: G
+    stellar_type: V
+    stellar_subtype: 2
+    is_protostar: false
+    temperature: 5800
+    age: 4.5
+    colour: Yellow
+    jump_shadow: 139270000
+
+secondary_star:
+  type: Star
+  name: Secondary (orbits primary at 10 AU)
+  mass: 0.2
+  diameter: 278540
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 5
+    is_protostar: false
+    temperature: 3200
+    age: 5.0
+    colour: Red
+    jump_shadow: 27854000
+
+tertiary_star:
+  type: Star
+  name: Tertiary (orbits secondary at 0.5 AU)
+  mass: 0.1
+  diameter: 139270
+  au: 0.5
+  orbiting: secondary_star
+  star_system: hierarchy_system
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 8
+    is_protostar: false
+    temperature: 2800
+    age: 5.0
+    colour: Red
+    jump_shadow: 13927000
+
+companion_no_system:
+  type: Star
+  name: Companion (no direct star_system)
+  mass: 0.2
+  diameter: 278540
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 5
+    is_protostar: false
+    temperature: 3200
+    age: 5.0
+    colour: Red
+    jump_shadow: 27854000
 
 # Stellar objects for jump shadow tests
 
@@ -33,30 +108,34 @@ rogue:
 planet_near_primary:
   name: Inner Planet
   type: 'TerrestrialPlanet'
-  orbiting_star: primary_for_hierarchy
+  orbiting: primary_for_hierarchy
   au: 1.0
   diameter: 12742
+  data: {}
 
 # Planet orbiting primary star at 2 AU (outside primary's shadow)
 planet_far_from_primary:
   name: Outer Planet
   type: 'GasGiant'
-  orbiting_star: primary_for_hierarchy
+  orbiting: primary_for_hierarchy
   au: 2.0
   diameter: 139820
+  data: {}
 
 # Planet orbiting secondary star at 0.1 AU
 planet_orbiting_secondary:
   name: Planet Around Secondary
   type: 'TerrestrialPlanet'
-  orbiting_star: secondary_star
+  orbiting: secondary_star
   au: 0.1
   diameter: 6371
+  data: {}
 
 # Planet orbiting tertiary star at 0.05 AU
 planet_orbiting_tertiary:
   name: Planet Around Tertiary
   type: 'TerrestrialPlanet'
-  orbiting_star: tertiary_star
+  orbiting: tertiary_star
   au: 0.05
   diameter: 4879
+  data: {}

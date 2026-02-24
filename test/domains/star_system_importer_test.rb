@@ -13,8 +13,8 @@ class StarSystemImporterTest < ActiveSupport::TestCase
   test 'star system belongs to parsec' do
     star_system = nil
 
-    # only stars in the file, so stellar object does not increase, stars increases
-    assert_difference('StellarObject.count', 0) do
+    # Stars are now StellarObjects, so both counts increase
+    assert_difference('StellarObject.count', 2) do
       assert_difference('Star.count', 2) do
         assert_difference('StarSystem.count', 1) do
           data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
@@ -64,8 +64,8 @@ class StarSystemImporterTest < ActiveSupport::TestCase
   test 'companion added' do
     star_system = nil
 
-    # file only has stars, so stellar objects should remain the same but stars should increase by 3
-    assert_difference('StellarObject.count', 0) do
+    # Stars are now StellarObjects, so both counts increase
+    assert_difference('StellarObject.count', 3) do
       assert_difference('Star.count', 3) do
         data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_companion.json')))
         star_system = @importer.import!(@parsec, data)
