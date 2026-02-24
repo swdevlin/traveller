@@ -66,6 +66,7 @@ Rails.application.routes.draw do
       get :populate, as: :populate
       post :generate, as: :generate
       post :load_defaults
+      get :defaults_source
     end
     resources :rogues, only: %i[index new create destroy]
     resources :star_systems, only: %i[new create index destroy]

@@ -1,5 +1,5 @@
 class SectorsController < ApplicationController
-  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate]
+  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source]
 
   # GET /sectors or /sectors.json
   def index
@@ -22,18 +22,30 @@ class SectorsController < ApplicationController
   end
 
   def load_defaults
+    source = params[:source].presence || 'traveller_map'
     count = 0
-    @sector.subsectors.where(build: nil).find_each do |subsector|
-      subsector.load_sector_defaults!
+
+    @sector.subsectors.each do |subsector|
+      case source
+      when 'deepnight'
+        subsector.load_deepnight_defaults!
+      else
+        subsector.load_travellermap_defaults!
+      end
+
       if subsector.build.present? && subsector.save
         count += 1
       end
     end
 
+    label = source == 'deepnight' ? 'Deepnight defaults' : 'TravellerMap defaults'
+
     if count > 0
-      redirect_to populate_sector_path(@sector), notice: "Defaults loaded for #{count} #{'subsector'.pluralize(count)}."
+      redirect_to populate_sector_path(@sector),
+                  notice: "#{label} loaded for #{count} #{'subsector'.pluralize(count)}."
     else
-      redirect_to populate_sector_path(@sector), alert: 'No defaults found for this sector.'
+      redirect_to populate_sector_path(@sector),
+                  alert: "No #{label.downcase} found for this sector."
     end
   end
 
@@ -79,6 +91,10 @@ class SectorsController < ApplicationController
         @existing_sectors[[sector.x, sector.y]] = sector
       end
     end
+  end
+
+  def defaults_source
+    @deepnight_defaults_available = DeepnightDefaults.available?(@sector)
   end
 
   # GET /sectors/new

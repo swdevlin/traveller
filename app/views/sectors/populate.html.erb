@@ -81,11 +81,6 @@
 
   <% content_for :page_buttons do %>
     <div class='mt-4 flex flex-wrap gap-2'>
-      <%= button_to 'Load Defaults',
-                    load_defaults_sector_path(@sector),
-                    method: :post,
-                    class: 'btn' %>
-
       <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to replace them?" %>
       <%= form_with(model: @sector, url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
         <%= form.submit 'Generate',
@@ -94,6 +89,11 @@
                         data: { turbo_confirm: confirm_msg },
                         title: all_have_build ? 'Generate all subsectors' : 'All subsectors must have a build configuration' %>
       <% end %>
+
+      <%= link_to 'Generate Build Plans',
+                  defaults_source_sector_path(@sector),
+                  class: 'btn',
+                  data: { turbo_frame: 'modal' } %>
 
       <%= link_to 'Cancel', @sector, class: 'btn' %>
     </div>

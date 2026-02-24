@@ -82,7 +82,7 @@ class Subsector < ApplicationRecord
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
   end
 
-  def load_sector_defaults!
+  def load_deepnight_defaults!
     path = Rails.root.join('db', 'data', 'sector_defaults', "#{sector.x}_#{sector.y}.yaml")
     return unless File.exist?(path)
 
@@ -101,7 +101,67 @@ class Subsector < ApplicationRecord
     self.build = YAML.dump(config)
   end
 
+  def load_travellermap_defaults!
+    letter = (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
+    traveller_map = TravellerMap.new
+    systems = traveller_map.fetch_subsector_systems(sector.x, sector.y, letter)
+    return if systems.empty?
+
+    traveller_map.ensure_allegiances(systems)
+    self.build = traveller_map.systems_to_build_plan(systems)
+  end
+
   private
+
+  def tm_build_system(sys)
+    hex = sys['Hex']
+    return nil if hex.blank?
+
+    hx = ((hex[0, 2].to_i - 1) % 8) + 1
+    hy = ((hex[2, 2].to_i - 1) % 10) + 1
+    entry = { 'x' => hx, 'y' => hy }
+
+    entry['name'] = sys['Name'] if sys['Name'].present?
+
+    pbg = sys['PBG']
+    unless pbg.blank? || pbg == '???'
+      entry['counts'] = {
+        'mainWorld' => { 'uwp' => sys['UWP'], 'orbit' => 'hzco', 'name' => sys['Name'] },
+        'terrestrialPlanets' => pbg[0].to_i,
+        'planetoidBelts' => pbg[1].to_i,
+        'gasGiants' => pbg[2].to_i
+      }
+      stars = tm_parse_stars(sys['Stars'])
+      if stars.any?
+        entry['primary'] = stars[0]
+        case stars.length
+        when 2
+          entry['primary']['near'] = stars[1]
+        when 3
+          entry['primary']['near'] = stars[1]
+          entry['primary']['far'] = stars[2]
+        when 4..
+          entry['primary']['close'] = stars[1]
+          entry['primary']['near'] = stars[2]
+          entry['primary']['far'] = stars[3]
+        end
+      end
+    end
+
+    entry['bases'] = sys['Bases'].chars if sys['Bases'].present?
+    entry['allegiance'] = sys['Allegiance'] if sys['Allegiance'].present?
+
+    entry
+  end
+
+  def tm_parse_stars(stars)
+    return [] if stars.blank?
+
+    stars.split.each_slice(2).filter_map do |type, klass|
+      next unless type && klass
+      { 'type' => type, 'class' => klass }
+    end
+  end
 
   def normalize_config!(node)
     case node

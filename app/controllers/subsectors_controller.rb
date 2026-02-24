@@ -40,7 +40,7 @@ class SubsectorsController < ApplicationController
   end
 
   def load_defaults
-    @subsector.load_sector_defaults!
+    @subsector.load_travellermap_defaults!
     if @subsector.build.present? && @subsector.save
       redirect_to subsector_path(@subsector), notice: 'Defaults loaded.'
     else

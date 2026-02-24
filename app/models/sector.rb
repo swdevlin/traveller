@@ -79,7 +79,7 @@ class Sector < ApplicationRecord
 
   def fetch_subsector_names_from_traveller_map
     traveller_map = TravellerMap.new
-    metadata = traveller_map.fetch("metadata?sx=#{x}&sy=#{y}")
+    metadata = traveller_map.fetch("metadata?sx=#{x}&sy=#{-y}")
     return nil if metadata.nil?
 
     data = JSON.parse(metadata)

@@ -54,90 +54,10 @@ class CreateSubsectorJob < ApplicationJob
 
   def import_from_traveller_map(sector, subsector, letter)
     traveller_map = TravellerMap.new
-
-    # Fetch star systems and convert to build plan
     systems = traveller_map.fetch_subsector_systems(sector.x, sector.y, letter)
-    if systems.present?
-      build_plan = systems_to_build_plan(systems)
-      subsector.update!(build: build_plan)
-    end
-  end
+    return if systems.empty?
 
-  def systems_to_build_plan(systems)
-    {
-      'type' => 'STANDARD',
-      'systems' => systems.map(&method(:build_system_definition))
-    }.to_yaml
-  end
-
-  def parse_stars(stars)
-    return [] if stars.blank?
-
-    tokens = stars.split(/\s+/)
-
-    tokens.each_slice(2).filter_map do |type, klass|
-      next if type.nil? || klass.nil?
-      { 'type' => type, 'class' => klass }
-    end
-  end
-
-  def ensure_allegiance(allegiance)
-    code = allegiance.presence
-    return nil if code.nil?
-
-    Allegiance.find_or_create_by!(code: code) do |a|
-      a.name = code
-    end
-
-    code
-  end
-
-  def build_system_definition(sys)
-    hex = sys['Hex']
-    # Convert sector hex (e.g., "0101") to subsector hex (1-8, 1-10)
-    x = ((hex[0, 2].to_i - 1) % 8) + 1
-    y = ((hex[2, 2].to_i - 1) % 10) + 1
-
-    entry = { 'x' => x, 'y' => y }
-    if sys['Name'].present?
-      entry['name'] = sys['Name']
-    end
-    unless sys['PBG'] == '???'
-      entry['counts'] = {
-        'mainWorld' => {
-          'uwp' => sys['UWP'],
-          'orbit' => 'hzco',
-          'name' => sys['Name']
-        },
-        'terrestrialPlanets' => sys['PBG'][0].to_i,
-        'planetoidBelts' => sys['PBG'][1].to_i,
-        'gasGiants' => sys['PBG'][2].to_i
-      }
-      stars = parse_stars(sys['Stars'])
-
-      entry['primary'] = stars.first
-      case stars.length
-      when 2
-        entry['primary']['near'] = stars[1]
-      when 3
-        entry['primary']['near'] = stars[1]
-        entry['primary']['far'] = stars[2]
-      when 4..9
-        entry['primary']['close'] = stars[1]
-        entry['primary']['near'] = stars[2]
-        entry['primary']['far'] = stars[3]
-      end
-    end
-
-    if sys['Bases'].present?
-      entry['bases'] = sys['Bases'].split(//)
-    end
-
-    if sys['Allegiance'].present?
-      entry['allegiance'] = ensure_allegiance(sys['Allegiance'])
-    end
-
-
-    entry
+    traveller_map.ensure_allegiances(systems)
+    subsector.update!(build: traveller_map.systems_to_build_plan(systems))
   end
 end
