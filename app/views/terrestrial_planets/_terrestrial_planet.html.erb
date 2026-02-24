@@ -98,7 +98,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block',
                label: 'Diameter',
-               value: safe_join([tag.span(HexDigit.hex_digit(terrestrial_planet.size_code), class: 'identifier-sm'), number_with_precision(terrestrial_planet.diameter, precision: 0)]),
+               value: safe_join([tag.span(terrestrial_planet.size_code, class: 'identifier-sm'), number_with_precision(terrestrial_planet.diameter, precision: 0)]),
                value_wrap_class: 'flex flex-wrap items-center gap-2',
                suffix: 'km'
     %>

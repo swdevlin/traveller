@@ -6,9 +6,16 @@ export default class extends Controller {
   static targets = ["size", "diameter", "density", "mass", "gravity"]
 
   sizeChanged() {
-    const size = parseInt(this.sizeTarget.value)
-    if (size >= 1 && size <= 15) {
-      this.diameterTarget.value = size * 1600
+    const sizeCode = this.sizeTarget.value
+    let diameter
+    if (sizeCode === 'S') {
+      diameter = 600
+    } else {
+      const size = parseInt(sizeCode, 16)
+      if (!isNaN(size) && size >= 1) diameter = size * 1600
+    }
+    if (diameter !== undefined) {
+      this.diameterTarget.value = diameter
       this.recalculate()
     }
   }

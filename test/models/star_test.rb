@@ -73,6 +73,21 @@ class StarTest < ActiveSupport::TestCase
     assert_in_delta expected_km, tertiary.distance_from_primary_km, 1.0
   end
 
+  # mapped_bodies tests
+
+  test 'mapped_bodies excludes Planetoids' do
+    star_system = StarSystem.create!(name: 'Test', parsec: parsecs(:one))
+    star = Star.create!(
+      name: 'Primary', star_system: star_system,
+      colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V'
+    )
+    planetoid = Planetoid.create!(orbiting: star, size_code: '5')
+    gas_giant = GasGiant.create!(orbiting: star)
+
+    assert_includes star.mapped_bodies, gas_giant
+    assert_not_includes star.mapped_bodies, planetoid
+  end
+
   # reassign_orbit_sequences_after_destroy tests
 
   test 'deleting a star with direct star_system reassigns orbit sequences' do

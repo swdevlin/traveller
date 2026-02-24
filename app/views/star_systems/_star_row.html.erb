@@ -30,7 +30,7 @@
   </td>
 </tr>
 
-<% star.orbiting_bodies.each do |ob| %>
+<% star.mapped_bodies.each do |ob| %>
   <% if ob.is_a?(Star) %>
     <%= render 'star_row', star: ob, indent: indent + 8 %>
   <% else %>

@@ -38,7 +38,10 @@ module GeneratorMappings
     self.build_log = payload['buildLog']
     self.orbit = payload['orbit']
     self.name = payload['name']
-    self.size_code = payload['size']
+    raw_size = payload['size']
+    unless raw_size.nil?
+      self.size_code = raw_size.to_s.match?(/\A\d+\z/) ? HexDigit.hex_digit(raw_size.to_i) : raw_size.to_s
+    end
     self.au = payload['au']
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']

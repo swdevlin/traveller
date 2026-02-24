@@ -76,7 +76,7 @@
       <%= render 'application/edit_field', form: form, attribute: :size_code, field_label: 'Size', required: true do %>
         <%= form.select :size_code,
                         options_for_select(
-                          StellarObjectsHelper::SIZE_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                          StellarObjectsHelper::SIZE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
                           stellar_object.size_code
                         ),
                         { include_blank: 'Select size' },

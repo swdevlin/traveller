@@ -64,6 +64,10 @@ class Star < StellarObject
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
+  def mapped_bodies
+    orbiting_bodies.reject { |b| b.is_a?(Planetoid) }
+  end
+
   # Returns the primary star (the one not orbiting anything)
   def primary_star
     current = self

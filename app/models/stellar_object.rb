@@ -1,6 +1,7 @@
 require 'set'
 
 class StellarObject < ApplicationRecord
+  SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F].freeze
   STI_TYPES = %w[
     Comet
     GasCloud
@@ -24,20 +25,38 @@ class StellarObject < ApplicationRecord
   normalizes *(attribute_names - %w[data build_log characteristics]), with: -> { it.presence }
   before_validation { self.data ||= {} }
 
+  before_validation :normalize_size_code
+
   belongs_to :parsec, optional: true
   belongs_to :orbiting, class_name: 'Star', foreign_key: :orbiting_id, optional: true, touch: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes
 
+  before_save :inherit_star_system_from_orbiting, unless: -> { is_a?(Star) }
   before_validation :recalculate_orbit_derived_fields, if: :orbit_changed?
   after_save_commit :recalculate_star_system_world_counts_if_needed
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
   validate :parsec_xor_orbiting_required
+  validates :size_code, inclusion: { in: SIZE_CODES }, allow_nil: true
 
   belongs_to :allegiance, optional: true
+
+  def size_description
+    StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]
+  end
+
+  def size_int
+    return nil if size_code == 'S'
+    size_code.to_i(16)
+  end
+
+  def size_numeric
+    return BigDecimal('0.5') if size_code == 'S'
+    BigDecimal(size_int)
+  end
 
   def trade_codes_string
     trade_codes.order(:code).pluck(:code).join(' ')
@@ -157,5 +176,14 @@ class StellarObject < ApplicationRecord
     return if orbiting.destroyed?
     return if orbiting.marked_for_destruction?
     orbiting.star_system&.recalculate_world_counts!
+  end
+
+  def inherit_star_system_from_orbiting
+    self.star_system_id = orbiting&.star_system_id
+  end
+
+  def normalize_size_code
+    return if size_code.blank?
+    self.size_code = size_code.strip.upcase
   end
 end

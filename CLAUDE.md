@@ -77,3 +77,7 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 
 - Uses rubocop-rails-omakase with single quotes enforced
 - String literals use single quotes
+- use British english
+- Common filtered subsets of associations belong on the model as named methods, not inline at call sites in views or domain classes
+- indexing a json field is better than extracting the value into a column
+- 

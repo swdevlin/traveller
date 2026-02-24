@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_24_131951) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -188,7 +188,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
     t.float "orbit_y"
     t.bigint "orbiting_id"
     t.bigint "parsec_id"
-    t.integer "size_code"
+    t.string "size_code"
     t.bigint "star_system_id"
     t.integer "survey_index"
     t.string "type"
@@ -198,6 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_23_203524) do
     t.index ["companion_id"], name: "index_stellar_objects_on_companion_id"
     t.index ["orbiting_id"], name: "index_stellar_objects_on_orbiting_id"
     t.index ["parsec_id"], name: "index_stellar_objects_on_parsec_id"
+    t.index ["star_system_id"], name: "index_stellar_objects_native_sophont", where: "((data ->> 'native_sophont'::text) = 'true'::text)"
     t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
     t.check_constraint "type::text = 'Star'::text OR (parsec_id IS NULL) <> (orbiting_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_present"
   end

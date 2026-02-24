@@ -29,11 +29,13 @@
 
 ### To do?
 
+* custom properties for objects
+  * Deepnight properties
+  * Drinax properties
 * System generation from Deepnight book
   * Barycenter support
 * Support generation by CRB
 * Support generation by The Deep Space Exploration Handbook
-* Integrate into Deepnight campaign 
 * Themes
   * Imperial
   * Deepnight
@@ -41,11 +43,14 @@
   * vargr
   * Zhodani
   * Solomani
-* Routes
+* Player jump tracker
 * Communication routes
 * Name generation
 * Labels
 * Regions
+* Trade generation
+  * publish test module
+  * user can change DMs and prices
 
 #### To do??
 

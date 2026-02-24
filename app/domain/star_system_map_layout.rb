@@ -41,7 +41,7 @@ class StarSystemMapLayout
 
     @nodes << make_star_node(star, star_x, star_y)
 
-    bodies = star.orbiting_bodies
+    bodies = star.mapped_bodies
     current_x = star_x + STAR_TO_FIRST_BODY_GAP
     track_end_x = star_x
     prev_x = star_x
@@ -65,7 +65,7 @@ class StarSystemMapLayout
   end
 
   def layout_vertical_branch(star, x, parent_y)
-    bodies = star.orbiting_bodies
+    bodies = star.mapped_bodies
     return if bodies.empty?
 
     current_y = parent_y + VERTICAL_STEP
