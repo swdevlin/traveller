@@ -15,13 +15,15 @@ class StarSystemMapLayout
 
   Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, keyword_init: true)
   Edge = Struct.new(:x1, :y1, :x2, :y2, :kind, :au_label, keyword_init: true)
+  JumpShadow = Struct.new(:x, :y, :x1, :x2, :vertical, :y1_branch, :y2_branch, :colour, :has_marker, keyword_init: true)
 
-  attr_reader :nodes, :edges, :svg_width, :svg_height
+  attr_reader :nodes, :edges, :jump_shadows, :svg_width, :svg_height
 
   def initialize(star_system)
     @star_system = star_system
     @nodes = []
     @edges = []
+    @jump_shadows = []
     @max_x = 0
     @max_y = 0
     compute_layout
@@ -42,8 +44,13 @@ class StarSystemMapLayout
     @nodes << make_star_node(star, star_x, star_y)
 
     bodies = star.mapped_bodies
-    current_x = star_x + STAR_TO_FIRST_BODY_GAP
     track_end_x = star_x
+
+    # Compute primary jump shadow before the main loop so companion branches
+    # receive the correct primary_jump_x during their layout.
+    primary_jump_x = compute_jump_x(star, star_x, bodies)
+
+    current_x = star_x + STAR_TO_FIRST_BODY_GAP
     prev_x = star_x
 
     bodies.each do |body|
@@ -52,7 +59,7 @@ class StarSystemMapLayout
 
       if body.is_a?(Star)
         @nodes << make_star_node(body, current_x, star_y)
-        layout_vertical_branch(body, current_x, star_y)
+        layout_vertical_branch(body, current_x, star_y, primary_jump_x: primary_jump_x)
       else
         @nodes << make_body_node(body, current_x, star_y, star, primary: true)
       end
@@ -62,9 +69,17 @@ class StarSystemMapLayout
     end
 
     @max_x = [@max_x, current_x].max
+
+    if primary_jump_x
+      @jump_shadows << JumpShadow.new(
+        x: primary_jump_x, y: star_y,
+        x1: star_x, x2: track_end_x,
+        vertical: false, colour: star.colour, has_marker: true
+      )
+    end
   end
 
-  def layout_vertical_branch(star, x, parent_y)
+  def layout_vertical_branch(star, x, parent_y, primary_jump_x: nil)
     bodies = star.mapped_bodies
     return if bodies.empty?
 
@@ -78,7 +93,7 @@ class StarSystemMapLayout
 
       if body.is_a?(Star)
         @nodes << make_star_node(body, x, current_y)
-        layout_vertical_branch(body, x, current_y)
+        layout_vertical_branch(body, x, current_y, primary_jump_x: primary_jump_x)
       else
         @nodes << make_body_node(body, x, current_y, star, primary: false)
       end
@@ -88,6 +103,26 @@ class StarSystemMapLayout
     end
 
     @max_y = [@max_y, current_y].max
+
+    # Secondary star's own jump shadow on its vertical branch
+    jump_y = compute_jump_y(star, parent_y, bodies)
+    if jump_y
+      @jump_shadows << JumpShadow.new(
+        vertical: true, has_marker: true,
+        x: x, y1_branch: parent_y, y2_branch: jump_y,
+        colour: star.colour
+      )
+    end
+
+    # Entire branch within primary's shadow (no extra marker — the primary's
+    # horizontal marker already shows the boundary)
+    if primary_jump_x && x <= primary_jump_x && branch_end_y > parent_y
+      @jump_shadows << JumpShadow.new(
+        vertical: true, has_marker: false,
+        x: x, y1_branch: parent_y, y2_branch: branch_end_y,
+        colour: star.colour
+      )
+    end
   end
 
   def calculate_dimensions
@@ -196,5 +231,74 @@ class StarSystemMapLayout
     # parts << "- #{format_au(body.au)}" if body.au.present?
     # parts << "from #{parent_star.display_name}" unless is_primary
     # parts.join(' ')
+  end
+
+  # Vertical equivalent of compute_jump_x — returns the boundary pixel y for
+  # a star's jump shadow on its vertical branch, or nil if not applicable.
+  def compute_jump_y(star, parent_y, bodies)
+    return nil unless star.jump_shadow.present?
+    return nil if bodies.empty?
+
+    jump_au = star.jump_shadow.to_f / StellarConstants::AU_TO_KM
+
+    anchors = []
+    bodies.each_with_index do |body, i|
+      next unless body.au.present?
+
+      anchors << [body.au.to_f, (parent_y + VERTICAL_STEP + i * VERTICAL_STEP).to_f]
+    end
+    return nil if anchors.empty?
+
+    anchors.unshift([0.0, parent_y.to_f])
+
+    inside_y  = anchors.select { |(au, _)| au <= jump_au }.last&.last
+    outside_y = anchors.select { |(au, _)| au > jump_au  }.first&.last
+
+    if inside_y && outside_y
+      (inside_y + outside_y) / 2.0
+    elsif inside_y
+      inside_y + VERTICAL_STEP / 2.0
+    else
+      (parent_y + anchors[1][1]) / 2.0
+    end
+  end
+
+  # Returns the jump shadow boundary pixel x for the given star, or nil if
+  # the star has no jump_shadow data or no bodies to anchor the scale.
+  #
+  # The boundary is placed at the midpoint between the last body inside the
+  # shadow and the first body outside it (subway-style, not to scale).
+  def compute_jump_x(star, star_x, bodies)
+    return nil unless star.jump_shadow.present?
+    return nil if bodies.empty?
+
+    jump_au = star.jump_shadow.to_f / StellarConstants::AU_TO_KM
+
+    # Build (au, pixel_x) pairs for bodies that have AU values.
+    anchors = []
+    bodies.each_with_index do |body, i|
+      next unless body.au.present?
+
+      anchors << [body.au.to_f, (star_x + STAR_TO_FIRST_BODY_GAP + i * ORBIT_STEP).to_f]
+    end
+    return nil if anchors.empty?
+
+    # Prepend the star itself as the leftmost anchor.
+    anchors.unshift([0.0, star_x.to_f])
+
+    # Find the midpoint between the last anchor inside the shadow and the
+    # first anchor outside it.
+    inside_x  = anchors.select { |(au, _)| au <= jump_au }.last&.last
+    outside_x = anchors.select { |(au, _)| au > jump_au  }.first&.last
+
+    if inside_x && outside_x
+      (inside_x + outside_x) / 2.0
+    elsif inside_x
+      # All bodies inside: place tick half a step after the last body.
+      inside_x + ORBIT_STEP / 2.0
+    else
+      # All bodies outside: place tick halfway between star and first body.
+      (star_x + anchors[1][1]) / 2.0
+    end
   end
 end

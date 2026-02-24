@@ -1,4 +1,14 @@
 <defs>
+  <filter id="jump-glow" x="-20%" y="-100%" width="140%" height="300%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur" />
+    <feMerge>
+      <feMergeNode in="blur" />
+      <feMergeNode in="SourceGraphic" />
+    </feMerge>
+  </filter>
+  <symbol id="jump-shadow-marker" viewBox="0 0 640 640">
+    <path d="M416 104L184 320L416 536L416 104z"/>
+  </symbol>
   <linearGradient id="gg-bands" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0%"   stop-color="#c4b5fd" />
     <stop offset="15%"  stop-color="#a78bfa" />
@@ -40,6 +50,40 @@
     <% end %>
   <% end %>
 </g>
+
+<% if layout.jump_shadows.any? %>
+  <g class="jump-shadow-overlays">
+    <% layout.jump_shadows.each do |js| %>
+      <% shadow_colour = star_fill_colour(js.colour) %>
+      <% if js.vertical %>
+        <line x1="<%= js.x %>" y1="<%= js.y1_branch %>"
+              x2="<%= js.x %>" y2="<%= js.y2_branch %>"
+              class="orbit-line--inside"
+              style="stroke: <%= shadow_colour %>"
+              filter="url(#jump-glow)" />
+        <% if js.has_marker %>
+          <use href="#jump-shadow-marker"
+               x="<%= js.x - 10 %>" y="<%= js.y2_branch - 10 %>"
+               width="20" height="20"
+               class="jump-marker"
+               style="fill: <%= shadow_colour %>"
+               transform="rotate(90, <%= js.x %>, <%= js.y2_branch %>)" />
+        <% end %>
+      <% else %>
+        <line x1="<%= js.x1 %>" y1="<%= js.y %>"
+              x2="<%= js.x %>"  y2="<%= js.y %>"
+              class="orbit-line--inside"
+              style="stroke: <%= shadow_colour %>"
+              filter="url(#jump-glow)" />
+        <use href="#jump-shadow-marker"
+             x="<%= js.x - 10 %>" y="<%= js.y - 10 %>"
+             width="20" height="20"
+             class="jump-marker"
+             style="fill: <%= shadow_colour %>" />
+      <% end %>
+    <% end %>
+  </g>
+<% end %>
 
 <g class="subway-nodes">
   <% layout.nodes.each do |node| %>

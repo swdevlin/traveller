@@ -44,6 +44,10 @@ class StarSystem < ApplicationRecord
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
+  scope :with_native_sophont, -> {
+    where(id: StellarObject.where("data->>'native_sophont' = 'true'").select(:star_system_id))
+  }
+
   def has_gas_giant?
     @has_gas_giant ||= gas_giants.exists?
   end

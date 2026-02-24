@@ -523,3 +523,13 @@
 .subway-clickable:hover .subway-star-label {
   fill: #e10600;
 }
+
+.orbit-line--inside {
+  stroke-width: 4;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+
+.jump-marker {
+  opacity: 0.75;
+}
