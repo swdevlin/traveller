@@ -58,7 +58,7 @@ class SearchController < ApplicationController
       LIMIT $2
     SQL
 
-    rows = ActiveRecord::Base.connection.exec_query(sql, 'Search', [ q, LIMIT ])
+    rows = ActiveRecord::Base.connection.exec_query(sql, 'Search', [q, LIMIT])
 
     rows.map do |row|
       {
