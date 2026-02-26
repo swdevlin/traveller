@@ -1,18 +1,21 @@
 require 'set'
 
 class StellarObject < ApplicationRecord
-  SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F].freeze
+  SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F G H J K L M].freeze
+  WORLD_COUNT_TYPES = %w[TerrestrialPlanet PlanetoidBelt GasGiant].freeze
   STI_TYPES = %w[
     Comet
     GasCloud
     GasGiant
     GravityAnomaly
     InterstellarWreck
+    Moon
     PhantomObject
     PlanetoidBelt
     Planetoid
     RadiationCloud
     Relic
+    Ring
     SpaceStation
     Star
     TerrestrialPlanet
@@ -22,20 +25,22 @@ class StellarObject < ApplicationRecord
   include ScrubsMailtoLinks
   include HasOrbit
 
+  attr_accessor :skip_import_callbacks
+
   normalizes *(attribute_names - %w[data build_log characteristics]), with: -> { it.presence }
   before_validation { self.data ||= {} }
 
   before_validation :normalize_size_code
 
   belongs_to :parsec, optional: true
-  belongs_to :orbiting, class_name: 'Star', foreign_key: :orbiting_id, optional: true, touch: true
+  belongs_to :orbiting, class_name: 'StellarObject', foreign_key: :orbiting_id, optional: true, touch: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes
 
   before_save :inherit_star_system_from_orbiting, unless: -> { is_a?(Star) }
-  before_validation :recalculate_orbit_derived_fields, if: :orbit_changed?
-  after_save_commit :recalculate_star_system_world_counts_if_needed
+  before_validation :recalculate_orbit_derived_fields, if: -> { !skip_import_callbacks && orbit_changed? }
+  after_save_commit :recalculate_star_system_world_counts_if_needed, unless: :skip_import_callbacks
   after_destroy_commit :recalculate_star_system_world_counts_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
@@ -43,6 +48,14 @@ class StellarObject < ApplicationRecord
   validates :size_code, inclusion: { in: SIZE_CODES }, allow_nil: true
 
   belongs_to :allegiance, optional: true
+
+  def moons
+    Moon.where(orbiting_id: id)
+  end
+
+  scope :by_size, -> {
+    order(Arel.sql("array_position(ARRAY[#{SIZE_CODES.map { |c| "'#{c}'" }.join(',')}]::text[], size_code)"))
+  }
 
   def size_description
     StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]
@@ -141,8 +154,10 @@ class StellarObject < ApplicationRecord
 
   def recalculate_orbit_derived_fields
     self.au = OrbitToAu.convert(orbit)
-    if orbiting&.hzco.present?
-      self.effective_hzco_deviation = orbit - orbiting.hzco
+    hzco_source = orbiting.is_a?(Star) ? orbiting : orbiting&.orbiting
+    if hzco_source&.hzco.present?
+      reference_orbit = orbiting.is_a?(Star) ? orbit : orbiting.orbit
+      self.effective_hzco_deviation = reference_orbit - hzco_source.hzco
     end
   end
 
@@ -157,10 +172,10 @@ class StellarObject < ApplicationRecord
   end
 
   def recalculate_star_system_world_counts_if_needed
-    return if is_a?(Star)
+    return unless type.in?(WORLD_COUNT_TYPES)
     return unless saved_change_to_orbiting_id? || saved_change_to_type?
 
-    new_star_system = orbiting&.star_system
+    new_star_system = StarSystem.find_by(id: orbiting&.star_system_id)
     new_star_system&.recalculate_world_counts!
 
     return unless saved_change_to_orbiting_id?
@@ -171,11 +186,11 @@ class StellarObject < ApplicationRecord
   end
 
   def recalculate_star_system_world_counts_after_destroy
-    return if is_a?(Star)
+    return unless type.in?(WORLD_COUNT_TYPES)
     return if orbiting.nil?
     return if orbiting.destroyed?
     return if orbiting.marked_for_destruction?
-    orbiting.star_system&.recalculate_world_counts!
+    StarSystem.find_by(id: orbiting.star_system_id)&.recalculate_world_counts!
   end
 
   def inherit_star_system_from_orbiting

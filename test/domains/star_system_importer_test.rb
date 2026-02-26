@@ -76,4 +76,20 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert primary.companion.present?
     assert_equal primary.companion.orbiting, primary
   end
+
+  test 'planetoids are linked to their belt via planetoid_belt_id' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_planetoid.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    belt = PlanetoidBelt.find_by(star_system_id: star_system.id)
+    assert belt.present?, 'Expected a PlanetoidBelt to be imported'
+
+    planetoids = Planetoid.where(star_system_id: star_system.id)
+    assert_equal 2, planetoids.count
+
+    planetoids.each do |planetoid|
+      assert_equal belt.id, planetoid.planetoid_belt_id,
+        "Expected planetoid #{planetoid.orbit_sequence} to reference the belt"
+    end
+  end
 end

@@ -94,4 +94,8 @@
 
   <%= render 'application/observation_block',
              notes: gas_giant.notes %>
+
+  <% if @moons %>
+    <%= render 'moons/moons_table', moons: @moons, pagy: @pagy %>
+  <% end %>
 </div>

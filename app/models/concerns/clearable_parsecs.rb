@@ -9,8 +9,10 @@ module ClearableParsecs
   def clear
     scope = parsec_scope
 
-    StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
-    StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
+    StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).delete_all
+    StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).delete_all
+    # StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
+    # StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
   rescue ActiveRecord::InvalidForeignKey => e
     fk_rows = ActiveRecord::Base.connection.execute('PRAGMA foreign_key_check').to_a
 

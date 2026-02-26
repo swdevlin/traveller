@@ -1,8 +1,6 @@
-class Planetoid < StellarObject
+class Moon < StellarObject
   include GeneratorMappings
   include HasUwpAttributes
-
-  store_accessor :data, :planetoid_belt_id
 
   validates :size_code, inclusion: { in: StellarObject::SIZE_CODES }
 

@@ -1,6 +1,6 @@
 <%
   star = @stellar_object.orbiting
-  star_system = star&.star_system
+  star_system = StarSystem.find_by(id: @stellar_object.star_system_id)
   parsec = @stellar_object.parsec || star_system&.parsec
   subsector = parsec&.subsector
 %>

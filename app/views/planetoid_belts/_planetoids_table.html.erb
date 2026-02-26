@@ -1,0 +1,56 @@
+<turbo-frame id="planetoids-table">
+  <% significant_form = capture do %>
+    <form class="text-sm text-slate-300">
+      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+        <input type="checkbox"
+               name="significant_only"
+               value="1"
+               <%= params[:significant_only].present? ? 'checked' : '' %>
+               onchange="this.form.requestSubmit()">
+        Significant only
+      </label>
+    </form>
+  <% end %>
+
+  <%= render 'application/collapsible_table_card',
+             title: safe_join(['Planetoids ', tag.span(@planetoid_count, class: 'identifier')]),
+             actions: significant_form do %>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Size</th>
+            <th scope="col">Orbit Sequence</th>
+            <th scope="col">Orbit</th>
+            <th scope="col">AU</th>
+            <th scope="col">UWP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% planetoids.each do |planetoid| %>
+            <tr>
+              <td class="whitespace-nowrap">
+                <span class="pill"><%= planetoid.size_code %></span>
+              </td>
+              <td class="whitespace-nowrap">
+                <span class="identifier"><%= planetoid.orbit_sequence %></span>
+              </td>
+              <td class="whitespace-nowrap">
+                <%= number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+              <td class="whitespace-nowrap">
+                <%= number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+              <td class="whitespace-nowrap">
+                <%= link_to planetoid.uwp, stellar_object_path(planetoid), class: 't-link', data: { turbo_frame: '_top' } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="w-full pb-4">
+        <%== pagy.series_nav %>
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

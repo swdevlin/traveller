@@ -1,0 +1,21 @@
+<div data-controller="collapsible" data-collapsible-collapse-class-value="hidden">
+  <div class="table-card">
+    <div class="table-banner">
+      <p><%= title %></p>
+      <div class="actions">
+        <% if local_assigns[:actions] %>
+          <%= actions %>
+        <% end %>
+        <button type="button"
+                class="rounded-lg p-1 -mt-1 text-slate-700 hover:text-deepnight-orange hover:bg-slate-900/40"
+                data-action="collapsible#toggle"
+                aria-label="Collapse/expand">
+          <i class="fa-regular fa-square-chevron-up" data-collapsible-target="icon"></i>
+        </button>
+      </div>
+    </div>
+    <div data-collapsible-target="content">
+      <%= yield %>
+    </div>
+  </div>
+</div>

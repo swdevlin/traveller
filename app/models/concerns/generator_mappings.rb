@@ -27,6 +27,27 @@ module GeneratorMappings
     end
   end
 
+  def assign_moons(moons)
+    return if moons.blank?
+
+    now = Time.current
+    records = Array(moons).map do |moon_data|
+      moon = Moon.new
+      moon.orbiting_id = id
+      moon.star_system_id = star_system_id
+      moon.parsec_id = parsec_id
+      moon.assign_data_from_generator(moon_data)
+      moon.size_code = moon.size_code.strip.upcase if moon.size_code.present?
+      moon.data ||= {}
+      moon.attributes.except('id').merge('created_at' => now, 'updated_at' => now)
+    end
+
+    Moon.insert_all!(records)
+  rescue => e
+    Rails.logger.error("assign_moons failed: #{e.message} | payloads: #{moons.inspect}")
+    raise
+  end
+
   def assign_data_from_generator(payload, merge: true)
     mapped = self.class.mapped_data_from_generator(payload)
 

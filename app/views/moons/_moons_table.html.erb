@@ -1,0 +1,48 @@
+<turbo-frame id="moons-table">
+  <% significant_form = capture do %>
+    <form class="text-sm text-slate-300">
+      <label class="flex items-center gap-1.5 cursor-pointer select-none">
+        <input type="checkbox"
+               name="significant_only"
+               value="1"
+               <%= params[:significant_only].present? ? 'checked' : '' %>
+               onchange="this.form.requestSubmit()">
+        Significant only
+      </label>
+    </form>
+  <% end %>
+
+  <%= render 'application/collapsible_table_card',
+             title: safe_join(['Moons ', tag.span(@moon_count, class: 'identifier')]),
+             actions: significant_form do %>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Size</th>
+            <th scope="col">Orbit (diameters)</th>
+            <th scope="col">UWP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% moons.each do |moon| %>
+            <tr>
+              <td class="whitespace-nowrap">
+                <span class="pill"><%= moon.size_code %></span>
+              </td>
+              <td class="whitespace-nowrap">
+                <%= number_with_precision(moon.orbit, precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+              <td class="whitespace-nowrap">
+                <%= link_to moon.uwp.presence || moon.display_name, stellar_object_path(moon), class: 't-link', data: { turbo_frame: '_top' } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="w-full pb-4">
+        <%== pagy.series_nav %>
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

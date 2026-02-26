@@ -4,9 +4,8 @@ module HasOrbit
   extend ActiveSupport::Concern
 
   included do
-    attr_accessor :skip_orbit_sequence_assignment
     after_save_commit :reassign_orbit_sequences,
-                      if: -> { !skip_orbit_sequence_assignment && saved_change_to_orbit? }
+                      if: -> { !skip_import_callbacks && saved_change_to_orbit? }
     after_destroy_commit :reassign_orbit_sequences_after_destroy
   end
 

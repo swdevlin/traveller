@@ -39,7 +39,7 @@ class StarSystemImporter
 
       primary_data = data['primaryStar']
       primary = Star.new
-      primary.skip_orbit_sequence_assignment = true
+      primary.skip_import_callbacks = true
       primary.star_system = @star_system
       import_star(primary, primary_data)
 
@@ -48,6 +48,7 @@ class StarSystemImporter
                            .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
         entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
       end
+
       @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
       unless @star_system.main_world.nil?
         if @star_system.main_world.name.blank? && @star_system.name.present?
@@ -56,6 +57,7 @@ class StarSystemImporter
         end
       end
       @star_system.save!
+      @star_system.recalculate_world_counts!
     end
     @star_system
   end
@@ -89,12 +91,13 @@ class StarSystemImporter
       )
     end
   end
+
   def import_star(star, data)
     star.assign_data_from_generator(data)
     star.save!
     if data['companion']
       companion = Star.new
-      companion.skip_orbit_sequence_assignment = true
+      companion.skip_import_callbacks = true
       companion.star_system = @star_system
       companion.orbiting = star
       import_star(companion, data['companion'])
@@ -106,7 +109,7 @@ class StarSystemImporter
       if IMPORT_STAR_ORBIT_TYPES.include?(orbit_type)
         unless orbit_type == IMPORT_ORBIT_TYPES[:companion]
           so = Star.new
-          so.skip_orbit_sequence_assignment = true
+          so.skip_import_callbacks = true
           so.orbiting = star
           so.star_system = @star_system
           import_star(so, so_data)
@@ -116,10 +119,11 @@ class StarSystemImporter
           raise ArgumentError, "Unknown orbitType: #{orbit_type.inspect}"
         end
         so = klass.new
-        so.skip_orbit_sequence_assignment = true
+        so.skip_import_callbacks = true
         so.orbiting = star
         so.assign_data_from_generator(so_data)
         so.save!
+        so.assign_moons(so_data['moons'])
         set_stellar_object_trade_codes(so, so_data['tradeCodes'])
         if klass == Planetoid && so_data['belt'].present?
           @deferred_belt_assignments << {

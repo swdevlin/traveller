@@ -10,6 +10,19 @@ class StellarObjectsController < ApplicationController
 
   # GET /stellar_objects/1 or /stellar_objects/1.json
   def show
+    if @stellar_object.is_a?(PlanetoidBelt)
+      scope = @stellar_object.significant_bodies
+                             .order(Arel.sql("array_position(ARRAY[#{StellarObject::SIZE_CODES.map { |c| "'#{c}'" }.join(',')}]::text[], size_code) DESC"))
+                             .order(:orbit)
+      @planetoid_count = scope.count
+      scope = scope.where.not(size_code: %w[0 S]) if params[:significant_only].present?
+      @pagy, @planetoids = pagy(scope, limit: 10, params: request.query_parameters)
+    elsif @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(GasGiant)
+      @moon_count = @stellar_object.moons.count
+      scope = @stellar_object.moons.order(:orbit)
+      scope = scope.where.not(size_code: %w[0 S]) if params[:significant_only].present?
+      @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
+    end
   end
 
   # GET /stellar_objects/new

@@ -63,7 +63,7 @@ class StarSystem < ApplicationRecord
   end
 
   def recalculate_world_counts!
-    counts = stellar_objects.group(:type).count
+    counts = stellar_objects.where(type: StellarObject::WORLD_COUNT_TYPES).group(:type).count
 
     update!(
       terrestrial_count: counts.fetch('TerrestrialPlanet', 0),

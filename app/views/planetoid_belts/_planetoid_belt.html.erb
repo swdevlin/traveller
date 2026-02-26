@@ -120,4 +120,8 @@
 
   <%= render 'application/observation_block',
              notes: planetoid_belt.notes %>
+
+  <% if @planetoid_count&.positive? %>
+    <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
+  <% end %>
 </div>

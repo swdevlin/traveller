@@ -17,8 +17,27 @@
 %>
 
 <div id="<%= dom_id planetoid %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <% if planetoid.starport_code.present? %>
+      <%= render 'application/data_block',
+                 label: 'Starport',
+                 value: tag.span(planetoid.starport_code, class: 'identifier-sm') %>
+    <% end %>
     <%= render 'application/data_block', label: 'UWP', value: planetoid.uwp, value_style: :mono %>
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
+  </div>
+
+  <% belt = planetoid.planetoid_belt_id.present? ? PlanetoidBelt.find_by(id: planetoid.planetoid_belt_id) : nil %>
+  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
+    <% if belt %>
+      <%= render 'application/data_block',
+                 label: 'Belt',
+                 value: link_to(belt.display_name,
+                                stellar_object_path(belt),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
     <% if star %>
       <%= render 'application/data_block',
                  label: 'Orbiting',
@@ -54,20 +73,17 @@
                  suffix: tag.span(parsec.hex_code, class: 'identifier') %>
     <% end %>
 
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
   </div>
 
   <% if star %>
-    <div class="flex items-center gap-2 pt-2">
-      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+    <div class="dg-subsection">
+      <div class="dg-subsection-label">
         Orbital Data
       </div>
-      <div class="h-px flex-1 bg-slate-700/70"></div>
+      <div class="db-subsection-line"></div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Period', value: format_period(planetoid.period) %>
@@ -80,46 +96,158 @@
     <%= render 'stellar_objects/jump_shadow_times', stellar_object: planetoid %>
   <% end %>
 
-  <div class="flex items-center gap-2">
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Physical Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-    <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(planetoid.diameter), suffix: 'km' %>
-    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(planetoid.mass, precision: 2, strip_insignificant_zeros: true), suffix: 'Earth masses' %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <%= render 'application/data_block',
+               label: 'Diameter',
+               value: safe_join([tag.span(planetoid.size_code, class: 'identifier-sm'), number_with_precision(planetoid.diameter, precision: 0)]),
+               value_wrap_class: 'flex flex-wrap items-center gap-2',
+               suffix: 'km'
+    %>
+    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(planetoid.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
     <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(planetoid.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'g' %>
-    <%= render 'application/data_block', label: 'Density', value: number_with_precision(planetoid.density, precision: 2, strip_insignificant_zeros: true) %>
+    <%= render 'application/data_block', label: 'Density', value: number_with_precision(planetoid.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
   </div>
 
-  <div class="flex items-center gap-2">
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Environmental Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-    <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(planetoid.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid.temperature), suffix: '°C' %>
+    <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(planetoid.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
     <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(planetoid.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
     <%= render 'application/data_block', label: 'Albedo', value: number_with_precision(planetoid.albedo, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'Greenhouse', value: number_with_precision(planetoid.greenhouse, precision: 2, strip_insignificant_zeros: true) %>
   </div>
 
-  <div class="flex items-center gap-2">
+  <% atmosphere = planetoid.atmosphere %>
+  <% if atmosphere.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <% code = atmosphere['code'] %>
+      <% taint = atmosphere['taint'] %>
+      <% taint_code = taint&.dig('code') %>
+      <%= render 'application/data_block',
+                 label: 'Atmosphere',
+                 value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), atmosphere_description(code)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% if taint_code.present? %>
+        <% severity = taint['severity'] %>
+        <% persistence = taint['persistence'] %>
+        <%= render 'application/data_block', label: 'Irritant', value: safe_join([tag.span(taint_code, class: 'identifier-sm'), taint_description(taint_code)], ' ') %>
+        <%= render 'application/data_block', label: 'Severity', value: safe_join([tag.span(severity, class: 'identifier-sm'), taint_severity_description(severity)], ' ') %>
+        <%= render 'application/data_block', label: 'Persistence', value: safe_join([tag.span(persistence, class: 'identifier-sm'), taint_persistence_description(persistence)], ' ') %>
+      <% end %>
+      <% if atmosphere['composition'] %>
+        <%= render 'application/data_block', label: 'Composition', value: atmosphere['composition'] %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% hydrographics = planetoid.hydrographics %>
+  <% if hydrographics.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <% code = hydrographics['code'] %>
+      <% distribution = hydrographics['distribution'] %>
+      <%= render 'application/data_block',
+                 label: 'Hydrographics',
+                 value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), hydrographics_description(code)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <%= render 'application/data_block',
+                 label: 'Liquid',
+                 value: hydrographics['liquid'],
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <%= render 'application/data_block',
+                 label: 'Distribution',
+                 value: safe_join([tag.span(HexDigit.hex_digit(distribution), class: 'identifier-sm'), hydrographics_distribution_description(distribution)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    </div>
+  <% end %>
+
+  <div class="dg-subsection">
     <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
       Biological Data
     </div>
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Biomass Rating', value: planetoid.biomass_rating %>
+    <% if planetoid.biodiversity_rating.present? %>
+      <%= render 'application/data_block',
+                 label: 'Biodiversity Rating',
+                 value: safe_join([tag.span(HexDigit.hex_digit(planetoid.biodiversity_rating), class: 'identifier-sm'), biodiversity_description(planetoid.biodiversity_rating)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+
+    <% if planetoid.biocomplexity_rating.present? %>
+      <%= render 'application/data_block',
+                 label: 'Biocomplexity Rating',
+                 value: safe_join([tag.span(planetoid.biocomplexity_rating, class: 'identifier-sm'), biocomplexity_description(planetoid.biocomplexity_rating)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+    <% if planetoid.resource_rating.present? %>
+      <%= render 'application/data_block',
+                 label: 'Resource Rating',
+                 value: safe_join([tag.span(HexDigit.hex_digit(planetoid.resource_rating), class: 'identifier-sm'), resource_rating_description(planetoid.resource_rating)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+  </div>
+
+  <div class="dg-subsection">
+    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
+      Social Data
+    </div>
+    <div class="h-px flex-1 bg-slate-700/70"></div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <% if planetoid.population_code.present? %>
+      <%= render 'application/data_block',
+                 label: 'Population',
+                 value: tag.span(HexDigit.hex_digit(planetoid.population_code), class: 'identifier-sm') %>
+    <% end %>
+    <%= render 'application/data_block', label: 'Native Sophont', value: planetoid.native_sophont ? 'Yes' : 'No' %>
+    <%= render 'application/data_block', label: 'Extinct Sophont', value: planetoid.extinct_sophont ? 'Yes' : 'No' %>
+  </div>
+  <div class="grid grid-cols-1 gap-4">
+    <% gov = planetoid.government_code.present? ? Government.find_by(code: planetoid.government_code) : nil %>
+    <% if gov %>
+      <%= render 'application/data_block',
+                 label: 'Government',
+                 value: safe_join([tag.span(HexDigit.hex_digit(gov.code), class: 'identifier-sm'), gov.government_type], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+  </div>
+  <div class="grid grid-cols-1 gap-4">
+    <% law = planetoid.law_level_code.present? ? LawLevel.find_by(code: planetoid.law_level_code) : nil %>
+    <% if law %>
+      <%= render 'application/data_block',
+                 label: 'Law Level',
+                 value: safe_join([tag.span(HexDigit.hex_digit(law.code), class: 'identifier-sm'), law.weapons], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4">
+    <% tech_level = planetoid.tech_level_code.present? ? planetoid.tech_level_code : nil %>
+    <% if tech_level %>
+      <%= render 'application/data_block',
+                 label: 'Tech Level',
+                 value: tag.span(HexDigit.hex_digit(tech_level), class: 'identifier-sm'),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
   </div>
 
   <%= render 'application/observation_block',
              notes: planetoid.notes %>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-700 pt-6">
+  </div>
 </div>

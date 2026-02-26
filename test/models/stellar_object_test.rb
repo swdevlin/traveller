@@ -70,6 +70,22 @@ class StellarObjectTest < ActiveSupport::TestCase
     assert result >= planet.jump_shadow, 'Result should be at least object shadow'
   end
 
+  # effective_hzco_deviation tests
+
+  test 'moon uses orbit of orbiting body for hzco deviation calculation' do
+    star = stellar_objects(:primary_for_hierarchy)
+    star.data = star.data.merge('hzco' => 3.0)
+
+    gas_giant = GasGiant.new(orbiting: star, orbit: 5.0, data: {})
+
+    moon = Moon.new(orbiting: gas_giant, orbit: 2.0, size_code: '3', data: {})
+    moon.valid?
+
+    # effective_hzco_deviation = gas_giant.orbit (5.0) - star.hzco (3.0) = 2.0
+    # NOT moon.orbit (2.0) - star.hzco (3.0) = -1.0
+    assert_in_delta 2.0, moon.effective_hzco_deviation, 0.001
+  end
+
   test 'effective_jump_shadow_km returns max of all shadows' do
     # Create a scenario where we know which shadow should dominate
     planet = stellar_objects(:planet_orbiting_secondary)
