@@ -1,4 +1,7 @@
-<tr>
+<tr class='cursor-pointer'
+    data-controller='row-link'
+    data-row-link-url-value='<%= stellar_object_path(stellar_object) %>'
+    data-action='click->row-link#navigate'>
   <td class='whitespace-nowrap'>
     <span class='pill'><%= stellar_object.orbit_sequence %></span>
   </td>
@@ -25,14 +28,10 @@
   </td>
 
   <td class='whitespace-nowrap'>
-    <%= link_to stellar_object_path(stellar_object), class: 't-link' do %>
-        <% if stellar_object.is_a?(GasGiant) %>
-      <span class='pill'>
-          <%= stellar_object.code %>
-      </span>
-        <% else %>
-          <%= stellar_object.uwp %>
-        <% end %>
+    <% if stellar_object.is_a?(GasGiant) %>
+      <span class='pill'><%= stellar_object.code %></span>
+    <% else %>
+      <%= stellar_object.uwp %>
     <% end %>
   </td>
 

@@ -26,7 +26,10 @@
         </thead>
         <tbody>
           <% moons.each do |moon| %>
-            <tr>
+            <tr class="cursor-pointer"
+                data-controller="row-link"
+                data-row-link-url-value="<%= stellar_object_path(moon) %>"
+                data-action="click->row-link#navigate">
               <td class="whitespace-nowrap">
                 <span class="pill"><%= moon.size_code %></span>
               </td>
@@ -34,7 +37,7 @@
                 <%= number_with_precision(moon.orbit, precision: 2, strip_insignificant_zeros: true) %>
               </td>
               <td class="whitespace-nowrap">
-                <%= link_to moon.uwp.presence || moon.display_name, stellar_object_path(moon), class: 't-link', data: { turbo_frame: '_top' } %>
+                <%= moon.uwp.presence || moon.display_name %>
               </td>
             </tr>
           <% end %>

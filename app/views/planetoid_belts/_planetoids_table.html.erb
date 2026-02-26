@@ -28,7 +28,10 @@
         </thead>
         <tbody>
           <% planetoids.each do |planetoid| %>
-            <tr>
+            <tr class="cursor-pointer"
+                data-controller="row-link"
+                data-row-link-url-value="<%= stellar_object_path(planetoid) %>"
+                data-action="click->row-link#navigate">
               <td class="whitespace-nowrap">
                 <span class="pill"><%= planetoid.size_code %></span>
               </td>
@@ -42,7 +45,7 @@
                 <%= number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
               </td>
               <td class="whitespace-nowrap">
-                <%= link_to planetoid.uwp, stellar_object_path(planetoid), class: 't-link', data: { turbo_frame: '_top' } %>
+                <%= planetoid.uwp %>
               </td>
             </tr>
           <% end %>

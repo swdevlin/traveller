@@ -32,9 +32,12 @@
 
       <tbody>
       <% star_systems.each do |star_system| %>
-        <tr>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= star_system_path(star_system) %>'
+            data-action='click->row-link#navigate'>
           <td class='whitespace-nowrap'>
-            <%= link_to star_system.parsec.subsector_hex_code, star_system, class: 't-link' %>
+            <%= star_system.parsec.subsector_hex_code %>
           </td>
 
           <td class='whitespace-nowrap'>

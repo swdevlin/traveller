@@ -1,4 +1,7 @@
-<tr>
+<tr class='cursor-pointer'
+    data-controller='row-link'
+    data-row-link-url-value='<%= star_path(star) %>'
+    data-action='click->row-link#navigate'>
   <td class='whitespace-nowrap'>
     <span class='pill'><%= star.orbit_sequence %></span>
   </td>
@@ -20,7 +23,7 @@
   </td>
 
   <td colspan='2'>
-    <%= link_to star.spectral_classification, star_path(star), class: 't-link' %>
+    <%= star.spectral_classification %>
   </td>
 
   <td class='actions-cell'>

@@ -22,13 +22,12 @@
 
       <tbody>
       <% bodies.each do |body| %>
-        <tr>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= body.is_a?(Star) ? star_path(body) : stellar_object_path(body) %>'
+            data-action='click->row-link#navigate'>
           <td class='whitespace-nowrap'>
-            <% if body.is_a?(Star) %>
-              <%= link_to body.display_name, star_path(body), class: 't-link' %>
-            <% else %>
-              <%= link_to body.display_name, stellar_object_path(body), class: 't-link' %>
-            <% end %>
+            <%= body.display_name %>
           </td>
 
           <td class='whitespace-nowrap'>

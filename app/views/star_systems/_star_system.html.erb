@@ -1,87 +1,50 @@
-<div id="<%= dom_id star_system %>" class="w-full sm:w-auto my-5 space-y-6 pb-18">
-  <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <div class="text-xs uppercase tracking-[0.22em] text-slate-400">
-        IISS Class III Survey
-      </div>
-      <div class="mt-1 text-2xl font-header text-deepnight-orange">
-        <%= star_system.name.presence || 'Unlabelled System' %>
-      </div>
-    </div>
+<% allegiance = star_system.allegiance %>
 
-    <div class="flex flex-wrap gap-2">
-    </div>
+<% allegiance_value =
+     if allegiance
+       safe_join([
+                   allegiance.name,
+                   content_tag(:span, allegiance.code, class: "identifier ml-2")
+                 ])
+     else
+       "None"
+     end
+%>
+
+<div id="<%= dom_id star_system %>" class="space-y-6">
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+    <%= render 'application/data_block',
+               label: 'Subsector',
+               value: link_to(star_system.parsec.subsector.name,
+                              subsector_path(star_system.parsec.subsector),
+                              class: 'hover:underline underline-offset-4') %>
+
+    <%= render 'application/data_block',
+               label: 'Sector',
+               value: link_to(
+                 star_system.parsec.sector.name,
+                 sector_path(star_system.parsec.sector),
+                 class: 'hover:underline underline-offset-4'
+               ),
+               value_wrap_class: 'flex flex-wrap items-center gap-2',
+               suffix: tag.span(star_system.parsec.hex_code, class: 'identifier') %>
+
+    <%= render 'application/data_block',
+               label: 'Allegiance',
+               value: allegiance_value %>
   </div>
 
-  <div class='flex flex-col md:flex-row md:items-start gap-6'>
-    <div class='flex-1 min-w-0 space-y-6'>
-      <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <% allegiance = star_system.allegiance %>
-
-        <% allegiance_value =
-             if allegiance
-               safe_join([
-                           allegiance.name,
-                           content_tag(:span, allegiance.code, class: "identifier ml-2")
-                         ])
-             else
-               "None"
-             end
-        %>
-
-        <%= render 'application/data_block',
-                   label: 'Subsector',
-                   value: link_to(star_system.parsec.subsector.name,
-                                  subsector_path(star_system.parsec.subsector),
-                                  class: 'hover:underline underline-offset-4') %>
-
-        <%= render 'application/data_block',
-                   label: 'Sector',
-                   value: link_to(
-                     star_system.parsec.sector.name,
-                     sector_path(star_system.parsec.sector),
-                     class: 'hover:underline underline-offset-4'
-                   ),
-                   value_wrap_class: 'flex flex-wrap items-center gap-2',
-                   suffix: tag.span(star_system.parsec.hex_code, class: 'identifier') %>
-
-        <%= render 'application/data_block',
-                   label: 'Allegiance',
-                   value: allegiance_value %>
-
-      </div>
-
-      <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <%= render 'main_world_uwp', star_system: star_system %>
-
-        <%= render 'trade_codes', star_system: star_system %>
-
-        <%= render 'bases', star_system: star_system %>
-      </div>
-
-      <%= render 'application/observation_block',
-                 notes: star_system.notes %>
-
-      <%= render 'system_map', star_system: star_system %>
-
-      <%= render 'stars_table', stars: star_system.stars %>
-
-      <%= render 'stellar_objects_table', primary: star_system.primary_star %>
-
-      <div class="iiss-form">
-        FORM 0421D
-      </div>
-    </div>
-    <div class='w-full md:w-[300px] shrink-0'>
-      <div class='mt-2'>
-        <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
-          <object type="image/svg+xml"
-                  data="<%= map_subsector_path(star_system.parsec.subsector, highlight: star_system.parsec_id) %>"
-                  class="block h-full w-full">
-            Subsector map
-          </object>
-        </div>
-      </div>
-    </div>
+  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+    <%= render 'main_world_uwp', star_system: star_system %>
+    <%= render 'trade_codes', star_system: star_system %>
+    <%= render 'bases', star_system: star_system %>
   </div>
+
+  <%= render 'application/observation_block', notes: star_system.notes %>
+
+  <%= render 'system_map', star_system: star_system %>
+
+  <%= render 'stars_table', stars: star_system.stars %>
+
+  <%= render 'stellar_objects_table', primary: star_system.primary_star %>
 </div>

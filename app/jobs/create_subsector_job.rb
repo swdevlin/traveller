@@ -42,14 +42,13 @@ class CreateSubsectorJob < ApplicationJob
 
   def create_parsecs(sector, subsector)
     ul = subsector.universal_coordinates.first
-    (0...8).each do |x|
-      (0...10).each do |y|
-        sector.parsecs.create!(
-          x: ul.x + x,
-          y: ul.y - y
-        )
+    now = Time.current
+    records = (0...8).flat_map do |x|
+      (0...10).map do |y|
+        { sector_id: sector.id, x: ul.x + x, y: ul.y - y, created_at: now, updated_at: now }
       end
     end
+    Parsec.insert_all!(records)
   end
 
   def import_from_traveller_map(sector, subsector, letter)

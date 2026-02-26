@@ -1,12 +1,34 @@
-<% content_for :title, "Showing star system" %>
-
-<div class="w-full">
-  <%= render @star_system %>
-  <%= link_to "Edit", edit_star_system_path(@star_system), class: "w-full sm:w-auto btn" %>
-  <%= button_to "Delete",
+<%= content_for :title, @star_system.name.presence || 'Unlabelled System' %>
+<%= content_for :page_kicker, 'IISS Class III Survey' %>
+<%= content_for :page_title, @star_system.name.presence || 'Unlabelled System' %>
+<%= content_for :iiss_form, '0421D' %>
+<%= content_for :page_buttons do %>
+  <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= button_to 'Delete',
                 @star_system,
                 method: :delete,
-                form_class: "sm:inline-block mt-2 sm:mt-0",
-                class: "w-full btn btn-danger",
-                data: { turbo_confirm: "Are you sure?" } %>
-</div>
+                form_class: 'sm:inline-block mt-2 sm:mt-0',
+                class: 'w-full btn btn-danger',
+                data: { turbo_confirm: 'Are you sure?' } %>
+<% end %>
+
+<% parsec = @star_system.parsec %>
+<% subsector = parsec&.subsector %>
+
+<%= content_for :page_side do %>
+  <% if subsector %>
+    <div class='mt-2'>
+      <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
+        <object type="image/svg+xml"
+                data="<%= map_subsector_path(subsector, highlight: parsec.id) %>"
+                class="block h-full w-full">
+          Subsector map
+        </object>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <%= render @star_system %>
+<% end %>
