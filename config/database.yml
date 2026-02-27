@@ -47,8 +47,8 @@ test:
 
 production:
   primary:
-    <<: *pg_default
-    database: mtu_production
+    adapter: postgresql
+    url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *sqlite
     database: storage/cache.sqlite3
