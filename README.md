@@ -2,7 +2,6 @@
 
 ## feedback
 
-* Which are the "required" fields? Get error message after, but should have an indication on the screen
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
@@ -24,8 +23,6 @@
 * Add Button to create all deepnight sectors
     * create with configuration for each sector
     * Option to generate blank?
-* Moons
-* significant bodies for planetoid belts
 
 ### To do?
 
