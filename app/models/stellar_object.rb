@@ -53,9 +53,9 @@ class StellarObject < ApplicationRecord
     Moon.where(orbiting_id: id)
   end
 
-  scope :by_size, -> {
-    order(Arel.sql("array_position(ARRAY[#{SIZE_CODES.map { |c| "'#{c}'" }.join(',')}]::text[], size_code)"))
-  }
+  BY_SIZE_SQL = Arel.sql("array_position(ARRAY['0','S','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','J','K','L','M']::text[], size_code)")
+
+  scope :by_size, -> { order(BY_SIZE_SQL) }
 
   def size_description
     StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]
