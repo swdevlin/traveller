@@ -29,5 +29,4 @@ class Moon < StellarObject
     tech_level_code: 'techLevel',
     starport_code: 'starPort',
     )
-
 end
