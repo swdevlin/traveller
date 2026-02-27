@@ -43,6 +43,11 @@ class Star < StellarObject
            foreign_key: :orbiting_id,
            dependent: :destroy
 
+  has_many :primary_stellar_objects,
+           -> { where.not(type: %w[Star Planetoid]) },
+           class_name: 'StellarObject',
+           foreign_key: :orbiting_id
+
   def display_name
     if name.present?
       "#{name} (#{spectral_classification})"
@@ -60,12 +65,12 @@ class Star < StellarObject
   end
 
   def orbiting_bodies
-    bodies = stellar_objects.to_a + stars.to_a
+    bodies = primary_stellar_objects.to_a + stars.to_a
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
   def mapped_bodies
-    orbiting_bodies.reject { |b| b.is_a?(Planetoid) }
+    orbiting_bodies
   end
 
   # Returns the primary star (the one not orbiting anything)
