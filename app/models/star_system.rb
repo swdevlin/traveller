@@ -84,6 +84,7 @@ class StarSystem < ApplicationRecord
   def main_world_must_be_in_system
     return unless main_world
     return if stellar_objects.exists?(id: main_world_id)
+    return if Moon.exists?(star_system_id: id, id: main_world_id)
 
     errors.add(:main_world, 'must be in system')
   end

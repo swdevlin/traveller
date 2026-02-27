@@ -20,7 +20,7 @@
         <thead>
           <tr>
             <th scope="col">Size</th>
-            <th scope="col">Orbit (diameters)</th>
+            <th scope="col" class="text-right">Orbit (diameters)</th>
             <th scope="col">UWP</th>
           </tr>
         </thead>
@@ -33,10 +33,13 @@
               <td class="whitespace-nowrap">
                 <span class="pill"><%= moon.size_code %></span>
               </td>
-              <td class="whitespace-nowrap">
-                <%= number_with_precision(moon.orbit, precision: 2, strip_insignificant_zeros: true) %>
+              <td class="whitespace-nowrap text-right">
+                <%= number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true) %>
               </td>
               <td class="whitespace-nowrap">
+                <% if local_assigns[:star_system]&.main_world_id == moon.id %>
+                  <i class='fa-regular fa-globe mr-2' title='Main world'></i>
+                <% end %>
                 <%= moon.uwp.presence || moon.display_name %>
               </td>
             </tr>

@@ -49,7 +49,10 @@ class StarSystemImporter
         entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
       end
 
-      @star_system.main_world = @star_system.stellar_objects.find_by(orbit_sequence: data['mainWorldOrbitSequence'])
+      main_world_orbit_sequence = data['mainWorldOrbitSequence']
+      @star_system.main_world =
+        @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
+        Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
       unless @star_system.main_world.nil?
         if @star_system.main_world.name.blank? && @star_system.name.present?
           @star_system.main_world.name = @star_system.name
@@ -133,6 +136,9 @@ class StarSystemImporter
           }
         end
       end
+    rescue => e
+      Rails.logger.error("import_star failed on stellarObject: #{e.message} | star=#{star.orbit_sequence.inspect} | so_data=#{so_data.inspect}")
+      raise
     end
   end
 end

@@ -76,7 +76,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(moon.orbit, precision: 2, strip_insignificant_zeros: true), suffix: 'diameters' %>
+      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true), suffix: 'diameters' %>
       <%= render 'application/data_block', label: 'Period', value: format_period(moon.period) %>
       <%= render 'application/data_block', label: 'Retrograde', value: moon.retrograde ? 'Yes' : 'No' %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(moon.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>

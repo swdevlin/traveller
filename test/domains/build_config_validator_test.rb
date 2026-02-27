@@ -449,6 +449,43 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_includes validator.errors.join, 'must specify either density or all of'
   end
 
+  test 'mainWorld with moon true and gasGiants >= 1 is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            terrestrialPlanets: 2
+            planetoidBelts: 1
+            gasGiants: 1
+            mainWorld:
+              uwp: terrestrial
+              moon: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'mainWorld with moon true and no gasGiants is invalid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            terrestrialPlanets: 2
+            planetoidBelts: 1
+            gasGiants: 0
+            mainWorld:
+              uwp: terrestrial
+              moon: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'gasGiants must be at least 1 when mainWorld moon is true'
+  end
+
   test 'empty counts is invalid' do
     yaml = <<~YAML
       type: standard

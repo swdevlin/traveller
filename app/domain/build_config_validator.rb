@@ -278,6 +278,14 @@ class BuildConfigValidator
     unless has_density || has_explicit
       @errors << "#{path}: must specify either density or all of terrestrialPlanets, planetoidBelts, and gasGiants"
     end
+
+    main_world = counts['mainWorld']
+    if main_world.is_a?(Hash) && main_world['moon'] == true
+      gas_giants = counts['gasGiants']
+      if gas_giants.nil? || gas_giants < 1
+        @errors << "#{path}: gasGiants must be at least 1 when mainWorld moon is true"
+      end
+    end
   end
 
   def validate_systems_exclusivity

@@ -35,6 +35,15 @@
                     data-sample-toggle-name-param='without-bodies'>
               Without bodies
             </button>
+
+            <button type='button'
+                    class='identifier-sm shrink-0 cursor-pointer select-none text-slate-200'
+                    data-sample-toggle-target='tab'
+                    data-name='moon-world'
+                    data-action='sample-toggle#show'
+                    data-sample-toggle-name-param='moon-world'>
+              Moon world
+            </button>
           </div>
         </div>
 
@@ -59,6 +68,23 @@ primary:
     class: V
 counts:
   density: 12
+</code></pre>
+
+          <pre data-sample-toggle-target='panel' data-name='moon-world' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Vume
+counts:
+  mainWorld:
+    uwp: B100477-C
+    orbit: hzco
+    name: Vume
+    moon: true
+  terrestrialPlanets: 1
+  planetoidBelts: 2
+  gasGiants: 3
+primary:
+  type: K7
+  class: II
+bases: []
+allegiance: NaHu
 </code></pre>
 
           <pre data-sample-toggle-target='panel' data-name='with-bodies' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>name: Demnan
@@ -286,8 +312,38 @@ primary:
               <div>
                 <dt class='font-semibold text-slate-200'>mainWorld</dt>
                 <dd class='mt-1 text-slate-300'>
-                  Optional main world definition. See orbital bodies for structure.
+                  Optional main world definition. Supports the following fields:
                 </dd>
+
+                <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
+                  <ul class='text-xs text-slate-300 space-y-1'>
+                    <li>
+                      <span class='font-mono text-slate-200'>uwp</span> <span class='text-slate-500'>(required)</span> –
+                      UWP code or label. See orbital bodies below.
+                    </li>
+                    <li>
+                      <span class='font-mono text-slate-200'>orbit</span> –
+                      optional orbit placement label
+                      (<span class='font-mono text-slate-200'>inner</span>,
+                      <span class='font-mono text-slate-200'>warm</span>,
+                      <span class='font-mono text-slate-200'>hzco</span>,
+                      <span class='font-mono text-slate-200'>cold</span>,
+                      <span class='font-mono text-slate-200'>outer</span>,
+                      <span class='font-mono text-slate-200'>habitable</span>).
+                    </li>
+                    <li>
+                      <span class='font-mono text-slate-200'>name</span> –
+                      optional name for the main world.
+                    </li>
+                    <li>
+                      <span class='font-mono text-slate-200'>moon</span> –
+                      boolean. When <span class='font-mono text-slate-200'>true</span>, the main world is
+                      placed as a moon of a gas giant rather than as a direct orbital body.
+                      Requires <span class='font-mono text-slate-200'>gasGiants</span> to be at least 1.
+                      The generator selects an appropriate gas giant and assigns the main world as its moon.
+                    </li>
+                  </ul>
+                </div>
               </div>
             </dl>
 
@@ -299,6 +355,8 @@ primary:
                 <span class='font-mono text-slate-200'>planetoidBelts</span>, and
                 <span class='font-mono text-slate-200'>gasGiants</span>.
                 The <span class='font-mono text-slate-200'>mainWorld</span> field is optional in both cases.
+                When <span class='font-mono text-slate-200'>mainWorld.moon</span> is <span class='font-mono text-slate-200'>true</span>,
+                <span class='font-mono text-slate-200'>gasGiants</span> must be at least 1.
               </p>
             </div>
           </div>

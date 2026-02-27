@@ -11,8 +11,12 @@
   </td>
 
   <td>
-    <% if @star_system.main_world.present? && stellar_object == @star_system.main_world %>
-      <i class='fa-regular fa-globe mr-2' title='Main world'></i>
+    <% if @star_system.main_world.present? %>
+      <% if stellar_object == @star_system.main_world %>
+        <i class='fa-regular fa-globe mr-2' title='Main world'></i>
+      <% elsif @star_system.main_world.is_a?(Moon) && @star_system.main_world.orbiting_id == stellar_object.id %>
+        <i class='fa-regular fa-globe mr-2' title='Main world (moon)'></i>
+      <% end %>
     <% end %>
     <%= stellar_object.name %>
   </td>

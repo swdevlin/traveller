@@ -32,6 +32,7 @@ CountsSchema = Dry::Schema.Params do
       (int? & gteq?(1)) | (str? & included_in?(ORBIT_TYPES))
     end
     optional(:name).filled(:string)
+    optional(:moon).filled(:bool)
   end
 end
 

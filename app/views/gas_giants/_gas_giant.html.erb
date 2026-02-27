@@ -96,6 +96,6 @@
              notes: gas_giant.notes %>
 
   <% if @moons %>
-    <%= render 'moons/moons_table', moons: @moons, pagy: @pagy %>
+    <%= render 'moons/moons_table', moons: @moons, pagy: @pagy, star_system: star_system %>
   <% end %>
 </div>

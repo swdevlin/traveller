@@ -77,6 +77,16 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal primary.companion.orbiting, primary
   end
 
+  test 'moon is set as main world when mainWorldOrbitSequence matches a moon' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_moon_main_world.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    assert_not_nil star_system.main_world, 'Expected main_world to be set'
+    assert_instance_of Moon, star_system.main_world
+    assert_equal 'A I m1', star_system.main_world.orbit_sequence
+    assert_equal 'B100477-C', star_system.main_world.uwp
+  end
+
   test 'planetoids are linked to their belt via planetoid_belt_id' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_planetoid.json')))
     star_system = @importer.import!(@parsec, data)
