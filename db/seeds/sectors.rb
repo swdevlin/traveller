@@ -2,7 +2,7 @@
 
 sectors = [
   {
-    x: -5, y: -1, name: 'Foreven', abbreviation: 'Fore',
+    x: -5, y: 1, name: 'Foreven', abbreviation: 'Fore',
     subsector_names: [
       'Shivva', 'Lieber', 'Shial', 'Massina',
       'Pieplow', 'Anika', 'Mowbrey', 'Fessor',
