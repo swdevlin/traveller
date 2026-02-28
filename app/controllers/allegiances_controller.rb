@@ -95,6 +95,6 @@ class AllegiancesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def allegiance_params
-      params.expect(allegiance: [:code, :name, :legacy_code])
+      params.expect(allegiance: [:code, :name, :legacy_code, :background_colour, :border_colour])
     end
 end

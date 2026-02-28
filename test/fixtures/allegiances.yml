@@ -4,6 +4,8 @@ one:
   code: 3eIm
   name: 3rd Imperium
   legacy_code: Im
+  background_colour: '#c8d8e8'
+  border_colour: '#4466aa'
 
 two:
   code: ZhCo

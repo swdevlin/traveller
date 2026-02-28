@@ -16,6 +16,20 @@
       <%= form.text_field :legacy_code, class: 'edit-base w-24' %>
     <% end %>
 
+    <div data-controller='colour-pair'>
+      <%= render 'application/edit_field', form: form, attribute: :background_colour do %>
+        <%= form.text_field :background_colour,
+            data: { controller: 'coloris', 'colour-pair-target': 'background' },
+            class: 'edit-base w-32' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :border_colour do %>
+        <%= form.text_field :border_colour,
+            data: { controller: 'coloris', 'colour-pair-target': 'border' },
+            class: 'edit-base w-32' %>
+      <% end %>
+    </div>
+
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', allegiance.persisted? ? allegiance : allegiances_path, class: 'w-full sm:w-auto btn' %>

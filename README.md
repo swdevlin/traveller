@@ -5,6 +5,10 @@
 * YAML error - resets screen to empty. YAML cleared and name reverted
 
 ## To Do
+* site options
+  * m-drive for calculating jump times
+  * au/orbit or both
+  * columns 
 * Quickly toggle known state
 * Quickly set surveyIndex
 * Display error messages from background jobs

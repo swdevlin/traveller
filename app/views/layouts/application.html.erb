@@ -28,6 +28,8 @@
   <script src="https://kit.fontawesome.com/6da76bfdd0.js" crossorigin="anonymous"></script>
   <%# Includes all stylesheet files in app/assets/stylesheets %>
   <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag 'coloris.min', "data-turbo-track": "reload" %>
+  <script src="<%= asset_path('coloris.min.js') %>"></script>
   <%= javascript_importmap_tags %>
 </head>
 

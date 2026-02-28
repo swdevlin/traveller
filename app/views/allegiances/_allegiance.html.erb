@@ -15,4 +15,15 @@
              value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
              value: tag.span(allegiance.legacy_code, class: 'identifier')
   %>
+
+  <% if allegiance.background_colour.present? || allegiance.border_colour.present? %>
+    <%
+      swatch = %(<svg width="28" height="28" viewBox="0 0 20 20"><polygon points="10,2 18,6 18,14 10,18 2,14 2,6" fill="#{allegiance.background_colour.presence || 'none'}" stroke="#{allegiance.border_colour.presence || 'none'}" stroke-width="2"/></svg>).html_safe
+    %>
+    <%= render 'application/data_block',
+               label: 'Colour',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-slate-100',
+               value: swatch
+    %>
+  <% end %>
 </div>

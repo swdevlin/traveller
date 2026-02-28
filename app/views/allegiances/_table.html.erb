@@ -6,6 +6,7 @@
     <tr>
       <th scope='col'>Code</th>
       <th scope='col'>Name</th>
+      <th scope='col'>Colour</th>
       <th scope='col'>Legacy</th>
       <th scope='col' class='text-right'>Actions</th>
     </tr>
@@ -13,14 +14,26 @@
 
     <tbody>
     <% allegiances.each do |allegiance| %>
-      <tr>
+      <tr class='cursor-pointer'
+          data-controller='row-link'
+          data-row-link-url-value='<%= allegiance_path(allegiance) %>'
+          data-action='click->row-link#navigate'>
         <td class='whitespace-nowrap'>
           <span class='pill'><%= allegiance.code %></span>
         </td>
 
         <td>
-          <%= link_to allegiance_path(allegiance), class: 't-link', data: { turbo_frame: '_top' } do %>
-            <%= allegiance.name %>
+          <%= allegiance.name %>
+        </td>
+
+        <td>
+          <% if allegiance.background_colour.present? || allegiance.border_colour.present? %>
+            <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
+              <polygon points="10,2 18,6 18,14 10,18 2,14 2,6"
+                       fill="<%= allegiance.background_colour.presence || 'none' %>"
+                       stroke="<%= allegiance.border_colour.presence || 'none' %>"
+                       stroke-width="2"/>
+            </svg>
           <% end %>
         </td>
 
