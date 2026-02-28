@@ -20,15 +20,7 @@
 
     <% if subsector %>
       <div class='w-full md:w-[300px] shrink-0'>
-        <div class='mt-2'>
-          <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
-            <object type="image/svg+xml"
-                    data="<%= map_subsector_path(subsector, highlight: parsec.id) %>"
-                    class="block h-full w-full">
-              Subsector map
-            </object>
-          </div>
-        </div>
+        <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
       </div>
     <% end %>
   </div>
