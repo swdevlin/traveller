@@ -9,15 +9,11 @@
       <tr>
         <th scope='col'>ID</th>
         <th scope='col'>Class</th>
-        <th scope='col' class='text-right'>Mass</th>
-        <th scope='col' class='text-right'>Temp</th>
         <th scope='col' class='text-right'>Diameter</th>
-        <th scope='col' class='text-right'>Luminosity</th>
         <th scope='col' class='text-right'>Orbit #</th>
         <th scope='col' class='text-right'>AU</th>
         <th scope='col' class='text-right'>Ecc</th>
         <th scope='col' class='text-right'>Period</th>
-        <th scope='col' class='text-right'>MAO</th>
         <th scope='col' class='text-right'>HZCO</th>
         <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
@@ -37,15 +33,11 @@
             <%= star.spectral_classification %>
           </td>
 
-          <td class='text-right'><%= number_with_precision(star.mass, precision: 3, strip_insignificant_zeros: true) %></td>
-          <td class='text-right'><%= number_with_precision(star.temperature, precision: 0) %></td>
           <td class='text-right'><%= number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true) %></td>
-          <td class='text-right'><%= number_with_precision(star.luminosity, precision: 2, strip_insignificant_zeros: true) %></td>
           <td class='text-right'><%= number_with_precision(star.orbit, precision: 2, strip_insignificant_zeros: true) %></td>
           <td class='text-right'><%= number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %></td>
           <td class='text-right'><%= number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %></td>
           <td class='text-right'><%= format_period(star.period) %></td>
-          <td class='text-right'><%= number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %></td>
           <td class='text-right'><%= format_precision(star.hzco) %></td>
 
           <td class='actions-cell'>

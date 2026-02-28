@@ -19,6 +19,10 @@ class StarSystem < ApplicationRecord
 
   validate :main_world_must_be_in_system
 
+  def ordered_stars
+    stars.order(:orbit_sequence)
+  end
+
   def table_description
     stars.map(&:spectral_classification).join(', ')
   end
