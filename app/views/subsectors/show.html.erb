@@ -20,7 +20,9 @@
     </div>
   </div>
 
-  <div class='flex flex-col md:flex-row md:items-start gap-6'>
+  <div class='flex flex-col md:flex-row md:items-start gap-6'
+       data-controller="subsector-refresh"
+       data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
     <div class='flex-1 min-w-0 space-y-6'>
       <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
         <%= render 'application/data_block',
@@ -67,8 +69,7 @@
       <turbo-frame id="<%= dom_id(@subsector, :star_systems) %>"
                    src="<%= star_systems_table_subsector_path(@subsector) %>"
                    target="_top"
-                   data-controller="subsector-refresh"
-                   data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
+                   data-subsector-refresh-target="frame">
         <%= render 'star_systems/table',
                    star_systems: @subsector.star_systems,
                    new_url: new_subsector_star_system_path(@subsector) %>
@@ -108,7 +109,8 @@
         <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
           <object type="image/svg+xml"
                   data="<%= map_subsector_path(@subsector) %>"
-                  class="block h-full w-full">
+                  class="block h-full w-full"
+                  data-subsector-refresh-target="map">
             Subsector map
           </object>
         </div>

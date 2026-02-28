@@ -24,7 +24,8 @@
   </defs>
 
   <style>
-    .hex { fill: #ffffff; stroke: #cccccc; stroke-width: 1; }
+    .hex { fill: #ffffff; }
+    .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
     .hex-highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
     .hex-label { font-family: monospace; font-size: 7px; fill: #666666; }
     .hex-label-empty { font-family: monospace; font-size: 7px; fill: #dddddd; }
@@ -38,7 +39,7 @@
 
   <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
 
-  <%# Layer 1: Regular hex backgrounds %>
+  <%# Layer 1a: Hex fills — all backgrounds drawn first so no fill covers a neighbour's border %>
   <g>
     <% (1..8).each do |col| %>
       <% (1..10).each do |row| %>
@@ -49,8 +50,27 @@
           next if hex_code == highlight_hex
 
           cx, cy = hex_center(col, row)
+          bg = systems_by_hex[hex_code]&.allegiance&.background_colour
         %>
-        <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
+        <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 1b: Hex borders — drawn after all fills so right/bottom edges are never covered %>
+  <g>
+    <% (1..8).each do |col| %>
+      <% (1..10).each do |row| %>
+        <%
+          hx = (sub_x - 1) * 8 + col
+          hy = (sub_y - 1) * 10 + row
+          hex_code = format('%02d%02d', hx, hy)
+          next if hex_code == highlight_hex
+
+          cx, cy = hex_center(col, row)
+          bd = systems_by_hex[hex_code]&.allegiance&.border_colour
+        %>
+        <polygon class="hex-border" points="<%= hex_polygon_points(cx, cy) %>"<% if bd.present? %> style="stroke:<%= bd %>;stroke-width:2"<% end %>/>
       <% end %>
     <% end %>
   </g>
