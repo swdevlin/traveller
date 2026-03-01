@@ -1,29 +1,50 @@
 <% content_for :title, "Subsector #{@subsector.name}" %>
-
 <% sector = @subsector.sector %>
 
-<div class='w-full pb-10 space-y-6'>
-  <div class='mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'>
-    <div>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
-        IISS CLASS I Subsector Survey
-      </div>
+<% content_for :page_kicker, 'IISS Class I Subsector Survey' %>
+<% content_for :page_title do %>
+  <%= @subsector.name %><span class='text-slate-500'>, <%= sector.name %></span>
+<% end %>
 
-      <div class='mt-1 text-2xl font-header text-deepnight-orange'>
-        <%= @subsector.name %>
-        <span class='text-slate-500'>,</span>
-        <%= sector.name %>
-      </div>
-    </div>
+<% content_for :page_buttons do %>
+  <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to 'Edit',
+                edit_subsector_path(@subsector),
+                class: 'w-full sm:w-auto btn btn-primary' %>
 
-    <div class='flex flex-wrap gap-2'>
-    </div>
+    <%= button_to 'Load Defaults',
+                  load_defaults_subsector_path(@subsector),
+                  method: :post,
+                  class: 'w-full sm:w-auto btn',
+                  data: @subsector.build.present? ? { turbo_confirm: 'This will replace the current build configuration. Continue?' } : {} %>
+
+    <%= link_to 'Populate',
+                populate_subsector_path(@subsector),
+                class: 'w-full sm:w-auto btn' %>
+
+    <%= button_to 'Clear',
+                  clear_subsector_path(@subsector),
+                  method: 'post',
+                  class: 'w-full sm:w-auto btn btn-danger',
+                  data: { turbo_confirm: confirm_msg } %>
   </div>
+<% end %>
 
-  <div class='flex flex-col md:flex-row md:items-start gap-6'
-       data-controller="subsector-refresh"
-       data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
-    <div class='flex-1 min-w-0 space-y-6'>
+<% content_for :page_side do %>
+  <%= render 'subsectors/map_embed', subsector: @subsector %>
+  <strong class='block font-medium mt-2 mb-2'>
+    <%= link_to sector.name, sector, class: 'link-traveller-i' %>
+  </strong>
+  <%= render 'sectors/subsector_grid',
+             sector: sector,
+             active_subsector: @subsector %>
+<% end %>
+
+<div data-controller="subsector-refresh"
+     data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
+  <%= render 'application/two_column_page' do %>
+    <div class='space-y-6'>
       <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
         <%= render 'application/data_block',
                    label: 'Sector',
@@ -60,7 +81,6 @@
                        content_tag(:span, 'Undocumented', class: 'text-slate-400')
                      end
                    ) %>
-
       </div>
 
       <%= render 'application/observation_block',
@@ -78,43 +98,6 @@
       <%= render 'rogues/table',
                  rogues: @subsector.rogues,
                  new_url: new_subsector_rogue_path(@subsector) %>
-
-      <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
-
-      <div class='mt-6 flex flex-col sm:flex-row gap-2'>
-        <%= link_to 'Edit',
-                    edit_subsector_path(@subsector),
-                    class: 'w-full sm:w-auto btn btn-primary' %>
-
-        <%= button_to 'Load Defaults',
-                      load_defaults_subsector_path(@subsector),
-                      method: :post,
-                      class: 'w-full sm:w-auto btn',
-                      data: @subsector.build.present? ? { turbo_confirm: 'This will replace the current build configuration. Continue?' } : {} %>
-
-        <%= link_to 'Populate',
-                    populate_subsector_path(@subsector),
-                    class: 'w-full sm:w-auto btn' %>
-
-        <%= button_to 'Clear',
-                      clear_subsector_path(@subsector),
-                      method: 'post',
-                      class: 'w-full sm:w-auto btn btn-danger',
-                      data: { turbo_confirm: confirm_msg } %>
-      </div>
     </div>
-
-    <div class='w-full md:w-[300px] shrink-0'>
-      <div class='mt-2'>
-        <%= render 'subsectors/map_embed', subsector: @subsector %>
-
-        <strong class='block font-medium mt-2 mb-2'>
-          <%= link_to sector.name, sector, class: 'link-traveller-i' %>
-        </strong>
-        <%= render 'sectors/subsector_grid',
-                   sector: sector,
-                   active_subsector: @subsector %>
-      </div>
-    </div>
-  </div>
+  <% end %>
 </div>

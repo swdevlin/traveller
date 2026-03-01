@@ -8,6 +8,8 @@
     systems_by_hex[hc] = sys
   end
 
+  parsec_ids_by_hex = @parsec_ids_by_hex || {}
+
   sub_x = @subsector.x
   sub_y = @subsector.y
   highlight_hex = @highlight_hex
@@ -28,7 +30,7 @@
     .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
     .hex-highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
     .hex-label { font-family: monospace; font-size: 7px; fill: #666666; }
-    .hex-label-empty { font-family: monospace; font-size: 7px; fill: #dddddd; }
+    .hex-label-empty { font-family: monospace; font-size: 7px; fill: #dddddd; pointer-events: none; }
     .starport { font-family: monospace; font-size: 10px; fill: #333333; font-weight: bold; }
     .star-circle { stroke: #333; stroke-width: 0.5; }
     .gas-giant-icon { fill: #222222; }
@@ -51,8 +53,16 @@
 
           cx, cy = hex_center(col, row)
           bg = systems_by_hex[hex_code]&.allegiance&.background_colour
+          parsec_id = parsec_ids_by_hex[hex_code]
+          empty = !systems_by_hex.key?(hex_code)
         %>
-        <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+        <% if empty && parsec_id %>
+          <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
+            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
+          </a>
+        <% else %>
+          <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+        <% end %>
       <% end %>
     <% end %>
   </g>

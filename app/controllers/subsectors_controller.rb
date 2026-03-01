@@ -59,6 +59,13 @@ class SubsectorsController < ApplicationController
       @highlight_hex = highlighted_parsec&.hex_code
     end
 
+    sector_ul = @subsector.sector.upper_left
+    @parsec_ids_by_hex = @subsector.parsecs.pluck(:id, :x, :y).to_h do |pid, px, py|
+      hx = px - sector_ul.x + 1
+      hy = sector_ul.y - py + 1
+      [format('%02d%02d', hx, hy), pid]
+    end
+
     max_updated = @star_systems.maximum(:updated_at)
     cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}"
 

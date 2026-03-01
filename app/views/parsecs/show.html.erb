@@ -1,15 +1,69 @@
-<% content_for :title, "Showing parsec" %>
+<% content_for :title, "Hex #{@parsec.display_name}" %>
+<% sector = @parsec.sector %>
+<% subsector = @parsec&.subsector %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
+<% content_for :page_kicker, 'IISS Hex Survey' %>
+<% content_for :page_title do %>
+  <%= @parsec.display_name %><span class='text-slate-500'>, <%= sector.name %></span>
+<% end %>
+
+<% content_for :page_buttons do %>
+  <% confirm_msg = "Do you wish to delete all star systems and rogue objects in the parsec?" %>
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= button_to 'Clear',
+                  clear_parsec_path(@parsec),
+                  method: 'post',
+                  class: 'w-full sm:w-auto btn btn-danger',
+                  data: { turbo_confirm: confirm_msg } %>
+  </div>
+<% end %>
+
+<% content_for :page_side do %>
+  <% if subsector %>
+    <%= render 'subsectors/map_embed', subsector: subsector, highlight: @parsec.id %>
   <% end %>
+  <strong class='block font-medium mt-2 mb-2'>
+    <%= link_to sector.name, sector, class: 'link-traveller-i' %>
+  </strong>
+  <%= render 'sectors/subsector_grid',
+             sector: sector,
+             active_subsector: subsector %>
+<% end %>
 
-  <h1 class="font-bold text-4xl">Showing parsec</h1>
+<% if subsector %>
+  <div data-controller="subsector-refresh"
+       data-subsector-refresh-subsector-id-value="<%= subsector.id %>">
+<% end %>
+  <%= render 'application/two_column_page' do %>
+    <div class='space-y-6'>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+        <%= render 'application/data_block',
+                   label: 'Subsector',
+                   value: link_to(subsector.name,
+                                  subsector_path(subsector),
+                                  class: 'no-underline hover:underline underline-offset-4') %>
 
-  <%= render @parsec %>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name,
+                                  sector_path(sector),
+                                  class: 'no-underline hover:underline underline-offset-4') %>
+      </div>
 
-  <%= link_to "Edit this parsec", edit_parsec_path(@parsec), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to parsecs", parsecs_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this parsec", @parsec, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-</div>
+      <turbo-frame id="<%= dom_id(@parsec, :star_systems) %>"
+                   src="<%= star_systems_table_parsec_path(@parsec) %>"
+                   target="_top"
+                   <% if subsector %>data-subsector-refresh-target="frame"<% end %>>
+        <%= render 'star_systems/table',
+                   star_systems: @parsec.star_systems,
+                   new_url: new_parsec_star_system_path(@parsec) %>
+      </turbo-frame>
+
+      <%= render 'rogues/table',
+                 rogues: @parsec.rogues,
+                 new_url: new_parsec_rogue_path(@parsec) %>
+    </div>
+  <% end %>
+<% if subsector %>
+  </div>
+<% end %>

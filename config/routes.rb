@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   resources :parsecs, only: %i[index show edit update] do
     resources :rogues, only: %i[new create index destroy]
     resources :star_systems, only: %i[new create index destroy]
+    member do
+      post :clear
+      get :star_systems_table
+    end
   end
 
   resources :star_systems do

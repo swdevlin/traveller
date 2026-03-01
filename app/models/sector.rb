@@ -6,6 +6,7 @@ class Sector < ApplicationRecord
   has_many :parsecs, dependent: :destroy
 
   after_create_commit :create_subsectors_and_parsecs
+  after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
   validate :coordinates_unique_with_link
 
@@ -62,6 +63,16 @@ class Sector < ApplicationRecord
     path = Rails.application.routes.url_helpers.sector_path(existing)
     message = %(<a href="#{path}">#{safe_name}</a> already exists at #{x}/#{y}.)
     errors.add(:base, message)
+  end
+
+  def shift_parsec_coordinates
+    x_old, x_new = saved_changes['x'] || [x, x]
+    y_old, y_new = saved_changes['y'] || [y, y]
+    x_delta = (x_new - x_old) * 32
+    y_delta = (y_new - y_old) * 40
+    return if x_delta.zero? && y_delta.zero?
+
+    parsecs.update_all(['x = x + ?, y = y + ?', x_delta, y_delta])
   end
 
   def create_subsectors_and_parsecs
