@@ -200,11 +200,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <% if terrestrial_planet.population_code.present? %>
-      <%= render 'application/data_block',
-                 label: 'Population',
-                 value: tag.span(HexDigit.hex_digit(terrestrial_planet.population_code), class: 'identifier-sm') %>
-    <% end %>
+    <%= render 'application/population_block', population_code: terrestrial_planet.population_code %>
     <%= render 'application/data_block', label: 'Native Sophont', value: terrestrial_planet.native_sophont ? 'Yes' : 'No' %>
     <%= render 'application/data_block', label: 'Extinct Sophont', value: terrestrial_planet.extinct_sophont ? 'Yes' : 'No' %>
   </div>

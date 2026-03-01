@@ -107,6 +107,28 @@ module StellarObjectsHelper
     BIOCOMPLEXITY_DESCRIPTIONS[rating]
   end
 
+  POPULATION_RANGES = {
+    0  => '0',
+    1  => '1 – 99',
+    2  => '100 – 999',
+    3  => '1,000 – 9,999',
+    4  => '10,000 – 99,999',
+    5  => '100,000 – 999,999',
+    6  => '1,000,000 – 9,999,999',
+    7  => '10,000,000 – 99,999,999',
+    8  => '100,000,000 – 999,999,999',
+    9  => '1,000,000,000 – 9,999,999,999',
+    10 => '10,000,000,000 – 99,999,999,999',
+    11 => '100,000,000,000 – 999,999,999,999',
+    12 => '1,000,000,000,000 – 9,999,999,999,999'
+  }.freeze
+
+  def population_range(code)
+    return nil if code.nil?
+
+    POPULATION_RANGES[code.to_i]
+  end
+
   STARPORT_CODES = {
     'A' => 'Excellent',
     'B' => 'Good',

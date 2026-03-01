@@ -208,11 +208,7 @@
     <div class="h-px flex-1 bg-slate-700/70"></div>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <% if planetoid.population_code.present? %>
-      <%= render 'application/data_block',
-                 label: 'Population',
-                 value: tag.span(HexDigit.hex_digit(planetoid.population_code), class: 'identifier-sm') %>
-    <% end %>
+    <%= render 'application/population_block', population_code: planetoid.population_code %>
     <%= render 'application/data_block', label: 'Native Sophont', value: planetoid.native_sophont ? 'Yes' : 'No' %>
     <%= render 'application/data_block', label: 'Extinct Sophont', value: planetoid.extinct_sophont ? 'Yes' : 'No' %>
   </div>

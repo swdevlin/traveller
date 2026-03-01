@@ -1,0 +1,5 @@
+<% if population_code.present? %>
+  <%= render 'application/data_block',
+             label: 'Population',
+             value: safe_join([tag.span(HexDigit.hex_digit(population_code), class: 'identifier-sm'), population_range(population_code)].compact, ' ') %>
+<% end %>
