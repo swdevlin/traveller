@@ -253,7 +253,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_params
-    params.expect(star_system: [:name, :parsec_id, :notes])
+    params.expect(star_system: [:name, :parsec_id, :notes, :survey_index])
   end
 
   def star_generator_params

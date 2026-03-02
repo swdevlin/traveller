@@ -48,6 +48,18 @@
                    value: link_to(sector.name,
                                   sector_path(sector),
                                   class: 'no-underline hover:underline underline-offset-4') %>
+
+        <%= form_with model: @parsec, url: parsec_path(@parsec), method: :patch do |f| %>
+          <div class='min-w-0'>
+            <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Survey Index</div>
+            <div class='mt-2 text-slate-100'>
+              <%= f.select :survey_index,
+                           (0..12).map { |i| [i, i] },
+                           { selected: @parsec.survey_index },
+                           { onchange: 'this.form.requestSubmit()', class: 'edit-base w-20' } %>
+            </div>
+          </div>
+        <% end %>
       </div>
 
       <turbo-frame id="<%= dom_id(@parsec, :star_systems) %>"

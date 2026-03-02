@@ -48,6 +48,6 @@ class ParsecsController < ApplicationController
     end
 
     def parsec_params
-      params.expect(parsec: [:note])
+      params.expect(parsec: [:note, :survey_index])
     end
 end
