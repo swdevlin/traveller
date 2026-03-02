@@ -113,7 +113,10 @@ class TravellerMap
     entry['name'] = sys['Name'] if sys['Name'].present?
 
     pbg = sys['PBG']
-    unless pbg.blank? || pbg == '???'
+    if pbg.blank? || pbg == '???'
+      entry['surveyIndex'] = 3
+    else
+      entry['surveyIndex'] = 12
       entry['counts'] = {
         'mainWorld' => { 'uwp' => sys['UWP'], 'orbit' => 'hzco', 'name' => sys['Name'] },
         'terrestrialPlanets' => pbg[0].to_i,
