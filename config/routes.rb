@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resource :session
+  resources :registrations
+  resources :passwords, param: :token
   resources :tech_levels
   resources :governments
   resources :law_levels

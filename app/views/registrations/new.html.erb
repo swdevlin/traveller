@@ -1,0 +1,46 @@
+<% content_for :title, 'Register' %>
+<% content_for :page_kicker, 'Crew Enrolment' %>
+<% content_for :page_title, 'Register' %>
+
+<%= render 'application/page' do %>
+  <%= form_with model: @user, url: registrations_path, class: 'space-y-6 max-w-sm' do |form| %>
+    <%= render 'application/form_errors', errors: form.object.errors.where(:base) %>
+    <div>
+      <div class='edit-label'>Email address</div>
+      <%= form.email_field :email_address,
+            required: true,
+            autofocus: true,
+            autocomplete: 'username',
+            placeholder: 'Enter your email address',
+            class: 'edit-base w-full mt-1' %>
+      <%= render 'application/field_error', form: form, attribute: :email_address %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Password</div>
+      <%= form.password_field :password,
+            required: true,
+            autocomplete: 'new-password',
+            placeholder: 'Enter a password',
+            maxlength: 72,
+            class: 'edit-base w-full mt-1' %>
+      <%= render 'application/field_error', form: form, attribute: :password %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Confirm password</div>
+      <%= form.password_field :password_confirmation,
+            required: true,
+            autocomplete: 'new-password',
+            placeholder: 'Confirm your password',
+            maxlength: 72,
+            class: 'edit-base w-full mt-1' %>
+      <%= render 'application/field_error', form: form, attribute: :password_confirmation %>
+    </div>
+
+    <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
+      <%= form.submit 'Enrol', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Sign in instead', new_session_path, class: 't-link text-sm' %>
+    </div>
+  <% end %>
+<% end %>

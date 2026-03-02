@@ -1,47 +1,64 @@
-<% content_for :title, "MTU" %>
+<% content_for :title, 'My Traveller Universe' %>
+<% content_for :page_kicker, 'Operational Summary' %>
+<% content_for :page_title, 'My Traveller Universe' %>
 
-<div class="w-full max-w-6xl mx-auto space-y-4">
+<%= render 'application/page' do %>
+  <div class='space-y-4 max-w-2xl text-slate-300 leading-relaxed'>
+    <p>
+      My Traveller Universe is a campaign management and system generation tool for Traveller Referees.
+      It is designed for long-range exploration campaigns such as
+      <%= link_to 'Deepnight Revelation',
+                  'https://www.mongoosepublishing.com/products/deepnight-revelation-core-set',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  class: 't-link' %>,
+      and for Referees charting an entirely original galaxy.
+    </p>
 
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">
-        My Traveller Universe
-      </h1>
-      <p class="mt-3  text-slate-100">
-        Traveller Referees can use this site to manage sectors and star systems that their Travellers will encounter
-        of the course of a
-        <%= link_to "Deepnight Revelation",
-                    "https://www.mongoosepublishing.com/products/deepnight-revelation-core-set",
-                    target: "_blank",
-                    rel: "noopener noreferrer",
-                    class: "underline hover:text-traveller-red hover:underline hover:underline-offset-2"
-        %> campaign. You can start with a blank star map, adding sectors and star systems as you wish. You can also start
-        with a prepopulated star map of uncharted space with 135 sectors and over 36,000 star systems generated using
-        the rules from
-        <%= link_to "World Builder's Handbook",
-          "https://www.mongoosepublishing.com/products/world-builders-handbook",
-          target: "_blank",
-          rel: "noopener noreferrer",
-          class: "underline hover:text-traveller-red hover:underline hover:underline-offset-2"
-        %>
-        . Along with the World Builder's Handbook, the
-      <%= link_to "Traveller Core Rulebook", "https://www.mongoosepublishing.com/products/traveller-core-rulebook-update-2022", target: "_blank", rel: "noopener noreferrer" %> will be helpful.</p>
-      <p class="mt-3 text-slate-100">You can track the progress of the Revelation through uncharted space and
-        present a digital map to the Travellers.</p>
-      <p class="mt-3 text-slate-100">My Traveller Universe integrates with
-        <%= link_to "Traveller Map",
-                    "https://travellermap.com",
-                    target: "_blank",
-                    "rel": "noopener noreferrer",
-                    class: "no-underline hover:text-traveller-red hover:underline hover:underline-offset-2"
-        %> so you can generate hex maps of the sectors.
-      </p>
-      <p class="mt-3 text-slate-100">This site was created under Mongoose Publishing's
-        <%= link_to "Fair Use Policy",
-                    fairuse_path,
-                    class: "no-underline hover:text-traveller-red hover:underline hover:underline-offset-2"
-        %></p>
-    </div>
+    <p>
+      At its centre is a comprehensive star system generator built on the rules from the
+      <%= link_to 'World Builder\'s Handbook',
+                  'https://www.mongoosepublishing.com/products/world-builders-handbook',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  class: 't-link' %>.
+      Referees may construct their setting one system at a time,
+      shaping each world individually,
+      or define subsector-level build specifications to generate coherent subsectors or entire sectors in a single operation.
+    </p>
 
+    <p>
+      For Deepnight campaigns, subsector build specifications can be imported from
+      <%= link_to 'travellermap.com',
+                  'https://travellermap.com',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  class: 't-link' %>
+      or from predefined systems based on the campaign books.
+      Generated systems can then be supplemented with referee-authored detail and campaign-specific content,
+      forming a structured survey record of the space your Travellers encounter.
+    </p>
+
+    <p>
+      Referees will also find the
+      <%= link_to 'Traveller Core Rulebook',
+                  'https://www.mongoosepublishing.com/products/traveller-core-rulebook-update-2022',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  class: 't-link' %>
+      a handy reference.
+    </p>
+
+    <% unless authenticated? %>
+      <div class='flex items-center gap-4 pt-2'>
+        <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
+        <%= link_to 'Log in', new_session_path, class: 't-link text-sm' %>
+      </div>
+    <% end %>
+
+    <p class='text-sm text-slate-500'>
+      This site operates under Mongoose Publishing's
+      <%= link_to 'Fair Use Policy', fairuse_path, class: 't-link' %>.
+    </p>
   </div>
-</div>
+<% end %>

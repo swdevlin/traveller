@@ -1,0 +1,33 @@
+<% content_for :title, 'Sign In' %>
+<% content_for :page_kicker, 'Crew Access Verification' %>
+<% content_for :page_title, 'Sign In' %>
+
+<%= render 'application/page' do %>
+  <%= form_with url: session_url, class: 'space-y-6 max-w-sm' do |form| %>
+    <div>
+      <div class='edit-label'>Email address</div>
+      <%= form.email_field :email_address,
+            required: true,
+            autofocus: true,
+            autocomplete: 'username',
+            placeholder: 'Enter your email address',
+            value: params[:email_address],
+            class: 'edit-base w-full mt-1' %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Password</div>
+      <%= form.password_field :password,
+            required: true,
+            autocomplete: 'current-password',
+            placeholder: 'Enter your password',
+            maxlength: 72,
+            class: 'edit-base w-full mt-1' %>
+    </div>
+
+    <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
+      <%= form.submit 'Sign In', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Forgot password?', new_password_path, class: 't-link text-sm' %>
+    </div>
+  <% end %>
+<% end %>

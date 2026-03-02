@@ -1,0 +1,31 @@
+<% content_for :title, 'Reset Password' %>
+<% content_for :page_kicker, 'Crew Access Recovery' %>
+<% content_for :page_title, 'Reset Password' %>
+
+<%= render 'application/page' do %>
+  <%= form_with url: password_path(params[:token]), method: :put, class: 'space-y-6 max-w-sm' do |form| %>
+    <div>
+      <div class='edit-label'>New password</div>
+      <%= form.password_field :password,
+            required: true,
+            autocomplete: 'new-password',
+            placeholder: 'Enter new password',
+            maxlength: 72,
+            class: 'edit-base w-full mt-1' %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Confirm new password</div>
+      <%= form.password_field :password_confirmation,
+            required: true,
+            autocomplete: 'new-password',
+            placeholder: 'Repeat new password',
+            maxlength: 72,
+            class: 'edit-base w-full mt-1' %>
+    </div>
+
+    <div class='pt-2'>
+      <%= form.submit 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>
