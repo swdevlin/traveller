@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class AllegiancesControllerTest < ActionDispatch::IntegrationTest
+class AllegiancesControllerTest < AuthenticatedIntegrationTest
   setup do
     @allegiance = allegiances(:one)
   end

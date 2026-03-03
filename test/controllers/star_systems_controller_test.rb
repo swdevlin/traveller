@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class StarSystemsControllerTest < ActionDispatch::IntegrationTest
+class StarSystemsControllerTest < AuthenticatedIntegrationTest
   setup do
     @star_system = star_systems(:in_one)
     @parsec = parsecs(:one)

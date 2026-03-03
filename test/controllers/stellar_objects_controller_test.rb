@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class StellarObjectsControllerTest < ActionDispatch::IntegrationTest
+class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   setup do
     @parsec = parsecs(:one)
     @star_system = star_systems(:in_one)

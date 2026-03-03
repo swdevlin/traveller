@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class GovernmentsControllerTest < ActionDispatch::IntegrationTest
+class GovernmentsControllerTest < AuthenticatedIntegrationTest
   setup do
     @government = governments(:one)
   end

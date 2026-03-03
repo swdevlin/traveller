@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SubsectorsControllerTest < ActionDispatch::IntegrationTest
+class SubsectorsControllerTest < AuthenticatedIntegrationTest
   setup do
     @subsector = subsectors(:subsector_1_1)
     @sector = sectors(:one)

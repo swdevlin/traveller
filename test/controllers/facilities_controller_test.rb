@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class FacilitiesControllerTest < ActionDispatch::IntegrationTest
+class FacilitiesControllerTest < AuthenticatedIntegrationTest
   setup do
     @facility = facilities(:one)
   end

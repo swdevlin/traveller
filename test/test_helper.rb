@@ -4,6 +4,8 @@ require 'rails/test_help'
 require 'webmock/minitest'
 
 require_relative '../db/seed_data/trade_codes'
+require_relative 'test_helpers/session_test_helper'
+require_relative 'test_helpers/authenticated_integration_test'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
