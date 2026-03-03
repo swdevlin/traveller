@@ -108,7 +108,7 @@ class SectorsController < ApplicationController
     max_updated = @star_systems.maximum(:updated_at)
     cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [ @sector.updated_at, max_updated ].compact.max
+    fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated].compact.max
     return if performed?
 
     @systems_by_hex = @star_systems.each_with_object({}) do |sys, h|
@@ -120,16 +120,16 @@ class SectorsController < ApplicationController
     @parsec_ids_by_hex = @sector.parsecs.pluck(:id, :x, :y).to_h do |pid, px, py|
       hx = px - sector_ul.x + 1
       hy = sector_ul.y - py + 1
-      [ format('%04d', hx * 100 + hy), pid ]
+      [format('%04d', hx * 100 + hy), pid]
     end
 
     respond_to do |format|
       format.svg do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [ :svg ], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
       format.html do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [ :svg ], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
     end
