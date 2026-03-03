@@ -6,7 +6,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 ## To Do
 * Log in
   * Multi-tenancy
-  * Start at the sectors view if the user is logged in
   * Links to the Deepnight navigation console for Referee & Travellers
 * Add Button to create all deepnight sectors
   * create with configuration for each sector
