@@ -1,22 +1,13 @@
 <%
-  svg_width, svg_height = hex_grid_svg_dimensions
+  svg_width, svg_height = sector_hex_grid_svg_dimensions
   hex_size = SubsectorsHelper::HEX_SIZE
 
-  systems_by_hex = {}
-  @star_systems.each do |sys|
-    hc = sys.parsec.hex_code
-    systems_by_hex[hc] = sys
-  end
-
+  systems_by_hex    = @systems_by_hex    || {}
   parsec_ids_by_hex = @parsec_ids_by_hex || {}
-
-  sub_x = @subsector.x
-  sub_y = @subsector.y
-  highlight_hex = @highlight_hex
 -%><svg xmlns="http://www.w3.org/2000/svg"
      width="<%= svg_width %>"
      height="<%= svg_height %>"
-     preserveAspectRatio='xMidYMid meet'
+     preserveAspectRatio="xMidYMid meet"
      viewBox="0 0 <%= svg_width %> <%= svg_height %>">
 
   <defs>
@@ -28,7 +19,6 @@
   <style>
     .hex { fill: #ffffff; }
     .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
-    .hex-highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
     .hex-label { font-family: monospace; font-size: 7px; fill: #666666; }
     .hex-label-empty { font-family: monospace; font-size: 7px; fill: #dddddd; pointer-events: none; }
     .starport { font-family: monospace; font-size: 10px; fill: #333333; font-weight: bold; }
@@ -39,24 +29,23 @@
     .system-name { font-family: monospace; font-size: 12px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
+    .subsector-boundary { fill: none; stroke: #888888; stroke-width: 1.5; stroke-dasharray: 5,3; }
+    .subsector-label { font-family: monospace; font-size: 18px; fill: rgba(200,200,200,0.25);
+                       text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
   </style>
 
   <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
 
-  <%# Layer 1a: Hex fills — all backgrounds drawn first so no fill covers a neighbour's border %>
+  <%# Layer 1a: Hex fills %>
   <g>
-    <% (1..8).each do |col| %>
-      <% (1..10).each do |row| %>
+    <% (1..32).each do |col| %>
+      <% (1..40).each do |row| %>
         <%
-          hx = (sub_x - 1) * 8 + col
-          hy = (sub_y - 1) * 10 + row
-          hex_code = format('%02d%02d', hx, hy)
-          next if hex_code == highlight_hex
-
+          hex_key = format('%04d', col * 100 + row)
           cx, cy = hex_center(col, row)
-          bg = systems_by_hex[hex_code]&.allegiance&.background_colour
-          parsec_id = parsec_ids_by_hex[hex_code]
-          empty = !systems_by_hex.key?(hex_code)
+          bg = systems_by_hex[hex_key]&.allegiance&.background_colour
+          parsec_id = parsec_ids_by_hex[hex_key]
+          empty = !systems_by_hex.key?(hex_key)
         %>
         <% if empty && parsec_id %>
           <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
@@ -69,46 +58,29 @@
     <% end %>
   </g>
 
-  <%# Layer 1b: Hex borders — drawn after all fills so right/bottom edges are never covered %>
+  <%# Layer 1b: Hex borders %>
   <g>
-    <% (1..8).each do |col| %>
-      <% (1..10).each do |row| %>
+    <% (1..32).each do |col| %>
+      <% (1..40).each do |row| %>
         <%
-          hx = (sub_x - 1) * 8 + col
-          hy = (sub_y - 1) * 10 + row
-          hex_code = format('%02d%02d', hx, hy)
-          next if hex_code == highlight_hex
-
+          hex_key = format('%04d', col * 100 + row)
           cx, cy = hex_center(col, row)
-          bd = systems_by_hex[hex_code]&.allegiance&.border_colour
+          bd = systems_by_hex[hex_key]&.allegiance&.border_colour
         %>
         <polygon class="hex-border" points="<%= hex_polygon_points(cx, cy) %>"<% if bd.present? %> style="stroke:<%= bd %>;stroke-width:2"<% end %>/>
       <% end %>
     <% end %>
   </g>
 
-  <%# Layer 2: Highlighted hex (rendered on top of other hexes) %>
-  <% if highlight_hex %>
-    <%
-      h_col = highlight_hex[0, 2].to_i - (sub_x - 1) * 8
-      h_row = highlight_hex[2, 2].to_i - (sub_y - 1) * 10
-      h_cx, h_cy = hex_center(h_col, h_row)
-    %>
-    <polygon class="hex-highlight" points="<%= hex_polygon_points(h_cx, h_cy) %>"/>
-  <% end %>
-
-  <%# Layer 3: Star circles (drawn first, under text) %>
+  <%# Layer 2: Star circles %>
   <g>
-    <% (1..8).each do |col| %>
-      <% (1..10).each do |row| %>
+    <% (1..32).each do |col| %>
+      <% (1..40).each do |row| %>
         <%
+          hex_key = format('%04d', col * 100 + row)
           cx, cy = hex_center(col, row)
-          hx = (sub_x - 1) * 8 + col
-          hy = (sub_y - 1) * 10 + row
-          hex_code = format('%02d%02d', hx, hy)
-          star_system = systems_by_hex[hex_code]
+          star_system = systems_by_hex[hex_key]
         %>
-
         <% if star_system %>
           <%
             primary = star_system.primary_star
@@ -117,43 +89,31 @@
             primary_r = hex_size * 0.18
             orbiting_r = hex_size * 0.10
             orbit_distance = hex_size * 0.38
-
-            # Positions for orbiting stars: 3, 6, 9 o'clock
             orbit_positions = [
-              [cx + orbit_distance, star_cy],           # 3 o'clock
-              [cx, star_cy + orbit_distance],           # 6 o'clock
-              [cx - orbit_distance, star_cy]            # 9 o'clock
+              [cx + orbit_distance, star_cy],
+              [cx, star_cy + orbit_distance],
+              [cx - orbit_distance, star_cy]
             ]
           %>
-
-          <%# Draw primary star %>
           <a href="<%= star_system_path(star_system) %>" target="_top" class="clickable">
             <circle class="star-circle" cx="<%= cx.round(2) %>" cy="<%= star_cy.round(2) %>"
                     r="<%= primary_r.round(2) %>" fill="<%= star_fill_colour(primary&.colour || 'Yellow') %>"/>
           </a>
-
-          <%# Draw primary's companion at 7:30 %>
           <% if primary&.companion %>
             <% comp_offset = primary_r * 0.45 %>
             <circle cx="<%= (cx - comp_offset).round(2) %>" cy="<%= (star_cy + comp_offset).round(2) %>"
                     r="<%= (primary_r * 0.4).round(2) %>" fill="<%= star_fill_colour(primary.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
           <% end %>
-
-          <%# Draw orbiting stars at 3, 6, 9 o'clock %>
           <% orbiting_stars.take(3).each_with_index do |orb_star, idx| %>
             <% orb_cx, orb_cy = orbit_positions[idx] %>
             <circle class="star-circle" cx="<%= orb_cx.round(2) %>" cy="<%= orb_cy.round(2) %>"
                     r="<%= orbiting_r.round(2) %>" fill="<%= star_fill_colour(orb_star.colour || 'Yellow') %>"/>
-
-            <%# Draw orbiting star's companion at 7:30 %>
             <% if orb_star.companion %>
               <% orb_comp_offset = orbiting_r * 0.45 %>
               <circle cx="<%= (orb_cx - orb_comp_offset).round(2) %>" cy="<%= (orb_cy + orb_comp_offset).round(2) %>"
                       r="<%= (orbiting_r * 0.4).round(2) %>" fill="<%= star_fill_colour(orb_star.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
             <% end %>
           <% end %>
-
-          <%# Gas giant indicator %>
           <% if star_system.has_gas_giant? %>
             <use href="#gas-giant-icon" x="<%= (cx + hex_size * 0.38).round(2) %>" y="<%= (cy - hex_size * 0.45).round(2) %>" width="12" height="12" class="gas-giant-icon"/>
           <% end %>
@@ -162,44 +122,85 @@
     <% end %>
   </g>
 
-  <%# Layer 4: Text labels (drawn on top of stars) %>
+  <%# Layer 3: Subsector boundary lines (after cols 8,16,24 and rows 10,20,30) %>
   <g>
-    <% (1..8).each do |col| %>
-      <% (1..10).each do |row| %>
-        <%
-          cx, cy = hex_center(col, row)
-          hx = (sub_x - 1) * 8 + col
-          hy = (sub_y - 1) * 10 + row
-          hex_code = format('%02d%02d', hx, hy)
-          star_system = systems_by_hex[hex_code]
-        %>
+    <% [8, 16, 24].each do |boundary_col| %>
+      <%
+        cx_left,  _ = hex_center(boundary_col, 1)
+        cx_right, _ = hex_center(boundary_col + 1, 1)
+        line_x = ((cx_left + cx_right) / 2.0).round(2)
+        _, cy_top    = hex_center(1, 1)
+        _, cy_bottom = hex_center(1, 40)
+        y_top    = (cy_top    - SubsectorsHelper::HEX_HEIGHT * 0.75).round(2)
+        y_bottom = (cy_bottom + SubsectorsHelper::HEX_HEIGHT * 0.75).round(2)
+      %>
+      <line class="subsector-boundary" x1="<%= line_x %>" y1="<%= y_top %>" x2="<%= line_x %>" y2="<%= y_bottom %>"/>
+    <% end %>
+    <% [10, 20, 30].each do |boundary_row| %>
+      <%
+        _, cy_above = hex_center(1, boundary_row)
+        _, cy_below = hex_center(1, boundary_row + 1)
+        line_y = ((cy_above + cy_below) / 2.0).round(2)
+        cx_left,  _ = hex_center(1,  1)
+        cx_right, _ = hex_center(32, 1)
+        x_left  = (cx_left  - SubsectorsHelper::HEX_WIDTH * 0.5).round(2)
+        x_right = (cx_right + SubsectorsHelper::HEX_WIDTH * 0.5).round(2)
+      %>
+      <line class="subsector-boundary" x1="<%= x_left %>" y1="<%= line_y %>" x2="<%= x_right %>" y2="<%= line_y %>"/>
+    <% end %>
+  </g>
 
+  <%# Layer 4: Subsector letter labels (A–P) %>
+  <% ('A'..'P').each_with_index do |letter, idx| %>
+    <%
+      sx = idx % 4 + 1
+      sy = idx / 4 + 1
+      mid_col = (sx - 1) * 8 + 4
+      mid_row = (sy - 1) * 10 + 5
+      cx1, _  = hex_center(mid_col,     mid_row)
+      cx2, _  = hex_center(mid_col + 1, mid_row)
+      label_cx = ((cx1 + cx2) / 2.0).round(2)
+      _, cy1  = hex_center(mid_col, mid_row)
+      _, cy2  = hex_center(mid_col, mid_row + 1)
+      label_cy = ((cy1 + cy2) / 2.0).round(2)
+    %>
+    <text class="subsector-label" x="<%= label_cx %>" y="<%= label_cy %>"><%= letter %></text>
+  <% end %>
+
+  <%# Layer 5: Text labels %>
+  <g>
+    <% (1..32).each do |col| %>
+      <% (1..40).each do |row| %>
+        <%
+          hex_key = format('%04d', col * 100 + row)
+          cx, cy = hex_center(col, row)
+          star_system = systems_by_hex[hex_key]
+          hex_code = format('%02d%02d', col, row)
+        %>
         <text class="<%= star_system ? 'hex-label' : 'hex-label-empty' %>" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.62).round(2) %>" text-anchor="middle">
           <%= hex_code %>
         </text>
-
         <% if star_system %>
           <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
             <%= star_system.main_world_uwp&.first || '?' %>
           </text>
-          <% unless @compact %>
-            <% if (uwp = star_system.main_world_uwp) %>
-              <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
-                <%= uwp %>
-              </text>
-            <% end %>
-            <% if star_system.name.present? %>
-              <%
-                pop_code = uwp&.[](4)
-                name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
-              %>
-              <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
-                <%= name_display %>
-              </text>
-            <% end %>
+          <% if (uwp = star_system.main_world_uwp) %>
+            <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
+              <%= uwp %>
+            </text>
+          <% end %>
+          <% if star_system.name.present? %>
+            <%
+              pop_code = uwp&.[](4)
+              name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+            %>
+            <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+              <%= name_display %>
+            </text>
           <% end %>
         <% end %>
       <% end %>
     <% end %>
   </g>
+
 </svg>

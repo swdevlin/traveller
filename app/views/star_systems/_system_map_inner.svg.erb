@@ -58,7 +58,7 @@
       <% if js.vertical %>
         <line x1="<%= js.x %>" y1="<%= js.y1_branch %>"
               x2="<%= js.x %>" y2="<%= js.y2_branch %>"
-              class="orbit-line--inside"
+              class="subway-track"
               style="stroke: <%= shadow_colour %>"
               filter="url(#jump-glow)" />
         <% if js.has_marker %>
@@ -72,7 +72,7 @@
       <% else %>
         <line x1="<%= js.x1 %>" y1="<%= js.y %>"
               x2="<%= js.x %>"  y2="<%= js.y %>"
-              class="orbit-line--inside"
+              class="subway-track"
               style="stroke: <%= shadow_colour %>"
               filter="url(#jump-glow)" />
         <use href="#jump-shadow-marker"

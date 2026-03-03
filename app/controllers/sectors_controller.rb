@@ -1,5 +1,5 @@
 class SectorsController < ApplicationController
-  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source]
+  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source map ]
 
   # GET /sectors or /sectors.json
   def index
@@ -95,6 +95,44 @@ class SectorsController < ApplicationController
 
   def defaults_source
     @deepnight_defaults_available = DeepnightDefaults.available?(@sector)
+  end
+
+  def map
+    sector_ul = @sector.upper_left
+
+    @star_systems = StarSystem
+      .joins(:parsec)
+      .where(parsecs: { sector_id: @sector.id })
+      .includes(:parsec, :allegiance, stars: [])
+
+    max_updated = @star_systems.maximum(:updated_at)
+    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}"
+
+    fresh_when etag: cache_key, last_modified: [ @sector.updated_at, max_updated ].compact.max
+    return if performed?
+
+    @systems_by_hex = @star_systems.each_with_object({}) do |sys, h|
+      hx = sys.parsec.x - sector_ul.x + 1
+      hy = sector_ul.y - sys.parsec.y + 1
+      h[format('%04d', hx * 100 + hy)] = sys
+    end
+
+    @parsec_ids_by_hex = @sector.parsecs.pluck(:id, :x, :y).to_h do |pid, px, py|
+      hx = px - sector_ul.x + 1
+      hy = sector_ul.y - py + 1
+      [ format('%04d', hx * 100 + hy), pid ]
+    end
+
+    respond_to do |format|
+      format.svg do
+        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [ :svg ], layout: false) }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+      format.html do
+        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [ :svg ], layout: false) }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+    end
   end
 
   # GET /sectors/new
