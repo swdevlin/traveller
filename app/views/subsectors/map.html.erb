@@ -29,14 +29,14 @@
     .hex { fill: #ffffff; }
     .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
     .hex-highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
-    .hex-label { font-family: monospace; font-size: 7px; fill: #666666; }
-    .hex-label-empty { font-family: monospace; font-size: 7px; fill: #dddddd; pointer-events: none; }
-    .starport { font-family: monospace; font-size: 10px; fill: #333333; font-weight: bold; }
+    .hex-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #666666; }
+    .hex-label-empty { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #dddddd; pointer-events: none; }
+    .starport { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_STARPORT %>px; fill: #333333; font-weight: bold; }
     .star-circle { stroke: #333; stroke-width: 0.5; }
     .gas-giant-icon { fill: #222222; }
-    .parsec-label { font-family: monospace; font-size: 9px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
-    .uwp { font-family: monospace; font-size: 9px; fill: #777777; }
-    .system-name { font-family: monospace; font-size: 12px; fill: #333333; font-weight: bold; }
+    .parsec-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .uwp { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
+    .system-name { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
   </style>

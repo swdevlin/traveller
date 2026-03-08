@@ -4,6 +4,13 @@ module SubsectorsHelper
   HEX_HEIGHT = HEX_SIZE * Math.sqrt(3)
   SVG_PADDING = 20
 
+  FONT_HEX_LABEL    = 7
+  FONT_STARPORT     = 10
+  FONT_ALLEGIANCE   = 7
+  FONT_UWP          = 9
+  FONT_SYSTEM_NAME  = 12
+  FONT_PARSEC_LABEL = (FONT_SYSTEM_NAME * 1.5).round
+
   STAR_COLOURS = {
     'Blue' => '#6495ED',
     'Blue White' => '#CAE1FF',

@@ -110,9 +110,10 @@ class SectorsController < ApplicationController
       .includes(:parsec, :allegiance, stars: [])
 
     max_updated = @star_systems.maximum(:updated_at)
-    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}"
+    max_parsec_updated = @sector.parsecs.maximum(:updated_at)
+    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated].compact.max
     return if performed?
 
     @systems_by_hex = @star_systems.each_with_object({}) do |sys, h|

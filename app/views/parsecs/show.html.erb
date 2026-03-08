@@ -10,6 +10,7 @@
 <% content_for :page_buttons do %>
   <% confirm_msg = "Do you wish to delete all star systems and rogue objects in the parsec?" %>
   <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to 'Edit Hex', edit_parsec_path(@parsec), class: 'w-full sm:w-auto btn' %>
     <%= button_to 'Clear',
                   clear_parsec_path(@parsec),
                   method: 'post',
@@ -36,7 +37,7 @@
 <% end %>
   <%= render 'application/two_column_page' do %>
     <div class='space-y-6'>
-      <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
         <%= render 'application/data_block',
                    label: 'Subsector',
                    value: link_to(subsector.name,
@@ -60,8 +61,25 @@
             </div>
           </div>
         <% end %>
-      </div>
 
+      </div>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+        <%= render 'application/data_block',
+                   label: 'Label',
+                   value: @parsec.label.presence || '—' %>
+
+        <%= form_with model: @parsec, url: parsec_path(@parsec), method: :patch do |f| %>
+          <div class='min-w-0'>
+            <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Known to Players</div>
+            <div class='mt-2'>
+              <%= f.check_box :player_visible,
+                              checked: @parsec.player_visible,
+                              onchange: 'this.form.requestSubmit()',
+                              class: 'rounded border-slate-600' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
       <turbo-frame id="<%= dom_id(@parsec, :star_systems) %>"
                    src="<%= star_systems_table_parsec_path(@parsec) %>"
                    target="_top"

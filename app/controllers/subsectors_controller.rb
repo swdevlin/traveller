@@ -69,9 +69,10 @@ class SubsectorsController < ApplicationController
     @compact = params[:compact].present?
 
     max_updated = @star_systems.maximum(:updated_at)
-    cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}"
+    max_parsec_updated = @subsector.parsecs.maximum(:updated_at)
+    cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated].compact.max
     return if performed?
 
     respond_to do |format|
