@@ -31,7 +31,7 @@ class RegionsController < ApplicationController
 
     respond_to do |format|
       if @region.save
-        format.html { redirect_to @region, notice: "Region was successfully created." }
+        format.html { redirect_to @region, notice: 'Region was successfully created.' }
         format.json { render :show, status: :created, location: @region }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -44,7 +44,7 @@ class RegionsController < ApplicationController
   def update
     respond_to do |format|
       if @region.update(region_params.merge(label_position_coords))
-        format.html { redirect_to @region, notice: "Region was successfully updated.", status: :see_other }
+        format.html { redirect_to @region, notice: 'Region was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @region }
       else
         @label_parsec_options = label_parsec_options_for(@region)
@@ -90,7 +90,7 @@ class RegionsController < ApplicationController
     @region.destroy!
 
     respond_to do |format|
-      format.html { redirect_to regions_path, notice: "Region was successfully destroyed.", status: :see_other }
+      format.html { redirect_to regions_path, notice: 'Region was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -103,7 +103,7 @@ class RegionsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def region_params
-      params.expect(region: [ :name, :label, :label_colour, :colour, :border_colour, :notes ])
+      params.expect(region: [:name, :label, :label_colour, :colour, :border_colour, :notes])
     end
 
     def label_position_coords

@@ -73,10 +73,10 @@ class SubsectorsController < ApplicationController
     subsector_parsecs = @subsector.parsecs
     region_parsec_max = RegionParsec.where(parsec_id: subsector_parsecs).maximum(:updated_at)
     region_record_max = Region.joins(region_components: :region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
-    region_max_updated = [ region_parsec_max, region_record_max ].compact.max
+    region_max_updated = [region_parsec_max, region_record_max].compact.max
     cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [ @subsector.updated_at, max_updated, max_parsec_updated, region_max_updated ].compact.max
+    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated].compact.max
     return if performed?
 
     sub = @subsector

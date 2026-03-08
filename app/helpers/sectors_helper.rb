@@ -21,7 +21,7 @@ module SectorsHelper
     end
 
     label_rows = Region
-      .where.not(label: [ nil, '' ])
+      .where.not(label: [nil, ''])
       .where.not(label_x: nil)
       .joins(region_components: :region_parsecs)
       .where(region_parsecs: { parsec_id: parsec_scope })
@@ -36,7 +36,7 @@ module SectorsHelper
       { hx: hx, hy: hy, text: text, colour: label_colour.presence || '#000000' }
     end
 
-    [ fills_by_hex, labels ]
+    [fills_by_hex, labels]
   end
 
   def sector_chart_link(sector)
