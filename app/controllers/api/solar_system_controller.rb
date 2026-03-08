@@ -21,7 +21,7 @@ class Api::SolarSystemController < Api::BaseController
                          .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities, stars: :stellar_objects)
                          .first
     unless @star_system
-      return render json: { error: 'solar system not found' }, status: :not_found
+      render json: { error: 'solar system not found' }, status: :not_found
     end
   end
 end
