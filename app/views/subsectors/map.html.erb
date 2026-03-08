@@ -34,6 +34,7 @@
     .starport { font-family: monospace; font-size: 10px; fill: #333333; font-weight: bold; }
     .star-circle { stroke: #333; stroke-width: 0.5; }
     .gas-giant-icon { fill: #222222; }
+    .parsec-label { font-family: monospace; font-size: 9px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
     .uwp { font-family: monospace; font-size: 9px; fill: #777777; }
     .system-name { font-family: monospace; font-size: 12px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
@@ -54,7 +55,8 @@
 
           cx, cy = hex_center(col, row)
           bg = systems_by_hex[hex_code]&.allegiance&.background_colour
-          parsec_id = parsec_ids_by_hex[hex_code]
+          parsec_data = parsec_ids_by_hex[hex_code]
+          parsec_id = parsec_data&.fetch(:id)
           empty = !systems_by_hex.key?(hex_code)
         %>
         <% if empty && parsec_id %>
@@ -191,6 +193,16 @@
               </text>
             <% end %>
           <% end %>
+        <% end %>
+        <%
+          parsec_data = parsec_ids_by_hex[hex_code]
+          parsec_label  = parsec_data&.fetch(:label)
+          parsec_colour = parsec_data&.fetch(:colour)
+        %>
+        <% if parsec_label.present? %>
+          <text class="parsec-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>"<% if parsec_colour.present? %> style="fill:<%= parsec_colour %>"<% end %>>
+            <%= parsec_label %>
+          </text>
         <% end %>
       <% end %>
     <% end %>

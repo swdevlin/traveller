@@ -60,10 +60,10 @@ class SubsectorsController < ApplicationController
     end
 
     sector_ul = @subsector.sector.upper_left
-    @parsec_ids_by_hex = @subsector.parsecs.pluck(:id, :x, :y).to_h do |pid, px, py|
+    @parsec_ids_by_hex = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, colour|
       hx = px - sector_ul.x + 1
       hy = sector_ul.y - py + 1
-      [format('%02d%02d', hx, hy), pid]
+      [format('%02d%02d', hx, hy), { id: pid, label: lbl, colour: colour }]
     end
 
     @compact = params[:compact].present?

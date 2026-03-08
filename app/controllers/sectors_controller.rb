@@ -4,7 +4,11 @@ class SectorsController < ApplicationController
   # GET /sectors or /sectors.json
   def index
     @q = params[:q].to_s.strip
-    scope = Sector.kept.order(:name)
+    scope = Sector.kept
+                  .select('sectors.*, COUNT(star_systems.id) AS star_system_count')
+                  .left_joins(parsecs: :star_systems)
+                  .group('sectors.id')
+                  .order(:name)
     scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, limit: 10, params: request.query_parameters)
   end
@@ -117,10 +121,10 @@ class SectorsController < ApplicationController
       h[format('%04d', hx * 100 + hy)] = sys
     end
 
-    @parsec_ids_by_hex = @sector.parsecs.pluck(:id, :x, :y).to_h do |pid, px, py|
+    @parsec_ids_by_hex = @sector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, colour|
       hx = px - sector_ul.x + 1
       hy = sector_ul.y - py + 1
-      [format('%04d', hx * 100 + hy), pid]
+      [format('%04d', hx * 100 + hy), { id: pid, label: lbl, colour: colour }]
     end
 
     respond_to do |format|

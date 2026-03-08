@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_02_205133) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_013949) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -89,7 +89,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_02_205133) do
   create_table "parsecs", force: :cascade do |t|
     t.jsonb "build_log"
     t.datetime "created_at", null: false
+    t.string "label"
+    t.string "label_colour"
     t.text "note"
+    t.boolean "player_visible", default: false
     t.bigint "sector_id", null: false
     t.float "star_chance", default: 50.0
     t.integer "survey_index", default: 0
