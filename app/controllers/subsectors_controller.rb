@@ -70,10 +70,22 @@ class SubsectorsController < ApplicationController
 
     max_updated = @star_systems.maximum(:updated_at)
     max_parsec_updated = @subsector.parsecs.maximum(:updated_at)
-    cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}"
+    subsector_parsecs = @subsector.parsecs
+    region_parsec_max = RegionParsec.where(parsec_id: subsector_parsecs).maximum(:updated_at)
+    region_record_max = Region.joins(region_components: :region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
+    region_max_updated = [ region_parsec_max, region_record_max ].compact.max
+    cache_key = "subsector_map/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [ @subsector.updated_at, max_updated, max_parsec_updated, region_max_updated ].compact.max
     return if performed?
+
+    sub = @subsector
+    @region_fills_by_hex, @region_labels = helpers.regions_for_map(
+      subsector_parsecs,
+      sector_ul,
+      visible_hx: ((sub.x - 1) * 8 + 1)..(sub.x * 8),
+      visible_hy: ((sub.y - 1) * 10 + 1)..(sub.y * 10)
+    )
 
     respond_to do |format|
       format.svg do

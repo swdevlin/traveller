@@ -33,6 +33,8 @@
     .subsector-boundary { fill: none; stroke: #888888; stroke-width: 1.5; stroke-dasharray: 5,3; }
     .subsector-label { font-family: monospace; font-size: 18px; fill: rgba(200,200,200,0.25);
                        text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .region-fill { pointer-events: none; }
+    .region-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
   </style>
 
   <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
@@ -60,7 +62,18 @@
     <% end %>
   </g>
 
-  <%# Layer 1b: Hex borders %>
+  <%# Layer 1b: Region fills %>
+  <% if (@region_fills_by_hex ||= {}).any? %>
+    <g opacity="0.35">
+      <% @region_fills_by_hex.each do |hex_key, entries| %>
+        <% col = hex_key[0, 2].to_i; row = hex_key[2, 2].to_i %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon class="region-fill" points="<%= hex_polygon_points(cx, cy) %>" style="fill:<%= entries.first[:colour] %>"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1c: Hex borders %>
   <g>
     <% (1..32).each do |col| %>
       <% (1..40).each do |row| %>
@@ -214,5 +227,13 @@
       <% end %>
     <% end %>
   </g>
+
+  <%# Layer 6: Region labels %>
+  <% (@region_labels ||= []).each do |entry| %>
+    <% cx, cy = hex_center(entry[:hx], entry[:hy]) %>
+    <text class="region-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>" style="fill:<%= entry[:colour] %>">
+      <%= entry[:text] %>
+    </text>
+  <% end %>
 
 </svg>

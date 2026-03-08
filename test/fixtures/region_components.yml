@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  region: one
+  source_sector: one
+  position: 1
+  input_type: MyString
+  external_component_key: MyString
+  data: 
+
+two:
+  region: two
+  source_sector: two
+  position: 1
+  input_type: MyString
+  external_component_key: MyString
+  data: 

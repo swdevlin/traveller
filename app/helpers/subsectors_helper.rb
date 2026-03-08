@@ -9,7 +9,8 @@ module SubsectorsHelper
   FONT_ALLEGIANCE   = 7
   FONT_UWP          = 9
   FONT_SYSTEM_NAME  = 12
-  FONT_PARSEC_LABEL = (FONT_SYSTEM_NAME * 1.5).round
+  FONT_PARSEC_LABEL  = (FONT_SYSTEM_NAME * 1.5).round
+  FONT_REGION_LABEL  = FONT_PARSEC_LABEL
 
   STAR_COLOURS = {
     'Blue' => '#6495ED',

@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  label: MyString
+  source: MyString
+  external_source: MyString
+  external_key: MyString
+  data: 
+  allegiance: one
+  customized: false
+  notes: MyText
+
+two:
+  name: MyString
+  label: MyString
+  source: MyString
+  external_source: MyString
+  external_key: MyString
+  data: 
+  allegiance: two
+  customized: false
+  notes: MyText

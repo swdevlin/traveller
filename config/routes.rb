@@ -1,6 +1,14 @@
 Rails.application.routes.draw do
+  resources :regions do
+    member do
+      get  :import_hexes
+      post :upload_hexes
+      get  :hex_template
+    end
+  end
   namespace :api do
     resources :sectors, only: :index
+    resources :regions, only: :index
     get 'solarsystems', to: 'solar_systems#index'
     get 'solarsystem',  to: 'solar_system#show'
     resources :stars, only: %i[index update]

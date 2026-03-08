@@ -40,6 +40,8 @@
     .system-name { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
+    .region-fill { pointer-events: none; }
+    .region-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
   </style>
 
   <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
@@ -71,7 +73,19 @@
     <% end %>
   </g>
 
-  <%# Layer 1b: Hex borders — drawn after all fills so right/bottom edges are never covered %>
+  <%# Layer 1b: Region fills %>
+  <% if (@region_fills_by_hex ||= {}).any? %>
+    <g opacity="0.35">
+      <% @region_fills_by_hex.each do |hex_key, entries| %>
+        <% hx = hex_key[0, 2].to_i; hy = hex_key[2, 2].to_i %>
+        <% col = hx - (sub_x - 1) * 8; row = hy - (sub_y - 1) * 10 %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon class="region-fill" points="<%= hex_polygon_points(cx, cy) %>" style="fill:<%= entries.first[:colour] %>"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1c: Hex borders — drawn after all fills so right/bottom edges are never covered %>
   <g>
     <% (1..8).each do |col| %>
       <% (1..10).each do |row| %>
@@ -214,4 +228,13 @@
       <% end %>
     <% end %>
   </g>
+
+  <%# Layer 5: Region labels %>
+  <% (@region_labels ||= []).each do |entry| %>
+    <% col = entry[:hx] - (sub_x - 1) * 8; row = entry[:hy] - (sub_y - 1) * 10 %>
+    <% cx, cy = hex_center(col, row) %>
+    <text class="region-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>" style="fill:<%= entry[:colour] %>">
+      <%= entry[:text] %>
+    </text>
+  <% end %>
 </svg>

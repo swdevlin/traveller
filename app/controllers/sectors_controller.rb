@@ -111,9 +111,12 @@ class SectorsController < ApplicationController
 
     max_updated = @star_systems.maximum(:updated_at)
     max_parsec_updated = @sector.parsecs.maximum(:updated_at)
-    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}"
+    region_parsec_max = RegionParsec.joins(:parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
+    region_record_max = Region.joins(region_components: { region_parsecs: :parsec }).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
+    region_max_updated = [ region_parsec_max, region_record_max ].compact.max
+    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}"
 
-    fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [ @sector.updated_at, max_updated, max_parsec_updated, region_max_updated ].compact.max
     return if performed?
 
     @systems_by_hex = @star_systems.each_with_object({}) do |sys, h|
@@ -127,6 +130,8 @@ class SectorsController < ApplicationController
       hy = sector_ul.y - py + 1
       [format('%04d', hx * 100 + hy), { id: pid, label: lbl, colour: colour }]
     end
+
+    @region_fills_by_hex, @region_labels = helpers.regions_for_map(@sector.parsecs, sector_ul, visible_hx: 1..32, visible_hy: 1..40)
 
     respond_to do |format|
       format.svg do

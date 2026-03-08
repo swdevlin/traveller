@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_013949) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_175632) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -101,6 +101,62 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_013949) do
     t.integer "y", null: false
     t.index ["sector_id", "x", "y"], name: "index_parsecs_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_parsecs_on_sector_id"
+  end
+
+  create_table "region_components", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "data"
+    t.string "external_component_key"
+    t.string "input_type"
+    t.integer "position", default: 0, null: false
+    t.bigint "region_id", null: false
+    t.bigint "source_sector_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region_id", "source_sector_id", "external_component_key"], name: "index_region_components_on_region_sector_and_external_key", unique: true
+    t.index ["region_id"], name: "index_region_components_on_region_id"
+    t.index ["source_sector_id"], name: "index_region_components_on_source_sector_id"
+  end
+
+  create_table "region_parsecs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.bigint "parsec_id", null: false
+    t.bigint "region_component_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parsec_id"], name: "index_region_parsecs_on_parsec_id"
+    t.index ["region_component_id", "parsec_id", "kind"], name: "idx_on_region_component_id_parsec_id_kind_eed2e06fae", unique: true
+    t.index ["region_component_id"], name: "index_region_parsecs_on_region_component_id"
+  end
+
+  create_table "region_sectors", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "region_id", null: false
+    t.bigint "sector_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["region_id", "sector_id"], name: "index_region_sectors_on_region_id_and_sector_id", unique: true
+    t.index ["region_id"], name: "index_region_sectors_on_region_id"
+    t.index ["sector_id"], name: "index_region_sectors_on_sector_id"
+  end
+
+  create_table "regions", force: :cascade do |t|
+    t.bigint "allegiance_id"
+    t.string "border_colour"
+    t.string "colour"
+    t.datetime "created_at", null: false
+    t.boolean "customized", default: false, null: false
+    t.jsonb "data", default: {}, null: false
+    t.string "external_key"
+    t.string "external_source"
+    t.string "label"
+    t.string "label_colour"
+    t.integer "label_x"
+    t.integer "label_y"
+    t.string "name", null: false
+    t.text "notes"
+    t.string "source", default: "user", null: false
+    t.datetime "updated_at", null: false
+    t.index ["allegiance_id"], name: "index_regions_on_allegiance_id"
+    t.index ["external_source", "external_key"], name: "index_regions_on_external_source_and_external_key", unique: true, where: "((external_source IS NOT NULL) AND (external_key IS NOT NULL))"
   end
 
   create_table "sectors", force: :cascade do |t|
@@ -272,6 +328,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_013949) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "parsecs", "sectors", on_delete: :cascade
+  add_foreign_key "region_components", "regions"
+  add_foreign_key "region_components", "sectors", column: "source_sector_id"
+  add_foreign_key "region_parsecs", "parsecs"
+  add_foreign_key "region_parsecs", "region_components"
+  add_foreign_key "region_sectors", "regions"
+  add_foreign_key "region_sectors", "sectors"
+  add_foreign_key "regions", "allegiances"
   add_foreign_key "sessions", "users"
   add_foreign_key "star_system_facilities", "facilities", on_delete: :cascade
   add_foreign_key "star_system_facilities", "star_systems", on_delete: :cascade

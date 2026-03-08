@@ -1,0 +1,7 @@
+<%= content_for :title, "Editing #{@region.to_s}" %>
+<%= content_for :page_kicker, "Region Data Core" %>
+<%= content_for :page_title, @region.to_s %>
+
+<%= render 'application/page' do %>
+  <%= render "form", region: @region, label_parsec_options: @label_parsec_options %>
+<% end %>
