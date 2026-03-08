@@ -53,9 +53,9 @@ class PlanetoidBelt < StellarObject
   private
 
   def orbit_above_minimum
-    min = orbiting.minimum_orbit
+    min = orbiting.minimum_allowable_orbit
     if min.present? && orbit < min
-      errors.add(:orbit, "must be at least #{min} (star's minimum orbit)")
+      errors.add(:orbit, "must be at least #{min} (star's minimum allowable orbit)")
     end
   end
 

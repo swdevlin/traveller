@@ -75,8 +75,8 @@
                             data: { star_classification_target: 'age' } %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :minimum_orbit, field_label: 'Minimum Orbit', calculated: true do %>
-      <%= form.number_field :minimum_orbit, value: format_precision(star.minimum_orbit, precision: 5),
+    <%= render 'application/edit_field', form: form, attribute: :minimum_allowable_orbit, field_label: 'Minimum Orbit', calculated: true do %>
+      <%= form.number_field :minimum_allowable_orbit, value: format_precision(star.minimum_allowable_orbit, precision: 5),
                             class: 'edit-base sm:w-28 w-24', step: 'any',
                             data: { star_classification_target: 'minimumOrbit' } %>
     <% end %>

@@ -74,6 +74,8 @@ group :test do
   gem 'webmock'
 end
 
+gem 'rack-cors'
+
 gem 'pagy'
 
 gem 'dry-schema'

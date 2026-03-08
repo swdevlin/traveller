@@ -87,7 +87,7 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-    <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_orbit, precision: 2, strip_insignificant_zeros: true) %>
+    <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_allowable_orbit, precision: 2, strip_insignificant_zeros: true) %>
     <%= render 'application/data_block', label: 'HZCO', value: format_precision(star.hzco) %>
     <%= render 'application/data_block', label: 'Jump Shadow', value: number_with_delimiter(number_with_precision(star.jump_shadow, precision: 0)), suffix: 'km' %>
   </div>

@@ -18,7 +18,7 @@ class Star < StellarObject
     stellar_subtype: 'subtype',
     luminosity: 'luminosity',
     hzco: 'hzco',
-    minimum_orbit: 'minimumOrbit',
+    minimum_allowable_orbit: 'minimumAllowableOrbit',
     jump_shadow: 'jumpShadow',
     colour: 'colour',
     is_protostar: 'isProtostar',

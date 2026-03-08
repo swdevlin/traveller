@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  namespace :api do
+    resources :sectors, only: :index
+    get 'solarsystems', to: 'solar_systems#index'
+    get 'solarsystem',  to: 'solar_system#show'
+    resources :stars, only: %i[index update]
+  end
+
   resources :tech_levels
   resources :governments
   resources :law_levels

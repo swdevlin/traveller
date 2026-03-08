@@ -29,7 +29,7 @@
                               value: format_precision(stellar_object.orbit, precision: 5),
                               class: 'edit-base sm:w-28 w-24',
                               step: 'any',
-                              min: star.minimum_orbit %>
+                              min: star.minimum_allowable_orbit %>
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :period do %>

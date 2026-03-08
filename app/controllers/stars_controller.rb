@@ -56,7 +56,7 @@ class StarsController < ApplicationController
     params.require(:star).permit(
       :name, :stellar_type, :stellar_subtype, :stellar_class,
       :mass, :diameter, :temperature, :luminosity, :age,
-      :minimum_orbit, :hzco, :colour, :orbit, :eccentricity
+      :minimum_allowable_orbit, :hzco, :colour, :orbit, :eccentricity
     )
   end
 
