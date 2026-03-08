@@ -4,6 +4,7 @@ A site to manage a Traveller Universe. Initial version is for Deepnight campaign
 own charted space. It is intended to eventually support Drinax campaigns and charted space.
 
 ## To Do
+* Player jump tracker
 * Log in
   * Multi-tenancy
   * Links to the Deepnight navigation console for Referee & Travellers
@@ -26,6 +27,7 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 
 ### To do?
 
+* Communication routes
 * custom properties for objects
   * Deepnight properties
   * Drinax properties
@@ -40,11 +42,7 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
   * vargr
   * Zhodani
   * Solomani
-* Player jump tracker
-* Communication routes
 * Name generation
-* Labels
-* Regions
 * Trade generation
   * publish test module
   * user can change DMs and prices
