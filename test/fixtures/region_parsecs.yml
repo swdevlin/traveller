@@ -3,9 +3,9 @@
 one:
   region_component: one
   parsec: one
-  kind: MyString
+  kind: fill
 
 two:
   region_component: two
   parsec: two
-  kind: MyString
+  kind: fill

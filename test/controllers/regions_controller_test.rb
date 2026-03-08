@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class RegionsControllerTest < ActionDispatch::IntegrationTest
+class RegionsControllerTest < AuthenticatedIntegrationTest
   setup do
     @region = regions(:one)
   end
@@ -17,7 +17,7 @@ class RegionsControllerTest < ActionDispatch::IntegrationTest
 
   test 'should create region' do
     assert_difference('Region.count') do
-      post regions_url, params: { region: { allegiance_id: @region.allegiance_id, customized: @region.customized, data: @region.data, external_key: @region.external_key, external_source: @region.external_source, label: @region.label, name: @region.name, notes: @region.notes, source: @region.source } }
+      post regions_url, params: { region: { name: 'New Region', label: 'NR', source: 'manual', notes: '' } }
     end
 
     assert_redirected_to region_url(Region.last)
@@ -34,7 +34,7 @@ class RegionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should update region' do
-    patch region_url(@region), params: { region: { allegiance_id: @region.allegiance_id, customized: @region.customized, data: @region.data, external_key: @region.external_key, external_source: @region.external_source, label: @region.label, name: @region.name, notes: @region.notes, source: @region.source } }
+    patch region_url(@region), params: { region: { name: @region.name, label: @region.label, notes: @region.notes } }
     assert_redirected_to region_url(@region)
   end
 

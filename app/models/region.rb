@@ -1,5 +1,5 @@
 class Region < ApplicationRecord
-  has_many :region_components, dependent: :delete_all
+  has_many :region_components, dependent: :destroy
   has_many :region_parsecs, through: :region_components
   has_many :region_sectors, dependent: :delete_all
   has_many :sectors, through: :region_sectors

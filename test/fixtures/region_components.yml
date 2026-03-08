@@ -4,14 +4,14 @@ one:
   region: one
   source_sector: one
   position: 1
-  input_type: MyString
-  external_component_key: MyString
-  data: 
+  input_type: painted_parsecs
+  external_component_key: rc-one
+  data:
 
 two:
   region: two
   source_sector: two
   position: 1
-  input_type: MyString
-  external_component_key: MyString
-  data: 
+  input_type: painted_parsecs
+  external_component_key: rc-two
+  data:
