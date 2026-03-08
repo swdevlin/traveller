@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class LawLevelsControllerTest < ActionDispatch::IntegrationTest
+class LawLevelsControllerTest < AuthenticatedIntegrationTest
   setup do
     @law_level = law_levels(:one)
   end

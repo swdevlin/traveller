@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class HelpControllerTest < ActionDispatch::IntegrationTest
+class HelpControllerTest < AuthenticatedIntegrationTest
   test 'should get index' do
     get help_url
     assert_response :success

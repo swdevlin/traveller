@@ -1,8 +1,9 @@
 <%# locals: (subsector:, highlight: nil) %>
-<% map_url = highlight ? map_subsector_path(subsector, highlight: highlight) : map_subsector_path(subsector) %>
+<% full_map_url   = highlight ? map_subsector_path(subsector, highlight: highlight) : map_subsector_path(subsector) %>
+<% embed_map_url  = highlight ? map_subsector_path(subsector, highlight: highlight, compact: true) : map_subsector_path(subsector, compact: true) %>
 <div class='mt-2'>
   <div class='mb-1 flex justify-end'>
-    <%= link_to map_url,
+    <%= link_to full_map_url,
                 target: '_blank',
                 rel: 'noopener',
                 class: 'text-slate-400 hover:text-slate-200',
@@ -12,7 +13,7 @@
   </div>
   <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
     <object type="image/svg+xml"
-            data="<%= map_url %>"
+            data="<%= embed_map_url %>"
             class="block h-full w-full"
             data-subsector-refresh-target="map">
       Subsector map

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TradeCodesControllerTest < ActionDispatch::IntegrationTest
+class TradeCodesControllerTest < AuthenticatedIntegrationTest
   setup do
     @trade_code = trade_codes(:tc1)
   end

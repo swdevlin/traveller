@@ -6,6 +6,9 @@ Rails.application.routes.draw do
     resources :stars, only: %i[index update]
   end
 
+  resource :session
+  resources :registrations
+  resources :passwords, param: :token
   resources :tech_levels
   resources :governments
   resources :law_levels
@@ -78,6 +81,7 @@ Rails.application.routes.draw do
       post :generate, as: :generate
       post :load_defaults
       get :defaults_source
+      get :map
     end
     resources :rogues, only: %i[index new create destroy]
     resources :star_systems, only: %i[new create index destroy]

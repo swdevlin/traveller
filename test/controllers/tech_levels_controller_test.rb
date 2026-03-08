@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TechLevelsControllerTest < ActionDispatch::IntegrationTest
+class TechLevelsControllerTest < AuthenticatedIntegrationTest
   setup do
     @tech_level = tech_levels(:one)
   end

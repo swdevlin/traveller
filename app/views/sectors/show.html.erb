@@ -116,8 +116,15 @@
 
     <div class='w-full md:w-[300px] shrink-0 space-y-6'>
       <div>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>
-          Subsectors
+        <div class='flex items-center justify-between mb-2'>
+          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Subsectors</div>
+          <%= link_to map_sector_path(@sector),
+                      target: '_blank',
+                      rel: 'noopener',
+                      title: 'Star Map',
+                      class: 'text-slate-400 hover:text-traveller-red transition-colors' do %>
+            <i class="fa-regular fa-map"></i>
+          <% end %>
         </div>
         <%= render 'subsector_grid', sector: @sector %>
       </div>

@@ -35,6 +35,8 @@
     .star-circle { stroke: #333; stroke-width: 0.5; }
     .gas-giant-icon { fill: #222222; }
     .allegiance { font-family: monospace; font-size: 7px; fill: #666666; }
+    .uwp { font-family: monospace; font-size: 9px; fill: #777777; }
+    .system-name { font-family: monospace; font-size: 12px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
   </style>
@@ -111,10 +113,10 @@
           <%
             primary = star_system.primary_star
             orbiting_stars = primary&.stars&.to_a || []
-            star_cy = cy + hex_size * 0.18
-            primary_r = hex_size * 0.26
-            orbiting_r = hex_size * 0.14
-            orbit_distance = hex_size * 0.46
+            star_cy = cy
+            primary_r = hex_size * 0.18
+            orbiting_r = hex_size * 0.10
+            orbit_distance = hex_size * 0.38
 
             # Positions for orbiting stars: 3, 6, 9 o'clock
             orbit_positions = [
@@ -177,14 +179,24 @@
         </text>
 
         <% if star_system %>
-          <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.25).round(2) %>" text-anchor="middle">
+          <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
             <%= star_system.main_world_uwp&.first || '?' %>
           </text>
-
-          <% if star_system.allegiance %>
-            <text class="allegiance" x="<%= (cx + hex_size * 0.4).round(2) %>" y="<%= (cy + hex_size * 0.55).round(2) %>" text-anchor="middle">
-              <%= star_system.allegiance.code %>
-            </text>
+          <% unless @compact %>
+            <% if (uwp = star_system.main_world_uwp) %>
+              <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
+                <%= uwp %>
+              </text>
+            <% end %>
+            <% if star_system.name.present? %>
+              <%
+                pop_code = uwp&.[](4)
+                name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+              %>
+              <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+                <%= name_display %>
+              </text>
+            <% end %>
           <% end %>
         <% end %>
       <% end %>
