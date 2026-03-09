@@ -34,7 +34,7 @@ class ShipsController < ApplicationController
         respond_to { |format| format.turbo_stream }
       else
         respond_to do |format|
-          format.html { redirect_to @ship, notice: "Ship was successfully created." }
+          format.html { redirect_to @ship, notice: 'Ship was successfully created.' }
           format.json { render :show, status: :created, location: @ship }
         end
       end
@@ -50,7 +50,7 @@ class ShipsController < ApplicationController
   def update
     respond_to do |format|
       if @ship.update(ship_params)
-        format.html { redirect_to @ship, notice: "Ship was successfully updated.", status: :see_other }
+        format.html { redirect_to @ship, notice: 'Ship was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @ship }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -64,7 +64,7 @@ class ShipsController < ApplicationController
     @ship.destroy!
 
     respond_to do |format|
-      format.html { redirect_to ships_path, notice: "Ship was successfully destroyed.", status: :see_other }
+      format.html { redirect_to ships_path, notice: 'Ship was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -77,6 +77,6 @@ class ShipsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def ship_params
-      params.expect(ship: [ :name, :jump_drive ])
+      params.expect(ship: [:name, :jump_drive])
     end
 end

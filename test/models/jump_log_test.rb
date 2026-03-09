@@ -1,4 +1,4 @@
-require "test_helper"
+require 'test_helper'
 
 class JumpLogTest < ActiveSupport::TestCase
   test 'misjump defaults to false' do

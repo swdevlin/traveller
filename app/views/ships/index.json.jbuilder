@@ -1,1 +1,1 @@
-json.array! @ships, partial: "ships/ship", as: :ship
+json.array! @ships, partial: 'ships/ship', as: :ship
