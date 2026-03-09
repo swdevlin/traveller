@@ -1,0 +1,21 @@
+<%= content_for :title, "Editing #{@jump_log}" %>
+<%= content_for :page_kicker, 'Ship Records' %>
+<%= content_for :page_title, @jump_log.to_s %>
+
+<% if @map_url %>
+  <% content_for :page_side do %>
+    <div class='mt-2'>
+      <div class='aspect-[540/767] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
+        <object type='image/svg+xml'
+                data='<%= @map_url %>'
+                class='block h-full w-full'>
+          Star chart
+        </object>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<%= render @map_url ? 'application/two_column_page' : 'application/page' do %>
+  <%= render 'form', jump_log: @jump_log %>
+<% end %>

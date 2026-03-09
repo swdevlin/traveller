@@ -1,0 +1,19 @@
+<%= content_for :title, @ship.to_s %>
+<%= content_for :page_kicker, "Ship" %>
+<%= content_for :page_title, @ship.to_s %>
+
+<%= render 'application/page' do %>
+  <%= render @ship %>
+
+  <%= link_to "Edit", edit_ship_path(@ship), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: ships_path,
+             label: 'Ships',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @ship,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

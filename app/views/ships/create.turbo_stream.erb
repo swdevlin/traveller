@@ -1,0 +1,6 @@
+<%= turbo_stream_action_tag 'modal', message: 'hide' %>
+<turbo-stream action="select_new_ship">
+  <template>
+    <option value="<%= @ship.id %>" data-jump-drive="<%= @ship.jump_drive %>"><%= @ship.name %></option>
+  </template>
+</turbo-stream>

@@ -1,0 +1,182 @@
+<%
+  hex_size = SubsectorsHelper::HEX_SIZE
+  svg_width  = (SubsectorsHelper::SVG_PADDING * 2 + @cols * SubsectorsHelper::HEX_WIDTH * 0.75 + SubsectorsHelper::HEX_WIDTH * 0.25).round
+  svg_height = (SubsectorsHelper::SVG_PADDING * 2 + @rows * SubsectorsHelper::HEX_HEIGHT + SubsectorsHelper::HEX_HEIGHT * 0.5).round
+
+  parsecs_by_pos          = @parsecs_by_pos          || {}
+  systems_by_pos          = @systems_by_pos          || {}
+  fills_by_pos            = @fills_by_pos            || {}
+  jump_highlight_positions = @jump_highlight_positions || Set.new
+-%><svg xmlns="http://www.w3.org/2000/svg"
+     width="<%= svg_width %>"
+     height="<%= svg_height %>"
+     preserveAspectRatio="xMidYMid meet"
+     viewBox="0 0 <%= svg_width %> <%= svg_height %>">
+
+  <defs>
+    <symbol id="gas-giant-icon" viewBox="0 0 640 640">
+      <path d="M512.9 157.2C526.9 133.5 535.8 114.1 540.4 99.7C526.7 104.1 508.5 112.3 486.3 125.2C472.7 113.6 458.2 103.6 443 95.3C448.2 92 453.4 88.8 458.5 85.8C488.5 68.1 515 56.1 536.5 50.9C543.2 49.3 550.4 47.8 557.2 47.8C563.7 47.7 574.3 48.9 582.8 57.4C591.3 65.9 592.4 76.4 592.4 83C592.3 89.7 590.9 96.9 589.3 103.7C584.1 125.1 572.1 151.7 554.4 181.7C543 200.9 529.3 221.5 513.6 243C523.1 266.8 528.3 292.8 528.3 320.1C528.3 435 435.2 528.1 320.3 528.1C293.1 528.1 267.1 522.9 243.2 513.4C221.7 529.2 201.1 542.9 181.9 554.2C151.9 571.9 125.4 583.9 103.9 589.1C97.2 590.7 90 592.2 83.2 592.2C76.7 592.3 66.1 591.1 57.6 582.6C49.1 574.1 48 563.5 48 557C48.1 550.3 49.5 543.1 51.1 536.3C56.3 514.9 68.3 488.3 86 458.3C89 453.2 92.1 448.1 95.5 442.8C103.8 458 113.8 472.5 125.4 486.1C112.5 508.3 104.3 526.5 99.9 540.2C114.3 535.6 133.6 526.7 157.4 512.7C169.8 505.3 183 496.9 196.7 487.3C145.4 449.4 112.2 388.5 112.2 319.9C112.2 205 205.3 111.9 320.2 111.9C388.8 111.9 449.7 145.2 487.6 196.4C497.1 182.7 505.6 169.5 513 157.1zM457.3 237.6C429.3 191.1 378.4 160.1 320.2 160.1C231.8 160.1 160.2 231.7 160.2 320.1C160.2 378.3 191.3 429.2 237.7 457.2C274.6 428.4 314.2 393.5 353.9 353.8C393.6 314.1 428.5 274.5 457.3 237.6zM289.6 477.1C299.5 479 309.7 480 320.2 480C408.6 480 480.2 408.4 480.2 320C480.2 309.5 479.2 299.3 477.3 289.4C451 321.4 420.9 354.6 387.9 387.6C354.9 420.6 321.7 450.7 289.7 477z"/>
+    </symbol>
+  </defs>
+
+  <style>
+    .hex { fill: #ffffff; }
+    .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
+    .hex-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #666666; }
+    .hex-label-empty { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #dddddd; pointer-events: none; }
+    .starport { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_STARPORT %>px; fill: #333333; font-weight: bold; }
+    .star-circle { stroke: #333; stroke-width: 0.5; }
+    .gas-giant-icon { fill: #222222; }
+    .parsec-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .uwp { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
+    .system-name { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
+    .region-fill { pointer-events: none; }
+    .region-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+  </style>
+
+  <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
+
+  <%# Layer 1a: Hex fills %>
+  <g>
+    <% (1..@cols).each do |col| %>
+      <% (1..@rows).each do |row| %>
+        <%
+          cx, cy = hex_center(col, row)
+          sys = systems_by_pos[[col, row]]
+          bg = sys&.allegiance&.background_colour
+        %>
+        <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 1b: Region fills %>
+  <% if fills_by_pos.any? %>
+    <g opacity="0.35">
+      <% fills_by_pos.each do |(col, row), entries| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon class="region-fill" points="<%= hex_polygon_points(cx, cy) %>" style="fill:<%= entries.first[:colour] %>"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1c: Jump highlight fills %>
+  <% if jump_highlight_positions.any? %>
+    <g>
+      <% jump_highlight_positions.each do |col, row| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5" opacity="0.75"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1d: Hex borders %>
+  <g>
+    <% (1..@cols).each do |col| %>
+      <% (1..@rows).each do |row| %>
+        <%
+          cx, cy = hex_center(col, row)
+          bd = systems_by_pos[[col, row]]&.allegiance&.border_colour
+        %>
+        <polygon class="hex-border" points="<%= hex_polygon_points(cx, cy) %>"<% if bd.present? %> style="stroke:<%= bd %>;stroke-width:2"<% end %>/>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 2: Star circles %>
+  <g>
+    <% (1..@cols).each do |col| %>
+      <% (1..@rows).each do |row| %>
+        <%
+          cx, cy = hex_center(col, row)
+          star_system = systems_by_pos[[col, row]]
+        %>
+        <% if star_system %>
+          <%
+            primary = star_system.primary_star
+            orbiting_stars = primary&.stars&.to_a || []
+            star_cy = cy
+            primary_r = hex_size * 0.18
+            orbiting_r = hex_size * 0.10
+            orbit_distance = hex_size * 0.38
+            orbit_positions = [
+              [cx + orbit_distance, star_cy],
+              [cx, star_cy + orbit_distance],
+              [cx - orbit_distance, star_cy]
+            ]
+          %>
+          <circle class="star-circle" cx="<%= cx.round(2) %>" cy="<%= star_cy.round(2) %>"
+                  r="<%= primary_r.round(2) %>" fill="<%= star_fill_colour(primary&.colour || 'Yellow') %>"/>
+          <% if primary&.companion %>
+            <% comp_offset = primary_r * 0.45 %>
+            <circle cx="<%= (cx - comp_offset).round(2) %>" cy="<%= (star_cy + comp_offset).round(2) %>"
+                    r="<%= (primary_r * 0.4).round(2) %>" fill="<%= star_fill_colour(primary.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
+          <% end %>
+          <% orbiting_stars.take(3).each_with_index do |orb_star, idx| %>
+            <% orb_cx, orb_cy = orbit_positions[idx] %>
+            <circle class="star-circle" cx="<%= orb_cx.round(2) %>" cy="<%= orb_cy.round(2) %>"
+                    r="<%= orbiting_r.round(2) %>" fill="<%= star_fill_colour(orb_star.colour || 'Yellow') %>"/>
+            <% if orb_star.companion %>
+              <% orb_comp_offset = orbiting_r * 0.45 %>
+              <circle cx="<%= (orb_cx - orb_comp_offset).round(2) %>" cy="<%= (orb_cy + orb_comp_offset).round(2) %>"
+                      r="<%= (orbiting_r * 0.4).round(2) %>" fill="<%= star_fill_colour(orb_star.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
+            <% end %>
+          <% end %>
+          <% if star_system.has_gas_giant? %>
+            <use href="#gas-giant-icon" x="<%= (cx + hex_size * 0.38).round(2) %>" y="<%= (cy - hex_size * 0.45).round(2) %>" width="12" height="12" class="gas-giant-icon"/>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 3: Text labels %>
+  <g>
+    <% (1..@cols).each do |col| %>
+      <% (1..@rows).each do |row| %>
+        <%
+          cx, cy = hex_center(col, row)
+          parsec_data = parsecs_by_pos[[col, row]]
+          star_system = systems_by_pos[[col, row]]
+          hex_code = parsec_data ? parsec_data[:hex_code] : format('%02d%02d', col, row)
+        %>
+        <text class="<%= star_system ? 'hex-label' : 'hex-label-empty' %>" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.62).round(2) %>" text-anchor="middle">
+          <%= hex_code %>
+        </text>
+        <% if star_system %>
+          <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
+            <%= star_system.main_world_uwp&.first || '?' %>
+          </text>
+          <% if (uwp = star_system.main_world_uwp) %>
+            <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
+              <%= uwp %>
+            </text>
+          <% end %>
+          <% if star_system.name.present? %>
+            <%
+              pop_code = uwp&.[](4)
+              name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+            %>
+            <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+              <%= name_display %>
+            </text>
+          <% end %>
+        <% end %>
+        <% if parsec_data && parsec_data[:label].present? %>
+          <text class="parsec-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>"<% if parsec_data[:label_colour].present? %> style="fill:<%= parsec_data[:label_colour] %>"<% end %>>
+            <%= parsec_data[:label] %>
+          </text>
+        <% end %>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 4: Region labels %>
+  <% (@region_labels ||= []).each do |entry| %>
+    <% cx, cy = hex_center(entry[:col], entry[:row]) %>
+    <text class="region-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>" style="fill:<%= entry[:colour] %>">
+      <%= entry[:text] %>
+    </text>
+  <% end %>
+
+</svg>

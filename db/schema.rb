@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_175632) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -70,6 +70,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_175632) do
     t.string "government_type"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_governments_on_code", unique: true
+  end
+
+  create_table "jump_logs", force: :cascade do |t|
+    t.integer "arrive_day"
+    t.integer "arrive_year"
+    t.datetime "created_at", null: false
+    t.integer "depart_day"
+    t.integer "depart_year"
+    t.bigint "from_parsec_id", null: false
+    t.boolean "misjump", default: false, null: false
+    t.text "notes"
+    t.integer "sequence"
+    t.bigint "ship_id", null: false
+    t.bigint "to_parsec_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_parsec_id"], name: "index_jump_logs_on_from_parsec_id"
+    t.index ["ship_id"], name: "index_jump_logs_on_ship_id"
+    t.index ["to_parsec_id"], name: "index_jump_logs_on_to_parsec_id"
   end
 
   create_table "law_levels", force: :cascade do |t|
@@ -184,6 +202,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_175632) do
     t.string "user_agent"
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "ships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "jump_drive"
+    t.string "name"
+    t.datetime "updated_at", null: false
   end
 
   create_table "star_system_facilities", force: :cascade do |t|
@@ -327,6 +352,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_175632) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "jump_logs", "parsecs", column: "from_parsec_id"
+  add_foreign_key "jump_logs", "parsecs", column: "to_parsec_id"
+  add_foreign_key "jump_logs", "ships"
   add_foreign_key "parsecs", "sectors", on_delete: :cascade
   add_foreign_key "region_components", "regions"
   add_foreign_key "region_components", "sectors", column: "source_sector_id"

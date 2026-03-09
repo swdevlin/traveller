@@ -1,0 +1,60 @@
+<%= content_for :title, 'Ships' %>
+<%= content_for :page_kicker, 'Reference Manual' %>
+<%= content_for :page_title, 'Ships' %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Ship registry</p>
+
+      <div class='actions'>
+        <%= link_to new_ship_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col'>Name</th>
+            <th scope='col'>Jump drive</th>
+            <th scope='col' class='text-right actions-cell'>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @ships.each do |ship| %>
+            <tr class='cursor-pointer'
+                data-controller='row-link'
+                data-row-link-url-value='<%= ship_path(ship) %>'
+                data-action='click->row-link#navigate'>
+              <td>
+                <%= link_to ship_path(ship), class: 't-link' do %>
+                  <%= ship.name %>
+                <% end %>
+              </td>
+              <td><%= ship.jump_drive %></td>
+              <td class='actions-cell'>
+                <div class='action-group'>
+                  <%= link_to edit_ship_path(ship), class: 'action' do %>
+                    <i class='fa-regular fa-pen-to-square'></i>
+                  <% end %>
+
+                  <%= button_to ship,
+                                method: :delete,
+                                class: 'action danger',
+                                data: { turbo_confirm: 'Delete this ship?' } do %>
+                    <i class='fa-regular fa-trash'></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

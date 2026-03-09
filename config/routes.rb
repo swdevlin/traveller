@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  resources :jump_logs
+  resources :ships do
+    collection do
+      get :new_modal
+    end
+  end
   resources :regions do
     member do
       get  :import_hexes
@@ -9,9 +15,11 @@ Rails.application.routes.draw do
   namespace :api do
     resources :sectors, only: :index
     resources :regions, only: :index
+    resources :parsecs, only: :index
     get 'solarsystems', to: 'solar_systems#index'
     get 'solarsystem',  to: 'solar_system#show'
     resources :stars, only: %i[index update]
+    get 'map', to: 'map#show'
   end
 
   resource :session
