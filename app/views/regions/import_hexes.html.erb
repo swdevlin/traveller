@@ -32,7 +32,8 @@
         </tbody>
       </table>
       <%= link_to hex_template_region_path(@region),
-                  class: 'inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 transition no-underline' do %>
+                  class: 'inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 transition no-underline',
+                  data: { turbo: false } do %>
         <i class='fa-regular fa-file-csv'></i>
         Download template
       <% end %>
