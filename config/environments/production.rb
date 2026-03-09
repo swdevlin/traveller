@@ -65,10 +65,10 @@ Rails.application.configure do
   # Specify outgoing SMTP server. Add smtp/* and app/* credentials via bin/rails credentials:edit.
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address:              Rails.application.credentials.dig(:smtp, :address),
-    port:                 Rails.application.credentials.dig(:smtp, :port) || 587,
-    user_name:            Rails.application.credentials.dig(:smtp, :user_name),
-    password:             Rails.application.credentials.dig(:smtp, :password),
+    address:              ENV.fetch('SMTP_ADDRESS'),
+    port:                 ENV.fetch('SMTP_PORT', 587),
+    user_name:            ENV.fetch('SMTP_USER'),
+    password:             ENV.fetch('SMTP_PASSWORD'),
     authentication:       :plain,
     enable_starttls_auto: true
   }
