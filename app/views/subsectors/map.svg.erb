@@ -85,7 +85,27 @@
     </g>
   <% end %>
 
-  <%# Layer 1c: Hex borders — drawn after all fills so right/bottom edges are never covered %>
+  <%# Layer 1c: Jump highlights %>
+  <% jump_parsec_id_set = @jump_parsec_id_set || Set.new %>
+  <% if jump_parsec_id_set.any? %>
+    <g>
+      <% (1..8).each do |col| %>
+        <% (1..10).each do |row| %>
+          <%
+            hx = (sub_x - 1) * 8 + col
+            hy = (sub_y - 1) * 10 + row
+            hex_code = format('%02d%02d', hx, hy)
+            parsec_data = parsec_ids_by_hex[hex_code]
+            next unless parsec_data && jump_parsec_id_set.include?(parsec_data[:id])
+            cx, cy = hex_center(col, row)
+          %>
+          <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5" opacity="0.75"/>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1d: Hex borders — drawn after all fills so right/bottom edges are never covered %>
   <g>
     <% (1..8).each do |col| %>
       <% (1..10).each do |row| %>

@@ -73,7 +73,25 @@
     </g>
   <% end %>
 
-  <%# Layer 1c: Hex borders %>
+  <%# Layer 1c: Jump highlights %>
+  <% jump_parsec_id_set = @jump_parsec_id_set || Set.new %>
+  <% if jump_parsec_id_set.any? %>
+    <g>
+      <% (1..32).each do |col| %>
+        <% (1..40).each do |row| %>
+          <%
+            hex_key = format('%04d', col * 100 + row)
+            parsec_data = parsec_ids_by_hex[hex_key]
+            next unless parsec_data && jump_parsec_id_set.include?(parsec_data[:id])
+            cx, cy = hex_center(col, row)
+          %>
+          <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5" opacity="0.75"/>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1d: Hex borders %>
   <g>
     <% (1..32).each do |col| %>
       <% (1..40).each do |row| %>

@@ -132,6 +132,14 @@ class SectorsController < ApplicationController
       [format('%04d', hx * 100 + hy), { id: pid, label: lbl, colour: colour }]
     end
 
+    sector_parsec_ids = @parsec_ids_by_hex.values.map { |v| v[:id] }
+    @jump_parsec_id_set = JumpLog
+      .where(from_parsec_id: sector_parsec_ids)
+      .or(JumpLog.where(to_parsec_id: sector_parsec_ids))
+      .pluck(:from_parsec_id, :to_parsec_id)
+      .flatten
+      .to_set & sector_parsec_ids.to_set
+
     @region_fills_by_hex, @region_labels = helpers.regions_for_map(@sector.parsecs, sector_ul, visible_hx: 1..32, visible_hy: 1..40)
 
     respond_to do |format|

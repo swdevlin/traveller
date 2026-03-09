@@ -81,6 +81,14 @@ class SubsectorsController < ApplicationController
     return if performed?
 
     sub = @subsector
+    subsector_parsec_ids = @parsec_ids_by_hex.values.map { |v| v[:id] }
+    @jump_parsec_id_set = JumpLog
+      .where(from_parsec_id: subsector_parsec_ids)
+      .or(JumpLog.where(to_parsec_id: subsector_parsec_ids))
+      .pluck(:from_parsec_id, :to_parsec_id)
+      .flatten
+      .to_set & subsector_parsec_ids.to_set
+
     @region_fills_by_hex, @region_labels = helpers.regions_for_map(
       subsector_parsecs,
       sector_ul,
@@ -90,11 +98,11 @@ class SubsectorsController < ApplicationController
 
     respond_to do |format|
       format.svg do
-        svg = Rails.cache.fetch(cache_key) { render_to_string(layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('subsectors/map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
       format.html do
-        svg = Rails.cache.fetch(cache_key) { render_to_string(layout: false, content_type: 'image/svg+xml') }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('subsectors/map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
     end
