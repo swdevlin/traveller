@@ -3,16 +3,23 @@ module Authentication
 
   included do
     before_action :require_authentication
+    before_action :require_campaign
     helper_method :authenticated?
   end
 
   class_methods do
     def allow_unauthenticated_access(**options)
       skip_before_action :require_authentication, **options
+      skip_before_action :require_campaign, **options
+    end
+
+    def allow_without_campaign(**options)
+      skip_before_action :require_campaign, **options
     end
   end
 
   private
+
     def authenticated?
       resume_session
     end
@@ -26,7 +33,17 @@ module Authentication
     end
 
     def find_session_by_cookie
-      Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
+      return unless cookies.signed[:session_id]
+
+      session = Session.find_by(id: cookies.signed[:session_id])
+      return unless session
+
+      if params[:campaign_slug].present?
+        campaign = Campaign.find_by(slug: params[:campaign_slug])
+        return if campaign && campaign.referee_id != session.user_id
+      end
+
+      session
     end
 
     def request_authentication
@@ -35,7 +52,18 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || root_url
+      return validate_return_to(session.delete(:return_to_after_authenticating)) if session[:return_to_after_authenticating].present?
+
+      campaign = Campaign.where(referee_id: Current.user.id).first
+      campaign ? sectors_path(campaign_slug: campaign.slug) : new_campaign_path
+    end
+
+    def validate_return_to(url)
+      return nil if url.blank?
+      uri = URI.parse(url)
+      uri.host.nil? || uri.host == request.host ? url : nil
+    rescue URI::InvalidURIError
+      nil
     end
 
     def start_new_session_for(user)
@@ -48,5 +76,10 @@ module Authentication
     def terminate_session
       Current.session.destroy
       cookies.delete(:session_id)
+    end
+
+    def require_campaign
+      return unless Current.user
+      redirect_to new_campaign_path unless Campaign.exists?(referee_id: Current.user.id)
     end
 end

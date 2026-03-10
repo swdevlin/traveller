@@ -25,7 +25,7 @@ json.orbit_position do
   json.x star.orbit_x || 0.0
   json.y star.orbit_y || 0.0
 end
-json.orbit_type    star.orbiting_id.nil? ? 0 : 1
+json.orbit_type star.orbiting_id.nil? ? 0 : 1
 json.safe_jump_time star.safe_jump_time
 
 companion = star.companion

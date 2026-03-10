@@ -5,6 +5,7 @@ pg_default: &pg_default
   username: <%= ENV["DB_USER"] %>
   password: <%= ENV["DB_PASSWORD"] %>
   host: <%= ENV["DB_HOST"] %>
+  schema_search_path: 'public,shared_extensions'
 
 sqlite: &sqlite
   adapter: sqlite3

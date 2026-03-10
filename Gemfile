@@ -86,3 +86,5 @@ gem 'commonmarker'
 gem 'ultimate_turbo_modal'
 
 gem 'discard'
+
+gem 'ros-apartment', require: 'apartment'

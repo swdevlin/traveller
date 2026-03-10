@@ -22,7 +22,7 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1/map.svg or .webp
   def map
-    fresh_when @star_system
+    fresh_when etag: "#{current_campaign.id}/#{@star_system.cache_key_with_version}", last_modified: @star_system.updated_at
     return if performed?
 
     respond_to do |format|
@@ -146,13 +146,13 @@ class StarSystemsController < ApplicationController
   private
 
   def cached_svg
-    Rails.cache.fetch("system_map_svg/#{@star_system.cache_key_with_version}") do
+    Rails.cache.fetch("system_map_svg/#{current_campaign.id}/#{@star_system.cache_key_with_version}") do
       render_to_string(formats: [:svg], layout: false)
     end
   end
 
   def cached_webp
-    Rails.cache.fetch("system_map_webp/#{@star_system.cache_key_with_version}") do
+    Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}") do
       image = Vips::Image.new_from_buffer(cached_svg, '')
       image.webpsave_buffer
     end

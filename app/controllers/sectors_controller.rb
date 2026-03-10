@@ -58,7 +58,7 @@ class SectorsController < ApplicationController
       redirect_to sector_path(@sector), notice: 'Not all subsectors have a build plan. No tasks were created'
     else
       @sector.subsectors.each do |subsector|
-        GenerateSubsectorJob.set(priority: subsector.y * 10 + subsector.x).perform_later(subsector, subsector.build)
+        GenerateSubsectorJob.set(priority: subsector.y * 10 + subsector.x).perform_later(subsector.id, subsector.build)
       end
       redirect_to sector_path(@sector), notice: 'Subsector populate tasks created'
     end
@@ -115,7 +115,7 @@ class SectorsController < ApplicationController
     region_record_max = Region.joins(region_components: { region_parsecs: :parsec }).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
-    cache_key = "sector_map/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -206,7 +206,7 @@ class SectorsController < ApplicationController
   def destroy
     @sector.discard
     @sector.save
-    DeleteSectorJob.perform_later(@sector)
+    DeleteSectorJob.perform_later(@sector.id)
 
     respond_to do |format|
       format.html { redirect_to sectors_path, notice: 'Sector deleted.', status: :see_other }

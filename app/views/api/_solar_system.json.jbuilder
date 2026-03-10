@@ -22,4 +22,3 @@ json.extinct_sophont star_system.stellar_objects.any? { |o| o.data&.dig('extinct
 json.star_count  star_system.stars.size
 json.bases       star_system.facilities_string
 json.remarks     star_system.trade_codes_string
-

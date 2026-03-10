@@ -1,4 +1,5 @@
 class HelpController < ApplicationController
+  allow_unauthenticated_access
   def index
     help_dir = Rails.root.join('app', 'views', 'help')
     @entries = Dir.glob(help_dir.join('*.html.erb'))

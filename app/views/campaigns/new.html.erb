@@ -1,0 +1,32 @@
+<% content_for :title, 'Create Campaign' %>
+<% content_for :page_kicker, 'New Mission Briefing' %>
+<% content_for :page_title, 'Create Your Campaign' %>
+
+<%= render 'application/page' do %>
+  <%= form_with model: @campaign, class: 'space-y-6 max-w-sm' do |form| %>
+    <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
+
+    <div>
+      <div class='edit-label'>Campaign Name</div>
+      <%= form.text_field :name,
+            required: true,
+            autofocus: true,
+            placeholder: 'Enter a name for your campaign',
+            class: 'edit-base w-full mt-1' %>
+      <%= render 'application/field_error', form: form, attribute: :name %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Slug</div>
+      <%= form.text_field :slug,
+            required: true,
+            placeholder: 'e.g. my-campaign',
+            class: 'edit-base w-full mt-1' %>
+      <%= render 'application/field_error', form: form, attribute: :slug %>
+    </div>
+
+    <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
+      <%= form.submit 'Create Campaign', class: 'w-full sm:w-auto btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>

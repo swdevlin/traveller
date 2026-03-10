@@ -85,7 +85,7 @@ class Api::MapController < ApplicationController
     region_max = RegionParsec.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)&.to_i || 0
     jump_max   = JumpLog.maximum(:updated_at)&.to_i || 0
 
-    cache_key = "api_map/#{ulx}/#{uly}/#{lrx}/#{lry}/#{parsec_max}-#{system_max}-#{region_max}-#{jump_max}"
+    cache_key = "api_map/#{current_campaign.id}/#{ulx}/#{uly}/#{lrx}/#{lry}/#{parsec_max}-#{system_max}-#{region_max}-#{jump_max}"
 
     fresh_when etag: cache_key
     return if performed?

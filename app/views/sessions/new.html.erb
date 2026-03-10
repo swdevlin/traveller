@@ -4,6 +4,7 @@
 
 <%= render 'application/page' do %>
   <%= form_with url: session_url, class: 'space-y-6 max-w-sm' do |form| %>
+    <%= hidden_field_tag :return_to, params[:return_to] if params[:return_to].present? %>
     <div>
       <div class='edit-label'>Email address</div>
       <%= form.email_field :email_address,

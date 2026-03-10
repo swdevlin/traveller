@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class DeleteSectorJob < ApplicationJob
-  def perform(sector)
-    sector.destroy
+  include TenantAware
+
+  def perform(sector_id)
+    Sector.find(sector_id).destroy
   end
 end

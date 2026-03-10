@@ -10,10 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_204025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "pg_trgm"
+  enable_extension "shared_extensions.pg_trgm"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -52,6 +52,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
     t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_allegiances_on_code", unique: true
+  end
+
+  create_table "campaigns", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "referee_id", null: false
+    t.string "schema_name"
+    t.jsonb "settings", default: {}, null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["referee_id"], name: "index_campaigns_on_referee_id"
+    t.index ["slug"], name: "index_campaigns_on_slug", unique: true
   end
 
   create_table "facilities", force: :cascade do |t|
@@ -191,7 +203,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
     t.integer "x"
     t.integer "y"
     t.index ["discarded_at"], name: "index_sectors_on_discarded_at"
-    t.index ["name"], name: "index_sectors_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
@@ -247,7 +259,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
-    t.index ["name"], name: "index_star_systems_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
@@ -310,7 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
-    t.index ["name"], name: "index_subsectors_on_name_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
     t.index ["sector_id", "x", "y"], name: "index_subsectors_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
   end
@@ -352,6 +364,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_08_220000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "campaigns", "users", column: "referee_id"
   add_foreign_key "jump_logs", "parsecs", column: "from_parsec_id"
   add_foreign_key "jump_logs", "parsecs", column: "to_parsec_id"
   add_foreign_key "jump_logs", "ships"

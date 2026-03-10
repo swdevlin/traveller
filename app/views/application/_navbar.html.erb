@@ -1,8 +1,9 @@
 <header id="navbar" class="max-w-none px-4 py-2 flex items-center justify-between text-sm leading-tight">
-  <div class="font-bold mr-6 text-deepnight-orange">My Traveller Universe</div>
+  <%= link_to (current_campaign&.name || 'My Traveller Universe'), root_path, class: 'font-bold mr-6 text-deepnight-orange no-underline hover:underline hover:underline-offset-2' %>
 
   <% if authenticated? %>
   <div class="flex items-center gap-6 flex-1 min-w-0">
+    <% if current_campaign %>
     <div class="relative w-48 shrink-0"
          data-controller="global-search"
          data-global-search-search-url-value="<%= search_path %>">
@@ -21,17 +22,17 @@
         <ul data-global-search-target="list"></ul>
       </div>
     </div>
-<% end %>
+    <% end %>
     <nav>
       <ul class="flex items-center gap-6 font-medium">
-        <% if authenticated? %>
+        <% if current_campaign %>
         <li>
           <%= link_to "Astrogation", sectors_path, class: "hover:text-traveller-red hover:underline hover:underline-offset-2" %>
         </li>
         <li>
           <%= link_to "Jumps", jump_logs_path, class: "hover:text-traveller-red hover:underline hover:underline-offset-2" %>
         </li>
-          <% end %>
+        <% end %>
         <li>
           <%= link_to "Reference Manual", "https://radiofreewaba.net/traveller/webindex.html", target: "_blank", rel: "noopener", class: "hover:text-traveller-red hover:underline hover:underline-offset-2" %>
         </li>
@@ -44,6 +45,7 @@
       </ul>
     </nav>
   </div>
+  <% end %>
 
   <div class="justify-self-end flex items-center gap-4">
     <div class="ml-6"
@@ -57,13 +59,15 @@
       </span>
     </div>
     <% if authenticated? %>
+      <% if current_campaign %>
       <%= link_to settings_path,
                   class: 'inline-flex items-center gap-2 text-slate-200 hover:text-traveller-red hover:underline hover:underline-offset-2' do %>
         <span>Settings</span>
       <% end %>
+      <% end %>
         <%= button_to 'Sign out', session_path, method: :delete, class: 'hover:text-traveller-red hover:underline hover:underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-medium' %>
       <% else %>
-      <%= link_to 'Log in', new_session_path, class: 'no-underline hover:text-traveller-red hover:underline hover:underline-offset-2' %>
+      <%= link_to 'Sign in', new_session_path, class: 'no-underline hover:text-traveller-red hover:underline hover:underline-offset-2' %>
       <%= link_to 'Sign up', new_registration_path, class: 'no-underline hover:text-traveller-red hover:underline hover:underline-offset-2' %>
     <% end %>
     <%= link_to (content_for?(:help_path) ? yield(:help_path) : help_path),

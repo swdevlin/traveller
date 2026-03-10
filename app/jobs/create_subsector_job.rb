@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class CreateSubsectorJob < ApplicationJob
+  include TenantAware
+
   queue_as :default
 
   def perform(sector_id, letter, x, y, subsector_name = nil)

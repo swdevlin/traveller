@@ -4,9 +4,12 @@ require 'json'
 require 'yaml'
 
 class GenerateSubsectorJob < ApplicationJob
+  include TenantAware
+
   queue_as :default
 
-  def perform(subsector, definition)
+  def perform(subsector_id, definition)
+    subsector = Subsector.find(subsector_id)
     config =
       YAML.safe_load(
         definition,

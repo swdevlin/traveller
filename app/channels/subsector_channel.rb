@@ -1,7 +1,11 @@
 class SubsectorChannel < ApplicationCable::Channel
+  include TenantAware
+
   def subscribed
-    subsector = Subsector.find(params[:id])
-    stream_for subsector
+    switch_tenant do
+      subsector = Subsector.find(params[:id])
+      stream_for subsector
+    end
   end
 
   def unsubscribed
