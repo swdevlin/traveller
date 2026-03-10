@@ -4,9 +4,7 @@ A site to manage a Traveller Universe. Initial version is for Deepnight campaign
 own charted space. It is intended to eventually support Drinax campaigns and charted space.
 
 ## To Do
-* Player jump tracker
 * Log in
-  * Multi-tenancy
   * Links to the Deepnight navigation console for Referee & Travellers
 * Add Button to create all deepnight sectors
   * create with configuration for each sector

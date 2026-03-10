@@ -52,7 +52,6 @@
     <% unless authenticated? %>
       <div class='flex items-center gap-4 pt-2'>
         <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
-        <%= link_to 'Sign in', new_session_path, class: 't-link text-sm' %>
       </div>
     <% end %>
 
