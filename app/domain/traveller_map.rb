@@ -64,7 +64,7 @@ class TravellerMap
   end
 
   def search(term:)
-    uri = URI("#{@url}/search?q=*#{CGI.escape(term)}*")
+    uri = URI("#{@url}/search?q=#{ERB::Util.url_encode(term)}")
 
     response = Net::HTTP.start(
       uri.host,

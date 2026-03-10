@@ -12,12 +12,14 @@ Rails.application.routes.draw do
       get  :hex_template
     end
   end
+
   namespace :api do
     resources :sectors, only: :index
     resources :regions, only: :index
     resources :parsecs, only: :index
-    get 'solarsystems', to: 'solar_systems#index'
-    get 'solarsystem',  to: 'solar_system#show'
+    get 'jumps', to: 'jump_logs#index', defaults: { format: :json }
+    get 'starsystems',  to: 'star_systems#index'
+    get 'starsystem',   to: 'star_system#show', defaults: { format: :json }
     resources :stars, only: %i[index update]
     get 'map', to: 'map#show'
   end
@@ -55,6 +57,8 @@ Rails.application.routes.draw do
 
   resources :star_systems do
     member do
+      get  :replace
+      post :do_replace
       get :map
       get :select_main_world
       patch :set_main_world

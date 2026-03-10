@@ -1,0 +1,110 @@
+<% content_for :title, 'Replace star system' %>
+<% content_for :page_kicker, @star_system.parsec&.display_name %>
+<% content_for :page_title, 'Replace Star System' %>
+
+<% create_mode = params.dig(:star_system, :create_mode).presence || 'random' %>
+
+<%= render 'application/page' do %>
+  <%= form_with model: @star_system, url: @form_url, method: :post, class: 'space-y-8',
+                data: { controller: 'star-system-form' } do |f| %>
+
+    <div>
+      <%= f.label :name, class: 'block text-sm font-semibold mb-1' %>
+      <%= f.text_field :name, class: 'w-160 edit-base' %>
+    </div>
+
+    <div class='space-y-4'>
+      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Initialization Mode</div>
+
+      <div class='rounded-2xl border border-slate-700/70 bg-slate-950/40 p-4 space-y-3'>
+        <%# ── Empty ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'empty',
+                             checked: create_mode == 'empty',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-slate-200'>Empty</div>
+            <div class='text-xs text-slate-400'>Replace with optional star configuration.</div>
+          </div>
+        </label>
+
+        <div class="ml-7 space-y-6 <%= 'hidden' unless create_mode == 'empty' %>"
+             data-star-system-form-target='starConfig'>
+          <h3 class='text-sm font-semibold text-deepnight-orange mb-3'>Primary Star</h3>
+          <%= render 'star_fields', prefix: 'primary', disabled: create_mode != 'empty' %>
+        </div>
+
+        <div class='border-t border-slate-800/70'></div>
+
+        <%# ── Random ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'random',
+                             checked: create_mode == 'random',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-slate-200'>Random</div>
+            <div class='text-xs text-slate-400'>Generate automatically.</div>
+          </div>
+        </label>
+
+        <div class='border-t border-slate-800/70'></div>
+
+        <%# ── Build configuration ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'build_configuration',
+                             checked: create_mode == 'build_configuration',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-slate-200'>Build configuration</div>
+            <div class='text-xs text-slate-400'>Directive packet (YAML).</div>
+          </div>
+        </label>
+
+        <div class="ml-7 space-y-2 <%= 'hidden' unless create_mode == 'build_configuration' %>"
+             data-star-system-form-target='buildConfigSection'>
+          <%= f.label :build_configuration, class: 'block text-xs uppercase tracking-[0.22em] text-slate-400' do %>
+            Build configuration (<%= link_to 'YAML', help_star_system_build_specification_path, class: 't-link' %>)
+          <% end %>
+
+          <% if @build_errors.present? %>
+            <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div class="text-xs uppercase tracking-[0.22em] text-red-200/80">
+                  Build errors
+                </div>
+
+                <span class="identifier border-red-900/60 bg-red-950/60 text-red-100">
+                  <%= pluralize(@build_errors.size, "issue") %>
+                </span>
+              </div>
+
+              <ul class="mt-3 space-y-1 text-sm text-red-100">
+                <% @build_errors.each do |err| %>
+                  <li class="flex gap-2">
+                    <span class="select-none text-red-300">•</span>
+                    <span class="font-mono break-words"><%= err %></span>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= f.text_area :build_configuration,
+                          rows: 12,
+                          class: 'w-full edit-base font-mono',
+                          disabled: create_mode != 'build_configuration',
+                          data: { star_system_form_target: 'buildConfig' } %>
+        </div>
+      </div>
+    </div>
+
+    <div class='pt-4 flex gap-2'>
+      <%= f.submit @submit_label, class: 'btn btn-danger w-full sm:w-auto',
+                  data: { turbo_confirm: 'This will permanently replace all stars and worlds in this system. Are you sure?' } %>
+      <%= link_to 'Cancel', @star_system, class: 'btn w-full sm:w-auto' %>
+    </div>
+  <% end %>
+<% end %>

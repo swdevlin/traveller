@@ -49,9 +49,8 @@ class StellarObject < ApplicationRecord
 
   belongs_to :allegiance, optional: true
 
-  def moons
-    Moon.where(orbiting_id: id)
-  end
+  has_many :moons, class_name: 'Moon', foreign_key: :orbiting_id
+
 
   BY_SIZE_SQL = Arel.sql("array_position(ARRAY['0','S','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','J','K','L','M']::text[], size_code)")
 
@@ -91,6 +90,16 @@ class StellarObject < ApplicationRecord
 
   def jump_shadow
     (diameter || 0) * 100
+  end
+
+  def safe_jump_time
+    return '0d 0w' if diameter.nil? || diameter <= 0
+    kms     = 100.0 * diameter
+    seconds = 2.0 * Math.sqrt(kms * 1000.0 / (4 * 9.8))
+    watches = (seconds / (60.0 * 60 * 8)).ceil
+    days    = watches / 3
+    watches -= days * 3
+    "#{days}d #{watches}w"
   end
 
   # Calculates the effective jump shadow distance in km, considering:

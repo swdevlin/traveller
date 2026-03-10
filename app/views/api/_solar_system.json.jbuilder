@@ -1,7 +1,12 @@
 parsec = star_system.parsec
 sector = parsec.sector
 
-json.(star_system, :id, :name, :survey_index, :gas_giant_count, :terrestrial_count, :belt_count)
+json.id                star_system.id
+json.name              star_system.name.presence || ''
+json.survey_index      star_system.survey_index
+json.gas_giant_count   star_system.gas_giant_count
+json.terrestrial_count star_system.terrestrial_count
+json.belt_count        star_system.belt_count
 
 json.sector_x    sector.x
 json.sector_y    sector.y
@@ -18,10 +23,3 @@ json.star_count  star_system.stars.size
 json.bases       star_system.facilities_string
 json.remarks     star_system.trade_codes_string
 
-json.stars star_system.stars do |s|
-  json.colour          s.colour
-  json.stellar_class   s.stellar_class
-  json.stellar_type    s.stellar_type
-  json.stellar_subtype s.stellar_subtype
-  json.luminosity      s.luminosity
-end

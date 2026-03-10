@@ -20,6 +20,8 @@ class PlanetoidBelt < StellarObject
     ]
   end
 
+  def orbit_type = 12
+
   def significant_bodies
     Planetoid
       .where(star_system_id: star_system_id)

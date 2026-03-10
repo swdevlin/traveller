@@ -1,4 +1,4 @@
-class Api::SolarSystemController < Api::BaseController
+class Api::StarSystemController < Api::BaseController
   def show
     unless params[:sx].present? && params[:sy].present? && params[:hx].present? && params[:hy].present?
       return render json: { error: 'sx, sy, hx, hy required' }, status: :bad_request
@@ -18,7 +18,9 @@ class Api::SolarSystemController < Api::BaseController
     end
 
     @star_system = parsec.star_systems
-                         .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities, stars: :stellar_objects)
+                         .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities,
+                   stars: [{ stellar_objects: :moons }, :companion,
+                           { stars: [{ stellar_objects: :moons }, :companion] }])
                          .first
     unless @star_system
       render json: { error: 'solar system not found' }, status: :not_found

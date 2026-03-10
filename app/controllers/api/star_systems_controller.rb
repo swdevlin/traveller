@@ -1,4 +1,4 @@
-class Api::SolarSystemsController < Api::BaseController
+class Api::StarSystemsController < Api::BaseController
   def index
     @star_systems = star_systems_in_region
     if @star_systems.nil?

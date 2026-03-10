@@ -16,7 +16,7 @@
             </div>
           <% else %>
             <%= link_to subsector_path(subsector),
-                        class: "aspect-[4/5] group flex flex-col items-center justify-center rounded-md border border-slate-700/70 bg-slate-950/70 text-xs hover:border-traveller-red hover:bg-slate-900/80 transition" do %>
+                        class: "aspect-[4/5] group flex flex-col items-center no-underline justify-center rounded-md border border-slate-700/70 bg-slate-950/70 text-xs hover:border-traveller-red hover:bg-slate-900/80 transition" do %>
               <div class="font-semibold text-slate-50 group-hover:text-traveller-red-foreground text-center px-1">
                 <%= subsector.name.presence || "?" %>
               </div>

@@ -4,6 +4,7 @@
 <%= content_for :iiss_form, '0421D' %>
 <%= content_for :page_buttons do %>
   <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= link_to 'Replace', replace_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-secondary' %>
   <%= button_to 'Delete',
                 @star_system,
                 method: :delete,

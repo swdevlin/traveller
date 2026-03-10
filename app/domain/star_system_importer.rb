@@ -16,6 +16,56 @@ IMPORT_ORBIT_TYPES = {
 IMPORT_STAR_ORBIT_TYPES = IMPORT_ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
 
 class StarSystemImporter
+  def reimport!(star_system, data)
+    @parsec      = star_system.parsec
+    @star_system = star_system
+
+    ActiveRecord::Base.transaction do
+      StellarObjectTradeCode
+        .where(stellar_object_id: StellarObject.where(star_system_id: @star_system.id).select(:id))
+        .delete_all
+      StellarObject.where(star_system_id: @star_system.id).delete_all
+      StarSystemTradeCode.where(star_system_id: @star_system.id).delete_all
+      StarSystemFacility.where(star_system_id: @star_system.id).delete_all
+      @star_system.update_column(:main_world_id, nil)
+
+      @star_system.name         = data['name']
+      @star_system.build_log    = data['buildLog']
+      @star_system.survey_index = data['surveyIndex'] || 0
+      allegiance_code           = data.fetch('allegiance')
+      @star_system.allegiance   = allegiance_code ? Allegiance.where(code: allegiance_code).sole : nil
+      @star_system.save!
+
+      set_star_system_trade_codes(data['mainWorld']['tradeCodes']) unless data['mainWorld'].nil?
+
+      @deferred_belt_assignments = []
+      primary = Star.new
+      primary.skip_import_callbacks = true
+      primary.star_system = @star_system
+      import_star(primary, data['primaryStar'])
+
+      @deferred_belt_assignments.each do |entry|
+        belt = entry[:star].stellar_objects
+                           .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
+        entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
+      end
+
+      main_world_orbit_sequence = data['mainWorldOrbitSequence']
+      @star_system.main_world =
+        @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
+        Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
+      unless @star_system.main_world.nil?
+        if @star_system.main_world.name.blank? && @star_system.name.present?
+          @star_system.main_world.name = @star_system.name
+          @star_system.main_world.save!
+        end
+      end
+      @star_system.save!
+      @star_system.recalculate_world_counts!
+    end
+    @star_system
+  end
+
   def import!(parsec, data)
     @parsec = parsec
 

@@ -52,7 +52,7 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
       delete star_system_url(@star_system)
     end
 
-    assert_redirected_to star_systems_url
+    assert_redirected_to subsector_url(@subsector)
   end
 
   test 'should create empty star_system' do

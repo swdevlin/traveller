@@ -6,7 +6,7 @@ require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -49,6 +49,24 @@ class StarSystemsController < ApplicationController
   def update_bases
     @star_system.facility_ids = params[:facility_ids]&.reject(&:blank?)&.map(&:to_i) || []
     redirect_to @star_system, status: :see_other
+  end
+
+  def replace
+  end
+
+  def do_replace
+    payload, error = generate_payload(new_star_system_params)
+
+    if error
+      flash.now[:alert] = error
+      return render :replace, status: :unprocessable_entity
+    end
+
+    StarSystemImporter.new.reimport!(@star_system, payload)
+    redirect_to @star_system, notice: 'Star system replaced.'
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.message
+    render :replace, status: :unprocessable_entity
   end
 
   def edit_trade_codes
@@ -116,10 +134,11 @@ class StarSystemsController < ApplicationController
 
   # DELETE /star_systems/1 or /star_systems/1.json
   def destroy
+    subsector = @star_system.parsec.subsector
     @star_system.destroy!
 
     respond_to do |format|
-      format.html { redirect_to star_systems_path, notice: 'Star system was successfully destroyed.', status: :see_other }
+      format.html { redirect_to subsector_path(subsector), notice: 'Star system was successfully destroyed.', status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -244,6 +263,50 @@ class StarSystemsController < ApplicationController
     e.record
   end
 
+  def generate_payload(create_params)
+    case create_params[:create_mode]
+    when 'empty'
+      spectral_type = create_params['primary_spectral_type']
+      dwarf_type = %w[BD D].include?(spectral_type)
+      if spectral_type.blank? || (!dwarf_type && (create_params['primary_spectral_subtype'].blank? || create_params['primary_luminosity'].blank?))
+        return [nil, 'Spectral type, subtype, and luminosity class must all be provided']
+      end
+      primary = if dwarf_type
+        { 'type' => spectral_type }
+      else
+        { 'type' => "#{spectral_type}#{create_params['primary_spectral_subtype']}", 'class' => create_params['primary_luminosity'] }
+      end
+      config = {
+        'name'    => create_params['name'],
+        'counts'  => { 'gasGiants' => 0, 'planetoidBelts' => 0, 'terrestrialPlanets' => 0 },
+        'primary' => primary
+      }
+      result = GeneratorService.new.generate_star_system(config)
+      result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
+
+    when 'random'
+      result = GeneratorService.new.generate_star_system({ 'name' => create_params['name'] })
+      result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
+
+    when 'build_configuration'
+      validator = BuildConfigValidator.new(create_params['build_configuration'])
+      unless validator.valid_for_star_system?
+        @build_errors = validator.errors
+        return [nil, 'Invalid build specification']
+      end
+      config = YAML.safe_load(
+        create_params['build_configuration'],
+        permitted_classes: [Date, Time],
+        aliases: false
+      ) || {}
+      result = GeneratorService.new.generate_star_system(config)
+      result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
+
+    else
+      [nil, 'Invalid create mode']
+    end
+  end
+
   def star_system_edit_params
     params.expect(star_system: [:name, :notes, :allegiance_id, :survey_index])
   end
@@ -351,6 +414,9 @@ class StarSystemsController < ApplicationController
     if %w[edit update].include?(action_name)
       @submit_label = 'Update core'
       @form_url = star_system_path(@star_system)
+    elsif %w[replace do_replace].include?(action_name)
+      @submit_label = 'Replace star system'
+      @form_url = do_replace_star_system_path(@star_system)
     else
       @submit_label = 'Add star system'
       @form_url =

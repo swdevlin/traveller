@@ -27,10 +27,24 @@ class Api::StarsController < Api::BaseController
       .where("data->>'extinct_sophont' = 'true'")
       .pluck(:star_system_id).to_set
 
-    stars_by_system = StellarObject
+    # Columns: id(0) system_id(1) data(2) au(3) diameter(4) companion_id(5)
+    all_stars = StellarObject
       .where(type: 'Star', star_system_id: ids)
-      .pluck(:star_system_id, :data)
-      .group_by(&:first)
+      .pluck(:id, :star_system_id, :data, :au, :diameter, :companion_id)
+
+    companion_ids = all_stars.filter_map { |row| row[5] }.to_set
+
+    companion_by_id = all_stars
+      .select { |row| companion_ids.include?(row[0]) }
+      .to_h do |row|
+        id, _, d, au, diameter, _ = row
+        d = JSON.parse(d) if d.is_a?(String)
+        [id, build_star_hash(d, au, diameter, nil)]
+      end
+
+    stars_by_system = all_stars
+      .reject { |row| companion_ids.include?(row[0]) }
+      .group_by { |row| row[1] }
 
     result = systems.map do |ss|
       parsec = ss.parsec
@@ -40,7 +54,7 @@ class Api::StarsController < Api::BaseController
 
       {
         id:                ss.id,
-        name:              ss.name,
+        name:              ss.name.presence || '',
         survey_index:      ss.survey_index,
         gas_giant_count:   ss.gas_giant_count,
         terrestrial_count: ss.terrestrial_count,
@@ -58,15 +72,10 @@ class Api::StarsController < Api::BaseController
         extinct_sophont:   extinct_ids.include?(ss.id),
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
-        stars:             (stars_by_system[ss.id] || []).map do |_, d|
+        stars:             (stars_by_system[ss.id] || []).map do |row|
+          _, _, d, au, diameter, companion_id = row
           d = JSON.parse(d) if d.is_a?(String)
-          {
-            colour:          d['colour'],
-            stellar_class:   d['stellarClass'],
-            stellar_type:    d['stellarType'],
-            stellar_subtype: d['subtype'],
-            luminosity:      d['luminosity']
-          }
+          build_star_hash(d, au, diameter, companion_by_id[companion_id])
         end
       }
     end
@@ -84,5 +93,21 @@ class Api::StarsController < Api::BaseController
     else
       render json: { errors: star_system.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  private
+
+  def build_star_hash(d, au, diameter, companion)
+    {
+      colour:          d['colour'],
+      stellar_class:   d['stellar_class'],
+      stellar_type:    d['stellar_type'],
+      stellar_subtype: d['stellar_subtype'],
+      luminosity:      d['luminosity'],
+      diameter:        diameter,
+      hzco:            d['hzco'],
+      au:              au || 0,
+      companion:       companion
+    }
   end
 end

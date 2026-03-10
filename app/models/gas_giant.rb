@@ -8,8 +8,11 @@ class GasGiant < StellarObject
     diameter: 'diameter',
     code: 'code',
     period: 'period',
-    rotation: 'rotation'
+    rotation: 'rotation',
+    axial_tilt: 'axialTilt'
   )
+
+  def orbit_type = 10
 
   def self.permitted_params
     [

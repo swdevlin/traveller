@@ -99,7 +99,7 @@
             next unless parsec_data && jump_parsec_id_set.include?(parsec_data[:id])
             cx, cy = hex_center(col, row)
           %>
-          <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5" opacity="0.75"/>
+          <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
         <% end %>
       <% end %>
     </g>

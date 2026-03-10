@@ -37,6 +37,8 @@ class TerrestrialPlanet < StellarObject
     starport_code: 'starPort',
   )
 
+  def orbit_type = 11
+
   def self.permitted_params
     [
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,

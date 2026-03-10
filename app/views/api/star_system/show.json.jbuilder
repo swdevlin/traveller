@@ -14,11 +14,7 @@ end
 
 if primary
   json.primary_star do
-    json.colour          primary.colour
-    json.stellar_class   primary.stellar_class
-    json.stellar_type    primary.stellar_type
-    json.stellar_subtype primary.stellar_subtype
-    json.luminosity      primary.luminosity
+    json.partial! 'api/star_body', star: primary
   end
 else
   json.primary_star nil

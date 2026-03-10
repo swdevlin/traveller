@@ -9,7 +9,7 @@ class SectorsController < ApplicationController
                   .left_joins(parsecs: :star_systems)
                   .group('sectors.id')
                   .order(:name)
-    scope = scope.where('LOWER(name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
+    scope = scope.where('LOWER(sectors.name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
