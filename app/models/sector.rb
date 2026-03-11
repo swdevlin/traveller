@@ -56,13 +56,16 @@ class Sector < ApplicationRecord
     return if x.blank? || y.blank?
 
     existing = Sector.kept.where(x: x, y: y).where.not(id: id).first
-    return unless existing
+    if existing
+      safe_name = ERB::Util.h(existing.name)
+      path = Rails.application.routes.url_helpers.sector_path(existing)
+      errors.add(:base, %(<a href="#{path}">#{safe_name}</a> already exists at #{x}/#{y}.))
+      return
+    end
 
-    safe_name = ERB::Util.h(existing.name)
-
-    path = Rails.application.routes.url_helpers.sector_path(existing)
-    message = %(<a href="#{path}">#{safe_name}</a> already exists at #{x}/#{y}.)
-    errors.add(:base, message)
+    if Sector.discarded.where(x: x, y: y).where.not(id: id).exists?
+      errors.add(:base, "A sector at #{x}/#{y} is still being deleted. Please wait a moment and try again.")
+    end
   end
 
   def shift_parsec_coordinates

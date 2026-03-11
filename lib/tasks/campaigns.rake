@@ -11,6 +11,18 @@ namespace :campaigns do
     puts "Renamed campaign slug '#{from}' → '#{to}'"
   end
 
+  desc 'Delete all sectors for a campaign. Use SLUG=foo'
+  task clear_sectors: :environment do
+    slug = ENV['SLUG'].presence or abort 'Specify a campaign with SLUG=foo'
+    campaign = Campaign.find_by(slug: slug) or abort "No campaign found with slug '#{slug}'"
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      count = Sector.with_discarded.count
+      Sector.with_discarded.destroy_all
+      puts "Deleted #{count} sector(s) from campaign '#{slug}'"
+    end
+  end
+
   desc 'Delete one or all campaigns and their tenant schemas. Use SLUG=foo or ALL=true'
   task delete: :environment do
     if ENV['ALL'] == 'true'
