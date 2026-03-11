@@ -157,14 +157,14 @@ primary:
               <div>
                 <dt class='font-semibold text-slate-200'>allegiance</dt>
                 <dd class='mt-1 text-slate-300'>
-                  Allegiance code for the system. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
+                  Allegiance code for the system. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
                 </dd>
               </div>
 
               <div>
                 <dt class='font-semibold text-slate-200'>bases</dt>
                 <dd class='mt-1 text-slate-300'>
-                  Array of base facility codes present in the system. See <%= link_to 'bases', facilities_path, class: 'hover:underline underline-offset-4' %>.
+                  Array of base facility codes present in the system. See <%= current_campaign ? link_to('bases', facilities_path, class: 'hover:underline underline-offset-4') : 'bases' %>.
                 </dd>
               </div>
 
@@ -431,7 +431,7 @@ primary:
               <div>
                 <dt class='font-semibold text-slate-200'>allegiance <span class='text-slate-500 font-normal'>(required)</span></dt>
                 <dd class='mt-1 text-slate-300'>
-                  Default allegiance code. See <%= link_to 'allegiances', allegiances_path, class: 'hover:underline underline-offset-4' %>.
+                  Default allegiance code. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
                 </dd>
               </div>
 

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::StarsControllerTest < ActionDispatch::IntegrationTest
+class Api::StarsControllerTest < AuthenticatedIntegrationTest
   setup do
     @star_system = star_systems(:in_one)  # parsec one: x=32, y=40 → sector one: x=1, y=1
   end

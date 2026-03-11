@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::SectorsControllerTest < ActionDispatch::IntegrationTest
+class Api::SectorsControllerTest < AuthenticatedIntegrationTest
   test 'returns all sectors' do
     get api_sectors_url, as: :json
     assert_response :success

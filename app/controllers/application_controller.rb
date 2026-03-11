@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
     @current_campaign = Campaign.find_by(slug: params[:campaign_slug])
     return redirect_to root_path unless @current_campaign
 
-    Apartment::Tenant.switch!(@current_campaign.schema_name)
+    Apartment::Tenant.switch!(@current_campaign.schema_name) if @current_campaign.schema_name.present?
   end
 
   def current_campaign
