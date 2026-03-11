@@ -5,10 +5,15 @@ const consumer = createConsumer()
 
 export default class extends Controller {
     static targets = ['container', 'count']
+    static values = { campaignId: Number }
 
     connect() {
+        const params = { channel: 'JobsChannel' }
+        if (this.campaignIdValue) {
+            params.campaign_id = this.campaignIdValue
+        }
         this.subscription = consumer.subscriptions.create(
-          { channel: 'JobsChannel' },
+          params,
           { received: (data) => this.update(data) }
         )
     }

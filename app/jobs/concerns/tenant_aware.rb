@@ -23,6 +23,17 @@ module TenantAware
 
   private
 
+  def broadcast_job_count(finishing: false)
+    campaign_id = @campaign_id || Campaign.find_by(schema_name: Apartment::Tenant.current)&.id
+    if campaign_id
+      count = JobQueueStatus.pending_count(campaign_id: campaign_id)
+      count -= 1 if finishing
+      ActionCable.server.broadcast("jobs:#{campaign_id}", { count: [count, 0].max })
+    else
+      super
+    end
+  end
+
   def switch_tenant(&block)
     if @campaign_id
       schema_name = Campaign.find(@campaign_id).schema_name
