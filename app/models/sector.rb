@@ -9,6 +9,7 @@ class Sector < ApplicationRecord
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
   validate :coordinates_unique_with_link
+  validate :traveller_map_accessible, if: -> { source == 'traveller_map' && new_record? && x.present? && y.present? }
 
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
@@ -78,10 +79,17 @@ class Sector < ApplicationRecord
     parsecs.update_all(['x = x + ?, y = y + ?', x_delta, y_delta])
   end
 
+  def traveller_map_accessible
+    @traveller_map_metadata = fetch_subsector_names_from_traveller_map
+  rescue Net::OpenTimeout, Net::ReadTimeout, SocketError => e
+    Rails.logger.warn "TravellerMap unreachable for #{x}/#{y}: #{e.message}"
+    errors.add(:base, 'Traveller Map is currently unreachable. Please try again later.')
+  end
+
   def create_subsectors_and_parsecs
     return if Rails.env.test?
 
-    subsector_names = fetch_subsector_names_from_traveller_map if source == 'traveller_map'
+    subsector_names = instance_variable_defined?(:@traveller_map_metadata) ? @traveller_map_metadata : fetch_subsector_names_from_traveller_map if source == 'traveller_map'
 
     ('A'..'P').each_with_index do |letter, index|
       x = (index % 4) + 1

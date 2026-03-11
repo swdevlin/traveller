@@ -49,8 +49,8 @@ class TravellerMap
       uri.host,
       uri.port,
       use_ssl: true,
-      open_timeout: 5,
-      read_timeout: 30
+      open_timeout: 15,
+      read_timeout: 60
     ) do |http|
       http.get(uri.request_uri)
     end
@@ -70,8 +70,8 @@ class TravellerMap
       uri.host,
       uri.port,
       use_ssl: true,
-      open_timeout: 5,
-      read_timeout: 10
+      open_timeout: 15,
+      read_timeout: 30
     ) do |http|
       http.get(uri.request_uri, { 'Accept' => 'application/json' })
     end

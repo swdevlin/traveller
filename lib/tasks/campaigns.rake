@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 namespace :campaigns do
+  desc 'List all campaigns'
+  task list: :environment do
+    campaigns = Campaign.order(:slug)
+    if campaigns.empty?
+      puts 'No campaigns found.'
+    else
+      campaigns.each { |c| puts "#{c.slug.ljust(30)} #{c.name}" }
+    end
+  end
+
   desc 'Rename a campaign slug. Use FROM=old_slug TO=new_slug'
   task rename_slug: :environment do
     from = ENV['FROM'].presence or abort 'Specify the current slug with FROM=old_slug'
