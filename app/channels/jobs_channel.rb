@@ -2,10 +2,10 @@
 
 class JobsChannel < ApplicationCable::Channel
   def subscribed
-    campaign_id = params[:campaign_id]&.to_i
-    if campaign_id&.positive?
-      stream_from "jobs:#{campaign_id}"
-      ActionCable.server.broadcast("jobs:#{campaign_id}", { count: JobQueueStatus.pending_count(campaign_id: campaign_id) })
+    schema_name = params[:schema_name].presence
+    if schema_name
+      stream_from "jobs:#{schema_name}"
+      ActionCable.server.broadcast("jobs:#{schema_name}", { count: JobQueueStatus.pending_count(schema_name: schema_name) })
     else
       stream_from 'jobs'
       ActionCable.server.broadcast('jobs', { count: JobQueueStatus.pending_count })

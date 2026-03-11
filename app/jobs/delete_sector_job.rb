@@ -4,6 +4,6 @@ class DeleteSectorJob < ApplicationJob
   include TenantAware
 
   def perform(sector_id)
-    Sector.find(sector_id).destroy
+    Sector.find(sector_id).delete
   end
 end

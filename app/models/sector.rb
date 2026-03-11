@@ -92,10 +92,10 @@ class Sector < ApplicationRecord
     subsector_names = instance_variable_defined?(:@traveller_map_metadata) ? @traveller_map_metadata : fetch_subsector_names_from_traveller_map if source == 'traveller_map'
 
     ('A'..'P').each_with_index do |letter, index|
-      x = (index % 4) + 1
-      y = (index / 4) + 1
+      sx = (index % 4) + 1
+      sy = (index / 4) + 1
       subsector_name = subsector_names&.dig(letter, 'Name') || letter
-      CreateSubsectorJob.perform_later(id, letter, x, y, subsector_name)
+      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name)
     end
   end
 

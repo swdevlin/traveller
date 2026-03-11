@@ -5,12 +5,12 @@ const consumer = createConsumer()
 
 export default class extends Controller {
     static targets = ['container', 'count']
-    static values = { campaignId: Number }
+    static values = { schemaName: String }
 
     connect() {
         const params = { channel: 'JobsChannel' }
-        if (this.campaignIdValue) {
-            params.campaign_id = this.campaignIdValue
+        if (this.schemaNameValue) {
+            params.schema_name = this.schemaNameValue
         }
         this.subscription = consumer.subscriptions.create(
           params,

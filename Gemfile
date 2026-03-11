@@ -88,3 +88,4 @@ gem 'ultimate_turbo_modal'
 gem 'discard'
 
 gem 'ros-apartment', require: 'apartment'
+gem 'ros-apartment-activejob', require: 'apartment-activejob'
