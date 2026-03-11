@@ -13,6 +13,8 @@ Apartment.configure do |config|
     else
       []
     end
+  rescue ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad
+    []
   end
 
   # There are cases where you might want some schemas to always be in your search_path
