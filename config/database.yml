@@ -50,6 +50,7 @@ production:
   primary:
     adapter: postgresql
     url: <%= ENV["DATABASE_URL"] %>
+    schema_search_path: 'public,shared_extensions'
   cache:
     <<: *sqlite
     database: storage/cache.sqlite3
