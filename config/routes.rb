@@ -44,6 +44,13 @@ Rails.application.routes.draw do
         post :upload_hexes
         get  :hex_template
       end
+      resources :region_components, only: :destroy do
+        member do
+          get  :hex_template
+          get  :import_hexes
+          post :upload_hexes
+        end
+      end
     end
 
     resources :tech_levels

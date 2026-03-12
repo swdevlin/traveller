@@ -12,6 +12,13 @@ class RegionsController < ApplicationController
   def show
     rank = Region.order(:name).where('name < ?', @region.name).count
     @regions_list_page = (rank / 20) + 1
+    @components = @region.region_components
+      .includes(:source_sector)
+      .left_joins(:region_parsecs)
+      .where('region_parsecs.id IS NULL OR region_parsecs.kind = ?', 'fill')
+      .group('region_components.id')
+      .select('region_components.*, COUNT(region_parsecs.id) AS fill_parsec_count')
+      .order('region_components.id')
   end
 
   # GET /regions/new

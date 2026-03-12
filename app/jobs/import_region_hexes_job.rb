@@ -12,8 +12,6 @@ class ImportRegionHexesJob < ApplicationJob
         input_type:    'painted_parsecs'
       )
 
-      RegionSector.find_or_create_by!(region: region, sector: sector)
-
       hex_rows.each do |row|
         ux = sx * 32 + (row[:hex_x] - 1)
         uy = sy * 40 - (row[:hex_y] - 1)

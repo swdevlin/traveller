@@ -1,8 +1,8 @@
 class Region < ApplicationRecord
   has_many :region_components, dependent: :destroy
   has_many :region_parsecs, through: :region_components
-  has_many :region_sectors, dependent: :delete_all
-  has_many :sectors, through: :region_sectors
+  has_many :parsecs, through: :region_parsecs
+  has_many :sectors, -> { distinct }, through: :parsecs
 
   enum :source, {
     manual: 'manual',
@@ -13,8 +13,12 @@ class Region < ApplicationRecord
   validates :source, presence: true
 
   scope :for_sector, ->(sector) {
-    joins(:region_sectors).where(region_sectors: { sector_id: sector.id }).distinct
+    joins(:parsecs).where(parsecs: { sector_id: sector.id }).distinct
   }
+
+  def to_s
+    name || 'Unnamed Region'
+  end
 
   def imported?
     source == 'travellermap'

@@ -83,5 +83,6 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 - String literals use single quotes
 - use British english
 - Common filtered subsets of associations belong on the model as named methods, not inline at call sites in views or domain classes
-- indexing a json field is better than extracting the value into a column
+- always use `jsonb` for JSON columns, never `json` — jsonb supports GIN indexes, the `@>` containment operator, and is more efficient on read
+- indexing a jsonb field is better than extracting the value into a column
 - 

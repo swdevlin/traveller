@@ -5,9 +5,6 @@
 <% content_for :page_buttons do %>
   <div class='mt-6 flex flex-col sm:flex-row gap-2'>
     <%= link_to 'Edit', edit_region_path(@region), class: 'w-full sm:w-auto btn' %>
-    <%= link_to 'Import Hexes', import_hexes_region_path(@region),
-                class: 'w-full sm:w-auto btn',
-                data: { turbo_frame: 'modal' } %>
     <%= link_to 'Regions', regions_path(page: @regions_list_page), class: 'w-full sm:w-auto btn' %>
     <%= button_to 'Delete', @region,
                   method: :delete,
@@ -17,7 +14,7 @@
   </div>
 <% end %>
 
-<div data-controller='region-refresh'
+<div class='w-full' data-controller='region-refresh'
      data-region-refresh-region-id-value='<%= @region.id %>'>
 <%= render 'application/page' do %>
   <div class='space-y-8'>
@@ -93,6 +90,68 @@
     </div>
 
     <%= render 'application/observation_block', notes: @region.notes %>
+
+    <div class='table-card'>
+      <div class='table-banner'>
+        <p>Components</p>
+        <div class='actions'>
+          <%= link_to import_hexes_region_path(@region), class: 'btn-header',
+                      data: { turbo_frame: 'modal' } do %>
+            <i class='fa-regular fa-plus'></i>
+            <span>New</span>
+          <% end %>
+        </div>
+      </div>
+
+      <div class='table-scroll'>
+        <table>
+          <thead>
+            <tr>
+              <th scope='col'>Sector</th>
+              <th scope='col' class='text-right'>Hexes</th>
+              <th scope='col' class='text-right actions-cell'>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @components.any? %>
+              <% @components.each do |component| %>
+                <tr>
+                  <td><%= component.source_sector&.name || '—' %></td>
+                  <td class='text-right'><%= component.fill_parsec_count %></td>
+                  <td class='actions-cell'>
+                    <div class='action-group'>
+                      <%= link_to hex_template_region_region_component_path(@region, component),
+                                  class: 'action',
+                                  title: 'Download CSV',
+                                  data: { turbo: false } do %>
+                        <i class='fa-regular fa-cloud-arrow-down'></i>
+                      <% end %>
+                      <%= link_to import_hexes_region_region_component_path(@region, component),
+                                  class: 'action',
+                                  title: 'Upload CSV',
+                                  data: { turbo_frame: 'modal' } do %>
+                        <i class='fa-regular fa-cloud-arrow-up'></i>
+                      <% end %>
+                      <%= button_to region_region_component_path(@region, component),
+                                    method: :delete,
+                                    class: 'action danger',
+                                    title: 'Delete',
+                                    data: { turbo_confirm: 'Delete this component and all its hexes?' } do %>
+                        <i class='fa-regular fa-trash'></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan='3'>No components.</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 <% end %>
 </div>
