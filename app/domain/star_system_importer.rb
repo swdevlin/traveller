@@ -33,7 +33,7 @@ class StarSystemImporter
       @star_system.build_log    = data['buildLog']
       @star_system.survey_index = data['surveyIndex'] || 0
       allegiance_code           = data.fetch('allegiance')
-      @star_system.allegiance   = allegiance_code ? Allegiance.where(code: allegiance_code).sole : nil
+      @star_system.allegiance   = allegiance_code ? find_or_create_allegiance(allegiance_code) : nil
       @star_system.save!
 
       set_star_system_trade_codes(data['mainWorld']['tradeCodes']) unless data['mainWorld'].nil?
@@ -77,7 +77,7 @@ class StarSystemImporter
       @star_system.survey_index = data['surveyIndex'] || 0
       allegiance = data.fetch('allegiance')
       unless allegiance.nil?
-        @star_system.allegiance = Allegiance.where(code: allegiance).sole
+        @star_system.allegiance = find_or_create_allegiance(allegiance)
       end
       @star_system.save!
 
@@ -116,6 +116,12 @@ class StarSystemImporter
   end
 
   private
+
+  def find_or_create_allegiance(code)
+    Allegiance.find_or_create_by!(code: code) do |a|
+      a.name = code
+    end
+  end
 
   def set_star_system_trade_codes(codes)
     return if codes.nil?

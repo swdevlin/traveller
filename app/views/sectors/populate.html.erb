@@ -90,7 +90,7 @@
                         title: all_have_build ? 'Generate all subsectors' : 'All subsectors must have a build configuration' %>
       <% end %>
 
-      <%= link_to 'Generate Build Plans',
+      <%= link_to 'Set Build Plans',
                   defaults_source_sector_path(@sector),
                   class: 'btn',
                   data: { turbo_frame: 'modal' } %>

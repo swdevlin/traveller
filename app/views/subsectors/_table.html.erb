@@ -22,14 +22,11 @@
       <tbody>
       <% if subsectors.any? %>
         <% subsectors.each do |subsector| %>
-          <tr>
-            <td>
-              <%= link_to subsector_path(subsector),
-                          data: { turbo_frame: '_top' },
-                          class: 't-link' do %>
-                <span><%= subsector.name %></span>
-              <% end %>
-            </td>
+          <tr data-controller='row-link'
+              data-row-link-url-value='<%= subsector_path(subsector) %>'
+              data-action='click->row-link#navigate'
+              class='cursor-pointer'>
+            <td><%= subsector.name %></td>
 
             <td class='text-right whitespace-nowrap'><%= subsector.number_of_star_systems %></td>
             <td class='text-right whitespace-nowrap'><%= subsector.number_of_stars %></td>

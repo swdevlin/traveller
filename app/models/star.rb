@@ -48,6 +48,10 @@ class Star < StellarObject
            class_name: 'StellarObject',
            foreign_key: :orbiting_id
 
+  def secondary_stars
+    companion_id ? stars.where.not(id: companion_id) : stars
+  end
+
   def display_name
     if name.present?
       "#{name} (#{spectral_classification})"

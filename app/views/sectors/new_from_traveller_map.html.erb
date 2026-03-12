@@ -20,6 +20,7 @@
       <%= text_field_tag :q, params[:q],
                          placeholder: "Search sectors (min 3 characters)...",
                          autocomplete: "off",
+                         autofocus: true,
                          data: {
                            controller: params[:q].present? ? "autofocus" : nil,
                            action: "input->autosubmit#queue"

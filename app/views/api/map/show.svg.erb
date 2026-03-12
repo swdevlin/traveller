@@ -94,7 +94,7 @@
         <% if star_system %>
           <%
             primary = star_system.primary_star
-            orbiting_stars = primary&.stars&.to_a || []
+            orbiting_stars = primary&.secondary_stars&.to_a || []
             star_cy = cy
             primary_r = hex_size * 0.18
             orbiting_r = hex_size * 0.10
