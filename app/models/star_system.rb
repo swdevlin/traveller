@@ -49,11 +49,19 @@ class StarSystem < ApplicationRecord
   end
 
   scope :with_native_sophont, -> {
-    where(id: StellarObject.where("data->>'native_sophont' = 'true'").select(:star_system_id))
+    where(id: StellarObject.where("stellar_objects.data @> '{\"native_sophont\": true}'").select(:star_system_id))
   }
 
   def has_gas_giant?
     @has_gas_giant ||= gas_giants.exists?
+  end
+
+  def has_native_sophont?
+    @has_native_sophont ||= stellar_objects.where("stellar_objects.data @> '{\"native_sophont\": true}'").exists?
+  end
+
+  def has_extinct_sophont?
+    @has_extinct_sophont ||= stellar_objects.where("stellar_objects.data @> '{\"extinct_sophont\": true}'").exists?
   end
 
   def main_world_uwp

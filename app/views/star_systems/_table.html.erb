@@ -49,6 +49,12 @@
 
           <td class='whitespace-nowrap'>
             <%= star_system.main_world_uwp %>
+            <% if star_system.has_native_sophont? %>
+              <i class='fa-kit fa-light-user-alien ml-1' title='Native sophont'></i>
+            <% end %>
+            <% if star_system.has_extinct_sophont? %>
+              <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
+            <% end %>
           </td>
 
           <td class='whitespace-nowrap'>

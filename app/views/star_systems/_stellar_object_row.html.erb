@@ -47,6 +47,12 @@
     <% else %>
       <%= temperature_label(stellar_object.temperature) %>
     <% end %>
+    <% if stellar_object.respond_to?(:data) && stellar_object.data['native_sophont'] %>
+      <i class='fa-kit fa-light-user-alien ml-1' title='Native sophont'></i>
+    <% end %>
+    <% if stellar_object.respond_to?(:data) && stellar_object.data['extinct_sophont'] %>
+      <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
+    <% end %>
   </td>
 
   <td class='actions-cell'>
