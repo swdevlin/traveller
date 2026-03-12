@@ -20,11 +20,11 @@ Rails.application.routes.draw do
   scope '/c/:campaign_slug' do
     get '/', to: redirect { |params, _req| "/c/#{params[:campaign_slug]}/sectors" }, as: :campaign_root
     namespace :api do
-      resources :sectors, only: :index
-      resources :regions, only: :index
+      resources :sectors, only: :index, defaults: { format: :json }
+      resources :regions, only: :index, defaults: { format: :json }
       resources :parsecs, only: :index
       get 'jumps',       to: 'jump_logs#index', defaults: { format: :json }
-      get 'starsystems', to: 'star_systems#index'
+      get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
