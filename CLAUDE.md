@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Rails 8.1.1 application for managing Traveller RPG universe data - sectors, subsectors, star systems, and stellar objects. The app supports procedural generation of star systems via an external generator service.
 
+The application is multi-tenant using ros-apartment. It uses path based tenancy and has a schema per tenant. Tenant is determined by Campaign, and schema_name is used for the schema name.
+
+The application uses core Rails 8.1 for jobs and caching.
+
 ## Common Commands
 
 ```bash
