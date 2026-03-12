@@ -1,5 +1,4 @@
 class ImportRegionHexesJob < ApplicationJob
-  include TenantAware
   def perform(region_id, rows)
     region = Region.find(region_id)
 

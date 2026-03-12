@@ -4,8 +4,6 @@ require 'json'
 require 'yaml'
 
 class GenerateSubsectorJob < ApplicationJob
-  include TenantAware
-
   queue_as :default
 
   def perform(subsector_id, definition)
