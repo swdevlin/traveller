@@ -7,8 +7,7 @@ Rails.application.routes.draw do
   resources :campaigns, only: %i[new create]
 
   get '/fairuse', to: 'marketing#fairuse'
-  get '/deltas',  to: 'marketing#deltas'
-
+  get '/deltas',  to: 'release_notes#index'
   get '/help', to: 'help#index'
   get 'help/subsector_build_specification'
   get 'help/star_system_build_specification'

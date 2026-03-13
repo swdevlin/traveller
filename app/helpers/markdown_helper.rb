@@ -10,11 +10,13 @@ module MarkdownHelper
     h1 h2 h3 h4 h5 h6
     table thead tbody tr th td
     div
+    img figure figcaption
   ].freeze
 
   ALLOWED_ATTRIBUTES = %w[
     href title target rel
     class
+    src alt width height loading decoding
   ].freeze
 
   def render_markdown(markdown)
