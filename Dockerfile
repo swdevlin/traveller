@@ -10,7 +10,7 @@
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.7
 
-FROM node:24-bookworm-slim AS elm_build
+FROM node:24-bookworm AS elm_build
 
 WORKDIR /starmap
 
