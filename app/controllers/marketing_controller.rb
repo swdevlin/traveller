@@ -14,5 +14,4 @@ class MarketingController < ApplicationController
 
   def fairuse
   end
-
 end

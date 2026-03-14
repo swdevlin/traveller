@@ -113,7 +113,7 @@ class RoguesController < ApplicationController
     uri.query = URI.encode_www_form(params) if params.present?
 
     headers = {
-      'x-tenant-id' => @broadcast_schema_name,
+      'x-tenant-id' => @broadcast_schema_name
     }
 
     http = Net::HTTP.new(uri.host, uri.port, headers: headers)
