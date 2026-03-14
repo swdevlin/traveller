@@ -7,6 +7,9 @@
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
+# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+ARG RUBY_VERSION=3.4.7
+
 FROM node:24-bookworm-slim AS elm_build
 
 WORKDIR /starmap
@@ -18,8 +21,6 @@ COPY frontend/starmap ./
 RUN npx elm make src/Main.elm --output=starmap.js --optimize
 
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.4.7
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
