@@ -23,6 +23,15 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * Import default configuration for parsec
 * Quickly set survey index for a subsector
 
+### Map to do
+
+* [ ] display name if known
+* [ ] making HexAddress fail on invalid addresses
+* [ ] render neutron star
+* [ ] prettier ui somehow
+* [ ] smart caching/requesting the api so we don't fetch too much duplicate data
+
+
 ### To do?
 
 * Communication routes

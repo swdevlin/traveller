@@ -112,7 +112,11 @@ class RoguesController < ApplicationController
     uri  = URI.join(base.end_with?('/') ? base : "#{base}/", klass.name.underscore)
     uri.query = URI.encode_www_form(params) if params.present?
 
-    http = Net::HTTP.new(uri.host, uri.port)
+    headers = {
+      'x-tenant-id' => @broadcast_schema_name,
+    }
+
+    http = Net::HTTP.new(uri.host, uri.port, headers: headers)
     http.open_timeout = 5
     http.read_timeout = 5
 

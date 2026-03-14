@@ -37,7 +37,8 @@ class GenerateSubsectorJob < ApplicationJob
     http.read_timeout = 600
     headers = {
       'Content-Type' => 'application/json',
-      'Accept' => 'application/json'
+      'Accept' => 'application/json',
+      'x-tenant-id' => @broadcast_schema_name,
     }
 
     response = http.post(uri.request_uri, config.to_json, headers)

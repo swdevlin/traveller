@@ -48,3 +48,5 @@
 
 /node_modules/*
 /vendor/bundle
+/frontend/starmap/node_modules/
+/frontend/starmap/elm-stuff/

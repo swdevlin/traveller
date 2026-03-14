@@ -7,6 +7,17 @@
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
+FROM node:24-bookworm-slim AS elm_build
+
+WORKDIR /starmap
+
+COPY frontend/starmap/elm.json frontend/starmap/package.json frontend/starmap/package-lock.json ./
+RUN npm ci
+
+COPY frontend/starmap ./
+RUN npx elm make src/Main.elm --output=starmap.js --optimize
+
+
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.7
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
@@ -55,6 +66,8 @@ RUN bundle install && \
 
 # Copy application code
 COPY . .
+
+COPY --from=elm_build /starmap/starmap.js /rails/public/starmap.js
 
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495

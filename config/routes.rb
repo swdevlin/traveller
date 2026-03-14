@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   # Campaign-scoped routes — all prefixed with /c/:campaign_slug
   scope '/c/:campaign_slug' do
     get '/', to: redirect { |params, _req| "/c/#{params[:campaign_slug]}/sectors" }, as: :campaign_root
+    get 'starmap', to: 'starmaps#show', as: :campaign_starmap
     namespace :api do
       resources :sectors, only: :index, defaults: { format: :json }
       resources :regions, only: :index, defaults: { format: :json }
