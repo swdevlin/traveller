@@ -119,7 +119,7 @@ subscriptions { travellerModel } =
                 |> Sub.map GotTravellerMsg
 
         Nothing ->
-            Sub.none |> Debug.log "Ignored subscription"
+            Sub.none
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

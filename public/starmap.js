@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.3";
   var TARGET_NAME = "main";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1773504618975"
+    "1773505991913"
   );
   var ORIGINAL_COMPILATION_MODE = "standard";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";
@@ -9459,7 +9459,6 @@ var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$GotTravellerMsg = function (a) {
 	return {$: 'GotTravellerMsg', a: a};
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Sub$map = _Platform_map;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
@@ -9999,7 +9998,7 @@ var $author$project$Main$subscriptions = function (_v0) {
 			$author$project$Main$GotTravellerMsg,
 			A2($author$project$Traveller$subscriptions, t, tm));
 	} else {
-		return A2($elm$core$Debug$log, 'Ignored subscription', $elm$core$Platform$Sub$none);
+		return $elm$core$Platform$Sub$none;
 	}
 };
 var $author$project$Traveller$GotViewport = function (a) {
@@ -14505,9 +14504,9 @@ var $author$project$Traveller$verticalHexes = F2(
 		}
 	});
 var $author$project$Traveller$update = F2(
-	function (msg, _v15) {
-		var time = _v15.a;
-		var model = _v15.b;
+	function (msg, _v14) {
+		var time = _v14.a;
+		var model = _v14.b;
 		var withTime = function (m) {
 			return _Utils_Tuple2(time, m);
 		};
@@ -14531,8 +14530,8 @@ var $author$project$Traveller$update = F2(
 					{deltaX: hh, deltaY: vh},
 					model.hexRect.upperLeftHex);
 				var newHexRect = {lowerRightHex: lr, upperLeftHex: model.hexRect.upperLeftHex};
-				var _v17 = function () {
-					var _v18 = _Utils_Tuple2(
+				var _v16 = function () {
+					var _v17 = _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
@@ -14542,8 +14541,8 @@ var $author$project$Traveller$update = F2(
 								viewMode: $author$project$Traveller$HexMap
 							}),
 						$author$project$Traveller$saveHexSize(newSize));
-					var newModel_ = _v18.a;
-					var newCmds_ = _v18.b;
+					var newModel_ = _v17.a;
+					var newCmds_ = _v17.b;
 					return A2(
 						$elm$core$Tuple$mapSecond,
 						function (newestCmds) {
@@ -14556,18 +14555,18 @@ var $author$project$Traveller$update = F2(
 							$author$project$Traveller$DownloadSolarSystems,
 							withTime(newModel_)));
 				}();
-				var newModel = _v17.a;
-				var newCmds = _v17.b;
+				var newModel = _v16.a;
+				var newCmds = _v16.b;
 				return _Utils_Tuple2(newModel, newCmds);
 			case 'DownloadSolarSystems':
-				var _v19 = A2(
+				var _v18 = A2(
 					$author$project$Traveller$prepNextRequest,
 					_Utils_Tuple2(model.solarSystems, model.requestHistory),
 					model.hexRect);
-				var nextRequestEntry = _v19.a;
-				var _v20 = _v19.b;
-				var newSolarSystemDict = _v20.a;
-				var newRequestHistory = _v20.b;
+				var nextRequestEntry = _v18.a;
+				var _v19 = _v18.b;
+				var newSolarSystemDict = _v19.a;
+				var newRequestHistory = _v19.b;
 				return _Utils_Tuple2(
 					withTime(
 						_Utils_update(
@@ -14597,11 +14596,10 @@ var $author$project$Traveller$update = F2(
 								{sectors: sectorDict})),
 						$elm$core$Platform$Cmd$none);
 				} else {
-					var _v26 = msg.a;
-					var requestEntry = _v26.a;
-					var url = _v26.b;
+					var _v25 = msg.a;
+					var requestEntry = _v25.a;
+					var url = _v25.b;
 					var err = msg.b.a;
-					var _v27 = A2($elm$core$Debug$log, 'Sectors did not work', err);
 					return _Utils_Tuple2(
 						withTime(
 							_Utils_update(
@@ -14665,9 +14663,9 @@ var $author$project$Traveller$update = F2(
 								{hexColours: hexColourDict, regionLabels: regionLabelDict, regions: regionDict})),
 						$elm$core$Platform$Cmd$none);
 				} else {
-					var _v28 = msg.a;
-					var requestEntry = _v28.a;
-					var url = _v28.b;
+					var _v26 = msg.a;
+					var requestEntry = _v26.a;
+					var url = _v26.b;
 					var err = msg.b.a;
 					var stub = {
 						colour: $avh4$elm_color$Color$blue,
@@ -14734,9 +14732,9 @@ var $author$project$Traveller$update = F2(
 				}
 			case 'DownloadedRoute':
 				if (msg.b.$ === 'Ok') {
-					var _v29 = msg.a;
-					var requestEntry = _v29.a;
-					var url = _v29.b;
+					var _v27 = msg.a;
+					var requestEntry = _v27.a;
+					var url = _v27.b;
 					var route = msg.b.a;
 					var firstEntry = A2(
 						$elm$core$Maybe$map,
@@ -14762,11 +14760,10 @@ var $author$project$Traveller$update = F2(
 							$elm$core$Platform$Cmd$none);
 					}
 				} else {
-					var _v31 = msg.a;
-					var requestEntry = _v31.a;
-					var url = _v31.b;
+					var _v29 = msg.a;
+					var requestEntry = _v29.a;
+					var url = _v29.b;
 					var err = msg.b.a;
-					var _v32 = A2($elm$core$Debug$log, 'Route did not work', err);
 					return _Utils_Tuple2(
 						withTime(
 							_Utils_update(
@@ -14814,7 +14811,6 @@ var $author$project$Traveller$update = F2(
 							$elm$core$Platform$Cmd$none);
 					} else {
 						var err = msg.a.a;
-						var _v33 = A2($elm$core$Debug$log, '404', err);
 						return _Utils_Tuple2(
 							withTime(model),
 							$elm$core$Platform$Cmd$none);
@@ -14822,9 +14818,9 @@ var $author$project$Traveller$update = F2(
 				}
 			case 'DownloadedSolarSystems':
 				if (msg.b.$ === 'Ok') {
-					var _v21 = msg.a;
-					var requestEntry = _v21.a;
-					var url_ = _v21.b;
+					var _v20 = msg.a;
+					var requestEntry = _v20.a;
+					var url_ = _v20.b;
 					var fallibleSolarSystems = msg.b.a;
 					var newRequestHistory = A3(
 						$author$project$Traveller$markRequestComplete,
@@ -14832,15 +14828,15 @@ var $author$project$Traveller$update = F2(
 						$krisajenkins$remotedata$RemoteData$Success(_Utils_Tuple0),
 						model.requestHistory);
 					var existingDict = model.solarSystems;
-					var _v22 = A2(
+					var _v21 = A2(
 						$elm$core$Tuple$mapFirst,
 						$elm$core$Dict$fromList,
 						A3(
 							$elm$core$List$foldl,
 							F2(
-								function (fallibleSystem, _v23) {
-									var systems = _v23.a;
-									var errs = _v23.b;
+								function (fallibleSystem, _v22) {
+									var systems = _v22.a;
+									var errs = _v22.b;
 									var hasFailed = A2($elm$core$List$any, $elm_community$result_extra$Result$Extra$isErr, fallibleSystem.stars);
 									if (!hasFailed) {
 										var si = model.isReferee ? $author$project$Traveller$refereeSI : fallibleSystem.surveyIndex;
@@ -14876,8 +14872,7 @@ var $author$project$Traveller$update = F2(
 												$elm$core$List$cons,
 												_Utils_Tuple2(
 													$author$project$Traveller$HexAddress$toKey(fallibleSystem.address),
-													$author$project$Traveller$FailedStarsSolarSystem(
-														A2($elm$core$Debug$log, 'failed', fallibleSystem))),
+													$author$project$Traveller$FailedStarsSolarSystem(fallibleSystem)),
 												systems),
 											_Utils_ap(
 												A2(
@@ -14904,13 +14899,13 @@ var $author$project$Traveller$update = F2(
 								}),
 							_Utils_Tuple2(_List_Nil, _List_Nil),
 							fallibleSolarSystems));
-					var sortedSolarSystems = _v22.a;
-					var potentiallyNewErrors = _v22.b;
+					var sortedSolarSystems = _v21.a;
+					var potentiallyNewErrors = _v21.b;
 					var newErrors = A2(
 						$elm$core$List$filter,
-						function (_v25) {
-							var newErr = _v25.a;
-							var errUrl = _v25.b;
+						function (_v24) {
+							var newErr = _v24.a;
+							var errUrl = _v24.b;
 							return !A2(
 								$elm$core$List$member,
 								newErr,
@@ -14951,9 +14946,9 @@ var $author$project$Traveller$update = F2(
 									$elm$browser$Browser$Dom$getViewportOf('hexmap'))
 								])));
 				} else {
-					var _v34 = msg.a;
-					var requestEntry = _v34.a;
-					var url = _v34.b;
+					var _v30 = msg.a;
+					var requestEntry = _v30.a;
+					var url = _v30.b;
 					var err = msg.b.a;
 					var newRequestHistory = A3(
 						$author$project$Traveller$markRequestComplete,
@@ -14971,10 +14966,10 @@ var $author$project$Traveller$update = F2(
 									if (maybeSolarsystem.$ === 'Just') {
 										switch (maybeSolarsystem.a.$) {
 											case 'LoadingSolarSystem':
-												var _v36 = maybeSolarsystem.a;
+												var _v32 = maybeSolarsystem.a;
 												return $author$project$Traveller$FailedSolarSystem(err);
 											case 'LoadedEmptyHex':
-												var _v37 = maybeSolarsystem.a;
+												var _v33 = maybeSolarsystem.a;
 												return $author$project$Traveller$FailedSolarSystem(err);
 											case 'FailedSolarSystem':
 												return $author$project$Traveller$FailedSolarSystem(err);
@@ -15138,19 +15133,19 @@ var $author$project$Traveller$update = F2(
 							})),
 					$elm$core$Platform$Cmd$none);
 			case 'MapMouseUp':
-				var _v40 = model.dragMode;
-				if (_v40.$ === 'IsDragging') {
-					var start = _v40.a.start;
-					var last = _v40.a.last;
+				var _v36 = model.dragMode;
+				if (_v36.$ === 'IsDragging') {
+					var start = _v36.a.start;
+					var last = _v36.a.last;
 					if (!_Utils_eq(start, last)) {
-						var _v41 = A2(
+						var _v37 = A2(
 							$author$project$Traveller$prepNextRequest,
 							_Utils_Tuple2(model.solarSystems, model.requestHistory),
 							model.hexRect);
-						var nextRequestEntry = _v41.a;
-						var _v42 = _v41.b;
-						var newSolarSystemDict = _v42.a;
-						var newRequestHistory = _v42.b;
+						var nextRequestEntry = _v37.a;
+						var _v38 = _v37.b;
+						var newSolarSystemDict = _v38.a;
+						var newRequestHistory = _v38.b;
 						return _Utils_Tuple2(
 							withTime(
 								_Utils_update(
@@ -15174,16 +15169,16 @@ var $author$project$Traveller$update = F2(
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'MapMouseMove':
-				var _v43 = msg.a;
-				var newX = _v43.a;
-				var newY = _v43.b;
-				var _v44 = model.dragMode;
-				if (_v44.$ === 'IsDragging') {
-					var start = _v44.a.start;
-					var last = _v44.a.last;
-					var _v45 = last;
-					var originX = _v45.a;
-					var originY = _v45.b;
+				var _v39 = msg.a;
+				var newX = _v39.a;
+				var newY = _v39.b;
+				var _v40 = model.dragMode;
+				if (_v40.$ === 'IsDragging') {
+					var start = _v40.a.start;
+					var last = _v40.a.last;
+					var _v41 = last;
+					var originX = _v41.a;
+					var originY = _v41.b;
 					var xDelta = ((originX - newX) / model.hexScale) | 0;
 					var yDelta = ((originY - newY) / model.hexScale) | 0;
 					var shiftAddress = function (hex) {
@@ -15258,14 +15253,14 @@ var $author$project$Traveller$update = F2(
 						newUpperLeft),
 					upperLeftHex: newUpperLeft
 				};
-				var _v46 = A2(
+				var _v42 = A2(
 					$author$project$Traveller$prepNextRequest,
 					_Utils_Tuple2(model.solarSystems, model.requestHistory),
 					newHexRect);
-				var nextRequestEntry = _v46.a;
-				var _v47 = _v46.b;
-				var newSolarSystemDict = _v47.a;
-				var newRequestHistory = _v47.b;
+				var nextRequestEntry = _v42.a;
+				var _v43 = _v42.b;
+				var newSolarSystemDict = _v43.a;
+				var newRequestHistory = _v43.b;
 				return _Utils_Tuple2(
 					withTime(
 						_Utils_update(
@@ -15456,7 +15451,6 @@ var $author$project$Traveller$update = F2(
 					A2($elm$core$Task$perform, $author$project$Traveller$OpenedObjectAnalysisTime, $elm$time$Time$now));
 			case 'OpenedObjectAnalysisTime':
 				var openedTime = msg.a;
-				var _v49 = A2($elm$core$Debug$log, 'got time', 123);
 				return _Utils_Tuple2(
 					withTime(
 						_Utils_update(
@@ -15500,9 +15494,7 @@ var $author$project$Traveller$updateJourney = F2(
 				}();
 				var newJourneyModel = _Utils_update(
 					journeyModel,
-					{
-						zoomScale: A2($elm$core$Debug$log, 'new zoom', newZoomScale)
-					});
+					{zoomScale: newZoomScale});
 				return _Utils_Tuple2(
 					setJourneyModel(newJourneyModel),
 					$elm$core$Platform$Cmd$none);
@@ -15590,12 +15582,12 @@ var $author$project$Traveller$updateJourney = F2(
 							journeyModel,
 							{dragMode: $author$project$Traveller$NoDragging});
 						var hh = A2($author$project$Traveller$horizontalHexes, model.viewport.hexmapViewport, model.hexScale) + 2;
-						var _v14 = function () {
+						var _v13 = function () {
 							var scaledWidth = (model.viewport.viewport.viewport.width - $author$project$Traveller$Sidebar$sidebarWidth) - 50;
 							return _Utils_Tuple2(scaledWidth, scaledWidth * ($author$project$Traveller$fullJourneyImageHeight / $author$project$Traveller$fullJourneyImageWidth));
 						}();
-						var maxWidth = _v14.a;
-						var maxHeight = _v14.b;
+						var maxWidth = _v13.a;
+						var maxHeight = _v13.b;
 						var imageSize = {height: maxHeight * journeyModel.zoomScale, width: maxWidth * journeyModel.zoomScale};
 						var sector = A3(
 							$author$project$Traveller$mouseCoordsToSector,
@@ -15630,7 +15622,6 @@ var $author$project$Traveller$updateJourney = F2(
 					var cy = _v12.b;
 					var dist = $elm$core$Basics$sqrt(
 						A2($elm$core$Basics$pow, cx - ox, 2) + A2($elm$core$Basics$pow, cy - oy, 2));
-					var _v13 = A2($elm$core$Debug$log, 'mouse up', 123);
 					return (dist > 2) ? _Utils_Tuple2(
 						setJourneyModel(
 							_Utils_update(
@@ -24707,9 +24698,7 @@ var $elm$core$Dict$values = function (dict) {
 };
 var $mdgriffith$elm_ui$Internal$Model$Bottom = {$: 'Bottom'};
 var $mdgriffith$elm_ui$Element$alignBottom = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$Bottom);
-var $elm$core$Debug$toString = _Debug_toString;
 var $author$project$Traveller$Sidebar$viewSidebarFooter = function (selectedHex) {
-	var _v0 = A2($elm$core$Debug$log, 'footer', 123);
 	return A2(
 		$mdgriffith$elm_ui$Element$el,
 		_List_fromArray(
@@ -24724,7 +24713,7 @@ var $author$project$Traveller$Sidebar$viewSidebarFooter = function (selectedHex)
 			if (selectedHex.$ === 'Just') {
 				var viewingAddress = selectedHex.a;
 				return $mdgriffith$elm_ui$Element$text(
-					$elm$core$Debug$toString(viewingAddress));
+					$author$project$Traveller$HexAddress$hexLabel(viewingAddress));
 			} else {
 				return $mdgriffith$elm_ui$Element$text('Deepnight Corporation LLC');
 			}

@@ -2028,7 +2028,7 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                             newZoom
 
                 newJourneyModel =
-                    { journeyModel | zoomScale = Debug.log "new zoom" newZoomScale }
+                    { journeyModel | zoomScale = newZoomScale }
             in
             ( setJourneyModel newJourneyModel, Cmd.none )
 
@@ -2094,9 +2094,6 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
 
                         dist =
                             sqrt ((cx - ox) ^ 2 + (cy - oy) ^ 2)
-
-                        _ =
-                            Debug.log "mouse up" 123
 
                         hexViewToSector arg1 =
                             let
@@ -2286,7 +2283,7 @@ update msg ( time, model ) =
 
                                 else
                                     ( ( HexAddress.toKey fallibleSystem.address
-                                      , FailedStarsSolarSystem <| Debug.log "failed" fallibleSystem
+                                      , FailedStarsSolarSystem fallibleSystem
                                       )
                                         :: systems
                                     , (fallibleSystem.stars
@@ -2354,10 +2351,6 @@ update msg ( time, model ) =
             )
 
         DownloadedSectors ( requestEntry, url ) (Err err) ->
-            let
-                _ =
-                    Debug.log "Sectors did not work" err
-            in
             ( withTime { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
 
         DownloadedRegions requestEntry (Ok regions) ->
@@ -2483,10 +2476,6 @@ update msg ( time, model ) =
                     )
 
         DownloadedRoute ( requestEntry, url ) (Err err) ->
-            let
-                _ =
-                    Debug.log "Route did not work" err
-            in
             ( withTime { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
 
         FetchedSolarSystem (Ok solarSystem) ->
@@ -2514,10 +2503,6 @@ update msg ( time, model ) =
             ( withTime { model | newSolarSystemErrors = model.newSolarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
 
         FetchedSolarSystem (Err err) ->
-            let
-                _ =
-                    Debug.log "404" err
-            in
             ( withTime model, Cmd.none )
 
         DownloadedSolarSystems ( requestEntry, url ) (Err err) ->
@@ -2946,10 +2931,6 @@ update msg ( time, model ) =
             )
 
         OpenedObjectAnalysisTime openedTime ->
-            let
-                _ =
-                    Debug.log "got time" 123
-            in
             ( withTime { model | timeOpened = openedTime }, Cmd.none )
 
         CloseObjectAnalysis ->

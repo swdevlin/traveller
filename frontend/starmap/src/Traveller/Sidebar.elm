@@ -274,10 +274,6 @@ viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex,
 -}
 viewSidebarFooter : Maybe HexAddress -> Element msg
 viewSidebarFooter selectedHex =
-    let
-        _ =
-            Debug.log "footer" 123
-    in
     -- footer
     Element.el
         [ Element.padding 10
@@ -289,7 +285,7 @@ viewSidebarFooter selectedHex =
     <|
         case selectedHex of
             Just viewingAddress ->
-                text <| Debug.toString viewingAddress
+                text <| HexAddress.hexLabel viewingAddress
 
             Nothing ->
                 text "Deepnight Corporation LLC"
