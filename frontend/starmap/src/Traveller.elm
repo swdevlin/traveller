@@ -875,11 +875,11 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
                             else
                                 "?"
                      in
-                     [ Svg.tspan [ SvgAttrs.fill "#809076", SvgAttrs.fontWeight "800" ]
+                     [ Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown terrestrialSI starSystem.terrestrialPlanetCount ]
                      , Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown planetoidSI starSystem.planetoidBeltCount ]
-                     , Svg.tspan [ SvgAttrs.fill "#109076", SvgAttrs.fontWeight "800" ]
+                     , Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown gasGiantSI starSystem.gasGiantCount ]
                      ]
                     )
