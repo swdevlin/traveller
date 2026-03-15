@@ -2882,6 +2882,18 @@ update msg ( time, model ) =
 
                         buildStringPlanet : SharedPData -> AnalyisDetailPlanetoidData
                         buildStringPlanet pdata =
+                            let
+                                parsedUwp =
+                                    Parser.run uwp pdata.uwp
+
+                                uwpField accessor describer =
+                                    case parsedUwp of
+                                        Ok u ->
+                                            describer (accessor u)
+
+                                        Err _ ->
+                                            "—"
+                            in
                             { physical =
                                 { au = rnd 2 pdata.au
                                 , period = rnd 2 (pdata.period / 365.25)
@@ -2897,7 +2909,7 @@ update msg ( time, model ) =
                                 , greenhouse = rndm 2 0 pdata.greenhouse
                                 }
                             , atmosphere =
-                                { type_ = atmosphereDescriptionEx pdata.atmosphere.code
+                                { type_ = toEHexChar pdata.atmosphere.code ++ " – " ++ atmosphereDescriptionEx pdata.atmosphere.code
                                 , hazardCode = atmosphereHazardDescription pdata.atmosphere.hazardCode
                                 , bar = rnd 1 <| pdata.atmosphere.bar
                                 , taint =
@@ -2934,6 +2946,24 @@ update msg ( time, model ) =
 
                                     else
                                         "No"
+                                }
+                            , social =
+                                let
+                                    uwpChar i =
+                                        String.slice i (i + 1) pdata.uwp
+
+                                    withCode i accessor describer =
+                                        case parsedUwp of
+                                            Ok u ->
+                                                uwpChar i ++ " – " ++ describer (accessor u)
+
+                                            Err _ ->
+                                                "—"
+                                in
+                                { population = withCode 4 .population populationDescription
+                                , government = withCode 5 .government Government.description
+                                , lawLevel = withCode 6 .lawLevel LawLevel.description
+                                , techLevel = withCode 8 .techLevel TechLevel.description
                                 }
                             }
                     in

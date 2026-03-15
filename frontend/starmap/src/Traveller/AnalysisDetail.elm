@@ -133,6 +133,12 @@ type alias AnalyisDetailPlanetoidData =
         , habitability : String
         , sophonts : String
         }
+    , social :
+        { population : String
+        , government : String
+        , lawLevel : String
+        , techLevel : String
+        }
     }
 
 
@@ -244,6 +250,10 @@ viewPlanetoidAnalysisDetail timeChars data =
             , data.life.compatibility
             , data.life.habitability
             , data.life.sophonts
+            , data.social.population
+            , data.social.government
+            , data.social.lawLevel
+            , data.social.techLevel
             ]
 
         counts =
@@ -319,6 +329,15 @@ viewPlanetoidAnalysisDetail timeChars data =
                 , textDisplay "Compatibilty" <| showTimeCharsTEMP 23 data.life.compatibility
                 , textDisplay "Habitability" <| showTimeCharsTEMP 24 data.life.habitability
                 , textDisplay "Sophonts" <| showTimeCharsTEMP 25 data.life.sophonts
+                ]
+            ]
+        , column [ Element.paddingXY 0 10 ]
+            [ text "Social Data"
+            , column groupAttrs
+                [ textDisplay "Population" <| showTimeCharsTEMP 26 data.social.population
+                , textDisplay "Government" <| showTimeCharsTEMP 27 data.social.government
+                , textDisplay "Law Level" <| showTimeCharsTEMP 28 data.social.lawLevel
+                , textDisplay "Tech Level" <| showTimeCharsTEMP 29 data.social.techLevel
                 ]
             ]
         ]
