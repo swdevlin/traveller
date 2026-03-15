@@ -32,10 +32,7 @@ class Parsec < ApplicationRecord
   end
 
   def hex_code
-    ul = sector.upper_left
-    hx = (x - ul.x) + 1
-    hy = (ul.y - y) + 1
-    format('%02d%02d', hx, hy)
+    HexAddressing.hex_address_from_coords(x, y, sector.x, sector.y)
   end
 
   def subsector_hex_code
