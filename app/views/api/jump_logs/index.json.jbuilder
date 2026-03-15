@@ -10,10 +10,10 @@ json.array! @jumps do |jump|
   json.from_x jump.from_x
   json.from_y jump.from_y
   json.from_sector_name jump.from_sector_name
-  json.from_hex_code ::HexAddressing.hex_address_from_coords(jump.from_x, jump.from_y, jump.from_sector_x, jump.from_sector_y)
+  json.from_hex_code Parsec.hex_address_from_coords(jump.from_x, jump.from_y, jump.from_sector_x, jump.from_sector_y)
   json.to_x jump.to_x
   json.to_y jump.to_y
   json.to_sector_name jump.to_sector_name
-  json.to_hex_code ::HexAddressing.hex_address_from_coords(jump.to_x, jump.to_y, jump.to_sector_x, jump.to_sector_y)
+  json.to_hex_code Parsec.hex_address_from_coords(jump.to_x, jump.to_y, jump.to_sector_x, jump.to_sector_y)
   json.ship_id jump.ship_id
 end
