@@ -556,7 +556,7 @@ hexAddressLabel x y size hexAddress =
     else
         Svg.text_
             [ SvgAttrs.x <| String.fromInt x
-            , SvgAttrs.y <| String.fromInt <| y - (floor <| size * 0.65) - (if size > 30 then 1 else 2)
+            , SvgAttrs.y <| String.fromInt <| y - (floor <| size * 0.65) + (if size > 30 then 1 else 2)
             , SvgAttrs.fontSize "9"
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.fontFamily "Tomorrow"
@@ -816,21 +816,27 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
                         , SvgAttrs.y <| String.fromInt <| voy + (floor <| size * 0.8) - 1
                         , SvgAttrs.fontSize "10"
                         , SvgAttrs.textAnchor "middle"
+                        , SvgAttrs.style "letter-spacing: 3px"
                         ]
                     (let
+                        toEHexChar n =
+                            if n < 10 then
+                                String.fromInt n
+
+                            else
+                                String.slice (n - 10) (n - 9) "ABCDEFGHJKLMNPQRSTUVWXYZ"
+
                         showIfKnown req value =
                             if si >= req then
-                                String.fromInt <| value
+                                toEHexChar value
 
                             else
                                 "?"
                      in
                      [ Svg.tspan [ SvgAttrs.fill "#809076", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown terrestrialSI starSystem.terrestrialPlanetCount ]
-                     , Svg.text "–"
                      , Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown planetoidSI starSystem.planetoidBeltCount ]
-                     , Svg.text "–"
                      , Svg.tspan [ SvgAttrs.fill "#109076", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown gasGiantSI starSystem.gasGiantCount ]
                      ]

@@ -19838,7 +19838,7 @@ var $author$project$Traveller$hexAddressLabel = F4(
 					$elm$core$String$fromInt(x)),
 					$elm$svg$Svg$Attributes$y(
 					$elm$core$String$fromInt(
-						(y - $elm$core$Basics$floor(size * 0.65)) - ((size > 30) ? 1 : 2))),
+						(y - $elm$core$Basics$floor(size * 0.65)) + ((size > 30) ? 1 : 2))),
 					$elm$svg$Svg$Attributes$fontSize('9'),
 					$elm$svg$Svg$Attributes$textAnchor('middle'),
 					$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
@@ -20060,12 +20060,16 @@ var $author$project$Traveller$renderHexWithStar = F8(
 									$elm$core$String$fromInt(
 										(voy + $elm$core$Basics$floor(size * 0.8)) - 1)),
 									$elm$svg$Svg$Attributes$fontSize('10'),
-									$elm$svg$Svg$Attributes$textAnchor('middle')
+									$elm$svg$Svg$Attributes$textAnchor('middle'),
+									$elm$svg$Svg$Attributes$style('letter-spacing: 3px')
 								]),
 							function () {
+								var toEHexChar = function (n) {
+									return (n < 10) ? $elm$core$String$fromInt(n) : A3($elm$core$String$slice, n - 10, n - 9, 'ABCDEFGHJKLMNPQRSTUVWXYZ');
+								};
 								var showIfKnown = F2(
 									function (req, value) {
-										return (_Utils_cmp(si, req) > -1) ? $elm$core$String$fromInt(value) : '?';
+										return (_Utils_cmp(si, req) > -1) ? toEHexChar(value) : '?';
 									});
 								return _List_fromArray(
 									[
@@ -20081,7 +20085,6 @@ var $author$project$Traveller$renderHexWithStar = F8(
 												$elm$svg$Svg$text(
 												A2(showIfKnown, $author$project$Traveller$terrestrialSI, starSystem.terrestrialPlanetCount))
 											])),
-										$elm$svg$Svg$text('–'),
 										A2(
 										$elm$svg$Svg$tspan,
 										_List_fromArray(
@@ -20094,7 +20097,6 @@ var $author$project$Traveller$renderHexWithStar = F8(
 												$elm$svg$Svg$text(
 												A2(showIfKnown, $author$project$Traveller$planetoidSI, starSystem.planetoidBeltCount))
 											])),
-										$elm$svg$Svg$text('–'),
 										A2(
 										$elm$svg$Svg$tspan,
 										_List_fromArray(
