@@ -1841,7 +1841,7 @@ view ( time, model ) =
         , Element.paddingXY 15 0
         , case model.objectToBeAnalyzed of
             Just analysisDetail ->
-                Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis analysisDetail.data
+                Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg analysisDetail.data
 
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""

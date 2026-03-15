@@ -28,6 +28,8 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import Html.Events
+import Json.Decode
 import List.Extra
 import Traveller.UI
     exposing
@@ -128,8 +130,8 @@ type alias AnalyisDetailPlanetoidData =
 {-| Main view for object analysis detail overlay.
 Takes a close message to handle the X button click.
 -}
-viewObjectAnalysisDetail : Int -> msg -> AnalysisDetail -> Element.Element msg
-viewObjectAnalysisDetail timeChars closeMsg data =
+viewObjectAnalysisDetail : Int -> msg -> msg -> AnalysisDetail -> Element.Element msg
+viewObjectAnalysisDetail timeChars closeMsg noOpMsg data =
     let
         ( header, content ) =
             case data of
@@ -148,34 +150,48 @@ viewObjectAnalysisDetail timeChars closeMsg data =
                 AnalyisDetailStar ->
                     ( "TODO: Star", text "Star not yet implemented" )
     in
-    column
-        [ height fill
-        , Element.centerX
-        , Element.centerY
-        , Background.color <| Element.rgba 0.3 0.3 0.3 0.95
-        , width <| Element.px 750
-        , Element.padding 4
-        , Border.rounded 3
-        , Border.shadow { offset = ( 1, 1 ), size = 2, blur = 4, color = Element.rgba 0.1 0.1 0.1 (1 / 8) }
+    el
+        [ width fill
+        , height fill
+        , Background.color <| Element.rgba 0 0 0 0.6
+        , Events.onClick closeMsg
         ]
-        [ row [ width fill ]
-            [ el [ Font.size 24, Element.paddingEach { zeroEach | bottom = 15 } ] <|
-                text <|
-                    header
-            , el
-                [ Element.paddingEach { top = 0, left = 10, right = 10, bottom = 10 }
-                , Element.pointer
-                , Element.mouseOver [ Font.color <| Element.rgb 0.8 0.8 0.8 ]
-                , Font.size 16
-                , Element.alignRight
-                , Element.alignTop
-                , Events.onClick closeMsg
-                ]
-              <|
-                text "X"
+    <|
+        column
+            [ Element.centerX
+            , Element.centerY
+            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True )))
+            , Background.color <| Element.rgba 0.12 0.14 0.18 0.98
+            , width <| Element.px 750
+            , Element.padding 20
+            , Border.rounded 6
+            , Border.width 1
+            , Border.color <| Element.rgba 1 1 1 0.15
+            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.6 }
             ]
-        , content
-        ]
+            [ row
+                [ width fill
+                , Element.paddingEach { zeroEach | bottom = 16 }
+                , Border.widthEach { zeroEach | bottom = 1 }
+                , Border.color <| Element.rgba 1 1 1 0.1
+                ]
+                [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] <|
+                    text header
+                , el
+                    [ Element.paddingEach { top = 0, left = 10, right = 0, bottom = 0 }
+                    , Element.pointer
+                    , Element.mouseOver [ Font.color <| Element.rgb 1 1 1 ]
+                    , Font.size 16
+                    , Font.color <| Element.rgba 1 1 1 0.5
+                    , Element.alignRight
+                    , Element.alignTop
+                    , Events.onClick closeMsg
+                    ]
+                  <|
+                    text "✕"
+                ]
+            , content
+            ]
 
 
 viewPlanetoidAnalysisDetail : Int -> AnalyisDetailPlanetoidData -> Element.Element msg

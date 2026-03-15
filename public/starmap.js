@@ -20436,8 +20436,21 @@ var $author$project$Traveller$viewHexMap = function (model) {
 };
 var $mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
 var $mdgriffith$elm_ui$Element$alignRight = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$Right);
+var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
+var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
 var $mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
 var $mdgriffith$elm_ui$Element$centerY = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$CenterY);
+var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
+var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$borderColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'border-color',
+			clr));
+};
 var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
 	function (top, right, bottom, left) {
 		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
@@ -20496,6 +20509,31 @@ var $mdgriffith$elm_ui$Element$Border$shadow = function (almostShade) {
 			'box-shadow',
 			$mdgriffith$elm_ui$Internal$Model$formatBoxShadow(shade)));
 };
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $avh4$elm_color$Color$scaleFrom255 = function (c) {
+	return c / 255;
+};
+var $avh4$elm_color$Color$rgb255 = F3(
+	function (r, g, b) {
+		return A4(
+			$avh4$elm_color$Color$RgbaSpace,
+			$avh4$elm_color$Color$scaleFrom255(r),
+			$avh4$elm_color$Color$scaleFrom255(g),
+			$avh4$elm_color$Color$scaleFrom255(b),
+			1.0);
+	});
+var $author$project$Traveller$UI$deepnightColor = A3($avh4$elm_color$Color$rgb255, 223, 127, 51);
+var $author$project$Traveller$UI$uiDeepnightColorFontColour = $mdgriffith$elm_ui$Element$Font$color(
+	$author$project$Traveller$UI$colorToElementColor($author$project$Traveller$UI$deepnightColor));
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -20597,23 +20635,6 @@ var $elm_community$list_extra$List$Extra$scanl = F3(
 					[b]),
 				xs));
 	});
-var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
-var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
-var $avh4$elm_color$Color$scaleFrom255 = function (c) {
-	return c / 255;
-};
-var $avh4$elm_color$Color$rgb255 = F3(
-	function (r, g, b) {
-		return A4(
-			$avh4$elm_color$Color$RgbaSpace,
-			$avh4$elm_color$Color$scaleFrom255(r),
-			$avh4$elm_color$Color$scaleFrom255(g),
-			$avh4$elm_color$Color$scaleFrom255(b),
-			1.0);
-	});
-var $author$project$Traveller$UI$deepnightColor = A3($avh4$elm_color$Color$rgb255, 223, 127, 51);
-var $author$project$Traveller$UI$uiDeepnightColorFontColour = $mdgriffith$elm_ui$Element$Font$color(
-	$author$project$Traveller$UI$colorToElementColor($author$project$Traveller$UI$deepnightColor));
 var $author$project$Traveller$UI$headerAttrs = _List_fromArray(
 	[
 		$author$project$Traveller$UI$uiDeepnightColorFontColour,
@@ -21293,8 +21314,37 @@ var $author$project$Traveller$AnalysisDetail$viewPlanetoidBeltAnalysisDetail = F
 						]))
 				]));
 	});
-var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F3(
-	function (timeChars, closeMsg, data) {
+var $mdgriffith$elm_ui$Element$Border$widthXY = F2(
+	function (x, y) {
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$borderWidth,
+			A5(
+				$mdgriffith$elm_ui$Internal$Model$BorderWidth,
+				'b-' + ($elm$core$String$fromInt(x) + ('-' + $elm$core$String$fromInt(y))),
+				y,
+				x,
+				y,
+				x));
+	});
+var $mdgriffith$elm_ui$Element$Border$widthEach = function (_v0) {
+	var bottom = _v0.bottom;
+	var top = _v0.top;
+	var left = _v0.left;
+	var right = _v0.right;
+	return (_Utils_eq(top, bottom) && _Utils_eq(left, right)) ? (_Utils_eq(top, right) ? $mdgriffith$elm_ui$Element$Border$width(top) : A2($mdgriffith$elm_ui$Element$Border$widthXY, left, top)) : A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$borderWidth,
+		A5(
+			$mdgriffith$elm_ui$Internal$Model$BorderWidth,
+			'b-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left))))))),
+			top,
+			right,
+			bottom,
+			left));
+};
+var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F4(
+	function (timeChars, closeMsg, noOpMsg, data) {
 		var _v0 = function () {
 			switch (data.$) {
 				case 'AnalyisDetailTerrestialPlanet':
@@ -21330,69 +21380,97 @@ var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F3(
 		var header = _v0.a;
 		var content = _v0.b;
 		return A2(
-			$mdgriffith$elm_ui$Element$column,
+			$mdgriffith$elm_ui$Element$el,
 			_List_fromArray(
 				[
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-					$mdgriffith$elm_ui$Element$centerX,
-					$mdgriffith$elm_ui$Element$centerY,
 					$mdgriffith$elm_ui$Element$Background$color(
-					A4($mdgriffith$elm_ui$Element$rgba, 0.3, 0.3, 0.3, 0.95)),
-					$mdgriffith$elm_ui$Element$width(
-					$mdgriffith$elm_ui$Element$px(750)),
-					$mdgriffith$elm_ui$Element$padding(4),
-					$mdgriffith$elm_ui$Element$Border$rounded(3),
-					$mdgriffith$elm_ui$Element$Border$shadow(
-					{
-						blur: 4,
-						color: A4($mdgriffith$elm_ui$Element$rgba, 0.1, 0.1, 0.1, 1 / 8),
-						offset: _Utils_Tuple2(1, 1),
-						size: 2
-					})
+					A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.6)),
+					$mdgriffith$elm_ui$Element$Events$onClick(closeMsg)
 				]),
-			_List_fromArray(
-				[
-					A2(
-					$mdgriffith$elm_ui$Element$row,
-					_List_fromArray(
-						[
-							$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$mdgriffith$elm_ui$Element$el,
-							_List_fromArray(
-								[
-									$mdgriffith$elm_ui$Element$Font$size(24),
-									$mdgriffith$elm_ui$Element$paddingEach(
-									_Utils_update(
-										$author$project$Traveller$UI$zeroEach,
-										{bottom: 15}))
-								]),
-							$mdgriffith$elm_ui$Element$text(header)),
-							A2(
-							$mdgriffith$elm_ui$Element$el,
-							_List_fromArray(
-								[
-									$mdgriffith$elm_ui$Element$paddingEach(
-									{bottom: 10, left: 10, right: 10, top: 0}),
-									$mdgriffith$elm_ui$Element$pointer,
-									$mdgriffith$elm_ui$Element$mouseOver(
-									_List_fromArray(
-										[
-											$mdgriffith$elm_ui$Element$Font$color(
-											A3($mdgriffith$elm_ui$Element$rgb, 0.8, 0.8, 0.8))
-										])),
-									$mdgriffith$elm_ui$Element$Font$size(16),
-									$mdgriffith$elm_ui$Element$alignRight,
-									$mdgriffith$elm_ui$Element$alignTop,
-									$mdgriffith$elm_ui$Element$Events$onClick(closeMsg)
-								]),
-							$mdgriffith$elm_ui$Element$text('X'))
-						])),
-					content
-				]));
+			A2(
+				$mdgriffith$elm_ui$Element$column,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$centerX,
+						$mdgriffith$elm_ui$Element$centerY,
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2(
+							$elm$html$Html$Events$stopPropagationOn,
+							'click',
+							$elm$json$Json$Decode$succeed(
+								_Utils_Tuple2(noOpMsg, true)))),
+						$mdgriffith$elm_ui$Element$Background$color(
+						A4($mdgriffith$elm_ui$Element$rgba, 0.12, 0.14, 0.18, 0.98)),
+						$mdgriffith$elm_ui$Element$width(
+						$mdgriffith$elm_ui$Element$px(750)),
+						$mdgriffith$elm_ui$Element$padding(20),
+						$mdgriffith$elm_ui$Element$Border$rounded(6),
+						$mdgriffith$elm_ui$Element$Border$width(1),
+						$mdgriffith$elm_ui$Element$Border$color(
+						A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.15)),
+						$mdgriffith$elm_ui$Element$Border$shadow(
+						{
+							blur: 32,
+							color: A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.6),
+							offset: _Utils_Tuple2(0, 8),
+							size: 0
+						})
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$mdgriffith$elm_ui$Element$row,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+								$mdgriffith$elm_ui$Element$paddingEach(
+								_Utils_update(
+									$author$project$Traveller$UI$zeroEach,
+									{bottom: 16})),
+								$mdgriffith$elm_ui$Element$Border$widthEach(
+								_Utils_update(
+									$author$project$Traveller$UI$zeroEach,
+									{bottom: 1})),
+								$mdgriffith$elm_ui$Element$Border$color(
+								A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.1))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$Font$size(18),
+										$author$project$Traveller$UI$uiDeepnightColorFontColour,
+										$mdgriffith$elm_ui$Element$Font$bold
+									]),
+								$mdgriffith$elm_ui$Element$text(header)),
+								A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$paddingEach(
+										{bottom: 0, left: 10, right: 0, top: 0}),
+										$mdgriffith$elm_ui$Element$pointer,
+										$mdgriffith$elm_ui$Element$mouseOver(
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$Font$color(
+												A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1))
+											])),
+										$mdgriffith$elm_ui$Element$Font$size(16),
+										$mdgriffith$elm_ui$Element$Font$color(
+										A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.5)),
+										$mdgriffith$elm_ui$Element$alignRight,
+										$mdgriffith$elm_ui$Element$alignTop,
+										$mdgriffith$elm_ui$Element$Events$onClick(closeMsg)
+									]),
+								$mdgriffith$elm_ui$Element$text('✕'))
+							])),
+						content
+					])));
 	});
 var $mdgriffith$elm_ui$Element$fromRgb = function (clr) {
 	return A4($mdgriffith$elm_ui$Internal$Model$Rgba, clr.red, clr.green, clr.blue, clr.alpha);
@@ -23460,7 +23538,7 @@ var $author$project$Traveller$view = function (_v0) {
 				if (_v1.$ === 'Just') {
 					var analysisDetail = _v1.a;
 					return $mdgriffith$elm_ui$Element$inFront(
-						A3($author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail, timeChars, $author$project$Traveller$CloseObjectAnalysis, analysisDetail.data));
+						A4($author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail, timeChars, $author$project$Traveller$CloseObjectAnalysis, $author$project$Traveller$NoOpMsg, analysisDetail.data));
 				} else {
 					return $mdgriffith$elm_ui$Element$htmlAttribute(
 						$elm$html$Html$Attributes$class(''));
