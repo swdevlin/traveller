@@ -7,7 +7,8 @@ export default class extends Controller {
     sectorId: Number,
     fromX: { type: String, default: '' },
     fromY: { type: String, default: '' },
-    maxDistance: { type: Number, default: 0 }
+    maxDistance: { type: Number, default: 0 },
+    url: { type: String, default: '/api/parsecs' }
   }
 
   #parsecs = []
@@ -41,7 +42,7 @@ export default class extends Controller {
   maxDistanceValueChanged() { this.#filterAndRender() }
 
   async loadHexes(sectorId, selectedParsecId) {
-    const response = await fetch(`/api/parsecs?sector_id=${sectorId}`)
+    const response = await fetch(`${this.urlValue}?sector_id=${sectorId}`)
     this.#parsecs = await response.json()
     this.#filterAndRender(selectedParsecId)
   }

@@ -48,6 +48,7 @@
            data-parsec-role='from'
            data-parsec-select-parsec-id-value='<%= jump_log.from_parsec_id.to_i %>'
            data-parsec-select-sector-id-value='<%= jump_log.from_parsec&.sector_id.to_i %>'
+           data-parsec-select-url-value='<%= api_parsecs_path %>'
            data-from-x='<%= jump_log.from_parsec&.x %>'
            data-from-y='<%= jump_log.from_parsec&.y %>'>
         <%= select_tag 'from_sector',
@@ -84,7 +85,8 @@
            data-parsec-select-sector-id-value='<%= jump_log.to_parsec&.sector_id.to_i %>'
            data-parsec-select-from-x-value='<%= jump_log.from_parsec&.x %>'
            data-parsec-select-from-y-value='<%= jump_log.from_parsec&.y %>'
-           data-parsec-select-max-distance-value='<%= jump_log.ship&.jump_drive || 0 %>'>
+           data-parsec-select-max-distance-value='<%= jump_log.ship&.jump_drive || 0 %>'
+           data-parsec-select-url-value='<%= api_parsecs_path %>'>
         <select class='edit-base w-52'
                 data-parsec-select-target='sector'
                 data-action='change->parsec-select#sectorChanged'>
