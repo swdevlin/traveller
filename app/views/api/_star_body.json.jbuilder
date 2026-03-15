@@ -37,7 +37,7 @@ else
   json.companion nil
 end
 
-all_objects = (star.stellar_objects.reject { |o| o.is_a?(Moon) } + star.stars)
+all_objects = (star.stellar_objects.reject { |o| o.is_a?(Moon) } + star.secondary_stars)
               .sort_by { |o| o.orbit.to_f }
 
 json.stellar_objects all_objects do |obj|

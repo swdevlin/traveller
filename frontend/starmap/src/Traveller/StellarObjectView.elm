@@ -59,7 +59,7 @@ import Traveller.StellarObject
         , getStellarOrbit
         , isBrownDwarf
         )
-import Traveller.TravelCalculations exposing (calcDistance2F, secondsToDaysWatches, travelTime)
+import Traveller.TravelCalculations exposing (auToKMs, calcDistance2F, secondsToDaysWatches, travelTime)
 import Traveller.UI
     exposing
         ( descriptionStyle
@@ -535,7 +535,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
             , column [ Font.size 14, Font.shadow { blur = 1, color = jumpShadowTextColor, offset = ( 0.5, 0.5 ) }, Element.width Element.fill, Element.behindContent red ]
                 [ case starData.jumpShadow of
                     Just jumpShadow ->
-                        Element.el [ Element.centerX ] <| text <| Round.round 2 jumpShadow
+                        Element.el [ Element.centerX ] <| text <| Round.round 2 (jumpShadow / auToKMs 1) ++ " AU"
 
                     Nothing ->
                         text ""
