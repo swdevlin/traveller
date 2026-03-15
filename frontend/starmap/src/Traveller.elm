@@ -613,20 +613,6 @@ renderPolyline points_ borderColour =
 renderPolygon : String -> String -> Svg msg
 renderPolygon points_ fill =
     let
-        borderColour =
-            if fill == currentAddressHexBg then
-                currentAddressHexBg
-
-            else
-                "#CCCCCC"
-
-        strokeWidth =
-            if fill == currentAddressHexBg then
-                "2"
-
-            else
-                "1"
-
         hexColour =
             if fill == currentAddressHexBg then
                 routeHexBg
@@ -637,11 +623,10 @@ renderPolygon points_ fill =
     Svg.polygon
         [ points points_
         , SvgAttrs.fill hexColour
-        , SvgAttrs.stroke borderColour
-        , SvgAttrs.strokeWidth strokeWidth
+        , SvgAttrs.stroke "#CCCCCC"
+        , SvgAttrs.strokeWidth "1"
         , SvgAttrs.pointerEvents "visiblePainted"
-        , -- CSS class from index.html
-          SvgAttrs.class "hex-hover"
+        , SvgAttrs.class "hex-hover"
         ]
         []
 
@@ -1110,20 +1095,21 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
             let
                 locationOrigin =
                     calcVisualOrigin hexSize
-                        { row = upperLeftHex.y - ca.y, col = ca.x - upperLeftHex.x }
+                        { row = ca.y, col = ca.x }
                         |> Tuple.mapBoth toFloat toFloat
 
-                points =
-                    case hexagonPoints locationOrigin hexSize of
-                        first :: points_ ->
-                            (first :: points_) ++ [ first ]
-
-                        other ->
-                            other
+                pointsStr =
+                    hexagonPoints locationOrigin hexSize
+                        |> String.join " "
             in
-            Svg.Lazy.lazy2 renderPolyline
-                (points |> String.join " ")
-                currentAddressHexBg
+            Svg.polygon
+                [ points pointsStr
+                , SvgAttrs.fill "none"
+                , SvgAttrs.stroke currentAddressHexBg
+                , SvgAttrs.strokeWidth "2"
+                , SvgAttrs.pointerEvents "none"
+                ]
+                []
 
         hexRange =
             HexAddress.betweenWithMax

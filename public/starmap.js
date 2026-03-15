@@ -604,7 +604,7 @@ ${variant}`;
   var VERSION = "1.1.3";
   var TARGET_NAME = "main";
   var INITIAL_ELM_COMPILED_TIMESTAMP = Number(
-    "1773505991913"
+    "1773580292848"
   );
   var ORIGINAL_COMPILATION_MODE = "standard";
   var ORIGINAL_BROWSER_UI_POSITION = "BottomLeft";
@@ -22635,6 +22635,7 @@ var $author$project$Traveller$HexAddress$betweenWithMax = F3(
 			A2($elm$core$List$range, upperLeftHex.x, upperLeftHex.x + across));
 	});
 var $author$project$Traveller$currentAddressHexBg = '#fe5a1d';
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Traveller$allegianceColours = $elm$core$Dict$fromList(
 	_List_fromArray(
@@ -22700,8 +22701,6 @@ var $author$project$Traveller$isOnRoute = F2(
 			},
 			route);
 	});
-var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
-var $elm$svg$Svg$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
 var $elm$virtual_dom$VirtualDom$lazy3 = _VirtualDom_lazy3;
 var $elm$html$Html$Lazy$lazy3 = $elm$virtual_dom$VirtualDom$lazy3;
 var $elm$core$Tuple$mapBoth = F3(
@@ -22726,14 +22725,16 @@ var $elm$svg$Svg$Events$onMouseOut = function (msg) {
 		'mouseout',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$svg$Svg$Attributes$pointerEvents = _VirtualDom_attribute('pointer-events');
+var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $elm$svg$Svg$Attributes$fontFamily = _VirtualDom_attribute('font-family');
 var $elm$svg$Svg$Attributes$fontWeight = _VirtualDom_attribute('font-weight');
 var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
 var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
 var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
@@ -22759,25 +22760,9 @@ var $author$project$Traveller$regionLabel = F3(
 					$elm$svg$Svg$text(name)
 				]));
 	});
-var $elm$svg$Svg$Attributes$pointerEvents = _VirtualDom_attribute('pointer-events');
-var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
 var $elm$svg$Svg$polyline = $elm$svg$Svg$trustedNode('polyline');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $author$project$Traveller$renderPolyline = F2(
-	function (points_, borderColour) {
-		return A2(
-			$elm$svg$Svg$polyline,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$points(points_),
-					$elm$svg$Svg$Attributes$stroke(borderColour),
-					$elm$svg$Svg$Attributes$fill('none'),
-					$elm$svg$Svg$Attributes$strokeWidth('2'),
-					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted')
-				]),
-			_List_Nil);
-	});
 var $author$project$Traveller$renderSectorOutline = F2(
 	function (hexSize, hex) {
 		var topRight = $author$project$Traveller$HexAddress$toUniversalAddress(
@@ -22963,6 +22948,8 @@ var $author$project$Traveller$SolarSystemStars$isBrownDwarfType = function (theS
 		_List_fromArray(
 			['D', 'Y', 'T', 'L']));
 };
+var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
+var $elm$svg$Svg$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
 var $elm$virtual_dom$VirtualDom$lazy5 = _VirtualDom_lazy5;
 var $elm$svg$Svg$Lazy$lazy5 = $elm$virtual_dom$VirtualDom$lazy5;
 var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
@@ -22986,20 +22973,17 @@ var $elm$svg$Svg$Events$onMouseUp = function (msg) {
 };
 var $author$project$Traveller$planetoidSI = 6;
 var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $author$project$Traveller$renderPolygon = F2(
 	function (points_, fill) {
-		var strokeWidth = _Utils_eq(fill, $author$project$Traveller$currentAddressHexBg) ? '2' : '1';
 		var hexColour = _Utils_eq(fill, $author$project$Traveller$currentAddressHexBg) ? $author$project$Traveller$routeHexBg : fill;
-		var borderColour = _Utils_eq(fill, $author$project$Traveller$currentAddressHexBg) ? $author$project$Traveller$currentAddressHexBg : '#CCCCCC';
 		return A2(
 			$elm$svg$Svg$polygon,
 			_List_fromArray(
 				[
 					$elm$svg$Svg$Attributes$points(points_),
 					$elm$svg$Svg$Attributes$fill(hexColour),
-					$elm$svg$Svg$Attributes$stroke(borderColour),
-					$elm$svg$Svg$Attributes$strokeWidth(strokeWidth),
+					$elm$svg$Svg$Attributes$stroke('#CCCCCC'),
+					$elm$svg$Svg$Attributes$strokeWidth('1'),
 					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted'),
 					$elm$svg$Svg$Attributes$class('hex-hover')
 				]),
@@ -23390,9 +23374,9 @@ var $author$project$Traveller$viewHexes = F7(
 					if (A2($author$project$Traveller$isOnRoute, route, hexAddr)) {
 						return $author$project$Traveller$routeHexBg;
 					} else {
-						var _v9 = A2($elm$core$Dict$get, hexKey, hexColours);
-						if (_v9.$ === 'Just') {
-							var color = _v9.a;
+						var _v8 = A2($elm$core$Dict$get, hexKey, hexColours);
+						if (_v8.$ === 'Just') {
+							var color = _v8.a;
 							return $noahzgordon$elm_color_extra$Color$Convert$colorToHex(color);
 						} else {
 							if (maybeSelectedHex.$ === 'Just') {
@@ -23405,12 +23389,12 @@ var $author$project$Traveller$viewHexes = F7(
 					}
 				}
 			}();
-			var _v8 = A2(
+			var _v7 = A2(
 				$author$project$Traveller$HexGeometry$calcVisualOrigin,
 				hexSize,
 				{col: hexAddr.x, row: hexAddr.y});
-			var vox = _v8.a;
-			var voy = _v8.b;
+			var vox = _v7.a;
+			var voy = _v7.b;
 			return _Utils_Tuple2(
 				hexAddr,
 				A7($author$project$Traveller$viewHex, hexSize, solarSystemDict, hexAddr, vox, voy, hexColour, rawHexaPoints));
@@ -23423,26 +23407,22 @@ var $author$project$Traveller$viewHexes = F7(
 				A2(
 					$author$project$Traveller$HexGeometry$calcVisualOrigin,
 					hexSize,
-					{col: ca.x - upperLeftHex.x, row: upperLeftHex.y - ca.y}));
-			var points = function () {
-				var _v7 = A2($author$project$Traveller$HexGeometry$hexagonPoints, locationOrigin, hexSize);
-				if (_v7.b) {
-					var first = _v7.a;
-					var points_ = _v7.b;
-					return _Utils_ap(
-						A2($elm$core$List$cons, first, points_),
-						_List_fromArray(
-							[first]));
-				} else {
-					var other = _v7;
-					return other;
-				}
-			}();
-			return A3(
-				$elm$svg$Svg$Lazy$lazy2,
-				$author$project$Traveller$renderPolyline,
-				A2($elm$core$String$join, ' ', points),
-				$author$project$Traveller$currentAddressHexBg);
+					{col: ca.x, row: ca.y}));
+			var pointsStr = A2(
+				$elm$core$String$join,
+				' ',
+				A2($author$project$Traveller$HexGeometry$hexagonPoints, locationOrigin, hexSize));
+			return A2(
+				$elm$svg$Svg$polygon,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$points(pointsStr),
+						$elm$svg$Svg$Attributes$fill('none'),
+						$elm$svg$Svg$Attributes$stroke($author$project$Traveller$currentAddressHexBg),
+						$elm$svg$Svg$Attributes$strokeWidth('2'),
+						$elm$svg$Svg$Attributes$pointerEvents('none')
+					]),
+				_List_Nil);
 		};
 		var hexRange = A3(
 			$author$project$Traveller$HexAddress$betweenWithMax,
