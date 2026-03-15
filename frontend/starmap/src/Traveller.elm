@@ -53,6 +53,7 @@ import Traveller.AnalysisDetail
         ( AnalyisDetailGasGiantData
         , AnalyisDetailPlanetoidBeltData
         , AnalyisDetailPlanetoidData
+        , AnalyisDetailStarData
         , AnalysisDetail(..)
         , AnalysisDetailHeader
         , viewObjectAnalysisDetail
@@ -93,7 +94,7 @@ import Traveller.Sidebar
         )
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
 import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
-import Traveller.StarColour exposing (starColourRGB)
+import Traveller.StarColour exposing (starColourName, starColourRGB)
 import Traveller.Starport as Starport
 import Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf)
 import Traveller.StellarObjectView
@@ -1774,7 +1775,7 @@ viewHexMap model =
             model.viewport.viewport.viewport.height - consoleTitleHeight
 
         svgWidth =
-            model.viewport.viewport.viewport.width - 420
+            model.viewport.viewport.viewport.width - (sidebarWidth + 15)
 
         ( maxAcross, maxTall ) =
             case model.viewport.hexmapViewport of
@@ -1880,7 +1881,7 @@ view ( time, model ) =
         , Font.size 20
         , Font.color <| fontTextColor
         , Background.color (Element.rgb255 33 37 41)
-        , Element.paddingXY 15 0
+        , Element.paddingEach { zeroEach | left = 15 }
         , case model.objectToBeAnalyzed of
             Just analysisDetail ->
                 Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg analysisDetail.data
@@ -1888,9 +1889,9 @@ view ( time, model ) =
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
         ]
-        [ el [ Element.height fill, Element.width <| Element.px sidebarWidth, Element.alignTop, Element.alignLeft ] <|
+        [ el [ Element.height fill, Element.width <| Element.px sidebarWidth, Element.alignTop, Element.alignLeft, Element.scrollbarY ] <|
             sidebarColumn
-        , column [ width fill ]
+        , column [ width fill, Element.alignTop ]
             [ viewStatusRow model
             , el [ Element.alignTop ] contentColumn
             ]
@@ -2981,7 +2982,24 @@ update msg ( time, model ) =
                             AnalyisDetailPlanetoid header <| buildStringPlanet pdata
 
                         Star (StarDataWrap starDataConfig) ->
-                            AnalyisDetailStar
+                            let
+                                starDetailData : AnalyisDetailStarData
+                                starDetailData =
+                                    { spectralType = starDataConfig.stellarType
+                                    , subtype = starDataConfig.subtype |> Maybe.map String.fromInt |> Maybe.withDefault "—"
+                                    , class_ = starDataConfig.stellarClass
+                                    , colour = starColourName starDataConfig.colour
+                                    , temperature = starDataConfig.temperature |> Maybe.map (\t -> String.fromInt t ++ " K") |> Maybe.withDefault "—"
+                                    , age = rnd 2 starDataConfig.age ++ " Gyr"
+                                    , mass = rndm 3 0 starDataConfig.mass ++ " ☉"
+                                    , diameter = rndm 3 0 starDataConfig.diameter ++ " ☉"
+                                    , luminosity = rndm 4 0 starDataConfig.luminosity ++ " ☉"
+                                    , minimumOrbit = rndm 3 0 starDataConfig.minimumAllowableOrbit
+                                    , hzco = rndm 3 0 starDataConfig.hzco
+                                    , jumpShadow = starDataConfig.jumpShadow |> Maybe.map (\js -> format { usLocale | decimals = Exact 0, thousandSeparator = " " } js ++ " km") |> Maybe.withDefault "—"
+                                    }
+                            in
+                            AnalyisDetailStar header starDetailData
             in
             ( withTime { model | objectToBeAnalyzed = Just { stellarObject = stellarObject, data = analysisDetail } }
             , Task.perform OpenedObjectAnalysisTime Time.now

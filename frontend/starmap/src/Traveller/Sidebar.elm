@@ -33,15 +33,13 @@ import Html.Attributes as HtmlAttrs
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.Sector exposing (SectorDict)
 import Traveller.SolarSystem exposing (SolarSystem)
-import Traveller.StellarObject exposing (InnerStarData, StarData, StellarObject(..), getInnerStarData, getStarData, getStellarOrbit)
+import Traveller.StellarObject exposing (StellarObject(..))
+import Traveller.StarSystemMap exposing (viewStarSystemMap)
 import Traveller.StellarObjectView
     exposing
-        ( JumpShadowCheckers
-        , StellarObjectMsgs
+        ( StellarObjectMsgs
         , convertColor
-        , displayStarDetails
         )
-import Traveller.TravelCalculations exposing (auToKMs, calcDistance2F, travelTimeInSeconds)
 import Traveller.UI
     exposing
         ( deepnightColor
@@ -54,7 +52,7 @@ import Traveller.UI
 -}
 sidebarWidth : number
 sidebarWidth =
-    400
+    300
 
 
 {-| Message constructors needed by sidebar view functions.
@@ -99,41 +97,13 @@ universalHexLabel sectors hexAddress =
 viewSystemDetailsSidebar : SidebarMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Element msg
 viewSystemDetailsSidebar msgs solarSystem selectedStellarObject isReferee =
     let
-        jumpShadowCheckers : JumpShadowCheckers
-        jumpShadowCheckers =
-            List.filterMap
-                (getStarData >> Maybe.map getInnerStarData)
-                (Star solarSystem.primaryStar :: (getInnerStarData solarSystem.primaryStar).stellarObjects)
-                |> List.map
-                    (\star so ->
-                        let
-                            objToStarKMs =
-                                calcDistance2F star.orbitPosition (getStellarOrbit so).orbitPosition
-
-                            jumpShadowDistanceKMs =
-                                Maybe.withDefault 0 star.jumpShadow
-                        in
-                        if objToStarKMs > jumpShadowDistanceKMs then
-                            Nothing
-
-                        else
-                            Just <| travelTimeInSeconds (jumpShadowDistanceKMs - objToStarKMs) 4
-                    )
-
         stellarObjectMsgs : StellarObjectMsgs msg
         stellarObjectMsgs =
             { onFocusInSidebar = msgs.focusInSidebar
             , onViewDetail = msgs.viewDetail
             }
     in
-    displayStarDetails
-        stellarObjectMsgs
-        solarSystem.surveyIndex
-        solarSystem.primaryStar
-        0
-        jumpShadowCheckers
-        selectedStellarObject
-        isReferee
+    viewStarSystemMap stellarObjectMsgs solarSystem selectedStellarObject isReferee
 
 
 {-| View the main sidebar column.
@@ -161,7 +131,7 @@ viewSidebarColumn :
         }
     -> Element msg
 viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee } =
-    column [ Element.spacing 10, Element.centerX, Element.height Element.fill ]
+    column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ column [ Element.width Element.fill ]
             [ let
                 clickableIcon size =
@@ -188,7 +158,7 @@ viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex,
                             , Font.color <| convertColor selectorColor
                             ]
               in
-              row [ Element.spacing 6, Element.centerX ]
+              row [ Element.spaceEvenly, width fill, Element.paddingEach { top = 0, right = 0, bottom = 8, left = 0 } ]
                 [ clickableIcon 80
                 , clickableIcon 60
                 , clickableIcon 50
@@ -209,43 +179,40 @@ viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex,
                             "fa-thin"
                   in
                   el
-                    [ Element.width <| Element.px 50
-                    , Element.height <| Element.px 50
+                    [ Element.width <| Element.px 30
+                    , Element.height <| Element.px 30
                     , Element.pointer
                     , Events.onClick msgs.toggleHexmap
                     , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.15 selectorColor) ]
                     , Font.color <| convertColor selectorColor
                     ]
                   <|
-                    renderFAIcon (hexStyle ++ " " ++ "fa-map") 50
+                    renderFAIcon (hexStyle ++ " " ++ "fa-map") 30
                 ]
             , case selectedHex of
                 Just viewingAddress ->
-                    column [ centerY, Element.paddingXY 0 10, width fill ]
+                    column [ centerY, Element.paddingXY 0 4, width fill, centerX ]
                         [ case solarSystemStatus of
                             Just status ->
-                                text status
+                                el [ centerX ] (text status)
 
                             Nothing ->
                                 Element.none
-                        , row [ Element.spacing 5, width fill ]
-                            [ text <| universalHexLabel sectors viewingAddress
+                        , column [ centerX, Element.spacing 2 ]
+                            [ el [ centerX, uiDeepnightColorFontColour ] (text <| universalHexLabel sectors viewingAddress)
                             , regions
                                 |> Dict.values
-                                |> -- abusing lists here since we only expect one label,
-                                   -- but this iterates over all the regions
-                                   -- and renders the name if it exists
-                                   List.filterMap
+                                |> List.filterMap
                                     (\region ->
                                         if List.member viewingAddress region.hexes then
                                             text region.name
-                                                |> el [ Font.size 12, Font.color <| convertColor region.colour ]
+                                                |> el [ Font.size 12, Font.color <| convertColor region.colour, centerX ]
                                                 |> Just
 
                                         else
                                             Nothing
                                     )
-                                |> column [ Element.alignRight ]
+                                |> column [ centerX ]
                             ]
                         ]
 

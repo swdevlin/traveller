@@ -215,7 +215,11 @@ view model =
     { title = model.flags.shipName |> Maybe.withDefault "Starmap"
     , body =
         [ Dialog.view "error-dialog" ToggleErrorDialog model.dialogBody
-        , div [ Html.Attributes.style "padding" "8px 0px" ]
+        , div
+            [ Html.Attributes.style "height" "100vh"
+            , Html.Attributes.style "overflow" "hidden"
+            , Html.Attributes.style "padding-top" "8px"
+            ]
             [ elmUiHackLayout
             , case model.travellerModel of
                 Just tm ->

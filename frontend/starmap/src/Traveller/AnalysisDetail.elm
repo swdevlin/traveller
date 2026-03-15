@@ -4,6 +4,7 @@ module Traveller.AnalysisDetail exposing
     , AnalyisDetailGasGiantData
     , AnalyisDetailPlanetoidBeltData
     , AnalyisDetailPlanetoidData
+    , AnalyisDetailStarData
     , viewGasGiantAnalysisDetail
     , viewObjectAnalysisDetail
     , viewPlanetoidAnalysisDetail
@@ -53,7 +54,23 @@ type AnalysisDetail
     | AnalyisDetailPlanetoid AnalysisDetailHeader AnalyisDetailPlanetoidData
     | AnalyisDetailGasGiant AnalysisDetailHeader AnalyisDetailGasGiantData
     | AnalyisDetailPlanetoidBelt AnalysisDetailHeader AnalyisDetailPlanetoidBeltData
-    | AnalyisDetailStar
+    | AnalyisDetailStar AnalysisDetailHeader AnalyisDetailStarData
+
+
+type alias AnalyisDetailStarData =
+    { spectralType : String
+    , subtype : String
+    , class_ : String
+    , colour : String
+    , temperature : String
+    , age : String
+    , mass : String
+    , diameter : String
+    , luminosity : String
+    , minimumOrbit : String
+    , hzco : String
+    , jumpShadow : String
+    }
 
 
 type alias AnalyisDetailGasGiantData =
@@ -162,8 +179,8 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg data =
                 AnalyisDetailPlanetoidBelt detailHeader sharePBData ->
                     ( detailHeader.header, viewPlanetoidBeltAnalysisDetail timeChars sharePBData )
 
-                AnalyisDetailStar ->
-                    ( "TODO: Star", text "Star not yet implemented" )
+                AnalyisDetailStar detailHeader starData ->
+                    ( detailHeader.header, viewStarAnalysisDetail starData )
     in
     el
         [ width fill
@@ -207,6 +224,21 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg data =
                 ]
             , content
             ]
+
+
+viewStarAnalysisDetail : AnalyisDetailStarData -> Element.Element msg
+viewStarAnalysisDetail data =
+    column groupAttrs
+        [ textDisplay "Colour" data.colour
+        , textDisplay "Temperature" data.temperature
+        , textDisplay "Age" data.age
+        , textDisplay "Mass" data.mass
+        , textDisplay "Diameter" data.diameter
+        , textDisplay "Luminosity" data.luminosity
+        , textDisplay "Min. Orbit" data.minimumOrbit
+        , textDisplay "HZCO" data.hzco
+        , textDisplay "Jump Shadow" data.jumpShadow
+        ]
 
 
 viewPlanetoidAnalysisDetail : Int -> AnalyisDetailPlanetoidData -> Element.Element msg

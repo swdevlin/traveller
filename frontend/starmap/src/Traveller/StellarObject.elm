@@ -155,6 +155,9 @@ type alias InnerStarData =
     , safeJumpTime : String
     , au : Float
     , jumpShadow : Maybe Float
+    , luminosity : Maybe Float
+    , hzco : Maybe Float
+    , minimumAllowableOrbit : Maybe Float
     }
 
 
@@ -545,6 +548,9 @@ codecStarData =
         |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
         |> Codec.field "au" .au Codec.float
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.optionalNullableField "luminosity" .luminosity Codec.float
+        |> Codec.optionalNullableField "hzco" .hzco Codec.float
+        |> Codec.optionalNullableField "minimum_allowable_orbit" .minimumAllowableOrbit Codec.float
         |> Codec.buildObject
         |> Codec.map StarDataWrap (\(StarDataWrap data) -> data)
 
