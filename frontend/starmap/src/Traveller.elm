@@ -548,6 +548,23 @@ isOnRoute route address =
     List.any (\a -> a.address == address) route
 
 
+hexAddressLabel : Int -> Int -> Float -> HexAddress -> Svg msg
+hexAddressLabel x y size hexAddress =
+    if size <= 15 then
+        Svg.text ""
+
+    else
+        Svg.text_
+            [ SvgAttrs.x <| String.fromInt x
+            , SvgAttrs.y <| String.fromInt <| y - (floor <| size * 0.65) - (if size > 30 then 1 else 2)
+            , SvgAttrs.fontSize "9"
+            , SvgAttrs.textAnchor "middle"
+            , SvgAttrs.fontFamily "Tomorrow"
+            , SvgAttrs.fontWeight "400"
+            ]
+            [ HexAddress.hexLabel hexAddress |> Svg.text ]
+
+
 viewHexEmpty : Int -> Int -> Int -> Int -> Float -> String -> String -> Svg Msg
 viewHexEmpty hx hy x y size childSvgTxt hexColour =
     let
@@ -578,22 +595,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
         ]
         [ -- background hex
           Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
-        , Svg.text_
-            [ SvgAttrs.x <| String.fromInt <| x
-            , SvgAttrs.y <| String.fromInt <| y - (floor <| size * 0.65)
-            , SvgAttrs.fontSize
-                (if size > 15 then
-                    "9"
-
-                 else
-                    "5"
-                )
-            , SvgAttrs.textAnchor "middle"
-            , SvgAttrs.fontFamily "Tomorrow"
-            , SvgAttrs.fontWeight "400"
-            ]
-            [ HexAddress.hexLabel hexAddress |> Svg.text
-            ]
+        , hexAddressLabel x y size hexAddress
         , childSvg
         ]
 
@@ -801,47 +803,20 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
                 )
 
           else
-            Svg.text_
-                [ SvgAttrs.x <| String.fromInt <| vox
-                , SvgAttrs.y <| String.fromInt <| voy - (floor <| size * 0.65)
-                , SvgAttrs.fontSize
-                    (if size > 15 then
-                        "9"
-
-                     else
-                        "5"
-                    )
-                , SvgAttrs.textAnchor "middle"
-                , SvgAttrs.fontFamily "Tomorrow"
-                , SvgAttrs.fontWeight "400"
-                ]
-                [ HexAddress.hexLabel hexAddress |> Svg.text
-                ]
+            hexAddressLabel vox voy size hexAddress
         , if showStar then
             Svg.g []
-                [ -- hex index
-                  Svg.text_
-                    [ SvgAttrs.x <| String.fromInt <| vox
-                    , SvgAttrs.y <| String.fromInt <| voy - (floor <| size * 0.65)
-                    , SvgAttrs.fontSize
-                        (if size > 15 then
-                            "9"
+                [ hexAddressLabel vox voy size hexAddress
+                , if size <= 15 then
+                    Svg.text ""
 
-                         else
-                            "5"
-                        )
-                    , SvgAttrs.textAnchor "middle"
-                    , SvgAttrs.fontFamily "Tomorrow"
-                    , SvgAttrs.fontWeight "400"
-                    ]
-                    [ HexAddress.hexLabel hexAddress |> Svg.text
-                    ]
-                , Svg.text_
-                    [ SvgAttrs.x <| String.fromInt <| vox
-                    , SvgAttrs.y <| String.fromInt <| voy + (floor <| size * 0.8) - 1
-                    , SvgAttrs.fontSize "10"
-                    , SvgAttrs.textAnchor "middle"
-                    ]
+                  else
+                    Svg.text_
+                        [ SvgAttrs.x <| String.fromInt <| vox
+                        , SvgAttrs.y <| String.fromInt <| voy + (floor <| size * 0.8) - 1
+                        , SvgAttrs.fontSize "10"
+                        , SvgAttrs.textAnchor "middle"
+                        ]
                     (let
                         showIfKnown req value =
                             if si >= req then
@@ -1106,7 +1081,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 [ points pointsStr
                 , SvgAttrs.fill "none"
                 , SvgAttrs.stroke currentAddressHexBg
-                , SvgAttrs.strokeWidth "2"
+                , SvgAttrs.strokeWidth "3"
                 , SvgAttrs.pointerEvents "none"
                 ]
                 []
