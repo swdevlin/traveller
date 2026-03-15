@@ -13,6 +13,12 @@ module Authentication
       skip_before_action :require_campaign, **options
     end
 
+    def optional_authentication(**options)
+      skip_before_action :require_authentication, **options
+      skip_before_action :require_campaign, **options
+      before_action :resume_session, **options
+    end
+
     def allow_without_campaign(**options)
       skip_before_action :require_campaign, **options
     end

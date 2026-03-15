@@ -2,7 +2,7 @@
 
 class StarmapsController < ApplicationController
   layout 'starmap', only: :show
-  allow_unauthenticated_access only: :show
+  optional_authentication only: :show
 
   def show
     @starmap_flags = {
