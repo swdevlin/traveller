@@ -30,6 +30,7 @@ class Api::StarsController < Api::BaseController
     # Columns: id(0) system_id(1) data(2) au(3) diameter(4) companion_id(5)
     all_stars = StellarObject
       .where(type: 'Star', star_system_id: ids)
+      .order(:au)
       .pluck(:id, :star_system_id, :data, :au, :diameter, :companion_id)
 
     companion_ids = all_stars.filter_map { |row| row[5] }.to_set
