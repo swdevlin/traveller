@@ -6,8 +6,11 @@ document.addEventListener('turbo:load', () => {
   }
 
   const serverFlags = JSON.parse(node.dataset.starmapFlags || '{}')
-  const upperLeft = JSON.parse(localStorage.getItem('upperLeftHex') ?? 'null')
-  const hexSize = JSON.parse(localStorage.getItem('hexSize') ?? '40')
+  const slug = serverFlags.campaignSlug || 'default'
+  const upperLeftKey = `upperLeftHex_${slug}`
+  const hexSizeKey = `hexSize_${slug}`
+  const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
+  const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
 
   const elm = window.Elm.Main.init({
     node,
@@ -20,13 +23,13 @@ document.addEventListener('turbo:load', () => {
 
   if (elm.ports.storeInLocalStorage) {
     elm.ports.storeInLocalStorage.subscribe(value => {
-      localStorage.setItem('upperLeftHex', JSON.stringify(value))
+      localStorage.setItem(upperLeftKey, JSON.stringify(value))
     })
   }
 
   if (elm.ports.storeHexSize) {
     elm.ports.storeHexSize.subscribe(value => {
-      localStorage.setItem('hexSize', JSON.stringify(value))
+      localStorage.setItem(hexSizeKey, JSON.stringify(value))
     })
   }
 
