@@ -128,6 +128,7 @@ type alias PlanetoidBeltData =
     , safeJumpTime : String
     , orbitType : Int
     , au : Float
+    , retrograde : Bool
     }
 
 
@@ -344,6 +345,7 @@ codecPlanetoidBeltData =
         |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
+        |> Codec.field "retrograde" .retrograde Codec.bool
         |> Codec.buildObject
 
 

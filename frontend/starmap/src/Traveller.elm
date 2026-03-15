@@ -138,6 +138,55 @@ consoleTitleHeight =
     46
 
 
+toEHexChar : Int -> String
+toEHexChar n =
+    if n < 10 then
+        String.fromInt n
+
+    else
+        String.slice (n - 10) (n - 9) "ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+
+resourceRatingDescription : Int -> String
+resourceRatingDescription rating =
+    case rating of
+        2 ->
+            "No economically extractable resources"
+
+        3 ->
+            "Marginal at best"
+
+        4 ->
+            "Marginal at best"
+
+        5 ->
+            "Marginal at best"
+
+        6 ->
+            "Worthwhile with considerable effort"
+
+        7 ->
+            "Worthwhile with considerable effort"
+
+        8 ->
+            "Worthwhile with considerable effort"
+
+        9 ->
+            "Priority target"
+
+        10 ->
+            "Priority target"
+
+        11 ->
+            "Liable to experience a resource rush"
+
+        12 ->
+            "Liable to experience a resource rush"
+
+        _ ->
+            ""
+
+
 fullJourneyImageWidth =
     2176
 
@@ -819,13 +868,6 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
                         , SvgAttrs.style "letter-spacing: 3px"
                         ]
                     (let
-                        toEHexChar n =
-                            if n < 10 then
-                                String.fromInt n
-
-                            else
-                                String.slice (n - 10) (n - 9) "ABCDEFGHJKLMNPQRSTUVWXYZ"
-
                         showIfKnown req value =
                             if si >= req then
                                 toEHexChar value
@@ -2806,17 +2848,35 @@ update msg ( time, model ) =
 
                         buildStringPlanetoidBelt : PlanetoidBeltData -> AnalyisDetailPlanetoidBeltData
                         buildStringPlanetoidBelt pdata =
-                            { physical =
-                                { au = rnd 2 pdata.au
-                                , period = rnd 2 (pdata.period / 365.25)
+                            let
+                                rr =
+                                    round pdata.resourceRating
+                            in
+                            { uwp = pdata.uwp
+                            , orbital =
+                                { orbit = rnd 2 pdata.orbit
+                                , au = rnd 2 pdata.au
+                                , period = rnd 2 (pdata.period / 365.25) ++ " yrs"
+                                , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
+                                , retrograde =
+                                    if pdata.retrograde then
+                                        "Yes"
+
+                                    else
+                                        "No"
                                 , inclination = rnd 0 pdata.inclination ++ "°"
                                 , eccentricity = rnd 2 pdata.eccentricity
-                                , bulk = rnd 0 pdata.bulk
-                                , span = rnd 0 pdata.span
-                                , cType = rnd 0 pdata.cType ++ "%"
-                                , mType = rnd 0 pdata.mType ++ "%"
-                                , oType = rnd 0 pdata.oType ++ "%"
+                                }
+                            , composition =
+                                { mType = rnd 0 pdata.mType ++ "%"
                                 , sType = rnd 0 pdata.sType ++ "%"
+                                , cType = rnd 0 pdata.cType ++ "%"
+                                , oType = rnd 0 pdata.oType ++ "%"
+                                }
+                            , belt =
+                                { resourceRating = toEHexChar rr ++ " – " ++ resourceRatingDescription rr
+                                , bulk = rnd 0 pdata.bulk
+                                , span = rnd 2 pdata.span
                                 }
                             }
 

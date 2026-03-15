@@ -218,35 +218,17 @@ taintTextDisplay lbl val =
 
 textDisplayNarrow : String -> String -> Element.Element msg
 textDisplayNarrow lbl val =
-    row [ width fill ]
-        [ el
-            ([ width <| Element.px 90
-             , Element.paddingEach <| { zeroEach | top = 5 }
-             ]
-                ++ headerAttrs
-            )
-          <|
-            text lbl
-        , Element.row [ Element.spacing 0 ]
-            [ el ([ Element.alignTop, Element.spacing 0, Element.padding 0 ] ++ valueAttrs) <| monospaceText val
-            ]
+    row [ width fill, Element.paddingEach <| { zeroEach | top = 5 } ]
+        [ el ([ width <| Element.px 90 ] ++ headerAttrs) <| text lbl
+        , el [ Font.size 14, Element.alignBottom ] <| monospaceText val
         ]
 
 
 textDisplayMedium : String -> String -> Element.Element msg
 textDisplayMedium lbl val =
-    row [ width fill ]
-        [ el
-            ([ width <| Element.px 110
-             , Element.paddingEach <| { zeroEach | top = 5 }
-             ]
-                ++ headerAttrs
-            )
-          <|
-            text lbl
-        , Element.row [ Element.spacing 0 ]
-            [ el ([ Element.alignTop, Element.spacing 0, Element.padding 0 ] ++ valueAttrs) <| monospaceText val
-            ]
+    row [ width fill, Element.paddingEach <| { zeroEach | top = 5 } ]
+        [ el ([ width <| Element.px 120 ] ++ headerAttrs) <| text lbl
+        , el [ Font.size 14, Element.alignBottom ] <| monospaceText val
         ]
 
 

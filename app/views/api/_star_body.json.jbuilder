@@ -63,6 +63,7 @@ json.stellar_objects all_objects do |obj|
     end
     json.safe_jump_time obj.safe_jump_time
     json.orbit_type     obj.orbit_type
+    json.retrograde     obj.retrograde || false if obj.respond_to?(:retrograde)
     json.axial_tilt     obj.axial_tilt if obj.is_a?(TerrestrialPlanet) || obj.is_a?(Planetoid) || obj.is_a?(GasGiant)
 
     json.moons obj.moons do |m|

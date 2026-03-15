@@ -72,17 +72,26 @@ type alias AnalyisDetailGasGiantData =
 
 
 type alias AnalyisDetailPlanetoidBeltData =
-    { physical :
-        { au : String
+    { uwp : String
+    , orbital :
+        { orbit : String
+        , au : String
         , period : String
+        , effectiveHZCODeviation : String
+        , retrograde : String
         , inclination : String
         , eccentricity : String
+        }
+    , composition :
+        { mType : String
+        , sType : String
+        , cType : String
+        , oType : String
+        }
+    , belt :
+        { resourceRating : String
         , bulk : String
         , span : String
-        , cType : String
-        , sType : String
-        , oType : String
-        , mType : String
         }
     }
 
@@ -384,16 +393,21 @@ viewPlanetoidBeltAnalysisDetail timeChars data =
                 String.left offset str
 
         strings =
-            [ data.physical.au
-            , data.physical.period
-            , data.physical.inclination
-            , data.physical.eccentricity
-            , data.physical.span
-            , data.physical.bulk
-            , data.physical.cType
-            , data.physical.mType
-            , data.physical.sType
-            , data.physical.oType
+            [ data.uwp
+            , data.orbital.orbit
+            , data.orbital.au
+            , data.orbital.period
+            , data.orbital.effectiveHZCODeviation
+            , data.orbital.retrograde
+            , data.orbital.inclination
+            , data.orbital.eccentricity
+            , data.composition.mType
+            , data.composition.sType
+            , data.composition.cType
+            , data.composition.oType
+            , data.belt.resourceRating
+            , data.belt.bulk
+            , data.belt.span
             ]
 
         counts =
@@ -401,25 +415,46 @@ viewPlanetoidBeltAnalysisDetail timeChars data =
                 |> Array.fromList
     in
     column []
-        [ column []
-            [ text <| "Physical"
+        [ column [ width fill, Element.paddingXY 0 0 ]
+            [ row [ width fill, Element.paddingEach { top = 0, left = 0, right = 0, bottom = 8 } ]
+                [ textDisplayNarrow "UWP" <| showTimeCharsTEMP 0 data.uwp
+                ]
+            ]
+        , column [ width fill, Element.paddingXY 0 10 ]
+            [ text "Orbital Data"
             , row (Element.spacing 40 :: groupAttrs)
                 [ column [ Element.alignTop ]
-                    [ textDisplayNarrow "AU" <| showTimeCharsTEMP 0 data.physical.au
-                    , textDisplayNarrow "Period (yrs)" <| showTimeCharsTEMP 1 data.physical.period
-                    , textDisplayNarrow "Inclination" <| showTimeCharsTEMP 2 data.physical.inclination
-                    , textDisplayNarrow "Eccentricity" <| showTimeCharsTEMP 3 data.physical.eccentricity
+                    [ textDisplayNarrow "Orbit" <| showTimeCharsTEMP 1 data.orbital.orbit
+                    , textDisplayNarrow "AU" <| showTimeCharsTEMP 2 data.orbital.au
+                    , textDisplayNarrow "Period (yrs)" <| showTimeCharsTEMP 3 data.orbital.period
+                    , textDisplayNarrow "HZCO Dev" <| showTimeCharsTEMP 4 data.orbital.effectiveHZCODeviation
                     ]
                 , column [ Element.alignTop ]
-                    [ textDisplayNarrow "Span" <| showTimeCharsTEMP 4 data.physical.span
-                    , textDisplayNarrow "Bulk" <| showTimeCharsTEMP 5 data.physical.bulk
+                    [ textDisplayMedium "Retrograde" <| showTimeCharsTEMP 5 data.orbital.retrograde
+                    , textDisplayMedium "Inclination" <| showTimeCharsTEMP 6 data.orbital.inclination
+                    , textDisplayMedium "Eccentricity" <| showTimeCharsTEMP 7 data.orbital.eccentricity
+                    ]
+                ]
+            ]
+        , column [ width fill, Element.paddingXY 0 10 ]
+            [ text "Belt Composition"
+            , row (Element.spacing 40 :: groupAttrs)
+                [ column [ Element.alignTop ]
+                    [ textDisplayMedium "Metallic" <| showTimeCharsTEMP 8 data.composition.mType
+                    , textDisplayMedium "Stony" <| showTimeCharsTEMP 9 data.composition.sType
                     ]
                 , column [ Element.alignTop ]
-                    [ textDisplayNarrow "c-type" <| showTimeCharsTEMP 6 data.physical.cType
-                    , textDisplayNarrow "m-type" <| showTimeCharsTEMP 7 data.physical.mType
-                    , textDisplayNarrow "s-type" <| showTimeCharsTEMP 8 data.physical.sType
-                    , textDisplayNarrow "o-type" <| showTimeCharsTEMP 9 data.physical.oType
+                    [ textDisplayMedium "Carbonaceous" <| showTimeCharsTEMP 10 data.composition.cType
+                    , textDisplayMedium "Other" <| showTimeCharsTEMP 11 data.composition.oType
                     ]
+                ]
+            ]
+        , column [ width fill, Element.paddingXY 0 10 ]
+            [ text "Belt Data"
+            , column groupAttrs
+                [ textDisplay "Resource Rating" <| showTimeCharsTEMP 12 data.belt.resourceRating
+                , textDisplay "Bulk" <| showTimeCharsTEMP 13 data.belt.bulk
+                , textDisplay "Span" <| showTimeCharsTEMP 14 data.belt.span
                 ]
             ]
         ]
