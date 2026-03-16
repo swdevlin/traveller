@@ -5,7 +5,7 @@ class StarsController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :star_not_found
 
   def lookup
-    result = GeneratorService.new.lookup_star(
+    result = generator_service.lookup_star(
       stellar_type: params[:stellar_type],
       stellar_subtype: params[:stellar_subtype],
       stellar_class: params[:stellar_class]

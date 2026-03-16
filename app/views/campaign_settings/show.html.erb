@@ -1,0 +1,55 @@
+<% content_for :title, 'Campaign Settings' %>
+<% content_for :page_kicker, 'Settings' %>
+<% content_for :page_title, @campaign.name %>
+
+<%= render 'application/page' do %>
+  <div class='grid grid-cols-1 gap-4 sm:grid-cols-4 mb-6'>
+    <%= render 'application/data_block',
+               label: 'Campaign Type',
+               value: @campaign.campaign_type.humanize %>
+
+    <% if @campaign.sector_source.present? %>
+      <%= render 'application/data_block',
+                 label: 'Sector Data Source',
+                 value: @campaign.sector_source.humanize %>
+    <% end %>
+
+    <%= render 'application/data_block',
+               label: 'Sectors',
+               value: @sector_count %>
+
+    <%= render 'application/data_block',
+               label: 'Subsectors with Build Scripts',
+               value: @subsector_count %>
+  </div>
+
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
+      <i class='fa-regular fa-pencil mr-1.5'></i> Edit
+    <% end %>
+
+    <% if @campaign.deepnight_revelation? %>
+      <%= button_to populate_deepnight_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn' do %>
+        <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
+      <% end %>
+    <% end %>
+
+    <%= button_to assign_builds_campaign_settings_path,
+          method: :post,
+          class: 'w-full sm:w-auto btn',
+          disabled: @campaign.sector_source.nil? do %>
+      <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
+    <% end %>
+
+    <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
+    <%= button_to populate_all_campaign_settings_path,
+          method: :post,
+          class: 'w-full sm:w-auto btn',
+          disabled: @subsector_count.zero?,
+          data: { turbo_confirm: confirm_msg } do %>
+      <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
+    <% end %>
+  </div>
+<% end %>

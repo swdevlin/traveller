@@ -42,22 +42,12 @@
               </td>
               <td class='whitespace-nowrap'>
                 <% if subsector.build.present? %>
-                  <%
-                    begin
-                      config = YAML.safe_load(subsector.build, permitted_classes: [], permitted_symbols: [], aliases: false)
-                      chance_value = config['chance']&.upcase if config.is_a?(Hash)
-                    rescue
-                      chance_value = nil
-                    end
-                  %>
-                  <% if chance_value.present? %>
-                    <span class='font-mono text-slate-200'><%= chance_value %></span>
-                  <% else %>
-                    <span class='text-green-400'>
-                      <i class='fa-regular fa-circle-check mr-1'></i>
-                      Configured
-                    </span>
-                  <% end %>
+                  <% label = { 'traveller_map' => 'TravellerMap', 'deepnight_books' => 'Deepnight Books',
+                               'homebrew' => 'Homebrew', 'default' => 'Default' }[subsector.build_source] || 'Configured' %>
+                  <span class='text-green-400'>
+                    <i class='fa-regular fa-circle-check mr-1'></i>
+                    <%= label %>
+                  </span>
                 <% else %>
                   <%= link_to edit_subsector_path(subsector), class: 't-link text-slate-400 hover:text-traveller-red/90' do %>
                     <i class='fa-regular fa-circle-minus mr-1'></i>

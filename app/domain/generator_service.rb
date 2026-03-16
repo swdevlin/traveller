@@ -7,12 +7,20 @@ class GeneratorService
     end
   end
 
+  def initialize(campaign_id: nil)
+    @campaign_id = campaign_id
+  end
+
   def generate_star_system(definition)
     call_service('star_system', definition)
   end
 
   def generate_subsector(definition)
     call_service('subsector', definition)
+  end
+
+  def generate_stellar_object(klass, params: {})
+    get_service(klass.name.underscore, params)
   end
 
   def lookup_star(stellar_type:, stellar_subtype: nil, stellar_class: nil)
@@ -36,7 +44,9 @@ class GeneratorService
     http.open_timeout = 10
     http.read_timeout = 10
 
-    response = http.get(uri.request_uri, 'Accept' => 'application/json')
+    headers = { 'Accept' => 'application/json' }
+    headers['x-tenant-id'] = @campaign_id.to_s if @campaign_id.present?
+    response = http.get(uri.request_uri, headers)
 
     if response.is_a?(Net::HTTPBadRequest)
       begin
@@ -71,6 +81,7 @@ class GeneratorService
       'Content-Type' => 'application/json',
       'Accept' => 'application/json'
     }
+    headers['x-tenant-id'] = @campaign_id.to_s if @campaign_id.present?
 
     response = http.post(uri.request_uri, data.to_json, headers)
 

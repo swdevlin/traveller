@@ -1,0 +1,48 @@
+<% content_for :title, 'Edit Campaign Settings' %>
+<% content_for :page_kicker, 'Settings' %>
+<% content_for :page_title, @campaign.name %>
+
+<%= render 'application/page' do %>
+  <%= form_with model: @campaign,
+                url: campaign_settings_path,
+                method: :patch,
+                data: { controller: 'campaign-form' },
+                class: 'contents' do |form| %>
+    <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
+
+    <div class='space-y-2 pb-10'>
+      <%= render 'application/edit_field', form: form, attribute: :campaign_type do %>
+        <%= form.select :campaign_type,
+              options_for_select([
+                ['Charted Space',        'charted_space',        { data: { hint: 'Import sectors from TravellerMap and explore known space.' } }],
+                ['Deepnight Revelation', 'deepnight_revelation', { data: { hint: 'Pre-populate all Deepnight Revelation sectors with build configurations.' } }],
+                ['Homebrew',             'homebrew',             { data: { hint: 'Build your own universe from scratch.' } }]
+              ], @campaign.campaign_type),
+              {},
+              class: 'edit-base',
+              data: { action: 'change->campaign-form#toggleSectorSource' } %>
+        <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='campaignTypeHint'></p>
+      <% end %>
+
+      <div data-campaign-form-target='sectorSource'
+           class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
+        <%= render 'application/edit_field', form: form, attribute: :sector_source do %>
+          <%= form.select :sector_source,
+                options_for_select([
+                  ['TravellerMap',    'traveller_map',      { data: { hint: 'Import build configurations from TravellerMap.' } }],
+                  ['Deepnight Books', 'deepnight_defaults', { data: { hint: 'Use pre-configured build settings from the Deepnight Revelation sourcebook.' } }]
+                ], @campaign.sector_source),
+                { include_blank: 'Select a source' },
+                class: 'edit-base',
+                data: { action: 'change->campaign-form#refreshSectorSourceHint' } %>
+          <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='sectorSourceHint'></p>
+        <% end %>
+      </div>
+
+      <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+        <%= form.submit 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>
+        <%= link_to 'Cancel', campaign_settings_path, class: 'w-full sm:w-auto btn' %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
