@@ -1,3 +1,5 @@
+require 'apartment/migrator'
+
 class Campaign < ApplicationRecord
   belongs_to :referee, class_name: 'User'
 
