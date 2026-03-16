@@ -59,7 +59,7 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = {
-    host: Rails.application.credentials.dig(:app, :host) || 'example.com'
+    host: ENV['APP_HOST'] || Rails.application.credentials.dig(:app, :host) || 'mytravelleruniverse.net'
   }
 
   # Specify outgoing SMTP server. Add smtp/* and app/* credentials via bin/rails credentials:edit.

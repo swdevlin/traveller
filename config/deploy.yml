@@ -56,6 +56,7 @@ env:
     - SMTP_USER
     - SMTP_PASSWORD
     - MAILER_FROM
+    - APP_HOST
 
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
