@@ -64,7 +64,6 @@ subsectors:
         y: 6
         known: true
         name: Garva-411
-        uwp: X310000-0
         primary:
           type: NS
           bodies:
@@ -77,6 +76,7 @@ subsectors:
             - empty
             - uwp: X000000-0
             - uwp: X310000-0
+              mainWorld: true
             - uwp: Small Gas Giant
             - uwp: terrestrial
       - x: 7
@@ -87,7 +87,6 @@ subsectors:
         known: true
         name: Demnan
         bases: SN
-        uwp: E567000-0
         surveyIndex: 10
         primary:
           type: F7
@@ -98,6 +97,8 @@ subsectors:
             - uwp: Large Gas Giant
             - uwp: X000000-0
             - uwp: E567000-0
+              orbit: habitable
+              mainWorld: true
             - uwp: X000000-0
             - uwp: Large Gas Giant
             - uwp: terrestrial

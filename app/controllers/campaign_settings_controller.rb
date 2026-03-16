@@ -5,6 +5,11 @@ class CampaignSettingsController < ApplicationController
     @campaign = current_campaign
     @sector_count = Sector.count
     @subsector_count = Subsector.where.not(build: nil).count
+    populated_sector_ids = Sector.joins(parsecs: :star_systems).select(:id)
+    empty_sector_ids = Sector.kept.where.not(id: populated_sector_ids).select(:id)
+    @empty_sector_count = Sector.kept.where(id: empty_sector_ids).count
+    @empty_subsector_count = Subsector.where(sector_id: empty_sector_ids).where.not(build: nil).count
+    @has_empty_sectors = @empty_subsector_count > 0
   end
 
   def edit
@@ -35,6 +40,11 @@ class CampaignSettingsController < ApplicationController
   def populate_all
     PopulateAllSectorsJob.perform_later
     redirect_to campaign_settings_path, notice: 'Sector population queued.'
+  end
+
+  def populate_empty
+    PopulateEmptySectorsJob.perform_later
+    redirect_to campaign_settings_path, notice: 'Empty sector population queued.'
   end
 
   private

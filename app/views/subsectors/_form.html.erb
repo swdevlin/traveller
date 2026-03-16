@@ -27,6 +27,13 @@
                     class: 'link-traveller text-xs' %>
       </div>
 
+      <% if subsector.errors[:build].any? %>
+        <ul class='mt-2 space-y-1 text-sm text-red-400'>
+          <% subsector.errors[:build].each do |message| %>
+            <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
+          <% end %>
+        </ul>
+      <% end %>
       <%= form.text_area :build,
                          rows: 16,
                          aria: { label: 'Build plan YAML' },

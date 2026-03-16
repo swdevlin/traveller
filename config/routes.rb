@@ -141,6 +141,7 @@ Rails.application.routes.draw do
       post :populate_deepnight
       post :assign_builds
       post :populate_all
+      post :populate_empty
     end
   end
 end

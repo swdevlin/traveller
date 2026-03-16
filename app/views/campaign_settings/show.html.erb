@@ -44,6 +44,15 @@
     <% end %>
 
     <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
+    <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
+    <%= button_to populate_empty_campaign_settings_path,
+          method: :post,
+          class: 'w-full sm:w-auto btn',
+          disabled: !@has_empty_sectors,
+          data: { turbo_confirm: empty_confirm } do %>
+      <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
+    <% end %>
+
     <%= button_to populate_all_campaign_settings_path,
           method: :post,
           class: 'w-full sm:w-auto btn',

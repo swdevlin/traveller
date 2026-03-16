@@ -127,7 +127,8 @@ class SubsectorsController < ApplicationController
     else
       validator = BuildConfigValidator.new(build_yaml)
       unless validator.valid?
-        @subsector.errors.add(:build, validator.errors.join(', '))
+        @subsector.assign_attributes(params_to_save)
+        validator.errors.each { |e| @subsector.errors.add(:build, e) }
         respond_to do |format|
           format.html { render :edit, status: :unprocessable_entity }
           format.json { render json: @subsector.errors, status: :unprocessable_entity }
