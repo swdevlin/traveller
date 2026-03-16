@@ -28,7 +28,8 @@ class Campaign < ApplicationRecord
   validates :slug, presence: true, uniqueness: true,
                    length: { minimum: 3, message: 'must be at least 3 characters' },
                    exclusion: { in: RESERVED_SLUGS, message: 'is reserved' },
-                   format: { with: /\A[a-z0-9]([a-z0-9-]*[a-z0-9])?\z/, message: 'must contain only lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen' }
+                   format: { with: /\A[a-z0-9]([a-z0-9-]*[a-z0-9])?\z/, message: 'must contain only lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen' },
+                   if: -> { new_record? || slug_changed? }
 
   private
 
