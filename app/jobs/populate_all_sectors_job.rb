@@ -5,7 +5,13 @@ class PopulateAllSectorsJob < ApplicationJob
 
   def perform
     Subsector.where.not(build: nil).each do |subsector|
-      GenerateSubsectorJob.perform_later(subsector.id, subsector.build)
+      sector = subsector.sector
+      GenerateSubsectorJob.set(priority: job_priority(sector, subsector)).perform_later(subsector.id, subsector.build)
     end
   end
+
+  def job_priority(sector, subsector)
+    sector.x.abs * 1000 + sector.y.abs * 10 +  subsector.y + subsector.x
+  end
+
 end

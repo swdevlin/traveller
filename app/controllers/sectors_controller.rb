@@ -58,7 +58,7 @@ class SectorsController < ApplicationController
       redirect_to sector_path(@sector), notice: 'Not all subsectors have a build plan. No tasks were created'
     else
       @sector.subsectors.each do |subsector|
-        GenerateSubsectorJob.set(priority: subsector.y * 10 + subsector.x).perform_later(subsector.id, subsector.build)
+        GenerateSubsectorJob.set(priority: job_priority(sector, subsector)).perform_later(subsector.id, subsector.build)
       end
       redirect_to sector_path(@sector), notice: 'Subsector populate tasks created'
     end
@@ -223,5 +223,9 @@ class SectorsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def sector_params
       params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source])
+    end
+
+    def job_priority(sector, subsector)
+      sector.x.abs * 1000 + sector.y.abs * 10 +  subsector.y + subsector.x
     end
 end
