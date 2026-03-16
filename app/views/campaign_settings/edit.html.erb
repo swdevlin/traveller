@@ -11,6 +11,10 @@
     <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
 
     <div class='space-y-2 pb-10'>
+      <%= render 'application/edit_field', form: form, attribute: :name do %>
+        <%= form.text_field :name, class: 'edit-base w-full' %>
+      <% end %>
+
       <%= render 'application/edit_field', form: form, attribute: :campaign_type do %>
         <%= form.select :campaign_type,
               options_for_select([
