@@ -27,5 +27,11 @@ class Campaign < ApplicationRecord
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
     end
+  rescue Apartment::TenantExists
+    Apartment::Tenant.drop(schema_name)
+    retry
+  rescue StandardError => e
+    destroy
+    raise e
   end
 end
