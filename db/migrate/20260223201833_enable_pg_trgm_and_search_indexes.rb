@@ -3,6 +3,8 @@
 class EnablePgTrgmAndSearchIndexes < ActiveRecord::Migration[8.1]
   def up
     enable_extension 'pg_trgm'
+    current_path = connection.schema_search_path
+    execute "SET search_path TO #{current_path}, shared_extensions" unless current_path.include?('shared_extensions')
     add_index :star_systems, :name, using: :gin, opclass: :gin_trgm_ops, name: 'index_star_systems_on_name_trgm'
     add_index :sectors,      :name, using: :gin, opclass: :gin_trgm_ops, name: 'index_sectors_on_name_trgm'
     add_index :subsectors,   :name, using: :gin, opclass: :gin_trgm_ops, name: 'index_subsectors_on_name_trgm'
