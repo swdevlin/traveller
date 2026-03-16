@@ -7,7 +7,7 @@ class ApplicationJob < ActiveJob::Base
 
   def broadcast_job_count(schema_name, completing: false)
     count = JobQueueStatus.pending_count(schema_name: schema_name.presence)
-    count = [ count - 1, 0 ].max if completing
+    count = [count - 1, 0].max if completing
 
     if schema_name.present?
       ActionCable.server.broadcast("jobs:#{schema_name}", { count: count })

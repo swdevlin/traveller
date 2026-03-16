@@ -13,5 +13,4 @@ class PopulateAllSectorsJob < ApplicationJob
   def job_priority(sector, subsector)
     sector.x.abs * 1000 + sector.y.abs * 10 +  subsector.y + subsector.x
   end
-
 end
