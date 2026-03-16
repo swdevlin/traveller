@@ -14,7 +14,7 @@ module GeneratorMappings
     end
 
     def api_data_map
-      { 'build_log' => 'buildLog' }.merge(generator_api_data_map)
+      generator_api_data_map
     end
 
     def mapped_data_from_generator(payload)
