@@ -34,6 +34,7 @@ class SubsectorsController < ApplicationController
 
     normalized_yaml = normalize_build_yaml(build_yaml)
     @subsector.build = normalized_yaml
+    @subsector.build_source ||= 'default'
     @subsector.save!
     GenerateSubsectorJob.perform_later(@subsector.id, normalized_yaml)
     redirect_to subsector_path(@subsector), notice: 'Subsector population task created.'
@@ -126,7 +127,8 @@ class SubsectorsController < ApplicationController
     else
       validator = BuildConfigValidator.new(build_yaml)
       unless validator.valid?
-        @subsector.errors.add(:build, validator.errors.join(', '))
+        @subsector.assign_attributes(params_to_save)
+        validator.errors.each { |e| @subsector.errors.add(:build, e) }
         respond_to do |format|
           format.html { render :edit, status: :unprocessable_entity }
           format.json { render json: @subsector.errors, status: :unprocessable_entity }
@@ -137,6 +139,7 @@ class SubsectorsController < ApplicationController
     end
 
     respond_to do |format|
+      params_to_save[:build_source] = 'homebrew' if params_to_save[:build].present?
       if @subsector.update(params_to_save)
         format.html { redirect_to @subsector, notice: 'Subsector was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @subsector }

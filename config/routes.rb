@@ -137,5 +137,11 @@ Rails.application.routes.draw do
 
     get '/search',   to: 'search#query'
     get '/settings', to: 'settings#index'
+    resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
+      post :populate_deepnight
+      post :assign_builds
+      post :populate_all
+      post :populate_empty
+    end
   end
 end

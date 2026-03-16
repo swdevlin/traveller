@@ -3,7 +3,9 @@
 <% content_for :page_title, 'Create Your Campaign' %>
 
 <%= render 'application/page' do %>
-  <%= form_with model: @campaign, class: 'space-y-6 max-w-sm' do |form| %>
+  <%= form_with model: @campaign,
+                data: { controller: 'campaign-form' },
+                class: 'space-y-6 max-w-lg' do |form| %>
     <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
 
     <div>
@@ -23,6 +25,36 @@
             placeholder: 'e.g. my-campaign',
             class: 'edit-base w-full mt-1' %>
       <%= render 'application/field_error', form: form, attribute: :slug %>
+    </div>
+
+    <div>
+      <div class='edit-label'>Campaign Type</div>
+      <%= form.select :campaign_type,
+            options_for_select([
+              ['Charted Space',        'charted_space',        { data: { hint: 'Import sectors from TravellerMap and explore known space.' } }],
+              ['Deepnight Revelation', 'deepnight_revelation', { data: { hint: 'Pre-populate all Deepnight Revelation sectors with build configurations.' } }],
+              ['Homebrew',             'homebrew',             { data: { hint: 'Build your own universe from scratch.' } }]
+            ], @campaign.campaign_type),
+            {},
+            class: 'edit-base w-full mt-1',
+            data: { action: 'change->campaign-form#toggleSectorSource' } %>
+      <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='campaignTypeHint'></p>
+      <%= render 'application/field_error', form: form, attribute: :campaign_type %>
+    </div>
+
+    <div data-campaign-form-target='sectorSource'
+         class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
+      <div class='edit-label'>Sector Data Source</div>
+      <%= form.select :sector_source,
+            options_for_select([
+              ['TravellerMap',      'traveller_map',      { data: { hint: 'Import build configurations from TravellerMap.' } }],
+              ['Deepnight Books',   'deepnight_defaults', { data: { hint: 'Use pre-configured build settings from the Deepnight Revelation sourcebook.' } }]
+            ], @campaign.sector_source),
+            { include_blank: 'Select a source' },
+            class: 'edit-base w-full mt-1',
+            data: { action: 'change->campaign-form#refreshSectorSourceHint' } %>
+      <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='sectorSourceHint'></p>
+      <%= render 'application/field_error', form: form, attribute: :sector_source %>
     </div>
 
     <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>

@@ -27,4 +27,8 @@ class ApplicationController < ActionController::Base
     Current.campaign
   end
   helper_method :current_campaign
+
+  def generator_service
+    GeneratorService.new(campaign_id: current_campaign&.id)
+  end
 end

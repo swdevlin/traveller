@@ -99,6 +99,7 @@ class Subsector < ApplicationRecord
     normalize_config!(config)
 
     self.build = YAML.dump(config)
+    self.build_source = 'deepnight_books'
   end
 
   def load_travellermap_defaults!
@@ -109,6 +110,7 @@ class Subsector < ApplicationRecord
 
     traveller_map.ensure_allegiances(systems)
     self.build = traveller_map.systems_to_build_plan(systems)
+    self.build_source = 'traveller_map'
   end
 
   private

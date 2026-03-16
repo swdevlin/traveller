@@ -1,7 +1,3 @@
-require 'net/http'
-require 'uri'
-require 'json'
-
 class RoguesController < ApplicationController
   include ParentHex
 
@@ -108,42 +104,19 @@ class RoguesController < ApplicationController
   end
 
   def generate_stellar_object(klass, params = {})
-    base = Rails.application.config.x.generator_service
-    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", klass.name.underscore)
-    uri.query = URI.encode_www_form(params) if params.present?
+    result = generator_service.generate_stellar_object(klass, params: params)
 
-    headers = {
-      'x-tenant-id' => @broadcast_schema_name
-    }
-
-    http = Net::HTTP.new(uri.host, uri.port, headers: headers)
-    http.open_timeout = 5
-    http.read_timeout = 5
-
-    response = http.get(uri.request_uri)
-
-    unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+    unless result.success?
       return klass.new(rogue_params).tap do |so|
-        so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
+        so.errors.add(:base, result.errors.to_sentence)
       end
     end
 
-    data =
-      begin
-        JSON.parse(response.body)
-      rescue JSON::ParserError => e
-        Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
-        return klass.new(rogue_params).tap do |so|
-          so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
-        end
-      end
-
     so = klass.new(rogue_params)
-    so.assign_data_from_generator(data)
+    so.assign_data_from_generator(result.value)
     so
   rescue StandardError => e
-    Rails.logger.error "#{uri} unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    Rails.logger.error "#{klass} unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
     klass.new(rogue_params).tap do |so|
       so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
     end

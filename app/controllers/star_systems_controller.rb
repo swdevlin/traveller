@@ -191,7 +191,7 @@ class StarSystemsController < ApplicationController
       },
       'primary' => primary
     }
-    result = GeneratorService.new.generate_star_system(build_config)
+    result = generator_service.generate_star_system(build_config)
 
     unless result.success?
       return StarSystem.new(star_system_params).tap do |so|
@@ -225,7 +225,7 @@ class StarSystemsController < ApplicationController
         aliases: false
       ) || {}
 
-    result = GeneratorService.new.generate_star_system(config)
+    result = generator_service.generate_star_system(config)
 
     unless result.success?
       return StarSystem.new(star_system_params).tap do |so|
@@ -247,7 +247,7 @@ class StarSystemsController < ApplicationController
     build_config = {
       'name' => params['name']
     }
-    result = GeneratorService.new.generate_star_system(build_config)
+    result = generator_service.generate_star_system(build_config)
 
     unless result.success?
       return StarSystem.new(star_system_params).tap do |so|
@@ -281,11 +281,11 @@ class StarSystemsController < ApplicationController
         'counts'  => { 'gasGiants' => 0, 'planetoidBelts' => 0, 'terrestrialPlanets' => 0 },
         'primary' => primary
       }
-      result = GeneratorService.new.generate_star_system(config)
+      result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     when 'random'
-      result = GeneratorService.new.generate_star_system({ 'name' => create_params['name'] })
+      result = generator_service.generate_star_system({ 'name' => create_params['name'] })
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     when 'build_configuration'
@@ -299,7 +299,7 @@ class StarSystemsController < ApplicationController
         permitted_classes: [Date, Time],
         aliases: false
       ) || {}
-      result = GeneratorService.new.generate_star_system(config)
+      result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     else

@@ -3,8 +3,20 @@ require 'apartment/migrator'
 class Campaign < ApplicationRecord
   belongs_to :referee, class_name: 'User'
 
+  enum :campaign_type, {
+    homebrew: 'homebrew',
+    charted_space: 'charted_space',
+    deepnight_revelation: 'deepnight_revelation'
+  }, default: 'charted_space'
+
+  enum :sector_source, {
+    traveller_map: 'traveller_map',
+    deepnight_defaults: 'deepnight_defaults'
+  }, prefix: :source
+
   after_create :set_schema_name
   after_create_commit :create_tenant
+  after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
 
   RESERVED_SLUGS = %w[
     www
@@ -22,6 +34,12 @@ class Campaign < ApplicationRecord
 
   def set_schema_name
     update_column(:schema_name, "camp#{id}")
+  end
+
+  def enqueue_deepnight_setup
+    Apartment::Tenant.switch(schema_name) do
+      PopulateDeepnightCampaignJob.perform_later(id)
+    end
   end
 
   def create_tenant

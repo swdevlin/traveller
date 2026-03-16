@@ -35,10 +35,11 @@ class GenerateSubsectorJob < ApplicationJob
     http = Net::HTTP.new(uri.host, uri.port)
     http.open_timeout = 50
     http.read_timeout = 600
+    campaign_id = Campaign.find_by(schema_name: Apartment::Tenant.current)&.id
     headers = {
       'Content-Type' => 'application/json',
       'Accept' => 'application/json',
-      'x-tenant-id' => @broadcast_schema_name
+      'x-tenant-id' => campaign_id.to_s
     }
 
     response = http.post(uri.request_uri, config.to_json, headers)

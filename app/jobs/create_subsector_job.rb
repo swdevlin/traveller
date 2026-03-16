@@ -17,6 +17,9 @@ class CreateSubsectorJob < ApplicationJob
 
     if sector.source == 'traveller_map'
       import_from_traveller_map(sector, subsector, letter)
+    elsif sector.source == 'deepnight'
+      subsector.load_deepnight_defaults!
+      subsector.save!
     end
 
     ActionCable.server.broadcast(

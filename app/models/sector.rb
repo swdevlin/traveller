@@ -5,7 +5,8 @@ class Sector < ApplicationRecord
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
-  after_create_commit :create_subsectors_and_parsecs
+  attr_accessor :skip_subsector_creation
+  after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
   validate :coordinates_unique_with_link
