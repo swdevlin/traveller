@@ -23,14 +23,13 @@ class Campaign < ApplicationRecord
   end
 
   def create_tenant
-    Apartment::Tenant.create(schema_name)
+    Apartment.connection.execute("CREATE SCHEMA \"#{schema_name}\"")
+    Apartment::Migrator.migrate(schema_name)
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
     end
-  rescue Apartment::TenantExists
-    Apartment::Tenant.drop(schema_name)
-    retry
   rescue StandardError => e
+    Apartment::Tenant.drop(schema_name) rescue nil
     destroy
     raise e
   end
