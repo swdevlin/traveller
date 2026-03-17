@@ -7,7 +7,7 @@
     <% @entries.each do |entry| %>
       <li>
         <%= link_to entry.titleize,
-                    send("help_#{entry}_path"),
+                    help_page_path(entry),
                     class: 'text-slate-200 hover:text-traveller-red hover:underline hover:underline-offset-4' %>
       </li>
     <% end %>

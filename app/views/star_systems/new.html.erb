@@ -1,7 +1,7 @@
 <% content_for :title, 'New star system' %>
 <% content_for :page_kicker, @context_label %>
 <% content_for :page_title, 'Register Star System' %>
-<% content_for :help_path, help_star_system_registration_path %>
+<% content_for :help_path, help_page_path('star_system_registration') %>
 
 <% create_mode = params.dig(:star_system, :create_mode).presence || 'empty' %>
 
@@ -85,7 +85,7 @@
         <div class="ml-7 space-y-2 <%= 'hidden' unless create_mode == 'build_configuration' %>"
              data-star-system-form-target='buildConfigSection'>
           <%= f.label :build_configuration, class: 'block text-xs uppercase tracking-[0.22em] text-slate-400' do %>
-            Build configuration (<%= link_to 'YAML', help_star_system_build_specification_path, class: 't-link' %>)
+            Build configuration (<%= link_to 'YAML', help_page_path('star_system_build_specification'), class: 't-link' %>)
           <% end %>
 
           <% if @build_errors.present? %>

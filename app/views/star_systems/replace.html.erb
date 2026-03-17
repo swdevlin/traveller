@@ -66,7 +66,7 @@
         <div class="ml-7 space-y-2 <%= 'hidden' unless create_mode == 'build_configuration' %>"
              data-star-system-form-target='buildConfigSection'>
           <%= f.label :build_configuration, class: 'block text-xs uppercase tracking-[0.22em] text-slate-400' do %>
-            Build configuration (<%= link_to 'YAML', help_star_system_build_specification_path, class: 't-link' %>)
+            Build configuration (<%= link_to 'YAML', help_page_path('star_system_build_specification'), class: 't-link' %>)
           <% end %>
 
           <% if @build_errors.present? %>

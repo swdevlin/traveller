@@ -7,12 +7,12 @@ class HelpControllerTest < AuthenticatedIntegrationTest
   end
 
   test 'should get subsector_build_specification' do
-    get help_subsector_build_specification_url
+    get help_page_url('subsector_build_specification')
     assert_response :success
   end
 
   test 'should get star_system_build_specification' do
-    get help_star_system_build_specification_url
+    get help_page_url('star_system_build_specification')
     assert_response :success
   end
 end
