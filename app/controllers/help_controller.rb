@@ -2,18 +2,19 @@ class HelpController < ApplicationController
   allow_unauthenticated_access
 
   def index
-    help_dir = Rails.root.join('app', 'views', 'help')
-    @entries = Dir.glob(help_dir.join('*.html.erb'))
-                  .map { |f| File.basename(f, '.html.erb') }
-                  .reject { |name| name == 'index' || name.start_with?('_') }
-                  .sort
+    @entries = available_pages.sort
   end
 
   def show
-    if lookup_context.template_exists?("help/#{params[:page]}", [], false)
-      render params[:page]
-    else
-      redirect_to help_path
-    end
+    matched = available_pages.find { |p| p == params[:page] }
+    matched ? render(template: "help/#{matched}") : redirect_to(help_path)
+  end
+
+  private
+
+  def available_pages
+    Dir.glob(Rails.root.join('app', 'views', 'help', '*.html.erb'))
+       .map { |f| File.basename(f, '.html.erb') }
+       .reject { |name| name == 'index' || name.start_with?('_') }
   end
 end
