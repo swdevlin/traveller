@@ -24,6 +24,10 @@ class GenerateSubsectorJob < ApplicationJob
       config.delete(key) if value.compact.empty?
     end
 
+    campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
+    default = campaign&.charted_space? ? 'none' : 'standard'
+    config[:sophontCheck] ||= campaign&.sophont_check.presence || default
+
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
     Subsector.transaction do
       subsector.clear

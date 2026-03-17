@@ -96,6 +96,8 @@ SystemSchema = Dry::Schema.Params do
   optional(:counts).hash(CountsSchema)
 end
 
+SOPHONT_CHECK_VALUES = %w[standard rareEarth none].freeze
+
 SingleSystemSchema = Dry::Schema.Params do
   optional(:name).filled(:string)
   optional(:populated).hash(PopulatedSchema)
@@ -105,6 +107,7 @@ SingleSystemSchema = Dry::Schema.Params do
   optional(:known).filled(:bool)
   optional(:allegiance).filled(:string)
   optional(:counts).hash(CountsSchema)
+  optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)
 end
 
 BuildConfigSchema = Dry::Schema.Params do
@@ -121,4 +124,5 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:systems).value(:array).each { hash(SystemSchema) }
 
   optional(:populated).hash(PopulatedSchema)
+  optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)
 end

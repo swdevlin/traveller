@@ -67,27 +67,34 @@
     </div>
 
     <%# To parsec %>
-    <div>
-      <div class='flex items-center gap-4 mb-2'>
-        <span class='edit-label'>To</span>
-        <div class='flex items-center gap-2'>
-          <%= form.check_box :misjump,
-                             class: 'rounded border-slate-600',
-                             data: { jump_form_target: 'misjumpCheckbox',
-                                     action: 'change->jump-form#misjumpChanged' } %>
-          <%= form.label :misjump, 'Misjump', class: 'edit-label' %>
+    <div data-controller='parsec-select'
+         data-parsec-role='to'
+         data-parsec-select-parsec-id-value='<%= jump_log.to_parsec_id.to_i %>'
+         data-parsec-select-sector-id-value='<%= jump_log.to_parsec&.sector_id.to_i %>'
+         data-parsec-select-from-x-value='<%= jump_log.from_parsec&.x %>'
+         data-parsec-select-from-y-value='<%= jump_log.from_parsec&.y %>'
+         data-parsec-select-max-distance-value='<%= jump_log.ship&.jump_drive || 0 %>'
+         data-parsec-select-url-value='<%= api_parsecs_path %>'>
+      <%= hidden_field_tag 'jump_log[to_parsec_id]', jump_log.to_parsec_id,
+                           data: { parsec_select_target: 'hiddenId' } %>
+      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 7rem<%= ' 5rem' if current_campaign.tracks_survey_index? %>'>
+        <%# Labels row %>
+        <div class='flex items-center gap-4'>
+          <span class='edit-label'>To</span>
+          <div class='flex items-center gap-2'>
+            <%= form.check_box :misjump,
+                               class: 'rounded border-slate-600',
+                               data: { jump_form_target: 'misjumpCheckbox',
+                                       action: 'change->jump-form#misjumpChanged' } %>
+            <%= form.label :misjump, 'Misjump', class: 'edit-label' %>
+          </div>
         </div>
-      </div>
-      <div class='flex flex-row gap-2'
-           data-controller='parsec-select'
-           data-parsec-role='to'
-           data-parsec-select-parsec-id-value='<%= jump_log.to_parsec_id.to_i %>'
-           data-parsec-select-sector-id-value='<%= jump_log.to_parsec&.sector_id.to_i %>'
-           data-parsec-select-from-x-value='<%= jump_log.from_parsec&.x %>'
-           data-parsec-select-from-y-value='<%= jump_log.from_parsec&.y %>'
-           data-parsec-select-max-distance-value='<%= jump_log.ship&.jump_drive || 0 %>'
-           data-parsec-select-url-value='<%= api_parsecs_path %>'>
-        <select class='edit-base w-52'
+        <div></div>
+        <% if current_campaign.tracks_survey_index? %>
+          <%= form.label :destination_survey_index, 'Survey Index', class: 'edit-label whitespace-nowrap' %>
+        <% end %>
+        <%# Fields row %>
+        <select class='edit-base w-full'
                 data-parsec-select-target='sector'
                 data-action='change->parsec-select#sectorChanged'>
           <option value=''>Sector…</option>
@@ -103,10 +110,12 @@
         <%= select_tag 'to_hex',
                        '<option value="">Hex…</option>'.html_safe,
                        disabled: jump_log.to_parsec_id.blank?,
-                       class: 'edit-base w-28',
+                       class: 'edit-base w-full',
                        data: { parsec_select_target: 'hex', action: 'change->parsec-select#hexChanged' } %>
-        <%= hidden_field_tag 'jump_log[to_parsec_id]', jump_log.to_parsec_id,
-                             data: { parsec_select_target: 'hiddenId' } %>
+        <% if current_campaign.tracks_survey_index? %>
+          <%= form.number_field :destination_survey_index, min: 0, max: 12,
+                                class: 'edit-base w-full' %>
+        <% end %>
       </div>
     </div>
 

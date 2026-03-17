@@ -14,6 +14,14 @@ class Campaign < ApplicationRecord
     deepnight_defaults: 'deepnight_defaults'
   }, prefix: :source
 
+  store_accessor :settings, :tracks_survey_index, :sophont_check
+
+  def tracks_survey_index?
+    ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
+  end
+
+  before_create :set_tracks_survey_index
+  before_create :set_sophont_check
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
@@ -32,6 +40,14 @@ class Campaign < ApplicationRecord
                    if: -> { new_record? || slug_changed? }
 
   private
+
+  def set_tracks_survey_index
+    self.tracks_survey_index = deepnight_revelation?
+  end
+
+  def set_sophont_check
+    self.sophont_check = charted_space? ? 'none' : 'standard'
+  end
 
   def set_schema_name
     update_column(:schema_name, "camp#{id}")

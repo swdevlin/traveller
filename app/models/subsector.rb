@@ -6,6 +6,9 @@ class Subsector < ApplicationRecord
   validates :x, :y, :sector, presence: true
   belongs_to :sector
 
+  scope :with_build, -> { where.not(build: nil) }
+  scope :kept_sector, -> { joins(:sector).where(sectors: { discarded_at: nil }) }
+
   validates :x, uniqueness: {
     scope: [:y, :sector_id],
     message: 'Subsector already exists'

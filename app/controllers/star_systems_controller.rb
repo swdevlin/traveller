@@ -190,7 +190,7 @@ class StarSystemsController < ApplicationController
         'terrestrialPlanets' => 0
       },
       'primary' => primary
-    }
+    }.merge(sophont_check_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -225,6 +225,7 @@ class StarSystemsController < ApplicationController
         aliases: false
       ) || {}
 
+    config.reverse_merge!(sophont_check_options)
     result = generator_service.generate_star_system(config)
 
     unless result.success?
@@ -246,7 +247,7 @@ class StarSystemsController < ApplicationController
   def generate_random_star_system(params)
     build_config = {
       'name' => params['name']
-    }
+    }.merge(sophont_check_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -309,6 +310,11 @@ class StarSystemsController < ApplicationController
 
   def star_system_edit_params
     params.expect(star_system: [:name, :notes, :allegiance_id, :survey_index])
+  end
+
+  def sophont_check_options
+    value = current_campaign.sophont_check.presence || (current_campaign.charted_space? ? 'none' : 'standard')
+    { 'sophontCheck' => value }
   end
 
   def new_star_system_params

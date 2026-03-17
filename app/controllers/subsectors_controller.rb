@@ -139,7 +139,10 @@ class SubsectorsController < ApplicationController
     end
 
     respond_to do |format|
-      params_to_save[:build_source] = 'homebrew' if params_to_save[:build].present?
+      if params_to_save.key?(:build) && params_to_save[:build] != @subsector.build
+        params_to_save[:build_source] = 'homebrew'
+      end
+
       if @subsector.update(params_to_save)
         format.html { redirect_to @subsector, notice: 'Subsector was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @subsector }

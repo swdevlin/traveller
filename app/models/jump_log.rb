@@ -3,7 +3,10 @@ class JumpLog < ApplicationRecord
   belongs_to :from_parsec, class_name: 'Parsec'
   belongs_to :to_parsec, class_name: 'Parsec'
 
+  attr_accessor :destination_survey_index
+
   before_create :assign_sequence
+  after_save :apply_destination_survey_index, if: -> { destination_survey_index.present? }
 
   after_update :cascade_forward,  if: :arrival_or_destination_changed?
   after_update :cascade_backward, if: :departure_or_origin_changed?
@@ -14,6 +17,16 @@ class JumpLog < ApplicationRecord
   end
 
   private
+
+  def apply_destination_survey_index
+    return unless to_parsec
+    star_system = to_parsec.star_systems.first
+    if star_system
+      star_system.update_column(:survey_index, destination_survey_index.to_i)
+    else
+      to_parsec.update_column(:survey_index, destination_survey_index.to_i)
+    end
+  end
 
   def assign_sequence
     self.sequence = (JumpLog.maximum(:sequence) || 0) + 1

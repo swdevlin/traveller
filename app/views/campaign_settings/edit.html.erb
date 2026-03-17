@@ -2,6 +2,23 @@
 <% content_for :page_kicker, 'Settings' %>
 <% content_for :page_title, @campaign.name %>
 
+<%
+  campaign_type_options = [
+    { label: 'Charted Space',        value: 'charted_space',        hint: 'Import sectors from TravellerMap and explore known space.' },
+    { label: 'Deepnight Revelation', value: 'deepnight_revelation', hint: 'Pre-populate all Deepnight Revelation sectors with build configurations.' },
+    { label: 'Homebrew',             value: 'homebrew',             hint: 'Build your own universe from scratch.' }
+  ]
+  sector_source_options = [
+    { label: 'TravellerMap',    value: 'traveller_map',      hint: 'Import build configurations from TravellerMap.' },
+    { label: 'Deepnight Books', value: 'deepnight_defaults', hint: 'Use pre-configured build settings from the Deepnight Revelation sourcebook.' }
+  ]
+  sophont_check_options = [
+    { label: 'Standard',                    value: 'standard',  hint: 'Default sophont check procedure.' },
+    { label: 'Rare Earth Universe Variant', value: 'rareEarth', hint: 'Applies the Rare Earth variant (World Builder\'s Handbook p.130). Significantly reduces the probability of complex life.' },
+    { label: 'None',                        value: 'none',      hint: 'Sophont check is skipped entirely. No sophont worlds will be generated.' }
+  ]
+%>
+
 <%= render 'application/page' do %>
   <%= form_with model: @campaign,
                 url: campaign_settings_path,
@@ -16,31 +33,103 @@
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :campaign_type do %>
-        <%= form.select :campaign_type,
-              options_for_select([
-                ['Charted Space',        'charted_space',        { data: { hint: 'Import sectors from TravellerMap and explore known space.' } }],
-                ['Deepnight Revelation', 'deepnight_revelation', { data: { hint: 'Pre-populate all Deepnight Revelation sectors with build configurations.' } }],
-                ['Homebrew',             'homebrew',             { data: { hint: 'Build your own universe from scratch.' } }]
-              ], @campaign.campaign_type),
-              {},
-              class: 'edit-base',
-              data: { action: 'change->campaign-form#toggleSectorSource' } %>
-        <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='campaignTypeHint'></p>
+        <div data-controller='hint-select' class='relative'>
+          <%= form.hidden_field :campaign_type,
+                data: { hint_select_target: 'input',
+                        action: 'change->campaign-form#toggleSectorSource' } %>
+          <button type='button'
+                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= campaign_type_options.find { |o| o[:value] == @campaign.campaign_type }&.dig(:label) %>
+            </span>
+            <i class='fa-solid fa-chevron-down text-xs text-slate-400 flex-shrink-0'></i>
+          </button>
+          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-slate-700/60 bg-slate-900 shadow-xl overflow-hidden'
+               data-hint-select-target='panel'>
+            <% campaign_type_options.each do |opt| %>
+              <button type='button'
+                      class='w-full text-left px-3 py-2.5 hover:bg-slate-800 border-b border-slate-700/40 last:border-b-0'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-slate-200'><%= opt[:label] %></div>
+                <div class='text-xs italic text-slate-400 mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
       <% end %>
 
       <div data-campaign-form-target='sectorSource'
            class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
         <%= render 'application/edit_field', form: form, attribute: :sector_source do %>
-          <%= form.select :sector_source,
-                options_for_select([
-                  ['TravellerMap',    'traveller_map',      { data: { hint: 'Import build configurations from TravellerMap.' } }],
-                  ['Deepnight Books', 'deepnight_defaults', { data: { hint: 'Use pre-configured build settings from the Deepnight Revelation sourcebook.' } }]
-                ], @campaign.sector_source),
-                { include_blank: 'Select a source' },
-                class: 'edit-base',
-                data: { action: 'change->campaign-form#refreshSectorSourceHint' } %>
-          <p class='text-sm italic text-slate-400 mt-1' data-campaign-form-target='sectorSourceHint'></p>
+          <div data-controller='hint-select' class='relative'>
+            <%= form.hidden_field :sector_source,
+                  data: { hint_select_target: 'input' } %>
+            <button type='button'
+                    class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                    data-hint-select-target='trigger'
+                    data-action='click->hint-select#toggle'>
+              <span data-hint-select-target='label'>
+                <%= sector_source_options.find { |o| o[:value] == @campaign.sector_source }&.dig(:label) || 'Select a source' %>
+              </span>
+              <i class='fa-solid fa-chevron-down text-xs text-slate-400 flex-shrink-0'></i>
+            </button>
+            <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-slate-700/60 bg-slate-900 shadow-xl overflow-hidden'
+                 data-hint-select-target='panel'>
+              <% sector_source_options.each do |opt| %>
+                <button type='button'
+                        class='w-full text-left px-3 py-2.5 hover:bg-slate-800 border-b border-slate-700/40 last:border-b-0'
+                        data-action='click->hint-select#select'
+                        data-value='<%= opt[:value] %>'
+                        data-label='<%= opt[:label] %>'
+                        data-hint='<%= opt[:hint] %>'>
+                  <div class='text-sm text-slate-200'><%= opt[:label] %></div>
+                  <div class='text-xs italic text-slate-400 mt-0.5'><%= opt[:hint] %></div>
+                </button>
+              <% end %>
+            </div>
+          </div>
         <% end %>
+      </div>
+
+      <%= render 'application/edit_field', form: form, attribute: :sophont_check, field_label: 'Sophont Check' do %>
+        <div data-controller='hint-select' class='relative'>
+          <%= form.hidden_field :sophont_check,
+                data: { hint_select_target: 'input' } %>
+          <button type='button'
+                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <% default_sophont = @campaign.charted_space? ? 'none' : 'standard' %>
+              <%= sophont_check_options.find { |o| o[:value] == (@campaign.sophont_check.presence || default_sophont) }&.dig(:label) %>
+            </span>
+            <i class='fa-solid fa-chevron-down text-xs text-slate-400 flex-shrink-0'></i>
+          </button>
+          <div class='hidden absolute z-50 top-full mt-1 w-96 rounded-md border border-slate-700/60 bg-slate-900 shadow-xl overflow-hidden'
+               data-hint-select-target='panel'>
+            <% sophont_check_options.each do |opt| %>
+              <button type='button'
+                      class='w-full text-left px-3 py-2.5 hover:bg-slate-800 border-b border-slate-700/40 last:border-b-0'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-slate-200'><%= opt[:label] %></div>
+                <div class='text-xs italic text-slate-400 mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class='flex items-center gap-3 py-2'>
+        <%= form.check_box :tracks_survey_index, class: 'rounded border-slate-600' %>
+        <%= form.label :tracks_survey_index, 'Track Survey Index', class: 'edit-label' %>
       </div>
 
       <div class='pt-2 flex flex-col sm:flex-row gap-2'>

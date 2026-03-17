@@ -50,6 +50,6 @@ class CampaignSettingsController < ApplicationController
   private
 
   def campaign_settings_params
-    params.expect(campaign: [:name, :campaign_type, :sector_source])
+    params.expect(campaign: [:name, :campaign_type, :sector_source, :tracks_survey_index, :sophont_check])
   end
 end

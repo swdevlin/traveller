@@ -22,12 +22,17 @@ class JumpLogsController < ApplicationController
       depart_year: last&.arrive_year,
       depart_day:  last&.arrive_day
     )
+    @jump_log.destination_survey_index = 10 if current_campaign.tracks_survey_index?
     @map_url = api_map_path(helpers.jump_chart_viewport(@jump_log.from_parsec)) if @jump_log.from_parsec
     load_form_collections
   end
 
   # GET /jump_logs/1/edit
   def edit
+    if current_campaign.tracks_survey_index?
+      @jump_log.destination_survey_index = @jump_log.to_parsec&.star_systems&.first&.survey_index ||
+                                           @jump_log.to_parsec&.survey_index
+    end
     @map_url = api_map_path(helpers.jump_chart_viewport(@jump_log.from_parsec)) if @jump_log.from_parsec
     load_form_collections
   end
@@ -85,6 +90,6 @@ class JumpLogsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def jump_log_params
-      params.expect(jump_log: [:ship_id, :from_parsec_id, :to_parsec_id, :depart_year, :depart_day, :arrive_year, :arrive_day, :notes, :misjump])
+      params.expect(jump_log: [:ship_id, :from_parsec_id, :to_parsec_id, :depart_year, :depart_day, :arrive_year, :arrive_day, :notes, :misjump, :destination_survey_index])
     end
 end

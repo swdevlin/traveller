@@ -8,10 +8,8 @@ Rails.application.routes.draw do
 
   get '/fairuse', to: 'marketing#fairuse'
   get '/deltas',  to: 'release_notes#index'
-  get '/help', to: 'help#index'
-  get 'help/subsector_build_specification'
-  get 'help/star_system_build_specification'
-  get 'help/star_system_registration'
+  get '/help',       to: 'help#index'
+  get '/help/:page', to: 'help#show',  as: :help_page
 
   get 'up' => 'rails/health#show', as: :rails_health_check
 
