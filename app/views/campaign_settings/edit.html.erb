@@ -127,6 +127,20 @@
         </div>
       <% end %>
 
+      <%= render 'application/edit_field', form: form, attribute: :max_tech_level, field_label: 'Max Tech Level' do %>
+        <%= form.number_field :max_tech_level,
+                              value: @campaign.max_tech_level_value,
+                              class: 'edit-base sm:w-24 w-20',
+                              min: 0,
+                              max: 33,
+                              step: 1 %>
+      <% end %>
+
+      <div class='flex items-center gap-3 py-2'>
+        <%= form.check_box :native_tech_level, class: 'rounded border-slate-600' %>
+        <%= form.label :native_tech_level, 'Use Native Sophont Tech Level Rules', class: 'edit-label' %>
+      </div>
+
       <div class='flex items-center gap-3 py-2'>
         <%= form.check_box :tracks_survey_index, class: 'rounded border-slate-600' %>
         <%= form.label :tracks_survey_index, 'Track Survey Index', class: 'edit-label' %>

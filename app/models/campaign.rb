@@ -14,14 +14,24 @@ class Campaign < ApplicationRecord
     deepnight_defaults: 'deepnight_defaults'
   }, prefix: :source
 
-  store_accessor :settings, :tracks_survey_index, :sophont_check
+  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
   end
 
+  def max_tech_level_value
+    max_tech_level.presence&.to_i || 16
+  end
+
+  def native_tech_level?
+    ActiveModel::Type::Boolean.new.cast(native_tech_level)
+  end
+
   before_create :set_tracks_survey_index
   before_create :set_sophont_check
+  before_create :set_max_tech_level
+  before_create :set_native_tech_level
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
@@ -47,6 +57,14 @@ class Campaign < ApplicationRecord
 
   def set_sophont_check
     self.sophont_check = charted_space? ? 'none' : 'standard'
+  end
+
+  def set_max_tech_level
+    self.max_tech_level = 16
+  end
+
+  def set_native_tech_level
+    self.native_tech_level = false
   end
 
   def set_schema_name

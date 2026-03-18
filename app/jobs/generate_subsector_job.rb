@@ -27,6 +27,8 @@ class GenerateSubsectorJob < ApplicationJob
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
     default = campaign&.charted_space? ? 'none' : 'standard'
     config[:sophontCheck] ||= campaign&.sophont_check.presence || default
+    config[:maxTechLevel] ||= campaign&.max_tech_level_value || 16
+    config[:nativeTechLevel] = campaign&.native_tech_level? || false if config[:nativeTechLevel].nil?
 
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
     Subsector.transaction do

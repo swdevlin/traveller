@@ -190,7 +190,7 @@ class StarSystemsController < ApplicationController
         'terrestrialPlanets' => 0
       },
       'primary' => primary
-    }.merge(sophont_check_options)
+    }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -226,6 +226,8 @@ class StarSystemsController < ApplicationController
       ) || {}
 
     config.reverse_merge!(sophont_check_options)
+    config.reverse_merge!(max_tech_level_options)
+    config.reverse_merge!(native_tech_level_options)
     result = generator_service.generate_star_system(config)
 
     unless result.success?
@@ -247,7 +249,7 @@ class StarSystemsController < ApplicationController
   def generate_random_star_system(params)
     build_config = {
       'name' => params['name']
-    }.merge(sophont_check_options)
+    }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -315,6 +317,14 @@ class StarSystemsController < ApplicationController
   def sophont_check_options
     value = current_campaign.sophont_check.presence || (current_campaign.charted_space? ? 'none' : 'standard')
     { 'sophontCheck' => value }
+  end
+
+  def max_tech_level_options
+    { 'maxTechLevel' => current_campaign.max_tech_level_value }
+  end
+
+  def native_tech_level_options
+    { 'nativeTechLevel' => current_campaign.native_tech_level? }
   end
 
   def new_star_system_params
