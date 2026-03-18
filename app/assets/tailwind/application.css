@@ -366,11 +366,11 @@
         @apply flex items-center gap-2 pt-1 mb-1;
     }
 
-    .dg-subsection-label {
+    .dg-subsection .label {
         @apply text-xs uppercase tracking-[0.22em] text-deepnight-orange;
     }
 
-    .dg-subsection-line {
+    .dg-subsection .line {
         @apply h-px flex-1 bg-slate-700/70;
     }
   /* markdown */

@@ -1,64 +1,115 @@
 <% content_for :title, 'Campaign Settings' %>
-<% content_for :page_kicker, 'Settings' %>
+<% content_for :page_kicker, 'Campaign Core' %>
 <% content_for :page_title, @campaign.name %>
 
-<%= render 'application/page' do %>
-  <div class='grid grid-cols-1 gap-4 sm:grid-cols-4 mb-6'>
-    <%= render 'application/data_block',
-               label: 'Campaign Type',
-               value: @campaign.campaign_type.humanize %>
+<%
+  sophont_check_labels = {
+    'standard'  => 'Standard',
+    'rareEarth' => 'Rare Earth Variant',
+    'none'      => 'None'
+  }
+  sophont_default = @campaign.charted_space? ? 'none' : 'standard'
+  sophont_label = sophont_check_labels.fetch(@campaign.sophont_check.presence || sophont_default, 'Standard')
+%>
 
-    <% if @campaign.sector_source.present? %>
+<% content_for :page_side do %>
+  <div class='space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-1'>
+      <div class="uppercase tracking-[0.22em] text-deepnight-orange">Statistics</div>
       <%= render 'application/data_block',
-                 label: 'Sector Data Source',
-                 value: @campaign.sector_source.humanize %>
-    <% end %>
+                 label: 'Sectors',
+                 value: number_with_delimiter(@sector_count) %>
 
-    <%= render 'application/data_block',
-               label: 'Sectors',
-               value: @sector_count %>
+      <%= render 'application/data_block',
+                 label: 'Subsectors with Build Scripts',
+                 value: number_with_delimiter(@subsector_count) %>
 
-    <%= render 'application/data_block',
-               label: 'Subsectors with Build Scripts',
-               value: @subsector_count %>
+      <%= render 'application/data_block',
+                 label: 'Star systems',
+                 value: number_with_delimiter(@star_system_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Native Sophonts',
+                 value: number_with_delimiter(@native_sophont_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Extinct Sophonts',
+                 value: number_with_delimiter(@extinct_sophont_count) %>
+    </div>
   </div>
+<% end %>
 
-  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
-    <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
-      <i class='fa-regular fa-pencil mr-1.5'></i> Edit
-    <% end %>
+<%= render 'application/two_column_page' do %>
+  <div class='space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Campaign Type',
+                 value: @campaign.campaign_type.humanize %>
 
-    <% if @campaign.deepnight_revelation? %>
-      <%= button_to populate_deepnight_campaign_settings_path,
-            method: :post,
-            class: 'w-full sm:w-auto btn' do %>
-        <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
+      <% if @campaign.sector_source.present? %>
+        <%= render 'application/data_block',
+                   label: 'Sector Data Source',
+                   value: @campaign.sector_source.humanize %>
       <% end %>
-    <% end %>
 
-    <%= button_to assign_builds_campaign_settings_path,
-          method: :post,
-          class: 'w-full sm:w-auto btn',
-          disabled: @campaign.sector_source.nil? do %>
-      <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
-    <% end %>
+      <%= render 'application/data_block',
+                 label: 'Track Survey Index',
+                 value: @campaign.tracks_survey_index? ? 'Yes' : 'No' %>
+    </div>
 
-    <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
-    <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
-    <%= button_to populate_empty_campaign_settings_path,
-          method: :post,
-          class: 'w-full sm:w-auto btn',
-          disabled: !@has_empty_sectors,
-          data: { turbo_confirm: empty_confirm } do %>
-      <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
-    <% end %>
+    <%= render 'application/subsection', title: 'System Generation' %>
 
-    <%= button_to populate_all_campaign_settings_path,
-          method: :post,
-          class: 'w-full sm:w-auto btn',
-          disabled: @subsector_count.zero?,
-          data: { turbo_confirm: confirm_msg } do %>
-      <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
-    <% end %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Sophont Check',
+                 value: sophont_label %>
+
+      <%= render 'application/data_block',
+                 label: 'Max Tech Level',
+                 value: @campaign.max_tech_level_value %>
+
+      <%= render 'application/data_block',
+                 label: 'Native Sophont Tech Level Rules',
+                 value: @campaign.native_tech_level? ? 'Yes' : 'No' %>
+    </div>
+
+    <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+      <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
+        <i class='fa-regular fa-pencil mr-1.5'></i> Edit
+      <% end %>
+
+      <% if @campaign.deepnight_revelation? %>
+        <%= button_to populate_deepnight_campaign_settings_path,
+              method: :post,
+              class: 'w-full sm:w-auto btn' do %>
+          <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
+        <% end %>
+      <% end %>
+
+      <%= button_to assign_builds_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @campaign.sector_source.nil? do %>
+        <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
+      <% end %>
+
+      <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
+      <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
+      <%= button_to populate_empty_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: !@has_empty_sectors,
+            data: { turbo_confirm: empty_confirm } do %>
+        <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
+      <% end %>
+
+      <%= button_to populate_all_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @subsector_count.zero?,
+            data: { turbo_confirm: confirm_msg } do %>
+        <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
+      <% end %>
+    </div>
   </div>
 <% end %>

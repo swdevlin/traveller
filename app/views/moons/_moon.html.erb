@@ -68,12 +68,7 @@
   </div>
 
   <% if parent %>
-    <div class="dg-subsection">
-      <div class="dg-subsection-label">
-        Orbital Data
-      </div>
-      <div class="db-subsection-line"></div>
-    </div>
+    <%= render 'application/subsection', title: 'Orbital Data' %>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true), suffix: 'diameters' %>
@@ -84,12 +79,7 @@
     </div>
   <% end %>
 
-  <div class="dg-subsection">
-    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
-      Physical Data
-    </div>
-    <div class="h-px flex-1 bg-slate-700/70"></div>
-  </div>
+  <%= render 'application/subsection', title: 'Physical Data' %>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block',
@@ -103,12 +93,7 @@
     <%= render 'application/data_block', label: 'Density', value: number_with_precision(moon.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
   </div>
 
-  <div class="dg-subsection">
-    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
-      Environmental Data
-    </div>
-    <div class="h-px flex-1 bg-slate-700/70"></div>
-  </div>
+  <%= render 'application/subsection', title: 'Environmental Data' %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(moon.temperature), suffix: '°C' %>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(moon.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
@@ -160,12 +145,7 @@
     </div>
   <% end %>
 
-  <div class="dg-subsection">
-    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
-      Biological Data
-    </div>
-    <div class="h-px flex-1 bg-slate-700/70"></div>
-  </div>
+  <%= render 'application/subsection', title: 'Biological Data' %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/data_block', label: 'Biomass Rating', value: moon.biomass_rating %>
     <% if moon.biodiversity_rating.present? %>
@@ -188,12 +168,7 @@
     <% end %>
   </div>
 
-  <div class="dg-subsection">
-    <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
-      Social Data
-    </div>
-    <div class="h-px flex-1 bg-slate-700/70"></div>
-  </div>
+  <%= render 'application/subsection', title: 'Social Data' %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
     <%= render 'application/population_block', population_code: moon.population_code %>
     <%= render 'application/data_block', label: 'Native Sophont', value: moon.native_sophont ? 'Yes' : 'No' %>

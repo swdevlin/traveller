@@ -86,4 +86,25 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 - always use `jsonb` for JSON columns, never `json` — jsonb supports GIN indexes, the `@>` containment operator, and is more efficient on read
 - indexing a jsonb field is better than extracting the value into a column
 - when working with sectors, use Sector.kept except for queries that need to include deleted sectors
-- 
+
+## Show Page Sections
+
+Use sections to visually group related fields on show pages. See `app/views/terrestrial_planets/_terrestrial_planet.html.erb` for canonical examples.
+
+Render a section header using the `application/subsection` partial:
+
+```erb
+<%= render 'application/subsection', title: 'Section Name' %>
+```
+
+This renders a `.dg-subsection` div containing a `.label` div (orange, uppercase, tracked) and a `.line` div (slate horizontal rule). CSS is defined in `app/assets/tailwind/application.css` using descendant selectors `.dg-subsection .label` and `.dg-subsection .line`.
+
+Follow it immediately with a `grid` of `data_block` partials:
+
+```erb
+<div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+  <%= render 'application/data_block', label: 'Field', value: object.field %>
+</div>
+```
+
+Wrap the whole page in `<div class='space-y-6'>` so sections and grids are evenly spaced.

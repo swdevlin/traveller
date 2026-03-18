@@ -9,6 +9,9 @@ class CampaignSettingsController < ApplicationController
     empty_sector_ids = Sector.kept.where.not(id: populated_sector_ids).select(:id)
     @empty_sector_count = Sector.kept.where(id: empty_sector_ids).count
     @empty_subsector_count = Subsector.where(sector_id: empty_sector_ids).where.not(build: nil).count
+    @extinct_sophont_count = StellarObject.where("data->>'extinct_sophont' = 'true'").count
+    @native_sophont_count = StellarObject.where("data->>'native_sophont' = 'true'").count
+    @star_system_count = StarSystem.count
     @has_empty_sectors = @empty_subsector_count > 0
   end
 
