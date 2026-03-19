@@ -50,6 +50,11 @@ class CampaignSettingsController < ApplicationController
     redirect_to campaign_settings_path, notice: 'Empty sector population queued.'
   end
 
+  def generate_all_sectors_map
+    GenerateAllSectorsMapJob.perform_later(current_campaign.id)
+    redirect_to campaign_settings_path, notice: 'All-sectors map generation queued.'
+  end
+
   private
 
   def campaign_settings_params

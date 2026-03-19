@@ -7,6 +7,8 @@ class JumpLog < ApplicationRecord
 
   before_create :assign_sequence
   after_save :apply_destination_survey_index, if: -> { destination_survey_index.present? }
+  after_create_commit  :queue_map_regeneration
+  after_update_commit  :queue_map_regeneration, if: :saved_change_to_to_parsec_id?
 
   after_update :cascade_forward,  if: :arrival_or_destination_changed?
   after_update :cascade_backward, if: :departure_or_origin_changed?
@@ -26,6 +28,11 @@ class JumpLog < ApplicationRecord
     else
       to_parsec.update_column(:survey_index, destination_survey_index.to_i)
     end
+  end
+
+  def queue_map_regeneration
+    campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
+    GenerateAllSectorsMapJob.perform_later(campaign.id) if campaign
   end
 
   def assign_sequence

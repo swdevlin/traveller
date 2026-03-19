@@ -73,6 +73,26 @@
                  value: @campaign.native_tech_level? ? 'Yes' : 'No' %>
     </div>
 
+    <%= render 'application/subsection', title: 'All-Sectors Map' %>
+
+    <% map_path = AllSectorsMapGenerator.new(@campaign).output_path %>
+    <% map_exists = map_path.exist? %>
+    <% if map_exists %>
+      <div class='mt-2'>
+        <img src='<%= campaign_all_sectors_map_path(v: map_path.mtime.to_i) %>' alt='All-sectors map' class='w-full border border-slate-700' />
+      </div>
+    <% else %>
+      <p class='text-sm text-slate-400 italic'>No map generated yet.</p>
+    <% end %>
+
+    <div class='mt-3'>
+      <%= button_to generate_all_sectors_map_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn' do %>
+        <i class='fa-regular fa-map mr-1.5'></i> <%= map_exists ? 'Regenerate Map' : 'Generate Map' %>
+      <% end %>
+    </div>
+
     <div class='mt-6 flex flex-col sm:flex-row gap-2'>
       <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
         <i class='fa-regular fa-pencil mr-1.5'></i> Edit

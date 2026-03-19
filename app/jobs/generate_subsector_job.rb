@@ -67,7 +67,7 @@ class GenerateSubsectorJob < ApplicationJob
     systems.each do |s|
       parsec = Parsec.find_by(x: ul.x + s['x']-1, y: ul.y - (s['y'] - 1))
       next if parsec.nil?
-      next if parsec.star_system&.locked?
+      next if parsec.star_systems.locked.exists?
 
       importer.import!(parsec, s)
     end

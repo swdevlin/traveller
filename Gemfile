@@ -89,3 +89,5 @@ gem 'discard'
 
 gem 'ros-apartment', require: 'apartment'
 gem 'ros-apartment-activejob', require: 'apartment-activejob'
+
+gem 'chunky_png'

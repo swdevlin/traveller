@@ -141,6 +141,9 @@ Rails.application.routes.draw do
       post :assign_builds
       post :populate_all
       post :populate_empty
+      post :generate_all_sectors_map
     end
+
+    get 'all_sectors_map', to: 'all_sectors_maps#show', as: :campaign_all_sectors_map
   end
 end
