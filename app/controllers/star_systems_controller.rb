@@ -6,6 +6,8 @@ require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
+  include UrlTokenVerification
+  optional_authentication only: [:map]
   before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock ]
   before_action :set_form_context
 
@@ -22,7 +24,8 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1/map.svg or .webp
   def map
-    fresh_when etag: "#{current_campaign.id}/#{@star_system.cache_key_with_version}", last_modified: @star_system.updated_at
+    @show_map_links = authenticated?
+    fresh_when etag: "#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}", last_modified: @star_system.updated_at
     return if performed?
 
     respond_to do |format|
@@ -155,14 +158,18 @@ class StarSystemsController < ApplicationController
 
   private
 
+  def map_cache_variant
+    authenticated? ? 'auth' : 'public'
+  end
+
   def cached_svg
-    Rails.cache.fetch("system_map_svg/#{current_campaign.id}/#{@star_system.cache_key_with_version}") do
+    Rails.cache.fetch("system_map_svg/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
       render_to_string(formats: [:svg], layout: false)
     end
   end
 
   def cached_webp
-    Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}") do
+    Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
       image = Vips::Image.new_from_buffer(cached_svg, '')
       image.webpsave_buffer
     end

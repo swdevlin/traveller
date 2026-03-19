@@ -70,6 +70,17 @@
   </div>
   <%= render 'application/observation_block', notes: star_system.notes %>
 
+  <% map_path = map_star_system_path(star_system) %>
+  <div class='flex justify-end mb-1'>
+    <button type='button'
+            title='Copy public map link'
+            class='text-slate-400 hover:text-slate-200'
+            data-controller='clipboard'
+            data-clipboard-url-value='<%= signed_map_url(map_path) %>'
+            data-action='click->clipboard#copy'>
+      <i class='fa-regular fa-link'></i>
+    </button>
+  </div>
   <%= render 'system_map', star_system: star_system %>
 
   <%= render 'stars_table', stars: star_system.ordered_stars %>

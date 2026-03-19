@@ -39,13 +39,23 @@
 <% content_for :page_side do %>
   <div class='flex items-center justify-between mb-2'>
     <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Subsectors</div>
-    <%= link_to map_sector_path(@sector),
-                target: '_blank',
-                rel: 'noopener',
-                title: 'Star Map',
-                class: 'text-slate-400 hover:text-traveller-red transition-colors' do %>
-      <i class="fa-regular fa-map"></i>
-    <% end %>
+    <div class='flex items-center gap-3'>
+      <button type='button'
+              title='Copy public map link'
+              class='text-slate-400 hover:text-slate-200'
+              data-controller='clipboard'
+              data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
+              data-action='click->clipboard#copy'>
+        <i class='fa-regular fa-link'></i>
+      </button>
+      <%= link_to map_sector_path(@sector),
+                  target: '_blank',
+                  rel: 'noopener',
+                  title: 'Star Map',
+                  class: 'text-slate-400 hover:text-traveller-red transition-colors' do %>
+        <i class="fa-regular fa-map"></i>
+      <% end %>
+    </div>
   </div>
   <%= render 'subsector_grid', sector: @sector %>
 

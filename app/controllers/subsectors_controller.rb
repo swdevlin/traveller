@@ -1,4 +1,6 @@
 class SubsectorsController < ApplicationController
+  include UrlTokenVerification
+  optional_authentication only: [:map]
   before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate star_systems_table map]
   before_action :set_counts, only: %i[show populate]
   # GET /subsectors or /subsectors.json
@@ -54,6 +56,7 @@ class SubsectorsController < ApplicationController
   end
 
   def map
+    @show_map_links = authenticated?
     @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, stars: [])
     if params[:highlight].present?
       highlighted_parsec = Parsec.find_by(id: params[:highlight])
@@ -76,7 +79,8 @@ class SubsectorsController < ApplicationController
     region_record_max = Region.joins(region_components: :region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
-    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}"
+    auth_variant = authenticated? ? 'auth' : 'public'
+    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}"
 
     fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?

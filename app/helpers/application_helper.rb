@@ -1,4 +1,11 @@
 module ApplicationHelper
+  def signed_map_url(path)
+    uri = URI.parse(path)
+    token = current_campaign.token_for(uri.path)
+    separator = uri.query.present? ? '&' : '?'
+    "#{request.base_url}#{path}#{separator}token=#{token}"
+  end
+
   def contextual_help_path
     candidates = ["#{controller_name}_#{action_name}", controller_name]
     page = candidates.find { |name| lookup_context.template_exists?("help/#{name}", [], false) }

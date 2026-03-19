@@ -2,8 +2,12 @@ one:
   slug: camp-one
   name: Campaign One
   referee: one
+  settings:
+    token_secret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 two:
   slug: camp-two
   name: Campaign Two
   referee: two
+  settings:
+    token_secret: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

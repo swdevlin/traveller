@@ -14,7 +14,7 @@ class Campaign < ApplicationRecord
     deepnight_defaults: 'deepnight_defaults'
   }, prefix: :source
 
-  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level
+  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
@@ -32,6 +32,7 @@ class Campaign < ApplicationRecord
   before_create :set_sophont_check
   before_create :set_max_tech_level
   before_create :set_native_tech_level
+  before_create :set_token_secret
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
@@ -49,6 +50,10 @@ class Campaign < ApplicationRecord
                    format: { with: /\A[a-z0-9]([a-z0-9-]*[a-z0-9])?\z/, message: 'must contain only lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen' },
                    if: -> { new_record? || slug_changed? }
 
+  def token_for(path)
+    OpenSSL::HMAC.hexdigest('SHA256', token_secret, path)
+  end
+
   private
 
   def set_tracks_survey_index
@@ -65,6 +70,10 @@ class Campaign < ApplicationRecord
 
   def set_native_tech_level
     self.native_tech_level = false
+  end
+
+  def set_token_secret
+    self.token_secret = SecureRandom.hex(32)
   end
 
   def set_schema_name

@@ -62,7 +62,7 @@
           parsec_id = parsec_data&.fetch(:id)
           empty = !systems_by_hex.key?(hex_code)
         %>
-        <% if empty && parsec_id %>
+        <% if empty && parsec_id && @show_map_links %>
           <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
             <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
           </a>
@@ -163,10 +163,10 @@
           %>
 
           <%# Draw primary star %>
-          <a href="<%= star_system_path(star_system) %>" target="_top" class="clickable">
+          <% if @show_map_links %><a href="<%= star_system_path(star_system) %>" target="_top" class="clickable"><% end %>
             <circle class="star-circle" cx="<%= cx.round(2) %>" cy="<%= star_cy.round(2) %>"
                     r="<%= primary_r.round(2) %>" fill="<%= star_fill_colour(primary&.colour || 'Yellow') %>"/>
-          </a>
+          <% if @show_map_links %></a><% end %>
 
           <%# Draw primary's companion at 7:30 %>
           <% if primary&.companion %>

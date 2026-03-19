@@ -1,4 +1,6 @@
 class SectorsController < ApplicationController
+  include UrlTokenVerification
+  optional_authentication only: [:map]
   before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source map ]
 
   # GET /sectors or /sectors.json
@@ -102,6 +104,7 @@ class SectorsController < ApplicationController
   end
 
   def map
+    @show_map_links = authenticated?
     sector_ul = @sector.upper_left
 
     @star_systems = StarSystem
@@ -115,7 +118,8 @@ class SectorsController < ApplicationController
     region_record_max = Region.joins(region_components: { region_parsecs: :parsec }).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}"
+    auth_variant = authenticated? ? 'auth' : 'public'
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
