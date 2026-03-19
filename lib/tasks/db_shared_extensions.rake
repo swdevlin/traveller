@@ -1,13 +1,17 @@
 namespace :db do
   task ensure_shared_extensions_schema: :environment do
-    ActiveRecord::Base.connection.execute('CREATE SCHEMA IF NOT EXISTS shared_extensions')
+    conn = ActiveRecord::Base.connection
+    conn.execute('CREATE SCHEMA IF NOT EXISTS shared_extensions')
+    conn.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA shared_extensions')
   end
 
   namespace :test do
     task ensure_shared_extensions_schema: :environment do
       config = ActiveRecord::Base.configurations.find_db_config('test')
       ActiveRecord::Base.establish_connection(config)
-      ActiveRecord::Base.connection.execute('CREATE SCHEMA IF NOT EXISTS shared_extensions')
+      conn = ActiveRecord::Base.connection
+      conn.execute('CREATE SCHEMA IF NOT EXISTS shared_extensions')
+      conn.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA shared_extensions')
     ensure
       ActiveRecord::Base.establish_connection(Rails.env.to_sym)
     end
