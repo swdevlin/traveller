@@ -392,6 +392,7 @@ type alias ModelData =
     , timeOpened : Time.Posix
     , campaignName : String
     , shipName : String
+    , allSectorsMapUrl : Maybe String
     }
 
 
@@ -468,6 +469,7 @@ type alias Flags =
     , hexSize : Float
     , campaignName : Maybe String
     , shipName : Maybe String
+    , allSectorsMapUrl : Maybe String
     }
 
 
@@ -579,6 +581,7 @@ init viewport settings key hostConfig referee =
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , shipName = settings.shipName |> Maybe.withDefault "Ship"
+            , allSectorsMapUrl = settings.allSectorsMapUrl
             }
     in
     ( ( Time.millisToPosix 0
@@ -1506,17 +1509,28 @@ mouseCoordsToSector mousePos offset imageSize =
     { x = correctedX + floor sectorX, y = correctedY - floor sectorY }
 
 
-viewFullJourney : JourneyModel -> Browser.Dom.Viewport -> Element.Element Msg
-viewFullJourney model viewport =
+viewFullJourney : Maybe String -> JourneyModel -> Browser.Dom.Viewport -> Element.Element Msg
+viewFullJourney allSectorsMapUrl model viewport =
     let
         ( maxWidth, maxHeight ) =
             let
-                scaledWidth =
+                availableWidth =
                     viewport.viewport.width - sidebarWidth - 50
+
+                availableHeight =
+                    viewport.viewport.height - consoleTitleHeight
+
+                aspectRatio =
+                    fullJourneyImageHeight / fullJourneyImageWidth
+
+                heightFromWidth =
+                    availableWidth * aspectRatio
             in
-            ( scaledWidth
-            , scaledWidth * (fullJourneyImageHeight / fullJourneyImageWidth)
-            )
+            if heightFromWidth <= availableHeight then
+                ( availableWidth, heightFromWidth )
+
+            else
+                ( availableHeight / aspectRatio, availableHeight )
 
         ( imageSizeWidth, imageSizeHeight ) =
             ( maxWidth * model.zoomScale
@@ -1591,7 +1605,7 @@ viewFullJourney model viewport =
                 Nothing ->
                     noopAttribute
             ]
-            { src = "/images/uncharted-space.png", description = "Full Journey Map" }
+            { src = allSectorsMapUrl |> Maybe.withDefault "/images/uncharted-space.png", description = "Full Journey Map" }
 
 
 pointerEventsNone =
@@ -1858,6 +1872,7 @@ view ( time, model ) =
             , selectedSystem = model.selectedSystem
             , selectedStellarObject = model.selectedStellarObject
             , isReferee = model.isReferee
+            , allSectorsMapUrl = model.allSectorsMapUrl
             }
 
         sidebarColumn =
@@ -1869,7 +1884,7 @@ view ( time, model ) =
                     viewHexMap model
 
                 FullJourney ->
-                    viewFullJourney model.journeyModel model.viewport.viewport
+                    viewFullJourney model.allSectorsMapUrl model.journeyModel model.viewport.viewport
 
         timeChars : Int
         timeChars =

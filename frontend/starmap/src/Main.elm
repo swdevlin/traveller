@@ -68,6 +68,7 @@ type alias Flags =
     , campaignName : Maybe String
     , shipName : Maybe String
     , apiBaseUrl : String
+    , allSectorsMapUrl : Maybe String
     }
 
 
@@ -181,6 +182,7 @@ update msg model =
                                 , hexSize = model.flags.hexSize
                                 , campaignName = model.flags.campaignName
                                 , shipName = model.flags.shipName
+                                , allSectorsMapUrl = model.flags.allSectorsMapUrl
                                 }
                                 model.key
                                 model.hostConfig

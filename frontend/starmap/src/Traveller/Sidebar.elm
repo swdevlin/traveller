@@ -128,9 +128,10 @@ viewSidebarColumn :
             , selectedSystem : Maybe SolarSystem
             , selectedStellarObject : Maybe StellarObject
             , isReferee : Bool
+            , allSectorsMapUrl : Maybe String
         }
     -> Element msg
-viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee } =
+viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ column [ Element.width Element.fill ]
             [ let
