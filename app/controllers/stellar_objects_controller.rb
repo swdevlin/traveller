@@ -8,7 +8,7 @@ class StellarObjectsController < ApplicationController
     @stellar_objects = StellarObject.all
   end
 
-  # GET /stellar_objects/1 or /stellar_objects/1.json
+  # GET /stellar_objects/1 or /stellar_objects/1.json or /stellar_objects/1.md
   def show
     if @stellar_object.is_a?(PlanetoidBelt)
       scope = @stellar_object.significant_bodies
@@ -25,6 +25,15 @@ class StellarObjectsController < ApplicationController
       scope = @stellar_object.moons.order(:orbit)
       scope = scope.where.not(size_code: %w[0 S]) if params[:significant_only].present?
       @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
+    end
+
+    respond_to do |format|
+      format.html
+      format.json
+      format.md do
+        presenter = StellarObjectMarkdownPresenter.for(@stellar_object)
+        render plain: presenter.render, content_type: 'text/markdown'
+      end
     end
   end
 

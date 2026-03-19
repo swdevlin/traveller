@@ -10,7 +10,19 @@
 <%= content_for :page_title, @stellar_object.display_name %>
 <%= content_for :iiss_form, '0407F-IV PART P' %>
 <%= content_for :page_buttons do %>
-  <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+  <div class='flex items-center justify-between'>
+    <div>
+      <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-slate-400 hover:text-slate-200'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= stellar_object_path(@stellar_object, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
 <% end %>
 
 <%= content_for :page_side do %>

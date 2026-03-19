@@ -16,10 +16,19 @@ class StarSystemsController < ApplicationController
     @star_systems = StarSystem.all
   end
 
-  # GET /star_systems/1 or /star_systems/1.json
+  # GET /star_systems/1 or /star_systems/1.json or /star_systems/1.md
   def show
     @primary = @star_system.primary_star
     @orbiting_bodies = @star_system.orbiting_bodies
+
+    respond_to do |format|
+      format.html
+      format.json
+      format.md do
+        presenter = StarSystemMarkdownPresenter.new(@star_system)
+        render plain: presenter.render, content_type: 'text/markdown'
+      end
+    end
   end
 
   # GET /star_systems/1/map.svg or .webp

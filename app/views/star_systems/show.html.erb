@@ -3,16 +3,28 @@
 <%= content_for :page_title, @star_system.name.presence || 'Unlabelled System' %>
 <%= content_for :iiss_form, '0421D' %>
 <%= content_for :page_buttons do %>
-  <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
-  <%= link_to 'Replace', replace_star_system_path(@star_system),
-              class: "w-full sm:w-auto btn btn-secondary #{@star_system.locked? ? 'opacity-50 pointer-events-none' : ''}",
-              title: @star_system.locked? ? 'Unlock this star system to replace it' : nil %>
-  <%= button_to 'Delete',
-                @star_system,
-                method: :delete,
-                form_class: 'sm:inline-block mt-2 sm:mt-0',
-                class: 'w-full btn btn-danger',
-                data: { turbo_confirm: 'Are you sure?' } %>
+  <div class='flex items-center justify-between'>
+    <div class='flex flex-wrap gap-2'>
+      <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Replace', replace_star_system_path(@star_system),
+                  class: "w-full sm:w-auto btn btn-secondary #{@star_system.locked? ? 'opacity-50 pointer-events-none' : ''}",
+                  title: @star_system.locked? ? 'Unlock this star system to replace it' : nil %>
+      <%= button_to 'Delete',
+                    @star_system,
+                    method: :delete,
+                    form_class: 'inline-block',
+                    class: 'w-full btn btn-danger',
+                    data: { turbo_confirm: 'Are you sure?' } %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-slate-400 hover:text-slate-200'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= star_system_path(@star_system, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
 <% end %>
 
 <% parsec = @star_system.parsec %>

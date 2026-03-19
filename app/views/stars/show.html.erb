@@ -3,7 +3,19 @@
 <%= content_for :page_title, @star.display_name %>
 <%= content_for :iiss_form, 'FORM 0421B-0I' %>
 <%= content_for :page_buttons do %>
-  <%= link_to 'Edit', edit_star_path(@star), class: 'w-full sm:w-auto btn btn-primary' %>
+  <div class='flex items-center justify-between'>
+    <div>
+      <%= link_to 'Edit', edit_star_path(@star), class: 'w-full sm:w-auto btn btn-primary' %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-slate-400 hover:text-slate-200'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= star_path(@star, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
 <% end %>
 
 <%

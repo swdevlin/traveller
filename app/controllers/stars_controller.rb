@@ -19,6 +19,13 @@ class StarsController < ApplicationController
   end
 
   def show
+    respond_to do |format|
+      format.html
+      format.md do
+        presenter = StarMarkdownPresenter.new(@star)
+        render plain: presenter.render, content_type: 'text/markdown'
+      end
+    end
   end
 
   def edit
