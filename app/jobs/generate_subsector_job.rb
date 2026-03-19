@@ -32,7 +32,7 @@ class GenerateSubsectorJob < ApplicationJob
 
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
     Subsector.transaction do
-      subsector.clear
+      subsector.clear(exclude_locked: true)
     end
 
     base = Rails.application.config.x.generator_service
@@ -66,6 +66,9 @@ class GenerateSubsectorJob < ApplicationJob
 
     systems.each do |s|
       parsec = Parsec.find_by(x: ul.x + s['x']-1, y: ul.y - (s['y'] - 1))
+      next if parsec.nil?
+      next if parsec.star_system&.locked?
+
       importer.import!(parsec, s)
     end
 

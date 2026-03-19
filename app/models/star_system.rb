@@ -48,6 +48,9 @@ class StarSystem < ApplicationRecord
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
+  scope :locked, -> { where(locked: true) }
+  scope :unlocked, -> { where(locked: [false, nil]) }
+
   scope :with_native_sophont, -> {
     where(id: StellarObject.where("stellar_objects.data @> '{\"native_sophont\": true}'").select(:star_system_id))
   }

@@ -6,7 +6,7 @@ require 'vips'
 
 class StarSystemsController < ApplicationController
   include ParentHex
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -54,7 +54,17 @@ class StarSystemsController < ApplicationController
   def replace
   end
 
+  def toggle_lock
+    @star_system.update!(locked: !@star_system.locked?)
+    redirect_to @star_system, status: :see_other
+  end
+
   def do_replace
+    if @star_system.locked?
+      flash.now[:alert] = 'This star system is locked and cannot be replaced.'
+      return render :replace, status: :unprocessable_entity
+    end
+
     payload, error = generate_payload(new_star_system_params)
 
     if error
@@ -311,7 +321,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_edit_params
-    params.expect(star_system: [:name, :notes, :allegiance_id, :survey_index])
+    params.expect(star_system: [:name, :notes, :allegiance_id, :survey_index, :locked])
   end
 
   def sophont_check_options

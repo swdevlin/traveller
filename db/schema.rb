@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_140224) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_19_024305) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -195,7 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_140224) do
     t.integer "x"
     t.integer "y"
     t.index ["discarded_at"], name: "index_sectors_on_discarded_at"
-    t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
@@ -241,6 +241,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_140224) do
     t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.integer "gas_giant_count", default: 0, null: false
+    t.boolean "locked", default: false
     t.bigint "main_world_id"
     t.jsonb "meta"
     t.string "name"
@@ -251,7 +252,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_140224) do
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
-    t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
   end
 
@@ -316,7 +317,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_140224) do
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
-    t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin
     t.index ["sector_id", "x", "y"], name: "index_subsectors_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
   end

@@ -6,11 +6,20 @@ module ClearableParsecs
     Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
   end
 
-  def clear
+  def clear(exclude_locked: false)
     scope = parsec_scope
 
-    StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).delete_all
-    StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).delete_all
+    star_system_scope = StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) })
+    stellar_object_scope = StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) })
+
+    if exclude_locked
+      locked_parsec_ids = star_system_scope.where(locked: true).select(:parsec_id)
+      star_system_scope = star_system_scope.where.not(parsec_id: locked_parsec_ids)
+      stellar_object_scope = stellar_object_scope.where.not(parsec_id: locked_parsec_ids)
+    end
+
+    star_system_scope.delete_all
+    stellar_object_scope.delete_all
     # StarSystem.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
     # StellarObject.joins(:parsec).where(parsecs: { id: scope.select(:id) }).destroy_all
   rescue ActiveRecord::InvalidForeignKey => e

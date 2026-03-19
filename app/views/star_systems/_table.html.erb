@@ -19,6 +19,7 @@
         <th scope='col' class='w-20'>Location</th>
         <th scope='col'>Name</th>
         <th scope='col'>Bases</th>
+        <th scope='col'></th>
         <th scope='col'>Statistics</th>
         <th scope='col'>Trade codes</th>
         <th scope='col'>Stars</th>
@@ -45,6 +46,12 @@
 
           <td class='whitespace-nowrap'>
             <%= star_system.facilities_string %>
+          </td>
+
+          <td class='text-center'>
+            <% if star_system.locked? %>
+              <i class='fa-regular fa-lock' title='Locked'></i>
+            <% end %>
           </td>
 
           <td class='whitespace-nowrap'>
