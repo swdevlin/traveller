@@ -80,10 +80,11 @@ class AllSectorsMapGenerator
     star_coords    = fetch_star_coords
     visited_coords = fetch_visited_coords
 
-    all_coords = star_coords | visited_coords
-    all_coords.each do |px, py|
-      colour = visited_coords.include?([px, py]) ? COLOUR_VISITED : COLOUR_STAR
-      fill_hex(image, px, py, colour)
+    star_coords.each do |px, py|
+      fill_hex(image, px, py, COLOUR_STAR)
+    end
+    visited_coords.each do |px, py|
+      fill_hex(image, px, py, COLOUR_VISITED, size: 3)
     end
   end
 
@@ -97,22 +98,21 @@ class AllSectorsMapGenerator
   end
 
   def fetch_visited_coords
-    Set.new(
-      Parsec.joins('INNER JOIN jump_logs ON jump_logs.to_parsec_id = parsecs.id')
-            .distinct
-            .pluck(:x, :y)
-    )
+    to_coords   = Parsec.joins('INNER JOIN jump_logs ON jump_logs.to_parsec_id = parsecs.id').distinct.pluck(:x, :y)
+    from_coords = Parsec.joins('INNER JOIN jump_logs ON jump_logs.from_parsec_id = parsecs.id').distinct.pluck(:x, :y)
+    Set.new(to_coords + from_coords)
   end
 
-  def fill_hex(image, px, py, colour)
-    ix = (px - @min_px) * PIXEL_SIZE + 1
-    iy = (@max_py - py) * PIXEL_SIZE + 1
-    return unless ix >= 0 && iy >= 0 && ix + 1 < @img_width && iy + 1 < @img_height
-
-    image[ix, iy] = colour
-    image[ix + 1, iy] = colour
-    image[ix, iy + 1] = colour
-    image[ix + 1, iy + 1] = colour
+  def fill_hex(image, px, py, colour, size: 2)
+    base_x = (px - @min_px) * PIXEL_SIZE + 1
+    base_y = (@max_py - py) * PIXEL_SIZE + 1
+    size.times do |dx|
+      size.times do |dy|
+        x = base_x + dx
+        y = base_y + dy
+        image[x, y] = colour if x >= 0 && y >= 0 && x < @img_width && y < @img_height
+      end
+    end
   end
 
   def to_vips(chunky_image)
