@@ -57,8 +57,14 @@
 
     <%= form_with url: toggle_lock_star_system_path(star_system), method: :patch, class: 'min-w-0' do %>
       <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Locked</div>
-      <div class='mt-2 text-slate-100'>
-        <input type='checkbox' <%= 'checked' if star_system.locked? %> onchange='this.form.requestSubmit();'>
+      <div class='mt-2 flex items-center gap-3'>
+        <button type='submit'
+                role='switch'
+                aria-checked='<%= star_system.locked? %>'
+                class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= star_system.locked? ? "bg-sky-700" : "bg-slate-600" %>'>
+          <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= star_system.locked? ? "translate-x-5 bg-white" : "translate-x-0 bg-slate-300" %>'></span>
+        </button>
+        <span class='text-xs text-slate-400 italic'>Locked systems are preserved during subsector generation.</span>
       </div>
     <% end %>
   </div>
