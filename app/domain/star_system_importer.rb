@@ -39,6 +39,7 @@ class StarSystemImporter
       set_star_system_trade_codes(data['mainWorld']['tradeCodes']) unless data['mainWorld'].nil?
 
       @deferred_belt_assignments = []
+      @deferred_tidal_lock_assignments = []
       primary = Star.new
       primary.skip_import_callbacks = true
       primary.star_system = @star_system
@@ -49,6 +50,8 @@ class StarSystemImporter
                            .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
         entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
       end
+
+      resolve_tidal_lock_targets
 
       main_world_orbit_sequence = data['mainWorldOrbitSequence']
       @star_system.main_world =
@@ -86,6 +89,7 @@ class StarSystemImporter
       end
 
       @deferred_belt_assignments = []
+      @deferred_tidal_lock_assignments = []
 
       primary_data = data['primaryStar']
       primary = Star.new
@@ -98,6 +102,8 @@ class StarSystemImporter
                            .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
         entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
       end
+
+      resolve_tidal_lock_targets
 
       main_world_orbit_sequence = data['mainWorldOrbitSequence']
       @star_system.main_world =
@@ -116,6 +122,19 @@ class StarSystemImporter
   end
 
   private
+
+  def resolve_tidal_lock_targets
+    return if @deferred_tidal_lock_assignments.blank?
+
+    objects_by_orbit_seq = StellarObject
+      .where(star_system_id: @star_system.id)
+      .index_by(&:orbit_sequence)
+
+    @deferred_tidal_lock_assignments.each do |entry|
+      target = objects_by_orbit_seq[entry[:orbit_sequence]]
+      entry[:object].update_column(:tidal_lock_target_id, target.id) if target
+    end
+  end
 
   def find_or_create_allegiance(code)
     Allegiance.find_or_create_by!(code: code) do |a|
@@ -182,7 +201,17 @@ class StarSystemImporter
         so.orbiting = star
         so.assign_data_from_generator(so_data)
         so.save!
-        so.assign_moons(so_data['moons'])
+        tidal_lock_orbit_seq = so_data['tidalLockTarget']
+        if tidal_lock_orbit_seq.present?
+          @deferred_tidal_lock_assignments << { object: so, orbit_sequence: tidal_lock_orbit_seq }
+        elsif so_data['tidalLock'].present?
+          so.update_column(:tidal_lock_target_id, star.id)
+        end
+        moon_tidal_locks = so.assign_moons(so_data['moons'])
+        moon_tidal_locks.each do |entry|
+          moon = Moon.find_by(star_system_id: @star_system.id, orbit_sequence: entry[:orbit_sequence])
+          @deferred_tidal_lock_assignments << { object: moon, orbit_sequence: entry[:tidal_lock_orbit_seq] } if moon
+        end
         set_stellar_object_trade_codes(so, so_data['tradeCodes'])
         if klass == Planetoid && so_data['belt'].present?
           @deferred_belt_assignments << {

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_19_143039) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_20_021159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -291,6 +291,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_143039) do
     t.string "size_code"
     t.bigint "star_system_id"
     t.integer "survey_index"
+    t.bigint "tidal_lock_target_id"
     t.string "type"
     t.datetime "updated_at", null: false
     t.string "uwp"
@@ -301,6 +302,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_143039) do
     t.index ["star_system_id"], name: "index_stellar_objects_extinct_sophont", where: "(data @> '{\"extinct_sophont\": true}'::jsonb)"
     t.index ["star_system_id"], name: "index_stellar_objects_native_sophont", where: "(data @> '{\"native_sophont\": true}'::jsonb)"
     t.index ["star_system_id"], name: "index_stellar_objects_on_star_system_id"
+    t.index ["tidal_lock_target_id"], name: "index_stellar_objects_on_tidal_lock_target_id"
     t.check_constraint "type::text = 'Star'::text OR (parsec_id IS NULL) <> (orbiting_id IS NULL)", name: "stellar_objects_parsec_xor_orbiting_present"
   end
 
@@ -384,6 +386,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_19_143039) do
   add_foreign_key "public.stellar_objects", "public.star_systems", on_delete: :cascade
   add_foreign_key "public.stellar_objects", "public.stellar_objects", column: "companion_id", on_delete: :nullify
   add_foreign_key "public.stellar_objects", "public.stellar_objects", column: "orbiting_id", on_delete: :cascade
+  add_foreign_key "public.stellar_objects", "public.stellar_objects", column: "tidal_lock_target_id", on_delete: :nullify
   add_foreign_key "public.subsectors", "public.sectors", on_delete: :cascade
 
 end

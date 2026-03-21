@@ -78,6 +78,19 @@
       <%= render 'application/data_block', label: 'Retrograde', value: terrestrial_planet.retrograde ? 'Yes' : 'No' %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(terrestrial_planet.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(terrestrial_planet.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+      <% if terrestrial_planet.tidal_lock_target %>
+        <% target = terrestrial_planet.tidal_lock_target %>
+        <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+        <%= render 'application/data_block',
+                   label: 'Tidally Locked',
+                   value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+      <% if terrestrial_planet.sidereal_day.present? %>
+        <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(terrestrial_planet.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <% end %>
+      <% if terrestrial_planet.twilight_zone %>
+        <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+      <% end %>
     </div>
 
     <%= render 'stellar_objects/jump_shadow_times', stellar_object: terrestrial_planet %>

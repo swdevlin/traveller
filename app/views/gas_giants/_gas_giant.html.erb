@@ -73,6 +73,19 @@
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gas_giant.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gas_giant.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gas_giant.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+      <% if gas_giant.tidal_lock_target %>
+        <% target = gas_giant.tidal_lock_target %>
+        <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+        <%= render 'application/data_block',
+                   label: 'Tidally Locked',
+                   value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+      <% if gas_giant.sidereal_day.present? %>
+        <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(gas_giant.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <% end %>
+      <% if gas_giant.twilight_zone %>
+        <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+      <% end %>
     </div>
 
     <%= render 'stellar_objects/jump_shadow_times', stellar_object: gas_giant %>

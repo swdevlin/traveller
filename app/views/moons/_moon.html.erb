@@ -76,6 +76,19 @@
       <%= render 'application/data_block', label: 'Retrograde', value: moon.retrograde ? 'Yes' : 'No' %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(moon.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(moon.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+      <% if moon.tidal_lock_target %>
+        <% target = moon.tidal_lock_target %>
+        <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+        <%= render 'application/data_block',
+                   label: 'Tidally Locked',
+                   value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+      <% if moon.sidereal_day.present? %>
+        <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(moon.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <% end %>
+      <% if moon.twilight_zone %>
+        <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+      <% end %>
     </div>
   <% end %>
 

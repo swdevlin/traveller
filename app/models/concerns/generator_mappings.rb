@@ -28,9 +28,10 @@ module GeneratorMappings
   end
 
   def assign_moons(moons)
-    return if moons.blank?
+    return [] if moons.blank?
 
     now = Time.current
+    tidal_lock_targets = []
     records = Array(moons).map do |moon_data|
       moon = Moon.new
       moon.orbiting_id = id
@@ -39,10 +40,17 @@ module GeneratorMappings
       moon.assign_data_from_generator(moon_data)
       moon.size_code = moon.size_code.strip.upcase if moon.size_code.present?
       moon.data ||= {}
+      tidal_lock_orbit_seq = moon_data['tidalLockTarget']
+      if tidal_lock_orbit_seq.present?
+        tidal_lock_targets << { orbit_sequence: moon.orbit_sequence, tidal_lock_orbit_seq: tidal_lock_orbit_seq }
+      elsif moon_data['tidalLock'].present?
+        moon.tidal_lock_target_id = id
+      end
       moon.attributes.except('id').merge('created_at' => now, 'updated_at' => now)
     end
 
     Moon.insert_all!(records)
+    tidal_lock_targets
   rescue => e
     Rails.logger.error("assign_moons failed: #{e.message} | payloads: #{moons.inspect}")
     raise

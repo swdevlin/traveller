@@ -9,7 +9,11 @@ class GasGiant < StellarObject
     code: 'code',
     period: 'period',
     rotation: 'rotation',
-    axial_tilt: 'axialTilt'
+    axial_tilt: 'axialTilt',
+    tidal_lock: 'tidalLock',
+    tidal_lock_note: 'tidalLockNote',
+    twilight_zone: 'twilightZone',
+    sidereal_day: 'siderealDay'
   )
 
   def orbit_type = 10

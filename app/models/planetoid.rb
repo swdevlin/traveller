@@ -32,5 +32,9 @@ class Planetoid < StellarObject
     law_level_code: 'lawLevelCode',
     tech_level_code: 'techLevel',
     starport_code: 'starPort',
+    tidal_lock: 'tidalLock',
+    tidal_lock_note: 'tidalLockNote',
+    twilight_zone: 'twilightZone',
+    sidereal_day: 'siderealDay'
     )
 end

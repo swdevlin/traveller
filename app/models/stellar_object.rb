@@ -48,6 +48,7 @@ class StellarObject < ApplicationRecord
   validates :size_code, inclusion: { in: SIZE_CODES }, allow_nil: true
 
   belongs_to :allegiance, optional: true
+  belongs_to :tidal_lock_target, class_name: 'StellarObject', optional: true
 
   has_many :moons, class_name: 'Moon', foreign_key: :orbiting_id
 
