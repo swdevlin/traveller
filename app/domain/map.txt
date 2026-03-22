@@ -1,0 +1,288 @@
+Goal
+
+Implement an inline SVG star system map (landscape) in a Rails view. The map looks like a subway diagram: spacing is for readability, not scale. Every star and stellar body is clickable and routes to its show page.
+
+Supports:
+
+Primary star on the main (top) line
+
+Optional companion star drawn below its star (usually the primary)
+
+Any star (primary or companion) may have orbiting bodies; bodies for non-primary stars are drawn on a branch line below that star
+
+AU labels show distance from the body’s parent star (not from the primary), and this must be clear via label or tooltip
+
+Inputs and Domain Assumptions
+
+You have a StarSystem with:
+
+stars collection
+
+each star has: id, name/label (or derived), companion_of_star_id (nullable), and bodies (or a way to fetch bodies orbiting that star)
+
+bodies (stellar objects) with:
+
+id
+
+type in: star, terrestrial, gas_giant, planetoid_belt
+
+orbit_number (for ordering)
+
+orbit_au (distance from its parent star, in AU)
+
+parent_star_id (which star it orbits)
+
+Rails routes exist for star_path(star) and stellar_object_path(body) or polymorphic paths.
+
+If types differ in the app, create a mapper in the layout layer.
+
+Deliverables
+1) Layout PORO
+
+Create app/services/star_system_map_layout.rb (or app/models/star_system/map_layout.rb).
+
+Responsibilities:
+
+Compute coordinates and drawable primitives for SVG rendering.
+
+Return two arrays:
+
+nodes: clickable items (stars and bodies)
+
+edges: connector lines (main line, branch lines, vertical star-to-companion connectors)
+
+Public API:
+
+StarSystemMapLayout.new(star_system).nodes
+
+StarSystemMapLayout.new(star_system).edges
+
+Optional: #view_box or #dimensions so SVG scales properly
+
+Node structure (Ruby hash):
+
+{
+  kind: :star | :body,
+  subtype: :primary | :companion | :terrestrial | :gas_giant | :planetoid_belt,
+  x: Integer,
+  y: Integer,
+  r: Integer,               # icon radius
+  href: String,             # Rails path
+  title: String,            # tooltip text
+  label: String,            # e.g. "1.23 AU" (optional)
+  sublabel: String | nil,   # e.g. "from B" (only for non-primary star children if used)
+  css_class: String         # for styling
+}
+
+
+Edge structure (Ruby hash):
+
+{
+  d: String,        # SVG path string "M ... L ..." or with elbows
+  css_class: String # styling class
+}
+
+2) SVG Renderer Partial
+
+Create app/views/star_systems/_subway_map.html.erb.
+
+It:
+
+inlines <svg> (do NOT use <object> if you want reliable clicking/Turbo behaviour)
+
+draws edges first (<path>)
+
+draws nodes second, each wrapped in an SVG <a href="..."> with <title> inside
+
+uses CSS classes for colour/stroke/fill, sized by radius
+
+Call it from the star system show view:
+
+<%= render 'star_systems/subway_map', star_system: @star_system %>
+
+3) CSS (Tailwind-friendly)
+
+Define classes (Tailwind utilities or custom) for:
+
+line strokes
+
+node fills/strokes
+
+hover states on node groups
+
+text styling
+
+Layout Rules
+Coordinate system
+
+Landscape, fixed height per “lane”.
+
+Use a consistent grid:
+
+LEFT_MARGIN = 80
+
+TOP_Y = 120 (primary lane)
+
+LANE_GAP = 160 (vertical distance between star lanes)
+
+ORBIT_STEP = 140 (horizontal spacing per orbit “station”)
+
+STAR_TO_FIRST_BODY_GAP = 160 (space from star node to first orbit body)
+
+Lanes (vertical)
+
+Primary star lane index = 0 → y = TOP_Y
+
+Companion lane index = parent lane + 1 → y = TOP_Y + LANE_GAP
+
+If there can be more than one companion level, continue stacking (lane = depth)
+
+Star placement
+
+Primary star is at x = LEFT_MARGIN, y = TOP_Y
+
+Companion star is placed at x = parent_star_x, y = parent_star_y + LANE_GAP
+
+If multiple companions are possible (rare), stack them further down or offset slightly
+
+Bodies placement per star
+
+For each star:
+
+Sort its orbiting bodies by orbit_number asc
+
+Place first body at:
+
+x = star_x + STAR_TO_FIRST_BODY_GAP
+
+Subsequent bodies:
+
+x = first_body_x + (index * ORBIT_STEP)
+
+All those bodies are at:
+
+y = star_y
+
+Connectors (edges)
+
+For each star with bodies:
+
+Draw a horizontal line (track) from star to last body with an “elbow” look:
+
+optional small gap between star circle and line start
+
+For each companion:
+
+Draw a vertical connector from parent star node down to companion star node:
+
+M parent_x parent_y L parent_x companion_y
+
+For a star with bodies, optionally draw a short connector from star node to its first body, or let the track cover it.
+
+Icons (not to scale, but hierarchical)
+
+star radius: 26
+
+gas giant radius: 18
+
+terrestrial radius: 12
+
+planetoid belt radius: 10 (render as dashed ring or small circle; pick one)
+
+Labels and tooltips
+
+For each body node:
+
+Visible label: "#{orbit_au.round(2)} AU" (format via Rails helper)
+
+Tooltip (title):
+
+Include object name/type, orbit number, AU, and parent star label
+
+Example: "Methane Sea (Gas Giant) – Orbit 3 – 5.12 AU from Star B"
+
+Important requirement:
+
+For bodies orbiting non-primary stars, AU is relative to their parent star (as stored). Make that explicit in tooltip and optionally in a small sublabel:
+
+sublabel = "from #{star_label}" for non-primary children, nil otherwise
+
+Click Behaviour
+
+Every node must be clickable:
+
+Wrap each node group in:
+
+<a href="..."> <g>...
+
+Ensure cursor and hover style apply to the <g>:
+
+class="cursor-pointer"
+
+Use <title> within the <g> for hover tooltips
+
+Rails paths:
+
+Prefer polymorphic_path(record) if feasible.
+
+If stars and bodies use different controllers, map explicitly.
+
+Implementation Steps
+
+Write StarSystemMapLayout
+
+Build star graph: primary + companions
+
+Assign lanes via depth-first traversal
+
+Place stars, then bodies per star
+
+Emit nodes + edges
+
+Add _subway_map.html.erb
+
+Inline SVG
+
+Draw edges as <path>
+
+Draw nodes as <a><g><circle>…<text>…<title>…
+
+Style
+
+Provide CSS classes per subtype
+
+Add hover stroke/fill changes
+
+Ensure text is legible at typical sizes
+
+Test with sample systems
+
+No companion, primary-only bodies
+
+Primary + companion, both with bodies
+
+Companion without bodies
+
+Multiple stars (if supported), each with their own bodies
+
+Accessibility / UX
+
+Add <title> for each node
+
+Consider larger invisible hitbox: add a transparent circle behind the icon for easier clicking
+
+Acceptance Criteria
+
+Renders as a readable subway-style diagram in landscape orientation.
+
+Primary star on top line; companion star and its bodies below.
+
+Bodies appear in orbit-number order, spaced evenly.
+
+Each star and body is clickable and routes correctly.
+
+AU labels display per parent star, with clear tooltip context for non-primary star children.
+
+Icon sizes follow: star > gas giant > terrestrial/belt.
+
+No use of <object> embedding; SVG is inline.
