@@ -81,13 +81,11 @@
         <%# Labels row %>
         <div class='flex items-center gap-4'>
           <span class='edit-label'>To</span>
-          <div class='flex items-center gap-2'>
-            <%= form.check_box :misjump,
-                               class: 'rounded border-slate-600',
-                               data: { jump_form_target: 'misjumpCheckbox',
-                                       action: 'change->jump-form#misjumpChanged' } %>
-            <%= form.label :misjump, 'Misjump', class: 'edit-label' %>
-          </div>
+          <%= render 'application/boolean_toggle', form: form, attribute: :misjump,
+                checked: form.object.misjump?,
+                label: 'Misjump',
+                checkbox_data: { jump_form_target: 'misjumpCheckbox',
+                                 action: 'change->jump-form#misjumpChanged' } %>
         </div>
         <div></div>
         <% if current_campaign.tracks_survey_index? %>

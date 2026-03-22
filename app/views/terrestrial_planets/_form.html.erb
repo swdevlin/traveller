@@ -40,9 +40,8 @@
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :retrograde do %>
-        <%= form.check_box :retrograde,
-                           { checked: stellar_object.retrograde, class: 'rounded bg-slate-950 border-slate-700' },
-                           'true', 'false' %>
+        <%= render 'application/boolean_toggle', form: form, attribute: :retrograde,
+              checked: stellar_object.retrograde, checked_value: 'true', unchecked_value: 'false' %>
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :rotation do %>
@@ -241,15 +240,13 @@
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
-      <%= form.check_box :native_sophont,
-                         { checked: stellar_object.native_sophont, class: 'rounded bg-slate-950 border-slate-700' },
-                         'true', 'false' %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
+            checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
-      <%= form.check_box :extinct_sophont,
-                         { checked: stellar_object.extinct_sophont, class: 'rounded bg-slate-950 border-slate-700' },
-                         'true', 'false' %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
+            checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>

@@ -37,10 +37,8 @@
   <%# New-only fields get injected here %>
   <%= yield f if block_given? %>
 
-  <div class='flex items-center gap-2'>
-    <%= f.check_box :locked, class: 'edit-base w-auto' %>
-    <%= f.label :locked, 'Locked', class: 'text-sm font-semibold' %>
-  </div>
+  <%= render 'application/boolean_toggle', form: f, attribute: :locked,
+        checked: f.object.locked?, label: 'Locked' %>
 
   <div>
     <%= f.label :notes, 'Observations', class: 'block text-sm font-semibold mb-1' %>

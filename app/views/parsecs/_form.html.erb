@@ -26,12 +26,8 @@
             class: 'h-9 w-16 rounded cursor-pointer border border-slate-700 bg-transparent p-0.5' %>
     </div>
 
-    <div class='flex items-center gap-2'>
-      <%= form.check_box :player_visible,
-            checked: parsec.player_visible,
-            class: 'rounded border-slate-600' %>
-      <%= form.label :player_visible, 'Visible to players', class: 'text-sm font-semibold' %>
-    </div>
+    <%= render 'application/boolean_toggle', form: form, attribute: :player_visible,
+          checked: parsec.player_visible, label: 'Visible to players' %>
   </div>
 
   <div>

@@ -136,17 +136,11 @@
                               step: 1 %>
       <% end %>
 
-      <div class='flex items-center gap-3 py-2'>
-        <%= form.check_box :native_tech_level, class: 'rounded border-slate-600' %>
-        <%= form.label :native_tech_level, 'Use Native Sophont Tech Level Rules', class: 'edit-label' %>
-      </div>
+      <%= render 'application/boolean_toggle', form: form, attribute: :native_tech_level,
+            checked: @campaign.native_tech_level?, label: 'Use Native Sophont Tech Level Rules' %>
 
-      <div class='flex items-center gap-3 py-2'>
-        <%= form.check_box :allow_captive_government,
-              checked: @campaign.allow_captive_government?,
-              class: 'rounded border-slate-600' %>
-        <%= form.label :allow_captive_government, 'Allow Captive Government (code 6) during generation', class: 'edit-label' %>
-      </div>
+      <%= render 'application/boolean_toggle', form: form, attribute: :allow_captive_government,
+            checked: @campaign.allow_captive_government?, label: 'Allow Captive Government (code 6) during generation' %>
 
       <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>
         <%= form.text_field :native_sophont_colour,
@@ -154,12 +148,8 @@
               class: 'edit-base w-32' %>
       <% end %>
 
-      <div class='flex items-center gap-3 py-2'>
-        <%= form.check_box :show_native_sophont,
-              checked: @campaign.show_native_sophont?,
-              class: 'rounded border-slate-600' %>
-        <%= form.label :show_native_sophont, 'Show Native Sophont Colours on SVG Maps', class: 'edit-label' %>
-      </div>
+      <%= render 'application/boolean_toggle', form: form, attribute: :show_native_sophont,
+            checked: @campaign.show_native_sophont?, label: 'Show Native Sophont Colours on SVG Maps' %>
 
       <%= render 'application/edit_field', form: form, attribute: :extinct_sophont_colour, field_label: 'Extinct Sophont Colour' do %>
         <%= form.text_field :extinct_sophont_colour,
@@ -167,17 +157,11 @@
               class: 'edit-base w-32' %>
       <% end %>
 
-      <div class='flex items-center gap-3 py-2'>
-        <%= form.check_box :show_extinct_sophont,
-              checked: @campaign.show_extinct_sophont?,
-              class: 'rounded border-slate-600' %>
-        <%= form.label :show_extinct_sophont, 'Show Extinct Sophont Colours on SVG Maps', class: 'edit-label' %>
-      </div>
+      <%= render 'application/boolean_toggle', form: form, attribute: :show_extinct_sophont,
+            checked: @campaign.show_extinct_sophont?, label: 'Show Extinct Sophont Colours on SVG Maps' %>
 
-      <div class='flex items-center gap-3 py-2'>
-        <%= form.check_box :tracks_survey_index, class: 'rounded border-slate-600' %>
-        <%= form.label :tracks_survey_index, 'Track Survey Index', class: 'edit-label' %>
-      </div>
+      <%= render 'application/boolean_toggle', form: form, attribute: :tracks_survey_index,
+            checked: @campaign.tracks_survey_index?, label: 'Track Survey Index' %>
 
       <div class='pt-2 flex flex-col sm:flex-row gap-2'>
         <%= form.submit 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>
