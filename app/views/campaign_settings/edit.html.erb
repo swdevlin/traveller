@@ -142,6 +142,42 @@
       <%= render 'application/boolean_toggle', form: form, attribute: :allow_captive_government,
             checked: @campaign.allow_captive_government?, label: 'Allow Captive Government (code 6) during generation' %>
 
+      <%
+        orbit_display_options = [
+          { label: 'AU',      value: 'au',           hint: 'Show distance from the primary star in Astronomical Units.' },
+          { label: 'Orbit #', value: 'orbit_number', hint: 'Show the Traveller orbit number (0–19 scale).' }
+        ]
+      %>
+      <%= render 'application/edit_field', form: form, attribute: :orbit_distance_display, field_label: 'Distance Display' do %>
+        <div data-controller='hint-select' class='relative'>
+          <%= form.hidden_field :orbit_distance_display,
+                data: { hint_select_target: 'input' } %>
+          <button type='button'
+                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= orbit_display_options.find { |o| o[:value] == (@campaign.orbit_distance_display.presence || 'au') }&.dig(:label) %>
+            </span>
+            <i class='fa-solid fa-chevron-down text-xs text-slate-400 flex-shrink-0'></i>
+          </button>
+          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-slate-700/60 bg-slate-900 shadow-xl overflow-hidden'
+               data-hint-select-target='panel'>
+            <% orbit_display_options.each do |opt| %>
+              <button type='button'
+                      class='w-full text-left px-3 py-2.5 hover:bg-slate-800 border-b border-slate-700/40 last:border-b-0'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-slate-200'><%= opt[:label] %></div>
+                <div class='text-xs italic text-slate-400 mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>
         <%= form.text_field :native_sophont_colour,
               data: { controller: 'coloris' },

@@ -21,8 +21,12 @@
           <tr>
             <th scope="col">Size</th>
             <th scope="col">Orbit Sequence</th>
-            <th scope="col">Orbit</th>
-            <th scope="col">AU</th>
+            <% if show_orbit_number? %>
+              <th scope="col">Orbit</th>
+            <% end %>
+            <% if show_au? %>
+              <th scope="col">AU</th>
+            <% end %>
             <th scope="col">UWP</th>
           </tr>
         </thead>
@@ -38,12 +42,16 @@
               <td class="whitespace-nowrap">
                 <span class="identifier"><%= planetoid.orbit_sequence %></span>
               </td>
-              <td class="whitespace-nowrap">
-                <%= number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
-              </td>
-              <td class="whitespace-nowrap">
-                <%= number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
-              </td>
+              <% if show_orbit_number? %>
+                <td class="whitespace-nowrap">
+                  <%= number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
+                </td>
+              <% end %>
+              <% if show_au? %>
+                <td class="whitespace-nowrap">
+                  <%= number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
+                </td>
+              <% end %>
               <td class="whitespace-nowrap">
                 <%= planetoid.uwp %>
               </td>

@@ -6,9 +6,17 @@
     <span class='pill'><%= stellar_object.orbit_sequence %></span>
   </td>
 
-  <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(stellar_object.au, precision: 1) %>
-  </td>
+  <% if show_orbit_number? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(stellar_object.orbit, precision: 1) %>
+    </td>
+  <% end %>
+
+  <% if show_au? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(stellar_object.au, precision: 1) %>
+    </td>
+  <% end %>
 
   <td>
     <% if @star_system.main_world.present? %>
@@ -19,10 +27,6 @@
       <% end %>
     <% end %>
     <%= stellar_object.name %>
-  </td>
-
-  <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(stellar_object.orbit, precision: 1) %>
   </td>
 
   <td class='text-right whitespace-nowrap'>

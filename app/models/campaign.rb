@@ -17,7 +17,7 @@ class Campaign < ApplicationRecord
   store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
                             :native_sophont_colour, :extinct_sophont_colour,
                             :show_native_sophont, :show_extinct_sophont,
-                            :allow_captive_government
+                            :allow_captive_government, :orbit_distance_display
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
@@ -34,6 +34,14 @@ class Campaign < ApplicationRecord
   def allow_captive_government?
     val = ActiveModel::Type::Boolean.new.cast(allow_captive_government)
     val.nil? ? true : val
+  end
+
+  def show_au?
+    orbit_distance_display.presence != 'orbit_number'
+  end
+
+  def show_orbit_number?
+    orbit_distance_display.presence == 'orbit_number'
   end
 
   def max_tech_level_value
@@ -78,7 +86,8 @@ class Campaign < ApplicationRecord
     self.extinct_sophont_colour = '#EEE8AA'
     self.show_native_sophont    = true
     self.show_extinct_sophont   = true
-    self.allow_captive_government = !deepnight_revelation?
+    self.allow_captive_government  = !deepnight_revelation?
+    self.orbit_distance_display    = 'au'
   end
 
   def set_schema_name

@@ -6,16 +6,20 @@
     <span class='pill'><%= star.orbit_sequence %></span>
   </td>
 
-  <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(star.au, precision: 1) if star.au > 0 %>
-  </td>
+  <% if show_orbit_number? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(star.orbit, precision: 1) if star.orbit > 0 %>
+    </td>
+  <% end %>
+
+  <% if show_au? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(star.au, precision: 1) if star.au > 0 %>
+    </td>
+  <% end %>
 
   <td style='padding-left: <%= indent %>px;'>
     <%= star.name %>
-  </td>
-
-  <td class='text-right whitespace-nowrap'>
-    <%= number_with_precision(star.orbit, precision: 1) if star.orbit > 0 %>
   </td>
 
   <td class='text-right whitespace-nowrap'>

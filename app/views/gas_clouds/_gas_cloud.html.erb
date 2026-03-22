@@ -52,8 +52,12 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gas_cloud.orbit, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'AU', value: number_with_precision(gas_cloud.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% if show_orbit_number? %>
+        <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gas_cloud.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
+      <% if show_au? %>
+        <%= render 'application/data_block', label: 'AU', value: number_with_precision(gas_cloud.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gas_cloud.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gas_cloud.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gas_cloud.eccentricity, precision: 2, strip_insignificant_zeros: true) %>

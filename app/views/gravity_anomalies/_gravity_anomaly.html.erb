@@ -67,8 +67,12 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gravity_anomaly.orbit, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'AU', value: number_with_precision(gravity_anomaly.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% if show_orbit_number? %>
+        <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gravity_anomaly.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
+      <% if show_au? %>
+        <%= render 'application/data_block', label: 'AU', value: number_with_precision(gravity_anomaly.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gravity_anomaly.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gravity_anomaly.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gravity_anomaly.eccentricity, precision: 2, strip_insignificant_zeros: true) %>

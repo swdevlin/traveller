@@ -77,6 +77,14 @@
                  value: @campaign.allow_captive_government? ? 'Yes' : 'No' %>
     </div>
 
+    <%= render 'application/subsection', title: 'Display Preferences' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Distance Display',
+                 value: @campaign.show_au? ? 'AU' : 'Orbit #' %>
+    </div>
+
     <%= render 'application/subsection', title: 'Map Colours' %>
 
     <%

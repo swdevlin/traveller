@@ -12,9 +12,13 @@
       <thead>
       <tr>
         <th scope='col'>ID</th>
-        <th scope='col' class='text-right'>AU</th>
+        <% if show_orbit_number? %>
+          <th scope='col' class='text-right'>Orbit #</th>
+        <% end %>
+        <% if show_au? %>
+          <th scope='col' class='text-right'>AU</th>
+        <% end %>
         <th scope='col'>Name</th>
-        <th scope='col' class='text-right'>Orbit #</th>
         <th scope='col' class='text-right'>Period</th>
         <th scope='col'>SAH/UWP</th>
         <th scope='col'>Notes</th>

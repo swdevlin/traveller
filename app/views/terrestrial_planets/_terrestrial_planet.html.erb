@@ -71,8 +71,12 @@
     <%= render 'application/subsection', title: 'Orbital Data' %>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(terrestrial_planet.orbit, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'AU', value: number_with_precision(terrestrial_planet.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% if show_orbit_number? %>
+        <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(terrestrial_planet.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
+      <% if show_au? %>
+        <%= render 'application/data_block', label: 'AU', value: number_with_precision(terrestrial_planet.au, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
       <%= render 'application/data_block', label: 'Period', value: format_period(terrestrial_planet.period) %>
       <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(terrestrial_planet.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
       <%= render 'application/data_block', label: 'Retrograde', value: terrestrial_planet.retrograde ? 'Yes' : 'No' %>
