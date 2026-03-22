@@ -12,6 +12,7 @@ class WordGeneratorTest < ActiveSupport::TestCase
   NORDIC_CHARS   = /\A[a-zåäöæø]+\z/
   OYNPRITH_CHARS  = /\A[a-z]+\z/
   ARRGHOUN_CHARS  = /\A[a-z]+\z/
+  GURVIN_CHARS    = /\A[a-z'!]+\z/
   ZDETL_CHARS     = /\A[a-z']+\z/
 
   test 'raises ArgumentError for unknown language' do
@@ -264,6 +265,32 @@ class WordGeneratorTest < ActiveSupport::TestCase
   test 'arrghoun: snapshot seed 42 produces kanllaegzzog' do
     word = WordGenerator.new(language: :arrghoun, dice_roller: DiceRoller.new(seed: 42)).generate
     assert_equal 'kanllaegzzog', word
+  end
+
+  # --- Gurvin (K'kree) ---
+
+  test 'gurvin: generates a non-empty string' do
+    word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert word.is_a?(String)
+    assert word.length > 0
+  end
+
+  test 'gurvin: generated word contains only Gurvin phoneme characters' do
+    [42, 1, 99, 1337, 0].each do |seed|
+      word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: seed)).generate
+      assert_match GURVIN_CHARS, word, "Unexpected characters in #{word.inspect} (seed #{seed})"
+    end
+  end
+
+  test 'gurvin: seeded generation is deterministic' do
+    word_a = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
+    word_b = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal word_a, word_b
+  end
+
+  test "gurvin: snapshot seed 42 produces ktal'gr" do
+    word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal "ktal'gr", word
   end
 
   # --- Zdetl (Zhodani) ---
