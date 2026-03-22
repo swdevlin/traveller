@@ -129,5 +129,4 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 33)
   optional(:nativeTechLevel).filled(:bool)
-  optional(:allowCaptiveGovernment).filled(:bool)
 end

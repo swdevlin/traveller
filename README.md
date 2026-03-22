@@ -4,6 +4,8 @@ A site to manage a Traveller Universe. Initial version is for Deepnight campaign
 own charted space. It is intended to eventually support Drinax campaigns and charted space.
 
 ## To Do
+* Log in
+  * Links to the Deepnight navigation console for Referee & Travellers
 * Add Button to create all deepnight sectors
   * create with configuration for each sector
   * Option to generate blank?
@@ -16,6 +18,8 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * Verify social UWP characteristic calculations for other worlds
 * Export sector file that can be used by Traveller Map
 * Export subsector file that can be used by Traveller Map
+* store image of star system
+* store image of stellar object
 * Import default configuration for parsec
 * Quickly set survey index for a subsector
 
