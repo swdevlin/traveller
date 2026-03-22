@@ -12,6 +12,7 @@ class WordGeneratorTest < ActiveSupport::TestCase
   NORDIC_CHARS   = /\A[a-zåäöæø]+\z/
   OYNPRITH_CHARS  = /\A[a-z]+\z/
   ARRGHOUN_CHARS  = /\A[a-z]+\z/
+  ZDETL_CHARS     = /\A[a-z']+\z/
 
   test 'raises ArgumentError for unknown language' do
     assert_raises(ArgumentError) do
@@ -263,5 +264,31 @@ class WordGeneratorTest < ActiveSupport::TestCase
   test 'arrghoun: snapshot seed 42 produces kanllaegzzog' do
     word = WordGenerator.new(language: :arrghoun, dice_roller: DiceRoller.new(seed: 42)).generate
     assert_equal 'kanllaegzzog', word
+  end
+
+  # --- Zdetl (Zhodani) ---
+
+  test 'zdetl: generates a non-empty string' do
+    word = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert word.is_a?(String)
+    assert word.length > 0
+  end
+
+  test 'zdetl: generated word contains only Zdetl phoneme characters' do
+    [42, 1, 99, 1337, 0].each do |seed|
+      word = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: seed)).generate
+      assert_match ZDETL_CHARS, word, "Unexpected characters in #{word.inspect} (seed #{seed})"
+    end
+  end
+
+  test 'zdetl: seeded generation is deterministic' do
+    word_a = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: 42)).generate
+    word_b = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal word_a, word_b
+  end
+
+  test "zdetl: snapshot seed 42 produces chelpi'jdonch" do
+    word = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal "chelpi'jdonch", word
   end
 end

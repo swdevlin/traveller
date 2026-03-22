@@ -34,6 +34,7 @@ class WordGenerator
     when :oynprith  then OynprithWordGenerator.new(@dice_roller)
     when :solomani  then SolomaniWordGenerator.new(@dice_roller)
     when :arrghoun  then ArrghounWordGenerator.new(@dice_roller)
+    when :zdetl     then ZdetlWordGenerator.new(@dice_roller)
     else raise ArgumentError, "Unknown language: #{@language}"
     end
   end
