@@ -135,7 +135,7 @@ Rails.application.routes.draw do
     end
 
     get '/search',   to: 'search#query'
-    get '/settings', to: 'settings#index'
+    get '/data-cores', to: 'data_cores#index', as: :data_cores
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight
       post :assign_builds
