@@ -15,10 +15,25 @@ class Campaign < ApplicationRecord
   }, prefix: :source
 
   store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
-                            :native_sophont_colour, :extinct_sophont_colour
+                            :native_sophont_colour, :extinct_sophont_colour,
+                            :show_native_sophont, :show_extinct_sophont,
+                            :allow_captive_government
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
+  end
+
+  def show_native_sophont?
+    ActiveModel::Type::Boolean.new.cast(show_native_sophont) != false
+  end
+
+  def show_extinct_sophont?
+    ActiveModel::Type::Boolean.new.cast(show_extinct_sophont) != false
+  end
+
+  def allow_captive_government?
+    val = ActiveModel::Type::Boolean.new.cast(allow_captive_government)
+    val.nil? ? true : val
   end
 
   def max_tech_level_value
@@ -29,12 +44,7 @@ class Campaign < ApplicationRecord
     ActiveModel::Type::Boolean.new.cast(native_tech_level)
   end
 
-  before_create :set_tracks_survey_index
-  before_create :set_sophont_check
-  before_create :set_max_tech_level
-  before_create :set_native_tech_level
-  before_create :set_token_secret
-  before_create :set_sophont_colours
+  before_create :set_defaults
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
@@ -58,29 +68,17 @@ class Campaign < ApplicationRecord
 
   private
 
-  def set_tracks_survey_index
-    self.tracks_survey_index = deepnight_revelation?
-  end
-
-  def set_sophont_check
-    self.sophont_check = charted_space? ? 'none' : 'standard'
-  end
-
-  def set_max_tech_level
-    self.max_tech_level = 16
-  end
-
-  def set_native_tech_level
-    self.native_tech_level = false
-  end
-
-  def set_token_secret
-    self.token_secret = SecureRandom.hex(32)
-  end
-
-  def set_sophont_colours
-    self.native_sophont_colour = '#B0E0E6'
+  def set_defaults
+    self.tracks_survey_index    = deepnight_revelation?
+    self.sophont_check          = charted_space? ? 'none' : 'standard'
+    self.max_tech_level         = 16
+    self.native_tech_level      = false
+    self.token_secret           = SecureRandom.hex(32)
+    self.native_sophont_colour  = '#B0E0E6'
     self.extinct_sophont_colour = '#EEE8AA'
+    self.show_native_sophont    = true
+    self.show_extinct_sophont   = true
+    self.allow_captive_government = !deepnight_revelation?
   end
 
   def set_schema_name

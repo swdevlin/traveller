@@ -29,6 +29,7 @@ class GenerateSubsectorJob < ApplicationJob
     config[:sophontCheck] ||= campaign&.sophont_check.presence || default
     config[:maxTechLevel] ||= campaign&.max_tech_level_value || 16
     config[:nativeTechLevel] = campaign&.native_tech_level? || false if config[:nativeTechLevel].nil?
+    config[:allowCaptiveGovernment] = campaign.allow_captive_government? if config[:allowCaptiveGovernment].nil? && campaign
 
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
     Subsector.transaction do

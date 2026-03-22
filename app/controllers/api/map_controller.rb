@@ -85,8 +85,8 @@ class Api::MapController < ApplicationController
     region_max = RegionParsec.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)&.to_i || 0
     jump_max   = JumpLog.maximum(:updated_at)&.to_i || 0
 
-    @native_sophont_colour  = current_campaign.native_sophont_colour.presence
-    @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
+    @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
+    @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
 
     version = Digest::SHA256.hexdigest([
       parsec_max, system_max, region_max, jump_max,
