@@ -125,10 +125,10 @@ class GurvinWordGenerator
       break if previous_type == :cvc
 
       table = case previous_type
-              when nil  then SYLLABLE_TYPES_INITIAL
-              when :v, :cv then SYLLABLE_TYPES_AFTER_V
-              when :vc  then SYLLABLE_TYPES_AFTER_C
-              end
+      when nil  then SYLLABLE_TYPES_INITIAL
+      when :v, :cv then SYLLABLE_TYPES_AFTER_V
+      when :vc  then SYLLABLE_TYPES_AFTER_C
+      end
 
       type = pick_from(table, 'Gurvin syllable type')
       syllables << build_syllable(type)
