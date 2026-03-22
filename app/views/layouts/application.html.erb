@@ -22,9 +22,10 @@
   <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
   <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-  <link rel="icon" href="<%= asset_path('favicon-32.png') %>" type="image/png">
-  <link rel="icon" href="<%= asset_path('favicon.svg') %>" type="image/png">
-  <link rel="apple-touch-icon" href="/icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_path('apple-touch-icon.png') %>">
+  <link rel="icon" type="image/png" sizes="32x32" href="<%= asset_path('favicon-32x32.png') %>">
+  <link rel="icon" type="image/png" sizes="16x16" href="<%= asset_path('favicon-16x16.png') %>">
+
   <script src="https://kit.fontawesome.com/6da76bfdd0.js" crossorigin="anonymous"></script>
   <%# Includes all stylesheet files in app/assets/stylesheets %>
   <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
