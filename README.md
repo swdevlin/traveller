@@ -10,8 +10,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
   * Allegiances for Deepnight campaign
 * site options
   * m-drive for calculating jump times
-  * au/orbit or both
-  * columns 
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
 * Export sector file that can be used by Traveller Map
@@ -24,8 +22,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * [ ] display name if known
 * [ ] making HexAddress fail on invalid addresses
 * [ ] render neutron star
-* [ ] prettier ui somehow
-* [ ] smart caching/requesting the api so we don't fetch too much duplicate data
 
 
 ### To do?
