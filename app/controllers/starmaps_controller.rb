@@ -17,7 +17,9 @@ class StarmapsController < ApplicationController
       campaignName: Current.campaign&.name,
       shipName: Ship.first&.name,
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
-      allSectorsMapUrl: all_sectors_map_url
+      allSectorsMapUrl: all_sectors_map_url,
+      nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
+      extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence
     }
   end
 end

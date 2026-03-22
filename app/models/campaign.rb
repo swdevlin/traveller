@@ -14,7 +14,8 @@ class Campaign < ApplicationRecord
     deepnight_defaults: 'deepnight_defaults'
   }, prefix: :source
 
-  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret
+  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
+                            :native_sophont_colour, :extinct_sophont_colour
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
@@ -33,6 +34,7 @@ class Campaign < ApplicationRecord
   before_create :set_max_tech_level
   before_create :set_native_tech_level
   before_create :set_token_secret
+  before_create :set_sophont_colours
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
@@ -74,6 +76,11 @@ class Campaign < ApplicationRecord
 
   def set_token_secret
     self.token_secret = SecureRandom.hex(32)
+  end
+
+  def set_sophont_colours
+    self.native_sophont_colour = '#B0E0E6'
+    self.extinct_sophont_colour = '#EEE8AA'
   end
 
   def set_schema_name

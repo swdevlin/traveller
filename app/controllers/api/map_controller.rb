@@ -85,7 +85,14 @@ class Api::MapController < ApplicationController
     region_max = RegionParsec.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)&.to_i || 0
     jump_max   = JumpLog.maximum(:updated_at)&.to_i || 0
 
-    cache_key = "api_map/#{current_campaign.id}/#{ulx}/#{uly}/#{lrx}/#{lry}/#{parsec_max}-#{system_max}-#{region_max}-#{jump_max}"
+    @native_sophont_colour  = current_campaign.native_sophont_colour.presence
+    @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
+
+    version = Digest::SHA256.hexdigest([
+      parsec_max, system_max, region_max, jump_max,
+      current_campaign.updated_at.to_i
+    ].join('-'))
+    cache_key = "api_map/#{current_campaign.id}/#{ulx}/#{uly}/#{lrx}/#{lry}/#{version}"
 
     fresh_when etag: cache_key
     return if performed?

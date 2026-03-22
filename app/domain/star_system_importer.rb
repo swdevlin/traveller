@@ -65,6 +65,7 @@ class StarSystemImporter
       end
       @star_system.save!
       @star_system.recalculate_world_counts!
+      @star_system.recalculate_sophont_flags!
     end
     @star_system
   end
@@ -117,6 +118,7 @@ class StarSystemImporter
       end
       @star_system.save!
       @star_system.recalculate_world_counts!
+      @star_system.recalculate_sophont_flags!
     end
     @star_system
   end

@@ -1,5 +1,5 @@
 class StarSystem < ApplicationRecord
-  normalizes *attribute_names, with: -> { it.presence }
+  normalizes *(attribute_names - %w[native_sophont extinct_sophont]), with: -> { it.presence }
 
   belongs_to :parsec
   belongs_to :main_world, class_name: 'StellarObject', optional: true
@@ -59,12 +59,11 @@ class StarSystem < ApplicationRecord
     @has_gas_giant ||= gas_giants.exists?
   end
 
-  def has_native_sophont?
-    @has_native_sophont ||= stellar_objects.where("stellar_objects.data @> '{\"native_sophont\": true}'").exists?
-  end
-
-  def has_extinct_sophont?
-    @has_extinct_sophont ||= stellar_objects.where("stellar_objects.data @> '{\"extinct_sophont\": true}'").exists?
+  def recalculate_sophont_flags!
+    update!(
+      native_sophont: stellar_objects.where("stellar_objects.data @> '{\"native_sophont\": true}'").exists?,
+      extinct_sophont: stellar_objects.where("stellar_objects.data @> '{\"extinct_sophont\": true}'").exists?
+    )
   end
 
   def main_world_uwp

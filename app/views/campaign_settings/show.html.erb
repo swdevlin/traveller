@@ -73,6 +73,20 @@
                  value: @campaign.native_tech_level? ? 'Yes' : 'No' %>
     </div>
 
+    <%= render 'application/subsection', title: 'Map Colours' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <% native_colour = @campaign.native_sophont_colour.presence %>
+      <%= render 'application/data_block',
+                 label: 'Native Sophont',
+                 value: native_colour ? safe_join([tag.span('', style: "display:inline-block;width:1em;height:1em;border-radius:2px;background:#{native_colour};vertical-align:middle"), native_colour], ' ') : 'Not displayed' %>
+
+      <% extinct_colour = @campaign.extinct_sophont_colour.presence %>
+      <%= render 'application/data_block',
+                 label: 'Extinct Sophont',
+                 value: extinct_colour ? safe_join([tag.span('', style: "display:inline-block;width:1em;height:1em;border-radius:2px;background:#{extinct_colour};vertical-align:middle"), extinct_colour], ' ') : 'Not displayed' %>
+    </div>
+
     <%= render 'application/subsection', title: 'All-Sectors Map' %>
 
     <% map_path = AllSectorsMapGenerator.new(@campaign).output_path %>

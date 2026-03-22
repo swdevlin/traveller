@@ -141,6 +141,20 @@
         <%= form.label :native_tech_level, 'Use Native Sophont Tech Level Rules', class: 'edit-label' %>
       </div>
 
+      <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>
+        <%= form.text_field :native_sophont_colour,
+              placeholder: 'blank to hide',
+              data: { controller: 'coloris' },
+              class: 'edit-base w-32' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :extinct_sophont_colour, field_label: 'Extinct Sophont Colour' do %>
+        <%= form.text_field :extinct_sophont_colour,
+              placeholder: 'blank to hide',
+              data: { controller: 'coloris' },
+              class: 'edit-base w-32' %>
+      <% end %>
+
       <div class='flex items-center gap-3 py-2'>
         <%= form.check_box :tracks_survey_index, class: 'rounded border-slate-600' %>
         <%= form.label :tracks_survey_index, 'Track Survey Index', class: 'edit-label' %>

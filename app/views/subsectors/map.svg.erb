@@ -57,7 +57,15 @@
           next if hex_code == highlight_hex
 
           cx, cy = hex_center(col, row)
-          bg = systems_by_hex[hex_code]&.allegiance&.background_colour
+          sys = systems_by_hex[hex_code]
+          bg = sys&.allegiance&.background_colour
+          if bg.blank? && sys
+            if sys.native_sophont && @native_sophont_colour
+              bg = @native_sophont_colour
+            elsif sys.extinct_sophont && @extinct_sophont_colour
+              bg = @extinct_sophont_colour
+            end
+          end
           parsec_data = parsec_ids_by_hex[hex_code]
           parsec_id = parsec_data&.fetch(:id)
           empty = !systems_by_hex.key?(hex_code)

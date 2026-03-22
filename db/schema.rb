@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_20_021159) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_21_123600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -240,11 +240,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_20_021159) do
     t.integer "belt_count", default: 0, null: false
     t.jsonb "build_log"
     t.datetime "created_at", null: false
+    t.boolean "extinct_sophont", default: false, null: false
     t.integer "gas_giant_count", default: 0, null: false
     t.boolean "locked", default: false
     t.bigint "main_world_id"
     t.jsonb "meta"
     t.string "name"
+    t.boolean "native_sophont", default: false, null: false
     t.text "notes"
     t.bigint "parsec_id", null: false
     t.integer "survey_index", default: 0

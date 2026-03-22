@@ -80,7 +80,18 @@ class SubsectorsController < ApplicationController
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
-    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@subsector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}"
+    version = Digest::SHA256.hexdigest([
+      @subsector.updated_at.to_i,
+      max_updated.to_i,
+      max_parsec_updated.to_i,
+      region_max_updated.to_i,
+      jump_max_updated.to_i,
+      current_campaign.updated_at.to_i
+    ].join('-'))
+    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
+
+    @native_sophont_colour  = current_campaign.native_sophont_colour.presence
+    @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
 
     fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?

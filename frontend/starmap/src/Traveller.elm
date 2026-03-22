@@ -393,6 +393,8 @@ type alias ModelData =
     , campaignName : String
     , shipName : String
     , allSectorsMapUrl : Maybe String
+    , nativeSophontColour : Maybe String
+    , extinctSophontColour : Maybe String
     }
 
 
@@ -470,6 +472,8 @@ type alias Flags =
     , campaignName : Maybe String
     , shipName : Maybe String
     , allSectorsMapUrl : Maybe String
+    , nativeSophontColour : Maybe String
+    , extinctSophontColour : Maybe String
     }
 
 
@@ -582,6 +586,8 @@ init viewport settings key hostConfig referee =
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , shipName = settings.shipName |> Maybe.withDefault "Ship"
             , allSectorsMapUrl = settings.allSectorsMapUrl
+            , nativeSophontColour = settings.nativeSophontColour
+            , extinctSophontColour = settings.extinctSophontColour
             }
     in
     ( ( Time.millisToPosix 0
@@ -1070,8 +1076,8 @@ regionLabel x y name =
         [ Svg.text name ]
 
 
-hexBackgroundColour : Bool -> String -> SolarSystemDict -> String
-hexBackgroundColour referee hexKey solarSystemDict =
+hexBackgroundColour : Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
+hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
     if referee then
         case Dict.get hexKey solarSystemDict of
             Just rss ->
@@ -1084,14 +1090,14 @@ hexBackgroundColour referee hexKey solarSystemDict =
                                         color
 
                                     Nothing ->
-                                        nativeSophontHexBg
+                                        defaultHexBg
 
                             Nothing ->
                                 if system.nativeSophont then
-                                    nativeSophontHexBg
+                                    nativeSophontColour |> Maybe.withDefault defaultHexBg
 
                                 else if system.extinctSophont then
-                                    extinctSophontHexBg
+                                    extinctSophontColour |> Maybe.withDefault defaultHexBg
 
                                 else
                                     defaultHexBg
@@ -1114,8 +1120,10 @@ viewHexes :
     -> Float
     -> Maybe HexAddress
     -> Bool
+    -> Maybe String
+    -> Maybe String
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels } ( route, currentAddress ) hexSize maybeSelectedHex isReferee =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -1172,10 +1180,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                             selectedHexBg
 
                                         else
-                                            hexBackgroundColour isReferee hexKey solarSystemDict
+                                            hexBackgroundColour isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
 
                                     Nothing ->
-                                        hexBackgroundColour isReferee hexKey solarSystemDict
+                                        hexBackgroundColour isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
             in
             ( hexAddr
             , viewHex
@@ -1825,6 +1833,8 @@ viewHexMap model =
         model.hexScale
         model.selectedHex
         model.isReferee
+        model.nativeSophontColour
+        model.extinctSophontColour
         |> Element.html
 
 

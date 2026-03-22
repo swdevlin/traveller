@@ -44,6 +44,13 @@
           cx, cy = hex_center(col, row)
           sys = systems_by_pos[[col, row]]
           bg = sys&.allegiance&.background_colour
+          if bg.blank? && sys
+            if sys.native_sophont && @native_sophont_colour
+              bg = @native_sophont_colour
+            elsif sys.extinct_sophont && @extinct_sophont_colour
+              bg = @extinct_sophont_colour
+            end
+          end
         %>
         <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
       <% end %>

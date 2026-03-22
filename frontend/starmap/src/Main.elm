@@ -69,6 +69,8 @@ type alias Flags =
     , shipName : Maybe String
     , apiBaseUrl : String
     , allSectorsMapUrl : Maybe String
+    , nativeSophontColour : Maybe String
+    , extinctSophontColour : Maybe String
     }
 
 
@@ -183,6 +185,8 @@ update msg model =
                                 , campaignName = model.flags.campaignName
                                 , shipName = model.flags.shipName
                                 , allSectorsMapUrl = model.flags.allSectorsMapUrl
+                                , nativeSophontColour = model.flags.nativeSophontColour
+                                , extinctSophontColour = model.flags.extinctSophontColour
                                 }
                                 model.key
                                 model.hostConfig

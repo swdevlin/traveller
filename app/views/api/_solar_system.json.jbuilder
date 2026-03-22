@@ -17,8 +17,8 @@ json.origin_x    parsec.x
 json.origin_y    parsec.y
 json.scan_points 0
 json.allegiance  star_system.allegiance&.code
-json.native_sophont  star_system.stellar_objects.any? { |o| o.data&.dig('native_sophont') }
-json.extinct_sophont star_system.stellar_objects.any? { |o| o.data&.dig('extinct_sophont') }
+json.native_sophont  star_system.native_sophont
+json.extinct_sophont star_system.extinct_sophont
 json.star_count  star_system.stars.size
 json.bases       star_system.facilities_string
 json.remarks     star_system.trade_codes_string
