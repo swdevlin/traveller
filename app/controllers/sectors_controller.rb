@@ -105,6 +105,8 @@ class SectorsController < ApplicationController
 
   def map
     @show_map_links = authenticated?
+    @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
+    @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
     sector_ul = @sector.upper_left
 
     @star_systems = StarSystem
@@ -119,7 +121,8 @@ class SectorsController < ApplicationController
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}"
+    sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?

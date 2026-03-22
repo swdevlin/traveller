@@ -6,6 +6,8 @@ class SubsectorChannel < ApplicationCable::Channel
       subsector = Subsector.find(params[:id])
       stream_for subsector
     end
+  rescue ActiveRecord::RecordNotFound
+    reject
   end
 
   def unsubscribed
