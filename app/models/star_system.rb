@@ -60,10 +60,29 @@ class StarSystem < ApplicationRecord
   end
 
   def recalculate_sophont_flags!
-    update!(
-      native_sophont: stellar_objects.where("stellar_objects.data @> '{\"native_sophont\": true}'").exists?,
-      extinct_sophont: stellar_objects.where("stellar_objects.data @> '{\"extinct_sophont\": true}'").exists?
-    )
+    recalculate_derived_fields!(sophont_flags: true)
+  end
+
+  def recalculate_world_counts!
+    recalculate_derived_fields!(world_counts: true)
+  end
+
+  def recalculate_derived_fields!(world_counts: false, sophont_flags: false)
+    attrs = {}
+
+    if world_counts
+      counts = stellar_objects.where(type: StellarObject::WORLD_COUNT_TYPES).group(:type).count
+      attrs[:terrestrial_count] = counts.fetch('TerrestrialPlanet', 0)
+      attrs[:belt_count]        = counts.fetch('PlanetoidBelt', 0)
+      attrs[:gas_giant_count]   = counts.fetch('GasGiant', 0)
+    end
+
+    if sophont_flags
+      attrs[:native_sophont]  = stellar_objects.where("stellar_objects.data @> '{\"native_sophont\": true}'").exists?
+      attrs[:extinct_sophont] = stellar_objects.where("stellar_objects.data @> '{\"extinct_sophont\": true}'").exists?
+    end
+
+    update!(attrs) if attrs.any?
   end
 
   def main_world_uwp
@@ -76,15 +95,6 @@ class StarSystem < ApplicationRecord
     "#{HexDigit.hex_digit(terrestrial_count)}#{HexDigit.hex_digit(belt_count)}#{HexDigit.hex_digit(gas_giant_count)}"
   end
 
-  def recalculate_world_counts!
-    counts = stellar_objects.where(type: StellarObject::WORLD_COUNT_TYPES).group(:type).count
-
-    update!(
-      terrestrial_count: counts.fetch('TerrestrialPlanet', 0),
-      belt_count: counts.fetch('PlanetoidBelt', 0),
-      gas_giant_count: counts.fetch('GasGiant', 0)
-    )
-  end
 
   def display_name
     return name if name.present?

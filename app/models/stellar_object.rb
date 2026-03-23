@@ -40,8 +40,8 @@ class StellarObject < ApplicationRecord
 
   before_save :inherit_star_system_from_orbiting, unless: -> { is_a?(Star) }
   before_validation :recalculate_orbit_derived_fields, if: -> { !skip_import_callbacks && orbit_changed? }
-  after_save_commit :recalculate_star_system_world_counts_if_needed, unless: :skip_import_callbacks
-  after_destroy_commit :recalculate_star_system_world_counts_after_destroy
+  after_save_commit :recalculate_star_system_derived_fields_if_needed, unless: :skip_import_callbacks
+  after_destroy_commit :recalculate_star_system_derived_fields_after_destroy
 
   validates :type, inclusion: { in: STI_TYPES }
   validate :parsec_xor_orbiting_required
@@ -181,26 +181,28 @@ class StellarObject < ApplicationRecord
     end
   end
 
-  def recalculate_star_system_world_counts_if_needed
-    return unless type.in?(WORLD_COUNT_TYPES)
-    return unless saved_change_to_orbiting_id? || saved_change_to_type?
+  def recalculate_star_system_derived_fields_if_needed
+    world_counts = type.in?(WORLD_COUNT_TYPES) && (saved_change_to_orbiting_id? || saved_change_to_type?)
+    sophont_flags = respond_to?(:data) && saved_change_to_data? &&
+                    data_before_last_save&.slice('native_sophont', 'extinct_sophont') != data&.slice('native_sophont', 'extinct_sophont')
 
-    new_star_system = StarSystem.find_by(id: orbiting&.star_system_id)
-    new_star_system&.recalculate_world_counts!
+    if world_counts || sophont_flags
+      StarSystem.find_by(id: star_system_id)&.recalculate_derived_fields!(world_counts:, sophont_flags:)
+    end
 
-    return unless saved_change_to_orbiting_id?
+    return unless world_counts && saved_change_to_orbiting_id?
 
     old_star_id = saved_change_to_orbiting_id.first
-    old_star_system = Star.find_by(id: old_star_id)&.star_system
-    old_star_system&.recalculate_world_counts!
+    StarSystem.find_by(id: Star.where(id: old_star_id).pick(:star_system_id))&.recalculate_derived_fields!(world_counts: true)
   end
 
-  def recalculate_star_system_world_counts_after_destroy
-    return unless type.in?(WORLD_COUNT_TYPES)
-    return if orbiting.nil?
-    return if orbiting.destroyed?
-    return if orbiting.marked_for_destruction?
-    StarSystem.find_by(id: orbiting.star_system_id)&.recalculate_world_counts!
+  def recalculate_star_system_derived_fields_after_destroy
+    world_counts = type.in?(WORLD_COUNT_TYPES)
+    sophont_flags = respond_to?(:data) && data&.slice('native_sophont', 'extinct_sophont')&.any? { |_, v| v }
+
+    return if orbiting.nil? || orbiting.destroyed? || orbiting.marked_for_destruction?
+
+    StarSystem.find_by(id: star_system_id)&.recalculate_derived_fields!(world_counts:, sophont_flags:)
   end
 
   def inherit_star_system_from_orbiting

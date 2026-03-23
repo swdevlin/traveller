@@ -1,6 +1,7 @@
 class Moon < StellarObject
   include GeneratorMappings
   include HasUwp
+  include NormalizesPlanetaryData
 
   after_initialize :normalize_data_types
   before_validation :normalize_data_types

@@ -27,6 +27,7 @@
             <% if show_au? %>
               <th scope="col">AU</th>
             <% end %>
+            <th scope="col"></th>
             <th scope="col">UWP</th>
           </tr>
         </thead>
@@ -52,6 +53,14 @@
                   <%= number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
                 </td>
               <% end %>
+              <td class="whitespace-nowrap">
+                <% if planetoid.data['native_sophont'] %>
+                  <i class='fa-regular fa-user-alien' title='Native sophont'></i>
+                <% end %>
+                <% if planetoid.data['extinct_sophont'] %>
+                  <i class='fa-kit fa-light-user-alien-slash' title='Extinct sophont'></i>
+                <% end %>
+              </td>
               <td class="whitespace-nowrap">
                 <%= planetoid.uwp %>
               </td>
