@@ -1,6 +1,6 @@
 class PlanetoidBelt < StellarObject
   include GeneratorMappings
-  include HasUwpAttributes
+  include HasUwp
 
   before_validation :normalize_data_types
 
@@ -14,7 +14,7 @@ class PlanetoidBelt < StellarObject
   def self.permitted_params
     [
       :name, :notes, :orbit, :inclination, :eccentricity,
-      *uwp_permitted_params,
+      *uwp_attribute_names,
       data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
              :temperature, :retrograde, :period]
     ]

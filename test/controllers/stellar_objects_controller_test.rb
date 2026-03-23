@@ -6,6 +6,7 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     @star_system = star_systems(:in_one)
     @stellar_object = stellar_objects(:one)
     @gas_giant = gas_giants(:small)
+    @moon = moons(:orbiting_gas_giant)
   end
 
   # test 'should get index' do
@@ -50,6 +51,16 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   #   get edit_stellar_object_url(@stellar_object)
   #   assert_response :success
   # end
+
+  test 'should update moon UWP fields including tech level zero' do
+    patch stellar_object_url(@moon), params: {
+      stellar_object: { tech_level_code: 0, hydrographics_code: 5 }
+    }
+    assert_redirected_to stellar_object_url(@moon)
+    @moon.reload
+    assert_equal 0, @moon.tech_level_code.to_i
+    assert_equal 5, @moon.hydrographics_code
+  end
 
   test 'should update stellar_object' do
     patch stellar_object_url(@stellar_object), params: { stellar_object: { eccentricity: 1, effective_hzco_deviation: 2, inclination: 0.3, orbit: 2, orbit_x: 1, orbit_y: 1 } }

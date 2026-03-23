@@ -1,6 +1,6 @@
 class Planetoid < StellarObject
   include GeneratorMappings
-  include HasUwpAttributes
+  include HasUwp
 
   def orbit_type = 13
 

@@ -1,8 +1,9 @@
-module HasUwpAttributes
+module HasUwp
   extend ActiveSupport::Concern
 
   included do
     before_validation :normalize_uwp_attributes
+    before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
 
   def atmosphere_code
@@ -62,7 +63,7 @@ module HasUwpAttributes
   end
 
   module ClassMethods
-    def uwp_permitted_params
+    def uwp_attribute_names
       [
         :atmosphere_code, :atmosphere_composition,
         :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
@@ -76,8 +77,27 @@ module HasUwpAttributes
 
   private
 
+  def sync_uwp
+    self.uwp = [
+      starport_code || 'X',
+      HexDigit.hex_digit(size_code),
+      HexDigit.hex_digit(atmosphere_code),
+      HexDigit.hex_digit(hydrographics_code),
+      HexDigit.hex_digit(population_code),
+      HexDigit.hex_digit(government_code),
+      HexDigit.hex_digit(law_level_code),
+      '-',
+      HexDigit.hex_digit(tech_level_code)
+    ].join
+  end
+
   def normalize_uwp_attributes
     self.government_code = government_code.to_i if government_code.present?
     self.law_level_code = law_level_code.to_i if law_level_code.present?
   end
+
+  def uwp_inputs_changed?
+    will_save_change_to_size_code? || will_save_change_to_data?
+  end
+
 end

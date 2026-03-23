@@ -152,14 +152,14 @@ class StellarObject < ApplicationRecord
   private
 
   def orbit_star_system
-    orbiting&.star_system
+    StarSystem.find_by(id: orbiting&.star_system_id)
   end
 
   def orbit_star_system_for_destroy
     return nil if orbiting.nil?
     return nil if orbiting.destroyed?
     return nil if orbiting.marked_for_destruction?
-    orbiting.star_system
+    StarSystem.find_by(id: orbiting.star_system_id)
   end
 
   def recalculate_orbit_derived_fields

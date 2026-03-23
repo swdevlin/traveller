@@ -1,6 +1,6 @@
 class TerrestrialPlanet < StellarObject
   include GeneratorMappings
-  include HasUwpAttributes
+  include HasUwp
 
   after_initialize :set_default_data
   after_initialize :normalize_data_types
@@ -50,7 +50,7 @@ class TerrestrialPlanet < StellarObject
       :temperature, :axial_tilt, :albedo, :greenhouse,
       :native_sophont, :extinct_sophont, :biomass_rating,
       :biodiversity_rating, :biocomplexity_rating, :resource_rating,
-      *uwp_permitted_params
+      *uwp_attribute_names
     ]
   end
 
@@ -63,17 +63,17 @@ class TerrestrialPlanet < StellarObject
   end
 
   def normalize_data_types
-    self.period = period.to_f if period.present?
-    self.rotation = rotation.to_f if rotation.present?
-    self.density = density.to_f if density.present?
-    self.gravity = gravity.to_f if gravity.present?
-    self.temperature = temperature.to_f if temperature.present?
-    self.axial_tilt = axial_tilt.to_f if axial_tilt.present?
-    self.albedo = albedo.to_f if albedo.present?
-    self.greenhouse = greenhouse.to_f if greenhouse.present?
-    self.biomass_rating = biomass_rating.to_i if biomass_rating.present?
-    self.biodiversity_rating = biodiversity_rating.to_i if biodiversity_rating.present?
-    self.resource_rating = resource_rating.to_i if resource_rating.present?
+    self.period = period.presence&.to_f
+    self.rotation = rotation.presence&.to_f
+    self.density = density.presence&.to_f
+    self.gravity = gravity.presence&.to_f
+    self.temperature = temperature.presence&.to_f
+    self.axial_tilt = axial_tilt.presence&.to_f
+    self.albedo = albedo.presence&.to_f
+    self.greenhouse = greenhouse.presence&.to_f
+    self.biomass_rating = biomass_rating.presence&.to_i
+    self.biodiversity_rating = biodiversity_rating.presence&.to_i
+    self.resource_rating = resource_rating.presence&.to_i
     self.retrograde = ActiveModel::Type::Boolean.new.cast(retrograde)
     self.native_sophont = ActiveModel::Type::Boolean.new.cast(native_sophont)
     self.extinct_sophont = ActiveModel::Type::Boolean.new.cast(extinct_sophont)
