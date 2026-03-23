@@ -99,5 +99,4 @@ module HasUwp
   def uwp_inputs_changed?
     will_save_change_to_size_code? || will_save_change_to_data?
   end
-
 end
