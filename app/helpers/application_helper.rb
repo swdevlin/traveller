@@ -7,6 +7,10 @@ module ApplicationHelper
     current_campaign&.show_orbit_number? == true
   end
 
+  def show_population_count?
+    current_campaign&.homebrew? || current_campaign&.deepnight_revelation?
+  end
+
   def signed_map_url(path)
     uri = URI.parse(path)
     token = current_campaign.token_for(uri.path)

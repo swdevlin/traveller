@@ -1,4 +1,5 @@
 <% effective_shadow = local_assigns[:stellar_object]&.effective_jump_shadow_km || 0 %>
+<% shadow_source = local_assigns[:stellar_object]&.effective_jump_shadow_source %>
 
 <% if effective_shadow > 0 %>
   <div class="flex items-center gap-4">
@@ -13,6 +14,13 @@
                label: 'Distance to Clear',
                value: number_with_delimiter(number_with_precision(effective_shadow, precision: 0)),
                suffix: 'km' %>
+    <% if shadow_source %>
+      <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+      <%= render 'application/data_block',
+                 label: 'Shadow Source',
+                 value: link_to(shadow_source.display_name, source_path,
+                                class: 'no-underline hover:underline hover:underline-offset-2') %>
+    <% end %>
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">

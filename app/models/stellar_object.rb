@@ -103,40 +103,12 @@ class StellarObject < ApplicationRecord
     "#{days}d #{watches}w"
   end
 
-  # Calculates the effective jump shadow distance in km, considering:
-  # - The object's own jump shadow (100 × diameter)
-  # - The orbiting star's jump shadow minus distance to it
-  # - Any ancestor stars' jump shadows minus cumulative distance
-  # Returns the maximum distance needed to clear all shadows
   def effective_jump_shadow_km
-    return jump_shadow if orbiting.nil?
+    compute_effective_jump_shadow[:km]
+  end
 
-    shadows = []
-
-    # Object's own jump shadow
-    shadows << jump_shadow
-
-    # Distance from object to its orbiting star (in km)
-    object_distance_km = (au || 0) * StellarConstants::AU_TO_KM
-
-    # Orbiting star's shadow minus object's distance from it
-    star = orbiting
-    cumulative_distance_km = object_distance_km
-    star_shadow_remaining = (star.jump_shadow || 0) - object_distance_km
-    shadows << star_shadow_remaining if star_shadow_remaining > 0
-
-    # Walk up the star hierarchy
-    while star.orbiting.present?
-      # Add the star's distance from its parent
-      cumulative_distance_km += (star.au || 0) * StellarConstants::AU_TO_KM
-      star = star.orbiting
-
-      # Calculate remaining shadow for this ancestor star
-      ancestor_shadow_remaining = (star.jump_shadow || 0) - cumulative_distance_km
-      shadows << ancestor_shadow_remaining if ancestor_shadow_remaining > 0
-    end
-
-    shadows.max || 0
+  def effective_jump_shadow_source
+    compute_effective_jump_shadow[:source]
   end
 
   def display_name
@@ -150,6 +122,30 @@ class StellarObject < ApplicationRecord
   end
 
   private
+
+  def compute_effective_jump_shadow
+    @compute_effective_jump_shadow ||= begin
+      return { km: jump_shadow, source: nil } if orbiting.nil?
+
+      best = { km: jump_shadow, source: nil }
+
+      object_distance_km = (au || 0) * StellarConstants::AU_TO_KM
+      star = orbiting
+      cumulative_distance_km = object_distance_km
+
+      star_remaining = (star.jump_shadow || 0) - object_distance_km
+      best = { km: star_remaining, source: star } if star_remaining > best[:km]
+
+      while star.orbiting.present?
+        cumulative_distance_km += (star.au || 0) * StellarConstants::AU_TO_KM
+        star = star.orbiting
+        ancestor_remaining = (star.jump_shadow || 0) - cumulative_distance_km
+        best = { km: ancestor_remaining, source: star } if ancestor_remaining > best[:km]
+      end
+
+      best
+    end
+  end
 
   def orbit_star_system
     StarSystem.find_by(id: orbiting&.star_system_id)

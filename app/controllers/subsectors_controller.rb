@@ -173,6 +173,7 @@ class SubsectorsController < ApplicationController
   def set_counts
     @star_system_count = @subsector.star_systems.count
     @rogue_count = @subsector.rogues.count
+    @populated_system_count = @subsector.number_of_populated_star_systems
   end
 
   def set_subsector

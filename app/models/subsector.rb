@@ -60,6 +60,16 @@ class Subsector < ApplicationRecord
     star_systems.count
   end
 
+  def number_of_populated_star_systems
+    star_systems
+      .where(
+        id: StellarObject
+          .where("(data -> 'population' ->> 'code')::integer > 0")
+          .select(:star_system_id)
+      )
+      .count
+  end
+
   def number_of_stars
     ul, lr = universal_coordinates
     in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }

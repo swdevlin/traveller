@@ -14,6 +14,9 @@
         <th scope='col'>Subsector</th>
         <th scope='col' class='text-right'>Star systems</th>
         <th scope='col' class='text-right'>Stars</th>
+        <% if show_population_count? %>
+          <th scope='col' class='text-right'>Populated</th>
+        <% end %>
         <th scope='col'>Allegiances</th>
         <th scope='col'></th>
       </tr>
@@ -30,6 +33,9 @@
 
             <td class='text-right whitespace-nowrap'><%= subsector.number_of_star_systems %></td>
             <td class='text-right whitespace-nowrap'><%= subsector.number_of_stars %></td>
+            <% if show_population_count? %>
+              <td class='text-right whitespace-nowrap'><%= subsector.number_of_populated_star_systems %></td>
+            <% end %>
 
             <td><%= render 'allegiances/inline_list', allegiances: subsector.allegiances %></td>
 
@@ -38,7 +44,7 @@
         <% end %>
       <% else %>
         <tr>
-          <td colspan='5'>No subsectors recorded yet.</td>
+          <td colspan='<%= show_population_count? ? 6 : 5 %>'>No subsectors recorded yet.</td>
         </tr>
       <% end %>
       </tbody>

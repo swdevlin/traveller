@@ -139,3 +139,46 @@ planet_orbiting_tertiary:
   au: 0.05
   diameter: 4879
   data: {}
+
+# Moon fixtures for Moon#effective_jump_shadow_km / effective_jump_shadow_source tests
+
+# orbit=10 diameters of planet_near_primary (diameter=12742)
+# moon_to_planet_km = 10 * 12742 = 127,420 km
+# planet shadow remaining = 1,274,200 - 127,420 = 1,146,780 km  (dominates)
+# cumulative to primary = 127,420 + 1 AU = 149,725,291 km > primary shadow (139,270,000) → 0
+# moon own shadow = 1737 * 100 = 173,700 km
+moon_inside_planet_shadow:
+  name: Moon Inside Planet Shadow
+  type: 'Moon'
+  orbiting: planet_near_primary
+  orbit: 10
+  diameter: 1737
+  size_code: '2'
+  data: {}
+
+# orbit=200 diameters — beyond planet shadow (200 * 12742 = 2,548,400 > 1,274,200)
+# planet shadow remaining = negative → 0
+# cumulative to primary > primary shadow → 0
+# moon own shadow = 1000 * 100 = 100,000 km  (dominates)
+moon_outside_all_shadows:
+  name: Moon Outside All Shadows
+  type: 'Moon'
+  orbiting: planet_near_primary
+  orbit: 200
+  diameter: 1000
+  size_code: '1'
+  data: {}
+
+# orbit=5 diameters of planet_orbiting_secondary (diameter=6371, au=0.1)
+# moon_to_planet_km = 5 * 6371 = 31,855 km
+# planet shadow remaining = 637,100 - 31,855 = 605,245 km
+# cumulative to secondary = 31,855 + 0.1 * AU_TO_KM ≈ 14,991,642 km
+# secondary shadow remaining = 27,854,000 - 14,991,642 ≈ 12,862,358 km  (dominates)
+moon_orbiting_secondary_planet:
+  name: Moon Around Secondary Planet
+  type: 'Moon'
+  orbiting: planet_orbiting_secondary
+  orbit: 5
+  diameter: 500
+  size_code: '1'
+  data: {}

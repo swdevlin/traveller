@@ -53,25 +53,6 @@
                                   class: 'hover:underline underline-offset-4') %>
 
         <%= render 'application/data_block',
-                   label: 'Registry',
-                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
-                   value: safe_join(
-                     [
-                       tag.span(
-                         safe_join([tag.span('Systems', class: 'text-slate-300'),
-                                    tag.span(@star_system_count)], ' '),
-                         class: 'identifier'
-                       ),
-                       tag.span(
-                         safe_join([tag.span('Rogues', class: 'text-slate-300'),
-                                    tag.span(@rogue_count)], ' '),
-                         class: 'identifier'
-                       )
-                     ],
-                     ''
-                   ) %>
-
-        <%= render 'application/data_block',
                    label: 'Library data',
                    value: (
                      if (u = safe_external_url(@subsector.wiki_link))
@@ -81,6 +62,14 @@
                        content_tag(:span, 'Undocumented', class: 'text-slate-400')
                      end
                    ) %>
+      </div>
+
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
+        <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
+        <% if show_population_count? %>
+          <%= render 'application/data_block', label: 'Populated', value: @populated_system_count %>
+        <% end %>
       </div>
 
       <%= render 'application/observation_block',

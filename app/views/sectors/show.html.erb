@@ -75,25 +75,6 @@
                  value: tag.span("#{@sector.x}/#{@sector.y}", class: 'identifier') %>
 
       <%= render 'application/data_block',
-                 label: 'Registry',
-                 value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2',
-                 value: safe_join(
-                   [
-                     tag.span(
-                       safe_join([tag.span('Systems', class: 'text-slate-300'),
-                                  tag.span(@star_system_count)], ' '),
-                       class: 'identifier'
-                     ),
-                     tag.span(
-                       safe_join([tag.span('Rogues', class: 'text-slate-300'),
-                                  tag.span(@rogue_count)], ' '),
-                       class: 'identifier'
-                     )
-                   ],
-                   ''
-                 ) %>
-
-      <%= render 'application/data_block',
                  label: 'Star chart',
                  value: (
                    if (u = safe_external_url(@sector.traveller_map_url))
@@ -114,6 +95,11 @@
                      tag.span('Undocumented', class: 'text-slate-400')
                    end
                  ) %>
+    </div>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
+      <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
     </div>
 
     <%= render 'application/observation_block', notes: @sector.notes %>
