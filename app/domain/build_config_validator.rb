@@ -146,10 +146,11 @@ class BuildConfigValidator
     systems.each_with_index do |sys, idx|
       validate_allegiance(sys)
       validate_counts(sys['counts'], "systems[#{idx}].counts")
-      primary = sys['primary']
-      next unless primary.is_a?(Hash)
 
-      validate_star_tree(primary, "systems[#{idx}].primary")
+      (%w[primary] + STAR_LINK_KEYS).each do |key|
+        star = sys[key]
+        validate_star_tree(star, "systems[#{idx}].#{key}") if star.is_a?(Hash)
+      end
     end
 
     @errors.empty?
@@ -163,9 +164,11 @@ class BuildConfigValidator
 
     validate_allegiance(config)
     validate_counts(config['counts'], config['counts'])
-    primary = config['primary']
 
-    validate_star_tree(primary, config['primary'])
+    (%w[primary] + STAR_LINK_KEYS).each do |key|
+      star = config[key]
+      validate_star_tree(star, key) if star.is_a?(Hash)
+    end
 
     @errors.empty?
   end

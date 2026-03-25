@@ -96,6 +96,11 @@
         <% end %>
       </div>
 
+      <%= render 'application/boolean_toggle', form: form, attribute: :tracks_survey_index,
+            checked: @campaign.tracks_survey_index?, label: 'Track Survey Index' %>
+
+      <%= render 'application/subsection', title: 'System Generation' %>
+
       <%= render 'application/edit_field', form: form, attribute: :sophont_check, field_label: 'Sophont Check' do %>
         <div data-controller='hint-select' class='relative'>
           <%= form.hidden_field :sophont_check,
@@ -142,6 +147,11 @@
       <%= render 'application/boolean_toggle', form: form, attribute: :allow_captive_government,
             checked: @campaign.allow_captive_government?, label: 'Allow Captive Government (code 6) during generation' %>
 
+      <%= render 'application/boolean_toggle', form: form, attribute: :realisticStarDistribution,
+            checked: @campaign.realistic_star_distribution?, label: 'Realistic Star Distribution' %>
+
+      <%= render 'application/subsection', title: 'Display Preferences' %>
+
       <%
         orbit_display_options = [
           { label: 'AU',      value: 'au',           hint: 'Show distance from the primary star in Astronomical Units.' },
@@ -178,6 +188,8 @@
         </div>
       <% end %>
 
+      <%= render 'application/subsection', title: 'Map Colours' %>
+
       <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>
         <%= form.text_field :native_sophont_colour,
               data: { controller: 'coloris' },
@@ -195,9 +207,6 @@
 
       <%= render 'application/boolean_toggle', form: form, attribute: :show_extinct_sophont,
             checked: @campaign.show_extinct_sophont?, label: 'Show Extinct Sophont Colours on SVG Maps' %>
-
-      <%= render 'application/boolean_toggle', form: form, attribute: :tracks_survey_index,
-            checked: @campaign.tracks_survey_index?, label: 'Track Survey Index' %>
 
       <div class='pt-2 flex flex-col sm:flex-row gap-2'>
         <%= form.submit 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>

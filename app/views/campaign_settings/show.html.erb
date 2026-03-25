@@ -75,6 +75,10 @@
       <%= render 'application/data_block',
                  label: 'Allow Captive Government',
                  value: @campaign.allow_captive_government? ? 'Yes' : 'No' %>
+
+      <%= render 'application/data_block',
+                 label: 'Realistic Star Distribution',
+                 value: @campaign.realistic_star_distribution? ? 'Yes' : 'No' %>
     </div>
 
     <%= render 'application/subsection', title: 'Display Preferences' %>

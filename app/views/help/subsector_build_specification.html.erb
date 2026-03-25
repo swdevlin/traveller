@@ -91,24 +91,24 @@ required:
     primary:
       type: G2
       class: V
-      companion:
-        type: M7
-        class: V
-      close:
-        type: M9
-        class: V
-      near:
-        type: M9
-        class: V
-      far:
-        type: K8
-        class: V
       bodies:
         - uwp: X301000-0
         - uwp: terrestrial
           orbit: habitable
         - uwp: ''
         - uwp: Small Gas Giant
+    companion:
+      type: M7
+      class: V
+    close:
+      type: M9
+      class: V
+    near:
+      type: M9
+      class: V
+    far:
+      type: K8
+      class: V
 
 systems:
   - x: 1
@@ -336,7 +336,17 @@ systems:
             <div>
               <dt class='font-semibold text-slate-200'>primary</dt>
               <dd class='mt-1 text-slate-300'>
-                Optional star definition for the system. See star definition below.
+                Optional star definition for the primary star. See star definition below.
+              </dd>
+            </div>
+
+            <div>
+              <dt class='font-semibold text-slate-200'>companion, close, near, far</dt>
+              <dd class='mt-1 text-slate-300'>
+                Optional companion star definitions at the system level. Each accepts a star definition.
+                Companion stars may alternatively be declared nested inside the
+                <span class='font-mono text-slate-200'>primary</span> star record;
+                both forms are accepted.
               </dd>
             </div>
 
