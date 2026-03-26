@@ -96,10 +96,13 @@ class Subsector < ApplicationRecord
   end
 
   def load_deepnight_defaults!
-    path = Rails.root.join('db', 'data', 'sector_defaults', "#{sector.x}_#{sector.y}.yaml")
-    return unless File.exist?(path)
+    data = deepnight_sector_data
+    return unless data
 
-    data = YAML.safe_load(File.read(path))
+    apply_deepnight_defaults!(data)
+  end
+
+  def apply_deepnight_defaults!(data)
     index = (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
     entry = data['subsectors']&.find { |s| s['index'] == index }
     return unless entry
@@ -107,10 +110,12 @@ class Subsector < ApplicationRecord
     self.name = entry['name']
 
     config = entry.except('name', 'index')
-    config['unusualChance'] = data['unusualChance'] if data['unusualChance']
-    config['defaultSI'] = data['defaultSI'] if data['defaultSI']
+    config['unusualChance'] = data['unusualChance'] if !config.key?('unusualChance') && data['unusualChance']
+    config['defaultSI']     = data['defaultSI']     if !config.key?('defaultSI') && data['defaultSI']
+    config['populated']     = data['populated']     if !config.key?('populated') && data['populated'].present?
     normalize_config!(config)
 
+    ensure_populated_allegiances(config)
     self.build = YAML.dump(config)
     self.build_source = 'deepnight_books'
   end
@@ -127,6 +132,28 @@ class Subsector < ApplicationRecord
   end
 
   private
+
+  def deepnight_sector_data
+    path = Rails.root.join('db', 'data', 'sector_defaults', "#{sector.x}_#{sector.y}.yaml")
+    return nil unless File.exist?(path)
+
+    YAML.safe_load(File.read(path))
+  end
+
+  def ensure_populated_allegiances(config)
+    pop = config['populated']
+    return if pop.nil?
+
+    codes = []
+    codes << pop['allegiance']
+    %w[before after].each do |region|
+      codes << pop.dig(region, 'allegiance')
+    end
+
+    codes.compact.uniq.each do |code|
+      Allegiance.find_or_create_by!(code: code) { |a| a.name = code }
+    end
+  end
 
   def tm_build_system(sys)
     hex = sys['Hex']
