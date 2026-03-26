@@ -35,6 +35,15 @@
                   data-sample-toggle-name-param='moon-world'>
             Moon world
           </button>
+
+          <button type='button'
+                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  data-sample-toggle-target='tab'
+                  data-name='populated'
+                  data-action='sample-toggle#show'
+                  data-sample-toggle-name-param='populated'>
+            Populated
+          </button>
         </div>
       </div>
 
@@ -65,6 +74,17 @@ systems:
       class: II
     bases: []
     allegiance: NaHu</code></pre>
+
+        <pre data-sample-toggle-target='panel' data-name='populated' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
+populated:
+  type: split-horizontal
+  demarcation: 2
+  before:
+    allegiance: null
+  after:
+    minTechLevel: 5
+    maxTechLevel: 12
+    allegiance: 3eIm</code></pre>
 
         <pre data-sample-toggle-target='panel' data-name='full' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
 unusualChance: 4
@@ -215,27 +235,58 @@ systems:
               </dd>
 
               <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <ul class='text-slate-300 space-y-1'>
+                <ul class='text-slate-300 space-y-2 text-xs'>
                   <li>
-                    <span class='font-mono text-slate-200'>type</span> –
-                    layout preset for how populated worlds are distributed
-                    (<span class='font-mono text-slate-200'>full</span>,
+                    <span class='font-mono text-slate-200'>type</span> <span class='text-slate-500'>(required)</span> –
+                    layout preset for how populated worlds are distributed:
+                    <span class='font-mono text-slate-200'>full</span>,
                     <span class='font-mono text-slate-200'>hard-horizontal</span>,
                     <span class='font-mono text-slate-200'>hard-vertical</span>,
                     <span class='font-mono text-slate-200'>split-horizontal</span>,
-                    <span class='font-mono text-slate-200'>split-vertical</span>)
+                    <span class='font-mono text-slate-200'>split-vertical</span>.
+                    Use <span class='font-mono text-slate-200'>full</span> to apply a single constraint to the whole subsector.
+                    The split and hard types divide the subsector into two regions at a demarcation line.
+                  </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>demarcation</span> –
+                    dividing line for split and hard types.
+                    Interpreted as a column (1–8) for vertical splits, or a row (1–10) for horizontal splits.
+                  </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>before</span>, <span class='font-mono text-slate-200'>after</span> –
+                    region configuration hashes for split and hard types.
+                    <span class='font-mono text-slate-200'>before</span> covers hexes up to and including the demarcation line;
+                    <span class='font-mono text-slate-200'>after</span> covers those beyond it.
+                    Each region accepts:
+                    <ul class='mt-1 ml-4 space-y-1 list-disc'>
+                      <li>
+                        <span class='font-mono text-slate-200'>allegiance</span> –
+                        allegiance code for this region, or <span class='font-mono text-slate-200'>null</span> for no constraint.
+                        See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
+                      </li>
+                      <li>
+                        <span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span> –
+                        tech level constraints for this region (0–100).
+                      </li>
+                      <li>
+                        <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
+                        population code constraints for this region (0–16).
+                      </li>
+                    </ul>
                   </li>
                   <li>
                     <span class='font-mono text-slate-200'>allegiance</span> –
-                    default allegiance code. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
+                    allegiance code applied to the whole subsector. Used with <span class='font-mono text-slate-200'>full</span>;
+                    omit when using <span class='font-mono text-slate-200'>before</span>/<span class='font-mono text-slate-200'>after</span>.
+                    See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
                   </li>
                   <li>
                     <span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span> –
-                    constraints for generated tech level.
+                    top-level tech level constraints applied to the whole subsector. Used with <span class='font-mono text-slate-200'>full</span>.
                   </li>
                   <li>
                     <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
-                    constraints for generated population code (0–16).
+                    top-level population code constraints (0–16). Used with <span class='font-mono text-slate-200'>full</span>.
                   </li>
                 </ul>
               </div>

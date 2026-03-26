@@ -140,6 +140,7 @@ class BuildConfigValidator
     validate_populated_allegiance
     validate_populated_tech_level
     validate_populated_population
+    validate_populated_demarcation
     validate_bases
 
     systems = Array(config['systems']) + Array(config['required'])
@@ -160,6 +161,7 @@ class BuildConfigValidator
     validate_populated_allegiance
     validate_populated_tech_level
     validate_populated_population
+    validate_populated_demarcation
     validate_bases
 
     validate_allegiance(config)
@@ -218,35 +220,58 @@ class BuildConfigValidator
 
   def validate_populated_tech_level
     return if @config['populated'].nil?
-
-    min = @config['populated']['minTechLevel']
-    max = @config['populated']['maxTechLevel']
-    return if min.nil? || max.nil?
-
-    if min > max
-      @errors << 'minTechLevel must be less than or equal to maxTechLevel'
+    pop = @config['populated']
+    check_min_max(pop, 'minTechLevel', 'maxTechLevel', 'minTechLevel must be less than or equal to maxTechLevel')
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      check_min_max(pop[region], 'minTechLevel', 'maxTechLevel', 'minTechLevel must be less than or equal to maxTechLevel')
     end
   end
 
   def validate_populated_population
     return if @config['populated'].nil?
-
-    min = @config['populated']['minPopulationCode']
-    max = @config['populated']['maxPopulationCode']
-    return if min.nil? || max.nil?
-
-    if min > max
-      @errors << 'minPopulationCode must be less than or equal to maxPopulationCode'
+    pop = @config['populated']
+    check_min_max(pop, 'minPopulationCode', 'maxPopulationCode', 'minPopulationCode must be less than or equal to maxPopulationCode')
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      check_min_max(pop[region], 'minPopulationCode', 'maxPopulationCode', 'minPopulationCode must be less than or equal to maxPopulationCode')
     end
   end
 
   def validate_populated_allegiance
     return if @config['populated'].nil?
+    pop = @config['populated']
 
-    allegiance = @config['populated']['allegiance']
+    validate_allegiance_code(pop['allegiance']) if pop.key?('allegiance') && !pop['allegiance'].nil?
 
-    unless Allegiance.exists?(code: allegiance)
-      @errors << "unknown allegiance '#{allegiance}'"
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      next unless pop[region].key?('allegiance') && !pop[region]['allegiance'].nil?
+      validate_allegiance_code(pop[region]['allegiance'])
+    end
+  end
+
+  def validate_populated_demarcation
+    return if @config['populated'].nil?
+    pop = @config['populated']
+    demarcation = pop['demarcation']
+    return if demarcation.nil?
+
+    if %w[hard-vertical split-vertical].include?(pop['type']) && demarcation > 8
+      @errors << 'populated: demarcation must be between 1 and 8 for vertical splits'
+    end
+  end
+
+  def check_min_max(hash, min_key, max_key, message)
+    min = hash[min_key]
+    max = hash[max_key]
+    return if min.nil? || max.nil?
+    @errors << message if min > max
+  end
+
+  def validate_allegiance_code(code)
+    unless Allegiance.exists?(code: code)
+      @errors << "unknown allegiance '#{code}'"
     end
   end
 

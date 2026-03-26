@@ -73,11 +73,22 @@ StarSchema = BaseStarSchema.merge(
   end
 )
 
+PopulatedRegionSchema = Dry::Schema.Params do
+  optional(:allegiance).maybe(:string)
+  optional(:minTechLevel).filled(:integer, gteq?: 0, lteq?: 100)
+  optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 100)
+  optional(:minPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
+  optional(:maxPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
+end
+
 PopulatedSchema = Dry::Schema.Params do
   POPULATED_TYPES = %w[full hard-horizontal hard-vertical split-horizontal split-vertical].freeze
 
   required(:type).filled(:string, included_in?: POPULATED_TYPES)
-  required(:allegiance).filled(:string)
+  optional(:allegiance).maybe(:string)
+  optional(:demarcation).filled(:integer, gteq?: 1, lteq?: 10)
+  optional(:before).hash(PopulatedRegionSchema)
+  optional(:after).hash(PopulatedRegionSchema)
   optional(:minTechLevel).filled(:integer, gteq?: 0, lteq?: 100)
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 100)
   optional(:minPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)

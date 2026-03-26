@@ -79,7 +79,7 @@ class StarSystemImporter
       @star_system.name = data['name']
       @star_system.build_log = data['buildLog']
       @star_system.survey_index = data['surveyIndex'] || 0
-      allegiance = data.fetch('allegiance')
+      allegiance = data['allegiance']
       unless allegiance.nil?
         @star_system.allegiance = find_or_create_allegiance(allegiance)
       end

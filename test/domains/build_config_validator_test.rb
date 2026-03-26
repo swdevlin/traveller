@@ -672,4 +672,195 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_equal 5, validator.config['defaultSI']
     assert_equal 'MODERATE', validator.config['type']
   end
+
+  # populated validation
+
+  test 'populated full type with flat allegiance is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        allegiance: 3eIm
+        minTechLevel: 2
+        maxTechLevel: 10
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated split type with before and after is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 2
+        before:
+          allegiance: null
+        after:
+          minTechLevel: 5
+          maxTechLevel: 12
+          allegiance: 3eIm
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated null allegiance in before and after is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: hard-horizontal
+        demarcation: 5
+        before:
+          allegiance: null
+        after:
+          allegiance: null
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated with no allegiance anywhere is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-vertical
+        demarcation: 4
+        before:
+          minTechLevel: 3
+        after:
+          maxTechLevel: 8
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'all populated split types are valid' do
+    %w[hard-horizontal hard-vertical split-horizontal split-vertical].each do |type|
+      yaml = <<~YAML
+        type: standard
+        populated:
+          type: #{type}
+          demarcation: 4
+          before:
+            allegiance: null
+          after:
+            allegiance: 3eIm
+      YAML
+      validator = BuildConfigValidator.new(yaml)
+      assert validator.valid?, "Expected '#{type}' to be valid but got errors: #{validator.errors.inspect}"
+    end
+  end
+
+  test 'populated unknown allegiance in before is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 3
+        before:
+          allegiance: UNKNOWN
+        after:
+          allegiance: 3eIm
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'allegiance'
+  end
+
+  test 'populated unknown allegiance in after is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 3
+        before:
+          allegiance: 3eIm
+        after:
+          allegiance: UNKNOWN
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'allegiance'
+  end
+
+  test 'populated minTechLevel greater than maxTechLevel in before is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 5
+        before:
+          minTechLevel: 10
+          maxTechLevel: 5
+        after:
+          allegiance: null
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'minTechLevel'
+  end
+
+  test 'populated minTechLevel greater than maxTechLevel in after is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 5
+        before:
+          allegiance: null
+        after:
+          minTechLevel: 12
+          maxTechLevel: 4
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'minTechLevel'
+  end
+
+  test 'populated demarcation 8 is valid for split-vertical' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-vertical
+        demarcation: 8
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated demarcation 9 is invalid for split-vertical' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-vertical
+        demarcation: 9
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'demarcation'
+  end
+
+  test 'populated demarcation 9 is invalid for hard-vertical' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: hard-vertical
+        demarcation: 9
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'demarcation'
+  end
+
+  test 'populated demarcation 10 is valid for split-horizontal' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 10
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
 end
