@@ -1,5 +1,6 @@
 class MarkdownPresenterBase
   include ActionView::Helpers::NumberHelper
+  include JumpShadowMath
 
   ATMOSPHERE_DESCRIPTIONS = StellarObjectsHelper::ATMOSPHERE_DESCRIPTIONS
   HYDROGRAPHICS_DESCRIPTIONS = StellarObjectsHelper::HYDROGRAPHICS_DESCRIPTIONS
@@ -76,6 +77,25 @@ class MarkdownPresenterBase
     rows << ['Inclination', "#{fmt(@obj.inclination, 2)}°"] if @obj.respond_to?(:inclination)
     rows << ['Eccentricity', fmt(@obj.eccentricity, 2)] if @obj.respond_to?(:eccentricity)
     table_section('Orbital Data', rows)
+  end
+
+  def jump_shadow_section
+    distance = @obj.effective_jump_shadow_km
+    return [] if distance.nil? || distance <= 0
+
+    lines = ['## Jump Shadow', '']
+    lines << "**Distance to Clear:** #{number_with_delimiter(distance.round)} km"
+    source = @obj.effective_jump_shadow_source
+    lines << "**Shadow Source:** #{source.display_name}" if source
+    lines << ''
+
+    times = jump_shadow_travel_times(distance)
+    lines << "| #{times.keys.map { |g| "#{g}G" }.join(' | ')} |"
+    lines << "| #{Array.new(times.size, '---').join(' | ')} |"
+    lines << "| #{times.values.join(' | ')} |"
+    lines << ''
+
+    lines
   end
 
   def notes_section

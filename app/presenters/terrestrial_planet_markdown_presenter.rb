@@ -3,6 +3,7 @@ class TerrestrialPlanetMarkdownPresenter < MarkdownPresenterBase
 
   def type_sections
     orbital_data_section +
+      jump_shadow_section +
       physical_data_section +
       environmental_data_section +
       atmosphere_section +

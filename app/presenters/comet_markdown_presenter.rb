@@ -2,7 +2,7 @@ class CometMarkdownPresenter < MarkdownPresenterBase
   private
 
   def type_sections
-    (@obj.orbiting ? orbital_data_section : []) + comet_data_section
+    (@obj.orbiting ? orbital_data_section : []) + jump_shadow_section + comet_data_section
   end
 
   def comet_data_section

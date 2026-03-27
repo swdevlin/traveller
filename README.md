@@ -7,7 +7,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * Add Button to create all deepnight sectors
   * create with configuration for each sector
   * Option to generate blank?
-  * Allegiances for Deepnight campaign
 * site options
   * m-drive for calculating jump times
 * Display error messages from background jobs

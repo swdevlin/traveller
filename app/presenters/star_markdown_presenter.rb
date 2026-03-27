@@ -27,8 +27,9 @@ class StarMarkdownPresenter < MarkdownPresenterBase
     rows = [
       ['Minimum Orbit', fmt(@obj.minimum_allowable_orbit, 2)],
       ['HZCO', fmt(@obj.hzco, 2)],
-      ['Jump Shadow', "#{number_with_delimiter(@obj.jump_shadow&.round)} km"]
+      ['Jump Shadow', "#{number_with_delimiter(@obj.effective_jump_shadow_km&.round)} km"]
     ]
+    jump_shadow_travel_times(@obj.effective_jump_shadow_km || 0).each { |g, time| rows << ["#{g}G", time] }
     table_section('System Data', rows)
   end
 

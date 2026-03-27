@@ -2,7 +2,7 @@ class GasGiantMarkdownPresenter < MarkdownPresenterBase
   private
 
   def type_sections
-    orbital_data_section + gas_giant_physical_section
+    orbital_data_section + jump_shadow_section + gas_giant_physical_section
   end
 
   def gas_giant_physical_section
