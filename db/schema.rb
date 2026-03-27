@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_21_123600) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_27_151546) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -125,12 +125,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_21_123600) do
     t.string "label_colour"
     t.text "note"
     t.boolean "player_visible", default: false
+    t.integer "q", null: false
+    t.integer "r", null: false
+    t.integer "s", null: false
     t.bigint "sector_id", null: false
     t.float "star_chance", default: 50.0
     t.integer "survey_index", default: 0
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
+    t.index ["q", "r", "s"], name: "index_parsecs_on_q_and_r_and_s"
     t.index ["sector_id", "x", "y"], name: "index_parsecs_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_parsecs_on_sector_id"
   end
