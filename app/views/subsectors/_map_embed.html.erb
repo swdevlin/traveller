@@ -1,30 +1,117 @@
 <%# locals: (subsector:, highlight: nil) %>
 <% full_map_url   = highlight ? map_subsector_path(subsector, highlight: highlight) : map_subsector_path(subsector) %>
 <% embed_map_url  = highlight ? map_subsector_path(subsector, highlight: highlight, compact: true) : map_subsector_path(subsector, compact: true) %>
+<% coreward_sub = subsector.coreward %>
+<% rimward_sub  = subsector.rimward %>
+<% spinward_sub = subsector.spinward %>
+<% trailing_sub = subsector.trailing %>
+
 <div class='mt-2'>
-  <div class='mb-1 flex justify-end gap-3'>
-    <button type='button'
-            title='Copy public map link'
-            class='text-slate-400 hover:text-slate-200'
-            data-controller='clipboard'
-            data-clipboard-url-value='<%= signed_map_url(full_map_url) %>'
-            data-action='click->clipboard#copy'>
-      <i class='fa-regular fa-link'></i>
-    </button>
-    <%= link_to full_map_url,
-                target: '_blank',
-                rel: 'noopener',
-                class: 'text-slate-400 hover:text-slate-200',
-                title: 'Open map in new tab' do %>
-      <i class='fa-regular fa-arrow-up-right-from-square'></i>
+  <div class='mb-1 relative flex items-center justify-center h-9'>
+    <% if coreward_sub %>
+      <%= link_to subsector_path(coreward_sub),
+                  class: 'flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-200 no-underline',
+                  title: coreward_sub.name do %>
+        <i class='fa-solid fa-chevron-up text-xs'></i>
+        <span class='text-[10px] uppercase tracking-wider'>Coreward</span>
+      <% end %>
+    <% else %>
+      <span class='flex flex-col items-center gap-0.5 text-slate-700'>
+        <i class='fa-solid fa-chevron-up text-xs'></i>
+        <span class='text-[10px] uppercase tracking-wider'>Coreward</span>
+      </span>
     <% end %>
+    <div class='absolute right-0 flex gap-3 text-slate-400'>
+      <button type='button'
+              title='Copy public map link'
+              class='hover:text-slate-200'
+              data-controller='clipboard'
+              data-clipboard-url-value='<%= signed_map_url(full_map_url) %>'
+              data-action='click->clipboard#copy'>
+        <i class='fa-regular fa-link'></i>
+      </button>
+      <%= link_to full_map_url,
+                  target: '_blank',
+                  rel: 'noopener',
+                  class: 'hover:text-slate-200',
+                  title: 'Open map in new tab' do %>
+        <i class='fa-regular fa-arrow-up-right-from-square'></i>
+      <% end %>
+    </div>
   </div>
-  <div class='aspect-[415/586] w-full overflow-hidden rounded-2xl bg-slate-950/60'>
-    <object type="image/svg+xml"
-            data="<%= embed_map_url %>"
-            class="block h-full w-full"
-            data-subsector-refresh-target="map">
-      Subsector map
-    </object>
+
+  <div class='flex items-center gap-0'>
+    <div class='w-5 flex-none flex items-center justify-center'>
+      <% if spinward_sub %>
+        <%= link_to subsector_path(spinward_sub),
+                    class: 'text-slate-400 hover:text-slate-200 no-underline',
+                    title: spinward_sub.name do %>
+          <i class='fa-solid fa-chevron-left text-xs'></i>
+        <% end %>
+      <% else %>
+        <span class='text-slate-700'><i class='fa-solid fa-chevron-left text-xs'></i></span>
+      <% end %>
+    </div>
+
+    <div class='w-5 flex-none flex items-center justify-center'>
+      <% if spinward_sub %>
+        <%= link_to subsector_path(spinward_sub),
+                    class: 'text-slate-400 hover:text-slate-200 no-underline',
+                    title: spinward_sub.name do %>
+          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl] rotate-180'>Spinward</span>
+        <% end %>
+      <% else %>
+        <span class='text-slate-700 text-[10px] uppercase tracking-wider [writing-mode:vertical-rl] rotate-180'>Spinward</span>
+      <% end %>
+    </div>
+
+    <div class='flex-1 aspect-[415/586] overflow-hidden rounded-2xl bg-slate-950/60'>
+      <object type="image/svg+xml"
+              data="<%= embed_map_url %>"
+              class="block h-full w-full"
+              data-subsector-refresh-target="map">
+        Subsector map
+      </object>
+    </div>
+
+    <div class='w-5 flex-none flex items-center justify-center'>
+      <% if trailing_sub %>
+        <%= link_to subsector_path(trailing_sub),
+                    class: 'text-slate-400 hover:text-slate-200 no-underline',
+                    title: trailing_sub.name do %>
+          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl]'>Trailing</span>
+        <% end %>
+      <% else %>
+        <span class='text-slate-700 text-[10px] uppercase tracking-wider [writing-mode:vertical-rl]'>Trailing</span>
+      <% end %>
+    </div>
+
+    <div class='w-5 flex-none flex items-center justify-center'>
+      <% if trailing_sub %>
+        <%= link_to subsector_path(trailing_sub),
+                    class: 'text-slate-400 hover:text-slate-200 no-underline',
+                    title: trailing_sub.name do %>
+          <i class='fa-solid fa-chevron-right text-xs'></i>
+        <% end %>
+      <% else %>
+        <span class='text-slate-700'><i class='fa-solid fa-chevron-right text-xs'></i></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class='flex justify-center h-9 items-center'>
+    <% if rimward_sub %>
+      <%= link_to subsector_path(rimward_sub),
+                  class: 'flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-200 no-underline',
+                  title: rimward_sub.name do %>
+        <i class='fa-solid fa-chevron-down text-xs'></i>
+        <span class='text-[10px] uppercase tracking-wider'>Rimward</span>
+      <% end %>
+    <% else %>
+      <span class='flex flex-col items-center gap-0.5 text-slate-700'>
+        <i class='fa-solid fa-chevron-down text-xs'></i>
+        <span class='text-[10px] uppercase tracking-wider'>Rimward</span>
+      </span>
+    <% end %>
   </div>
 </div>
