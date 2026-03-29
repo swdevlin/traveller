@@ -36,6 +36,7 @@ PrePush:
 #    command: ["bin/rails", "test"]
   Brakeman:
     enabled: true
+    command: ["bash", "-lc", "bundle exec brakeman"]
 
 #PostCheckout:
 #  ALL: # Special hook name that customizes all hooks of this type
