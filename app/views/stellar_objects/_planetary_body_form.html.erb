@@ -240,6 +240,32 @@
                             max: 12 %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :population_concentration_rating, field_label: 'Concentration Rating' do %>
+      <%= form.number_field :population_concentration_rating,
+                            value: stellar_object.population_concentration_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 9 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_urbanization_percentage, field_label: 'Urbanisation %' do %>
+      <%= form.number_field :population_urbanization_percentage,
+                            value: stellar_object.population_urbanization_percentage,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_major_cities, field_label: 'Major Cities' do %>
+      <%= form.number_field :population_major_cities,
+                            value: stellar_object.population_major_cities,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0 %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
       <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
             checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>

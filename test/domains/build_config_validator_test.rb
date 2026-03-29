@@ -863,4 +863,63 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     validator = BuildConfigValidator.new(yaml)
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
+
+  test 'populated full type with positive populationDM is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        populationDM: 3
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated full type with negative populationDM is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        populationDM: -3
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated split type with populationDM in before and after is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 4
+        before:
+          populationDM: -2
+        after:
+          populationDM: 2
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated populationDM above range is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        populationDM: 13
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    refute validator.valid?
+  end
+
+  test 'populated populationDM below range is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        populationDM: -13
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    refute validator.valid?
+  end
 end

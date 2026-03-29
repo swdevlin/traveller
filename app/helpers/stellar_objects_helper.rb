@@ -98,6 +98,25 @@ module StellarObjectsHelper
     POPULATION_RANGES[code.to_i]
   end
 
+  CONCENTRATION_RATING_DESCRIPTIONS = {
+    0 => 'Extremely Dispersed',
+    1 => 'Highly Dispersed',
+    2 => 'Moderately Dispersed',
+    3 => 'Partially Dispersed',
+    4 => 'Slightly Dispersed',
+    5 => 'Slightly Concentrated',
+    6 => 'Partially Concentrated',
+    7 => 'Moderately Concentrated',
+    8 => 'Highly Concentrated',
+    9 => 'Extremely Concentrated'
+  }.freeze
+
+  def concentration_rating_description(rating)
+    return nil if rating.nil?
+
+    CONCENTRATION_RATING_DESCRIPTIONS[rating.to_i]
+  end
+
   STARPORT_CODES = {
     'A' => 'Excellent',
     'B' => 'Good',
