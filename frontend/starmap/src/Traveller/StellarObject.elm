@@ -5,6 +5,7 @@ import Json.Decode as JsDecode
 import Traveller.Atmosphere as Atmosphere exposing (StellarAtmosphere)
 import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
+import Traveller.Population as Population exposing (StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
 
 
@@ -45,6 +46,7 @@ type alias SharedPData =
     , safeJumpTime : String
     , orbitType : Int
     , au : Float
+    , population : Maybe StellarPopulation
     }
 
 
@@ -407,7 +409,7 @@ codecGasGiantData =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV sjt ot au ->
+        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV sjt ot au pop ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -444,6 +446,7 @@ codecSharedPData =
             , safeJumpTime = sjt
             , orbitType = ot
             , au = au
+            , population = pop
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -497,6 +500,7 @@ codecSharedPData =
         |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
+        |> Codec.optionalNullableField "population" .population Population.codec
         |> Codec.buildObject
 
 

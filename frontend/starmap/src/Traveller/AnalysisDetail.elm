@@ -152,6 +152,9 @@ type alias AnalyisDetailPlanetoidData =
         }
     , social :
         { population : String
+        , concentrationRating : Maybe Int
+        , urbanizationPercentage : Maybe Int
+        , majorCities : Maybe Int
         , government : String
         , lawLevel : String
         , techLevel : String
@@ -367,6 +370,9 @@ viewPlanetoidAnalysisDetail timeChars data =
             [ text "Social Data"
             , column groupAttrs
                 [ textDisplay "Population" <| showTimeCharsTEMP 26 data.social.population
+                , textDisplay "Concentration Rating" (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "—")
+                , textDisplay "Urbanisation %" (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "—")
+                , textDisplay "Major Cities" (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "—")
                 , textDisplay "Government" <| showTimeCharsTEMP 27 data.social.government
                 , textDisplay "Law Level" <| showTimeCharsTEMP 28 data.social.lawLevel
                 , textDisplay "Tech Level" <| showTimeCharsTEMP 29 data.social.techLevel
