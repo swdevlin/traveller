@@ -99,6 +99,15 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 - indexing a jsonb field is better than extracting the value into a column
 - when working with sectors, use Sector.kept except for queries that need to include deleted sectors
 
+## Adding a New Property to a Stellar Object
+
+When adding a new display field to any stellar object type, update all of the following:
+
+1. **Rails show view** — add a `data_block` in the appropriate section partial
+2. **Markdown export** — update the relevant presenter in `app/presenters/` (usually `markdown_presenter_base.rb`)
+3. **Elm app** — update `frontend/starmap/src/Traveller/` (typically the relevant module such as `Population.elm`, `StellarObject.elm`, or `AnalysisDetail.elm`)
+4. **Help screens** — update both the edit and show help partials in `app/views/help/`
+
 ## Show Page Sections
 
 Use sections to visually group related fields on show pages. See `app/views/terrestrial_planets/_terrestrial_planet.html.erb` for canonical examples.
