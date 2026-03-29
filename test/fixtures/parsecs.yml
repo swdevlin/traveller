@@ -4,10 +4,16 @@ one:
   sector: one
   x: 32
   'y': 40
+  q: 32
+  r: 24
+  s: -56
   note: first fixture
 
 two:
   sector: two
   x: 33
   'y': 79
+  q: 33
+  r: 63
+  s: -96
   note: from fixture

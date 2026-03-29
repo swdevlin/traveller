@@ -1,22 +1,60 @@
-module Traveller.Population exposing (Population(..), StellarPopulation, codec, population, populationDescription)
+module Traveller.Population exposing (Population(..), StellarPopulation, codec, concentration_rating_description, population, populationDescription)
 
 import Codec exposing (Codec)
-import Json.Decode as JsDecode
-import Json.Encode as JsEncode
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Extras as Parser
 
 
 type alias StellarPopulation =
-    { code : Int, concentrationRating : Maybe Float }
+    { code : Int
+    , concentrationRating : Maybe Int
+    , urbanizationPercentage : Maybe Int
+    , majorCities : Maybe Int
+    }
 
 
 codec : Codec StellarPopulation
 codec =
     Codec.object StellarPopulation
         |> Codec.field "code" .code Codec.int
-        |> Codec.field "concentrationRating" .concentrationRating (Codec.maybe Codec.float)
+        |> Codec.optionalNullableField "concentrationRating" .concentrationRating Codec.int
+        |> Codec.optionalNullableField "urbanizationPercentage" .urbanizationPercentage Codec.int
+        |> Codec.optionalNullableField "majorCities" .majorCities Codec.int
         |> Codec.buildObject
+
+
+concentration_rating_description : Int -> String
+concentration_rating_description rating =
+    case rating of
+        0 ->
+            "Extremely Dispersed"
+
+        1 ->
+            "Highly Dispersed"
+
+        2 ->
+            "Moderately Dispersed"
+
+        3 ->
+            "Partially Dispersed"
+
+        4 ->
+            "Slightly Dispersed"
+
+        5 ->
+            "Slightly Concentrated"
+
+        6 ->
+            "Partially Concentrated"
+
+        7 ->
+            "Moderately Concentrated"
+
+        8 ->
+            "Highly Concentrated"
+
+        _ ->
+            "Extremely Concentrated"
 
 
 

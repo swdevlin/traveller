@@ -14,6 +14,30 @@ class Subsector < ApplicationRecord
     message: 'Subsector already exists'
   }
 
+  def spinward
+    return sector.subsectors.find_by(x: x - 1, y: y) if x > 1
+
+    Sector.kept.find_by(x: sector.x - 1, y: sector.y)&.subsectors&.find_by(x: 4, y: y)
+  end
+
+  def trailing
+    return sector.subsectors.find_by(x: x + 1, y: y) if x < 4
+
+    Sector.kept.find_by(x: sector.x + 1, y: sector.y)&.subsectors&.find_by(x: 1, y: y)
+  end
+
+  def coreward
+    return sector.subsectors.find_by(x: x, y: y - 1) if y > 1
+
+    Sector.kept.find_by(x: sector.x, y: sector.y + 1)&.subsectors&.find_by(x: x, y: 4)
+  end
+
+  def rimward
+    return sector.subsectors.find_by(x: x, y: y + 1) if y < 4
+
+    Sector.kept.find_by(x: sector.x, y: sector.y - 1)&.subsectors&.find_by(x: x, y: 1)
+  end
+
   def star_systems_scope
     ul, lr = universal_coordinates
     in_subsector = { x: ul.x..lr.x, y: lr.y..ul.y }

@@ -11,6 +11,7 @@ class MarkdownPresenterBase
   RESOURCE_RATING_DESCRIPTIONS = StellarObjectsHelper::RESOURCE_RATING_DESCRIPTIONS
   BIOCOMPLEXITY_DESCRIPTIONS = StellarObjectsHelper::BIOCOMPLEXITY_DESCRIPTIONS
   POPULATION_RANGES = StellarObjectsHelper::POPULATION_RANGES
+  CONCENTRATION_RATING_DESCRIPTIONS = StellarObjectsHelper::CONCENTRATION_RATING_DESCRIPTIONS
 
   def initialize(obj)
     @obj = obj
@@ -216,6 +217,12 @@ class MarkdownPresenterBase
     rows = []
     pop_code = @obj.population_code
     rows << ['Population', "#{pop_code} — #{POPULATION_RANGES[pop_code.to_i]}"] if pop_code.present?
+    if @obj.population_concentration_rating.present?
+      cr = @obj.population_concentration_rating.to_i
+      rows << ['Concentration', "#{cr} — #{CONCENTRATION_RATING_DESCRIPTIONS[cr]}"]
+    end
+    rows << ['Urbanisation', "#{@obj.population_urbanization_percentage}%"] if @obj.population_urbanization_percentage.present?
+    rows << ['Major Cities', @obj.population_major_cities] if @obj.population_major_cities.present?
     rows << ['Native Sophont', @obj.native_sophont ? 'Yes' : 'No']
     rows << ['Extinct Sophont', @obj.extinct_sophont ? 'Yes' : 'No']
     if @obj.government_code.present?

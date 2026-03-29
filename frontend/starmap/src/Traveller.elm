@@ -82,7 +82,7 @@ import Traveller.Hydrographics exposing (hydrographicsPercentageDescription, sur
 import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityDescription)
 import Traveller.Parser exposing (UWP, hydrosphereDescription, sizeDescription, uwp)
-import Traveller.Population exposing (populationDescription)
+import Traveller.Population exposing (concentration_rating_description, populationDescription)
 import Traveller.Region as Region exposing (Region, RegionDict)
 import Traveller.Route as Route exposing (Route, RouteList)
 import Traveller.Sector exposing (Sector, SectorDict, codec, sectorKey)
@@ -2987,6 +2987,9 @@ update msg ( time, model ) =
                                                 "—"
                                 in
                                 { population = withCode 4 .population populationDescription
+                                , concentrationRating = pdata.population |> Maybe.andThen .concentrationRating
+                                , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
+                                , majorCities = pdata.population |> Maybe.andThen .majorCities
                                 , government = withCode 5 .government Government.description
                                 , lawLevel = withCode 6 .lawLevel LawLevel.description
                                 , techLevel = withCode 8 .techLevel TechLevel.description

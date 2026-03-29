@@ -272,6 +272,10 @@ systems:
                         <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
                         population code constraints for this region (0–16).
                       </li>
+                      <li>
+                        <span class='font-mono text-slate-200'>populationDM</span> –
+                        flat dice modifier applied to the population roll for this region (−12 to +12).
+                      </li>
                     </ul>
                   </li>
                   <li>
@@ -288,7 +292,14 @@ systems:
                     <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
                     top-level population code constraints (0–16). Used with <span class='font-mono text-slate-200'>full</span>.
                   </li>
+                  <li>
+                    <span class='font-mono text-slate-200'>populationDM</span> –
+                    flat dice modifier applied to the population roll across the whole subsector (−12 to +12). Stacks with min/max constraints.
+                  </li>
                 </ul>
+                <p class='mt-2 text-slate-400 text-xs'>
+                  The generator also assigns population detail fields to each world: Concentration Rating (WBH p. 150), Urbanisation Percentage (WBH p. 151), and Major Cities (WBH p. 152).
+                </p>
               </div>
             </div>
 
