@@ -103,11 +103,12 @@ GEM
     childprocess (5.1.0)
       logger (~> 1.5)
     chunky_png (1.4.0)
-    commonmarker (2.6.3-aarch64-linux)
-    commonmarker (2.6.3-arm-linux)
-    commonmarker (2.6.3-x64-mingw-ucrt)
-    commonmarker (2.6.3-x86_64-linux)
-    commonmarker (2.6.3-x86_64-linux-musl)
+    commonmarker (2.7.0-aarch64-linux)
+    commonmarker (2.7.0-aarch64-linux-musl)
+    commonmarker (2.7.0-arm-linux)
+    commonmarker (2.7.0-x64-mingw-ucrt)
+    commonmarker (2.7.0-x86_64-linux)
+    commonmarker (2.7.0-x86_64-linux-musl)
     concurrent-ruby (1.3.6)
     connection_pool (3.0.2)
     crack (1.0.1)
@@ -564,11 +565,12 @@ CHECKSUMS
   capybara (3.40.0) sha256=42dba720578ea1ca65fd7a41d163dd368502c191804558f6e0f71b391054aeef
   childprocess (5.1.0) sha256=9a8d484be2fd4096a0e90a0cd3e449a05bc3aa33f8ac9e4d6dcef6ac1455b6ec
   chunky_png (1.4.0) sha256=89d5b31b55c0cf4da3cf89a2b4ebc3178d8abe8cbaf116a1dba95668502fdcfe
-  commonmarker (2.6.3-aarch64-linux) sha256=73795e80ab5ef1e4b5b83ada6f082bccb0ed7eae0b910232e13af1b2d71b14d6
-  commonmarker (2.6.3-arm-linux) sha256=62b9f32d7d3f85d47988a4a98a2e66e60ca42b894687047db8332f1e80caff7b
-  commonmarker (2.6.3-x64-mingw-ucrt) sha256=4d153ef5f64cea78e8b1a611ab88a5fffa4dcd5da767b2d60267340d5b71a0fd
-  commonmarker (2.6.3-x86_64-linux) sha256=e861ba1812721113725ebd8e46e4fee20dc732842f5555db2cfb8dcd74056583
-  commonmarker (2.6.3-x86_64-linux-musl) sha256=2c62d2dc0d5c4efc6dde39bc5c5fac292169206601a3daf75e562d70b795d49e
+  commonmarker (2.7.0-aarch64-linux) sha256=a15a47bb901f4cfcb3b4fe54d0daf91ec46e70b6e9704c67abec0ba30064b2dc
+  commonmarker (2.7.0-aarch64-linux-musl) sha256=fa08eb19ffc3cf2f7132d86d74622338a0c35b480b23814a7ae63deaeafb56d3
+  commonmarker (2.7.0-arm-linux) sha256=85274d47feca40bd574ac49c2959a015464936f7f830c1e2918ee147d5be1a13
+  commonmarker (2.7.0-x64-mingw-ucrt) sha256=e7d88dae657598303c0197d3fcb840a0f11283c043918c116348894b104d35b1
+  commonmarker (2.7.0-x86_64-linux) sha256=53243eeb30e4ddb6a474672597ff7e59334e55a7653126bb87e65e6ab2629a4c
+  commonmarker (2.7.0-x86_64-linux-musl) sha256=e4f5c06975f37a405bd157d276609e1c02502d2fbaf576f6e3616fba2e7b5662
   concurrent-ruby (1.3.6) sha256=6b56837e1e7e5292f9864f34b69c5a2cbc75c0cf5338f1ce9903d10fa762d5ab
   connection_pool (3.0.2) sha256=33fff5ba71a12d2aa26cb72b1db8bba2a1a01823559fb01d29eb74c286e62e0a
   crack (1.0.1) sha256=ff4a10390cd31d66440b7524eb1841874db86201d5b70032028553130b6d4c7e
