@@ -500,7 +500,16 @@ codecSharedPData =
         |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
-        |> Codec.optionalNullableField "population" .population Population.codec
+        |> Codec.optionalNullableField "population" .population
+            (Codec.oneOf Population.codec
+                [ Codec.succeed
+                    { code = 0
+                    , concentrationRating = Nothing
+                    , urbanizationPercentage = Nothing
+                    , majorCities = Nothing
+                    }
+                ]
+            )
         |> Codec.buildObject
 
 
