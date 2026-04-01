@@ -54,9 +54,6 @@ class StarSystemImporter
       resolve_tidal_lock_targets
 
       main_world_orbit_sequence = data['mainWorldOrbitSequence']
-      if main_world_orbit_sequence.include?('.')
-        puts(data)
-      end
       @star_system.main_world =
         @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
         Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
@@ -110,9 +107,6 @@ class StarSystemImporter
       resolve_tidal_lock_targets
 
       main_world_orbit_sequence = data['mainWorldOrbitSequence']
-      if main_world_orbit_sequence.include?('.')
-        puts(data)
-      end
       @star_system.main_world =
         @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
         Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)

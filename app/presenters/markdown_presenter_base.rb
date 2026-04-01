@@ -8,6 +8,7 @@ class MarkdownPresenterBase
   TAINT_DESCRIPTIONS = StellarObjectsHelper::TAINT_DESCRIPTIONS
   TAINT_SEVERITY_DESCRIPTIONS = StellarObjectsHelper::TAINT_SEVERITY_DESCRIPTIONS
   TAINT_PERSISTENCE_DESCRIPTIONS = StellarObjectsHelper::TAINT_PERSISTENCE_DESCRIPTIONS
+  HABITABILITY_RATING_DESCRIPTIONS = StellarObjectsHelper::HABITABILITY_RATING_DESCRIPTIONS
   RESOURCE_RATING_DESCRIPTIONS = StellarObjectsHelper::RESOURCE_RATING_DESCRIPTIONS
   BIOCOMPLEXITY_DESCRIPTIONS = StellarObjectsHelper::BIOCOMPLEXITY_DESCRIPTIONS
   POPULATION_RANGES = StellarObjectsHelper::POPULATION_RANGES
@@ -197,6 +198,10 @@ class MarkdownPresenterBase
 
   def biological_data_section
     rows = []
+    if @obj.habitability_rating.present?
+      r = @obj.habitability_rating
+      rows << ['Habitability Rating', "#{r} — #{HABITABILITY_RATING_DESCRIPTIONS[r]}"]
+    end
     rows << ['Biomass Rating', @obj.biomass_rating] if @obj.biomass_rating.present?
     if @obj.biodiversity_rating.present?
       r = @obj.biodiversity_rating

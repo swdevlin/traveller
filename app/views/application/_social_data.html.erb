@@ -1,0 +1,35 @@
+<%= render 'application/subsection', title: 'Social Data' %>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+  <%= render 'application/population_block', population: stellar_object.population %>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+  <%= render 'application/data_block', label: 'Native Sophont', value: stellar_object.native_sophont ? 'Yes' : 'No' %>
+  <%= render 'application/data_block', label: 'Extinct Sophont', value: stellar_object.extinct_sophont ? 'Yes' : 'No' %>
+</div>
+<div class="grid grid-cols-1 gap-4">
+  <% gov = stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil %>
+  <% if gov %>
+    <%= render 'application/data_block',
+               label: 'Government',
+               value: safe_join([tag.span(HexDigit.hex_digit(gov.code), class: 'identifier-sm'), gov.government_type], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+  <% end %>
+</div>
+<div class="grid grid-cols-1 gap-4">
+  <% law = stellar_object.law_level_code.present? ? LawLevel.find_by(code: stellar_object.law_level_code) : nil %>
+  <% if law %>
+    <%= render 'application/data_block',
+               label: 'Law Level',
+               value: safe_join([tag.span(HexDigit.hex_digit(law.code), class: 'identifier-sm'), law.weapons], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+  <% end %>
+</div>
+<div class="grid grid-cols-1 gap-4">
+  <% tech_level = stellar_object.tech_level_code.present? ? stellar_object.tech_level_code : nil %>
+  <% if tech_level %>
+    <%= render 'application/data_block',
+               label: 'Tech Level',
+               value: tag.span(HexDigit.hex_digit(tech_level), class: 'identifier-sm'),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+  <% end %>
+</div>

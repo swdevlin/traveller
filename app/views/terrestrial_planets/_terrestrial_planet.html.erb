@@ -166,66 +166,9 @@
     </div>
   <% end %>
 
-  <%= render 'application/subsection', title: 'Biological Data' %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/data_block', label: 'Biomass Rating', value: terrestrial_planet.biomass_rating %>
-    <% if terrestrial_planet.biodiversity_rating.present? %>
-      <%= render 'application/data_block',
-                 label: 'Biodiversity Rating',
-                 value: safe_join([tag.span(HexDigit.hex_digit(terrestrial_planet.biodiversity_rating), class: 'identifier-sm'), biodiversity_description(terrestrial_planet.biodiversity_rating)], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
+  <%= render 'application/biological_data', stellar_object: terrestrial_planet %>
 
-    <% if terrestrial_planet.biocomplexity_rating.present? %>
-      <%= render 'application/data_block',
-                 label: 'Biocomplexity Rating',
-                 value: safe_join([tag.span(terrestrial_planet.biocomplexity_rating, class: 'identifier-sm'), biocomplexity_description(terrestrial_planet.biocomplexity_rating)], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
-    <% if terrestrial_planet.resource_rating.present? %>
-      <%= render 'application/data_block',
-                 label: 'Resource Rating',
-                 value: safe_join([tag.span(HexDigit.hex_digit(terrestrial_planet.resource_rating), class: 'identifier-sm'), resource_rating_description(terrestrial_planet.resource_rating)], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
-  </div>
-
-  <%= render 'application/subsection', title: 'Social Data' %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/population_block', population: terrestrial_planet.population %>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/data_block', label: 'Native Sophont', value: terrestrial_planet.native_sophont ? 'Yes' : 'No' %>
-    <%= render 'application/data_block', label: 'Extinct Sophont', value: terrestrial_planet.extinct_sophont ? 'Yes' : 'No' %>
-  </div>
-    <div class="grid grid-cols-1 gap-4">
-    <% gov = terrestrial_planet.government_code.present? ? Government.find_by(code: terrestrial_planet.government_code) : nil %>
-    <% if gov %>
-      <%= render 'application/data_block',
-                 label: 'Government',
-                 value: safe_join([tag.span(HexDigit.hex_digit(gov.code), class: 'identifier-sm'), gov.government_type], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
-    </div>
-    <div class="grid grid-cols-1 gap-4">
-    <% law = terrestrial_planet.law_level_code.present? ? LawLevel.find_by(code: terrestrial_planet.law_level_code) : nil %>
-    <% if law %>
-      <%= render 'application/data_block',
-                 label: 'Law Level',
-                 value: safe_join([tag.span(HexDigit.hex_digit(law.code), class: 'identifier-sm'), law.weapons], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
-    </div>
-
-    <div class="grid grid-cols-1 gap-4">
-    <% tech_level = terrestrial_planet.tech_level_code.present? ? terrestrial_planet.tech_level_code : nil %>
-    <% if tech_level %>
-      <%= render 'application/data_block',
-                 label: 'Tech Level',
-                 value: tag.span(HexDigit.hex_digit(tech_level), class: 'identifier-sm'),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-    <% end %>
-    </div>
+  <%= render 'application/social_data', stellar_object: terrestrial_planet %>
 
   <%= render 'application/observation_block',
              notes: terrestrial_planet.notes %>

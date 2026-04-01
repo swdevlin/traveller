@@ -21,6 +21,7 @@ class TerrestrialPlanet < StellarObject
     axial_tilt: 'axialTilt',
     greenhouse: 'greenhouse',
     retrograde: 'retrograde',
+    habitability_rating: 'habitabilityRating',
     biomass_rating: 'biomassRating',
     biocomplexity_rating: 'biocomplexityCode',
     biodiversity_rating: 'biodiversityRating',
@@ -49,7 +50,7 @@ class TerrestrialPlanet < StellarObject
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
       :period, :rotation, :retrograde, :density, :gravity,
       :temperature, :axial_tilt, :albedo, :greenhouse,
-      :native_sophont, :extinct_sophont, :biomass_rating,
+      :native_sophont, :extinct_sophont, :habitability_rating, :biomass_rating,
       :biodiversity_rating, :biocomplexity_rating, :resource_rating,
       *uwp_attribute_names
     ]

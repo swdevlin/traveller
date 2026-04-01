@@ -1,0 +1,204 @@
+<% content_for :title, 'Edit planetary body' %>
+
+<%= render 'help/page', title: 'Edit Planetary Body' do %>
+  <div class='max-w-2xl space-y-6'>
+    <div class='rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
+      <div class='space-y-3 text-sm text-slate-300'>
+        <p>
+          The edit form applies to terrestrial planets, planetoids, and moons.
+          Orbital Data fields are only shown when the body orbits a star.
+          Press <span class='font-semibold text-slate-200'>Update core</span> to save changes.
+        </p>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>General</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Name</dt>
+            <dd class='mt-1 text-slate-300'>The body's designation or proper name.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Starport</dt>
+            <dd class='mt-1 text-slate-300'>Class of the primary port facility (A–E, X for none).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Orbital Data</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Orbit</dt>
+            <dd class='mt-1 text-slate-300'>Orbital radius as an orbit number. Must be at or beyond the parent star's minimum allowable orbit.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Period</dt>
+            <dd class='mt-1 text-slate-300'>Orbital period around the parent body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Retrograde</dt>
+            <dd class='mt-1 text-slate-300'>Enable if the body orbits opposite to the primary star's rotation.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Rotation</dt>
+            <dd class='mt-1 text-slate-300'>Sidereal rotation period in hours.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Inclination</dt>
+            <dd class='mt-1 text-slate-300'>Orbital plane inclination in degrees.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Eccentricity</dt>
+            <dd class='mt-1 text-slate-300'>Orbital eccentricity (0 = circular).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Physical Data</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Size</dt>
+            <dd class='mt-1 text-slate-300'>UWP size code. Changing size recalculates diameter, mass, and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Diameter</dt>
+            <dd class='mt-1 text-slate-300'>Surface diameter in kilometres. Editing diameter recalculates mass and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Density</dt>
+            <dd class='mt-1 text-slate-300'>Mean density relative to Earth (☉). Editing density recalculates mass and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Mass / Gravity</dt>
+            <dd class='mt-1 text-slate-300'>Calculated from diameter and density. Can be overridden manually.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Environmental Data</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Temperature</dt>
+            <dd class='mt-1 text-slate-300'>Mean surface temperature in Kelvin.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Axial Tilt</dt>
+            <dd class='mt-1 text-slate-300'>Axial tilt in degrees.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Albedo</dt>
+            <dd class='mt-1 text-slate-300'>Fraction of incident solar radiation reflected (0–1).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Greenhouse</dt>
+            <dd class='mt-1 text-slate-300'>Greenhouse effect factor.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Atmosphere</dt>
+            <dd class='mt-1 text-slate-300'>Atmosphere type code (UWP digit). Taint details are set separately on the atmosphere record.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Composition</dt>
+            <dd class='mt-1 text-slate-300'>Free-text description of atmospheric composition.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Hydrographics</dt>
+            <dd class='mt-1 text-slate-300'>Percentage of surface covered by liquid (UWP code).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Liquid</dt>
+            <dd class='mt-1 text-slate-300'>Type of liquid present (e.g. water, hydrocarbons).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Distribution</dt>
+            <dd class='mt-1 text-slate-300'>Pattern of liquid distribution across the surface.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Biological Data</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Habitability Rating</dt>
+            <dd class='mt-1 text-slate-300'>
+              A score from 0 to 10 indicating suitability for unprotected human habitation.
+              0 is actively hostile; 10 is a Terra-equivalent garden world. See WBH p. 132.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Biomass Rating</dt>
+            <dd class='mt-1 text-slate-300'>Total biological mass on a comparative scale.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Biodiversity Rating</dt>
+            <dd class='mt-1 text-slate-300'>Number of distinct species or ecological niches.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Biocomplexity Rating</dt>
+            <dd class='mt-1 text-slate-300'>Highest level of biological complexity present (1–10).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Resource Rating</dt>
+            <dd class='mt-1 text-slate-300'>Economic value of extractable resources (2–12).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Social Data</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Population</dt>
+            <dd class='mt-1 text-slate-300'>Population code 0–12.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Concentration Rating</dt>
+            <dd class='mt-1 text-slate-300'>How concentrated the population is (0 = extremely dispersed, 9 = extremely concentrated).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Urbanisation %</dt>
+            <dd class='mt-1 text-slate-300'>Percentage of the population living in urban settlements (0–100).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Major Cities</dt>
+            <dd class='mt-1 text-slate-300'>Number of significant urban centres.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Native / Extinct Sophont</dt>
+            <dd class='mt-1 text-slate-300'>Whether a sophont species is or was native to this body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Government</dt>
+            <dd class='mt-1 text-slate-300'>Government type code.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Law Level</dt>
+            <dd class='mt-1 text-slate-300'>Degree of legal restriction (0–F hex).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Tech Level</dt>
+            <dd class='mt-1 text-slate-300'>Technological sophistication of the dominant culture (0–35).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Observations</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Observations</dt>
+            <dd class='mt-1 text-slate-300'>Free-text notes in CommonMark (Markdown) format.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+        REFERENCE 0423PB
+      </div>
+    </div>
+  </div>
+<% end %>

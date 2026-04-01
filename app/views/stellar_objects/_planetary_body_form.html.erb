@@ -197,6 +197,13 @@
       <div class='h-px flex-1 bg-slate-700/70'></div>
     </div>
 
+    <%= render 'application/edit_field', form: form, attribute: :habitability_rating, field_label: 'Habitability Rating' do %>
+      <%= form.number_field :habitability_rating,
+                            value: stellar_object.habitability_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1 %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :biomass_rating, field_label: 'Biomass Rating' do %>
       <%= form.number_field :biomass_rating,
                             value: stellar_object.biomass_rating,

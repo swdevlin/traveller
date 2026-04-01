@@ -13,7 +13,7 @@ class Moon < StellarObject
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
       :period, :rotation, :retrograde, :density, :gravity,
       :temperature, :axial_tilt, :albedo, :greenhouse,
-      :native_sophont, :extinct_sophont, :biomass_rating,
+      :native_sophont, :extinct_sophont, :habitability_rating, :biomass_rating,
       :biodiversity_rating, :biocomplexity_rating, :resource_rating,
       *uwp_attribute_names
     ]
@@ -28,6 +28,7 @@ class Moon < StellarObject
     axial_tilt: 'axialTilt',
     greenhouse: 'greenhouse',
     retrograde: 'retrograde',
+    habitability_rating: 'habitabilityRating',
     biomass_rating: 'biomassRating',
     biocomplexity_rating: 'biocomplexityCode',
     biodiversity_rating: 'biodiversityRating',
@@ -94,6 +95,7 @@ class Moon < StellarObject
     self.axial_tilt = axial_tilt.presence&.to_f
     self.albedo = albedo.presence&.to_f
     self.greenhouse = greenhouse.presence&.to_f
+    self.habitability_rating = habitability_rating.presence&.to_i
     self.biomass_rating = biomass_rating.presence&.to_i
     self.biodiversity_rating = biodiversity_rating.presence&.to_i
     self.resource_rating = resource_rating.presence&.to_i

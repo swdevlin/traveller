@@ -67,11 +67,15 @@ class GenerateSubsectorJob < ApplicationJob
     ul, = subsector.universal_coordinates
 
     systems.each do |s|
-      parsec = Parsec.find_by(x: ul.x + s['x']-1, y: ul.y - (s['y'] - 1))
-      next if parsec.nil?
-      next if parsec.star_systems.locked.exists?
+      begin
+        parsec = Parsec.find_by(x: ul.x + s['x']-1, y: ul.y - (s['y'] - 1))
+        next if parsec.nil?
+        next if parsec.star_systems.locked.exists?
 
-      importer.import!(parsec, s)
+        importer.import!(parsec, s)
+      rescue StandardError => e
+        Rails.logger.error "#{uri} Error importing system #{s['name']}: #{e.message}"
+      end
     end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })

@@ -37,6 +37,26 @@ module StellarObjectsHelper
     end
   end
 
+  HABITABILITY_RATING_DESCRIPTIONS = {
+    0 => 'Actively hostile world: not survivable without specialised equipment',
+    1 => 'Barely habitable world: full protective equipment often needed',
+    2 => 'Barely habitable world: full protective equipment often needed',
+    3 => 'Marginally survivable world with proper equipment',
+    4 => 'Marginally survivable world with proper equipment',
+    5 => 'Marginally survivable world with proper equipment',
+    6 => 'Regionally habitable world: may require acclimation',
+    7 => 'Regionally habitable world: may require acclimation',
+    8 => 'Suitable for human habitation with minimal equipment or acclimation',
+    9 => 'Suitable for human habitation with minimal equipment or acclimation',
+    10 => 'Terra-equivalent garden world'
+  }.freeze
+
+  def habitability_rating_description(rating)
+    return nil if rating.nil?
+
+    HABITABILITY_RATING_DESCRIPTIONS[rating]
+  end
+
   RESOURCE_RATING_DESCRIPTIONS = {
     2 => 'No economically extractable resources',
     3 => 'Marginal at best',
