@@ -63,13 +63,11 @@
                 </td>
 
                 <td>
-                  <div class='flex flex-wrap gap-1'>
-                    <% region.sectors.each do |sector| %>
-                      <%= link_to sector.name, sector_path(sector),
-                                  class: 'pill no-underline hover:underline',
-                                  onclick: 'event.stopPropagation()' %>
-                    <% end %>
-                  </div>
+                  <% region.sectors.each_with_index do |sector, i| %>
+                    <%= link_to sector.name, sector_path(sector),
+                                class: 'no-underline hover:underline hover:underline-offset-2',
+                                onclick: 'event.stopPropagation()' %><%= i < region.sectors.size - 1 ? ', ' : '' %>
+                  <% end %>
                 </td>
               </tr>
             <% end %>
