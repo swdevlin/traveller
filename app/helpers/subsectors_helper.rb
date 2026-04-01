@@ -53,6 +53,28 @@ module SubsectorsHelper
     end.join(' ')
   end
 
+  # Returns the 6 neighbouring [ux, uy] pairs for each hex edge (edge 0 = lower-right, clockwise)
+  def hex_edge_neighbours(ux, uy)
+    if ux.even?
+      [[ux + 1, uy], [ux, uy - 1], [ux - 1, uy], [ux - 1, uy + 1], [ux, uy + 1], [ux + 1, uy + 1]]
+    else
+      [[ux + 1, uy - 1], [ux, uy - 1], [ux - 1, uy - 1], [ux - 1, uy], [ux, uy + 1], [ux + 1, uy]]
+    end
+  end
+
+  # Returns [[x1,y1],[x2,y2]] pairs for each outer edge of this hex not shared with the border set
+  def border_outer_edges(col, row, ux, uy, border_set)
+    cx, cy = hex_center(col, row)
+    verts = (0..5).map do |i|
+      angle = Math::PI / 180 * (60 * i)
+      [cx + HEX_SIZE * Math.cos(angle), cy + HEX_SIZE * Math.sin(angle)]
+    end
+    hex_edge_neighbours(ux, uy).each_with_index.filter_map do |neighbour, i|
+      next if border_set.include?(neighbour)
+      [verts[i], verts[(i + 1) % 6]]
+    end
+  end
+
   def star_fill_colour(colour_name)
     STAR_COLOURS[colour_name] || colour_name || '#FFD700'
   end

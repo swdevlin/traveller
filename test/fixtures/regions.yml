@@ -2,20 +2,12 @@
 
 one:
   name: Region One
-  label: One
   source: manual
-  external_source: manual
-  external_key: region-one
-  data: '{}'
-  customized: false
-  notes: MyText
+  colour: '#336699'
+  player_visible: false
 
 two:
   name: Region Two
-  label: Two
   source: manual
-  external_source: manual
-  external_key: region-two
-  data: '{}'
-  customized: false
-  notes: MyText
+  colour: '#993366'
+  player_visible: false

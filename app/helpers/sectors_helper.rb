@@ -7,10 +7,12 @@ module SectorsHelper
     [width.round, height.round]
   end
 
-  def regions_for_map(parsec_scope, sector_ul, visible_hx:, visible_hy:)
-    fill_rows = Region
-      .joins(region_components: { region_parsecs: :parsec })
-      .where(region_parsecs: { kind: 'fill' }, parsecs: { id: parsec_scope })
+  def regions_for_map(parsec_scope, sector_ul, visible_hx:, visible_hy:, authenticated: true)
+    region_scope = authenticated ? Region.all : Region.where(player_visible: true)
+
+    fill_rows = region_scope
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
       .pluck('parsecs.x', 'parsecs.y', 'regions.colour')
 
     fills_by_hex = {}
@@ -20,11 +22,11 @@ module SectorsHelper
       (fills_by_hex[format('%02d%02d', hx, hy)] ||= []) << { colour: colour }
     end
 
-    label_rows = Region
+    label_rows = region_scope
       .where.not(label: [nil, ''])
       .where.not(label_x: nil)
-      .joins(region_components: :region_parsecs)
-      .where(region_parsecs: { parsec_id: parsec_scope })
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
       .distinct
       .pluck(:label, :label_x, :label_y, :colour, :label_colour)
 
@@ -36,7 +38,20 @@ module SectorsHelper
       { hx: hx, hy: hy, text: text, colour: label_colour.presence || '#000000' }
     end
 
-    [fills_by_hex, labels]
+    border_rows = region_scope
+      .where.not(border_colour: [nil, ''])
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
+      .pluck('parsecs.x', 'parsecs.y', 'region_parsecs.kind', 'regions.border_colour', 'regions.id')
+
+    region_borders = border_rows.group_by { |_, _, _, _, rid| rid }.map do |_rid, rows|
+      colour = rows.first[3]
+      border_parsecs = rows.filter_map { |px, py, kind, *| [px, py] if kind == 'border' }
+      region_set = rows.map { |px, py, *| [px, py] }.to_set
+      { colour: colour, parsecs: border_parsecs, region_set: region_set }
+    end
+
+    [fills_by_hex, labels, region_borders]
   end
 
   def sector_chart_link(sector)

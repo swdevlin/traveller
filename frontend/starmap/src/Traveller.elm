@@ -8,6 +8,7 @@ import Color exposing (Color)
 import Color.Convert
 import Color.Manipulate
 import Dict
+import Set
 import Element
     exposing
         ( Element
@@ -1115,7 +1116,7 @@ hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSo
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -1123,7 +1124,7 @@ viewHexes :
     -> Maybe String
     -> Maybe String
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -1255,8 +1256,102 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                             )
                                 )
                 in
+                let
+                    hexEdgeNeighbours : HexAddress -> List HexAddress
+                    hexEdgeNeighbours { x, y } =
+                        if modBy 2 x == 0 then
+                            [ { x = x + 1, y = y }
+                            , { x = x, y = y - 1 }
+                            , { x = x - 1, y = y }
+                            , { x = x - 1, y = y + 1 }
+                            , { x = x, y = y + 1 }
+                            , { x = x + 1, y = y + 1 }
+                            ]
+
+                        else
+                            [ { x = x + 1, y = y - 1 }
+                            , { x = x, y = y - 1 }
+                            , { x = x - 1, y = y - 1 }
+                            , { x = x - 1, y = y }
+                            , { x = x, y = y + 1 }
+                            , { x = x + 1, y = y }
+                            ]
+
+                    renderBorderRegion : Region -> Maybe (Svg Msg)
+                    renderBorderRegion region =
+                        case region.borderColour of
+                            Nothing ->
+                                Nothing
+
+                            Just colour ->
+                                let
+                                    borderSet =
+                                        region.hexes
+                                            |> List.map HexAddress.toKey
+                                            |> Set.fromList
+
+                                    edgesFor : HexAddress -> List ( ( Float, Float ), ( Float, Float ) )
+                                    edgesFor hexAddr =
+                                        let
+                                            ( vox, voy ) =
+                                                calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+
+                                            verts =
+                                                rawHexaPoints
+                                                    |> List.map (\( dx, dy ) -> ( toFloat vox + dx, toFloat voy + dy ))
+
+                                            vertPairs =
+                                                case verts of
+                                                    first :: _ ->
+                                                        List.map2 Tuple.pair verts (List.drop 1 verts ++ [ first ])
+
+                                                    [] ->
+                                                        []
+
+                                            neighbours =
+                                                hexEdgeNeighbours hexAddr
+                                        in
+                                        List.map2 Tuple.pair vertPairs neighbours
+                                            |> List.filterMap
+                                                (\( edgePair, neighbour ) ->
+                                                    if Set.member (HexAddress.toKey neighbour) borderSet then
+                                                        Nothing
+
+                                                    else
+                                                        Just edgePair
+                                                )
+
+                                    lines =
+                                        region.borderHexes |> List.concatMap edgesFor
+                                in
+                                Just
+                                    (Svg.g
+                                        [ SvgAttrs.stroke (Color.Convert.colorToHex colour)
+                                        , SvgAttrs.strokeWidth "2.5"
+                                        , SvgAttrs.strokeLinecap "round"
+                                        , SvgAttrs.fill "none"
+                                        , SvgAttrs.pointerEvents "none"
+                                        ]
+                                        (List.map
+                                            (\( ( x1, y1 ), ( x2, y2 ) ) ->
+                                                Svg.line
+                                                    [ SvgAttrs.x1 (String.fromFloat x1)
+                                                    , SvgAttrs.y1 (String.fromFloat y1)
+                                                    , SvgAttrs.x2 (String.fromFloat x2)
+                                                    , SvgAttrs.y2 (String.fromFloat y2)
+                                                    ]
+                                                    []
+                                            )
+                                            lines
+                                        )
+                                    )
+
+                    regionBorderLines =
+                        regions |> Dict.values |> List.filterMap renderBorderRegion
+                in
                 [ keyedHexes ]
                     ++ sectorOutlines
+                    ++ regionBorderLines
                     ++ [ singlePolyHex ]
                     ++ labels
            )
@@ -1828,7 +1923,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -2390,6 +2485,13 @@ update msg ( time, model ) =
 
         DownloadedRegions requestEntry (Ok regions) ->
             let
+                visibleRegions =
+                    if model.isReferee then
+                        regions
+
+                    else
+                        List.filter .playerVisible regions
+
                 parsecList : Region -> List ( String, Color )
                 parsecList region =
                     List.map (\p -> ( HexAddress.toKey p, region.colour ))
@@ -2401,7 +2503,7 @@ update msg ( time, model ) =
                             Dict.insert region.id region acc
                         )
                         Dict.empty
-                        regions
+                        visibleRegions
 
                 hexColourDict : Dict.Dict String Color
                 hexColourDict =
@@ -2409,7 +2511,7 @@ update msg ( time, model ) =
                         (\region ->
                             parsecList region
                         )
-                        regions
+                        visibleRegions
                         |> List.concat
                         |> Dict.fromList
 
@@ -2420,7 +2522,7 @@ update msg ( time, model ) =
                             region.labelPosition
                                 |> Maybe.map (\pos -> ( HexAddress.toKey pos, region.name ))
                         )
-                        regions
+                        visibleRegions
                         |> Dict.fromList
             in
             ( withTime
@@ -2443,7 +2545,9 @@ update msg ( time, model ) =
                 stub =
                     { id = 1
                     , colour = Color.blue
+                    , borderColour = Nothing
                     , name = "Stub Hennlix Nebula"
+                    , playerVisible = True
                     , labelPosition = Just { x = -308, y = -104 }
                     , hexes =
                         [ { x = -308, y = -104 }
@@ -2451,6 +2555,7 @@ update msg ( time, model ) =
                         , { x = -307, y = -104 }
                         , { x = -309, y = -104 }
                         ]
+                    , borderHexes = []
                     }
 
                 hexColourDict : Dict.Dict String Color

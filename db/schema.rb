@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_27_151546) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -139,29 +139,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_151546) do
     t.index ["sector_id"], name: "index_parsecs_on_sector_id"
   end
 
-  create_table "public.region_components", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.jsonb "data"
-    t.string "external_component_key"
-    t.string "input_type"
-    t.integer "position", default: 0, null: false
-    t.bigint "region_id", null: false
-    t.bigint "source_sector_id"
-    t.datetime "updated_at", null: false
-    t.index ["region_id", "source_sector_id", "external_component_key"], name: "index_region_components_on_region_sector_and_external_key", unique: true
-    t.index ["region_id"], name: "index_region_components_on_region_id"
-    t.index ["source_sector_id"], name: "index_region_components_on_source_sector_id"
-  end
-
   create_table "public.region_parsecs", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "kind", null: false
     t.bigint "parsec_id", null: false
-    t.bigint "region_component_id", null: false
+    t.integer "position"
+    t.bigint "region_id", null: false
     t.datetime "updated_at", null: false
     t.index ["parsec_id"], name: "index_region_parsecs_on_parsec_id"
-    t.index ["region_component_id", "parsec_id", "kind"], name: "idx_on_region_component_id_parsec_id_kind_eed2e06fae", unique: true
-    t.index ["region_component_id"], name: "index_region_parsecs_on_region_component_id"
+    t.index ["region_id", "parsec_id", "kind"], name: "idx_region_parsecs_on_region_parsec_kind", unique: true
+    t.index ["region_id"], name: "index_region_parsecs_on_region_id"
   end
 
   create_table "public.regions", force: :cascade do |t|
@@ -179,6 +166,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_151546) do
     t.integer "label_y"
     t.string "name", null: false
     t.text "notes"
+    t.boolean "player_visible", default: false, null: false
     t.string "source", default: "user", null: false
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_regions_on_allegiance_id"
@@ -372,10 +360,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_27_151546) do
   add_foreign_key "public.jump_logs", "public.parsecs", column: "to_parsec_id"
   add_foreign_key "public.jump_logs", "public.ships"
   add_foreign_key "public.parsecs", "public.sectors", on_delete: :cascade
-  add_foreign_key "public.region_components", "public.regions"
-  add_foreign_key "public.region_components", "public.sectors", column: "source_sector_id"
   add_foreign_key "public.region_parsecs", "public.parsecs"
-  add_foreign_key "public.region_parsecs", "public.region_components"
   add_foreign_key "public.regions", "public.allegiances"
   add_foreign_key "public.sessions", "public.users"
   add_foreign_key "public.star_system_facilities", "public.facilities", on_delete: :cascade

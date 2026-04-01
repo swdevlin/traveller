@@ -1,37 +1,25 @@
 require 'csv'
 
 class RegionsController < ApplicationController
-  before_action :set_region, only: %i[ show edit update destroy import_hexes upload_hexes hex_template ]
+  before_action :set_region, only: %i[show edit update destroy import_hexes upload_hexes download_csv]
 
-  # GET /regions or /regions.json
   def index
     @pagy, @regions = pagy(Region.includes(:sectors).order(:name), limit: 20)
   end
 
-  # GET /regions/1 or /regions/1.json
   def show
     rank = Region.order(:name).where('name < ?', @region.name).count
     @regions_list_page = (rank / 20) + 1
-    @components = @region.region_components
-      .includes(:source_sector)
-      .left_joins(:region_parsecs)
-      .where('region_parsecs.id IS NULL OR region_parsecs.kind = ?', 'fill')
-      .group('region_components.id')
-      .select('region_components.*, COUNT(region_parsecs.id) AS fill_parsec_count')
-      .order('region_components.id')
   end
 
-  # GET /regions/new
   def new
     @region = Region.new
   end
 
-  # GET /regions/1/edit
   def edit
     @label_parsec_options = label_parsec_options_for(@region)
   end
 
-  # POST /regions or /regions.json
   def create
     @region = Region.new(region_params)
     @region.source = 'manual'
@@ -47,7 +35,6 @@ class RegionsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /regions/1 or /regions/1.json
   def update
     respond_to do |format|
       if @region.update(region_params.merge(label_position_coords))
@@ -64,14 +51,26 @@ class RegionsController < ApplicationController
   def import_hexes
   end
 
-  def hex_template
+  def download_csv
+    border = @region.border_parsecs_ordered.includes(:parsec)
+
     csv = CSV.generate(headers: true) do |csv|
       csv << %w[sector_x sector_y hex_x hex_y]
-      csv << [0, 0, 1, 1]
+      if border.any?
+        border.each do |rp|
+          p = rp.parsec
+          sector = p.sector
+          hex_x = p.x - sector.x * 32 + 1
+          hex_y = sector.y * 40 - p.y + 1
+          csv << [sector.x, sector.y, hex_x, hex_y]
+        end
+      else
+        csv << [0, 0, 1, 1]
+      end
     end
 
     send_data csv,
-              filename: "#{@region.name.parameterize}-hexes-template.csv",
+              filename: "#{@region.name.parameterize}-border.csv",
               type: 'text/csv',
               disposition: 'attachment'
   end
@@ -83,16 +82,15 @@ class RegionsController < ApplicationController
       return redirect_to @region, alert: 'Please upload a CSV file.'
     end
 
-    rows = CSV.parse(file.read, headers: true, header_converters: :symbol).map do |row|
-      { sector_x: row[:sector_x].to_i, sector_y: row[:sector_y].to_i,
-        hex_x:    row[:hex_x].to_i,    hex_y:    row[:hex_y].to_i }
-    end
+    result = RegionCsvImporter.new(@region, file.read).call
 
-    ImportRegionHexesJob.perform_later(@region.id, rows)
-    redirect_to @region, notice: "Importing #{rows.size} #{'hex'.pluralize(rows.size)} in the background."
+    if result[:ok]
+      redirect_to @region, notice: 'Region hexes updated successfully.'
+    else
+      redirect_to @region, alert: result[:error]
+    end
   end
 
-  # DELETE /regions/1 or /regions/1.json
   def destroy
     @region.destroy!
 
@@ -103,36 +101,37 @@ class RegionsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_region
-      @region = Region.includes(:sectors).find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def region_params
-      params.expect(region: [:name, :label, :label_colour, :colour, :border_colour, :notes])
-    end
+  def set_region
+    @region = Region.includes(:sectors).find(params.expect(:id))
+  end
 
-    def label_position_coords
-      parsec_id = params.dig(:region, :label_parsec_id).presence
-      return {} unless parsec_id
+  def region_params
+    params.expect(region: [:name, :label, :label_colour, :colour, :border_colour, :notes, :player_visible])
+  end
 
-      parsec = Parsec.find_by(id: parsec_id)
-      return {} unless parsec
+  def label_position_coords
+    parsec_id = params.dig(:region, :label_parsec_id).presence
+    return {} unless parsec_id
 
-      { label_x: parsec.x, label_y: parsec.y }
-    end
+    parsec = Parsec.find_by(id: parsec_id)
+    return {} unless parsec
 
-    def label_parsec_options_for(region)
-      sectors = region.sectors.includes(:parsecs)
-      return [] if sectors.empty?
+    { label_x: parsec.x, label_y: parsec.y }
+  end
 
-      if sectors.one?
-        sectors.first.parsecs.sort_by(&:hex_code).map { |p| [p.hex_code, p.id] }
-      else
-        sectors.sort_by(&:name).map do |sector|
-          [sector.name, sector.parsecs.sort_by(&:hex_code).map { |p| [p.hex_code, p.id] }]
-        end
+  def label_parsec_options_for(region)
+    region_parsecs = region.parsecs.includes(:sector).sort_by(&:hex_code)
+    return [] if region_parsecs.empty?
+
+    sectors = region_parsecs.map(&:sector).uniq
+
+    if sectors.one?
+      region_parsecs.map { |p| [p.hex_code, p.id] }
+    else
+      region_parsecs.group_by(&:sector).sort_by { |s, _| s.name }.map do |sector, parsecs|
+        [sector.name, parsecs.map { |p| [p.hex_code, p.id] }]
       end
     end
+  end
 end

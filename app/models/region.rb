@@ -1,6 +1,5 @@
 class Region < ApplicationRecord
-  has_many :region_components, dependent: :destroy
-  has_many :region_parsecs, through: :region_components
+  has_many :region_parsecs, dependent: :destroy
   has_many :parsecs, through: :region_parsecs
   has_many :sectors, -> { distinct }, through: :parsecs
 
@@ -12,6 +11,7 @@ class Region < ApplicationRecord
   validates :name, presence: true
   validates :source, presence: true
 
+  scope :player_visible, -> { where(player_visible: true) }
   scope :for_sector, ->(sector) {
     joins(:parsecs).where(parsecs: { sector_id: sector.id }).distinct
   }
@@ -57,8 +57,8 @@ class Region < ApplicationRecord
     Parsec.find_by(x: label_x, y: label_y)
   end
 
-  def border_parsecs
-    region_parsecs.where(kind: 'border')
+  def border_parsecs_ordered
+    region_parsecs.where(kind: 'border').order(:position)
   end
 
   def fill_parsecs

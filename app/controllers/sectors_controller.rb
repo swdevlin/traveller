@@ -107,7 +107,7 @@ class SectorsController < ApplicationController
     @show_map_links = authenticated?
     @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
     @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
-    sector_ul = @sector.upper_left
+    sector_ul = @sector_ul = @sector.upper_left
 
     @star_systems = StarSystem
       .joins(:parsec)
@@ -117,7 +117,7 @@ class SectorsController < ApplicationController
     max_updated = @star_systems.maximum(:updated_at)
     max_parsec_updated = @sector.parsecs.maximum(:updated_at)
     region_parsec_max = RegionParsec.joins(:parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
-    region_record_max = Region.joins(region_components: { region_parsecs: :parsec }).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
+    region_record_max = Region.joins(region_parsecs: :parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
@@ -147,7 +147,9 @@ class SectorsController < ApplicationController
       .flatten
       .to_set & sector_parsec_ids.to_set
 
-    @region_fills_by_hex, @region_labels = helpers.regions_for_map(@sector.parsecs, sector_ul, visible_hx: 1..32, visible_hy: 1..40)
+    @region_fills_by_hex, @region_labels, @region_borders = helpers.regions_for_map(
+      @sector.parsecs, sector_ul, visible_hx: 1..32, visible_hy: 1..40, authenticated: authenticated?
+    )
 
     respond_to do |format|
       format.svg do

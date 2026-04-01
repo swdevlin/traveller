@@ -63,7 +63,7 @@ class SubsectorsController < ApplicationController
       @highlight_hex = highlighted_parsec&.hex_code
     end
 
-    sector_ul = @subsector.sector.upper_left
+    sector_ul = @sector_ul = @subsector.sector.upper_left
     @parsec_ids_by_hex = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, colour|
       hx = px - sector_ul.x + 1
       hy = sector_ul.y - py + 1
@@ -76,7 +76,7 @@ class SubsectorsController < ApplicationController
     max_parsec_updated = @subsector.parsecs.maximum(:updated_at)
     subsector_parsecs = @subsector.parsecs
     region_parsec_max = RegionParsec.where(parsec_id: subsector_parsecs).maximum(:updated_at)
-    region_record_max = Region.joins(region_components: :region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
+    region_record_max = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
@@ -105,11 +105,12 @@ class SubsectorsController < ApplicationController
       .flatten
       .to_set & subsector_parsec_ids.to_set
 
-    @region_fills_by_hex, @region_labels = helpers.regions_for_map(
+    @region_fills_by_hex, @region_labels, @region_borders = helpers.regions_for_map(
       subsector_parsecs,
       sector_ul,
       visible_hx: ((sub.x - 1) * 8 + 1)..(sub.x * 8),
-      visible_hy: ((sub.y - 1) * 10 + 1)..(sub.y * 10)
+      visible_hy: ((sub.y - 1) * 10 + 1)..(sub.y * 10),
+      authenticated: authenticated?
     )
 
     respond_to do |format|

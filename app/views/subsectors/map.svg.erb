@@ -131,6 +131,27 @@
     <% end %>
   </g>
 
+  <%# Layer 1e: Region border lines %>
+  <% (@region_borders || []).each do |rb| %>
+    <% next if rb[:colour].blank? %>
+    <%
+      region_set = rb[:region_set]
+    %>
+    <g stroke="<%= rb[:colour] %>" stroke-width="2.5" stroke-linecap="round" fill="none" pointer-events="none">
+      <% rb[:parsecs].each do |ux, uy| %>
+        <%
+          col = ux - @sector_ul.x + 1 - (sub_x - 1) * 8
+          row = @sector_ul.y - uy + 1 - (sub_y - 1) * 10
+          next unless (1..8).cover?(col) && (1..10).cover?(row)
+          edges = border_outer_edges(col, row, ux, uy, region_set)
+        %>
+        <% edges.each do |(x1, y1), (x2, y2)| %>
+          <line x1="<%= x1.round(2) %>" y1="<%= y1.round(2) %>" x2="<%= x2.round(2) %>" y2="<%= y2.round(2) %>"/>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
   <%# Layer 2: Highlighted hex (rendered on top of other hexes) %>
   <% if highlight_hex %>
     <%

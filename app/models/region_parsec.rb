@@ -1,5 +1,5 @@
 class RegionParsec < ApplicationRecord
-  belongs_to :region_component
+  belongs_to :region
   belongs_to :parsec
 
   enum :kind, {
@@ -8,8 +8,7 @@ class RegionParsec < ApplicationRecord
   }, validate: true
 
   validates :kind, presence: true
-  validates :parsec_id, uniqueness: { scope: %i[region_component_id kind] }
+  validates :parsec_id, uniqueness: { scope: %i[region_id kind] }
 
-  delegate :region, to: :region_component
   delegate :sector, :x, :y, to: :parsec
 end
