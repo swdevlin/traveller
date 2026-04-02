@@ -43,6 +43,23 @@
     <% end %>
   </td>
 
+  <td class='text-right whitespace-nowrap'>
+    <% if stellar_object.respond_to?(:habitability_rating) && stellar_object.habitability_rating.present? %>
+      <span class='pill'><%= stellar_object.habitability_rating %></span>
+    <% end %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% if stellar_object.respond_to?(:resource_rating) && stellar_object.resource_rating.present? %>
+      <span class='pill'><%= stellar_object.resource_rating %></span>
+    <% end %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% moon_count = stellar_object.moons.size %>
+    <%= moon_count if moon_count > 0 %>
+  </td>
+
   <td class='whitespace-nowrap'>
     <% if stellar_object.is_a?(GasGiant) %>
       <%= stellar_object.type.underscore.humanize %>
