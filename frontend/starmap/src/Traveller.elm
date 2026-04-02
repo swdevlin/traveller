@@ -433,6 +433,7 @@ type Msg
     | ViewObjectAnalysisDetail StellarObject
     | OpenedObjectAnalysisTime Time.Posix
     | CloseObjectAnalysis
+    | PanMap { deltaX : Int, deltaY : Int }
 
 
 type JourneyMsg
@@ -445,14 +446,42 @@ type JourneyMsg
 
 keyDecoder : ModelData -> JsDecode.Decoder Msg
 keyDecoder model =
-    JsDecode.map (toKey model) (JsDecode.field "key" JsDecode.string)
+    JsDecode.map2
+        (toKey model)
+        (JsDecode.field "key" JsDecode.string)
+        (JsDecode.field "ctrlKey" JsDecode.bool)
 
 
-toKey : ModelData -> String -> Msg
-toKey model string =
-    case ( model.objectToBeAnalyzed, string ) of
-        ( Just _, "Escape" ) ->
+toKey : ModelData -> String -> Bool -> Msg
+toKey model key ctrl =
+    let
+        halfH =
+            max 1 (horizontalHexes model.viewport.hexmapViewport model.hexScale // 2)
+
+        halfV =
+            max 1 (verticalHexes model.viewport.hexmapViewport model.hexScale // 2)
+
+        stepH =
+            if ctrl then halfH else 1
+
+        stepV =
+            if ctrl then halfV else 1
+    in
+    case ( model.objectToBeAnalyzed, model.viewMode, key ) of
+        ( Just _, _, "Escape" ) ->
             CloseObjectAnalysis
+
+        ( Nothing, HexMap, "ArrowRight" ) ->
+            PanMap { deltaX = stepH, deltaY = 0 }
+
+        ( Nothing, HexMap, "ArrowLeft" ) ->
+            PanMap { deltaX = -stepH, deltaY = 0 }
+
+        ( Nothing, HexMap, "ArrowUp" ) ->
+            PanMap { deltaX = 0, deltaY = -stepV }
+
+        ( Nothing, HexMap, "ArrowDown" ) ->
+            PanMap { deltaX = 0, deltaY = stepV }
 
         _ ->
             NoOpMsg
@@ -2796,6 +2825,24 @@ update msg ( time, model ) =
                     | dragMode = IsDragging { start = coordinates, last = coordinates }
                 }
             , Cmd.none
+            )
+
+        PanMap delta ->
+            let
+                shiftBoth hex =
+                    HexAddress.shiftAddressBy delta hex
+
+                newHexRect =
+                    { upperLeftHex = shiftBoth model.hexRect.upperLeftHex
+                    , lowerRightHex = shiftBoth model.hexRect.lowerRightHex
+                    }
+
+                ( newModel, downloadCmds ) =
+                    update DownloadSolarSystems
+                        (withTime { model | hexRect = newHexRect })
+            in
+            ( newModel
+            , Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, downloadCmds ]
             )
 
         MapMouseUp ->
