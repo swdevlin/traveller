@@ -23,6 +23,7 @@ import Traveller.StellarObject
         , StarData(..)
         , StellarObject(..)
         , getInnerStarData
+        , getSafeJumpTime
         , getStellarOrbit
         , isBrownDwarf
         )
@@ -607,13 +608,14 @@ svgStyle =
     Svg.node "style"
         []
         [ Svg.text """
-            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #64748b; }
+            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #64748b; paint-order: stroke fill; stroke: #1e293b; stroke-width: 12px; stroke-linejoin: round; }
             .sm-star-label { font-family: "Orbitron", system-ui, sans-serif; font-size: 12px; fill: #f8fafc; font-weight: 600; letter-spacing: 0.04em; }
             .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #cbd5e1; }
             .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #68B976; }
             .sm-travel-btn { font-size: 12px; fill: #64748b; cursor: pointer; font-family: ui-monospace, monospace; }
             .sm-travel-btn:hover { fill: #68B976; }
             .sm-travel-btn-active { font-size: 12px; fill: #68B976; cursor: pointer; font-family: ui-monospace, monospace; }
+            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 10px; fill: #94a3b8; }
             .sm-node:hover circle { opacity: 0.75; }
             .sm-node { cursor: pointer; }
         """
@@ -658,25 +660,14 @@ renderEdge edge =
                     []
 
                 Just label ->
-                    if isVertical then
-                        [ Svg.text_
-                            [ SA.x (String.fromFloat (edge.x1 - 6))
-                            , SA.y (String.fromFloat ((edge.y1 + edge.y2) / 2 + 4))
-                            , SA.textAnchor "end"
-                            , SA.class "sm-au"
-                            ]
-                            [ Svg.text label ]
+                    [ Svg.text_
+                        [ SA.x (String.fromFloat ((edge.x1 + edge.x2) / 2))
+                        , SA.y (String.fromFloat ((edge.y1 + edge.y2) / 2 + 4))
+                        , SA.textAnchor "middle"
+                        , SA.class "sm-au"
                         ]
-
-                    else
-                        [ Svg.text_
-                            [ SA.x (String.fromFloat ((edge.x1 + edge.x2) / 2))
-                            , SA.y (String.fromFloat (edge.y1 - 7))
-                            , SA.textAnchor "middle"
-                            , SA.class "sm-au"
-                            ]
-                            [ Svg.text label ]
-                        ]
+                        [ Svg.text label ]
+                    ]
     in
     Svg.g [] (lineEl :: labelEls)
 
@@ -822,6 +813,15 @@ renderNode msgs selectedStellarObject node =
         iconX =
             labelX + toFloat (String.length node.label) * charWidth + 5
 
+        jumpTimeEl =
+            Svg.text_
+                [ SA.x (String.fromFloat (node.x - node.radius - 4))
+                , SA.y (String.fromFloat labelY)
+                , SA.textAnchor "end"
+                , SA.class "sm-jump-time"
+                ]
+                [ Svg.text (getSafeJumpTime node.stellarObject) ]
+
         -- ⊙ when not selected (click to set as travel reference), ⊛ when active
         travelIconClass =
             if isSelected then
@@ -878,7 +878,7 @@ renderNode msgs selectedStellarObject node =
         [ SE.onClick (msgs.onViewDetail node.stellarObject)
         , SA.class "sm-node"
         ]
-        (circleEl :: travelIconEl :: labelEls)
+        (circleEl :: travelIconEl :: jumpTimeEl :: labelEls)
 
 
 

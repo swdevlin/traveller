@@ -18,6 +18,7 @@ type alias SolarSystem =
     , allegiance : Maybe String
     , name : Maybe String
     , sectorName : String
+    , mainWorldUwp : Maybe String
     }
 
 
@@ -36,6 +37,7 @@ type alias RawSolarSystem =
     , allegiance : Maybe String
     , name : Maybe String
     , sectorName : String
+    , mainWorldUwp : Maybe String
     }
 
 
@@ -59,6 +61,7 @@ rawToFinal rawSolarSystem =
         , allegiance = rawSolarSystem.allegiance
         , name = rawSolarSystem.name
         , sectorName = rawSolarSystem.sectorName
+        , mainWorldUwp = rawSolarSystem.mainWorldUwp
         }
 
 
@@ -78,6 +81,7 @@ finalToRaw solarSystem =
     , allegiance = solarSystem.allegiance
     , name = solarSystem.name
     , sectorName = solarSystem.sectorName
+    , mainWorldUwp = solarSystem.mainWorldUwp
     }
 
 
@@ -98,4 +102,5 @@ rawCodec =
         |> Codec.field "allegiance" .allegiance (Codec.nullable Codec.string)
         |> Codec.field "name" .name (Codec.nullable Codec.string)
         |> Codec.field "sector_name" .sectorName Codec.string
+        |> Codec.optionalNullableField "main_world_uwp" .mainWorldUwp Codec.string
         |> Codec.buildObject

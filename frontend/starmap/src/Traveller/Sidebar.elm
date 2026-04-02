@@ -201,6 +201,21 @@ viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex,
                                 Element.none
                         , column [ centerX, Element.spacing 2 ]
                             [ el [ centerX, uiDeepnightColorFontColour ] (text <| universalHexLabel sectors viewingAddress)
+                            , case selectedSystem of
+                                Just sys ->
+                                    if sys.surveyIndex >= 10 then
+                                        case sys.mainWorldUwp of
+                                            Just uwp ->
+                                                el [ centerX, Font.size 12, Font.color <| convertColor textColor ] (text uwp)
+
+                                            Nothing ->
+                                                Element.none
+
+                                    else
+                                        Element.none
+
+                                Nothing ->
+                                    Element.none
                             , regions
                                 |> Dict.values
                                 |> List.filterMap

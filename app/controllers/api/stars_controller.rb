@@ -73,6 +73,7 @@ class Api::StarsController < Api::BaseController
         extinct_sophont:   extinct_ids.include?(ss.id),
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
+        main_world_uwp:    uwp,
         stars:             (stars_by_system[ss.id] || []).map do |row|
           _, _, d, au, diameter, companion_id = row
           d = JSON.parse(d) if d.is_a?(String)

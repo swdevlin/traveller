@@ -534,11 +534,23 @@ init viewport settings key hostConfig referee =
                                 , y = 12
                                 }
 
+                hexmapWidth =
+                    viewport.viewport.width - toFloat (sidebarWidth + 15)
+
+                hexmapHeight =
+                    viewport.viewport.height - consoleTitleHeight
+
+                deltaX =
+                    (hexmapWidth / hexWidth settings.hexSize |> ceiling) + 2
+
+                deltaY =
+                    (hexmapHeight / hexHeight settings.hexSize |> ceiling) + 2
+
                 lowerRightHex =
                     upperLeftHex
                         |> HexAddress.shiftAddressBy
-                            { deltaX = defaultHexRectSize
-                            , deltaY = defaultHexRectSize
+                            { deltaX = deltaX
+                            , deltaY = deltaY
                             }
             in
             { upperLeftHex = upperLeftHex, lowerRightHex = lowerRightHex }
