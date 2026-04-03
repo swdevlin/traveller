@@ -7,7 +7,7 @@ class StarSystemGeneratorSerializer
 
   def serialize
     {
-      'system' => {'primaryStar' => serialize_star(@star_system.primary_star)}
+      'system' => { 'primaryStar' => serialize_star(@star_system.primary_star) }
     }
   end
 

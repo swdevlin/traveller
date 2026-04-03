@@ -62,7 +62,7 @@ class StarSystem < ApplicationRecord
   def has_populated_world?
     stellar_objects
       .where(type: %w[TerrestrialPlanet Moon PlanetoidBelt Planetoid])
-      .where("(data -> 'population' ->> 'code')::int > 0")
+      .where("(stellar_objects.data -> 'population' ->> 'code')::int > 0")
       .exists?
   end
 
