@@ -1,0 +1,90 @@
+<%= modal(title: 'Assign Social Characteristics', padding: true, advance: false) do %>
+  <%= form_with url: apply_social_characteristics_star_system_path(@star_system) do |f| %>
+    <div class='space-y-4'>
+      <div>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Main World Criteria</label>
+        <div class='mt-1'>
+          <%= select_tag 'social_characteristics[main_world_criteria]',
+                         options_for_select([
+                           ['Habitable', 'habitable'],
+                           ['Habitable and Resource', 'habitableAndResource'],
+                           ['Resource', 'resource']
+                         ], 'habitable'),
+                         class: 'edit-base w-full' %>
+        </div>
+      </div>
+
+      <div>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Population Code</label>
+        <div class='mt-1 flex gap-2'>
+          <div class='flex-1'>
+            <div class='text-xs text-slate-500 mb-1'>Min</div>
+            <%= number_field_tag 'social_characteristics[population][min]',
+                                 1, min: 0, max: 15,
+                                 placeholder: '0–15',
+                                 class: 'edit-base w-full' %>
+          </div>
+          <div class='flex-1'>
+            <div class='text-xs text-slate-500 mb-1'>Max</div>
+            <%= number_field_tag 'social_characteristics[population][max]',
+                                 nil, min: 0, max: 15,
+                                 placeholder: '0–15',
+                                 class: 'edit-base w-full' %>
+          </div>
+        </div>
+        <p class='text-xs text-slate-500 mt-1'>Leave blank to default to min 1. Enter the same value in both for an exact code.</p>
+      </div>
+
+      <div>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Government</label>
+        <div class='mt-1'>
+          <%= select_tag 'social_characteristics[government_code]',
+                         options_from_collection_for_select(@governments, :code, :government_type),
+                         prompt: '— random —',
+                         class: 'edit-base w-full' %>
+        </div>
+      </div>
+
+      <div>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Law Level</label>
+        <div class='mt-1'>
+          <%= select_tag 'social_characteristics[law_level_code]',
+                         options_from_collection_for_select(@law_levels, :code, :code),
+                         prompt: '— random —',
+                         class: 'edit-base w-full' %>
+        </div>
+      </div>
+
+      <div>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Tech Level</label>
+        <div class='mt-1 flex gap-2'>
+          <div class='flex-1'>
+            <div class='text-xs text-slate-500 mb-1'>Min</div>
+            <%= number_field_tag 'social_characteristics[tech_level][min]',
+                                 0, min: 0, max: 33,
+                                 placeholder: '0–33',
+                                 class: 'edit-base w-full' %>
+          </div>
+          <div class='flex-1'>
+            <div class='text-xs text-slate-500 mb-1'>Max</div>
+            <%= number_field_tag 'social_characteristics[tech_level][max]',
+                                 15, min: 0, max: 33,
+                                 placeholder: '0–33',
+                                 class: 'edit-base w-full' %>
+          </div>
+        </div>
+        <p class='text-xs text-slate-500 mt-1'>Leave blank for random. Enter the same value in both for an exact level.</p>
+      </div>
+
+      <div class='pt-2 flex items-center gap-3'>
+        <%= check_box_tag 'social_characteristics[allow_captive_government]', '1', true,
+                          class: 'rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50' %>
+        <label class='text-sm text-slate-300'>Allow captive government</label>
+      </div>
+    </div>
+
+    <div class='mt-6 flex justify-end'>
+      <%= f.submit 'Assign', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>

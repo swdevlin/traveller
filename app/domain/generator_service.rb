@@ -19,6 +19,10 @@ class GeneratorService
     call_service('subsector', definition)
   end
 
+  def assign_social_characteristics(payload)
+    call_service('social_characteristics', payload)
+  end
+
   def generate_stellar_object(klass, params: {})
     get_service(klass.name.underscore, params)
   end

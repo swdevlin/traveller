@@ -59,6 +59,13 @@ class StarSystem < ApplicationRecord
     @has_gas_giant ||= gas_giants.exists?
   end
 
+  def has_populated_world?
+    stellar_objects
+      .where(type: %w[TerrestrialPlanet Moon PlanetoidBelt Planetoid])
+      .where("(data -> 'population' ->> 'code')::int > 0")
+      .exists?
+  end
+
   def recalculate_sophont_flags!
     recalculate_derived_fields!(sophont_flags: true)
   end

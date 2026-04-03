@@ -1,0 +1,72 @@
+<% content_for :title, 'Social Characteristics' %>
+
+<%= render 'help/page', title: 'Social Characteristics' do %>
+  <div class='rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-8 text-sm'>
+
+    <p class='text-slate-400'>
+      The Social Characteristics function transmits the current star system configuration to
+      the generator apparatus and instructs it to assign or reassign population, government,
+      law level, tech level, and starport data for all inhabited worlds in the system.
+      Seed parameters supplied via the form are applied to the main world; all other bodies
+      receive values computed in relation to the primary.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>Government</dt>
+          <dd class='mt-1 text-slate-300'>
+            The governing structure of the main world, expressed as a Traveller government code
+            (0–15). Select a value to seed the generator with a specific government type; leave
+            blank to allow the generator to assign one according to standard tables.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>Law Level</dt>
+          <dd class='mt-1 text-slate-300'>
+            The legal restriction level of the main world (0–15). Higher values indicate more
+            pervasive regulation of personal freedoms, weapons, and commerce. Leave blank for
+            a randomly generated value.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>Population Code</dt>
+          <dd class='mt-1 text-slate-300'>
+            The population magnitude code of the main world (0–15), expressed as a hex digit
+            representing an order of magnitude. A code of 7 indicates tens of millions of
+            inhabitants. Leave blank for a randomly generated value.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>Tech Level</dt>
+          <dd class='mt-1 text-slate-300'>
+            The technological sophistication of the main world (0–33). Influences the tech
+            levels of subsidiary worlds in the system. Leave blank to allow the generator to
+            compute an appropriate value based on the world's physical profile.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-deepnight-orange mb-4'>Operational Notes</p>
+
+      <ul class='space-y-2 text-slate-400 list-disc list-inside'>
+        <li>All seed parameters are optional. Any field left blank is assigned by the generator.</li>
+        <li>Existing physical characteristics — size, atmosphere, hydrographics — are preserved.</li>
+        <li>The UWP string for each inhabited world is recomputed following assignment.</li>
+        <li>This operation cannot be reversed automatically; use Replace to regenerate the full system.</li>
+      </ul>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+      REFERENCE 0402SC
+    </div>
+
+  </div>
+<% end %>

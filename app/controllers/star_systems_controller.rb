@@ -8,7 +8,7 @@ class StarSystemsController < ApplicationController
   include ParentHex
   include UrlTokenVerification
   optional_authentication only: [:map]
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -99,6 +99,22 @@ class StarSystemsController < ApplicationController
   def update_trade_codes
     @star_system.trade_code_ids = params[:trade_code_ids]&.reject(&:blank?)&.map(&:to_i) || []
     redirect_to @star_system, status: :see_other
+  end
+
+  def assign_social_characteristics
+    @governments = Government.order(:code)
+    @law_levels = LawLevel.order(:code)
+  end
+
+  def apply_social_characteristics
+    assigner = SocialCharacteristicsAssigner.new(@star_system, generator_service)
+    result = assigner.assign(social_characteristics_params)
+    if result.success?
+      redirect_to @star_system, notice: 'Social characteristics assigned.', status: :see_other
+    else
+      flash[:alert] = result.errors.to_sentence
+      redirect_to @star_system, status: :see_other
+    end
   end
 
   # GET /star_systems/new
@@ -339,6 +355,17 @@ class StarSystemsController < ApplicationController
     else
       [nil, 'Invalid create mode']
     end
+  end
+
+  def social_characteristics_params
+    params.require(:social_characteristics).permit(
+      :government_code,
+      :law_level_code,
+      :main_world_criteria,
+      :allow_captive_government,
+      population: [:min, :max],
+      tech_level: [:min, :max]
+    )
   end
 
   def star_system_edit_params

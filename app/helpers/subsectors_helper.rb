@@ -4,7 +4,7 @@ module SubsectorsHelper
   HEX_HEIGHT = HEX_SIZE * Math.sqrt(3)
   SVG_PADDING = 20
 
-  FONT_HEX_LABEL    = 7
+  FONT_HEX_LABEL    = 9
   FONT_STARPORT     = 10
   FONT_ALLEGIANCE   = 7
   FONT_UWP          = 9

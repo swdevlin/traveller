@@ -87,6 +87,8 @@ Rails.application.routes.draw do
         post :update_bases
         get  :edit_trade_codes
         post :update_trade_codes
+        get  :assign_social_characteristics
+        post :apply_social_characteristics
       end
     end
 

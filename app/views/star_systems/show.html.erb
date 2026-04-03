@@ -9,6 +9,11 @@
       <%= link_to 'Replace', replace_star_system_path(@star_system),
                   class: "w-full sm:w-auto btn btn-secondary #{@star_system.locked? ? 'opacity-50 pointer-events-none' : ''}",
                   title: @star_system.locked? ? 'Unlock this star system to replace it' : nil %>
+      <% unless @star_system.has_populated_world? %>
+        <%= link_to 'Social Characteristics', assign_social_characteristics_star_system_path(@star_system),
+                    class: 'w-full sm:w-auto btn btn-secondary',
+                    data: { turbo_frame: 'modal' } %>
+      <% end %>
       <%= button_to 'Delete',
                     @star_system,
                     method: :delete,

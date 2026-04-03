@@ -40,7 +40,7 @@ module UltimateTurboModal::Flavors
     DIV_TITLE_CLASSES = 'pl-5'
 
     DIV_TITLE_H_CLASSES =
-      'group-data-[title=false]:hidden text-lg font-semibold tracking-wide text-slate-100'
+      'group-data-[title=false]:hidden text-lg font-semibold tracking-wide text-deepnight-orange'
 
     # Footer: same divider behaviour, slightly elevated surface
     DIV_FOOTER_CLASSES =
