@@ -9,14 +9,17 @@ document.addEventListener('turbo:load', () => {
   const slug = serverFlags.campaignSlug || 'default'
   const upperLeftKey = `upperLeftHex_${slug}`
   const hexSizeKey = `hexSize_${slug}`
+  const viewModeKey = `viewMode_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
+  const viewMode = localStorage.getItem(viewModeKey) ?? null
 
   const elm = window.Elm.Main.init({
     node,
     flags: {
       upperLeft,
       hexSize,
+      viewMode,
       ...serverFlags
     }
   })
@@ -30,6 +33,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeHexSize) {
     elm.ports.storeHexSize.subscribe(value => {
       localStorage.setItem(hexSizeKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeViewMode) {
+    elm.ports.storeViewMode.subscribe(value => {
+      localStorage.setItem(viewModeKey, value)
     })
   }
 

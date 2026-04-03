@@ -442,6 +442,8 @@ type JourneyMsg
     | MouseMove ( Float, Float )
     | MouseUp ( Float, Float )
     | MouseLeave
+    | Pan ( Float, Float )
+    | WheelZoom Float
 
 
 keyDecoder : ModelData -> JsDecode.Decoder Msg
@@ -483,6 +485,18 @@ toKey model key ctrl =
         ( Nothing, HexMap, "ArrowDown" ) ->
             PanMap { deltaX = 0, deltaY = stepV }
 
+        ( Nothing, FullJourney, "ArrowRight" ) ->
+            JourneyMsg (Pan ( -50, 0 ))
+
+        ( Nothing, FullJourney, "ArrowLeft" ) ->
+            JourneyMsg (Pan ( 50, 0 ))
+
+        ( Nothing, FullJourney, "ArrowUp" ) ->
+            JourneyMsg (Pan ( 0, 50 ))
+
+        ( Nothing, FullJourney, "ArrowDown" ) ->
+            JourneyMsg (Pan ( 0, -50 ))
+
         _ ->
             NoOpMsg
 
@@ -504,6 +518,7 @@ type alias Flags =
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
+    , viewMode : Maybe String
     }
 
 
@@ -592,10 +607,18 @@ init viewport settings key hostConfig referee =
             , dragMode = NoDragging
             }
 
+        initialViewMode =
+            case settings.viewMode of
+                Just "FullJourney" ->
+                    FullJourney
+
+                _ ->
+                    HexMap
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
-            , viewMode = HexMap
+            , viewMode = initialViewMode
             , journeyModel = journeyModel
             , rawHexaPoints = rawHexagonPoints <| settings.hexSize
             , solarSystems = solarSystemDict
@@ -1693,6 +1716,8 @@ viewFullJourney allSectorsMapUrl model viewport =
         , Element.htmlAttribute <| Html.Events.on "mousedown" <| mouseDownDecoder (JourneyMsg << MouseDown)
         , Element.htmlAttribute <| Html.Events.on "mouseup" <| mouseUpDecoder (JourneyMsg << MouseUp)
         , Events.onMouseLeave (JourneyMsg MouseLeave)
+        , Element.htmlAttribute <| Html.Events.preventDefaultOn "wheel" <|
+            JsDecode.map (\dy -> ( JourneyMsg (WheelZoom dy), True )) (JsDecode.field "deltaY" JsDecode.float)
         , Background.color <| Element.rgb 1.0 0.498 0.0
         ]
     <|
@@ -1850,73 +1875,7 @@ viewStatusRow model =
                     ]
 
                 FullJourney ->
-                    [ -- zoom out button
-                      el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.spacing 5
-                        , Element.pointer
-                        , Element.transparent <| model.journeyModel.zoomScale <= 1.0
-                        , userSelectNone
-                        , conditionalAttribute (model.journeyModel.zoomScale > 1.0) <|
-                            Events.onClick (JourneyMsg <| Zoom ZoomOut)
-                        , Element.alignBottom
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
-                    , -- zoom indicator
-                      el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Font.family [ Font.monospace ]
-                        , userSelectNone
-                        ]
-                      <|
-                        let
-                            roundedZoom =
-                                ceiling <| model.journeyModel.zoomScale
-
-                            zoomAscii =
-                                [ 1, 2, 3, 4, 6, 8 ]
-                                    |> List.indexedMap
-                                        (\i r ->
-                                            if r == roundedZoom then
-                                                text "|"
-
-                                            else
-                                                el
-                                                    [ Element.pointer
-                                                    , Events.onClick <| JourneyMsg <| Zoom <| ZoomSet (1.5 ^ toFloat i)
-                                                    , Element.mouseOver
-                                                        [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                                                        ]
-                                                    ]
-                                                <|
-                                                    text "-"
-                                        )
-                        in
-                        row [] zoomAscii
-                    , -- zoom in button
-                      el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.spacing 5
-                        , Element.pointer
-                        , conditionalAttribute (model.journeyModel.zoomScale < 7.0) <|
-                            Events.onClick (JourneyMsg <| Zoom ZoomIn)
-                        , Element.transparent <| model.journeyModel.zoomScale >= 7.0
-                        , userSelectNone
-                        , Element.alignBottom
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
-                    ]
+                    []
     in
     Element.wrappedRow [ Element.spacing 8, Element.width Element.fill, Element.paddingEach { zeroEach | bottom = 8 } ] <|
         (el [ Font.size 20, uiDeepnightColorFontColour ] <|
@@ -2169,6 +2128,9 @@ saveMapCoords upperLeft =
 port storeInLocalStorage : ( Int, Int ) -> Cmd msg
 
 
+port storeViewMode : String -> Cmd msg
+
+
 saveHexSize : Float -> Cmd Msg
 saveHexSize size =
     storeHexSize size
@@ -2202,6 +2164,92 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                     { journeyModel | zoomScale = newZoomScale }
             in
             ( setJourneyModel newJourneyModel, Cmd.none )
+
+        Pan ( dx, dy ) ->
+            let
+                ( maxWidth, maxHeight ) =
+                    ( model.viewport.viewport.viewport.width - sidebarWidth - 50
+                    , model.viewport.viewport.viewport.height
+                    )
+
+                ( curImgWidth, curImgHeight ) =
+                    ( maxWidth * journeyModel.zoomScale
+                    , maxHeight * journeyModel.zoomScale
+                    )
+
+                ( oldX, oldY ) =
+                    journeyModel.zoomOffset
+            in
+            ( setJourneyModel
+                { journeyModel
+                    | zoomOffset =
+                        ( clamp (maxWidth - curImgWidth) 0 (oldX + dx)
+                        , clamp (maxHeight - curImgHeight) 0 (oldY + dy)
+                        )
+                }
+            , Cmd.none
+            )
+
+        WheelZoom delta ->
+            let
+                factor =
+                    if delta > 0 then
+                        1 / 1.1
+
+                    else
+                        1.1
+
+                oldZoomScale =
+                    journeyModel.zoomScale
+
+                newZoomScale =
+                    clamp 1.0 7.0 (oldZoomScale * factor)
+
+                actualFactor =
+                    newZoomScale / oldZoomScale
+
+                ( maxWidth, maxHeight ) =
+                    ( model.viewport.viewport.viewport.width - sidebarWidth - 50
+                    , model.viewport.viewport.viewport.height
+                    )
+
+                ( curImgWidth, curImgHeight ) =
+                    ( maxWidth * newZoomScale
+                    , maxHeight * newZoomScale
+                    )
+
+                ( ox, oy ) =
+                    journeyModel.zoomOffset
+
+                ( newOx, newOy ) =
+                    case journeyModel.hoverPoint of
+                        Just ( mx, my ) ->
+                            ( mx - (mx - ox) * actualFactor
+                            , my - (my - oy) * actualFactor
+                            )
+
+                        Nothing ->
+                            let
+                                cx =
+                                    maxWidth / 2
+
+                                cy =
+                                    maxHeight / 2
+                            in
+                            ( cx - (cx - ox) * actualFactor
+                            , cy - (cy - oy) * actualFactor
+                            )
+            in
+            ( setJourneyModel
+                { journeyModel
+                    | zoomScale = newZoomScale
+                    , zoomOffset =
+                        ( clamp (maxWidth - curImgWidth) 0 newOx
+                        , clamp (maxHeight - curImgHeight) 0 newOy
+                        )
+                }
+            , Cmd.none
+            )
 
         MouseDown originalPos ->
             ( setJourneyModel { journeyModel | dragMode = IsDragging { start = originalPos, last = originalPos } }, Cmd.none )
@@ -2986,8 +3034,16 @@ update msg ( time, model ) =
 
                     else
                         HexMap
+
+                viewModeString =
+                    case newViewMode of
+                        FullJourney ->
+                            "FullJourney"
+
+                        HexMap ->
+                            "HexMap"
             in
-            ( withTime { model | viewMode = newViewMode }, Cmd.none )
+            ( withTime { model | viewMode = newViewMode }, storeViewMode viewModeString )
 
         JourneyMsg journeyMsg ->
             updateJourney journeyMsg <| withTime model

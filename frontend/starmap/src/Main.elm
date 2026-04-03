@@ -71,6 +71,7 @@ type alias Flags =
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
+    , viewMode : Maybe String
     }
 
 
@@ -187,6 +188,7 @@ update msg model =
                                 , allSectorsMapUrl = model.flags.allSectorsMapUrl
                                 , nativeSophontColour = model.flags.nativeSophontColour
                                 , extinctSophontColour = model.flags.extinctSophontColour
+                                , viewMode = model.flags.viewMode
                                 }
                                 model.key
                                 model.hostConfig

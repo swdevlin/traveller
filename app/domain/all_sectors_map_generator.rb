@@ -4,10 +4,10 @@ class AllSectorsMapGenerator
   PIXEL_SIZE = 4
   COLOUR_BACKGROUND = ChunkyPNG::Color.rgb(0, 0, 0)
   COLOUR_STAR        = ChunkyPNG::Color.rgb(140, 140, 140)
-  COLOUR_VISITED     = ChunkyPNG::Color.rgb(255, 140, 0)
+  COLOUR_ROUTE       = ChunkyPNG::Color.rgb(255, 100, 0)
   COLOUR_SECTOR_GRID = ChunkyPNG::Color.rgb(60, 60, 60)
   COLOUR_SUB_GRID    = ChunkyPNG::Color.rgb(25, 25, 25)
-  LABEL_RGB          = [225, 6, 0].freeze
+  LABEL_RGB          = [255, 120, 120].freeze
 
   def initialize(campaign)
     @campaign = campaign
@@ -19,8 +19,10 @@ class AllSectorsMapGenerator
 
     compute_bounds(sectors)
     image = build_image
-    draw_grid(image)
-    plot_hexes(image)
+    draw_sub_grid(image)
+    draw_sector_grid(image)
+    plot_stars(image)
+    plot_routes(image)
     vips = to_vips(image)
     vips = draw_labels(vips, sectors)
     write_webp(vips)
@@ -49,17 +51,16 @@ class AllSectorsMapGenerator
     ChunkyPNG::Image.new(@img_width, @img_height, COLOUR_BACKGROUND)
   end
 
-  def draw_grid(image)
-    sector_px_w = 32 * PIXEL_SIZE
-    sector_px_h = 40 * PIXEL_SIZE
-    sub_px_w    = 8  * PIXEL_SIZE
-    sub_px_h    = 10 * PIXEL_SIZE
-
-    # Subsector grid (drawn first, underneath)
+  def draw_sub_grid(image)
+    sub_px_w = 8  * PIXEL_SIZE
+    sub_px_h = 10 * PIXEL_SIZE
     (0..@img_width).step(sub_px_w) { |x| draw_vline(image, x, COLOUR_SUB_GRID) }
     (0..@img_height).step(sub_px_h) { |y| draw_hline(image, y, COLOUR_SUB_GRID) }
+  end
 
-    # Sector grid (drawn on top)
+  def draw_sector_grid(image)
+    sector_px_w = 32 * PIXEL_SIZE
+    sector_px_h = 40 * PIXEL_SIZE
     (0..@img_width).step(sector_px_w) { |x| draw_vline(image, x, COLOUR_SECTOR_GRID) }
     (0..@img_height).step(sector_px_h) { |y| draw_hline(image, y, COLOUR_SECTOR_GRID) }
   end
@@ -76,15 +77,15 @@ class AllSectorsMapGenerator
     (0...@img_width).each { |x| image[x, y] = colour }
   end
 
-  def plot_hexes(image)
-    star_coords    = fetch_star_coords
-    visited_coords = fetch_visited_coords
-
-    star_coords.each do |px, py|
+  def plot_stars(image)
+    fetch_star_coords.each do |px, py|
       fill_hex(image, px, py, COLOUR_STAR)
     end
-    visited_coords.each do |px, py|
-      fill_hex(image, px, py, COLOUR_VISITED, size: 3)
+  end
+
+  def plot_routes(image)
+    fetch_route_coords.each do |px, py|
+      fill_hex(image, px, py, COLOUR_ROUTE, size: PIXEL_SIZE)
     end
   end
 
@@ -97,15 +98,15 @@ class AllSectorsMapGenerator
     )
   end
 
-  def fetch_visited_coords
-    to_coords   = Parsec.joins('INNER JOIN jump_logs ON jump_logs.to_parsec_id = parsecs.id').distinct.pluck(:x, :y)
-    from_coords = Parsec.joins('INNER JOIN jump_logs ON jump_logs.from_parsec_id = parsecs.id').distinct.pluck(:x, :y)
+  def fetch_route_coords
+    to_coords   = Parsec.where(id: JumpLog.select(:to_parsec_id)).pluck(:x, :y)
+    from_coords = Parsec.where(id: JumpLog.select(:from_parsec_id)).pluck(:x, :y)
     Set.new(to_coords + from_coords)
   end
 
   def fill_hex(image, px, py, colour, size: 2)
-    base_x = (px - @min_px) * PIXEL_SIZE + 1
-    base_y = (@max_py - py) * PIXEL_SIZE + 1
+    base_x = (px - @min_px) * PIXEL_SIZE
+    base_y = (@max_py - py) * PIXEL_SIZE
     size.times do |dx|
       size.times do |dy|
         x = base_x + dx
@@ -160,18 +161,8 @@ class AllSectorsMapGenerator
     text_mask = Vips::Image.text(balance_wrap(name), font: 'sans 10', dpi: 96, align: :centre)
     return nil if text_mask.width.zero? || text_mask.height.zero?
 
-    padding = 3
-    w = text_mask.width + (padding * 2)
-    h = text_mask.height + (padding * 2)
-
-    bg_rgb   = Vips::Image.black(w, h).new_from_image([0, 0, 0]).copy(interpretation: :srgb)
-    bg_alpha = Vips::Image.black(w, h).new_from_image(160)
-    bg_rgba  = bg_rgb.bandjoin(bg_alpha)
-
-    fg_rgb  = text_mask.new_from_image(LABEL_RGB).copy(interpretation: :srgb)
-    fg_rgba = fg_rgb.bandjoin(text_mask)
-
-    bg_rgba.composite2(fg_rgba, :over, x: padding, y: padding)
+    fg_rgb = text_mask.new_from_image(LABEL_RGB).copy(interpretation: :srgb)
+    fg_rgb.bandjoin(text_mask)
   rescue Vips::Error
     nil
   end
