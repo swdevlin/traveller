@@ -197,6 +197,31 @@ fullJourneyImageHeight =
     2240
 
 
+-- Returns ( containerWidth, containerHeight, fittedWidth, fittedHeight ) for the full-journey view.
+-- The container fills the available space; the fitted dimensions preserve the image aspect ratio
+-- and are used as the zoom-1 base size for the image.
+journeyDimensions : { a | width : Float, height : Float } -> { containerW : Float, containerH : Float, fittedW : Float, fittedH : Float }
+journeyDimensions viewport =
+    let
+        containerW =
+            viewport.width - sidebarWidth
+
+        containerH =
+            viewport.height - consoleTitleHeight
+
+        aspectRatio =
+            fullJourneyImageHeight / fullJourneyImageWidth
+
+        heightFromWidth =
+            containerW * aspectRatio
+    in
+    if heightFromWidth <= containerH then
+        { containerW = containerW, containerH = containerH, fittedW = containerW, fittedH = heightFromWidth }
+
+    else
+        { containerW = containerW, containerH = containerH, fittedW = containerH / aspectRatio, fittedH = containerH }
+
+
 type alias HexMapViewport =
     Result Browser.Dom.Error Browser.Dom.Viewport
 
@@ -1679,29 +1704,12 @@ mouseCoordsToSector mousePos offset imageSize =
 viewFullJourney : Maybe String -> JourneyModel -> Browser.Dom.Viewport -> Element.Element Msg
 viewFullJourney allSectorsMapUrl model viewport =
     let
-        ( maxWidth, maxHeight ) =
-            let
-                availableWidth =
-                    viewport.viewport.width - sidebarWidth - 50
-
-                availableHeight =
-                    viewport.viewport.height - consoleTitleHeight
-
-                aspectRatio =
-                    fullJourneyImageHeight / fullJourneyImageWidth
-
-                heightFromWidth =
-                    availableWidth * aspectRatio
-            in
-            if heightFromWidth <= availableHeight then
-                ( availableWidth, heightFromWidth )
-
-            else
-                ( availableHeight / aspectRatio, availableHeight )
+        dims =
+            journeyDimensions viewport.viewport
 
         ( imageSizeWidth, imageSizeHeight ) =
-            ( maxWidth * model.zoomScale
-            , maxHeight * model.zoomScale
+            ( dims.fittedW * model.zoomScale
+            , dims.fittedH * model.zoomScale
             )
 
         ( offsetLeft, offsetTop ) =
@@ -1709,8 +1717,8 @@ viewFullJourney allSectorsMapUrl model viewport =
     in
     el
         [ Element.alignTop
-        , width <| Element.px <| floor maxWidth
-        , height <| Element.px <| floor maxHeight
+        , width <| Element.px <| floor dims.containerW
+        , height <| Element.px <| floor dims.containerH
         , Element.clip
         , Element.htmlAttribute <| Html.Events.on "mousemove" <| mouseMoveDecoder (JourneyMsg << MouseMove)
         , Element.htmlAttribute <| Html.Events.on "mousedown" <| mouseDownDecoder (JourneyMsg << MouseDown)
@@ -2167,15 +2175,14 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
 
         Pan ( dx, dy ) ->
             let
-                ( maxWidth, maxHeight ) =
-                    ( model.viewport.viewport.viewport.width - sidebarWidth - 50
-                    , model.viewport.viewport.viewport.height
-                    )
+                dims =
+                    journeyDimensions model.viewport.viewport.viewport
 
-                ( curImgWidth, curImgHeight ) =
-                    ( maxWidth * journeyModel.zoomScale
-                    , maxHeight * journeyModel.zoomScale
-                    )
+                curImgWidth =
+                    dims.fittedW * journeyModel.zoomScale
+
+                curImgHeight =
+                    dims.fittedH * journeyModel.zoomScale
 
                 ( oldX, oldY ) =
                     journeyModel.zoomOffset
@@ -2183,8 +2190,8 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
             ( setJourneyModel
                 { journeyModel
                     | zoomOffset =
-                        ( clamp (maxWidth - curImgWidth) 0 (oldX + dx)
-                        , clamp (maxHeight - curImgHeight) 0 (oldY + dy)
+                        ( clamp (min 0 (dims.containerW - curImgWidth)) 0 (oldX + dx)
+                        , clamp (min 0 (dims.containerH - curImgHeight)) 0 (oldY + dy)
                         )
                 }
             , Cmd.none
@@ -2208,15 +2215,14 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                 actualFactor =
                     newZoomScale / oldZoomScale
 
-                ( maxWidth, maxHeight ) =
-                    ( model.viewport.viewport.viewport.width - sidebarWidth - 50
-                    , model.viewport.viewport.viewport.height
-                    )
+                dims =
+                    journeyDimensions model.viewport.viewport.viewport
 
-                ( curImgWidth, curImgHeight ) =
-                    ( maxWidth * newZoomScale
-                    , maxHeight * newZoomScale
-                    )
+                curImgWidth =
+                    dims.fittedW * newZoomScale
+
+                curImgHeight =
+                    dims.fittedH * newZoomScale
 
                 ( ox, oy ) =
                     journeyModel.zoomOffset
@@ -2231,10 +2237,10 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                         Nothing ->
                             let
                                 cx =
-                                    maxWidth / 2
+                                    dims.containerW / 2
 
                                 cy =
-                                    maxHeight / 2
+                                    dims.containerH / 2
                             in
                             ( cx - (cx - ox) * actualFactor
                             , cy - (cy - oy) * actualFactor
@@ -2244,8 +2250,8 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                 { journeyModel
                     | zoomScale = newZoomScale
                     , zoomOffset =
-                        ( clamp (maxWidth - curImgWidth) 0 newOx
-                        , clamp (maxHeight - curImgHeight) 0 newOy
+                        ( clamp (min 0 (dims.containerW - curImgWidth)) 0 newOx
+                        , clamp (min 0 (dims.containerH - curImgHeight)) 0 newOy
                         )
                 }
             , Cmd.none
@@ -2269,25 +2275,24 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                             , newY - originalY
                             )
 
-                        ( maxWidth, maxHeight ) =
-                            ( model.viewport.viewport.viewport.width - sidebarWidth - 50
-                            , model.viewport.viewport.viewport.height
-                            )
+                        dims =
+                            journeyDimensions model.viewport.viewport.viewport
 
                         ( oldX, oldY ) =
                             journeyModel.zoomOffset
 
-                        ( curImgWidth, curImgHeight ) =
-                            ( maxWidth * journeyModel.zoomScale
-                            , maxHeight * journeyModel.zoomScale
-                            )
+                        curImgWidth =
+                            dims.fittedW * journeyModel.zoomScale
+
+                        curImgHeight =
+                            dims.fittedH * journeyModel.zoomScale
 
                         newModel =
                             { journeyModel
                                 | dragMode = IsDragging { start = start, last = ( newX, newY ) }
                                 , zoomOffset =
-                                    ( clamp (maxWidth - curImgWidth) 0 (oldX + xDelta)
-                                    , clamp (maxHeight - curImgHeight) 0 (oldY + yDelta)
+                                    ( clamp (min 0 (dims.containerW - curImgWidth)) 0 (oldX + xDelta)
+                                    , clamp (min 0 (dims.containerH - curImgHeight)) 0 (oldY + yDelta)
                                     )
                                 , hoverPoint = Nothing
                             }
@@ -2316,17 +2321,11 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
 
                         hexViewToSector arg1 =
                             let
-                                ( maxWidth, maxHeight ) =
-                                    let
-                                        scaledWidth =
-                                            model.viewport.viewport.viewport.width - sidebarWidth - 50
-                                    in
-                                    ( scaledWidth
-                                    , scaledWidth * (fullJourneyImageHeight / fullJourneyImageWidth)
-                                    )
+                                dims =
+                                    journeyDimensions model.viewport.viewport.viewport
 
                                 imageSize =
-                                    { width = maxWidth * journeyModel.zoomScale, height = maxHeight * journeyModel.zoomScale }
+                                    { width = dims.fittedW * journeyModel.zoomScale, height = dims.fittedH * journeyModel.zoomScale }
 
                                 sector =
                                     mouseCoordsToSector (toXY coordinates) (toXY journeyModel.zoomOffset) imageSize
