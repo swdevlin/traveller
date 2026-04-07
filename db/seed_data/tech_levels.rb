@@ -3,6 +3,8 @@
 TECH_LEVELS = [
   {
     code: 0,
+    descriptor: 'Primitive',
+    short_description: 'Stone Age. No formal tools beyond the most primitive.',
     energy: 'Muscle',
     electronics: 'Mind',
     manufacturing: 'Hand tools',
@@ -17,6 +19,8 @@ TECH_LEVELS = [
   },
   {
     code: 1,
+    descriptor: 'Primitive',
+    short_description: 'Bronze and iron age. Primitive metalworking and weapons.',
     energy: 'Waterwheel',
     electronics: 'Abacus, heliograph',
     manufacturing: 'Milling machines',
@@ -31,6 +35,8 @@ TECH_LEVELS = [
   },
   {
     code: 2,
+    descriptor: 'Primitive',
+    short_description: 'Renaissance. Scientific method, early chemistry and astronomy.',
     energy: 'Windmill',
     electronics: 'Clockwork, printing',
     manufacturing: 'Cottage industry',
@@ -45,6 +51,8 @@ TECH_LEVELS = [
   },
   {
     code: 3,
+    descriptor: 'Primitive',
+    short_description: 'Steam age. Industrial revolution beginning, primitive firearms.',
     energy: 'Steam, early battery',
     electronics: 'Telegraph',
     manufacturing: 'Factories',
@@ -59,6 +67,8 @@ TECH_LEVELS = [
   },
   {
     code: 4,
+    descriptor: 'Industrial',
+    short_description: 'Early industrial. Plastics, radio, internal combustion.',
     energy: 'Electricity',
     electronics: 'Telephones',
     manufacturing: 'Assembly lines',
@@ -73,6 +83,8 @@ TECH_LEVELS = [
   },
   {
     code: 5,
+    descriptor: 'Industrial',
+    short_description: 'Electrification. Telecommunications, early atomics and computing.',
     energy: 'Internal combustion',
     electronics: 'Radio, vacuum tubes',
     manufacturing: 'Heavy industry',
@@ -87,6 +99,8 @@ TECH_LEVELS = [
   },
   {
     code: 6,
+    descriptor: 'Industrial',
+    short_description: 'Fission age. Nuclear power and advanced computing. Dawn of spaceflight.',
     energy: 'Fission',
     electronics: 'Television, transistors',
     manufacturing: 'Basic automation',
@@ -101,6 +115,8 @@ TECH_LEVELS = [
   },
   {
     code: 7,
+    descriptor: 'Pre-Stellar',
+    short_description: 'Early space age. Reliable orbital access, satellites, integrated circuits.',
     energy: 'Basic solar',
     electronics: 'Microchips, networks',
     manufacturing: 'Cad machines',
@@ -115,6 +131,8 @@ TECH_LEVELS = [
   },
   {
     code: 8,
+    descriptor: 'Pre-Stellar',
+    short_description: 'Interplanetary. Other worlds reachable; fusion power commercially viable.',
     energy: 'Basic fusion, Basic power cell',
     electronics: 'Mobile computer, Basic robot brains',
     manufacturing: 'Basic fabs, Orbital factories',
@@ -129,6 +147,8 @@ TECH_LEVELS = [
   },
   {
     code: 9,
+    descriptor: 'Pre-Stellar',
+    short_description: 'Jump age. Gravity control and jump drive. Interstellar colonisation possible.',
     energy: 'Improved solar',
     electronics: 'Core computers, Holographic projectors',
     manufacturing: 'External fabs',
@@ -143,6 +163,8 @@ TECH_LEVELS = [
   },
   {
     code: 10,
+    descriptor: 'Early Stellar',
+    short_description: 'Interstellar. Jump drives common; interstellar trade and colonisation boom.',
     energy: 'Basic fusion+, improved power cell',
     electronics: 'Advanced robot brains',
     manufacturing: 'Improved fabs, Robotic factories',
@@ -157,6 +179,8 @@ TECH_LEVELS = [
   },
   {
     code: 11,
+    descriptor: 'Early Stellar',
+    short_description: 'AI age. First true artificial intelligence; Jump-2 drives.',
     energy: 'Advanced solar',
     electronics: nil,
     manufacturing: nil,
@@ -171,6 +195,8 @@ TECH_LEVELS = [
   },
   {
     code: 12,
+    descriptor: 'Average Stellar',
+    short_description: 'Climate control. Planetary weather control; Jump-3 drives.',
     energy: 'Improved fusion, advanced power cell',
     electronics: 'Very advanced robot brains, basic meson comms',
     manufacturing: nil,
@@ -185,6 +211,8 @@ TECH_LEVELS = [
   },
   {
     code: 13,
+    descriptor: 'Average Stellar',
+    short_description: 'Battle dress. Cloned body parts; Jump-4 drives.',
     energy: 'Improved fusion plus',
     electronics: 'Neural link integration',
     manufacturing: 'Enhanced fabs, Basic nanobots',
@@ -199,6 +227,8 @@ TECH_LEVELS = [
   },
   {
     code: 14,
+    descriptor: 'Average Stellar',
+    short_description: 'Flying cities. Portable fusion weapons; Jump-5 drives.',
     energy: 'Collectors',
     electronics: 'Advanced meson comms',
     manufacturing: nil,
@@ -213,6 +243,8 @@ TECH_LEVELS = [
   },
   {
     code: 15,
+    descriptor: 'High Stellar',
+    short_description: 'Black globes. Synthetic anagathics extend human lifespan indefinitely.',
     energy: 'Advanced fusion',
     electronics: 'Self-aware brains',
     manufacturing: 'Improved nanobots',
@@ -227,6 +259,8 @@ TECH_LEVELS = [
   },
   {
     code: 16,
+    descriptor: 'High Stellar',
+    short_description: 'Transcendent. Technologies beyond the standard stellar classification.',
     energy: nil,
     electronics: 'Conscious Computers',
     manufacturing: nil,

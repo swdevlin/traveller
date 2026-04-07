@@ -16,69 +16,77 @@
      end
 %>
 
-<div id="<%= dom_id gravity_anomaly %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
-    <% if star %>
-      <%= render 'application/data_block',
-                 label: 'Orbiting',
-                 value: link_to(star.display_name,
-                                star_path(star),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-    <% if star_system %>
-      <%= render 'application/data_block',
-                 label: 'Star System',
-                 value: link_to(star_system.display_name,
-                                star_system_path(star_system),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-
-    <% if subsector %>
-      <%= render 'application/data_block',
-                 label: 'Subsector',
-                 value: link_to(subsector.name,
-                                subsector_path(subsector),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-
-    <% if sector %>
-      <%= render 'application/data_block',
-                 label: 'Sector',
-                 value: link_to(
-                   sector.name,
-                   sector_path(sector),
-                   class: 'hover:underline underline-offset-4'
-                 ),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2',
-                 suffix: tag.span(parsec.hex_code, class: 'identifier') %>
-    <% end %>
-
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
-  </div>
-
+<div id="<%= dom_id gravity_anomaly %>" class="space-y-4">
   <% if star %>
-    <div class="flex items-center gap-2 pt-2">
-      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">
-        Orbital Data
+    <div class="space-y-2">
+      <%= render 'application/subsection', title: 'Orbital Data' %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+        <% if show_orbit_number? %>
+          <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gravity_anomaly.orbit, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <% if show_au? %>
+          <%= render 'application/data_block', label: 'AU', value: number_with_precision(gravity_anomaly.au, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gravity_anomaly.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+        <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gravity_anomaly.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+        <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gravity_anomaly.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+        <%= render 'application/data_block',
+                   label: 'Orbiting',
+                   value: link_to(star.display_name, star_path(star), class: 'no-underline hover:underline') %>
+        <% if star_system %>
+          <%= render 'application/data_block',
+                     label: 'Star System',
+                     value: link_to(star_system.display_name, star_system_path(star_system), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if subsector %>
+          <%= render 'application/data_block',
+                     label: 'Subsector',
+                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if sector %>
+          <%= render 'application/data_block',
+                     label: 'Sector',
+                     value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                     value_wrap_class: 'flex flex-wrap items-center gap-2',
+                     suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
       </div>
-      <div class="h-px flex-1 bg-slate-700/70"></div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-      <% if show_orbit_number? %>
-        <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gravity_anomaly.orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <% shadow_km = gravity_anomaly.effective_jump_shadow_km %>
+      <% if shadow_km&.positive? %>
+        <% shadow_source = gravity_anomaly.effective_jump_shadow_source %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+          <%= render 'application/data_block',
+                     label: 'Jump Shadow',
+                     value: number_with_delimiter(number_with_precision(shadow_km, precision: 0)),
+                     suffix: 'km' %>
+          <% if shadow_source %>
+            <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+            <%= render 'application/data_block',
+                       label: 'Shadow Source',
+                       value: link_to(shadow_source.display_name, source_path, class: 'no-underline hover:underline') %>
+          <% end %>
+        </div>
       <% end %>
-      <% if show_au? %>
-        <%= render 'application/data_block', label: 'AU', value: number_with_precision(gravity_anomaly.au, precision: 2, strip_insignificant_zeros: true) %>
-      <% end %>
-      <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gravity_anomaly.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gravity_anomaly.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
-      <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gravity_anomaly.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
     </div>
-
-    <%= render 'stellar_objects/jump_shadow_times', stellar_object: gravity_anomaly %>
+  <% else %>
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-5">
+      <% if subsector %>
+        <%= render 'application/data_block',
+                   label: 'Subsector',
+                   value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+      <% end %>
+      <% if sector %>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2',
+                   suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+      <% end %>
+      <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+    </div>
   <% end %>
 
   <%= render 'application/observation_block',

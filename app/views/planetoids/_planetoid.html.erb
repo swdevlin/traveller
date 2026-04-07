@@ -16,7 +16,7 @@
      end
 %>
 
-<div id="<%= dom_id planetoid %>" class="space-y-6">
+<div id="<%= dom_id planetoid %>" class="space-y-4">
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
     <% if planetoid.starport_code.present? %>
       <%= render 'application/data_block',
@@ -24,122 +24,143 @@
                  value: tag.span(planetoid.starport_code, class: 'identifier-sm') %>
     <% end %>
     <%= render 'application/data_block', label: 'UWP', value: planetoid.uwp, value_style: :mono %>
-    <%= render 'application/data_block',
-               label: 'Allegiance',
-               value: allegiance_value %>
   </div>
 
   <% belt = planetoid.planetoid_belt_id.present? ? PlanetoidBelt.find_by(id: planetoid.planetoid_belt_id) : nil %>
-  <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-5">
-    <% if belt %>
-      <%= render 'application/data_block',
-                 label: 'Belt',
-                 value: link_to(belt.display_name,
-                                stellar_object_path(belt),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-    <% if star %>
-      <%= render 'application/data_block',
-                 label: 'Orbiting',
-                 value: link_to(star.display_name,
-                                star_path(star),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-    <% if star_system %>
-      <%= render 'application/data_block',
-                 label: 'Star System',
-                 value: link_to(star_system.display_name,
-                                star_system_path(star_system),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-
-    <% if subsector %>
-      <%= render 'application/data_block',
-                 label: 'Subsector',
-                 value: link_to(subsector.name,
-                                subsector_path(subsector),
-                                class: 'hover:underline underline-offset-4') %>
-    <% end %>
-
-    <% if sector %>
-      <%= render 'application/data_block',
-                 label: 'Sector',
-                 value: link_to(
-                   sector.name,
-                   sector_path(sector),
-                   class: 'hover:underline underline-offset-4'
-                 ),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2',
-                 suffix: tag.span(parsec.hex_code, class: 'identifier') %>
-    <% end %>
-
-  </div>
 
   <% if star %>
-    <%= render 'application/subsection', title: 'Orbital Data' %>
+    <div class="space-y-2">
+      <%= render 'application/subsection', title: 'Orbital Data' %>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <% if show_orbit_number? %>
-        <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
-      <% end %>
-      <% if show_au? %>
-        <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
-      <% end %>
-      <%= render 'application/data_block', label: 'Period', value: format_period(planetoid.period) %>
-      <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(planetoid.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Retrograde', value: planetoid.retrograde ? 'Yes' : 'No' %>
-      <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(planetoid.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
-      <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(planetoid.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
-      <% if planetoid.tidal_lock_target %>
-        <% target = planetoid.tidal_lock_target %>
-        <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <% if show_orbit_number? %>
+          <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid.orbit, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <% if show_au? %>
+          <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid.au, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Period', value: format_period(planetoid.period) %>
+        <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(planetoid.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+        <%= render 'application/data_block', label: 'Retrograde', value: planetoid.retrograde ? 'Yes' : 'No' %>
+        <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(planetoid.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+        <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(planetoid.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+        <% if planetoid.tidal_lock_target %>
+          <% target = planetoid.tidal_lock_target %>
+          <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+          <%= render 'application/data_block',
+                     label: 'Tidally Locked',
+                     value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+        <% end %>
+        <% if planetoid.sidereal_day.present? %>
+          <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(planetoid.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+        <% end %>
+        <% if planetoid.twilight_zone %>
+          <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+        <% end %>
+        <% if belt %>
+          <%= render 'application/data_block',
+                     label: 'Belt',
+                     value: link_to(belt.display_name, stellar_object_path(belt), class: 'no-underline hover:underline') %>
+        <% end %>
         <%= render 'application/data_block',
-                   label: 'Tidally Locked',
-                   value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
-      <% end %>
-      <% if planetoid.sidereal_day.present? %>
-        <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(planetoid.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
-      <% end %>
-      <% if planetoid.twilight_zone %>
-        <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+                   label: 'Orbiting',
+                   value: link_to(star.display_name, star_path(star), class: 'no-underline hover:underline') %>
+        <% if star_system %>
+          <%= render 'application/data_block',
+                     label: 'Star System',
+                     value: link_to(star_system.display_name, star_system_path(star_system), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if subsector %>
+          <%= render 'application/data_block',
+                     label: 'Subsector',
+                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if sector %>
+          <%= render 'application/data_block',
+                     label: 'Sector',
+                     value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                     value_wrap_class: 'flex flex-wrap items-center gap-2',
+                     suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+      </div>
+
+      <% shadow_km = planetoid.effective_jump_shadow_km %>
+      <% if shadow_km&.positive? %>
+        <% shadow_source = planetoid.effective_jump_shadow_source %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <%= render 'application/data_block',
+                     label: 'Jump Shadow',
+                     value: number_with_delimiter(number_with_precision(shadow_km, precision: 0)),
+                     suffix: 'km' %>
+          <% if shadow_source %>
+            <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+            <%= render 'application/data_block',
+                       label: 'Shadow Source',
+                       value: link_to(shadow_source.display_name, source_path, class: 'no-underline hover:underline') %>
+          <% end %>
+        </div>
       <% end %>
     </div>
-
-    <%= render 'stellar_objects/jump_shadow_times', stellar_object: planetoid %>
+  <% else %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+      <% if belt %>
+        <%= render 'application/data_block',
+                   label: 'Belt',
+                   value: link_to(belt.display_name, stellar_object_path(belt), class: 'no-underline hover:underline') %>
+      <% end %>
+      <% if subsector %>
+        <%= render 'application/data_block',
+                   label: 'Subsector',
+                   value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+      <% end %>
+      <% if sector %>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2',
+                   suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+      <% end %>
+      <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+    </div>
   <% end %>
 
-  <%= render 'application/subsection', title: 'Physical Data' %>
+  <div class="space-y-2">
+    <%= render 'application/subsection', title: 'Physical Data' %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/data_block',
-               label: 'Diameter',
-               value: safe_join([tag.span(planetoid.size_code, class: 'identifier-sm'), number_with_precision(planetoid.diameter, precision: 0)]),
-               value_wrap_class: 'flex flex-wrap items-center gap-2',
-               suffix: 'km'
-    %>
-    <%= render 'application/data_block', label: 'Mass', value: number_with_precision(planetoid.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
-    <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(planetoid.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'g' %>
-    <%= render 'application/data_block', label: 'Density', value: number_with_precision(planetoid.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <%= render 'application/data_block',
+                 label: 'Diameter',
+                 value: safe_join([tag.span(planetoid.size_code, class: 'identifier-sm'), number_with_precision(planetoid.diameter, precision: 0)]),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2',
+                 suffix: 'km'
+      %>
+      <%= render 'application/data_block', label: 'Mass', value: number_with_precision(planetoid.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+      <%= render 'application/data_block', label: 'Gravity', value: number_with_precision(planetoid.gravity, precision: 2, strip_insignificant_zeros: true), suffix: 'g' %>
+      <%= render 'application/data_block', label: 'Density', value: number_with_precision(planetoid.density, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+    </div>
   </div>
 
-  <%= render 'application/subsection', title: 'Environmental Data' %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-    <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid.temperature), suffix: '°C' %>
-    <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(planetoid.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
-    <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(planetoid.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
-    <%= render 'application/data_block', label: 'Albedo', value: number_with_precision(planetoid.albedo, precision: 2, strip_insignificant_zeros: true) %>
-    <%= render 'application/data_block', label: 'Greenhouse', value: number_with_precision(planetoid.greenhouse, precision: 2, strip_insignificant_zeros: true) %>
+  <div class="space-y-2">
+    <%= render 'application/subsection', title: 'Environmental Data' %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(planetoid.temperature), suffix: '°C' %>
+      <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(planetoid.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(planetoid.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+      <%= render 'application/data_block', label: 'Albedo', value: number_with_precision(planetoid.albedo, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'Greenhouse', value: number_with_precision(planetoid.greenhouse, precision: 2, strip_insignificant_zeros: true) %>
+    </div>
   </div>
 
   <% atmosphere = planetoid.atmosphere %>
   <% if atmosphere.present? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <% code = atmosphere['code'] %>
+      <% atmosphere_code = atmosphere['code'] %>
       <% taint = atmosphere['taint'] %>
       <% taint_code = taint&.dig('code') %>
       <%= render 'application/data_block',
                  label: 'Atmosphere',
-                 value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), atmosphere_description(code)], ' '),
+                 value: safe_join([tag.span(HexDigit.hex_digit(atmosphere_code), class: 'identifier-sm'), atmosphere_description(atmosphere_code)], ' '),
                  value_wrap_class: 'flex flex-wrap items-center gap-2' %>
       <% if taint_code.present? %>
         <% severity = taint['severity'] %>
@@ -157,11 +178,11 @@
   <% hydrographics = planetoid.hydrographics %>
   <% if hydrographics.present? %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-      <% code = hydrographics['code'] %>
+      <% hydrographics_code = hydrographics['code'] %>
       <% distribution = hydrographics['distribution'] %>
       <%= render 'application/data_block',
                  label: 'Hydrographics',
-                 value: safe_join([tag.span(HexDigit.hex_digit(code), class: 'identifier-sm'), hydrographics_description(code)], ' '),
+                 value: safe_join([tag.span(HexDigit.hex_digit(hydrographics_code), class: 'identifier-sm'), hydrographics_description(hydrographics_code)], ' '),
                  value_wrap_class: 'flex flex-wrap items-center gap-2' %>
       <%= render 'application/data_block',
                  label: 'Liquid',
@@ -174,9 +195,9 @@
     </div>
   <% end %>
 
-  <%= render 'application/biological_data', stellar_object: planetoid %>
-
   <%= render 'application/social_data', stellar_object: planetoid %>
+
+  <%= render 'application/biological_data', stellar_object: planetoid %>
 
   <%= render 'application/observation_block',
              notes: planetoid.notes %>

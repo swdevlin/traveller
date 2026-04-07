@@ -238,7 +238,10 @@ class MarkdownPresenterBase
       law = LawLevel.find_by(code: @obj.law_level_code)
       rows << ['Law Level', "#{@obj.law_level_code} — #{law&.weapons}"] if law
     end
-    rows << ['Tech Level', @obj.tech_level_code] if @obj.tech_level_code.present?
+    if @obj.tech_level_code.present?
+      tl = TechLevel.find_by(code: @obj.tech_level_code)
+      rows << ['Tech Level', [HexDigit.hex_digit(@obj.tech_level_code), tl&.descriptor].compact.join(' ')] if tl
+    end
     table_section('Social Data', rows)
   end
 end

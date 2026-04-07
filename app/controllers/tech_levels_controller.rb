@@ -66,6 +66,6 @@ class TechLevelsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def tech_level_params
-      params.expect(tech_level: [:code, :energy, :electronics, :manufacturing, :medical, :environmental, :land, :sea, :air, :space, :personal_military, :heavy_military, :notes])
+      params.expect(tech_level: [:code, :descriptor, :short_description, :energy, :electronics, :manufacturing, :medical, :environmental, :land, :sea, :air, :space, :personal_military, :heavy_military, :notes])
     end
 end

@@ -20,17 +20,8 @@
         <thead>
         <tr>
           <th scope='col'>Code</th>
-          <th scope='col'>Energy</th>
-          <th scope='col'>Electronics</th>
-          <th scope='col'>Manufacturing</th>
-          <th scope='col'>Medical</th>
-          <th scope='col'>Environmental</th>
-          <th scope='col'>Land</th>
-          <th scope='col'>Sea</th>
-          <th scope='col'>Air</th>
-          <th scope='col'>Space</th>
-          <th scope='col'>Personal military</th>
-          <th scope='col'>Heavy military</th>
+          <th scope='col'>Descriptor</th>
+          <th scope='col'>Short Description</th>
           <th scope='col' class='text-right actions-cell'>Actions</th>
         </tr>
         </thead>
@@ -44,17 +35,8 @@
               <% end %>
             </td>
 
-            <td><%= tech_level.energy %></td>
-            <td><%= tech_level.electronics %></td>
-            <td><%= tech_level.manufacturing %></td>
-            <td><%= tech_level.medical %></td>
-            <td><%= tech_level.environmental %></td>
-            <td><%= tech_level.land %></td>
-            <td><%= tech_level.sea %></td>
-            <td><%= tech_level.air %></td>
-            <td><%= tech_level.space %></td>
-            <td><%= tech_level.personal_military %></td>
-            <td><%= tech_level.heavy_military %></td>
+            <td><%= tech_level.descriptor %></td>
+            <td><%= tech_level.short_description %></td>
 
             <td class='actions-cell'>
               <div class='action-group'>

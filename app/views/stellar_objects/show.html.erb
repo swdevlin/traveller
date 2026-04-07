@@ -26,9 +26,15 @@
 <% end %>
 
 <%= content_for :page_side do %>
-  <% if subsector %>
-    <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
-  <% end %>
+  <div class="space-y-4">
+    <% summary_partial = "#{@stellar_object.class.name.underscore.pluralize}/sidebar_summary" %>
+    <% if lookup_context.template_exists?('sidebar_summary', [@stellar_object.class.name.underscore.pluralize], true) %>
+      <%= render summary_partial, stellar_object: @stellar_object %>
+    <% end %>
+    <% if subsector %>
+      <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
+    <% end %>
+  </div>
 <% end %>
 
 <%= render 'application/two_column_page' do %>

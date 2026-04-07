@@ -6,6 +6,18 @@
   %>
 
   <%= render 'application/data_block',
+             label: 'Descriptor',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value: tech_level.descriptor
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Short Description',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value: tech_level.short_description
+  %>
+
+  <%= render 'application/data_block',
              label: 'Energy',
              value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
              value: tech_level.energy

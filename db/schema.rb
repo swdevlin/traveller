@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_224118) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -322,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_000001) do
     t.string "air"
     t.integer "code"
     t.datetime "created_at", null: false
+    t.string "descriptor"
     t.string "electronics"
     t.string "energy"
     t.string "environmental"
@@ -332,6 +333,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_000001) do
     t.string "notes"
     t.string "personal_military"
     t.string "sea"
+    t.text "short_description"
     t.string "space"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_tech_levels_on_code", unique: true

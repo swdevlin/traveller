@@ -11,7 +11,7 @@ class GasGiantMarkdownPresenter < MarkdownPresenterBase
       ['Mass', "#{fmt(@obj.mass, 2)} ☉"],
       ['Rotation', "#{fmt(@obj.rotation, 2)} hours"]
     ]
-    rows << ['Code', @obj.code] if @obj.respond_to?(:code) && @obj.code.present?
+    rows << ['Size', "#{@obj.code} #{GasGiant::SIZES[@obj.code] || @obj.code}"] if @obj.respond_to?(:code) && @obj.code.present?
     table_section('Physical Data', rows)
   end
 end

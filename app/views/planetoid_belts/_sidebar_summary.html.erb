@@ -1,0 +1,17 @@
+<%= render 'application/subsection', title: 'Belt Profile' %>
+
+<div class="grid grid-cols-2 gap-3">
+  <%= render 'application/data_block',
+             label: 'Resource Rating',
+             value: safe_join([tag.span(HexDigit.hex_digit(stellar_object.resource_rating), class: 'identifier-sm'), resource_rating_description(stellar_object.resource_rating)], ' '),
+             value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+
+  <%= render 'application/data_block', label: 'Bulk', value: stellar_object.bulk %>
+
+  <%= render 'application/data_block', label: 'Metallic', value: stellar_object.m_type, suffix: ' %' %>
+  <%= render 'application/data_block', label: 'Stony', value: stellar_object.s_type, suffix: ' %' %>
+  <%= render 'application/data_block', label: 'Carbonaceous', value: stellar_object.c_type, suffix: ' %' %>
+  <%= render 'application/data_block', label: 'Other', value: stellar_object.o_type, suffix: ' %' %>
+</div>
+
+<%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>

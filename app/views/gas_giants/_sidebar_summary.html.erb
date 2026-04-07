@@ -1,0 +1,10 @@
+<%= render 'application/subsection', title: 'Gas Giant Profile' %>
+
+<div class="grid grid-cols-2 gap-3">
+  <%= render 'application/data_block',
+             label: 'Size',
+             value: safe_join([tag.span(stellar_object.code, class: 'identifier-sm'), gas_giant_size_description(stellar_object.code)], ' '),
+             value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+</div>
+
+<%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>

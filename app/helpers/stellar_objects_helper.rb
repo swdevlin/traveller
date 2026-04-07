@@ -1,4 +1,27 @@
 module StellarObjectsHelper
+  STARPORT_DATA = {
+    'A' => { quality: 'Excellent', fuel: 'Refined fuel', facilities: 'Shipyard (all), Repair' },
+    'B' => { quality: 'Good', fuel: 'Refined fuel', facilities: 'Shipyard (spacecraft), Repair' },
+    'C' => { quality: 'Routine', fuel: 'Unrefined fuel', facilities: 'Shipyard (small craft), Repair' },
+    'D' => { quality: 'Poor', fuel: 'Unrefined fuel', facilities: 'Limited Repair' },
+    'E' => { quality: 'Frontier', fuel: 'None', facilities: 'None' },
+    'X' => { quality: 'No Starport', fuel: 'None', facilities: 'None' }
+  }.freeze
+
+  def starport_summary(code)
+    data = STARPORT_DATA[code]
+    return nil unless data
+
+    parts = [data[:quality]]
+    parts << data[:fuel] unless data[:fuel] == 'None'
+    parts << data[:facilities] unless data[:facilities] == 'None'
+    parts.join('; ')
+  end
+
+  def gas_giant_size_description(code)
+    GasGiant::SIZES[code] || code
+  end
+
   # Converts Kelvin to Celsius
   def kelvin_to_celsius(kelvin)
     return nil if kelvin.nil?
@@ -191,6 +214,38 @@ module StellarObjectsHelper
     return nil if code.nil?
 
     ATMOSPHERE_DESCRIPTIONS[code]
+  end
+
+  ATMOSPHERE_SURVIVAL_REQUIREMENTS = {
+    0  => 'Vacc Suit',
+    1  => 'Vacc Suit',
+    2  => 'Respirator',
+    3  => 'Respirator',
+    4  => 'None',
+    5  => 'None',
+    6  => 'None',
+    7  => 'None',
+    8  => 'None',
+    9  => 'None',
+    10 => 'Air Supply',
+    11 => 'Vacc Suit',
+    12 => 'HEV Suit',
+    13 => 'None',
+    14 => 'Respirator',
+    15 => 'Varies'
+  }.freeze
+
+  def atmosphere_survival_requirement(code, tainted: false)
+    return 'None' if code.nil?
+
+    base = ATMOSPHERE_SURVIVAL_REQUIREMENTS[code] || 'None'
+    return base unless tainted
+
+    case base
+    when 'None'       then 'Filter Mask'
+    when 'Respirator' then 'Respirator + Filter'
+    else base
+    end
   end
 
   TAINT_DESCRIPTIONS = {

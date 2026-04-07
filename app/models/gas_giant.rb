@@ -1,6 +1,8 @@
 class GasGiant < StellarObject
   include GeneratorMappings
 
+  SIZES = { 'GS' => 'Small', 'GM' => 'Medium', 'GL' => 'Large' }.freeze
+
   after_initialize :normalize_data_types
   before_validation :normalize_data_types
 
