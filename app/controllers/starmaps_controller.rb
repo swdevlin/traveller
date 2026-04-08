@@ -7,7 +7,12 @@ class StarmapsController < ApplicationController
   def show
     all_sectors_map_url =
       if Current.campaign
-        map_path = AllSectorsMapGenerator.new(Current.campaign).output_path
+        generator = AllSectorsMapGenerator.new(Current.campaign)
+        map_path  = generator.output_path
+        latest_change = [JumpLog.maximum(:updated_at), StarSystem.maximum(:updated_at)].compact.max
+        if !map_path.exist? || (latest_change && latest_change > map_path.mtime)
+          map_path = generator.call || map_path
+        end
         campaign_all_sectors_map_url(v: map_path.mtime.to_i) if map_path.exist?
       end
 

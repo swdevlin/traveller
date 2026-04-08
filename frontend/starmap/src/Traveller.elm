@@ -407,6 +407,7 @@ type alias ModelData =
         }
     , selectedStellarObject : Maybe StellarObject
     , hexRect : HexRect
+    , panOffset : { x : Float, y : Float }
     , currentAddress : HexAddress
     , hostConfig : HostConfig.HostConfig
     , route : RouteList
@@ -459,6 +460,7 @@ type Msg
     | OpenedObjectAnalysisTime Time.Posix
     | CloseObjectAnalysis
     | PanMap { deltaX : Int, deltaY : Int }
+    | PanPixels { dx : Float, dy : Float }
 
 
 type JourneyMsg
@@ -488,27 +490,40 @@ toKey model key ctrl =
         halfV =
             max 1 (verticalHexes model.viewport.hexmapViewport model.hexScale // 2)
 
-        stepH =
-            if ctrl then halfH else 1
-
-        stepV =
-            if ctrl then halfV else 1
+        panStep =
+            model.hexScale * 0.5
     in
     case ( model.objectToBeAnalyzed, model.viewMode, key ) of
         ( Just _, _, "Escape" ) ->
             CloseObjectAnalysis
 
         ( Nothing, HexMap, "ArrowRight" ) ->
-            PanMap { deltaX = stepH, deltaY = 0 }
+            if ctrl then
+                PanMap { deltaX = halfH, deltaY = 0 }
+
+            else
+                PanPixels { dx = panStep, dy = 0 }
 
         ( Nothing, HexMap, "ArrowLeft" ) ->
-            PanMap { deltaX = -stepH, deltaY = 0 }
+            if ctrl then
+                PanMap { deltaX = -halfH, deltaY = 0 }
+
+            else
+                PanPixels { dx = -panStep, dy = 0 }
 
         ( Nothing, HexMap, "ArrowUp" ) ->
-            PanMap { deltaX = 0, deltaY = -stepV }
+            if ctrl then
+                PanMap { deltaX = 0, deltaY = -halfV }
+
+            else
+                PanPixels { dx = 0, dy = -panStep }
 
         ( Nothing, HexMap, "ArrowDown" ) ->
-            PanMap { deltaX = 0, deltaY = stepV }
+            if ctrl then
+                PanMap { deltaX = 0, deltaY = halfV }
+
+            else
+                PanPixels { dx = 0, dy = panStep }
 
         ( Nothing, FullJourney, "ArrowRight" ) ->
             JourneyMsg (Pan ( -50, 0 ))
@@ -663,6 +678,7 @@ init viewport settings key hostConfig referee =
             , key = key
             , selectedStellarObject = Nothing
             , hexRect = hexRect
+            , panOffset = { x = 0, y = 0 }
             , hostConfig = hostConfig
             , sectors = Dict.empty
             , route = []
@@ -1212,8 +1228,9 @@ viewHexes :
     -> Bool
     -> Maybe String
     -> Maybe String
+    -> { x : Float, y : Float }
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -1457,7 +1474,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 , SvgAttrs.id "hexmap"
                 , SvgEvents.onMouseOut MapMouseLeave
                 , viewBox <|
-                    toViewBox hexSize upperLeftHex
+                    toViewBox hexSize upperLeftHex panOffset
                         ++ " "
                         ++ widthString
                         ++ " "
@@ -1466,13 +1483,13 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
            )
 
 
-toViewBox : Float -> HexAddress -> String
-toViewBox hexScale { x, y } =
+toViewBox : Float -> HexAddress -> { x : Float, y : Float } -> String
+toViewBox hexScale { x, y } panOffset =
     calcVisualOrigin hexScale { col = x, row = y }
         |> (\( x_, y_ ) ->
-                String.fromFloat (toFloat x_)
+                String.fromFloat (toFloat x_ + panOffset.x)
                     ++ " "
-                    ++ String.fromFloat (toFloat y_)
+                    ++ String.fromFloat (toFloat y_ + panOffset.y)
            )
 
 
@@ -1726,7 +1743,7 @@ viewFullJourney allSectorsMapUrl model viewport =
         , Events.onMouseLeave (JourneyMsg MouseLeave)
         , Element.htmlAttribute <| Html.Events.preventDefaultOn "wheel" <|
             JsDecode.map (\dy -> ( JourneyMsg (WheelZoom dy), True )) (JsDecode.field "deltaY" JsDecode.float)
-        , Background.color <| Element.rgb 1.0 0.498 0.0
+        , Background.color <| Element.rgb 0.0 0.0 0.0
         ]
     <|
         Element.image
@@ -1938,6 +1955,7 @@ viewHexMap model =
         model.isReferee
         model.nativeSophontColour
         model.extinctSophontColour
+        model.panOffset
         |> Element.html
 
 
@@ -2353,6 +2371,7 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                                         , dragMode = NoDragging
                                         , viewMode = HexMap
                                         , journeyModel = newJourneyModel
+                                        , panOffset = { x = 0, y = 0 }
                                     }
                             in
                             update DownloadSolarSystems ( time, newModel )
@@ -2809,8 +2828,31 @@ update msg ( time, model ) =
             let
                 oldViewport =
                     model.viewport
+
+                newViewport =
+                    { oldViewport | hexmapViewport = Just hexmapOrErr }
+
+                extraPadding =
+                    2
+
+                hh =
+                    horizontalHexes (Just hexmapOrErr) model.hexScale + extraPadding
+
+                vh =
+                    verticalHexes (Just hexmapOrErr) model.hexScale + extraPadding
+
+                newLowerRight =
+                    HexAddress.shiftAddressBy { deltaX = hh, deltaY = vh } model.hexRect.upperLeftHex
             in
-            ( withTime { model | viewport = { oldViewport | hexmapViewport = Just hexmapOrErr } }, Cmd.none )
+            if newLowerRight /= model.hexRect.lowerRightHex then
+                let
+                    newHexRect =
+                        { upperLeftHex = model.hexRect.upperLeftHex, lowerRightHex = newLowerRight }
+                in
+                update DownloadSolarSystems (withTime { model | viewport = newViewport, hexRect = newHexRect })
+
+            else
+                ( withTime { model | viewport = newViewport }, Cmd.none )
 
         GotResize width height ->
             ( withTime model
@@ -2884,13 +2926,70 @@ update msg ( time, model ) =
                     , lowerRightHex = shiftBoth model.hexRect.lowerRightHex
                     }
 
+                yCompensation =
+                    (hexColOffset newHexRect.upperLeftHex.x - hexColOffset model.hexRect.upperLeftHex.x)
+                        * model.hexScale
+                        * sin hexSizeFactor
+
                 ( newModel, downloadCmds ) =
                     update DownloadSolarSystems
-                        (withTime { model | hexRect = newHexRect })
+                        (withTime { model | hexRect = newHexRect, panOffset = { x = 0, y = model.panOffset.y + yCompensation } })
             in
             ( newModel
             , Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, downloadCmds ]
             )
+
+        PanPixels { dx, dy } ->
+            let
+                colStep =
+                    hexWidth model.hexScale
+
+                rowStep =
+                    2 * model.hexScale * sin hexSizeFactor
+
+                newRawX =
+                    model.panOffset.x + dx
+
+                newRawY =
+                    model.panOffset.y + dy
+
+                hexDeltaX =
+                    truncate (newRawX / colStep)
+
+                hexDeltaY =
+                    truncate (newRawY / rowStep)
+
+                remainderX =
+                    newRawX - toFloat hexDeltaX * colStep
+
+                remainderY =
+                    newRawY - toFloat hexDeltaY * rowStep
+
+                shiftBoth hex =
+                    HexAddress.shiftAddressBy { deltaX = hexDeltaX, deltaY = hexDeltaY } hex
+
+                newHexRect =
+                    { upperLeftHex = shiftBoth model.hexRect.upperLeftHex
+                    , lowerRightHex = shiftBoth model.hexRect.lowerRightHex
+                    }
+
+                yCompensation =
+                    (hexColOffset newHexRect.upperLeftHex.x - hexColOffset model.hexRect.upperLeftHex.x)
+                        * model.hexScale
+                        * sin hexSizeFactor
+
+                newModel =
+                    withTime { model | hexRect = newHexRect, panOffset = { x = remainderX, y = remainderY + yCompensation } }
+            in
+            if hexDeltaX /= 0 || hexDeltaY /= 0 then
+                let
+                    ( updatedModel, downloadCmds ) =
+                        update DownloadSolarSystems newModel
+                in
+                ( updatedModel, Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, downloadCmds ] )
+
+            else
+                ( newModel, Cmd.none )
 
         MapMouseUp ->
             case model.dragMode of
@@ -2932,15 +3031,33 @@ update msg ( time, model ) =
                         ( originX, originY ) =
                             last
 
-                        xDelta =
-                            truncate <| (originX - newX) / model.hexScale
+                        colStep =
+                            hexWidth model.hexScale
 
-                        yDelta =
-                            truncate <| (originY - newY) / model.hexScale
+                        rowStep =
+                            2 * model.hexScale * sin hexSizeFactor
+
+                        newRawX =
+                            model.panOffset.x + (originX - newX)
+
+                        newRawY =
+                            model.panOffset.y + (originY - newY)
+
+                        hexDeltaX =
+                            truncate (newRawX / colStep)
+
+                        hexDeltaY =
+                            truncate (newRawY / rowStep)
+
+                        remainderX =
+                            newRawX - toFloat hexDeltaX * colStep
+
+                        remainderY =
+                            newRawY - toFloat hexDeltaY * rowStep
 
                         shiftAddress hex =
                             HexAddress.shiftAddressBy
-                                { deltaX = xDelta, deltaY = yDelta }
+                                { deltaX = hexDeltaX, deltaY = hexDeltaY }
                                 hex
 
                         newHexRect =
@@ -2948,19 +3065,25 @@ update msg ( time, model ) =
                             , upperLeftHex = shiftAddress model.hexRect.upperLeftHex
                             }
 
+                        yCompensation =
+                            (hexColOffset newHexRect.upperLeftHex.x - hexColOffset model.hexRect.upperLeftHex.x)
+                                * model.hexScale
+                                * sin hexSizeFactor
+
                         newModel =
                             { model
                                 | dragMode = IsDragging { start = start, last = ( newX, newY ) }
                                 , hexRect = newHexRect
+                                , panOffset = { x = remainderX, y = remainderY + yCompensation }
                             }
                     in
-                    if xDelta /= 0 || yDelta /= 0 then
-                        ( withTime newModel
-                        , saveMapCoords newModel.hexRect.upperLeftHex
-                        )
+                    ( withTime newModel
+                    , if hexDeltaX /= 0 || hexDeltaY /= 0 then
+                        saveMapCoords newModel.hexRect.upperLeftHex
 
-                    else
-                        ( withTime model, Cmd.none )
+                      else
+                        Cmd.none
+                    )
 
                 NoDragging ->
                     ( withTime model, Cmd.none )
@@ -3018,6 +3141,7 @@ update msg ( time, model ) =
                     | hexRect = newHexRect
                     , requestHistory = newRequestHistory
                     , solarSystems = newSolarSystemDict
+                    , panOffset = { x = 0, y = 0 }
                 }
             , Cmd.batch
                 [ saveMapCoords newHexRect.upperLeftHex
