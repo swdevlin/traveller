@@ -10,9 +10,11 @@ document.addEventListener('turbo:load', () => {
   const upperLeftKey = `upperLeftHex_${slug}`
   const hexSizeKey = `hexSize_${slug}`
   const viewModeKey = `viewMode_${slug}`
+  const journeyStateKey = `journeyState_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
   const viewMode = localStorage.getItem(viewModeKey) ?? null
+  const journeyState = localStorage.getItem(journeyStateKey) ?? null
 
   const elm = window.Elm.Main.init({
     node,
@@ -20,6 +22,7 @@ document.addEventListener('turbo:load', () => {
       upperLeft,
       hexSize,
       viewMode,
+      journeyState,
       ...serverFlags
     }
   })
@@ -39,6 +42,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeViewMode) {
     elm.ports.storeViewMode.subscribe(value => {
       localStorage.setItem(viewModeKey, value)
+    })
+  }
+
+  if (elm.ports.storeJourneyState) {
+    elm.ports.storeJourneyState.subscribe(value => {
+      localStorage.setItem(journeyStateKey, value)
     })
   }
 

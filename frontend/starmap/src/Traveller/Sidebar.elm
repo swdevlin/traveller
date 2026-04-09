@@ -58,9 +58,7 @@ sidebarWidth =
 {-| Message constructors needed by sidebar view functions.
 -}
 type alias SidebarMsgs msg =
-    { setHexSize : Float -> msg
-    , toggleHexmap : msg
-    , focusInSidebar : StellarObject -> msg
+    { focusInSidebar : StellarObject -> msg
     , viewDetail : StellarObject -> msg
     }
 
@@ -118,10 +116,7 @@ viewSidebarColumn :
     SidebarMsgs msg
     ->
         { a
-            | hexScale : Float
-            , isHexMapMode : Bool
-            , isFullJourneyMode : Bool
-            , selectedHex : Maybe HexAddress
+            | selectedHex : Maybe HexAddress
             , solarSystemStatus : Maybe String
             , sectors : SectorDict
             , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Color }
@@ -131,66 +126,10 @@ viewSidebarColumn :
             , allSectorsMapUrl : Maybe String
         }
     -> Element msg
-viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl } =
+viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ column [ Element.width Element.fill ]
-            [ let
-                clickableIcon size =
-                    let
-                        selectorColor =
-                            if hexScale == size / 2 && isHexMapMode then
-                                deepnightColor
-
-                            else
-                                textColor
-
-                        hexStyle =
-                            if hexScale == size / 2 && isHexMapMode then
-                                "fa-regular"
-
-                            else
-                                "fa-thin"
-                    in
-                    renderFAIcon (hexStyle ++ " fa-hexagon") (floor size)
-                        |> Element.el
-                            [ Element.pointer
-                            , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.15 selectorColor) ]
-                            , Events.onClick <| msgs.setHexSize <| size / 2
-                            , Font.color <| convertColor selectorColor
-                            ]
-              in
-              row [ Element.spaceEvenly, width fill, Element.paddingEach { top = 0, right = 0, bottom = 8, left = 0 } ]
-                [ clickableIcon 80
-                , clickableIcon 60
-                , clickableIcon 50
-                , clickableIcon 30
-                , let
-                    selectorColor =
-                        if isFullJourneyMode then
-                            deepnightColor
-
-                        else
-                            textColor
-
-                    hexStyle =
-                        if isFullJourneyMode then
-                            "fa-regular"
-
-                        else
-                            "fa-thin"
-                  in
-                  el
-                    [ Element.width <| Element.px 30
-                    , Element.height <| Element.px 30
-                    , Element.pointer
-                    , Events.onClick msgs.toggleHexmap
-                    , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.15 selectorColor) ]
-                    , Font.color <| convertColor selectorColor
-                    ]
-                  <|
-                    renderFAIcon (hexStyle ++ " " ++ "fa-map") 30
-                ]
-            , case selectedHex of
+            [ case selectedHex of
                 Just viewingAddress ->
                     column [ centerY, Element.paddingXY 0 4, width fill, centerX ]
                         [ case solarSystemStatus of
@@ -256,8 +195,7 @@ viewSidebarColumn msgs { hexScale, isHexMapMode, isFullJourneyMode, selectedHex,
 {-| View the sidebar footer.
 -}
 viewSidebarFooter : Maybe HexAddress -> Element msg
-viewSidebarFooter selectedHex =
-    -- footer
+viewSidebarFooter _ =
     Element.el
         [ Element.padding 10
         , Element.alignBottom
@@ -266,9 +204,4 @@ viewSidebarFooter selectedHex =
         , uiDeepnightColorFontColour
         ]
     <|
-        case selectedHex of
-            Just viewingAddress ->
-                text <| HexAddress.hexLabel viewingAddress
-
-            Nothing ->
-                text "Deepnight Corporation LLC"
+        text "Deepnight Corporation LLC"

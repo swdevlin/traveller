@@ -204,7 +204,7 @@ journeyDimensions : { a | width : Float, height : Float } -> { containerW : Floa
 journeyDimensions viewport =
     let
         containerW =
-            viewport.width - sidebarWidth
+            viewport.width - toFloat sidebarWidth - 15
 
         containerH =
             viewport.height - consoleTitleHeight
@@ -344,25 +344,132 @@ prepNextRequest ( oldSolarSystemDict, requestHistory ) { upperLeftHex, lowerRigh
             }
 
         newSolarSystemDict =
-            let
-                markSolarSystemLoadingIfNotFound maybeSolarSystem =
-                    case maybeSolarSystem of
-                        Just existingSolarSystem ->
-                            Just existingSolarSystem
-
-                        Nothing ->
-                            Just LoadingSolarSystem
-            in
             HexAddress.between upperLeftHex lowerRightHex
                 |> List.foldl
-                    (\hexAddr solarSystemDict ->
-                        Dict.update (HexAddress.toKey hexAddr)
-                            markSolarSystemLoadingIfNotFound
-                            solarSystemDict
+                    (\hexAddr dict ->
+                        let
+                            key =
+                                HexAddress.toKey hexAddr
+                        in
+                        case Dict.get key dict of
+                            Nothing ->
+                                Dict.insert key LoadingSolarSystem dict
+
+                            Just _ ->
+                                dict
                     )
                     oldSolarSystemDict
     in
     ( requestEntry, ( newSolarSystemDict, requestEntry :: requestHistory ) )
+
+
+{-| Returns up to 2 tight bounding boxes covering only the hexes within hexRect
+that are not yet present in the dict.
+
+A straight pan reveals a single rectangular strip (1 rect). A diagonal drag
+reveals an L-shape, which splits into 2 non-overlapping rectangles: the new
+columns at full height and the new rows on the existing columns.
+-}
+missingHexRects : SolarSystemDict -> HexRect -> List HexRect
+missingHexRects dict { upperLeftHex, lowerRightHex } =
+    let
+        missingHexes =
+            HexAddress.between upperLeftHex lowerRightHex
+                |> List.filter (\h -> Dict.get (HexAddress.toKey h) dict == Nothing)
+    in
+    case missingHexes of
+        [] ->
+            []
+
+        _ ->
+            let
+                columnRanges : Dict.Dict Int { minY : Int, maxY : Int }
+                columnRanges =
+                    List.foldl
+                        (\h acc ->
+                            Dict.update h.x
+                                (\mv ->
+                                    case mv of
+                                        Nothing ->
+                                            Just { minY = h.y, maxY = h.y }
+
+                                        Just r ->
+                                            Just { minY = min r.minY h.y, maxY = max r.maxY h.y }
+                                )
+                                acc
+                        )
+                        Dict.empty
+                        missingHexes
+
+                globalMinX =
+                    Dict.keys columnRanges |> List.minimum |> Maybe.withDefault 0
+
+                globalMaxX =
+                    Dict.keys columnRanges |> List.maximum |> Maybe.withDefault 0
+
+                globalMinY =
+                    Dict.values columnRanges |> List.map .minY |> List.minimum |> Maybe.withDefault 0
+
+                globalMaxY =
+                    Dict.values columnRanges |> List.map .maxY |> List.maximum |> Maybe.withDefault 0
+
+                -- Columns spanning the full y range vs. those with a narrower band
+                fullCols =
+                    Dict.filter (\_ r -> r.minY == globalMinY && r.maxY == globalMaxY) columnRanges
+
+                partialCols =
+                    Dict.filter (\_ r -> r.minY /= globalMinY || r.maxY /= globalMaxY) columnRanges
+
+                toRect minX maxX minY maxY =
+                    { upperLeftHex = { x = minX, y = maxY }
+                    , lowerRightHex = { x = maxX, y = minY }
+                    }
+            in
+            if Dict.isEmpty partialCols || Dict.isEmpty fullCols then
+                -- All columns have the same y range → single rectangle
+                [ toRect globalMinX globalMaxX globalMinY globalMaxY ]
+
+            else
+                let
+                    fullMinX =
+                        Dict.keys fullCols |> List.minimum |> Maybe.withDefault globalMinX
+
+                    fullMaxX =
+                        Dict.keys fullCols |> List.maximum |> Maybe.withDefault globalMaxX
+
+                    partialMinX =
+                        Dict.keys partialCols |> List.minimum |> Maybe.withDefault globalMinX
+
+                    partialMaxX =
+                        Dict.keys partialCols |> List.maximum |> Maybe.withDefault globalMaxX
+
+                    partialMinY =
+                        Dict.values partialCols |> List.map .minY |> List.minimum |> Maybe.withDefault globalMinY
+
+                    partialMaxY =
+                        Dict.values partialCols |> List.map .maxY |> List.maximum |> Maybe.withDefault globalMaxY
+                in
+                [ toRect fullMinX fullMaxX globalMinY globalMaxY
+                , toRect partialMinX partialMaxX partialMinY partialMaxY
+                ]
+
+
+{-| Computes tight sub-rects for missing hexes, fires one request per rect, and
+returns the updated dict/history alongside a batched Cmd.
+-}
+prepAndSendRequests : ( SolarSystemDict, RequestHistory ) -> HexRect -> HostConfig.HostConfig -> ( ( SolarSystemDict, RequestHistory ), Cmd Msg )
+prepAndSendRequests ( dict, history ) hexRect hostConfig =
+    missingHexRects dict hexRect
+        |> List.foldl
+            (\rect ( ( d, h ), cmds ) ->
+                let
+                    ( entry, ( d2, h2 ) ) =
+                        prepNextRequest ( d, h ) rect
+                in
+                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: cmds )
+            )
+            ( ( dict, history ), [] )
+        |> Tuple.mapSecond Cmd.batch
 
 
 type ViewMode
@@ -447,12 +554,13 @@ type Msg
     | GotResize Int Int
     | FocusInSidebar StellarObject
     | MapMouseDown ( Float, Float )
-    | MapMouseUp
+    | MapMouseUp (Maybe HexAddress) ( Float, Float )
     | MapMouseMove ( Float, Float )
     | MapMouseLeave
     | DownloadedRoute ( RequestEntry, String ) (Result Http.Error (List Route))
     | SetHexSize Float
     | ToggleHexmap
+    | SetViewMode ViewMode
     | JumpToShip
     | ZoomToHex HexAddress Bool
     | JourneyMsg JourneyMsg
@@ -461,6 +569,7 @@ type Msg
     | CloseObjectAnalysis
     | PanMap { deltaX : Int, deltaY : Int }
     | PanPixels { dx : Float, dy : Float }
+    | HexMapWheelZoom Float
 
 
 type JourneyMsg
@@ -559,12 +668,23 @@ type alias Flags =
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
     , viewMode : Maybe String
+    , journeyState : Maybe String
     }
 
 
 defaultHexRectSize : Int
 defaultHexRectSize =
     30
+
+
+minHexSize : Float
+minHexSize =
+    10
+
+
+maxHexSize : Float
+maxHexSize =
+    60
 
 
 defaultHorizontalHexes : Int
@@ -641,8 +761,27 @@ init viewport settings key hostConfig referee =
 
         journeyModel : JourneyModel
         journeyModel =
-            { zoomScale = 1.0
-            , zoomOffset = ( 0, 0 )
+            let
+                ( restoredScale, restoredOffset ) =
+                    case settings.journeyState of
+                        Just s ->
+                            case String.split "," s of
+                                [ scaleStr, oxStr, oyStr ] ->
+                                    case ( String.toFloat scaleStr, String.toFloat oxStr, String.toFloat oyStr ) of
+                                        ( Just scale, Just ox, Just oy ) ->
+                                            ( scale, ( ox, oy ) )
+
+                                        _ ->
+                                            ( 1.0, ( 0, 0 ) )
+
+                                _ ->
+                                    ( 1.0, ( 0, 0 ) )
+
+                        Nothing ->
+                            ( 1.0, ( 0, 0 ) )
+            in
+            { zoomScale = restoredScale
+            , zoomOffset = restoredOffset
             , hoverPoint = Nothing
             , dragMode = NoDragging
             }
@@ -700,7 +839,7 @@ init viewport settings key hostConfig referee =
       , model
       )
     , Cmd.batch
-        [ sendSolarSystemRequest ssReqEntry model.hostConfig model.hexRect
+        [ sendSolarSystemRequest ssReqEntry model.hostConfig
         , sendSectorRequest secReqEntry model.hostConfig
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
@@ -750,8 +889,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.onClick (ViewingHex hexAddress)
-        , SvgEvents.onMouseUp MapMouseUp
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -822,7 +960,7 @@ mouseDownDecoder onDownMsg =
     -- run the mouse event decoder
     jsMouseEventDecoder
         |> -- then if that succeeds, pass the event object into msgConstructor
-           JsDecode.map (\evt -> onDownMsg evt.offsetPos)
+           JsDecode.map (\evt -> onDownMsg evt.clientPos)
 
 
 mouseClickDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
@@ -872,13 +1010,39 @@ mouseUpDecoder onDownMsg =
     -- run the mouse event decoder
     jsMouseEventDecoder
         |> -- then if that succeeds, pass the event object into msgConstructor
-           JsDecode.map (\evt -> onDownMsg evt.offsetPos)
+           JsDecode.map (\evt -> onDownMsg evt.clientPos)
 
 
 mouseMoveDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
 mouseMoveDecoder onMoveMsg =
     Html.Events.Extra.Mouse.eventDecoder
+        |> JsDecode.map (.clientPos >> onMoveMsg)
+
+
+mouseOffsetPosMoveDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
+mouseOffsetPosMoveDecoder onMoveMsg =
+    Html.Events.Extra.Mouse.eventDecoder
         |> JsDecode.map (.offsetPos >> onMoveMsg)
+
+
+journeyMouseDownDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
+journeyMouseDownDecoder onDownMsg =
+    Html.Events.Extra.Mouse.eventDecoder
+        |> JsDecode.andThen
+            (\evt ->
+                case evt.button of
+                    Html.Events.Extra.Mouse.MainButton ->
+                        JsDecode.succeed (onDownMsg evt.offsetPos)
+
+                    _ ->
+                        JsDecode.fail "Won't drag on non-main/left button"
+            )
+
+
+journeyMouseUpDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
+journeyMouseUpDecoder onUpMsg =
+    Html.Events.Extra.Mouse.eventDecoder
+        |> JsDecode.map (.offsetPos >> onUpMsg)
 
 
 drawStar : Float -> Float -> Int -> Float -> String -> Svg Msg
@@ -907,8 +1071,7 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.onClick (ViewingHex hexAddress)
-        , SvgEvents.onMouseUp MapMouseUp
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -1473,6 +1636,8 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 , SvgAttrs.height <| heightString
                 , SvgAttrs.id "hexmap"
                 , SvgEvents.onMouseOut MapMouseLeave
+                , Html.Events.preventDefaultOn "wheel"
+                    (JsDecode.map (\dy -> ( HexMapWheelZoom dy, True )) (JsDecode.field "deltaY" JsDecode.float))
                 , viewBox <|
                     toViewBox hexSize upperLeftHex panOffset
                         ++ " "
@@ -1737,9 +1902,9 @@ viewFullJourney allSectorsMapUrl model viewport =
         , width <| Element.px <| floor dims.containerW
         , height <| Element.px <| floor dims.containerH
         , Element.clip
-        , Element.htmlAttribute <| Html.Events.on "mousemove" <| mouseMoveDecoder (JourneyMsg << MouseMove)
-        , Element.htmlAttribute <| Html.Events.on "mousedown" <| mouseDownDecoder (JourneyMsg << MouseDown)
-        , Element.htmlAttribute <| Html.Events.on "mouseup" <| mouseUpDecoder (JourneyMsg << MouseUp)
+        , Element.htmlAttribute <| Html.Events.on "mousemove" <| mouseOffsetPosMoveDecoder (JourneyMsg << MouseMove)
+        , Element.htmlAttribute <| Html.Events.on "mousedown" <| journeyMouseDownDecoder (JourneyMsg << MouseDown)
+        , Element.htmlAttribute <| Html.Events.on "mouseup" <| journeyMouseUpDecoder (JourneyMsg << MouseUp)
         , Events.onMouseLeave (JourneyMsg MouseLeave)
         , Element.htmlAttribute <| Html.Events.preventDefaultOn "wheel" <|
             JsDecode.map (\dy -> ( JourneyMsg (WheelZoom dy), True )) (JsDecode.field "deltaY" JsDecode.float)
@@ -1902,12 +2067,43 @@ viewStatusRow model =
                 FullJourney ->
                     []
     in
+    let
+        viewModeIcon : ViewMode -> String -> Element.Element Msg
+        viewModeIcon targetMode iconName =
+            let
+                isActive =
+                    model.viewMode == targetMode
+
+                iconStyle =
+                    if isActive then
+                        "fa-regular"
+
+                    else
+                        "fa-thin"
+
+                colour =
+                    if isActive then
+                        uiDeepnightColorFontColour
+
+                    else
+                        Font.color <| convertColor (Color.Manipulate.darken 0.2 deepnightColor)
+            in
+            el
+                [ colour
+                , Element.pointer
+                , Events.onClick (SetViewMode targetMode)
+                , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
+                , Element.alignBottom
+                ]
+            <|
+                renderFAIcon (iconStyle ++ " " ++ iconName) 16
+    in
     Element.wrappedRow [ Element.spacing 8, Element.width Element.fill, Element.paddingEach { zeroEach | bottom = 8 } ] <|
-        (el [ Font.size 20, uiDeepnightColorFontColour ] <|
-            text <|
-                model.campaignName
-        )
-            :: extras
+        [ el [ Font.size 20, uiDeepnightColorFontColour ] <| text model.campaignName
+        , viewModeIcon HexMap "fa-hexagon"
+        , viewModeIcon FullJourney "fa-map"
+        ]
+            ++ extras
 
 
 viewHexMap : ModelData -> Element Msg
@@ -1964,9 +2160,7 @@ view ( time, model ) =
     let
         sidebarMsgs : SidebarMsgs Msg
         sidebarMsgs =
-            { setHexSize = SetHexSize
-            , toggleHexmap = ToggleHexmap
-            , focusInSidebar = FocusInSidebar
+            { focusInSidebar = FocusInSidebar
             , viewDetail = ViewObjectAnalysisDetail
             }
 
@@ -1993,10 +2187,7 @@ view ( time, model ) =
                     Nothing
 
         sidebarData =
-            { hexScale = model.hexScale
-            , isHexMapMode = model.viewMode == HexMap
-            , isFullJourneyMode = model.viewMode == FullJourney
-            , selectedHex = model.selectedHex
+            { selectedHex = model.selectedHex
             , solarSystemStatus = solarSystemStatus
             , sectors = model.sectors
             , regions = model.regions
@@ -2045,8 +2236,8 @@ view ( time, model ) =
         ]
 
 
-sendSolarSystemRequest : RequestEntry -> HostConfig -> HexRect -> Cmd Msg
-sendSolarSystemRequest requestEntry hostConfig { upperLeftHex, lowerRightHex } =
+sendSolarSystemRequest : RequestEntry -> HostConfig -> Cmd Msg
+sendSolarSystemRequest requestEntry hostConfig =
     let
         solarSystemsDecoder : JsDecode.Decoder (List FallibleStarSystem)
         solarSystemsDecoder =
@@ -2059,25 +2250,22 @@ sendSolarSystemRequest requestEntry hostConfig { upperLeftHex, lowerRightHex } =
             Url.Builder.crossOrigin
                 urlHostRoot
                 (urlHostPath ++ [ "stars" ])
-                [ Url.Builder.int "ulx" upperLeftHex.x
-                , Url.Builder.int "uly" upperLeftHex.y
-                , Url.Builder.int "lrx" lowerRightHex.x
-                , Url.Builder.int "lry" lowerRightHex.y
+                [ Url.Builder.int "ulx" requestEntry.upperLeftHex.x
+                , Url.Builder.int "uly" requestEntry.upperLeftHex.y
+                , Url.Builder.int "lrx" requestEntry.lowerRightHex.x
+                , Url.Builder.int "lry" requestEntry.lowerRightHex.y
                 ]
-
-        requestCmd =
-            -- using Http.request instead of Http.get, to allow setting a timeout
-            Http.request
-                { method = "GET"
-                , headers = []
-                , url = url
-                , body = Http.emptyBody
-                , expect = Http.expectJson (DownloadedSolarSystems ( requestEntry, url )) solarSystemsDecoder
-                , timeout = Just 15000
-                , tracker = Nothing
-                }
     in
-    requestCmd
+    -- using Http.request instead of Http.get, to allow setting a timeout
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson (DownloadedSolarSystems ( requestEntry, url )) solarSystemsDecoder
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
 
 
 sendRouteRequest : RequestEntry -> HostConfig -> Cmd Msg
@@ -2157,12 +2345,20 @@ port storeInLocalStorage : ( Int, Int ) -> Cmd msg
 port storeViewMode : String -> Cmd msg
 
 
+port storeJourneyState : String -> Cmd msg
+
+
 saveHexSize : Float -> Cmd Msg
 saveHexSize size =
     storeHexSize size
 
 
 port storeHexSize : Float -> Cmd msg
+
+
+encodeJourneyState : Float -> ( Float, Float ) -> String
+encodeJourneyState scale ( ox, oy ) =
+    String.join "," [ String.fromFloat scale, String.fromFloat ox, String.fromFloat oy ]
 
 
 updateJourney : JourneyMsg -> Model -> ( Model, Cmd Msg )
@@ -2189,7 +2385,7 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                 newJourneyModel =
                     { journeyModel | zoomScale = newZoomScale }
             in
-            ( setJourneyModel newJourneyModel, Cmd.none )
+            ( setJourneyModel newJourneyModel, storeJourneyState (encodeJourneyState newZoomScale journeyModel.zoomOffset) )
 
         Pan ( dx, dy ) ->
             let
@@ -2205,14 +2401,14 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                 ( oldX, oldY ) =
                     journeyModel.zoomOffset
             in
-            ( setJourneyModel
-                { journeyModel
-                    | zoomOffset =
-                        ( clamp (min 0 (dims.containerW - curImgWidth)) 0 (oldX + dx)
-                        , clamp (min 0 (dims.containerH - curImgHeight)) 0 (oldY + dy)
-                        )
-                }
-            , Cmd.none
+            let
+                newOffset =
+                    ( clamp (min 0 (dims.containerW - curImgWidth)) 0 (oldX + dx)
+                    , clamp (min 0 (dims.containerH - curImgHeight)) 0 (oldY + dy)
+                    )
+            in
+            ( setJourneyModel { journeyModel | zoomOffset = newOffset }
+            , storeJourneyState (encodeJourneyState journeyModel.zoomScale newOffset)
             )
 
         WheelZoom delta ->
@@ -2264,15 +2460,18 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                             , cy - (cy - oy) * actualFactor
                             )
             in
+            let
+                clampedOffset =
+                    ( clamp (min 0 (dims.containerW - curImgWidth)) 0 newOx
+                    , clamp (min 0 (dims.containerH - curImgHeight)) 0 newOy
+                    )
+            in
             ( setJourneyModel
                 { journeyModel
                     | zoomScale = newZoomScale
-                    , zoomOffset =
-                        ( clamp (min 0 (dims.containerW - curImgWidth)) 0 newOx
-                        , clamp (min 0 (dims.containerH - curImgHeight)) 0 newOy
-                        )
+                    , zoomOffset = clampedOffset
                 }
-            , Cmd.none
+            , storeJourneyState (encodeJourneyState newZoomScale clampedOffset)
             )
 
         MouseDown originalPos ->
@@ -2374,7 +2573,11 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                                         , panOffset = { x = 0, y = 0 }
                                     }
                             in
-                            update DownloadSolarSystems ( time, newModel )
+                            let
+                                ( updatedModel, downloadCmds ) =
+                                    update DownloadSolarSystems ( time, newModel )
+                            in
+                            ( updatedModel, Cmd.batch [ storeViewMode "HexMap", saveMapCoords newHexRect.upperLeftHex, downloadCmds ] )
                     in
                     if dist > 2 then
                         ( setJourneyModel { journeyModel | dragMode = NoDragging }
@@ -2400,6 +2603,20 @@ update msg ( time, model ) =
 
         Tick newTime ->
             ( ( newTime, model ), Cmd.none )
+
+        HexMapWheelZoom dy ->
+            let
+                factor =
+                    if dy > 0 then
+                        1 / 1.1
+
+                    else
+                        1.1
+
+                newSize =
+                    clamp minHexSize maxHexSize (model.hexScale * factor)
+            in
+            update (SetHexSize newSize) ( time, model )
 
         SetHexSize newSize ->
             let
@@ -2441,15 +2658,15 @@ update msg ( time, model ) =
 
         DownloadSolarSystems ->
             let
-                ( nextRequestEntry, ( newSolarSystemDict, newRequestHistory ) ) =
-                    prepNextRequest ( model.solarSystems, model.requestHistory ) model.hexRect
+                ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
+                    prepAndSendRequests ( model.solarSystems, model.requestHistory ) model.hexRect model.hostConfig
             in
             ( withTime
                 { model
                     | requestHistory = newRequestHistory
                     , solarSystems = newSolarSystemDict
                 }
-            , sendSolarSystemRequest nextRequestEntry model.hostConfig model.hexRect
+            , cmds
             )
 
         DownloadedSolarSystems ( requestEntry, url_ ) (Ok fallibleSolarSystems) ->
@@ -2544,6 +2761,11 @@ update msg ( time, model ) =
                             ( [], [] )
                         |> Tuple.mapFirst Dict.fromList
 
+                viewportCentre =
+                    { x = (model.hexRect.upperLeftHex.x + model.hexRect.lowerRightHex.x) // 2
+                    , y = (model.hexRect.upperLeftHex.y + model.hexRect.lowerRightHex.y) // 2
+                    }
+
                 solarSystemDict =
                     rangeAsPairs
                         |> Dict.fromList
@@ -2551,6 +2773,7 @@ update msg ( time, model ) =
                                 -- `Dict.union` merges the dict, preferring the left arg's to resolve dupes, so we want to prefer the new one
                                 Dict.union newDict existingDict
                            )
+                        |> evictDistantEntries viewportCentre model.hexRect
 
                 existingDict =
                     model.solarSystems
@@ -2991,13 +3214,23 @@ update msg ( time, model ) =
             else
                 ( newModel, Cmd.none )
 
-        MapMouseUp ->
+        MapMouseUp maybeHexAddress ( upX, upY ) ->
             case model.dragMode of
-                IsDragging { start, last } ->
-                    if start /= last then
+                IsDragging { start } ->
+                    let
+                        ( startX, startY ) =
+                            start
+
+                        distance =
+                            sqrt ((upX - startX) ^ 2 + (upY - startY) ^ 2)
+
+                        isDrag =
+                            distance > 5
+                    in
+                    if isDrag then
                         let
-                            ( nextRequestEntry, ( newSolarSystemDict, newRequestHistory ) ) =
-                                prepNextRequest ( model.solarSystems, model.requestHistory ) model.hexRect
+                            ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
+                                prepAndSendRequests ( model.solarSystems, model.requestHistory ) model.hexRect model.hostConfig
                         in
                         ( withTime
                             { model
@@ -3005,22 +3238,57 @@ update msg ( time, model ) =
                                 , requestHistory = newRequestHistory
                                 , solarSystems = newSolarSystemDict
                             }
-                        , sendSolarSystemRequest nextRequestEntry model.hostConfig model.hexRect
+                        , cmds
                         )
 
                     else
-                        ( withTime
-                            { model
-                                | dragMode = NoDragging
-                            }
-                        , Cmd.none
-                        )
+                        case maybeHexAddress of
+                            Just hexAddress ->
+                                let
+                                    focusedErrors =
+                                        Dict.get (HexAddress.toKey hexAddress) model.solarSystems
+                                            |> Maybe.map
+                                                (\system ->
+                                                    case system of
+                                                        FailedStarsSolarSystem fallibleSystem ->
+                                                            fallibleSystem.stars
+                                                                |> List.filterMap
+                                                                    (\res ->
+                                                                        case res of
+                                                                            Ok _ ->
+                                                                                Nothing
+
+                                                                            Err er ->
+                                                                                Just ("Specific Star failed to decode:\n" ++ JsDecode.errorToString er)
+                                                                    )
+                                                                |> List.map
+                                                                    (\er ->
+                                                                        ( Http.BadBody er, "TODO: tie RequestEntry to URL" )
+                                                                    )
+
+                                                        _ ->
+                                                            []
+                                                )
+                                            |> Maybe.withDefault []
+                                in
+                                ( withTime
+                                    { model
+                                        | dragMode = NoDragging
+                                        , selectedHex = Just hexAddress
+                                        , selectedStellarObject = Nothing
+                                        , selectedSystem = Nothing
+                                        , newSolarSystemErrors = focusedErrors
+                                    }
+                                , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                )
+
+                            Nothing ->
+                                ( withTime { model | dragMode = NoDragging }
+                                , Cmd.none
+                                )
 
                 _ ->
-                    ( withTime
-                        { model
-                            | dragMode = NoDragging
-                        }
+                    ( withTime { model | dragMode = NoDragging }
                     , Cmd.none
                     )
 
@@ -3133,8 +3401,8 @@ update msg ( time, model ) =
                                 }
                     }
 
-                ( nextRequestEntry, ( newSolarSystemDict, newRequestHistory ) ) =
-                    prepNextRequest ( model.solarSystems, model.requestHistory ) newHexRect
+                ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
+                    prepAndSendRequests ( model.solarSystems, model.requestHistory ) newHexRect model.hostConfig
             in
             ( withTime
                 { model
@@ -3145,28 +3413,32 @@ update msg ( time, model ) =
                 }
             , Cmd.batch
                 [ saveMapCoords newHexRect.upperLeftHex
-                , sendSolarSystemRequest nextRequestEntry model.hostConfig newHexRect
+                , cmds
                 ]
             )
 
-        ToggleHexmap ->
+        SetViewMode targetMode ->
             let
-                newViewMode =
-                    if model.viewMode == HexMap then
-                        FullJourney
-
-                    else
-                        HexMap
-
                 viewModeString =
-                    case newViewMode of
+                    case targetMode of
                         FullJourney ->
                             "FullJourney"
 
                         HexMap ->
                             "HexMap"
+
+                ( updatedModel, downloadCmds ) =
+                    case targetMode of
+                        HexMap ->
+                            update DownloadSolarSystems (withTime { model | viewMode = targetMode })
+
+                        FullJourney ->
+                            ( withTime { model | viewMode = targetMode }, Cmd.none )
             in
-            ( withTime { model | viewMode = newViewMode }, storeViewMode viewModeString )
+            ( updatedModel, Cmd.batch [ storeViewMode viewModeString, downloadCmds ] )
+
+        ToggleHexmap ->
+            update (SetViewMode (if model.viewMode == HexMap then FullJourney else HexMap)) ( time, model )
 
         JourneyMsg journeyMsg ->
             updateJourney journeyMsg <| withTime model
@@ -3399,6 +3671,52 @@ stripDataFromRemoteData remoteData =
 
         RemoteData.Loading ->
             RemoteData.Loading
+
+
+cacheLimit : Int
+cacheLimit =
+    500
+
+
+{-| Removes entries furthest from centre (Chebyshev distance) when the dict
+exceeds cacheLimit. Hexes currently inside hexRect are never evicted, regardless
+of distance, so visible content is never blanked mid-render.
+-}
+evictDistantEntries : HexAddress -> HexRect -> SolarSystemDict -> SolarSystemDict
+evictDistantEntries centre hexRect dict =
+    if Dict.size dict <= cacheLimit then
+        dict
+
+    else
+        let
+            -- Build a lookup of all keys currently in the viewport so we can
+            -- protect them from eviction.
+            viewportKeys =
+                HexAddress.between hexRect.upperLeftHex hexRect.lowerRightHex
+                    |> List.map (\h -> ( HexAddress.toKey h, () ))
+                    |> Dict.fromList
+
+            chebyshevDistance key =
+                case String.split "." key of
+                    [ xStr, yStr ] ->
+                        case ( String.toInt xStr, String.toInt yStr ) of
+                            ( Just x, Just y ) ->
+                                max (abs (x - centre.x)) (abs (y - centre.y))
+
+                            _ ->
+                                0
+
+                    _ ->
+                        0
+
+            keysToRemove =
+                Dict.keys dict
+                    |> List.filter (\k -> not (Dict.member k viewportKeys))
+                    |> List.sortBy chebyshevDistance
+                    |> List.reverse
+                    |> List.take (max 0 (Dict.size dict - cacheLimit))
+        in
+        List.foldl Dict.remove dict keysToRemove
 
 
 markRequestComplete : RequestEntry -> RemoteData Http.Error () -> RequestHistory -> RequestHistory

@@ -72,6 +72,7 @@ type alias Flags =
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
     , viewMode : Maybe String
+    , journeyState : Maybe String
     }
 
 
@@ -189,6 +190,7 @@ update msg model =
                                 , nativeSophontColour = model.flags.nativeSophontColour
                                 , extinctSophontColour = model.flags.extinctSophontColour
                                 , viewMode = model.flags.viewMode
+                                , journeyState = model.flags.journeyState
                                 }
                                 model.key
                                 model.hostConfig
