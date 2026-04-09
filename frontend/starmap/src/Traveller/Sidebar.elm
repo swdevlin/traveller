@@ -52,7 +52,7 @@ import Traveller.UI
 -}
 sidebarWidth : number
 sidebarWidth =
-    300
+    320
 
 
 {-| Message constructors needed by sidebar view functions.
@@ -60,6 +60,7 @@ sidebarWidth =
 type alias SidebarMsgs msg =
     { focusInSidebar : StellarObject -> msg
     , viewDetail : StellarObject -> msg
+    , closeSidebar : msg
     }
 
 
@@ -128,18 +129,28 @@ viewSidebarColumn :
     -> Element msg
 viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
-        [ column [ Element.width Element.fill ]
+        [ row [ Element.width Element.fill, Element.paddingXY 8 6 ]
+            [ el
+                [ Element.alignRight
+                , Events.onClick msgs.closeSidebar
+                , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
+                , Font.size 14
+                , Font.color (Element.rgba 0.17 0.42 0.55 0.8)
+                ]
+                (text "✕")
+            ]
+        , column [ Element.width Element.fill ]
             [ case selectedHex of
                 Just viewingAddress ->
                     column [ centerY, Element.paddingXY 0 4, width fill, centerX ]
                         [ case solarSystemStatus of
                             Just status ->
-                                el [ centerX ] (text status)
+                                el [ centerX, Element.htmlAttribute <| HtmlAttrs.class "status-scan" ] (text status)
 
                             Nothing ->
                                 Element.none
                         , column [ centerX, Element.spacing 2 ]
-                            [ el [ centerX, uiDeepnightColorFontColour ] (text <| universalHexLabel sectors viewingAddress)
+                            [ el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text <| universalHexLabel sectors viewingAddress)
                             , case selectedSystem of
                                 Just sys ->
                                     if sys.surveyIndex >= 10 then

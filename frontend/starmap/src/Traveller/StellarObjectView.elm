@@ -469,10 +469,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
             nestingLevel + 1
     in
     column
-        [ Color.rgba (33 / 255.0) (37 / 255.0) (41 / 255.0) 0.15
-            |> Color.Manipulate.darken 0.4
-            |> convertColor
-            |> Background.color
+        [ Background.color (Element.rgba 0.85 0.92 0.97 0.5)
         , Element.width Element.fill
         , Element.moveRight <| toFloat <| nestingLevel * 5
         , Border.rounded 10
@@ -517,7 +514,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
                             { angle = pi / 2.0
                             , steps =
                                 [ travellerRed
-                                , Element.rgba 0 0 0 0.25
+                                , Element.rgba 0.88 0.93 0.97 0.6
                                 , travellerRed
                                 ]
                             }

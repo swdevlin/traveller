@@ -90,7 +90,6 @@ import Traveller.Sector exposing (Sector, SectorDict, codec, sectorKey)
 import Traveller.Sidebar
     exposing
         ( SidebarMsgs
-        , sidebarWidth
         , viewSidebarColumn
         )
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
@@ -204,7 +203,7 @@ journeyDimensions : { a | width : Float, height : Float } -> { containerW : Floa
 journeyDimensions viewport =
     let
         containerW =
-            viewport.width - toFloat sidebarWidth - 15
+            viewport.width
 
         containerH =
             viewport.height - consoleTitleHeight
@@ -529,6 +528,7 @@ type alias ModelData =
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
+    , sidebarOpen : Bool
     }
 
 
@@ -570,6 +570,7 @@ type Msg
     | PanMap { deltaX : Int, deltaY : Int }
     | PanPixels { dx : Float, dy : Float }
     | HexMapWheelZoom Float
+    | CloseSidebar
 
 
 type JourneyMsg
@@ -605,6 +606,13 @@ toKey model key ctrl =
     case ( model.objectToBeAnalyzed, model.viewMode, key ) of
         ( Just _, _, "Escape" ) ->
             CloseObjectAnalysis
+
+        ( Nothing, _, "Escape" ) ->
+            if model.sidebarOpen then
+                CloseSidebar
+
+            else
+                NoOpMsg
 
         ( Nothing, HexMap, "ArrowRight" ) ->
             if ctrl then
@@ -739,7 +747,7 @@ init viewport settings key hostConfig referee =
                                 }
 
                 hexmapWidth =
-                    viewport.viewport.width - toFloat (sidebarWidth + 15)
+                    viewport.viewport.width
 
                 hexmapHeight =
                     viewport.viewport.height - consoleTitleHeight
@@ -833,6 +841,7 @@ init viewport settings key hostConfig referee =
             , allSectorsMapUrl = settings.allSectorsMapUrl
             , nativeSophontColour = settings.nativeSophontColour
             , extinctSophontColour = settings.extinctSophontColour
+            , sidebarOpen = False
             }
     in
     ( ( Time.millisToPosix 0
@@ -865,6 +874,7 @@ hexAddressLabel x y size hexAddress =
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.fontFamily "Tomorrow"
             , SvgAttrs.fontWeight "400"
+            , SvgAttrs.fill "#2A6A8A"
             ]
             [ HexAddress.hexLabel hexAddress |> Svg.text ]
 
@@ -884,6 +894,8 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
                 , SvgAttrs.y <| String.fromInt y
                 , SvgAttrs.fontSize "10"
                 , SvgAttrs.textAnchor "middle"
+                , SvgAttrs.fill "#2A6A8A"
+                , SvgAttrs.class "hex-scan"
                 ]
                 [ Svg.text childSvgTxt ]
     in
@@ -928,7 +940,7 @@ renderPolygon points_ fill =
     Svg.polygon
         [ points points_
         , SvgAttrs.fill hexColour
-        , SvgAttrs.stroke "#CCCCCC"
+        , SvgAttrs.stroke "#8AAFC4"
         , SvgAttrs.strokeWidth "1"
         , SvgAttrs.pointerEvents "visiblePainted"
         , SvgAttrs.class "hex-hover"
@@ -1052,7 +1064,7 @@ drawStar starX starY radius size starColor =
         , SvgAttrs.cy <| String.fromFloat <| starY
         , SvgAttrs.r <| String.fromFloat <| scaleAttr size radius
         , SvgAttrs.fill starColor
-        , SvgAttrs.style "filter: drop-shadow( 2px 2px 2px rgba(0, 0, 0, .25))"
+        , SvgAttrs.style "filter: drop-shadow(0 0 3px rgba(0,0,0,0.55))"
         ]
         []
 
@@ -1154,11 +1166,11 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
                             else
                                 "?"
                      in
-                     [ Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
+                     [ Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown terrestrialSI starSystem.terrestrialPlanetCount ]
-                     , Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
+                     , Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown planetoidSI starSystem.planetoidBeltCount ]
-                     , Svg.tspan [ SvgAttrs.fill "#68B976", SvgAttrs.fontWeight "800" ]
+                     , Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
                         [ Svg.text <| showIfKnown gasGiantSI starSystem.gasGiantCount ]
                      ]
                     )
@@ -1170,23 +1182,23 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
 
 
 defaultHexBg =
-    "#f5f5f5"
+    "#F5F9FC"
 
 
 selectedHexBg =
-    "#a5f5a5"
+    "#B8E0F0"
 
 
 routeHexBg =
-    "#FCD299"
+    "#FFE8C0"
 
 
 nativeSophontHexBg =
-    "#B0E0E6"
+    "#C8F0E8"
 
 
 extinctSophontHexBg =
-    "#EEE8AA"
+    "#F0ECC8"
 
 
 currentAddressHexBg =
@@ -1196,9 +1208,51 @@ currentAddressHexBg =
 allegianceColours : Dict.Dict String String
 allegianceColours =
     Dict.fromList
-        [ ( "C", "#F0FFFF" )
-        , ( "GR", "#FFDAB9" )
-        , ( "AL", "#D2691E" )
+        [ ( "C", "#D0EAF8" )
+        , ( "GR", "#FFE4C8" )
+        , ( "AL", "#E8D4B8" )
+        ]
+
+
+viewHexLoading : Int -> Int -> Int -> Int -> Float -> String -> Svg Msg
+viewHexLoading hx hy x y size hexColour =
+    let
+        origin =
+            ( toFloat x, toFloat y )
+
+        hexAddress =
+            HexAddress hx hy
+
+        spacing =
+            max 7 (size * 0.18)
+
+        dotY =
+            String.fromInt y
+
+        dot cls offset =
+            Svg.text_
+                [ SvgAttrs.x (String.fromFloat (toFloat x + offset))
+                , SvgAttrs.y dotY
+                , SvgAttrs.textAnchor "middle"
+                , SvgAttrs.fill "#2A6A8A"
+                , SvgAttrs.fontSize "14"
+                , SvgAttrs.class cls
+                ]
+                [ Svg.text "·" ]
+    in
+    Svg.g
+        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
+        , SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
+        , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
+        , SvgAttrs.style "cursor: pointer; user-select: none"
+        , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
+        ]
+        [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
+        , hexAddressLabel x y size hexAddress
+        , dot "hex-dot hex-dot-1" -spacing
+        , dot "hex-dot hex-dot-2" 0
+        , dot "hex-dot hex-dot-3" spacing
         ]
 
 
@@ -1239,7 +1293,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints =
                         hexapointsStr
 
                 Just LoadingSolarSystem ->
-                    viewEmptyHelper "Loading..."
+                    viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour
 
                 Just (FailedSolarSystem httpError) ->
                     viewEmptyHelper "Failed."
@@ -1322,9 +1376,9 @@ renderSectorOutline hexSize hex =
     Svg.polyline
         [ points points_
         , SvgAttrs.id ("sectorOutline-" ++ String.fromInt hex.sectorX ++ "-" ++ String.fromInt hex.sectorY)
-        , SvgAttrs.stroke "#0a0a0a40"
+        , SvgAttrs.stroke "#2A6A8A60"
         , SvgAttrs.fill "none"
-        , SvgAttrs.strokeWidth "3"
+        , SvgAttrs.strokeWidth "2"
         , SvgAttrs.pointerEvents "visiblePainted"
         ]
         []
@@ -1339,7 +1393,7 @@ regionLabel x y name =
         , SvgAttrs.dominantBaseline "middle"
         , SvgAttrs.fontFamily "Tomorrow"
         , SvgAttrs.fontWeight "500"
-        , SvgAttrs.fill "#0A0A0A"
+        , SvgAttrs.fill "#1A4A6A"
         , SvgAttrs.style "pointer-events: none; user-select: none;"
         ]
         [ Svg.text name ]
@@ -2113,7 +2167,7 @@ viewHexMap model =
             model.viewport.viewport.viewport.height - consoleTitleHeight
 
         svgWidth =
-            model.viewport.viewport.viewport.width - (sidebarWidth + 15)
+            model.viewport.viewport.viewport.width
 
         ( maxAcross, maxTall ) =
             case model.viewport.hexmapViewport of
@@ -2162,6 +2216,7 @@ view ( time, model ) =
         sidebarMsgs =
             { focusInSidebar = FocusInSidebar
             , viewDetail = ViewObjectAnalysisDetail
+            , closeSidebar = CloseSidebar
             }
 
         solarSystemStatus =
@@ -2169,7 +2224,7 @@ view ( time, model ) =
                 Just viewingAddress ->
                     case model.solarSystems |> Dict.get (HexAddress.toKey viewingAddress) of
                         Just LoadingSolarSystem ->
-                            Just "loading..."
+                            Just "Acquiring signal..."
 
                         Just (FailedSolarSystem _) ->
                             Just "failed."
@@ -2178,7 +2233,12 @@ view ( time, model ) =
                             Just "decoding a star failed"
 
                         Nothing ->
-                            Just "No solar system data found for system."
+                            case model.selectedSystem of
+                                Just _ ->
+                                    Nothing
+
+                                Nothing ->
+                                    Just "No solar system data found for system."
 
                         _ ->
                             Nothing
@@ -2200,6 +2260,22 @@ view ( time, model ) =
         sidebarColumn =
             Element.Lazy.lazy2 viewSidebarColumn sidebarMsgs sidebarData
 
+        sidebarOverlay =
+            el
+                [ Element.height Element.fill
+                , Element.width (Element.px 320)
+                , Element.alignLeft
+                , Font.size 14
+                , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
+                , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
+                , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+                , Border.widthEach { zeroEach | right = 1 }
+                , Border.color (Element.rgba 0.17 0.42 0.55 0.4)
+                , Element.scrollbarY
+                , Element.htmlAttribute (HtmlAttrs.class "sidebar-panel")
+                ]
+                sidebarColumn
+
         contentColumn =
             case model.viewMode of
                 HexMap ->
@@ -2217,8 +2293,7 @@ view ( time, model ) =
         , height fill
         , Font.size 20
         , Font.color <| fontTextColor
-        , Background.color (Element.rgb255 33 37 41)
-        , Element.paddingEach { zeroEach | left = 15 }
+        , Background.color (Element.rgb255 238 244 249)
         , case model.objectToBeAnalyzed of
             Just analysisDetail ->
                 Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg analysisDetail.data
@@ -2226,11 +2301,18 @@ view ( time, model ) =
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
         ]
-        [ el [ Element.height fill, Element.width <| Element.px sidebarWidth, Element.alignTop, Element.alignLeft, Element.scrollbarY ] <|
-            sidebarColumn
-        , column [ width fill, Element.alignTop ]
+        [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
-            , el [ Element.alignTop ] contentColumn
+            , el
+                [ Element.alignTop
+                , width fill
+                , if model.sidebarOpen then
+                    Element.inFront sidebarOverlay
+
+                  else
+                    Element.htmlAttribute <| HtmlAttrs.class ""
+                ]
+                contentColumn
             ]
         , Element.html <| errorDialog model.newSolarSystemErrors
         ]
@@ -3122,6 +3204,7 @@ update msg ( time, model ) =
                     , selectedStellarObject = Nothing
                     , selectedSystem = Nothing
                     , newSolarSystemErrors = focusedErrors
+                    , sidebarOpen = True
                 }
             , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
             )
@@ -3278,6 +3361,7 @@ update msg ( time, model ) =
                                         , selectedStellarObject = Nothing
                                         , selectedSystem = Nothing
                                         , newSolarSystemErrors = focusedErrors
+                                        , sidebarOpen = True
                                     }
                                 , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
                                 )
@@ -3605,9 +3689,24 @@ update msg ( time, model ) =
                                 , concentrationRating = pdata.population |> Maybe.andThen .concentrationRating
                                 , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
                                 , majorCities = pdata.population |> Maybe.andThen .majorCities
-                                , government = withCode 5 .government Government.description
-                                , lawLevel = withCode 6 .lawLevel LawLevel.description
-                                , techLevel = withCode 8 .techLevel TechLevel.description
+                                , government =
+                                    if uwpChar 4 == "0" then
+                                        "—"
+
+                                    else
+                                        withCode 5 .government Government.description
+                                , lawLevel =
+                                    if uwpChar 4 == "0" then
+                                        "—"
+
+                                    else
+                                        withCode 6 .lawLevel LawLevel.description
+                                , techLevel =
+                                    if uwpChar 4 == "0" then
+                                        "—"
+
+                                    else
+                                        withCode 8 .techLevel TechLevel.description
                                 }
                             }
                     in
@@ -3653,6 +3752,11 @@ update msg ( time, model ) =
 
         CloseObjectAnalysis ->
             ( withTime { model | objectToBeAnalyzed = Nothing }
+            , Cmd.none
+            )
+
+        CloseSidebar ->
+            ( withTime { model | sidebarOpen = False }
             , Cmd.none
             )
 

@@ -29,6 +29,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import Html.Attributes as HtmlAttrs
 import Html.Events
 import Json.Decode
 import List.Extra
@@ -188,7 +189,6 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg data =
     el
         [ width fill
         , height fill
-        , Background.color <| Element.rgba 0 0 0 0.6
         , Events.onClick closeMsg
         ]
     <|
@@ -196,28 +196,30 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg data =
             [ Element.centerX
             , Element.centerY
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True )))
-            , Background.color <| Element.rgba 0.12 0.14 0.18 0.98
+            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
+            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
             , width <| Element.px 750
             , Element.padding 20
             , Border.rounded 6
             , Border.width 1
-            , Border.color <| Element.rgba 1 1 1 0.15
-            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.6 }
+            , Border.color <| Element.rgba 0.17 0.42 0.55 0.3
+            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
             ]
             [ row
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 16 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color <| Element.rgba 1 1 1 0.1
+                , Border.color <| Element.rgba 0.17 0.42 0.55 0.15
                 ]
                 [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] <|
                     text header
                 , el
                     [ Element.paddingEach { top = 0, left = 10, right = 0, bottom = 0 }
                     , Element.pointer
-                    , Element.mouseOver [ Font.color <| Element.rgb 1 1 1 ]
+                    , Element.mouseOver [ Font.color <| Element.rgb 0 0 0 ]
                     , Font.size 16
-                    , Font.color <| Element.rgba 1 1 1 0.5
+                    , Font.color <| Element.rgba 0.17 0.42 0.55 0.7
                     , Element.alignRight
                     , Element.alignTop
                     , Events.onClick closeMsg

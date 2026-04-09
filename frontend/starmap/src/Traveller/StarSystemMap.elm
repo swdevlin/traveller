@@ -608,14 +608,14 @@ svgStyle =
     Svg.node "style"
         []
         [ Svg.text """
-            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #64748b; paint-order: stroke fill; stroke: #1e293b; stroke-width: 12px; stroke-linejoin: round; }
-            .sm-star-label { font-family: "Orbitron", system-ui, sans-serif; font-size: 12px; fill: #f8fafc; font-weight: 600; letter-spacing: 0.04em; }
-            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #cbd5e1; }
-            .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #68B976; }
-            .sm-travel-btn { font-size: 12px; fill: #64748b; cursor: pointer; font-family: ui-monospace, monospace; }
-            .sm-travel-btn:hover { fill: #68B976; }
-            .sm-travel-btn-active { font-size: 12px; fill: #68B976; cursor: pointer; font-family: ui-monospace, monospace; }
-            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 10px; fill: #94a3b8; }
+            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
+            .sm-star-label { font-family: "Orbitron", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }
+            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
+            .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #007A6A; }
+            .sm-travel-btn { font-size: 12px; fill: #4A7A9A; cursor: pointer; font-family: ui-monospace, monospace; }
+            .sm-travel-btn:hover { fill: #007A6A; }
+            .sm-travel-btn-active { font-size: 12px; fill: #007A6A; cursor: pointer; font-family: ui-monospace, monospace; }
+            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
             .sm-node:hover circle { opacity: 0.75; }
             .sm-node { cursor: pointer; }
         """
@@ -646,7 +646,7 @@ renderEdge edge =
                  , SA.y1 (String.fromFloat edge.y1)
                  , SA.x2 (String.fromFloat edge.x2)
                  , SA.y2 (String.fromFloat edge.y2)
-                 , SA.stroke "#334155"
+                 , SA.stroke "#8AAFC4"
                  , SA.strokeWidth "3"
                  , SA.strokeLinecap "round"
                  ]
@@ -735,7 +735,7 @@ renderNode msgs selectedStellarObject node =
             selectedStellarObject == Just node.stellarObject
 
         strokeColour =
-            "#1e293b"
+            "#1A4A6A"
 
         strokeWidth =
             "1.5"

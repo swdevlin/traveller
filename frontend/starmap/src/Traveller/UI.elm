@@ -58,7 +58,7 @@ colorToElementColor color =
 -}
 textColor : Color.Color
 textColor =
-    Color.rgb 0.5 1.0 0.5
+    Color.rgb255 26 74 106
 
 
 deepnightColor : Color.Color

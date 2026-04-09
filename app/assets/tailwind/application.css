@@ -533,3 +533,53 @@
 .jump-marker {
   opacity: 0.75;
 }
+
+/* Sci-fi hex map — sidebar slide-in */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-320px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.sidebar-panel {
+  animation: slideInLeft 0.2s ease-out;
+}
+
+/* Loading animations */
+@keyframes scanPulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+@keyframes dotRipple {
+  0%, 66%, 100% { opacity: 0.15; transform: translateY(0); }
+  33% { opacity: 1; transform: translateY(-2px); }
+}
+
+/* Three-dot ripple in hex cells */
+.hex-dot {
+  animation: dotRipple 1.4s ease-in-out infinite;
+}
+.hex-dot-1 { animation-delay: 0s; }
+.hex-dot-2 { animation-delay: 0.22s; }
+.hex-dot-3 { animation-delay: 0.44s; }
+
+/* Sidebar / page status text pulse */
+.status-scan {
+  animation: scanPulse 1.6s ease-in-out infinite;
+  font-family: Tomorrow, monospace;
+  font-size: 11px;
+  color: #2A6A8A;
+  letter-spacing: 0.08em;
+}
+
+/* Hex hover */
+.hex-hover:hover {
+  filter: brightness(0.92) drop-shadow(0 0 4px rgba(42, 100, 140, 0.45));
+  cursor: pointer;
+}

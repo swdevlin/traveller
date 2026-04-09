@@ -73,73 +73,73 @@ starColourRGB : Maybe StarColour -> String
 starColourRGB colour =
     case colour of
         Just Blue ->
-            "#000077"
+            "#3366BB"
 
         Just BlueWhite ->
-            "#87cefa"
+            "#5588CC"
 
         Just White ->
-            "#FFFFFF"
+            "#8899AA"
 
         Just YellowWhite ->
-            "#ffffe0"
+            "#BBAA44"
 
         Just Yellow ->
-            "#ffff00"
+            "#CC8800"
 
         Just LightOrange ->
-            "#ffbf00"
+            "#CC6622"
 
         Just OrangeRed ->
-            "#ff4500"
+            "#CC3311"
 
         Just Red ->
-            "#ff0000"
+            "#BB1111"
 
         Just Brown ->
-            "#f4a460"
+            "#886644"
 
         Just DeepDimRed ->
-            "#800000"
+            "#882255"
 
         Nothing ->
-            "#000000"
+            "#778899"
 
 
-{-| Fill colour for star circles in SVG diagrams — tuned for dark backgrounds.
+{-| Fill colour for star circles in SVG diagrams — tuned for light backgrounds.
 -}
 starFillColour : Maybe StarColour -> String
 starFillColour colour =
     case colour of
         Just Blue ->
-            "#6baed6"
+            "#3366BB"
 
         Just BlueWhite ->
-            "#9ecae1"
+            "#5588CC"
 
         Just White ->
-            "#e5e5e5"
+            "#8899AA"
 
         Just YellowWhite ->
-            "#fee391"
+            "#BBAA44"
 
         Just Yellow ->
-            "#fed976"
+            "#CC8800"
 
         Just LightOrange ->
-            "#fd8d3c"
+            "#CC6622"
 
         Just OrangeRed ->
-            "#e6550d"
+            "#CC3311"
 
         Just Red ->
-            "#de2d26"
+            "#BB1111"
 
         Just Brown ->
-            "#8c6d31"
+            "#886644"
 
         Just DeepDimRed ->
-            "#7a0177"
+            "#882255"
 
         Nothing ->
-            "#969696"
+            "#778899"
