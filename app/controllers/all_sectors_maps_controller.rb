@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class AllSectorsMapsController < ApplicationController
+  allow_unauthenticated_access only: :show
+
   def show
     path = AllSectorsMapGenerator.new(current_campaign).output_path
     return head :not_found unless path.exist?
