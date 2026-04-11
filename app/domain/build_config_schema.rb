@@ -113,7 +113,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:counts).hash(CountsSchema)
 end
 
-SOPHONT_CHECK_VALUES = %w[standard rareEarth none].freeze
+SOPHONT_CHECK_VALUES = %w[standard rareEarth veryRareEarth none].freeze
 
 SingleSystemSchema = Dry::Schema.Params do
   optional(:name).filled(:string)

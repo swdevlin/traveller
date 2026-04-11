@@ -5,8 +5,9 @@
 <%
   sophont_check_labels = {
     'standard'  => 'Standard',
-    'rareEarth' => 'Rare Earth Variant',
-    'none'      => 'None'
+    'rareEarth'      => 'Rare Earth Variant',
+    'veryRareEarth'  => 'Very Rare Earth Variant',
+    'none'           => 'None'
   }
   sophont_default = @campaign.charted_space? ? 'none' : 'standard'
   sophont_label = sophont_check_labels.fetch(@campaign.sophont_check.presence || sophont_default, 'Standard')
