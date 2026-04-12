@@ -33,7 +33,7 @@ class TerrestrialPlanet < StellarObject
     atmosphere: 'atmosphere',
     hydrographics: 'hydrographics',
     population: 'population',
-    government_code: 'governmentCode',
+    government: 'government',
     law_level_code: 'lawLevelCode',
     tech_level_code: 'techLevel',
     starport_code: 'starPort',

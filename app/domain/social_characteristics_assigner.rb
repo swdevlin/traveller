@@ -8,10 +8,10 @@ class SocialCharacteristicsAssigner
   end
 
   SOCIAL_API_FIELDS = {
-    'governmentCode' => :government_code=,
-    'lawLevelCode'   => :law_level_code=,
-    'techLevel'      => :tech_level_code=,
-    'starPort'       => :starport_code=
+    'government'   => :government=,
+    'lawLevelCode' => :law_level_code=,
+    'techLevel'    => :tech_level_code=,
+    'starPort'     => :starport_code=
   }.freeze
 
   def initialize(star_system, generator_service)

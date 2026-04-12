@@ -78,6 +78,14 @@ module HasUwp
     self.population = (population || {}).merge('majorCities' => val.present? ? val.to_i : nil)
   end
 
+  def government_code
+    government&.dig('code')
+  end
+
+  def government_code=(val)
+    self.government = (government || {}).merge('code' => val.present? ? val.to_i : nil)
+  end
+
   def starport_code
     data&.dig('starport_code')
   end
@@ -116,7 +124,6 @@ module HasUwp
   end
 
   def normalize_uwp_attributes
-    self.government_code = government_code.to_i if government_code.present?
     self.law_level_code = law_level_code.to_i if law_level_code.present?
   end
 
