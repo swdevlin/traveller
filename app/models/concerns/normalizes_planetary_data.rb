@@ -19,6 +19,7 @@ module NormalizesPlanetaryData
   INTEGER_FIELDS = %i[
     habitability_rating
     biomass_rating
+    biocomplexity_rating
     biodiversity_rating
     resource_rating
   ].freeze
