@@ -144,7 +144,7 @@
           "concentrationRating": null
         },
         "governmentCode": 0,
-        "lawLevelCode": 0,
+        "lawLevel": { "code": 0 },
         "starPort": "X",
         "techLevel": 0,
         "tradeCodes": [],
@@ -238,7 +238,7 @@
           "concentrationRating": null
         },
         "governmentCode": 0,
-        "lawLevelCode": 0,
+        "lawLevel": { "code": 0 },
         "starPort": "X",
         "techLevel": 0,
         "tradeCodes": [],
@@ -312,7 +312,7 @@
               "code": 0,
               "concentrationRating": null
             },
-            "lawLevelCode": 0,
+            "lawLevel": { "code": 0 },
             "biomassRating": 0,
             "axialTilt": 2.277617657123578,
             "diameter": null,
@@ -359,7 +359,7 @@
               "code": 0,
               "concentrationRating": null
             },
-            "lawLevelCode": 0,
+            "lawLevel": { "code": 0 },
             "biomassRating": 0,
             "axialTilt": 11.386550098847433,
             "diameter": null,
@@ -427,7 +427,7 @@
           "concentrationRating": null
         },
         "governmentCode": 0,
-        "lawLevelCode": 0,
+        "lawLevel": { "code": 0 },
         "starPort": "X",
         "techLevel": 0,
         "tradeCodes": [],
@@ -530,7 +530,7 @@
               "concentrationRating": null
             },
             "governmentCode": 0,
-            "lawLevelCode": 0,
+            "lawLevel": { "code": 0 },
             "starPort": "X",
             "techLevel": 0,
             "tradeCodes": [],
@@ -608,7 +608,7 @@
                   "code": 0,
                   "concentrationRating": null
                 },
-                "lawLevelCode": 0,
+                "lawLevel": { "code": 0 },
                 "biomassRating": 0,
                 "axialTilt": 3.5358095969500978,
                 "diameter": null,
@@ -655,7 +655,7 @@
                   "code": 0,
                   "concentrationRating": null
                 },
-                "lawLevelCode": 0,
+                "lawLevel": { "code": 0 },
                 "biomassRating": 0,
                 "axialTilt": 0.020781090606064236,
                 "diameter": null,
@@ -702,7 +702,7 @@
                   "code": 0,
                   "concentrationRating": null
                 },
-                "lawLevelCode": 0,
+                "lawLevel": { "code": 0 },
                 "biomassRating": 0,
                 "axialTilt": 40.14759180947544,
                 "diameter": null,
@@ -749,7 +749,7 @@
                   "code": 0,
                   "concentrationRating": null
                 },
-                "lawLevelCode": 0,
+                "lawLevel": { "code": 0 },
                 "biomassRating": 0,
                 "axialTilt": 0.0013989058972655789,
                 "diameter": null,
@@ -789,7 +789,7 @@
               "concentrationRating": null
             },
             "governmentCode": 0,
-            "lawLevelCode": 0,
+            "lawLevel": { "code": 0 },
             "starPort": "X",
             "techLevel": 0,
             "tradeCodes": [],
@@ -904,7 +904,7 @@
       "concentrationRating": null
     },
     "governmentCode": 0,
-    "lawLevelCode": 0,
+    "lawLevel": { "code": 0 },
     "starPort": "X",
     "techLevel": 0,
     "tradeCodes": [],

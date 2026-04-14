@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_13_031806) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_14_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -55,6 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_13_031806) do
   end
 
   create_table "public.campaigns", force: :cascade do |t|
+    t.string "api_token"
     t.string "campaign_type", default: "charted_space", null: false
     t.datetime "created_at", null: false
     t.string "name", null: false

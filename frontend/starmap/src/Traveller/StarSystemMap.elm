@@ -191,8 +191,8 @@ viewStarSystemMap msgs solarSystem selectedStellarObject _ =
             ]
             [ svgDefs
             , svgStyle
-            , renderEdges layout.edges
             , renderJumpShadows layout.jumpShadows
+            , renderEdges layout.edges
             , renderNodes msgs selectedStellarObject layout.nodes
             ]
 
@@ -615,7 +615,8 @@ svgStyle =
             .sm-travel-btn { font-size: 12px; fill: #4A7A9A; cursor: pointer; font-family: ui-monospace, monospace; }
             .sm-travel-btn:hover { fill: #007A6A; }
             .sm-travel-btn-active { font-size: 12px; fill: #007A6A; cursor: pointer; font-family: ui-monospace, monospace; }
-            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
+            .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
+            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
             .sm-node:hover circle { opacity: 0.75; }
             .sm-node { cursor: pointer; }
         """
@@ -813,10 +814,22 @@ renderNode msgs selectedStellarObject node =
         iconX =
             labelX + toFloat (String.length node.label) * charWidth + 5
 
+        leftX =
+            String.fromFloat (node.x - node.radius - 4)
+
+        orbitSequenceEl =
+            Svg.text_
+                [ SA.x leftX
+                , SA.y (String.fromFloat (node.y - 5))
+                , SA.textAnchor "end"
+                , SA.class "sm-orbit-sequence"
+                ]
+                [ Svg.text (getStellarOrbit node.stellarObject).orbitSequence ]
+
         jumpTimeEl =
             Svg.text_
-                [ SA.x (String.fromFloat (node.x - node.radius - 4))
-                , SA.y (String.fromFloat labelY)
+                [ SA.x leftX
+                , SA.y (String.fromFloat (node.y + 9))
                 , SA.textAnchor "end"
                 , SA.class "sm-jump-time"
                 ]
@@ -878,7 +891,7 @@ renderNode msgs selectedStellarObject node =
         [ SE.onClick (msgs.onViewDetail node.stellarObject)
         , SA.class "sm-node"
         ]
-        (circleEl :: travelIconEl :: jumpTimeEl :: labelEls)
+        (circleEl :: travelIconEl :: orbitSequenceEl :: jumpTimeEl :: labelEls)
 
 
 

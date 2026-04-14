@@ -1,4 +1,6 @@
 class Api::JumpLogsController < Api::BaseController
+  before_action :authenticate_user_or_token!, only: %i[create]
+
   def index
     @jumps = JumpLog
       .joins(
@@ -21,5 +23,23 @@ class Api::JumpLogsController < Api::BaseController
         'to_sectors.y AS to_sector_y'
       )
       .order(arrive_year: :asc, arrive_day: :asc)
+  end
+
+  def create
+    jump_log = JumpLog.new(jump_log_params)
+
+    if jump_log.save
+      render json: jump_log, status: :created
+    else
+      render json: { errors: jump_log.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def jump_log_params
+    params.expect(jump_log: %i[ship_id from_parsec_id to_parsec_id
+                                depart_year depart_day arrive_year arrive_day
+                                notes misjump])
   end
 end

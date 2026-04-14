@@ -73,7 +73,7 @@
             "hydrographics": { "code": 0, "distribution": 0 },
             "population": { "code": 4, "concentrationRating": null },
             "governmentCode": 7,
-            "lawLevelCode": 7,
+            "lawLevel": { "code": 7 },
             "starPort": "B",
             "techLevel": 12,
             "tradeCodes": [],

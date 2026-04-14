@@ -281,6 +281,52 @@
     </div>
 
     <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-deepnight-orange mb-4'>API Access</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>Campaign Slug</dt>
+          <dd class='mt-1 text-slate-300'>
+            The campaign's unique identifier as it appears in all URLs — the
+            <span class='font-mono text-slate-200'>:campaign_slug</span> segment of
+            <span class='font-mono text-slate-200'>/c/:campaign_slug/…</span>. Enter this value
+            in the Foundry module's <span class='font-mono text-slate-200'>MTU Campaign Slug</span>
+            setting.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-slate-200'>API Token</dt>
+          <dd class='mt-1 text-slate-300'>
+            A shared secret used to authorise write operations from external tools such as the
+            Foundry VTT module. The token is transmitted as a
+            <span class='font-mono text-slate-200'>Bearer</span> credential in the
+            <span class='font-mono text-slate-200'>Authorization</span> header of each request.
+            Enter this value in the Foundry module's
+            <span class='font-mono text-slate-200'>MTU API Token</span> setting.
+          </dd>
+          <div class='mt-3 rounded-xl bg-slate-900/30 p-3 space-y-2'>
+            <p class='text-xs text-slate-300'>
+              The token is generated automatically when a campaign is created and is not
+              transmitted or stored anywhere other than this page. Use the
+              <span class='font-mono text-slate-200'>Copy</span> button to transfer it to the
+              Foundry module settings.
+            </p>
+            <p class='text-xs text-slate-300'>
+              Use <span class='font-mono text-slate-200'>Regenerate</span> to issue a new token —
+              for example if the token is compromised. The previous token is invalidated immediately.
+              Any external tool using the old token will receive a
+              <span class='font-mono text-slate-200'>401 Unauthorised</span> response and must be
+              updated with the new value.
+            </p>
+          </div>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
       <p class='text-xs uppercase tracking-[0.22em] text-deepnight-orange mb-3'>Bulk Operations</p>
       <dl class='space-y-4 text-sm'>
 

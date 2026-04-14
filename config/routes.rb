@@ -21,7 +21,9 @@ Rails.application.routes.draw do
       resources :sectors, only: :index, defaults: { format: :json }
       resources :regions, only: :index, defaults: { format: :json }
       resources :parsecs, only: :index
-      get 'jumps',       to: 'jump_logs#index', defaults: { format: :json }
+      get  'jumps',       to: 'jump_logs#index', defaults: { format: :json }
+      post 'jumps',       to: 'jump_logs#create', defaults: { format: :json }
+      resources :ships, only: :index, defaults: { format: :json }
       get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       resources :stars, only: %i[index update]
@@ -137,6 +139,7 @@ Rails.application.routes.draw do
       post :populate_all
       post :populate_empty
       post :generate_all_sectors_map
+      post :regenerate_api_token
     end
 
     get 'all_sectors_map', to: 'all_sectors_maps#show', as: :campaign_all_sectors_map

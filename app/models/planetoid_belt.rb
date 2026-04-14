@@ -47,9 +47,10 @@ class PlanetoidBelt < StellarObject
     hydrographics: 'hydrographics',
     population: 'population',
     government: 'government',
-    law_level_code: 'lawLevelCode',
+    law_level: 'lawLevel',
     tech_level_code: 'techLevel',
     starport_code: 'starPort',
+    economics: 'economics',
   )
 
   private

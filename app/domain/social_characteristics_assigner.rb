@@ -9,7 +9,7 @@ class SocialCharacteristicsAssigner
 
   SOCIAL_API_FIELDS = {
     'government'   => :government=,
-    'lawLevelCode' => :law_level_code=,
+    'lawLevel'     => :law_level=,
     'techLevel'    => :tech_level_code=,
     'starPort'     => :starport_code=
   }.freeze

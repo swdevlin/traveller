@@ -1,5 +1,44 @@
 class Api::BaseController < ActionController::API
+  include ActionController::Cookies
+
+  before_action :set_current_campaign
+
   private
+
+  def set_current_campaign
+    campaign = Campaign.find_by(slug: params[:campaign_slug])
+    return render json: { error: 'Campaign not found' }, status: :not_found unless campaign
+
+    Current.campaign = campaign
+  end
+
+  # Require authentication for endpoints that modify data. Accepts either a
+  # valid session cookie (logged-in user) or a Bearer API token.
+  def authenticate_user_or_token!
+    return if authenticated_by_session?
+    return if authenticated_by_token?
+
+    render json: { error: 'Unauthorised' }, status: :unauthorized
+  end
+
+  def authenticated_by_session?
+    return false unless cookies.signed[:session_id]
+
+    session = Session.find_by(id: cookies.signed[:session_id])
+    return false unless session
+
+    Current.session = session
+    true
+  end
+
+  def authenticated_by_token?
+    token = request.headers['Authorization']&.delete_prefix('Bearer ')
+    token.present? && ActiveSupport::SecurityUtils.secure_compare(token, Current.campaign.api_token.to_s)
+  end
+
+  def current_campaign
+    Current.campaign
+  end
 
   def parsecs_in_region
     if params[:sx].present? && params[:sy].present?

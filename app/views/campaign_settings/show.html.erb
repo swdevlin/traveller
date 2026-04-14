@@ -121,6 +121,33 @@
                  value: @campaign.show_extinct_sophont? ? 'Yes' : 'No' %>
     </div>
 
+    <%= render 'application/subsection', title: 'API Access' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block', label: 'Campaign Slug', value: @campaign.slug %>
+    </div>
+
+    <div class='mt-4'>
+      <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-1'>API Token</div>
+      <div class='flex items-center gap-2'>
+        <input type='text' readonly value='<%= @campaign.api_token %>'
+               id='api-token-field'
+               class='edit-base font-mono text-xs w-full sm:w-2/3 select-all'
+               onclick='this.select()' />
+        <button type='button'
+                class='btn btn-sm shrink-0'
+                onclick="navigator.clipboard.writeText(document.getElementById('api-token-field').value).then(() => this.textContent = 'Copied!').catch(() => {}); setTimeout(() => this.textContent = 'Copy', 1500)">
+          Copy
+        </button>
+        <%= button_to regenerate_api_token_campaign_settings_path,
+              method: :post,
+              class: 'btn btn-sm shrink-0',
+              data: { turbo_confirm: 'Regenerate the API token? The existing token will stop working immediately and you will need to update your Foundry module settings.' } do %>
+          <i class='fa-regular fa-rotate mr-1'></i> Regenerate
+        <% end %>
+      </div>
+    </div>
+
     <%= render 'application/subsection', title: 'All-Sectors Map' %>
 
     <% map_path = AllSectorsMapGenerator.new(@campaign).output_path %>

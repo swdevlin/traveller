@@ -86,6 +86,7 @@ class Campaign < ApplicationRecord
     self.max_tech_level         = 16
     self.native_tech_level      = false
     self.token_secret           = SecureRandom.hex(32)
+    self.api_token              = SecureRandom.hex(32)
     self.native_sophont_colour  = '#B0E0E6'
     self.extinct_sophont_colour = '#EEE8AA'
     self.show_native_sophont    = true

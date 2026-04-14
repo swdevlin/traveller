@@ -34,13 +34,14 @@ class TerrestrialPlanet < StellarObject
     hydrographics: 'hydrographics',
     population: 'population',
     government: 'government',
-    law_level_code: 'lawLevelCode',
+    law_level: 'lawLevel',
     tech_level_code: 'techLevel',
     starport_code: 'starPort',
     tidal_lock: 'tidalLock',
     tidal_lock_note: 'tidalLockNote',
     twilight_zone: 'twilightZone',
-    sidereal_day: 'siderealDay'
+    sidereal_day: 'siderealDay',
+    economics: 'economics'
   )
 
   def orbit_type = 11

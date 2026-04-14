@@ -86,6 +86,14 @@ module HasUwp
     self.government = (government || {}).merge('code' => val.present? ? val.to_i : nil)
   end
 
+  def law_level_code
+    law_level&.dig('code')
+  end
+
+  def law_level_code=(val)
+    self.law_level = (law_level || {}).merge('code' => val.present? ? val.to_i : nil)
+  end
+
   def starport_code
     data&.dig('starport_code')
   end

@@ -55,6 +55,11 @@ class CampaignSettingsController < ApplicationController
     redirect_to campaign_settings_path, notice: 'All-sectors map generation queued.'
   end
 
+  def regenerate_api_token
+    current_campaign.update_column(:api_token, SecureRandom.hex(32))
+    redirect_to campaign_settings_path, notice: 'API token regenerated. Update your Foundry module settings.'
+  end
+
   private
 
   def campaign_settings_params

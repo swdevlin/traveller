@@ -692,7 +692,7 @@ minHexSize =
 
 maxHexSize : Float
 maxHexSize =
-    60
+    120
 
 
 defaultHorizontalHexes : Int
