@@ -1875,7 +1875,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     ++ sectorOutlines
                     ++ regionBorderLines
                     ++ [ singlePolyHex ]
-                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] systemLabels ]
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
                     ++ labels
            )
         |> (let
