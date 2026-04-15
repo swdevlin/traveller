@@ -2,7 +2,7 @@ module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, Star
 
 import Codec exposing (Codec)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (custom, required)
+import Json.Decode.Pipeline exposing (custom, optional, required)
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
 
@@ -60,6 +60,7 @@ type alias StarSystem =
     , extinctSophont : Bool
     , techLevel : Maybe Int
     , stars : List StarType
+    , mainWorldUwp : Maybe String
     }
 
 
@@ -77,6 +78,7 @@ type alias FallibleStarSystem =
     , extinctSophont : Bool
     , techLevel : Maybe Int
     , stars : List (Result Decode.Error StarType)
+    , mainWorldUwp : Maybe String
     }
 
 
@@ -100,6 +102,7 @@ starSystemCodec =
         |> Codec.field "extinct_sophont" .extinctSophont Codec.bool
         |> Codec.field "tech_level" .techLevel (Codec.nullable Codec.int)
         |> Codec.field "stars" .stars (Codec.list starTypeCodec)
+        |> Codec.field "main_world_uwp" .mainWorldUwp (Codec.nullable Codec.string)
         |> Codec.buildObject
 
 
@@ -136,3 +139,4 @@ fallibleStarSystemDecoder =
             (Decode.list
                 (Decode.map decodeOrCatchError Decode.value)
             )
+        |> optional "main_world_uwp" (Decode.nullable Decode.string) Nothing

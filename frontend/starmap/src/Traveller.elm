@@ -135,6 +135,10 @@ planetoidSI =
     6
 
 
+uwpSI =
+    10
+
+
 consoleTitleHeight =
     46
 
@@ -1069,8 +1073,119 @@ drawStar starX starY radius size starColor =
         []
 
 
-renderHexWithStar : StarSystem -> String -> Int -> Int -> Int -> Int -> Float -> String -> Svg Msg
-renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapointsStr =
+drawUnknownSlot : Float -> Float -> Float -> Svg Msg
+drawUnknownSlot iconX iconY size =
+    let
+        r =
+            scaleAttr size 5
+    in
+    Svg.g []
+        [ Svg.circle
+            [ SvgAttrs.cx <| String.fromFloat iconX
+            , SvgAttrs.cy <| String.fromFloat iconY
+            , SvgAttrs.r <| String.fromFloat r
+            , SvgAttrs.fill "#DDDDDD"
+            , SvgAttrs.opacity "0.6"
+            ]
+            []
+        , Svg.text_
+            [ SvgAttrs.x <| String.fromFloat iconX
+            , SvgAttrs.y <| String.fromFloat iconY
+            , SvgAttrs.fontSize "9"
+            , SvgAttrs.textAnchor "middle"
+            , SvgAttrs.dominantBaseline "central"
+            , SvgAttrs.fontFamily "Tomorrow"
+            , SvgAttrs.fontWeight "400"
+            , SvgAttrs.fill "#2A6A8A"
+            ]
+            [ Svg.text "?" ]
+        ]
+
+
+drawPlanetoidBelt : Int -> Int -> Float -> Svg Msg
+drawPlanetoidBelt cx cy size =
+    let
+        iconX =
+            toFloat cx - size * 0.38
+
+        iconY =
+            toFloat cy - size * 0.45
+
+        scale =
+            scaleAttr size 7 / 16
+    in
+    Svg.g
+        [ SvgAttrs.transform <|
+            "translate("
+                ++ String.fromFloat iconX
+                ++ ","
+                ++ String.fromFloat iconY
+                ++ ") scale("
+                ++ String.fromFloat scale
+                ++ ")"
+        ]
+        [ Svg.polygon [ SvgAttrs.points "-12,-6 -7,-10 -3,-5 -6,-1 -10,-2", SvgAttrs.fill "#475569" ] []
+        , Svg.polygon [ SvgAttrs.points "4,-11 10,-9 8,-4 3,-6", SvgAttrs.fill "#64748b" ] []
+        , Svg.polygon [ SvgAttrs.points "-10,4 -5,2 -2,7 -7,10", SvgAttrs.fill "#1e293b" ] []
+        , Svg.polygon [ SvgAttrs.points "2,1 8,-1 11,5 7,8 3,6", SvgAttrs.fill "#475569" ] []
+        , Svg.polygon [ SvgAttrs.points "-1,9 4,11 1,14 -3,12", SvgAttrs.fill "#64748b" ] []
+        ]
+
+
+drawGasGiant : Int -> Int -> Float -> Svg Msg
+drawGasGiant cx cy size =
+    let
+        iconX =
+            toFloat cx + size * 0.38
+
+        iconY =
+            toFloat cy - size * 0.45
+
+        r =
+            scaleAttr size 5
+    in
+    Svg.g []
+        [ Svg.circle
+            [ SvgAttrs.cx <| String.fromFloat iconX
+            , SvgAttrs.cy <| String.fromFloat iconY
+            , SvgAttrs.r <| String.fromFloat r
+            , SvgAttrs.fill "#222222"
+            ]
+            []
+        , Svg.ellipse
+            [ SvgAttrs.cx <| String.fromFloat iconX
+            , SvgAttrs.cy <| String.fromFloat iconY
+            , SvgAttrs.rx <| String.fromFloat (r * 1.8)
+            , SvgAttrs.ry <| String.fromFloat (r * 0.55)
+            , SvgAttrs.fill "none"
+            , SvgAttrs.stroke "#222222"
+            , SvgAttrs.strokeWidth "1.2"
+            , SvgAttrs.transform <|
+                "rotate(-30 "
+                    ++ String.fromFloat iconX
+                    ++ " "
+                    ++ String.fromFloat iconY
+                    ++ ")"
+            ]
+            []
+        ]
+
+
+type alias HexRenderOpts =
+    { starSystem : StarSystem
+    , hexColour : String
+    , hexAddrX : Int
+    , hexAddrY : Int
+    , vox : Int
+    , voy : Int
+    , size : Float
+    , hexapointsStr : String
+    , isReferee : Bool
+    }
+
+
+renderHexWithStar : HexRenderOpts -> Svg Msg
+renderHexWithStar { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, hexapointsStr, isReferee } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -1080,6 +1195,18 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
 
         showStar =
             starSystem.surveyIndex > 0
+
+        showGasGiant =
+            (isReferee || si >= gasGiantSI) && starSystem.gasGiantCount > 0
+
+        showPlanetoidBelt =
+            (isReferee || si >= planetoidSI) && starSystem.planetoidBeltCount > 0
+
+        showUnknownGasGiant =
+            showStar && not isReferee && si < gasGiantSI
+
+        showUnknownPlanetoidBelt =
+            showStar && not isReferee && si < planetoidSI
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
@@ -1145,40 +1272,81 @@ renderHexWithStar starSystem hexColour hexAddrX hexAddrY vox voy size hexapoints
           else
             hexAddressLabel vox voy size hexAddress
         , if showStar then
-            Svg.g []
-                [ hexAddressLabel vox voy size hexAddress
-                , if size <= 15 then
-                    Svg.text ""
+            hexAddressLabel vox voy size hexAddress
 
-                  else
-                    Svg.text_
-                        [ SvgAttrs.x <| String.fromInt <| vox
-                        , SvgAttrs.y <| String.fromInt <| voy + (floor <| size * 0.8) - 1
-                        , SvgAttrs.fontSize "10"
-                        , SvgAttrs.textAnchor "middle"
-                        , SvgAttrs.style "letter-spacing: 3px"
-                        ]
-                    (let
-                        showIfKnown req value =
-                            if si >= req then
-                                toEHexChar value
+          else
+            Svg.text ""
+        , if showGasGiant && size > 15 then
+            drawGasGiant vox voy size
 
-                            else
-                                "?"
-                     in
-                     [ Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
-                        [ Svg.text <| showIfKnown terrestrialSI starSystem.terrestrialPlanetCount ]
-                     , Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
-                        [ Svg.text <| showIfKnown planetoidSI starSystem.planetoidBeltCount ]
-                     , Svg.tspan [ SvgAttrs.fill "#007A6A", SvgAttrs.fontWeight "800" ]
-                        [ Svg.text <| showIfKnown gasGiantSI starSystem.gasGiantCount ]
-                     ]
-                    )
-                ]
+          else
+            Svg.text ""
+        , if showPlanetoidBelt && size > 15 then
+            drawPlanetoidBelt vox voy size
+
+          else
+            Svg.text ""
+        , if showUnknownGasGiant && size > 15 then
+            drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
+
+          else
+            Svg.text ""
+        , if showUnknownPlanetoidBelt && size > 15 then
+            drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
 
           else
             Svg.text ""
         ]
+
+
+renderHexSystemLabels : HexRenderOpts -> Svg Msg
+renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
+    let
+        si =
+            starSystem.surveyIndex
+
+        showStar =
+            si > 0
+    in
+    if not showStar || size <= 25 then
+        Svg.text ""
+
+    else
+        Svg.g []
+            [ if size > 55 && (isReferee || si >= uwpSI) then
+                case starSystem.mainWorldUwp of
+                    Just uwpStr ->
+                        Svg.text_
+                            [ SvgAttrs.x <| String.fromInt vox
+                            , SvgAttrs.y <| String.fromInt <| voy + floor (size * 0.48)
+                            , SvgAttrs.fontSize <| String.fromFloat (size * 0.18)
+                            , SvgAttrs.textAnchor "middle"
+                            , SvgAttrs.fontFamily "Oxanium"
+                            , SvgAttrs.fontWeight "400"
+                            , SvgAttrs.fill "#333333"
+                            ]
+                            [ Svg.text uwpStr ]
+
+                    Nothing ->
+                        Svg.text ""
+
+              else
+                Svg.text ""
+            , if isReferee && starSystem.name /= "" then
+                Svg.text_
+                    [ SvgAttrs.x <| String.fromInt vox
+                    , SvgAttrs.y <| String.fromInt <| voy + floor (size * 0.78)
+                    , SvgAttrs.fontSize <| String.fromFloat (size * 0.25)
+                    , SvgAttrs.textAnchor "middle"
+                    , SvgAttrs.fontFamily "Oxanium"
+                    , SvgAttrs.fontWeight "600"
+                    , SvgAttrs.fill "#333333"
+                    ]
+                    [ Svg.text starSystem.name ]
+
+              else
+                Svg.text ""
+            ]
 
 
 defaultHexBg =
@@ -1264,8 +1432,9 @@ viewHex :
     -> Int
     -> String
     -> List ( Float, Float )
+    -> Bool
     -> Svg Msg
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
@@ -1280,17 +1449,17 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints =
                         hexapointsStr =
                             convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
                     in
-                    Svg.Lazy.lazy8 renderHexWithStar
-                        loadedSystem
-                        hexColour
-                        -- hex address
-                        hexAddress.x
-                        hexAddress.y
-                        -- visual origin
-                        vox
-                        voy
-                        hexSize
-                        hexapointsStr
+                    Svg.Lazy.lazy renderHexWithStar
+                        { starSystem = loadedSystem
+                        , hexColour = hexColour
+                        , hexAddrX = hexAddress.x
+                        , hexAddrY = hexAddress.y
+                        , vox = vox
+                        , voy = voy
+                        , size = hexSize
+                        , hexapointsStr = hexapointsStr
+                        , isReferee = isReferee
+                        }
 
                 Just LoadingSolarSystem ->
                     viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour
@@ -1518,6 +1687,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 voy
                 hexColour
                 rawHexaPoints
+                isReferee
             )
     in
     hexRange
@@ -1544,10 +1714,39 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     labels =
                         hexRange
                             |> List.filterMap renderRegionLabel
+
+                    viewHexSystemLabels hexAddr =
+                        let
+                            hexKey =
+                                HexAddress.toKey hexAddr
+
+                            ( vox, voy ) =
+                                calcVisualOrigin hexSize
+                                    { row = hexAddr.y, col = hexAddr.x }
+                        in
+                        case Dict.get hexKey solarSystemDict of
+                            Just (LoadedSolarSystem loadedSystem) ->
+                                renderHexSystemLabels
+                                    { starSystem = loadedSystem
+                                    , hexColour = ""
+                                    , hexAddrX = hexAddr.x
+                                    , hexAddrY = hexAddr.y
+                                    , vox = vox
+                                    , voy = voy
+                                    , size = hexSize
+                                    , hexapointsStr = ""
+                                    , isReferee = isReferee
+                                    }
+
+                            _ ->
+                                Svg.text ""
+
+                    systemLabels =
+                        hexRange |> List.map viewHexSystemLabels
                 in
-                ( hexSvgsWithHexAddress, labels )
+                ( hexSvgsWithHexAddress, labels, systemLabels )
            )
-        |> (\( hexSvgsWithHexAddress, labels ) ->
+        |> (\( hexSvgsWithHexAddress, labels, systemLabels ) ->
                 let
                     singlePolyHex =
                         renderCurrentAddressOutline currentAddress
@@ -1676,6 +1875,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     ++ sectorOutlines
                     ++ regionBorderLines
                     ++ [ singlePolyHex ]
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] systemLabels ]
                     ++ labels
            )
         |> (let
@@ -2808,6 +3008,7 @@ update msg ( time, model ) =
                                             , stars =
                                                 -- WARN: relies on hasFailed to be false. if we don't do that check, we'll miss errors
                                                 List.map Result.toMaybe fallibleSystem.stars |> List.filterMap identity
+                                            , mainWorldUwp = fallibleSystem.mainWorldUwp
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address

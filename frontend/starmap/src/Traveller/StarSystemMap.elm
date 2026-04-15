@@ -609,7 +609,7 @@ svgStyle =
         []
         [ Svg.text """
             .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
-            .sm-star-label { font-family: "Orbitron", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }
+            .sm-star-label { font-family: "Tomorrow", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }
             .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
             .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #007A6A; }
             .sm-travel-btn { font-size: 12px; fill: #4A7A9A; cursor: pointer; font-family: ui-monospace, monospace; }

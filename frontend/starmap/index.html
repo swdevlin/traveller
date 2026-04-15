@@ -6776,6 +6776,7 @@ var $elm$time$Time$every = F2(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
 var $author$project$Traveller$CloseObjectAnalysis = {$: 'CloseObjectAnalysis'};
+var $author$project$Traveller$CloseSidebar = {$: 'CloseSidebar'};
 var $author$project$Traveller$JourneyMsg = function (a) {
 	return {$: 'JourneyMsg', a: a};
 };
@@ -6845,73 +6846,77 @@ var $author$project$Traveller$toKey = F3(
 			1,
 			(A2($author$project$Traveller$horizontalHexes, model.viewport.hexmapViewport, model.hexScale) / 2) | 0);
 		var _v0 = _Utils_Tuple3(model.objectToBeAnalyzed, model.viewMode, key);
-		_v0$9:
+		_v0$10:
 		while (true) {
 			if (_v0.a.$ === 'Just') {
 				if (_v0.c === 'Escape') {
 					return $author$project$Traveller$CloseObjectAnalysis;
 				} else {
-					break _v0$9;
+					break _v0$10;
 				}
 			} else {
-				if (_v0.b.$ === 'HexMap') {
-					switch (_v0.c) {
-						case 'ArrowRight':
-							var _v1 = _v0.a;
-							var _v2 = _v0.b;
+				switch (_v0.c) {
+					case 'Escape':
+						var _v1 = _v0.a;
+						return model.sidebarOpen ? $author$project$Traveller$CloseSidebar : $author$project$Traveller$NoOpMsg;
+					case 'ArrowRight':
+						if (_v0.b.$ === 'HexMap') {
+							var _v2 = _v0.a;
+							var _v3 = _v0.b;
 							return ctrl ? $author$project$Traveller$PanMap(
 								{deltaX: halfH, deltaY: 0}) : $author$project$Traveller$PanPixels(
 								{dx: panStep, dy: 0});
-						case 'ArrowLeft':
-							var _v3 = _v0.a;
-							var _v4 = _v0.b;
-							return ctrl ? $author$project$Traveller$PanMap(
-								{deltaX: -halfH, deltaY: 0}) : $author$project$Traveller$PanPixels(
-								{dx: -panStep, dy: 0});
-						case 'ArrowUp':
-							var _v5 = _v0.a;
-							var _v6 = _v0.b;
-							return ctrl ? $author$project$Traveller$PanMap(
-								{deltaX: 0, deltaY: -halfV}) : $author$project$Traveller$PanPixels(
-								{dx: 0, dy: -panStep});
-						case 'ArrowDown':
-							var _v7 = _v0.a;
-							var _v8 = _v0.b;
-							return ctrl ? $author$project$Traveller$PanMap(
-								{deltaX: 0, deltaY: halfV}) : $author$project$Traveller$PanPixels(
-								{dx: 0, dy: panStep});
-						default:
-							break _v0$9;
-					}
-				} else {
-					switch (_v0.c) {
-						case 'ArrowRight':
-							var _v9 = _v0.a;
-							var _v10 = _v0.b;
+						} else {
+							var _v10 = _v0.a;
+							var _v11 = _v0.b;
 							return $author$project$Traveller$JourneyMsg(
 								$author$project$Traveller$Pan(
 									_Utils_Tuple2(-50, 0)));
-						case 'ArrowLeft':
-							var _v11 = _v0.a;
-							var _v12 = _v0.b;
+						}
+					case 'ArrowLeft':
+						if (_v0.b.$ === 'HexMap') {
+							var _v4 = _v0.a;
+							var _v5 = _v0.b;
+							return ctrl ? $author$project$Traveller$PanMap(
+								{deltaX: -halfH, deltaY: 0}) : $author$project$Traveller$PanPixels(
+								{dx: -panStep, dy: 0});
+						} else {
+							var _v12 = _v0.a;
+							var _v13 = _v0.b;
 							return $author$project$Traveller$JourneyMsg(
 								$author$project$Traveller$Pan(
 									_Utils_Tuple2(50, 0)));
-						case 'ArrowUp':
-							var _v13 = _v0.a;
-							var _v14 = _v0.b;
+						}
+					case 'ArrowUp':
+						if (_v0.b.$ === 'HexMap') {
+							var _v6 = _v0.a;
+							var _v7 = _v0.b;
+							return ctrl ? $author$project$Traveller$PanMap(
+								{deltaX: 0, deltaY: -halfV}) : $author$project$Traveller$PanPixels(
+								{dx: 0, dy: -panStep});
+						} else {
+							var _v14 = _v0.a;
+							var _v15 = _v0.b;
 							return $author$project$Traveller$JourneyMsg(
 								$author$project$Traveller$Pan(
 									_Utils_Tuple2(0, 50)));
-						case 'ArrowDown':
-							var _v15 = _v0.a;
-							var _v16 = _v0.b;
+						}
+					case 'ArrowDown':
+						if (_v0.b.$ === 'HexMap') {
+							var _v8 = _v0.a;
+							var _v9 = _v0.b;
+							return ctrl ? $author$project$Traveller$PanMap(
+								{deltaX: 0, deltaY: halfV}) : $author$project$Traveller$PanPixels(
+								{dx: 0, dy: panStep});
+						} else {
+							var _v16 = _v0.a;
+							var _v17 = _v0.b;
 							return $author$project$Traveller$JourneyMsg(
 								$author$project$Traveller$Pan(
 									_Utils_Tuple2(0, -50)));
-						default:
-							break _v0$9;
-					}
+						}
+					default:
+						break _v0$10;
 				}
 			}
 		}
@@ -8428,7 +8433,9 @@ var $author$project$Traveller$SolarSystemStars$FallibleStarSystem = function (ad
 										return function (extinctSophont) {
 											return function (techLevel) {
 												return function (stars) {
-													return {address: address, allegiance: allegiance, extinctSophont: extinctSophont, gasGiantCount: gasGiantCount, name: name, nativeSophont: nativeSophont, planetoidBeltCount: planetoidBeltCount, scanPoints: scanPoints, sectorName: sectorName, stars: stars, surveyIndex: surveyIndex, techLevel: techLevel, terrestrialPlanetCount: terrestrialPlanetCount};
+													return function (mainWorldUwp) {
+														return {address: address, allegiance: allegiance, extinctSophont: extinctSophont, gasGiantCount: gasGiantCount, mainWorldUwp: mainWorldUwp, name: name, nativeSophont: nativeSophont, planetoidBeltCount: planetoidBeltCount, scanPoints: scanPoints, sectorName: sectorName, stars: stars, surveyIndex: surveyIndex, techLevel: techLevel, terrestrialPlanetCount: terrestrialPlanetCount};
+													};
 												};
 											};
 										};
@@ -8452,6 +8459,59 @@ var $elm$json$Json$Decode$nullable = function (decoder) {
 			]));
 };
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
+	function (path, valDecoder, fallback) {
+		var nullOr = function (decoder) {
+			return $elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						decoder,
+						$elm$json$Json$Decode$null(fallback)
+					]));
+		};
+		var handleResult = function (input) {
+			var _v0 = A2(
+				$elm$json$Json$Decode$decodeValue,
+				A2($elm$json$Json$Decode$at, path, $elm$json$Json$Decode$value),
+				input);
+			if (_v0.$ === 'Ok') {
+				var rawValue = _v0.a;
+				var _v1 = A2(
+					$elm$json$Json$Decode$decodeValue,
+					nullOr(valDecoder),
+					rawValue);
+				if (_v1.$ === 'Ok') {
+					var finalResult = _v1.a;
+					return $elm$json$Json$Decode$succeed(finalResult);
+				} else {
+					return A2(
+						$elm$json$Json$Decode$at,
+						path,
+						nullOr(valDecoder));
+				}
+			} else {
+				return $elm$json$Json$Decode$succeed(fallback);
+			}
+		};
+		return A2($elm$json$Json$Decode$andThen, handleResult, $elm$json$Json$Decode$value);
+	});
+var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional = F4(
+	function (key, valDecoder, fallback, decoder) {
+		return A2(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder,
+				_List_fromArray(
+					[key]),
+				valDecoder,
+				fallback),
+			decoder);
+	});
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 	function (key, valDecoder, decoder) {
 		return A2(
@@ -8678,81 +8738,86 @@ try {
 	};
 } catch ($) {
 	throw 'Some top-level definitions from `Traveller.SolarSystemStars` are causing infinite recursion:\n\n  ┌─────┐\n  │    starTypeCodec\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Traveller$SolarSystemStars$fallibleStarSystemDecoder = function () {
 	var decodeOrCatchError = $elm$json$Json$Decode$decodeValue(
 		$miniBill$elm_codec$Codec$decoder($author$project$Traveller$SolarSystemStars$starTypeCodec));
-	return A3(
-		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'stars',
-		$elm$json$Json$Decode$list(
-			A2($elm$json$Json$Decode$map, decodeOrCatchError, $elm$json$Json$Decode$value)),
+	return A4(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+		'main_world_uwp',
+		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
+		$elm$core$Maybe$Nothing,
 		A3(
 			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'tech_level',
-			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
+			'stars',
+			$elm$json$Json$Decode$list(
+				A2($elm$json$Json$Decode$map, decodeOrCatchError, $elm$json$Json$Decode$value)),
 			A3(
 				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'extinct_sophont',
-				$elm$json$Json$Decode$bool,
+				'tech_level',
+				$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
 				A3(
 					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'native_sophont',
+					'extinct_sophont',
 					$elm$json$Json$Decode$bool,
 					A3(
 						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'allegiance',
-						$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
+						'native_sophont',
+						$elm$json$Json$Decode$bool,
 						A3(
 							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'belt_count',
-							$elm$json$Json$Decode$int,
+							'allegiance',
+							$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
 							A3(
 								$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'terrestrial_count',
+								'belt_count',
 								$elm$json$Json$Decode$int,
 								A3(
 									$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'gas_giant_count',
+									'terrestrial_count',
 									$elm$json$Json$Decode$int,
 									A3(
 										$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'survey_index',
+										'gas_giant_count',
 										$elm$json$Json$Decode$int,
 										A3(
 											$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-											'scan_points',
+											'survey_index',
 											$elm$json$Json$Decode$int,
 											A3(
 												$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-												'name',
-												$elm$json$Json$Decode$string,
+												'scan_points',
+												$elm$json$Json$Decode$int,
 												A3(
 													$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-													'sector_name',
+													'name',
 													$elm$json$Json$Decode$string,
 													A3(
 														$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-														'origin_y',
-														$elm$json$Json$Decode$int,
+														'sector_name',
+														$elm$json$Json$Decode$string,
 														A3(
 															$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-															'origin_x',
+															'origin_y',
 															$elm$json$Json$Decode$int,
-															$elm$json$Json$Decode$succeed(
-																function (ox) {
-																	return function (oy) {
-																		return function (sname) {
-																			return function (name) {
-																				return function (sp) {
-																					return function (si) {
-																						return function (ggc) {
-																							return function (tpc) {
-																								return function (ppc) {
-																									return function (al) {
-																										return function (stars) {
-																											return $author$project$Traveller$SolarSystemStars$FallibleStarSystem(
-																												{x: ox, y: oy})(sname)(name)(sp)(si)(ggc)(tpc)(ppc)(al)(stars);
+															A3(
+																$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+																'origin_x',
+																$elm$json$Json$Decode$int,
+																$elm$json$Json$Decode$succeed(
+																	function (ox) {
+																		return function (oy) {
+																			return function (sname) {
+																				return function (name) {
+																					return function (sp) {
+																						return function (si) {
+																							return function (ggc) {
+																								return function (tpc) {
+																									return function (ppc) {
+																										return function (al) {
+																											return function (stars) {
+																												return $author$project$Traveller$SolarSystemStars$FallibleStarSystem(
+																													{x: ox, y: oy})(sname)(name)(sp)(si)(ggc)(tpc)(ppc)(al)(stars);
+																											};
 																										};
 																									};
 																								};
@@ -8762,8 +8827,7 @@ var $author$project$Traveller$SolarSystemStars$fallibleStarSystemDecoder = funct
 																				};
 																			};
 																		};
-																	};
-																})))))))))))))));
+																	}))))))))))))))));
 }();
 var $elm$url$Url$Builder$QueryParameter = F2(
 	function (a, b) {
@@ -8818,7 +8882,7 @@ var $author$project$Traveller$HexAddress$shiftAddressBy = F2(
 		var deltaY = _v0.deltaY;
 		return {x: hexAddress.x + deltaX, y: hexAddress.y - deltaY};
 	});
-var $author$project$Traveller$Sidebar$sidebarWidth = 300;
+var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Traveller$HexAddress$universalHexX = function (hexAddr) {
 	return hexAddr.x + (hexAddr.sectorX * 32);
 };
@@ -8833,12 +8897,49 @@ var $author$project$Traveller$HexAddress$toUniversalAddress = function (sectorHe
 };
 var $author$project$Traveller$init = F5(
 	function (viewport, settings, key, hostConfig, referee) {
-		var journeyModel = {
-			dragMode: $author$project$Traveller$NoDragging,
-			hoverPoint: $elm$core$Maybe$Nothing,
-			zoomOffset: _Utils_Tuple2(0, 0),
-			zoomScale: 1.0
-		};
+		var journeyModel = function () {
+			var _v12 = function () {
+				var _v13 = settings.journeyState;
+				if (_v13.$ === 'Just') {
+					var s = _v13.a;
+					var _v14 = A2($elm$core$String$split, ',', s);
+					if (((_v14.b && _v14.b.b) && _v14.b.b.b) && (!_v14.b.b.b.b)) {
+						var scaleStr = _v14.a;
+						var _v15 = _v14.b;
+						var oxStr = _v15.a;
+						var _v16 = _v15.b;
+						var oyStr = _v16.a;
+						var _v17 = _Utils_Tuple3(
+							$elm$core$String$toFloat(scaleStr),
+							$elm$core$String$toFloat(oxStr),
+							$elm$core$String$toFloat(oyStr));
+						if (((_v17.a.$ === 'Just') && (_v17.b.$ === 'Just')) && (_v17.c.$ === 'Just')) {
+							var scale = _v17.a.a;
+							var ox = _v17.b.a;
+							var oy = _v17.c.a;
+							return _Utils_Tuple2(
+								scale,
+								_Utils_Tuple2(ox, oy));
+						} else {
+							return _Utils_Tuple2(
+								1.0,
+								_Utils_Tuple2(0, 0));
+						}
+					} else {
+						return _Utils_Tuple2(
+							1.0,
+							_Utils_Tuple2(0, 0));
+					}
+				} else {
+					return _Utils_Tuple2(
+						1.0,
+						_Utils_Tuple2(0, 0));
+				}
+			}();
+			var restoredScale = _v12.a;
+			var restoredOffset = _v12.b;
+			return {dragMode: $author$project$Traveller$NoDragging, hoverPoint: $elm$core$Maybe$Nothing, zoomOffset: restoredOffset, zoomScale: restoredScale};
+		}();
 		var initialViewMode = function () {
 			var _v11 = settings.viewMode;
 			if ((_v11.$ === 'Just') && (_v11.a === 'FullJourney')) {
@@ -8860,7 +8961,7 @@ var $author$project$Traveller$init = F5(
 						{sectorX: -10, sectorY: -2, x: 21, y: 12});
 				}
 			}();
-			var hexmapWidth = viewport.viewport.width - ($author$project$Traveller$Sidebar$sidebarWidth + 15);
+			var hexmapWidth = viewport.viewport.width;
 			var hexmapHeight = viewport.viewport.height - $author$project$Traveller$consoleTitleHeight;
 			var deltaY = $elm$core$Basics$ceiling(
 				hexmapHeight / $author$project$Traveller$HexGeometry$hexHeight(settings.hexSize)) + 2;
@@ -8940,6 +9041,7 @@ var $author$project$Traveller$init = F5(
 			selectedSystem: $elm$core$Maybe$Nothing,
 			shipName: A2($elm$core$Maybe$withDefault, 'Ship', settings.shipName),
 			sidebarHoverText: $elm$core$Maybe$Nothing,
+			sidebarOpen: false,
 			solarSystems: solarSystemDict,
 			timeOpened: $elm$time$Time$millisToPosix(0),
 			viewMode: initialViewMode,
@@ -9414,6 +9516,21 @@ var $author$project$Traveller$TechLevel$description = function (code) {
 			return 'Pocket Universe Age';
 	}
 };
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Traveller$encodeJourneyState = F2(
+	function (scale, _v0) {
+		var ox = _v0.a;
+		var oy = _v0.b;
+		return A2(
+			$elm$core$String$join,
+			',',
+			_List_fromArray(
+				[
+					$elm$core$String$fromFloat(scale),
+					$elm$core$String$fromFloat(ox),
+					$elm$core$String$fromFloat(oy)
+				]));
+	});
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
@@ -11443,7 +11560,6 @@ var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
 };
-var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$core$Basics$ge = _Utils_ge;
 var $myrho$elm_round$Round$addSign = F2(
 	function (signed, str) {
@@ -11878,7 +11994,7 @@ var $elm_community$result_extra$Result$Extra$isErr = function (x) {
 var $author$project$Traveller$fullJourneyImageHeight = 2240;
 var $author$project$Traveller$fullJourneyImageWidth = 2176;
 var $author$project$Traveller$journeyDimensions = function (viewport) {
-	var containerW = (viewport.width - $author$project$Traveller$Sidebar$sidebarWidth) - 15;
+	var containerW = viewport.width;
 	var containerH = viewport.height - $author$project$Traveller$consoleTitleHeight;
 	var aspectRatio = $author$project$Traveller$fullJourneyImageHeight / $author$project$Traveller$fullJourneyImageWidth;
 	var heightFromWidth = containerW * aspectRatio;
@@ -11919,7 +12035,7 @@ var $author$project$Traveller$markRequestComplete = F3(
 			},
 			requestHistory);
 	});
-var $author$project$Traveller$maxHexSize = 60;
+var $author$project$Traveller$maxHexSize = 120;
 var $elm$core$List$member = F2(
 	function (x, xs) {
 		return A2(
@@ -12360,6 +12476,7 @@ var $author$project$Traveller$StarColour$starColourName = function (colour) {
 		return '—';
 	}
 };
+var $author$project$Traveller$storeJourneyState = _Platform_outgoingPort('storeJourneyState', $elm$json$Json$Encode$string);
 var $author$project$Traveller$storeViewMode = _Platform_outgoingPort('storeViewMode', $elm$json$Json$Encode$string);
 var $author$project$Traveller$Hydrographics$surfaceDistributionDescription = function (code) {
 	if (code.$ === 'Nothing') {
@@ -13438,11 +13555,11 @@ var $author$project$Traveller$Parser$uwp = A2(
 				}))),
 	$author$project$Traveller$TechLevel$parser);
 var $author$project$Traveller$update = F2(
-	function (msg, _v17) {
+	function (msg, _v18) {
 		update:
 		while (true) {
-			var time = _v17.a;
-			var model = _v17.b;
+			var time = _v18.a;
+			var model = _v18.b;
 			var withTime = function (m) {
 				return _Utils_Tuple2(time, m);
 			};
@@ -13461,9 +13578,9 @@ var $author$project$Traveller$update = F2(
 					var factor = (dy > 0) ? (1 / 1.1) : 1.1;
 					var newSize = A3($elm$core$Basics$clamp, $author$project$Traveller$minHexSize, $author$project$Traveller$maxHexSize, model.hexScale * factor);
 					var $temp$msg = $author$project$Traveller$SetHexSize(newSize),
-						$temp$_v17 = _Utils_Tuple2(time, model);
+						$temp$_v18 = _Utils_Tuple2(time, model);
 					msg = $temp$msg;
-					_v17 = $temp$_v17;
+					_v18 = $temp$_v18;
 					continue update;
 				case 'SetHexSize':
 					var newSize = msg.a;
@@ -13475,8 +13592,8 @@ var $author$project$Traveller$update = F2(
 						{deltaX: hh, deltaY: vh},
 						model.hexRect.upperLeftHex);
 					var newHexRect = {lowerRightHex: lr, upperLeftHex: model.hexRect.upperLeftHex};
-					var _v19 = function () {
-						var _v20 = _Utils_Tuple2(
+					var _v20 = function () {
+						var _v21 = _Utils_Tuple2(
 							_Utils_update(
 								model,
 								{
@@ -13486,8 +13603,8 @@ var $author$project$Traveller$update = F2(
 									viewMode: $author$project$Traveller$HexMap
 								}),
 							$author$project$Traveller$saveHexSize(newSize));
-						var newModel_ = _v20.a;
-						var newCmds_ = _v20.b;
+						var newModel_ = _v21.a;
+						var newCmds_ = _v21.b;
 						return A2(
 							$elm$core$Tuple$mapSecond,
 							function (newestCmds) {
@@ -13500,19 +13617,19 @@ var $author$project$Traveller$update = F2(
 								$author$project$Traveller$DownloadSolarSystems,
 								withTime(newModel_)));
 					}();
-					var newModel = _v19.a;
-					var newCmds = _v19.b;
+					var newModel = _v20.a;
+					var newCmds = _v20.b;
 					return _Utils_Tuple2(newModel, newCmds);
 				case 'DownloadSolarSystems':
-					var _v21 = A3(
+					var _v22 = A3(
 						$author$project$Traveller$prepAndSendRequests,
 						_Utils_Tuple2(model.solarSystems, model.requestHistory),
 						model.hexRect,
 						model.hostConfig);
-					var _v22 = _v21.a;
-					var newSolarSystemDict = _v22.a;
-					var newRequestHistory = _v22.b;
-					var cmds = _v21.b;
+					var _v23 = _v22.a;
+					var newSolarSystemDict = _v23.a;
+					var newRequestHistory = _v23.b;
+					var cmds = _v22.b;
 					return _Utils_Tuple2(
 						withTime(
 							_Utils_update(
@@ -13542,9 +13659,9 @@ var $author$project$Traveller$update = F2(
 									{sectors: sectorDict})),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var _v28 = msg.a;
-						var requestEntry = _v28.a;
-						var url = _v28.b;
+						var _v29 = msg.a;
+						var requestEntry = _v29.a;
+						var url = _v29.b;
 						var err = msg.b.a;
 						return _Utils_Tuple2(
 							withTime(
@@ -13615,9 +13732,9 @@ var $author$project$Traveller$update = F2(
 									{hexColours: hexColourDict, regionLabels: regionLabelDict, regions: regionDict})),
 							$elm$core$Platform$Cmd$none);
 					} else {
-						var _v29 = msg.a;
-						var requestEntry = _v29.a;
-						var url = _v29.b;
+						var _v30 = msg.a;
+						var requestEntry = _v30.a;
+						var url = _v30.b;
 						var err = msg.b.a;
 						var stub = {
 							borderColour: $elm$core$Maybe$Nothing,
@@ -13687,9 +13804,9 @@ var $author$project$Traveller$update = F2(
 					}
 				case 'DownloadedRoute':
 					if (msg.b.$ === 'Ok') {
-						var _v30 = msg.a;
-						var requestEntry = _v30.a;
-						var url = _v30.b;
+						var _v31 = msg.a;
+						var requestEntry = _v31.a;
+						var url = _v31.b;
 						var route = msg.b.a;
 						var firstEntry = A2(
 							$elm$core$Maybe$map,
@@ -13715,9 +13832,9 @@ var $author$project$Traveller$update = F2(
 								$elm$core$Platform$Cmd$none);
 						}
 					} else {
-						var _v32 = msg.a;
-						var requestEntry = _v32.a;
-						var url = _v32.b;
+						var _v33 = msg.a;
+						var requestEntry = _v33.a;
+						var url = _v33.b;
 						var err = msg.b.a;
 						return _Utils_Tuple2(
 							withTime(
@@ -13773,9 +13890,9 @@ var $author$project$Traveller$update = F2(
 					}
 				case 'DownloadedSolarSystems':
 					if (msg.b.$ === 'Ok') {
-						var _v23 = msg.a;
-						var requestEntry = _v23.a;
-						var url_ = _v23.b;
+						var _v24 = msg.a;
+						var requestEntry = _v24.a;
+						var url_ = _v24.b;
 						var fallibleSolarSystems = msg.b.a;
 						var viewportCentre = {x: ((model.hexRect.upperLeftHex.x + model.hexRect.lowerRightHex.x) / 2) | 0, y: ((model.hexRect.upperLeftHex.y + model.hexRect.lowerRightHex.y) / 2) | 0};
 						var newRequestHistory = A3(
@@ -13784,15 +13901,15 @@ var $author$project$Traveller$update = F2(
 							$krisajenkins$remotedata$RemoteData$Success(_Utils_Tuple0),
 							model.requestHistory);
 						var existingDict = model.solarSystems;
-						var _v24 = A2(
+						var _v25 = A2(
 							$elm$core$Tuple$mapFirst,
 							$elm$core$Dict$fromList,
 							A3(
 								$elm$core$List$foldl,
 								F2(
-									function (fallibleSystem, _v25) {
-										var systems = _v25.a;
-										var errs = _v25.b;
+									function (fallibleSystem, _v26) {
+										var systems = _v26.a;
+										var errs = _v26.b;
 										var hasFailed = A2($elm$core$List$any, $elm_community$result_extra$Result$Extra$isErr, fallibleSystem.stars);
 										if (!hasFailed) {
 											var si = model.isReferee ? $author$project$Traveller$refereeSI : fallibleSystem.surveyIndex;
@@ -13801,6 +13918,7 @@ var $author$project$Traveller$update = F2(
 												allegiance: fallibleSystem.allegiance,
 												extinctSophont: fallibleSystem.extinctSophont,
 												gasGiantCount: fallibleSystem.gasGiantCount,
+												mainWorldUwp: fallibleSystem.mainWorldUwp,
 												name: fallibleSystem.name,
 												nativeSophont: fallibleSystem.nativeSophont,
 												planetoidBeltCount: fallibleSystem.planetoidBeltCount,
@@ -13855,13 +13973,13 @@ var $author$project$Traveller$update = F2(
 									}),
 								_Utils_Tuple2(_List_Nil, _List_Nil),
 								fallibleSolarSystems));
-						var sortedSolarSystems = _v24.a;
-						var potentiallyNewErrors = _v24.b;
+						var sortedSolarSystems = _v25.a;
+						var potentiallyNewErrors = _v25.b;
 						var newErrors = A2(
 							$elm$core$List$filter,
-							function (_v27) {
-								var newErr = _v27.a;
-								var errUrl = _v27.b;
+							function (_v28) {
+								var newErr = _v28.a;
+								var errUrl = _v28.b;
 								return !A2(
 									$elm$core$List$member,
 									newErr,
@@ -13906,9 +14024,9 @@ var $author$project$Traveller$update = F2(
 										$elm$browser$Browser$Dom$getViewportOf('hexmap'))
 									])));
 					} else {
-						var _v33 = msg.a;
-						var requestEntry = _v33.a;
-						var url = _v33.b;
+						var _v34 = msg.a;
+						var requestEntry = _v34.a;
+						var url = _v34.b;
 						var err = msg.b.a;
 						var newRequestHistory = A3(
 							$author$project$Traveller$markRequestComplete,
@@ -13926,10 +14044,10 @@ var $author$project$Traveller$update = F2(
 										if (maybeSolarsystem.$ === 'Just') {
 											switch (maybeSolarsystem.a.$) {
 												case 'LoadingSolarSystem':
-													var _v35 = maybeSolarsystem.a;
+													var _v36 = maybeSolarsystem.a;
 													return $author$project$Traveller$FailedSolarSystem(err);
 												case 'LoadedEmptyHex':
-													var _v36 = maybeSolarsystem.a;
+													var _v37 = maybeSolarsystem.a;
 													return $author$project$Traveller$FailedSolarSystem(err);
 												case 'FailedSolarSystem':
 													return $author$project$Traveller$FailedSolarSystem(err);
@@ -14015,12 +14133,12 @@ var $author$project$Traveller$update = F2(
 					if (!_Utils_eq(newLowerRight, model.hexRect.lowerRightHex)) {
 						var newHexRect = {lowerRightHex: newLowerRight, upperLeftHex: model.hexRect.upperLeftHex};
 						var $temp$msg = $author$project$Traveller$DownloadSolarSystems,
-							$temp$_v17 = withTime(
+							$temp$_v18 = withTime(
 							_Utils_update(
 								model,
 								{hexRect: newHexRect, viewport: newViewport}));
 						msg = $temp$msg;
-						_v17 = $temp$_v17;
+						_v18 = $temp$_v18;
 						continue update;
 					} else {
 						return _Utils_Tuple2(
@@ -14089,7 +14207,8 @@ var $author$project$Traveller$update = F2(
 									newSolarSystemErrors: focusedErrors,
 									selectedHex: $elm$core$Maybe$Just(hexAddress),
 									selectedStellarObject: $elm$core$Maybe$Nothing,
-									selectedSystem: $elm$core$Maybe$Nothing
+									selectedSystem: $elm$core$Maybe$Nothing,
+									sidebarOpen: true
 								})),
 						A2(
 							$author$project$Traveller$fetchSingleSolarSystemRequest,
@@ -14126,7 +14245,7 @@ var $author$project$Traveller$update = F2(
 						upperLeftHex: shiftBoth(model.hexRect.upperLeftHex)
 					};
 					var yCompensation = (($author$project$Traveller$HexGeometry$hexColOffset(newHexRect.upperLeftHex.x) - $author$project$Traveller$HexGeometry$hexColOffset(model.hexRect.upperLeftHex.x)) * model.hexScale) * $elm$core$Basics$sin($author$project$Traveller$HexGeometry$hexSizeFactor);
-					var _v39 = A2(
+					var _v40 = A2(
 						$author$project$Traveller$update,
 						$author$project$Traveller$DownloadSolarSystems,
 						withTime(
@@ -14136,8 +14255,8 @@ var $author$project$Traveller$update = F2(
 									hexRect: newHexRect,
 									panOffset: {x: 0, y: model.panOffset.y + yCompensation}
 								})));
-					var newModel = _v39.a;
-					var downloadCmds = _v39.b;
+					var newModel = _v40.a;
+					var downloadCmds = _v40.b;
 					return _Utils_Tuple2(
 						newModel,
 						$elm$core$Platform$Cmd$batch(
@@ -14176,9 +14295,9 @@ var $author$project$Traveller$update = F2(
 								panOffset: {x: remainderX, y: remainderY + yCompensation}
 							}));
 					if ((!(!hexDeltaX)) || (!(!hexDeltaY))) {
-						var _v40 = A2($author$project$Traveller$update, $author$project$Traveller$DownloadSolarSystems, newModel);
-						var updatedModel = _v40.a;
-						var downloadCmds = _v40.b;
+						var _v41 = A2($author$project$Traveller$update, $author$project$Traveller$DownloadSolarSystems, newModel);
+						var updatedModel = _v41.a;
+						var downloadCmds = _v41.b;
 						return _Utils_Tuple2(
 							updatedModel,
 							$elm$core$Platform$Cmd$batch(
@@ -14192,28 +14311,28 @@ var $author$project$Traveller$update = F2(
 					}
 				case 'MapMouseUp':
 					var maybeHexAddress = msg.a;
-					var _v41 = msg.b;
-					var upX = _v41.a;
-					var upY = _v41.b;
-					var _v42 = model.dragMode;
-					if (_v42.$ === 'IsDragging') {
-						var start = _v42.a.start;
-						var _v43 = start;
-						var startX = _v43.a;
-						var startY = _v43.b;
+					var _v42 = msg.b;
+					var upX = _v42.a;
+					var upY = _v42.b;
+					var _v43 = model.dragMode;
+					if (_v43.$ === 'IsDragging') {
+						var start = _v43.a.start;
+						var _v44 = start;
+						var startX = _v44.a;
+						var startY = _v44.b;
 						var distance = $elm$core$Basics$sqrt(
 							A2($elm$core$Basics$pow, upX - startX, 2) + A2($elm$core$Basics$pow, upY - startY, 2));
 						var isDrag = distance > 5;
 						if (isDrag) {
-							var _v44 = A3(
+							var _v45 = A3(
 								$author$project$Traveller$prepAndSendRequests,
 								_Utils_Tuple2(model.solarSystems, model.requestHistory),
 								model.hexRect,
 								model.hostConfig);
-							var _v45 = _v44.a;
-							var newSolarSystemDict = _v45.a;
-							var newRequestHistory = _v45.b;
-							var cmds = _v44.b;
+							var _v46 = _v45.a;
+							var newSolarSystemDict = _v46.a;
+							var newRequestHistory = _v46.b;
+							var cmds = _v45.b;
 							return _Utils_Tuple2(
 								withTime(
 									_Utils_update(
@@ -14267,7 +14386,8 @@ var $author$project$Traveller$update = F2(
 												newSolarSystemErrors: focusedErrors,
 												selectedHex: $elm$core$Maybe$Just(hexAddress),
 												selectedStellarObject: $elm$core$Maybe$Nothing,
-												selectedSystem: $elm$core$Maybe$Nothing
+												selectedSystem: $elm$core$Maybe$Nothing,
+												sidebarOpen: true
 											})),
 									A2(
 										$author$project$Traveller$fetchSingleSolarSystemRequest,
@@ -14291,18 +14411,18 @@ var $author$project$Traveller$update = F2(
 							$elm$core$Platform$Cmd$none);
 					}
 				case 'MapMouseMove':
-					var _v49 = msg.a;
-					var newX = _v49.a;
-					var newY = _v49.b;
-					var _v50 = model.dragMode;
-					if (_v50.$ === 'IsDragging') {
-						var start = _v50.a.start;
-						var last = _v50.a.last;
+					var _v50 = msg.a;
+					var newX = _v50.a;
+					var newY = _v50.b;
+					var _v51 = model.dragMode;
+					if (_v51.$ === 'IsDragging') {
+						var start = _v51.a.start;
+						var last = _v51.a.last;
 						var rowStep = (2 * model.hexScale) * $elm$core$Basics$sin($author$project$Traveller$HexGeometry$hexSizeFactor);
 						var colStep = $author$project$Traveller$HexGeometry$hexWidth(model.hexScale);
-						var _v51 = last;
-						var originX = _v51.a;
-						var originY = _v51.b;
+						var _v52 = last;
+						var originX = _v52.a;
+						var originY = _v52.b;
 						var newRawX = model.panOffset.x + (originX - newX);
 						var hexDeltaX = (newRawX / colStep) | 0;
 						var remainderX = newRawX - (hexDeltaX * colStep);
@@ -14381,15 +14501,15 @@ var $author$project$Traveller$update = F2(
 							newUpperLeft),
 						upperLeftHex: newUpperLeft
 					};
-					var _v52 = A3(
+					var _v53 = A3(
 						$author$project$Traveller$prepAndSendRequests,
 						_Utils_Tuple2(model.solarSystems, model.requestHistory),
 						newHexRect,
 						model.hostConfig);
-					var _v53 = _v52.a;
-					var newSolarSystemDict = _v53.a;
-					var newRequestHistory = _v53.b;
-					var cmds = _v52.b;
+					var _v54 = _v53.a;
+					var newSolarSystemDict = _v54.a;
+					var newRequestHistory = _v54.b;
+					var cmds = _v53.b;
 					return _Utils_Tuple2(
 						withTime(
 							_Utils_update(
@@ -14415,7 +14535,7 @@ var $author$project$Traveller$update = F2(
 							return 'HexMap';
 						}
 					}();
-					var _v54 = function () {
+					var _v55 = function () {
 						if (targetMode.$ === 'HexMap') {
 							return A2(
 								$author$project$Traveller$update,
@@ -14433,8 +14553,8 @@ var $author$project$Traveller$update = F2(
 								$elm$core$Platform$Cmd$none);
 						}
 					}();
-					var updatedModel = _v54.a;
-					var downloadCmds = _v54.b;
+					var updatedModel = _v55.a;
+					var downloadCmds = _v55.b;
 					return _Utils_Tuple2(
 						updatedModel,
 						$elm$core$Platform$Cmd$batch(
@@ -14446,9 +14566,9 @@ var $author$project$Traveller$update = F2(
 				case 'ToggleHexmap':
 					var $temp$msg = $author$project$Traveller$SetViewMode(
 						_Utils_eq(model.viewMode, $author$project$Traveller$HexMap) ? $author$project$Traveller$FullJourney : $author$project$Traveller$HexMap),
-						$temp$_v17 = _Utils_Tuple2(time, model);
+						$temp$_v18 = _Utils_Tuple2(time, model);
 					msg = $temp$msg;
-					_v17 = $temp$_v17;
+					_v18 = $temp$_v18;
 					continue update;
 				case 'JourneyMsg':
 					var journeyMsg = msg.a;
@@ -14596,14 +14716,14 @@ var $author$project$Traveller$update = F2(
 												return $.concentrationRating;
 											},
 											pdata.population),
-										government: A3(
+										government: (uwpChar(4) === '0') ? '—' : A3(
 											withCode,
 											5,
 											function ($) {
 												return $.government;
 											},
 											$author$project$Traveller$Government$description),
-										lawLevel: A3(
+										lawLevel: (uwpChar(4) === '0') ? '—' : A3(
 											withCode,
 											6,
 											function ($) {
@@ -14623,7 +14743,7 @@ var $author$project$Traveller$update = F2(
 												return $.population;
 											},
 											$author$project$Traveller$Population$populationDescription),
-										techLevel: A3(
+										techLevel: (uwpChar(4) === '0') ? '—' : A3(
 											withCode,
 											8,
 											function ($) {
@@ -14752,12 +14872,19 @@ var $author$project$Traveller$update = F2(
 								model,
 								{timeOpened: openedTime})),
 						$elm$core$Platform$Cmd$none);
-				default:
+				case 'CloseObjectAnalysis':
 					return _Utils_Tuple2(
 						withTime(
 							_Utils_update(
 								model,
 								{objectToBeAnalyzed: $elm$core$Maybe$Nothing})),
+						$elm$core$Platform$Cmd$none);
+				default:
+					return _Utils_Tuple2(
+						withTime(
+							_Utils_update(
+								model,
+								{sidebarOpen: false})),
 						$elm$core$Platform$Cmd$none);
 			}
 		}
@@ -14793,7 +14920,8 @@ var $author$project$Traveller$updateJourney = F2(
 					{zoomScale: newZoomScale});
 				return _Utils_Tuple2(
 					setJourneyModel(newJourneyModel),
-					$elm$core$Platform$Cmd$none);
+					$author$project$Traveller$storeJourneyState(
+						A2($author$project$Traveller$encodeJourneyState, newZoomScale, journeyModel.zoomOffset)));
 			case 'Pan':
 				var _v3 = journeyMsg.a;
 				var dx = _v3.a;
@@ -14804,24 +14932,24 @@ var $author$project$Traveller$updateJourney = F2(
 				var _v4 = journeyModel.zoomOffset;
 				var oldX = _v4.a;
 				var oldY = _v4.b;
+				var newOffset = _Utils_Tuple2(
+					A3(
+						$elm$core$Basics$clamp,
+						A2($elm$core$Basics$min, 0, dims.containerW - curImgWidth),
+						0,
+						oldX + dx),
+					A3(
+						$elm$core$Basics$clamp,
+						A2($elm$core$Basics$min, 0, dims.containerH - curImgHeight),
+						0,
+						oldY + dy));
 				return _Utils_Tuple2(
 					setJourneyModel(
 						_Utils_update(
 							journeyModel,
-							{
-								zoomOffset: _Utils_Tuple2(
-									A3(
-										$elm$core$Basics$clamp,
-										A2($elm$core$Basics$min, 0, dims.containerW - curImgWidth),
-										0,
-										oldX + dx),
-									A3(
-										$elm$core$Basics$clamp,
-										A2($elm$core$Basics$min, 0, dims.containerH - curImgHeight),
-										0,
-										oldY + dy))
-							})),
-					$elm$core$Platform$Cmd$none);
+							{zoomOffset: newOffset})),
+					$author$project$Traveller$storeJourneyState(
+						A2($author$project$Traveller$encodeJourneyState, journeyModel.zoomScale, newOffset)));
 			case 'WheelZoom':
 				var delta = journeyMsg.a;
 				var oldZoomScale = journeyModel.zoomScale;
@@ -14849,25 +14977,24 @@ var $author$project$Traveller$updateJourney = F2(
 				}();
 				var newOx = _v6.a;
 				var newOy = _v6.b;
+				var clampedOffset = _Utils_Tuple2(
+					A3(
+						$elm$core$Basics$clamp,
+						A2($elm$core$Basics$min, 0, dims.containerW - curImgWidth),
+						0,
+						newOx),
+					A3(
+						$elm$core$Basics$clamp,
+						A2($elm$core$Basics$min, 0, dims.containerH - curImgHeight),
+						0,
+						newOy));
 				return _Utils_Tuple2(
 					setJourneyModel(
 						_Utils_update(
 							journeyModel,
-							{
-								zoomOffset: _Utils_Tuple2(
-									A3(
-										$elm$core$Basics$clamp,
-										A2($elm$core$Basics$min, 0, dims.containerW - curImgWidth),
-										0,
-										newOx),
-									A3(
-										$elm$core$Basics$clamp,
-										A2($elm$core$Basics$min, 0, dims.containerH - curImgHeight),
-										0,
-										newOy)),
-								zoomScale: newZoomScale
-							})),
-					$elm$core$Platform$Cmd$none);
+							{zoomOffset: clampedOffset, zoomScale: newZoomScale})),
+					$author$project$Traveller$storeJourneyState(
+						A2($author$project$Traveller$encodeJourneyState, newZoomScale, clampedOffset)));
 			case 'MouseDown':
 				var originalPos = journeyMsg.a;
 				return _Utils_Tuple2(
@@ -14985,10 +15112,21 @@ var $author$project$Traveller$updateJourney = F2(
 								panOffset: {x: 0, y: 0},
 								viewMode: $author$project$Traveller$HexMap
 							});
-						return A2(
+						var _v17 = A2(
 							$author$project$Traveller$update,
 							$author$project$Traveller$DownloadSolarSystems,
 							_Utils_Tuple2(time, newModel));
+						var updatedModel = _v17.a;
+						var downloadCmds = _v17.b;
+						return _Utils_Tuple2(
+							updatedModel,
+							$elm$core$Platform$Cmd$batch(
+								_List_fromArray(
+									[
+										$author$project$Traveller$storeViewMode('HexMap'),
+										$author$project$Traveller$saveMapCoords(newHexRect.upperLeftHex),
+										downloadCmds
+									])));
 					};
 					var _v15 = start;
 					var ox = _v15.a;
@@ -15086,7 +15224,7 @@ var $author$project$Main$update = F2(
 					var _v6 = A5(
 						$author$project$Traveller$init,
 						viewport,
-						{allSectorsMapUrl: model.flags.allSectorsMapUrl, campaignName: model.flags.campaignName, extinctSophontColour: model.flags.extinctSophontColour, hexSize: model.flags.hexSize, nativeSophontColour: model.flags.nativeSophontColour, shipName: model.flags.shipName, upperLeft: model.flags.upperLeft, viewMode: model.flags.viewMode},
+						{allSectorsMapUrl: model.flags.allSectorsMapUrl, campaignName: model.flags.campaignName, extinctSophontColour: model.flags.extinctSophontColour, hexSize: model.flags.hexSize, journeyState: model.flags.journeyState, nativeSophontColour: model.flags.nativeSophontColour, shipName: model.flags.shipName, upperLeft: model.flags.upperLeft, viewMode: model.flags.viewMode},
 						model.key,
 						model.hostConfig,
 						model.referee);
@@ -15109,6 +15247,14 @@ var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 };
 var $mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
 var $mdgriffith$elm_ui$Element$centerX = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$CenterX);
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $mdgriffith$elm_ui$Internal$Model$FocusStyleOption = function (a) {
 	return {$: 'FocusStyleOption', a: a};
@@ -15118,16 +15264,8 @@ var $mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
 	return {$: 'Attr', a: a};
 };
 var $mdgriffith$elm_ui$Element$htmlAttribute = $mdgriffith$elm_ui$Internal$Model$Attr;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
 	return $mdgriffith$elm_ui$Internal$Model$Attr(
 		$elm$html$Html$Attributes$class(cls));
@@ -20807,6 +20945,17 @@ var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
+var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
+var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$borderColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'border-color',
+			clr));
+};
 var $mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
 	return A2(
 		$mdgriffith$elm_ui$Internal$Model$StyleClass,
@@ -21523,7 +21672,19 @@ var $author$project$Traveller$errorDialog = function (httpErrors) {
 						])))
 			]));
 };
-var $author$project$Traveller$UI$textColor = A3($avh4$elm_color$Color$rgb, 0.5, 1.0, 0.5);
+var $avh4$elm_color$Color$scaleFrom255 = function (c) {
+	return c / 255;
+};
+var $avh4$elm_color$Color$rgb255 = F3(
+	function (r, g, b) {
+		return A4(
+			$avh4$elm_color$Color$RgbaSpace,
+			$avh4$elm_color$Color$scaleFrom255(r),
+			$avh4$elm_color$Color$scaleFrom255(g),
+			$avh4$elm_color$Color$scaleFrom255(b),
+			1.0);
+	});
+var $author$project$Traveller$UI$textColor = A3($avh4$elm_color$Color$rgb255, 26, 74, 106);
 var $author$project$Traveller$UI$fontTextColor = $author$project$Traveller$UI$colorToElementColor($author$project$Traveller$UI$textColor);
 var $mdgriffith$elm_ui$Internal$Model$unstyled = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Unstyled, $elm$core$Basics$always);
 var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
@@ -21575,40 +21736,6 @@ var $mdgriffith$elm_ui$Element$Lazy$lazy2 = F3(
 		return $mdgriffith$elm_ui$Internal$Model$Unstyled(
 			A4($elm$virtual_dom$VirtualDom$lazy4, $mdgriffith$elm_ui$Element$Lazy$apply2, fn, a, b));
 	});
-var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
-	function (top, right, bottom, left) {
-		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
-	});
-var $mdgriffith$elm_ui$Element$paddingEach = function (_v0) {
-	var top = _v0.top;
-	var right = _v0.right;
-	var bottom = _v0.bottom;
-	var left = _v0.left;
-	if (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) {
-		var topFloat = top;
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				'p-' + $elm$core$String$fromInt(top),
-				topFloat,
-				topFloat,
-				topFloat,
-				topFloat));
-	} else {
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				A4($mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
-				top,
-				right,
-				bottom,
-				left));
-	}
-};
 var $elm$time$Time$posixToMillis = function (_v0) {
 	var millis = _v0.a;
 	return millis;
@@ -21759,54 +21886,41 @@ var $mpizenberg$elm_pointer_events$Internal$Decode$screenPos = A3(
 	A2($elm$json$Json$Decode$field, 'screenX', $elm$json$Json$Decode$float),
 	A2($elm$json$Json$Decode$field, 'screenY', $elm$json$Json$Decode$float));
 var $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder = A7($elm$json$Json$Decode$map6, $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$Event, $mpizenberg$elm_pointer_events$Internal$Decode$keys, $mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$buttonDecoder, $mpizenberg$elm_pointer_events$Internal$Decode$clientPos, $mpizenberg$elm_pointer_events$Internal$Decode$offsetPos, $mpizenberg$elm_pointer_events$Internal$Decode$pagePos, $mpizenberg$elm_pointer_events$Internal$Decode$screenPos);
-var $author$project$Traveller$mouseDownDecoder = function (onDownMsg) {
-	var jsMouseEventDecoder = A2(
+var $author$project$Traveller$journeyMouseDownDecoder = function (onDownMsg) {
+	return A2(
 		$elm$json$Json$Decode$andThen,
 		function (evt) {
 			var _v0 = evt.button;
 			if (_v0.$ === 'MainButton') {
-				return $elm$json$Json$Decode$succeed(evt);
+				return $elm$json$Json$Decode$succeed(
+					onDownMsg(evt.offsetPos));
 			} else {
 				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
 			}
 		},
 		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-	return A2(
-		$elm$json$Json$Decode$map,
-		function (evt) {
-			return onDownMsg(evt.clientPos);
-		},
-		jsMouseEventDecoder);
 };
-var $author$project$Traveller$mouseMoveDecoder = function (onMoveMsg) {
+var $author$project$Traveller$journeyMouseUpDecoder = function (onUpMsg) {
 	return A2(
 		$elm$json$Json$Decode$map,
 		A2(
 			$elm$core$Basics$composeR,
 			function ($) {
-				return $.clientPos;
+				return $.offsetPos;
+			},
+			onUpMsg),
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+};
+var $author$project$Traveller$mouseOffsetPosMoveDecoder = function (onMoveMsg) {
+	return A2(
+		$elm$json$Json$Decode$map,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.offsetPos;
 			},
 			onMoveMsg),
 		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-};
-var $author$project$Traveller$mouseUpDecoder = function (onDownMsg) {
-	var jsMouseEventDecoder = A2(
-		$elm$json$Json$Decode$andThen,
-		function (evt) {
-			var _v0 = evt.button;
-			if (_v0.$ === 'MainButton') {
-				return $elm$json$Json$Decode$succeed(evt);
-			} else {
-				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
-			}
-		},
-		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-	return A2(
-		$elm$json$Json$Decode$map,
-		function (evt) {
-			return onDownMsg(evt.clientPos);
-		},
-		jsMouseEventDecoder);
 };
 var $mdgriffith$elm_ui$Internal$Model$MoveY = function (a) {
 	return {$: 'MoveY', a: a};
@@ -21866,19 +21980,19 @@ var $author$project$Traveller$viewFullJourney = F3(
 					A2(
 						$elm$html$Html$Events$on,
 						'mousemove',
-						$author$project$Traveller$mouseMoveDecoder(
+						$author$project$Traveller$mouseOffsetPosMoveDecoder(
 							A2($elm$core$Basics$composeL, $author$project$Traveller$JourneyMsg, $author$project$Traveller$MouseMove)))),
 					$mdgriffith$elm_ui$Element$htmlAttribute(
 					A2(
 						$elm$html$Html$Events$on,
 						'mousedown',
-						$author$project$Traveller$mouseDownDecoder(
+						$author$project$Traveller$journeyMouseDownDecoder(
 							A2($elm$core$Basics$composeL, $author$project$Traveller$JourneyMsg, $author$project$Traveller$MouseDown)))),
 					$mdgriffith$elm_ui$Element$htmlAttribute(
 					A2(
 						$elm$html$Html$Events$on,
 						'mouseup',
-						$author$project$Traveller$mouseUpDecoder(
+						$author$project$Traveller$journeyMouseUpDecoder(
 							A2($elm$core$Basics$composeL, $author$project$Traveller$JourneyMsg, $author$project$Traveller$MouseUp)))),
 					$mdgriffith$elm_ui$Element$Events$onMouseLeave(
 					$author$project$Traveller$JourneyMsg($author$project$Traveller$MouseLeave)),
@@ -22031,11 +22145,11 @@ var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $author$project$Traveller$allegianceColours = $elm$core$Dict$fromList(
 	_List_fromArray(
 		[
-			_Utils_Tuple2('C', '#F0FFFF'),
-			_Utils_Tuple2('GR', '#FFDAB9'),
-			_Utils_Tuple2('AL', '#D2691E')
+			_Utils_Tuple2('C', '#D0EAF8'),
+			_Utils_Tuple2('GR', '#FFE4C8'),
+			_Utils_Tuple2('AL', '#E8D4B8')
 		]));
-var $author$project$Traveller$defaultHexBg = '#f5f5f5';
+var $author$project$Traveller$defaultHexBg = '#F5F9FC';
 var $author$project$Traveller$hexBackgroundColour = F5(
 	function (referee, hexKey, solarSystemDict, nativeSophontColour, extinctSophontColour) {
 		if (referee) {
@@ -22145,7 +22259,7 @@ var $author$project$Traveller$regionLabel = F3(
 					$elm$svg$Svg$Attributes$dominantBaseline('middle'),
 					$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
 					$elm$svg$Svg$Attributes$fontWeight('500'),
-					$elm$svg$Svg$Attributes$fill('#0A0A0A'),
+					$elm$svg$Svg$Attributes$fill('#1A4A6A'),
 					$elm$svg$Svg$Attributes$style('pointer-events: none; user-select: none;')
 				]),
 			_List_fromArray(
@@ -22209,15 +22323,15 @@ var $author$project$Traveller$renderSectorOutline = F2(
 					$elm$svg$Svg$Attributes$points(points_),
 					$elm$svg$Svg$Attributes$id(
 					'sectorOutline-' + ($elm$core$String$fromInt(hex.sectorX) + ('-' + $elm$core$String$fromInt(hex.sectorY)))),
-					$elm$svg$Svg$Attributes$stroke('#0a0a0a40'),
+					$elm$svg$Svg$Attributes$stroke('#2A6A8A60'),
 					$elm$svg$Svg$Attributes$fill('none'),
-					$elm$svg$Svg$Attributes$strokeWidth('3'),
+					$elm$svg$Svg$Attributes$strokeWidth('2'),
 					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted')
 				]),
 			_List_Nil);
 	});
-var $author$project$Traveller$routeHexBg = '#FCD299';
-var $author$project$Traveller$selectedHexBg = '#a5f5a5';
+var $author$project$Traveller$routeHexBg = '#FFE8C0';
+var $author$project$Traveller$selectedHexBg = '#B8E0F0';
 var $elm$svg$Svg$Attributes$strokeLinecap = _VirtualDom_attribute('stroke-linecap');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $author$project$Traveller$toViewBox = F3(
@@ -22253,10 +22367,10 @@ var $author$project$Traveller$HexGeometry$convertRawHexagonPoints = F2(
 				A2($author$project$Traveller$HexGeometry$hexapointsBuilder, xOrigin, yOrigin),
 				points));
 	});
+var $elm$virtual_dom$VirtualDom$lazy = _VirtualDom_lazy;
+var $elm$svg$Svg$Lazy$lazy = $elm$virtual_dom$VirtualDom$lazy;
 var $elm$virtual_dom$VirtualDom$lazy7 = _VirtualDom_lazy7;
 var $elm$svg$Svg$Lazy$lazy7 = $elm$virtual_dom$VirtualDom$lazy7;
-var $elm$virtual_dom$VirtualDom$lazy8 = _VirtualDom_lazy8;
-var $elm$svg$Svg$Lazy$lazy8 = $elm$virtual_dom$VirtualDom$lazy8;
 var $author$project$Traveller$HoveringHex = function (a) {
 	return {$: 'HoveringHex', a: a};
 };
@@ -22273,11 +22387,115 @@ var $author$project$Traveller$MapMouseUp = F2(
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
+var $elm$svg$Svg$ellipse = $elm$svg$Svg$trustedNode('ellipse');
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
+var $elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
 var $author$project$Traveller$HexGeometry$defaultHexSize = 40;
 var $author$project$Traveller$HexGeometry$scaleAttr = F2(
 	function (hexSize, _default) {
 		return _default * A2($elm$core$Basics$min, 1, hexSize / $author$project$Traveller$HexGeometry$defaultHexSize);
+	});
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $author$project$Traveller$drawGasGiant = F3(
+	function (cx, cy, size) {
+		var r = A2($author$project$Traveller$HexGeometry$scaleAttr, size, 5);
+		var iconY = cy - (size * 0.45);
+		var iconX = cx + (size * 0.38);
+		return A2(
+			$elm$svg$Svg$g,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$circle,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$cx(
+							$elm$core$String$fromFloat(iconX)),
+							$elm$svg$Svg$Attributes$cy(
+							$elm$core$String$fromFloat(iconY)),
+							$elm$svg$Svg$Attributes$r(
+							$elm$core$String$fromFloat(r)),
+							$elm$svg$Svg$Attributes$fill('#222222')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$ellipse,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$cx(
+							$elm$core$String$fromFloat(iconX)),
+							$elm$svg$Svg$Attributes$cy(
+							$elm$core$String$fromFloat(iconY)),
+							$elm$svg$Svg$Attributes$rx(
+							$elm$core$String$fromFloat(r * 1.8)),
+							$elm$svg$Svg$Attributes$ry(
+							$elm$core$String$fromFloat(r * 0.55)),
+							$elm$svg$Svg$Attributes$fill('none'),
+							$elm$svg$Svg$Attributes$stroke('#222222'),
+							$elm$svg$Svg$Attributes$strokeWidth('1.2'),
+							$elm$svg$Svg$Attributes$transform(
+							'rotate(-30 ' + ($elm$core$String$fromFloat(iconX) + (' ' + ($elm$core$String$fromFloat(iconY) + ')'))))
+						]),
+					_List_Nil)
+				]));
+	});
+var $author$project$Traveller$drawPlanetoidBelt = F3(
+	function (cx, cy, size) {
+		var scale = A2($author$project$Traveller$HexGeometry$scaleAttr, size, 7) / 16;
+		var iconY = cy - (size * 0.45);
+		var iconX = cx - (size * 0.38);
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$transform(
+					'translate(' + ($elm$core$String$fromFloat(iconX) + (',' + ($elm$core$String$fromFloat(iconY) + (') scale(' + ($elm$core$String$fromFloat(scale) + ')'))))))
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('-12,-6 -7,-10 -3,-5 -6,-1 -10,-2'),
+							$elm$svg$Svg$Attributes$fill('#475569')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('4,-11 10,-9 8,-4 3,-6'),
+							$elm$svg$Svg$Attributes$fill('#64748b')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('-10,4 -5,2 -2,7 -7,10'),
+							$elm$svg$Svg$Attributes$fill('#1e293b')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('2,1 8,-1 11,5 7,8 3,6'),
+							$elm$svg$Svg$Attributes$fill('#475569')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('-1,9 4,11 1,14 -3,12'),
+							$elm$svg$Svg$Attributes$fill('#64748b')
+						]),
+					_List_Nil)
+				]));
 	});
 var $author$project$Traveller$drawStar = F5(
 	function (starX, starY, radius, size, starColor) {
@@ -22293,11 +22511,55 @@ var $author$project$Traveller$drawStar = F5(
 					$elm$core$String$fromFloat(
 						A2($author$project$Traveller$HexGeometry$scaleAttr, size, radius))),
 					$elm$svg$Svg$Attributes$fill(starColor),
-					$elm$svg$Svg$Attributes$style('filter: drop-shadow( 2px 2px 2px rgba(0, 0, 0, .25))')
+					$elm$svg$Svg$Attributes$style('filter: drop-shadow(0 0 3px rgba(0,0,0,0.55))')
 				]),
 			_List_Nil);
 	});
 var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
+var $elm$svg$Svg$Attributes$opacity = _VirtualDom_attribute('opacity');
+var $author$project$Traveller$drawUnknownSlot = F3(
+	function (iconX, iconY, size) {
+		var r = A2($author$project$Traveller$HexGeometry$scaleAttr, size, 5);
+		return A2(
+			$elm$svg$Svg$g,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$circle,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$cx(
+							$elm$core$String$fromFloat(iconX)),
+							$elm$svg$Svg$Attributes$cy(
+							$elm$core$String$fromFloat(iconY)),
+							$elm$svg$Svg$Attributes$r(
+							$elm$core$String$fromFloat(r)),
+							$elm$svg$Svg$Attributes$fill('#DDDDDD'),
+							$elm$svg$Svg$Attributes$opacity('0.6')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$text_,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$x(
+							$elm$core$String$fromFloat(iconX)),
+							$elm$svg$Svg$Attributes$y(
+							$elm$core$String$fromFloat(iconY)),
+							$elm$svg$Svg$Attributes$fontSize('9'),
+							$elm$svg$Svg$Attributes$textAnchor('middle'),
+							$elm$svg$Svg$Attributes$dominantBaseline('central'),
+							$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
+							$elm$svg$Svg$Attributes$fontWeight('400'),
+							$elm$svg$Svg$Attributes$fill('#2A6A8A')
+						]),
+					_List_fromArray(
+						[
+							$elm$svg$Svg$text('?')
+						]))
+				]));
+	});
 var $author$project$Traveller$gasGiantSI = 5;
 var $author$project$Traveller$SolarSystemStars$getStarTypeData = function (_v0) {
 	var starTypeData = _v0.a;
@@ -22346,7 +22608,8 @@ var $author$project$Traveller$hexAddressLabel = F4(
 					$elm$svg$Svg$Attributes$fontSize('9'),
 					$elm$svg$Svg$Attributes$textAnchor('middle'),
 					$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
-					$elm$svg$Svg$Attributes$fontWeight('400')
+					$elm$svg$Svg$Attributes$fontWeight('400'),
+					$elm$svg$Svg$Attributes$fill('#2A6A8A')
 				]),
 			_List_fromArray(
 				[
@@ -22367,6 +22630,55 @@ var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
 var $elm$svg$Svg$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
 var $elm$virtual_dom$VirtualDom$lazy5 = _VirtualDom_lazy5;
 var $elm$svg$Svg$Lazy$lazy5 = $elm$virtual_dom$VirtualDom$lazy5;
+var $author$project$Traveller$mouseDownDecoder = function (onDownMsg) {
+	var jsMouseEventDecoder = A2(
+		$elm$json$Json$Decode$andThen,
+		function (evt) {
+			var _v0 = evt.button;
+			if (_v0.$ === 'MainButton') {
+				return $elm$json$Json$Decode$succeed(evt);
+			} else {
+				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
+			}
+		},
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+	return A2(
+		$elm$json$Json$Decode$map,
+		function (evt) {
+			return onDownMsg(evt.clientPos);
+		},
+		jsMouseEventDecoder);
+};
+var $author$project$Traveller$mouseMoveDecoder = function (onMoveMsg) {
+	return A2(
+		$elm$json$Json$Decode$map,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.clientPos;
+			},
+			onMoveMsg),
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+};
+var $author$project$Traveller$mouseUpDecoder = function (onDownMsg) {
+	var jsMouseEventDecoder = A2(
+		$elm$json$Json$Decode$andThen,
+		function (evt) {
+			var _v0 = evt.button;
+			if (_v0.$ === 'MainButton') {
+				return $elm$json$Json$Decode$succeed(evt);
+			} else {
+				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
+			}
+		},
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+	return A2(
+		$elm$json$Json$Decode$map,
+		function (evt) {
+			return onDownMsg(evt.clientPos);
+		},
+		jsMouseEventDecoder);
+};
 var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
 var $elm$svg$Svg$Events$onMouseOver = function (msg) {
 	return A2(
@@ -22385,7 +22697,7 @@ var $author$project$Traveller$renderPolygon = F2(
 				[
 					$elm$svg$Svg$Attributes$points(points_),
 					$elm$svg$Svg$Attributes$fill(hexColour),
-					$elm$svg$Svg$Attributes$stroke('#CCCCCC'),
+					$elm$svg$Svg$Attributes$stroke('#8AAFC4'),
 					$elm$svg$Svg$Attributes$strokeWidth('1'),
 					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted'),
 					$elm$svg$Svg$Attributes$class('hex-hover')
@@ -22411,205 +22723,212 @@ var $author$project$Traveller$StarColour$starColourRGB = function (colour) {
 		switch (colour.a.$) {
 			case 'Blue':
 				var _v1 = colour.a;
-				return '#000077';
+				return '#3366BB';
 			case 'BlueWhite':
 				var _v2 = colour.a;
-				return '#87cefa';
+				return '#5588CC';
 			case 'White':
 				var _v3 = colour.a;
-				return '#FFFFFF';
+				return '#8899AA';
 			case 'YellowWhite':
 				var _v4 = colour.a;
-				return '#ffffe0';
+				return '#BBAA44';
 			case 'Yellow':
 				var _v5 = colour.a;
-				return '#ffff00';
+				return '#CC8800';
 			case 'LightOrange':
 				var _v6 = colour.a;
-				return '#ffbf00';
+				return '#CC6622';
 			case 'OrangeRed':
 				var _v7 = colour.a;
-				return '#ff4500';
+				return '#CC3311';
 			case 'Red':
 				var _v8 = colour.a;
-				return '#ff0000';
+				return '#BB1111';
 			case 'Brown':
 				var _v9 = colour.a;
-				return '#f4a460';
+				return '#886644';
 			default:
 				var _v10 = colour.a;
-				return '#800000';
+				return '#882255';
 		}
 	} else {
-		return '#000000';
+		return '#778899';
 	}
 };
-var $author$project$Traveller$terrestrialSI = 6;
-var $elm$svg$Svg$tspan = $elm$svg$Svg$trustedNode('tspan');
-var $author$project$Traveller$renderHexWithStar = F8(
-	function (starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, hexapointsStr) {
-		var si = starSystem.surveyIndex;
-		var showStar = starSystem.surveyIndex > 0;
-		var hexAddress = A2($author$project$Traveller$HexAddress$HexAddress, hexAddrX, hexAddrY);
-		return A2(
-			$elm$svg$Svg$g,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Events$onMouseOver(
-					$author$project$Traveller$HoveringHex(hexAddress)),
-					A2(
-					$elm$svg$Svg$Events$on,
-					'mouseup',
-					$author$project$Traveller$mouseUpDecoder(
-						function (pos) {
-							return A2(
-								$author$project$Traveller$MapMouseUp,
-								$elm$core$Maybe$Just(hexAddress),
-								pos);
-						})),
-					A2(
-					$elm$svg$Svg$Events$on,
-					'mousedown',
-					$author$project$Traveller$mouseDownDecoder($author$project$Traveller$MapMouseDown)),
-					A2(
-					$elm$svg$Svg$Events$on,
-					'mousemove',
-					$author$project$Traveller$mouseMoveDecoder($author$project$Traveller$MapMouseMove)),
-					$elm$svg$Svg$Attributes$style('cursor: pointer; user-select: none')
-				]),
-			_List_fromArray(
-				[
-					A3($elm$svg$Svg$Lazy$lazy2, $author$project$Traveller$renderPolygon, hexapointsStr, hexColour),
-					function () {
-					if (showStar) {
-						var primaryPos = _Utils_Tuple2(vox, voy);
-						var isKnown = function (theStar) {
-							return A3($elm$core$Basics$composeR, $author$project$Traveller$SolarSystemStars$getStarTypeData, $author$project$Traveller$SolarSystemStars$isBrownDwarfType, theStar) ? (starSystem.surveyIndex >= 4) : (starSystem.surveyIndex >= 1);
-						};
-						var generateStar = F2(
-							function (idx, starType) {
-								var starData = $author$project$Traveller$SolarSystemStars$getStarTypeData(starType);
-								var _v0 = (!idx) ? _Utils_Tuple2(vox, voy) : A5($author$project$Traveller$HexGeometry$rotatePoint, size, idx + 2, primaryPos, 60, 20);
-								var sx = _v0.a;
-								var sy = _v0.b;
-								var _v1 = starData.companion;
-								if (_v1.$ === 'Just') {
-									var companion = _v1.a;
-									var compStarData = $author$project$Traveller$SolarSystemStars$getStarTypeData(companion);
-									var _v2 = _Utils_Tuple2(sx - 5, sy);
-									var cx = _v2.a;
-									var cy = _v2.b;
-									return A2(
-										$elm$svg$Svg$g,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A6(
-												$elm$svg$Svg$Lazy$lazy5,
-												$author$project$Traveller$drawStar,
-												sx,
-												sy,
-												7,
-												size,
-												$author$project$Traveller$StarColour$starColourRGB(starData.colour)),
-												A6(
-												$elm$svg$Svg$Lazy$lazy5,
-												$author$project$Traveller$drawStar,
-												cx,
-												cy,
-												3,
-												size,
-												$author$project$Traveller$StarColour$starColourRGB(compStarData.colour))
-											]));
-								} else {
-									return A6(
-										$elm$svg$Svg$Lazy$lazy5,
-										$author$project$Traveller$drawStar,
-										sx,
-										sy,
-										7,
-										size,
-										$author$project$Traveller$StarColour$starColourRGB(starData.colour));
-								}
-							});
+var $author$project$Traveller$uwpSI = 10;
+var $author$project$Traveller$renderHexWithStar = function (_v0) {
+	var starSystem = _v0.starSystem;
+	var hexColour = _v0.hexColour;
+	var hexAddrX = _v0.hexAddrX;
+	var hexAddrY = _v0.hexAddrY;
+	var vox = _v0.vox;
+	var voy = _v0.voy;
+	var size = _v0.size;
+	var hexapointsStr = _v0.hexapointsStr;
+	var isReferee = _v0.isReferee;
+	var si = starSystem.surveyIndex;
+	var showStar = starSystem.surveyIndex > 0;
+	var showUnknownGasGiant = showStar && ((!isReferee) && (_Utils_cmp(si, $author$project$Traveller$gasGiantSI) < 0));
+	var showUnknownPlanetoidBelt = showStar && ((!isReferee) && (_Utils_cmp(si, $author$project$Traveller$planetoidSI) < 0));
+	var showPlanetoidBelt = (isReferee || (_Utils_cmp(si, $author$project$Traveller$planetoidSI) > -1)) && (starSystem.planetoidBeltCount > 0);
+	var showGasGiant = (isReferee || (_Utils_cmp(si, $author$project$Traveller$gasGiantSI) > -1)) && (starSystem.gasGiantCount > 0);
+	var hexAddress = A2($author$project$Traveller$HexAddress$HexAddress, hexAddrX, hexAddrY);
+	return A2(
+		$elm$svg$Svg$g,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Events$onMouseOver(
+				$author$project$Traveller$HoveringHex(hexAddress)),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mouseup',
+				$author$project$Traveller$mouseUpDecoder(
+					function (pos) {
 						return A2(
-							$elm$svg$Svg$g,
-							_List_Nil,
-							A2(
-								$elm$core$List$indexedMap,
-								$elm$svg$Svg$Lazy$lazy2(generateStar),
-								A2($elm$core$List$filter, isKnown, starSystem.stars)));
-					} else {
-						return A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress);
-					}
-				}(),
-					showStar ? A2(
-					$elm$svg$Svg$g,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress),
-							(size <= 15) ? $elm$svg$Svg$text('') : A2(
-							$elm$svg$Svg$text_,
-							_List_fromArray(
-								[
-									$elm$svg$Svg$Attributes$x(
-									$elm$core$String$fromInt(vox)),
-									$elm$svg$Svg$Attributes$y(
-									$elm$core$String$fromInt(
-										(voy + $elm$core$Basics$floor(size * 0.8)) - 1)),
-									$elm$svg$Svg$Attributes$fontSize('10'),
-									$elm$svg$Svg$Attributes$textAnchor('middle'),
-									$elm$svg$Svg$Attributes$style('letter-spacing: 3px')
-								]),
-							function () {
-								var showIfKnown = F2(
-									function (req, value) {
-										return (_Utils_cmp(si, req) > -1) ? $author$project$Traveller$toEHexChar(value) : '?';
-									});
-								return _List_fromArray(
-									[
-										A2(
-										$elm$svg$Svg$tspan,
-										_List_fromArray(
-											[
-												$elm$svg$Svg$Attributes$fill('#68B976'),
-												$elm$svg$Svg$Attributes$fontWeight('800')
-											]),
-										_List_fromArray(
-											[
-												$elm$svg$Svg$text(
-												A2(showIfKnown, $author$project$Traveller$terrestrialSI, starSystem.terrestrialPlanetCount))
-											])),
-										A2(
-										$elm$svg$Svg$tspan,
-										_List_fromArray(
-											[
-												$elm$svg$Svg$Attributes$fill('#68B976'),
-												$elm$svg$Svg$Attributes$fontWeight('800')
-											]),
-										_List_fromArray(
-											[
-												$elm$svg$Svg$text(
-												A2(showIfKnown, $author$project$Traveller$planetoidSI, starSystem.planetoidBeltCount))
-											])),
-										A2(
-										$elm$svg$Svg$tspan,
-										_List_fromArray(
-											[
-												$elm$svg$Svg$Attributes$fill('#68B976'),
-												$elm$svg$Svg$Attributes$fontWeight('800')
-											]),
-										_List_fromArray(
-											[
-												$elm$svg$Svg$text(
-												A2(showIfKnown, $author$project$Traveller$gasGiantSI, starSystem.gasGiantCount))
-											]))
-									]);
-							}())
-						])) : $elm$svg$Svg$text('')
-				]));
-	});
+							$author$project$Traveller$MapMouseUp,
+							$elm$core$Maybe$Just(hexAddress),
+							pos);
+					})),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mousedown',
+				$author$project$Traveller$mouseDownDecoder($author$project$Traveller$MapMouseDown)),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mousemove',
+				$author$project$Traveller$mouseMoveDecoder($author$project$Traveller$MapMouseMove)),
+				$elm$svg$Svg$Attributes$style('cursor: pointer; user-select: none')
+			]),
+		_List_fromArray(
+			[
+				A3($elm$svg$Svg$Lazy$lazy2, $author$project$Traveller$renderPolygon, hexapointsStr, hexColour),
+				function () {
+				if (showStar) {
+					var primaryPos = _Utils_Tuple2(vox, voy);
+					var isKnown = function (theStar) {
+						return A3($elm$core$Basics$composeR, $author$project$Traveller$SolarSystemStars$getStarTypeData, $author$project$Traveller$SolarSystemStars$isBrownDwarfType, theStar) ? (starSystem.surveyIndex >= 4) : (starSystem.surveyIndex >= 1);
+					};
+					var generateStar = F2(
+						function (idx, starType) {
+							var starData = $author$project$Traveller$SolarSystemStars$getStarTypeData(starType);
+							var _v1 = (!idx) ? _Utils_Tuple2(vox, voy) : A5($author$project$Traveller$HexGeometry$rotatePoint, size, idx + 2, primaryPos, 60, 20);
+							var sx = _v1.a;
+							var sy = _v1.b;
+							var _v2 = starData.companion;
+							if (_v2.$ === 'Just') {
+								var companion = _v2.a;
+								var compStarData = $author$project$Traveller$SolarSystemStars$getStarTypeData(companion);
+								var _v3 = _Utils_Tuple2(sx - 5, sy);
+								var cx = _v3.a;
+								var cy = _v3.b;
+								return A2(
+									$elm$svg$Svg$g,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A6(
+											$elm$svg$Svg$Lazy$lazy5,
+											$author$project$Traveller$drawStar,
+											sx,
+											sy,
+											7,
+											size,
+											$author$project$Traveller$StarColour$starColourRGB(starData.colour)),
+											A6(
+											$elm$svg$Svg$Lazy$lazy5,
+											$author$project$Traveller$drawStar,
+											cx,
+											cy,
+											3,
+											size,
+											$author$project$Traveller$StarColour$starColourRGB(compStarData.colour))
+										]));
+							} else {
+								return A6(
+									$elm$svg$Svg$Lazy$lazy5,
+									$author$project$Traveller$drawStar,
+									sx,
+									sy,
+									7,
+									size,
+									$author$project$Traveller$StarColour$starColourRGB(starData.colour));
+							}
+						});
+					return A2(
+						$elm$svg$Svg$g,
+						_List_Nil,
+						A2(
+							$elm$core$List$indexedMap,
+							$elm$svg$Svg$Lazy$lazy2(generateStar),
+							A2($elm$core$List$filter, isKnown, starSystem.stars)));
+				} else {
+					return A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress);
+				}
+			}(),
+				showStar ? A2(
+				$elm$svg$Svg$g,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress),
+						function () {
+						if ((size > 15) && (isReferee || (_Utils_cmp(si, $author$project$Traveller$uwpSI) > -1))) {
+							var _v4 = starSystem.mainWorldUwp;
+							if (_v4.$ === 'Just') {
+								var uwpStr = _v4.a;
+								return A2(
+									$elm$svg$Svg$text_,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$x(
+											$elm$core$String$fromInt(vox)),
+											$elm$svg$Svg$Attributes$y(
+											$elm$core$String$fromInt(
+												voy + $elm$core$Basics$floor(size * 0.40))),
+											$elm$svg$Svg$Attributes$fontSize('10'),
+											$elm$svg$Svg$Attributes$textAnchor('middle'),
+											$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
+											$elm$svg$Svg$Attributes$fontWeight('400'),
+											$elm$svg$Svg$Attributes$fill('#333333')
+										]),
+									_List_fromArray(
+										[
+											$elm$svg$Svg$text(uwpStr)
+										]));
+							} else {
+								return $elm$svg$Svg$text('');
+							}
+						} else {
+							return $elm$svg$Svg$text('');
+						}
+					}(),
+						(isReferee && ((size > 15) && (starSystem.name !== ''))) ? A2(
+						$elm$svg$Svg$text_,
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$x(
+								$elm$core$String$fromInt(vox)),
+								$elm$svg$Svg$Attributes$y(
+								$elm$core$String$fromInt(
+									voy + $elm$core$Basics$floor(size * 0.78))),
+								$elm$svg$Svg$Attributes$fontSize('15'),
+								$elm$svg$Svg$Attributes$textAnchor('middle'),
+								$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
+								$elm$svg$Svg$Attributes$fontWeight('700'),
+								$elm$svg$Svg$Attributes$fill('#333333')
+							]),
+						_List_fromArray(
+							[
+								$elm$svg$Svg$text(starSystem.name)
+							])) : $elm$svg$Svg$text('')
+					])) : $elm$svg$Svg$text(''),
+				(showGasGiant && (size > 15)) ? A3($author$project$Traveller$drawGasGiant, vox, voy, size) : $elm$svg$Svg$text(''),
+				(showPlanetoidBelt && (size > 15)) ? A3($author$project$Traveller$drawPlanetoidBelt, vox, voy, size) : $elm$svg$Svg$text(''),
+				(showUnknownGasGiant && (size > 15)) ? A3($author$project$Traveller$drawUnknownSlot, vox + (size * 0.38), voy - (size * 0.45), size) : $elm$svg$Svg$text(''),
+				(showUnknownPlanetoidBelt && (size > 15)) ? A3($author$project$Traveller$drawUnknownSlot, vox - (size * 0.38), voy - (size * 0.45), size) : $elm$svg$Svg$text('')
+			]));
+};
 var $author$project$Traveller$viewHexEmpty = F7(
 	function (hx, hy, x, y, size, childSvgTxt, hexColour) {
 		var origin = _Utils_Tuple2(x, y);
@@ -22623,7 +22942,9 @@ var $author$project$Traveller$viewHexEmpty = F7(
 					$elm$svg$Svg$Attributes$y(
 					$elm$core$String$fromInt(y)),
 					$elm$svg$Svg$Attributes$fontSize('10'),
-					$elm$svg$Svg$Attributes$textAnchor('middle')
+					$elm$svg$Svg$Attributes$textAnchor('middle'),
+					$elm$svg$Svg$Attributes$fill('#2A6A8A'),
+					$elm$svg$Svg$Attributes$class('hex-scan')
 				]),
 			_List_fromArray(
 				[
@@ -22671,8 +22992,77 @@ var $author$project$Traveller$viewHexEmpty = F7(
 					childSvg
 				]));
 	});
-var $author$project$Traveller$viewHex = F7(
-	function (hexSize, solarSystemDict, hexAddress, vox, voy, hexColour, rawHexaPoints) {
+var $author$project$Traveller$viewHexLoading = F6(
+	function (hx, hy, x, y, size, hexColour) {
+		var spacing = A2($elm$core$Basics$max, 7, size * 0.18);
+		var origin = _Utils_Tuple2(x, y);
+		var hexAddress = A2($author$project$Traveller$HexAddress$HexAddress, hx, hy);
+		var dotY = $elm$core$String$fromInt(y);
+		var dot = F2(
+			function (cls, offset) {
+				return A2(
+					$elm$svg$Svg$text_,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$x(
+							$elm$core$String$fromFloat(x + offset)),
+							$elm$svg$Svg$Attributes$y(dotY),
+							$elm$svg$Svg$Attributes$textAnchor('middle'),
+							$elm$svg$Svg$Attributes$fill('#2A6A8A'),
+							$elm$svg$Svg$Attributes$fontSize('14'),
+							$elm$svg$Svg$Attributes$class(cls)
+						]),
+					_List_fromArray(
+						[
+							$elm$svg$Svg$text('·')
+						]));
+			});
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Events$onMouseOver(
+					$author$project$Traveller$HoveringHex(hexAddress)),
+					A2(
+					$elm$svg$Svg$Events$on,
+					'mouseup',
+					$author$project$Traveller$mouseUpDecoder(
+						function (pos) {
+							return A2(
+								$author$project$Traveller$MapMouseUp,
+								$elm$core$Maybe$Just(hexAddress),
+								pos);
+						})),
+					A2(
+					$elm$svg$Svg$Events$on,
+					'mousedown',
+					$author$project$Traveller$mouseDownDecoder($author$project$Traveller$MapMouseDown)),
+					A2(
+					$elm$svg$Svg$Events$on,
+					'mousemove',
+					$author$project$Traveller$mouseMoveDecoder($author$project$Traveller$MapMouseMove)),
+					$elm$svg$Svg$Attributes$style('cursor: pointer; user-select: none'),
+					$elm$svg$Svg$Attributes$id(
+					'rendered-hex:' + $author$project$Traveller$HexAddress$toKey(hexAddress))
+				]),
+			_List_fromArray(
+				[
+					A3(
+					$elm$svg$Svg$Lazy$lazy2,
+					$author$project$Traveller$renderPolygon,
+					A2(
+						$elm$core$String$join,
+						' ',
+						A2($author$project$Traveller$HexGeometry$hexagonPoints, origin, size)),
+					hexColour),
+					A4($author$project$Traveller$hexAddressLabel, x, y, size, hexAddress),
+					A2(dot, 'hex-dot hex-dot-1', -spacing),
+					A2(dot, 'hex-dot hex-dot-2', 0),
+					A2(dot, 'hex-dot hex-dot-3', spacing)
+				]));
+	});
+var $author$project$Traveller$viewHex = F8(
+	function (hexSize, solarSystemDict, hexAddress, vox, voy, hexColour, rawHexaPoints, isReferee) {
 		var viewEmptyHelper = function (txt) {
 			return A8($elm$svg$Svg$Lazy$lazy7, $author$project$Traveller$viewHexEmpty, hexAddress.x, hexAddress.y, vox, voy, hexSize, txt, hexColour);
 		};
@@ -22689,10 +23079,13 @@ var $author$project$Traveller$viewHex = F7(
 							$author$project$Traveller$HexGeometry$convertRawHexagonPoints,
 							_Utils_Tuple2(vox, voy),
 							rawHexaPoints);
-						return A9($elm$svg$Svg$Lazy$lazy8, $author$project$Traveller$renderHexWithStar, loadedSystem, hexColour, hexAddress.x, hexAddress.y, vox, voy, hexSize, hexapointsStr);
+						return A2(
+							$elm$svg$Svg$Lazy$lazy,
+							$author$project$Traveller$renderHexWithStar,
+							{hexAddrX: hexAddress.x, hexAddrY: hexAddress.y, hexColour: hexColour, hexapointsStr: hexapointsStr, isReferee: isReferee, size: hexSize, starSystem: loadedSystem, vox: vox, voy: voy});
 					case 'LoadingSolarSystem':
 						var _v1 = remoteSolarSystem.a;
-						return viewEmptyHelper('Loading...');
+						return A6($author$project$Traveller$viewHexLoading, hexAddress.x, hexAddress.y, vox, voy, hexSize, hexColour);
 					case 'FailedSolarSystem':
 						var httpError = remoteSolarSystem.a.a;
 						return viewEmptyHelper('Failed.');
@@ -22769,7 +23162,7 @@ var $author$project$Traveller$viewHexes = function (_v0) {
 											var voy = _v16.b;
 											return _Utils_Tuple2(
 												hexAddr,
-												A7($author$project$Traveller$viewHex, hexSize, solarSystemDict, hexAddr, vox, voy, hexColour, rawHexaPoints));
+												A8($author$project$Traveller$viewHex, hexSize, solarSystemDict, hexAddr, vox, voy, hexColour, rawHexaPoints, isReferee));
 										};
 										var renderCurrentAddressOutline = function (ca) {
 											var locationOrigin = A3(
@@ -23035,7 +23428,7 @@ var $author$project$Traveller$viewHexes = function (_v0) {
 	};
 };
 var $author$project$Traveller$viewHexMap = function (model) {
-	var svgWidth = model.viewport.viewport.viewport.width - ($author$project$Traveller$Sidebar$sidebarWidth + 15);
+	var svgWidth = model.viewport.viewport.viewport.width;
 	var svgHeight = model.viewport.viewport.viewport.height - $author$project$Traveller$consoleTitleHeight;
 	var _v0 = function () {
 		var _v1 = A2(
@@ -23090,16 +23483,39 @@ var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Fl
 var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
 var $mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
 var $mdgriffith$elm_ui$Element$centerY = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$CenterY);
-var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
-var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'border-color',
-			clr));
+var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
+	function (top, right, bottom, left) {
+		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
+	});
+var $mdgriffith$elm_ui$Element$paddingEach = function (_v0) {
+	var top = _v0.top;
+	var right = _v0.right;
+	var bottom = _v0.bottom;
+	var left = _v0.left;
+	if (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) {
+		var topFloat = top;
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + $elm$core$String$fromInt(top),
+				topFloat,
+				topFloat,
+				topFloat,
+				topFloat));
+	} else {
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				A4($mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
+				top,
+				right,
+				bottom,
+				left));
+	}
 };
 var $mdgriffith$elm_ui$Internal$Model$boxShadowClass = function (shadow) {
 	return $elm$core$String$concat(
@@ -23134,18 +23550,6 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			$elm$virtual_dom$VirtualDom$on,
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $avh4$elm_color$Color$scaleFrom255 = function (c) {
-	return c / 255;
-};
-var $avh4$elm_color$Color$rgb255 = F3(
-	function (r, g, b) {
-		return A4(
-			$avh4$elm_color$Color$RgbaSpace,
-			$avh4$elm_color$Color$scaleFrom255(r),
-			$avh4$elm_color$Color$scaleFrom255(g),
-			$avh4$elm_color$Color$scaleFrom255(b),
-			1.0);
 	});
 var $author$project$Traveller$UI$deepnightColor = A3($avh4$elm_color$Color$rgb255, 223, 127, 51);
 var $author$project$Traveller$UI$uiDeepnightColorFontColour = $mdgriffith$elm_ui$Element$Font$color(
@@ -24169,8 +24573,6 @@ var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F4(
 				[
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-					$mdgriffith$elm_ui$Element$Background$color(
-					A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.6)),
 					$mdgriffith$elm_ui$Element$Events$onClick(closeMsg)
 				]),
 			A2(
@@ -24185,19 +24587,23 @@ var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F4(
 							'click',
 							$elm$json$Json$Decode$succeed(
 								_Utils_Tuple2(noOpMsg, true)))),
-						$mdgriffith$elm_ui$Element$Background$color(
-						A4($mdgriffith$elm_ui$Element$rgba, 0.12, 0.14, 0.18, 0.98)),
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2($elm$html$Html$Attributes$style, 'background-color', 'rgba(245, 250, 255, 0.45)')),
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2($elm$html$Html$Attributes$style, 'backdrop-filter', 'blur(16px)')),
+						$mdgriffith$elm_ui$Element$htmlAttribute(
+						A2($elm$html$Html$Attributes$style, '-webkit-backdrop-filter', 'blur(16px)')),
 						$mdgriffith$elm_ui$Element$width(
 						$mdgriffith$elm_ui$Element$px(750)),
 						$mdgriffith$elm_ui$Element$padding(20),
 						$mdgriffith$elm_ui$Element$Border$rounded(6),
 						$mdgriffith$elm_ui$Element$Border$width(1),
 						$mdgriffith$elm_ui$Element$Border$color(
-						A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.15)),
+						A4($mdgriffith$elm_ui$Element$rgba, 0.17, 0.42, 0.55, 0.3)),
 						$mdgriffith$elm_ui$Element$Border$shadow(
 						{
 							blur: 32,
-							color: A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.6),
+							color: A4($mdgriffith$elm_ui$Element$rgba, 0, 0, 0, 0.25),
 							offset: _Utils_Tuple2(0, 8),
 							size: 0
 						})
@@ -24218,7 +24624,7 @@ var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F4(
 									$author$project$Traveller$UI$zeroEach,
 									{bottom: 1})),
 								$mdgriffith$elm_ui$Element$Border$color(
-								A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.1))
+								A4($mdgriffith$elm_ui$Element$rgba, 0.17, 0.42, 0.55, 0.15))
 							]),
 						_List_fromArray(
 							[
@@ -24242,11 +24648,11 @@ var $author$project$Traveller$AnalysisDetail$viewObjectAnalysisDetail = F4(
 										_List_fromArray(
 											[
 												$mdgriffith$elm_ui$Element$Font$color(
-												A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1))
+												A3($mdgriffith$elm_ui$Element$rgb, 0, 0, 0))
 											])),
 										$mdgriffith$elm_ui$Element$Font$size(16),
 										$mdgriffith$elm_ui$Element$Font$color(
-										A4($mdgriffith$elm_ui$Element$rgba, 1, 1, 1, 0.5)),
+										A4($mdgriffith$elm_ui$Element$rgba, 0.17, 0.42, 0.55, 0.7)),
 										$mdgriffith$elm_ui$Element$alignRight,
 										$mdgriffith$elm_ui$Element$alignTop,
 										$mdgriffith$elm_ui$Element$Events$onClick(closeMsg)
@@ -24324,37 +24730,37 @@ var $author$project$Traveller$StarColour$starFillColour = function (colour) {
 		switch (colour.a.$) {
 			case 'Blue':
 				var _v1 = colour.a;
-				return '#6baed6';
+				return '#3366BB';
 			case 'BlueWhite':
 				var _v2 = colour.a;
-				return '#9ecae1';
+				return '#5588CC';
 			case 'White':
 				var _v3 = colour.a;
-				return '#e5e5e5';
+				return '#8899AA';
 			case 'YellowWhite':
 				var _v4 = colour.a;
-				return '#fee391';
+				return '#BBAA44';
 			case 'Yellow':
 				var _v5 = colour.a;
-				return '#fed976';
+				return '#CC8800';
 			case 'LightOrange':
 				var _v6 = colour.a;
-				return '#fd8d3c';
+				return '#CC6622';
 			case 'OrangeRed':
 				var _v7 = colour.a;
-				return '#e6550d';
+				return '#CC3311';
 			case 'Red':
 				var _v8 = colour.a;
-				return '#de2d26';
+				return '#BB1111';
 			case 'Brown':
 				var _v9 = colour.a;
-				return '#8c6d31';
+				return '#886644';
 			default:
 				var _v10 = colour.a;
-				return '#7a0177';
+				return '#882255';
 		}
 	} else {
-		return '#969696';
+		return '#778899';
 	}
 };
 var $author$project$Traveller$StarSystemMap$vertStep = 38;
@@ -24765,7 +25171,7 @@ var $author$project$Traveller$StarSystemMap$renderEdge = function (edge) {
 					$elm$core$String$fromFloat(edge.x2)),
 					$elm$svg$Svg$Attributes$y2(
 					$elm$core$String$fromFloat(edge.y2)),
-					$elm$svg$Svg$Attributes$stroke('#334155'),
+					$elm$svg$Svg$Attributes$stroke('#8AAFC4'),
 					$elm$svg$Svg$Attributes$strokeWidth('3'),
 					$elm$svg$Svg$Attributes$strokeLinecap('round')
 				]),
@@ -24791,8 +25197,6 @@ var $elm$virtual_dom$VirtualDom$nodeNS = F2(
 			_VirtualDom_noScript(tag));
 	});
 var $elm$svg$Svg$node = $elm$virtual_dom$VirtualDom$nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$Attributes$opacity = _VirtualDom_attribute('opacity');
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
 var $elm$svg$Svg$Attributes$xlinkHref = function (value) {
 	return A3(
 		_VirtualDom_attributeNS,
@@ -24957,17 +25361,32 @@ var $author$project$Traveller$StarSystemMap$renderNode = F3(
 			}
 		}();
 		var strokeWidth = '1.5';
-		var strokeColour = '#1e293b';
+		var strokeColour = '#1A4A6A';
+		var leftX = $elm$core$String$fromFloat((node.x - node.radius) - 4);
+		var orbitSequenceEl = A2(
+			$elm$svg$Svg$text_,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x(leftX),
+					$elm$svg$Svg$Attributes$y(
+					$elm$core$String$fromFloat(node.y - 5)),
+					$elm$svg$Svg$Attributes$textAnchor('end'),
+					$elm$svg$Svg$Attributes$class('sm-orbit-sequence')
+				]),
+			_List_fromArray(
+				[
+					$elm$svg$Svg$text(
+					$author$project$Traveller$StellarObject$getStellarOrbit(node.stellarObject).orbitSequence)
+				]));
 		var labelY = node.y + 4;
 		var labelX = (node.x + node.radius) + 8;
 		var jumpTimeEl = A2(
 			$elm$svg$Svg$text_,
 			_List_fromArray(
 				[
-					$elm$svg$Svg$Attributes$x(
-					$elm$core$String$fromFloat((node.x - node.radius) - 4)),
+					$elm$svg$Svg$Attributes$x(leftX),
 					$elm$svg$Svg$Attributes$y(
-					$elm$core$String$fromFloat(labelY)),
+					$elm$core$String$fromFloat(node.y + 9)),
 					$elm$svg$Svg$Attributes$textAnchor('end'),
 					$elm$svg$Svg$Attributes$class('sm-jump-time')
 				]),
@@ -25129,7 +25548,10 @@ var $author$project$Traveller$StarSystemMap$renderNode = F3(
 				A2(
 					$elm$core$List$cons,
 					travelIconEl,
-					A2($elm$core$List$cons, jumpTimeEl, labelEls))));
+					A2(
+						$elm$core$List$cons,
+						orbitSequenceEl,
+						A2($elm$core$List$cons, jumpTimeEl, labelEls)))));
 	});
 var $author$project$Traveller$StarSystemMap$renderNodes = F3(
 	function (msgs, selectedStellarObject, nodes) {
@@ -25327,7 +25749,7 @@ var $author$project$Traveller$StarSystemMap$svgStyle = A3(
 	_List_Nil,
 	_List_fromArray(
 		[
-			$elm$svg$Svg$text('\n            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #64748b; paint-order: stroke fill; stroke: #1e293b; stroke-width: 12px; stroke-linejoin: round; }\n            .sm-star-label { font-family: "Orbitron", system-ui, sans-serif; font-size: 12px; fill: #f8fafc; font-weight: 600; letter-spacing: 0.04em; }\n            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #cbd5e1; }\n            .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #68B976; }\n            .sm-travel-btn { font-size: 12px; fill: #64748b; cursor: pointer; font-family: ui-monospace, monospace; }\n            .sm-travel-btn:hover { fill: #68B976; }\n            .sm-travel-btn-active { font-size: 12px; fill: #68B976; cursor: pointer; font-family: ui-monospace, monospace; }\n            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 10px; fill: #94a3b8; }\n            .sm-node:hover circle { opacity: 0.75; }\n            .sm-node { cursor: pointer; }\n        ')
+			$elm$svg$Svg$text('\n            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }\n            .sm-star-label { font-family: "Tomorrow", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }\n            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }\n            .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #007A6A; }\n            .sm-travel-btn { font-size: 12px; fill: #4A7A9A; cursor: pointer; font-family: ui-monospace, monospace; }\n            .sm-travel-btn:hover { fill: #007A6A; }\n            .sm-travel-btn-active { font-size: 12px; fill: #007A6A; cursor: pointer; font-family: ui-monospace, monospace; }\n            .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }\n            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }\n            .sm-node:hover circle { opacity: 0.75; }\n            .sm-node { cursor: pointer; }\n        ')
 		]));
 var $author$project$Traveller$StarSystemMap$viewStarSystemMap = F4(
 	function (msgs, solarSystem, selectedStellarObject, _v0) {
@@ -25349,8 +25771,8 @@ var $author$project$Traveller$StarSystemMap$viewStarSystemMap = F4(
 					[
 						$author$project$Traveller$StarSystemMap$svgDefs,
 						$author$project$Traveller$StarSystemMap$svgStyle,
-						$author$project$Traveller$StarSystemMap$renderEdges(layout.edges),
 						$author$project$Traveller$StarSystemMap$renderJumpShadows(layout.jumpShadows),
+						$author$project$Traveller$StarSystemMap$renderEdges(layout.edges),
 						A3($author$project$Traveller$StarSystemMap$renderNodes, msgs, selectedStellarObject, layout.nodes)
 					])));
 	});
@@ -25380,6 +25802,29 @@ var $author$project$Traveller$Sidebar$viewSidebarColumn = F2(
 			_List_fromArray(
 				[
 					A2(
+					$mdgriffith$elm_ui$Element$row,
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+							A2($mdgriffith$elm_ui$Element$paddingXY, 8, 6)
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$mdgriffith$elm_ui$Element$el,
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$alignRight,
+									$mdgriffith$elm_ui$Element$Events$onClick(msgs.closeSidebar),
+									$mdgriffith$elm_ui$Element$htmlAttribute(
+									A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')),
+									$mdgriffith$elm_ui$Element$Font$size(14),
+									$mdgriffith$elm_ui$Element$Font$color(
+									A4($mdgriffith$elm_ui$Element$rgba, 0.17, 0.42, 0.55, 0.8))
+								]),
+							$mdgriffith$elm_ui$Element$text('✕'))
+						])),
+					A2(
 					$mdgriffith$elm_ui$Element$column,
 					_List_fromArray(
 						[
@@ -25407,7 +25852,11 @@ var $author$project$Traveller$Sidebar$viewSidebarColumn = F2(
 												return A2(
 													$mdgriffith$elm_ui$Element$el,
 													_List_fromArray(
-														[$mdgriffith$elm_ui$Element$centerX]),
+														[
+															$mdgriffith$elm_ui$Element$centerX,
+															$mdgriffith$elm_ui$Element$htmlAttribute(
+															$elm$html$Html$Attributes$class('status-scan'))
+														]),
 													$mdgriffith$elm_ui$Element$text(status));
 											} else {
 												return $mdgriffith$elm_ui$Element$none;
@@ -25425,7 +25874,12 @@ var $author$project$Traveller$Sidebar$viewSidebarColumn = F2(
 													A2(
 													$mdgriffith$elm_ui$Element$el,
 													_List_fromArray(
-														[$mdgriffith$elm_ui$Element$centerX, $author$project$Traveller$UI$uiDeepnightColorFontColour]),
+														[
+															$mdgriffith$elm_ui$Element$centerX,
+															$author$project$Traveller$UI$uiDeepnightColorFontColour,
+															$mdgriffith$elm_ui$Element$Font$size(18),
+															$mdgriffith$elm_ui$Element$Font$bold
+														]),
 													$mdgriffith$elm_ui$Element$text(
 														A2($author$project$Traveller$Sidebar$universalHexLabel, sectors, viewingAddress))),
 													function () {
@@ -25993,7 +26447,7 @@ var $author$project$Traveller$view = function (_v0) {
 				switch (_v4.a.$) {
 					case 'LoadingSolarSystem':
 						var _v5 = _v4.a;
-						return $elm$core$Maybe$Just('loading...');
+						return $elm$core$Maybe$Just('Acquiring signal...');
 					case 'FailedSolarSystem':
 						return $elm$core$Maybe$Just('failed.');
 					case 'FailedStarsSolarSystem':
@@ -26002,15 +26456,46 @@ var $author$project$Traveller$view = function (_v0) {
 						return $elm$core$Maybe$Nothing;
 				}
 			} else {
-				return $elm$core$Maybe$Just('No solar system data found for system.');
+				var _v6 = model.selectedSystem;
+				if (_v6.$ === 'Just') {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					return $elm$core$Maybe$Just('No solar system data found for system.');
+				}
 			}
 		} else {
 			return $elm$core$Maybe$Nothing;
 		}
 	}();
-	var sidebarMsgs = {focusInSidebar: $author$project$Traveller$FocusInSidebar, viewDetail: $author$project$Traveller$ViewObjectAnalysisDetail};
+	var sidebarMsgs = {closeSidebar: $author$project$Traveller$CloseSidebar, focusInSidebar: $author$project$Traveller$FocusInSidebar, viewDetail: $author$project$Traveller$ViewObjectAnalysisDetail};
 	var sidebarData = {allSectorsMapUrl: model.allSectorsMapUrl, isReferee: model.isReferee, regions: model.regions, sectors: model.sectors, selectedHex: model.selectedHex, selectedStellarObject: model.selectedStellarObject, selectedSystem: model.selectedSystem, solarSystemStatus: solarSystemStatus};
 	var sidebarColumn = A3($mdgriffith$elm_ui$Element$Lazy$lazy2, $author$project$Traveller$Sidebar$viewSidebarColumn, sidebarMsgs, sidebarData);
+	var sidebarOverlay = A2(
+		$mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
+				$mdgriffith$elm_ui$Element$width(
+				$mdgriffith$elm_ui$Element$px(320)),
+				$mdgriffith$elm_ui$Element$alignLeft,
+				$mdgriffith$elm_ui$Element$Font$size(14),
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				A2($elm$html$Html$Attributes$style, 'background-color', 'rgba(245, 250, 255, 0.45)')),
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				A2($elm$html$Html$Attributes$style, 'backdrop-filter', 'blur(16px)')),
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				A2($elm$html$Html$Attributes$style, '-webkit-backdrop-filter', 'blur(16px)')),
+				$mdgriffith$elm_ui$Element$Border$widthEach(
+				_Utils_update(
+					$author$project$Traveller$UI$zeroEach,
+					{right: 1})),
+				$mdgriffith$elm_ui$Element$Border$color(
+				A4($mdgriffith$elm_ui$Element$rgba, 0.17, 0.42, 0.55, 0.4)),
+				$mdgriffith$elm_ui$Element$scrollbarY,
+				$mdgriffith$elm_ui$Element$htmlAttribute(
+				$elm$html$Html$Attributes$class('sidebar-panel'))
+			]),
+		sidebarColumn);
 	var contentColumn = function () {
 		var _v2 = model.viewMode;
 		if (_v2.$ === 'HexMap') {
@@ -26028,11 +26513,7 @@ var $author$project$Traveller$view = function (_v0) {
 				$mdgriffith$elm_ui$Element$Font$size(20),
 				$mdgriffith$elm_ui$Element$Font$color($author$project$Traveller$UI$fontTextColor),
 				$mdgriffith$elm_ui$Element$Background$color(
-				A3($mdgriffith$elm_ui$Element$rgb255, 33, 37, 41)),
-				$mdgriffith$elm_ui$Element$paddingEach(
-				_Utils_update(
-					$author$project$Traveller$UI$zeroEach,
-					{left: 15})),
+				A3($mdgriffith$elm_ui$Element$rgb255, 238, 244, 249)),
 				function () {
 				var _v1 = model.objectToBeAnalyzed;
 				if (_v1.$ === 'Just') {
@@ -26048,18 +26529,6 @@ var $author$project$Traveller$view = function (_v0) {
 		_List_fromArray(
 			[
 				A2(
-				$mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-						$mdgriffith$elm_ui$Element$width(
-						$mdgriffith$elm_ui$Element$px($author$project$Traveller$Sidebar$sidebarWidth)),
-						$mdgriffith$elm_ui$Element$alignTop,
-						$mdgriffith$elm_ui$Element$alignLeft,
-						$mdgriffith$elm_ui$Element$scrollbarY
-					]),
-				sidebarColumn),
-				A2(
 				$mdgriffith$elm_ui$Element$column,
 				_List_fromArray(
 					[
@@ -26072,7 +26541,12 @@ var $author$project$Traveller$view = function (_v0) {
 						A2(
 						$mdgriffith$elm_ui$Element$el,
 						_List_fromArray(
-							[$mdgriffith$elm_ui$Element$alignTop]),
+							[
+								$mdgriffith$elm_ui$Element$alignTop,
+								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+								model.sidebarOpen ? $mdgriffith$elm_ui$Element$inFront(sidebarOverlay) : $mdgriffith$elm_ui$Element$htmlAttribute(
+								$elm$html$Html$Attributes$class(''))
+							]),
 						contentColumn)
 					])),
 				$mdgriffith$elm_ui$Element$html(
@@ -26117,10 +26591,16 @@ var $author$project$Main$view = function (model) {
 						} else {
 							return A2(
 								$elm$html$Html$div,
-								_List_Nil,
 								_List_fromArray(
 									[
-										$elm$html$Html$text('Loading')
+										$elm$html$Html$Attributes$class('status-scan'),
+										A2($elm$html$Html$Attributes$style, 'color', '#2A6A8A'),
+										A2($elm$html$Html$Attributes$style, 'padding', '2rem'),
+										A2($elm$html$Html$Attributes$style, 'font-family', 'Tomorrow, monospace')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Initialising navigation systems...')
 									]));
 						}
 					}()
@@ -26149,60 +26629,73 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 										function (nativeSophontColour) {
 											return A2(
 												$elm$json$Json$Decode$andThen,
-												function (hexSize) {
+												function (journeyState) {
 													return A2(
 														$elm$json$Json$Decode$andThen,
-														function (extinctSophontColour) {
+														function (hexSize) {
 															return A2(
 																$elm$json$Json$Decode$andThen,
-																function (campaignSlug) {
+																function (extinctSophontColour) {
 																	return A2(
 																		$elm$json$Json$Decode$andThen,
-																		function (campaignName) {
+																		function (campaignSlug) {
 																			return A2(
 																				$elm$json$Json$Decode$andThen,
-																				function (apiBaseUrl) {
+																				function (campaignName) {
 																					return A2(
 																						$elm$json$Json$Decode$andThen,
-																						function (allSectorsMapUrl) {
-																							return $elm$json$Json$Decode$succeed(
-																								{allSectorsMapUrl: allSectorsMapUrl, apiBaseUrl: apiBaseUrl, campaignName: campaignName, campaignSlug: campaignSlug, extinctSophontColour: extinctSophontColour, hexSize: hexSize, nativeSophontColour: nativeSophontColour, referee: referee, shipName: shipName, upperLeft: upperLeft, viewMode: viewMode});
+																						function (apiBaseUrl) {
+																							return A2(
+																								$elm$json$Json$Decode$andThen,
+																								function (allSectorsMapUrl) {
+																									return $elm$json$Json$Decode$succeed(
+																										{allSectorsMapUrl: allSectorsMapUrl, apiBaseUrl: apiBaseUrl, campaignName: campaignName, campaignSlug: campaignSlug, extinctSophontColour: extinctSophontColour, hexSize: hexSize, journeyState: journeyState, nativeSophontColour: nativeSophontColour, referee: referee, shipName: shipName, upperLeft: upperLeft, viewMode: viewMode});
+																								},
+																								A2(
+																									$elm$json$Json$Decode$field,
+																									'allSectorsMapUrl',
+																									$elm$json$Json$Decode$oneOf(
+																										_List_fromArray(
+																											[
+																												$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+																												A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+																											]))));
 																						},
-																						A2(
-																							$elm$json$Json$Decode$field,
-																							'allSectorsMapUrl',
-																							$elm$json$Json$Decode$oneOf(
-																								_List_fromArray(
-																									[
-																										$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-																										A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
-																									]))));
+																						A2($elm$json$Json$Decode$field, 'apiBaseUrl', $elm$json$Json$Decode$string));
 																				},
-																				A2($elm$json$Json$Decode$field, 'apiBaseUrl', $elm$json$Json$Decode$string));
+																				A2(
+																					$elm$json$Json$Decode$field,
+																					'campaignName',
+																					$elm$json$Json$Decode$oneOf(
+																						_List_fromArray(
+																							[
+																								$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+																								A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+																							]))));
 																		},
-																		A2(
-																			$elm$json$Json$Decode$field,
-																			'campaignName',
-																			$elm$json$Json$Decode$oneOf(
-																				_List_fromArray(
-																					[
-																						$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-																						A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
-																					]))));
+																		A2($elm$json$Json$Decode$field, 'campaignSlug', $elm$json$Json$Decode$string));
 																},
-																A2($elm$json$Json$Decode$field, 'campaignSlug', $elm$json$Json$Decode$string));
+																A2(
+																	$elm$json$Json$Decode$field,
+																	'extinctSophontColour',
+																	$elm$json$Json$Decode$oneOf(
+																		_List_fromArray(
+																			[
+																				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+																				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+																			]))));
 														},
-														A2(
-															$elm$json$Json$Decode$field,
-															'extinctSophontColour',
-															$elm$json$Json$Decode$oneOf(
-																_List_fromArray(
-																	[
-																		$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-																		A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
-																	]))));
+														A2($elm$json$Json$Decode$field, 'hexSize', $elm$json$Json$Decode$float));
 												},
-												A2($elm$json$Json$Decode$field, 'hexSize', $elm$json$Json$Decode$float));
+												A2(
+													$elm$json$Json$Decode$field,
+													'journeyState',
+													$elm$json$Json$Decode$oneOf(
+														_List_fromArray(
+															[
+																$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+																A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+															]))));
 										},
 										A2(
 											$elm$json$Json$Decode$field,
