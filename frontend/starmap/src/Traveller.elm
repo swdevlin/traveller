@@ -1313,7 +1313,7 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
 
     else
         Svg.g []
-            [ if size > 55 && (isReferee || si >= uwpSI) then
+            [ if isReferee || si >= uwpSI then
                 case starSystem.mainWorldUwp of
                     Just uwpStr ->
                         Svg.text_
@@ -1332,7 +1332,7 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
 
               else
                 Svg.text ""
-            , if isReferee && starSystem.name /= "" then
+            , if (isReferee || si >= uwpSI) && starSystem.name /= "" then
                 Svg.text_
                     [ SvgAttrs.x <| String.fromInt vox
                     , SvgAttrs.y <| String.fromInt <| voy + floor (size * 0.78)
