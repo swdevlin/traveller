@@ -110,6 +110,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:bases).array(:string).each(:filled?)
   optional(:known).filled(:bool)
   optional(:allegiance).filled(:string)
+  optional(:travelZone).maybe(:string)
   optional(:counts).hash(CountsSchema)
 end
 
