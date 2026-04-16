@@ -1132,6 +1132,52 @@ drawPlanetoidBelt cx cy size =
         ]
 
 
+drawTravelZoneRing : Float -> Float -> Float -> String -> Svg Msg
+drawTravelZoneRing cx cy size colour =
+    let
+        r =
+            size * 0.78
+
+        -- 270° arc open at the bottom (90° gap centred on 6 o'clock).
+        -- SVG angles: 0° = right, clockwise. Bottom = 90°.
+        -- Gap: 45° to 135°. Arc: start 135° → clockwise → end 45°.
+        startX =
+            cx + r * cos (degrees 135)
+
+        startY =
+            cy + r * sin (degrees 135)
+
+        endX =
+            cx + r * cos (degrees 45)
+
+        endY =
+            cy + r * sin (degrees 45)
+
+        d =
+            "M "
+                ++ String.fromFloat startX
+                ++ " "
+                ++ String.fromFloat startY
+                ++ " A "
+                ++ String.fromFloat r
+                ++ " "
+                ++ String.fromFloat r
+                ++ " 0 1 1 "
+                ++ String.fromFloat endX
+                ++ " "
+                ++ String.fromFloat endY
+    in
+    Svg.path
+        [ SvgAttrs.d d
+        , SvgAttrs.fill "none"
+        , SvgAttrs.stroke colour
+        , SvgAttrs.strokeWidth "2"
+        , SvgAttrs.strokeLinecap "round"
+        , SvgAttrs.pointerEvents "none"
+        ]
+        []
+
+
 drawGasGiant : Int -> Int -> Float -> Svg Msg
 drawGasGiant cx cy size =
     let
@@ -1207,6 +1253,9 @@ renderHexWithStar { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, h
 
         showUnknownPlanetoidBelt =
             showStar && not isReferee && si < planetoidSI
+
+        showTravelZone =
+            (isReferee || si >= uwpSI) && starSystem.travelZone /= Nothing
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
@@ -1293,6 +1342,16 @@ renderHexWithStar { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, h
             Svg.text ""
         , if showUnknownPlanetoidBelt && size > 15 then
             drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
+
+          else
+            Svg.text ""
+        , if showTravelZone && size > 15 then
+            case starSystem.travelZone of
+                Just tz ->
+                    drawTravelZoneRing (toFloat vox) (toFloat voy) size tz.colour
+
+                Nothing ->
+                    Svg.text ""
 
           else
             Svg.text ""
@@ -3009,6 +3068,7 @@ update msg ( time, model ) =
                                                 -- WARN: relies on hasFailed to be false. if we don't do that check, we'll miss errors
                                                 List.map Result.toMaybe fallibleSystem.stars |> List.filterMap identity
                                             , mainWorldUwp = fallibleSystem.mainWorldUwp
+                                            , travelZone = fallibleSystem.travelZone
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address

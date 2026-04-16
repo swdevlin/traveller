@@ -37,6 +37,14 @@
   <%# New-only fields get injected here %>
   <%= yield f if block_given? %>
 
+  <div>
+    <%= f.label :travel_zone_id, 'Travel Zone', class: 'block text-sm font-semibold mb-1' %>
+    <%= f.select :travel_zone_id,
+                 (@travel_zones || TravelZone.ordered).map { |tz| [tz.name, tz.id] },
+                 { include_blank: 'None', selected: f.object.travel_zone_id },
+                 { class: 'edit-base w-48' } %>
+  </div>
+
   <%= render 'application/boolean_toggle', form: f, attribute: :locked,
         checked: f.object.locked?, label: 'Locked' %>
 

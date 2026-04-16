@@ -17,3 +17,6 @@ require_relative "seeds/governments"
 
 puts "Seeding tech levels..."
 require_relative "seeds/tech_levels"
+
+puts "Seeding travel zones..."
+require_relative "seeds/travel_zones"

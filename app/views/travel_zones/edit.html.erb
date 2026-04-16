@@ -1,0 +1,7 @@
+<% content_for :title, "Editing #{@travel_zone.name}" %>
+<% content_for :page_kicker, 'Travel Zone Data Core' %>
+<% content_for :page_title, "Editing #{@travel_zone.name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', travel_zone: @travel_zone %>
+<% end %>

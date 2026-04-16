@@ -1,10 +1,24 @@
-module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
+module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, TravelZone, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
 
 import Codec exposing (Codec)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
+
+
+type alias TravelZone =
+    { code : String
+    , colour : String
+    }
+
+
+travelZoneCodec : Codec TravelZone
+travelZoneCodec =
+    Codec.object TravelZone
+        |> Codec.field "code" .code Codec.string
+        |> Codec.field "colour" .colour Codec.string
+        |> Codec.buildObject
 
 
 type alias StarTypeData =
@@ -61,6 +75,7 @@ type alias StarSystem =
     , techLevel : Maybe Int
     , stars : List StarType
     , mainWorldUwp : Maybe String
+    , travelZone : Maybe TravelZone
     }
 
 
@@ -79,6 +94,7 @@ type alias FallibleStarSystem =
     , techLevel : Maybe Int
     , stars : List (Result Decode.Error StarType)
     , mainWorldUwp : Maybe String
+    , travelZone : Maybe TravelZone
     }
 
 
@@ -103,6 +119,7 @@ starSystemCodec =
         |> Codec.field "tech_level" .techLevel (Codec.nullable Codec.int)
         |> Codec.field "stars" .stars (Codec.list starTypeCodec)
         |> Codec.field "main_world_uwp" .mainWorldUwp (Codec.nullable Codec.string)
+        |> Codec.field "travel_zone" .travelZone (Codec.nullable travelZoneCodec)
         |> Codec.buildObject
 
 
@@ -140,3 +157,4 @@ fallibleStarSystemDecoder =
                 (Decode.map decodeOrCatchError Decode.value)
             )
         |> optional "main_world_uwp" (Decode.nullable Decode.string) Nothing
+        |> optional "travel_zone" (Decode.nullable (Codec.decoder travelZoneCodec)) Nothing

@@ -60,6 +60,7 @@ class CreateSubsectorJob < ApplicationJob
     return if systems.empty?
 
     traveller_map.ensure_allegiances(systems)
+    traveller_map.ensure_travel_zones(systems)
     subsector.update!(build: traveller_map.systems_to_build_plan(systems))
   end
 end

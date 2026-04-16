@@ -1,0 +1,21 @@
+<% content_for :title, @travel_zone.name %>
+<% content_for :page_kicker, 'Travel Zone' %>
+<% content_for :page_title, @travel_zone.name %>
+
+<%= render 'application/page' do %>
+  <%= render @travel_zone %>
+
+  <%= link_to 'Edit', edit_travel_zone_path(@travel_zone), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= render 'application/back_button',
+             path: travel_zones_path,
+             label: 'Travel Zones',
+             class: 'w-full sm:w-auto' %>
+  <% unless @travel_zone.protected? %>
+    <%= button_to 'Delete',
+                  @travel_zone,
+                  method: :delete,
+                  form_class: 'w-full sm:w-auto inline-flex m-0',
+                  class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                  data: { turbo_confirm: 'Are you sure?' } %>
+  <% end %>
+<% end %>

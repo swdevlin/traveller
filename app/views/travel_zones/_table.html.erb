@@ -1,0 +1,58 @@
+<div class='table-card'>
+  <div class='table-scroll'>
+    <table>
+      <thead>
+      <tr>
+        <th scope='col'>Code</th>
+        <th scope='col'>Name</th>
+        <th scope='col'>Colour</th>
+        <th scope='col' class='text-right'>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% travel_zones.each do |travel_zone| %>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= travel_zone_path(travel_zone) %>'
+            data-action='click->row-link#navigate'>
+          <td class='whitespace-nowrap'>
+            <span class='pill'><%= travel_zone.code %></span>
+          </td>
+
+          <td>
+            <%= travel_zone.name %>
+            <% if travel_zone.protected? %>
+              <i class='fa-regular fa-lock ml-1 text-slate-500' title='Protected'></i>
+            <% end %>
+          </td>
+
+          <td>
+            <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
+              <circle cx="10" cy="10" r="7" fill="none" stroke="<%= travel_zone.colour %>" stroke-width="2.5"/>
+            </svg>
+          </td>
+
+          <td class='actions-cell'>
+            <div class='action-group'>
+              <%= link_to edit_travel_zone_path(travel_zone), class: 'action', title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
+              <% end %>
+
+              <% unless travel_zone.protected? %>
+                <%= button_to travel_zone,
+                              method: :delete,
+                              class: 'action danger',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete #{travel_zone.name}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

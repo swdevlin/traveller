@@ -151,6 +151,7 @@ class Subsector < ApplicationRecord
     return if systems.empty?
 
     traveller_map.ensure_allegiances(systems)
+    traveller_map.ensure_travel_zones(systems)
     self.build = traveller_map.systems_to_build_plan(systems)
     self.build_source = 'traveller_map'
   end

@@ -128,6 +128,7 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1/edit
   def edit
+    @travel_zones = TravelZone.ordered
   end
 
   # POST /star_systems or /star_systems.json
@@ -369,7 +370,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_edit_params
-    params.expect(star_system: [:name, :notes, :allegiance_id, :survey_index, :locked])
+    params.expect(star_system: [:name, :notes, :allegiance_id, :travel_zone_id, :survey_index, :locked])
   end
 
   def sophont_check_options

@@ -52,12 +52,13 @@ class SubsectorsController < ApplicationController
   end
 
   def star_systems_table
+    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, stars: [])
     render layout: false
   end
 
   def map
     @show_map_links = authenticated?
-    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, stars: [])
+    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, stars: [])
     if params[:highlight].present?
       highlighted_parsec = Parsec.find_by(id: params[:highlight])
       @highlight_hex = highlighted_parsec&.hex_code

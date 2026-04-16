@@ -24,6 +24,7 @@
         <th scope='col'>Trade codes</th>
         <th scope='col'>Stars</th>
         <th scope='col'>Allegiance</th>
+        <th scope='col'>Zone</th>
         <th scope='col'><span class='tracking-[0.2em]'>PBG</span></th>
         <th scope='col'>SI</th>
         <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
@@ -75,6 +76,12 @@
           <td class='whitespace-nowrap'>
             <% if star_system.allegiance %>
               <%= render 'allegiances/pill', allegiance: star_system.allegiance %>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if (tz = star_system.travel_zone) %>
+              <span class='pill'><%= tz.code %></span>
             <% end %>
           </td>
 

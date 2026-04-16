@@ -50,6 +50,7 @@ Rails.application.routes.draw do
     resources :governments
     resources :law_levels
     resources :facilities
+    resources :travel_zones
 
     resources :trade_codes do
       collection do

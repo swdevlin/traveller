@@ -162,6 +162,35 @@
     <polygon class="hex-highlight" points="<%= hex_polygon_points(h_cx, h_cy) %>"/>
   <% end %>
 
+  <%# Layer 1f: Travel zone rings %>
+  <g>
+    <% (1..8).each do |col| %>
+      <% (1..10).each do |row| %>
+        <%
+          hx = (sub_x - 1) * 8 + col
+          hy = (sub_y - 1) * 10 + row
+          hex_code = format('%02d%02d', hx, hy)
+          sys = systems_by_hex[hex_code]
+          next unless sys&.travel_zone
+          cx, cy = hex_center(col, row)
+        %>
+        <%
+          r  = (hex_size * 0.78).round(2)
+          sx = (cx - r * 0.7071).round(2)
+          sy = (cy + r * 0.7071).round(2)
+          ex = (cx + r * 0.7071).round(2)
+          ey = sy
+        %>
+        <path d="M <%= sx %>,<%= sy %> A <%= r %>,<%= r %> 0 1 1 <%= ex %>,<%= ey %>"
+              fill="none"
+              stroke="<%= sys.travel_zone.colour %>"
+              stroke-width="2"
+              stroke-linecap="round"
+              pointer-events="none"/>
+      <% end %>
+    <% end %>
+  </g>
+
   <%# Layer 3: Star circles (drawn first, under text) %>
   <g>
     <% (1..8).each do |col| %>

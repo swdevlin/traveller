@@ -102,6 +102,18 @@ class TravellerMap
     end
   end
 
+  def ensure_travel_zones(systems)
+    systems.each do |sys|
+      code = sys['Zone'].presence
+      next unless code
+
+      TravelZone.find_or_create_by!(code: code) do |tz|
+        tz.name   = code
+        tz.colour = '#6b7280'
+      end
+    end
+  end
+
   private
 
   def build_system_definition(sys)
@@ -140,6 +152,7 @@ class TravellerMap
 
     entry['bases'] = sys['Bases'].present? ? sys['Bases'].chars : []
     entry['allegiance'] = sys['Allegiance'].presence
+    entry['travelZone'] = sys['Zone'].presence
 
     entry.compact
   end

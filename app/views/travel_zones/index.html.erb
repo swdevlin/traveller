@@ -1,0 +1,14 @@
+<% content_for :title, 'Travel Zones' %>
+<% content_for :page_kicker, 'System Configuration' %>
+<% content_for :page_title, 'Travel Zones' %>
+
+<%= render 'application/page' do %>
+  <div class='flex justify-end pb-2'>
+    <%= link_to new_travel_zone_path, class: 'btn-header' do %>
+      <i class='fa-regular fa-plus'></i>
+      Add
+    <% end %>
+  </div>
+
+  <%= render 'table', travel_zones: @travel_zones %>
+<% end %>

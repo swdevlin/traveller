@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_14_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -244,11 +244,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_000000) do
     t.bigint "parsec_id", null: false
     t.integer "survey_index", default: 0
     t.integer "terrestrial_count", default: 0, null: false
+    t.bigint "travel_zone_id"
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
     t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
+    t.index ["travel_zone_id"], name: "index_star_systems_on_travel_zone_id"
   end
 
   create_table "public.stellar_object_trade_codes", force: :cascade do |t|
@@ -348,6 +350,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_000000) do
     t.index ["code"], name: "index_trade_codes_on_code", unique: true
   end
 
+  create_table "public.travel_zones", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "colour", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.boolean "protected", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_travel_zones_on_code", unique: true
+  end
+
   create_table "public.users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -373,6 +385,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_14_000000) do
   add_foreign_key "public.star_systems", "public.allegiances", on_delete: :nullify
   add_foreign_key "public.star_systems", "public.parsecs", on_delete: :cascade
   add_foreign_key "public.star_systems", "public.stellar_objects", column: "main_world_id", on_delete: :nullify
+  add_foreign_key "public.star_systems", "public.travel_zones"
   add_foreign_key "public.stellar_object_trade_codes", "public.stellar_objects", on_delete: :cascade
   add_foreign_key "public.stellar_object_trade_codes", "public.trade_codes", on_delete: :cascade
   add_foreign_key "public.stellar_objects", "public.allegiances", on_delete: :nullify

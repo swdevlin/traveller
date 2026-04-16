@@ -26,6 +26,9 @@ class StarSystemMarkdownPresenter
     if (allegiance = @sys.allegiance)
       fields << "**Allegiance:** #{allegiance.name} (#{allegiance.code})"
     end
+    if (tz = @sys.travel_zone)
+      fields << "**Travel Zone:** #{tz.name} (#{tz.code})"
+    end
     fields << "**Trade Codes:** #{@sys.trade_codes_string}" if @sys.trade_codes_string.present?
     fields << "**Facilities:** #{@sys.facilities_string}" if @sys.facilities_string.present?
     fields

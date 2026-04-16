@@ -1,0 +1,28 @@
+<div id="<%= dom_id travel_zone %>" class='space-y-6 mb-4'>
+  <%= render 'application/data_block',
+             label: 'Code',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value: tag.span(travel_zone.code, class: 'identifier')
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Name',
+             value: travel_zone.name
+  %>
+
+  <%
+    swatch = %(<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="none" stroke="#{travel_zone.colour}" stroke-width="3"/></svg>).html_safe
+  %>
+  <%= render 'application/data_block',
+             label: 'Colour',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-slate-100',
+             value: safe_join([swatch, tag.span(travel_zone.colour, class: 'font-mono text-sm')])
+  %>
+
+  <% if travel_zone.protected? %>
+    <%= render 'application/data_block',
+               label: 'Protected',
+               value: 'This zone cannot be deleted.'
+    %>
+  <% end %>
+</div>

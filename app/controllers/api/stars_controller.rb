@@ -8,7 +8,7 @@ class Api::StarsController < Api::BaseController
 
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: :sector }, :allegiance)
+      .includes({ parsec: :sector }, :allegiance, :travel_zone)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?
@@ -74,6 +74,7 @@ class Api::StarsController < Api::BaseController
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
         main_world_uwp:    uwp,
+        travel_zone:       ss.travel_zone ? { code: ss.travel_zone.code, colour: ss.travel_zone.colour } : nil,
         stars:             (stars_by_system[ss.id] || []).map do |row|
           _, _, d, au, diameter, companion_id = row
           d = JSON.parse(d) if d.is_a?(String)

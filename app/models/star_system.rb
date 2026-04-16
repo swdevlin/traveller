@@ -4,6 +4,7 @@ class StarSystem < ApplicationRecord
   belongs_to :parsec
   belongs_to :main_world, class_name: 'StellarObject', optional: true
   belongs_to :allegiance, optional: true
+  belongs_to :travel_zone, optional: true
 
   validates :parsec_id, presence: { message: 'You must select a hex' }
 

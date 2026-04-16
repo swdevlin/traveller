@@ -89,6 +89,40 @@
         </dl>
       </div>
 
+      <div>
+        <p class='text-sm font-semibold text-slate-200 mb-2'>Travel zones</p>
+
+        <div class='space-y-3 text-sm text-slate-300'>
+          <p>
+            A travel zone classifies the hazard level of a star system. Two standard zones are pre-installed
+            in every campaign and cannot be removed:
+          </p>
+          <dl class='space-y-3'>
+            <div>
+              <dt class='font-semibold text-slate-200'>Amber</dt>
+              <dd class='mt-1'>
+                Systems requiring caution — unusual conditions, unstable governments, or other elevated risk.
+                Displayed as an amber ring on the subsector map.
+              </dd>
+            </div>
+            <div>
+              <dt class='font-semibold text-slate-200'>Red</dt>
+              <dd class='mt-1'>
+                Systems interdicted or extremely dangerous. Travellers enter at their own considerable risk.
+                Displayed as a red ring on the subsector map.
+              </dd>
+            </div>
+          </dl>
+          <p>
+            Additional zones may be defined under
+            <%= link_to 'Data Cores → Travel Zones', data_cores_path,
+                        class: 'hover:underline hover:underline-offset-2' %>.
+            A zone can be assigned to any star system from its show or edit page, and is
+            automatically set when importing from TravellerMap.
+          </p>
+        </div>
+      </div>
+
       <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
         REFERENCE 0423RD
       </div>

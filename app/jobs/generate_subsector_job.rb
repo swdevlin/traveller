@@ -63,6 +63,12 @@ class GenerateSubsectorJob < ApplicationJob
         Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}" and return
       end
 
+    # Build a zone lookup from the original input systems (generator does not echo travelZone back)
+    zone_by_xy = (config[:systems] || []).each_with_object({}) do |entry, h|
+      code = entry[:travelZone].presence
+      h[[entry[:x], entry[:y]]] = code if code
+    end
+
     importer = StarSystemImporter.new
     ul, = subsector.universal_coordinates
 
@@ -72,7 +78,12 @@ class GenerateSubsectorJob < ApplicationJob
         next if parsec.nil?
         next if parsec.star_systems.locked.exists?
 
-        importer.import!(parsec, s)
+        star_system = importer.import!(parsec, s)
+
+        zone_code = zone_by_xy[[s['x'], s['y']]]
+        if zone_code && (tz = TravelZone.find_by(code: zone_code))
+          star_system.update_column(:travel_zone_id, tz.id)
+        end
       rescue StandardError => e
         Rails.logger.error "#{uri} Error importing system #{s['name']}: #{e.message}"
       end
