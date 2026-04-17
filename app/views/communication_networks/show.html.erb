@@ -1,0 +1,79 @@
+<% content_for :title, @communication_network.name %>
+<% content_for :page_kicker, 'Communication Network' %>
+<% content_for :page_title, @communication_network.name %>
+
+<%= render 'application/page' do %>
+  <%= render @communication_network %>
+
+  <%= render 'application/subsection', title: 'Links' %>
+
+  <div class='flex justify-between items-start mb-3'>
+    <div class='flex gap-2 flex-wrap'>
+      <%= link_to export_links_communication_network_path(@communication_network),
+                  class: 'btn btn-sm' do %>
+        <i class='fa-regular fa-download mr-1'></i> Export CSV
+      <% end %>
+
+      <%= form_with url: communication_network_network_import_path(@communication_network),
+                    multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
+        <%= f.file_field :file, accept: '.csv', class: 'text-xs text-slate-400' %>
+        <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
+      <% end %>
+    </div>
+  </div>
+
+  <% links = @communication_network.network_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
+  <% if links.any? %>
+    <table class='data-table w-full text-sm'>
+      <thead>
+        <tr>
+          <th>From System</th>
+          <th>Hex</th>
+          <th>To System</th>
+          <th>Hex</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% links.each do |link| %>
+          <tr id="<%= dom_id link %>">
+            <td>
+              <%= link_to link.from_star_system.display_name,
+                          star_system_path(link.from_star_system),
+                          class: 'no-underline hover:underline hover:underline-offset-2' %>
+            </td>
+            <td><span class='identifier'><%= link.from_star_system.parsec.hex_code %></span></td>
+            <td>
+              <%= link_to link.to_star_system.display_name,
+                          star_system_path(link.to_star_system),
+                          class: 'no-underline hover:underline hover:underline-offset-2' %>
+            </td>
+            <td><span class='identifier'><%= link.to_star_system.parsec.hex_code %></span></td>
+            <td class='text-right'>
+              <%= button_to network_link_path(link),
+                    method: :delete,
+                    class: 'btn btn-sm btn-danger',
+                    data: { turbo_confirm: 'Remove this link?' } do %>
+                <i class='fa-regular fa-trash'></i>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class='text-sm text-slate-400 mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
+  <% end %>
+
+  <%= link_to 'Edit', edit_communication_network_path(@communication_network), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= render 'application/back_button',
+             path: communication_networks_path,
+             label: 'Communication Networks',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to 'Delete',
+                @communication_network,
+                method: :delete,
+                form_class: 'w-full sm:w-auto inline-flex m-0',
+                class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                data: { turbo_confirm: "Delete #{@communication_network.name}?" } %>
+<% end %>

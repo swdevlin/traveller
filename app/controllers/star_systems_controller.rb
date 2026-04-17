@@ -8,7 +8,7 @@ class StarSystemsController < ApplicationController
   include ParentHex
   include UrlTokenVerification
   optional_authentication only: [:map]
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics ]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics link_modal quick_link ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -117,6 +117,46 @@ class StarSystemsController < ApplicationController
     end
   end
 
+  def link_modal
+    setup_link_modal_ivars
+    render layout: false
+  end
+
+  def quick_link
+    network = CommunicationNetwork.find(params[:network_id])
+    target  = StarSystem.find(params[:to_system_id])
+    link    = NetworkLink.new(
+      communication_network: network,
+      from_star_system: @star_system,
+      to_star_system: target
+    )
+
+    if link.save
+      setup_link_modal_ivars
+      modal_html = render_to_string('star_systems/link_modal', layout: false)
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace('modal', html: modal_html.html_safe),
+            turbo_stream.prepend("network-links-#{@star_system.id}",
+                                 partial: 'star_systems/network_link_row',
+                                 locals: { link: link, star_system_id: @star_system.id })
+          ]
+        end
+        format.html { redirect_to star_system_path(@star_system) }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace('modal',
+                                                    partial: 'shared/error_modal',
+                                                    locals: { errors: link.errors.full_messages })
+        end
+        format.html { redirect_to star_system_path(@star_system) }
+      end
+    end
+  end
+
   # GET /star_systems/new
   def new
     @star_system = StarSystem.new
@@ -183,6 +223,97 @@ class StarSystemsController < ApplicationController
   end
 
   private
+
+  def setup_link_modal_ivars
+    @networks = CommunicationNetwork.ordered
+    @selected_network = if params[:network_id].present?
+                          CommunicationNetwork.find_by(id: params[:network_id])
+    else
+                          @networks.first
+    end
+
+    parsec = @star_system.parsec
+    max_jump = @max_jump = @selected_network&.max_jump || 3
+
+    ulx = parsec.x - max_jump
+    uly = parsec.y + max_jump
+
+    @cols = max_jump * 2 + 1
+    @rows = max_jump * 2 + 1
+    @ul = Coordinate.new(ulx, uly)
+    @highlight_pos = [max_jump + 1, max_jump + 1]
+    @jump_highlight_positions = Set.new
+
+    viewport_parsecs = Parsec.includes(:sector)
+                             .where(x: ulx..(ulx + @cols - 1), y: (uly - @rows + 1)..uly)
+                             .load
+
+    viewport_parsec_ids = viewport_parsecs.map(&:id)
+
+    star_systems = StarSystem.where(parsec_id: viewport_parsec_ids)
+                             .includes(:parsec, :allegiance, :travel_zone, stars: [])
+                             .load
+
+    systems_by_parsec_id = star_systems.index_by(&:parsec_id)
+
+    @parsecs_by_pos = {}
+    @systems_by_pos = {}
+
+    viewport_parsecs.each do |p|
+      col = p.x - ulx + 1
+      row = uly - p.y + 1
+      @parsecs_by_pos[[col, row]] = { id: p.id, hex_code: p.hex_code, label: p.label, label_colour: p.label_colour }
+      sys = systems_by_parsec_id[p.id]
+      @systems_by_pos[[col, row]] = sys if sys
+    end
+
+    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
+      viewport_parsecs, @ul,
+      visible_col: 1..@cols, visible_row: 1..@rows,
+      authenticated: true
+    )
+
+    @linked_system_ids = if @selected_network
+                           NetworkLink.where(communication_network: @selected_network)
+                             .where('from_star_system_id = ? OR to_star_system_id = ?', @star_system.id, @star_system.id)
+                             .flat_map { |l| [l.from_star_system_id, l.to_star_system_id] }
+                             .reject { |id| id == @star_system.id }
+                             .to_set
+    else
+                           Set.new
+    end
+
+    @linked_positions = star_systems.filter_map do |s|
+      next unless @linked_system_ids.include?(s.id)
+      col = s.parsec.x - ulx + 1
+      row = uly - s.parsec.y + 1
+      [col, row]
+    end.to_set
+
+    @hex_click_map = {}
+    if @selected_network
+      @systems_by_pos.each do |(col, row), sys|
+        next if sys.id == @star_system.id
+        next if @linked_system_ids.include?(sys.id)
+        @hex_click_map[[col, row]] = quick_link_star_system_path(
+          @star_system,
+          network_id: @selected_network.id,
+          to_system_id: sys.id
+        )
+      end
+    end
+
+    nearby_parsec_id_set = Parsec.where(
+      'GREATEST(ABS(q - ?), ABS(r - ?), ABS(s - ?)) <= ? AND id != ?',
+      parsec.q, parsec.r, parsec.s, max_jump, parsec.id
+    ).pluck(:id).to_set
+
+    @nearby_systems = star_systems
+      .select { |s| nearby_parsec_id_set.include?(s.parsec_id) }
+      .sort_by { |s| [s.parsec.q - parsec.q, s.parsec.r - parsec.r, s.parsec.s - parsec.s].map(&:abs).max }
+
+    @map_svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
+  end
 
   def map_cache_variant
     authenticated? ? 'auth' : 'public'

@@ -119,6 +119,39 @@ import Traveller.UI
 import Url.Builder
 
 
+type alias NetworkLink =
+    { id : Int
+    , colour : String
+    , known : Bool
+    , fromSurveyIndex : Int
+    , toSurveyIndex : Int
+    , fromX : Int
+    , fromY : Int
+    , toX : Int
+    , toY : Int
+    }
+
+
+networkLinkDecoder : JsDecode.Decoder NetworkLink
+networkLinkDecoder =
+    JsDecode.map8
+        (\id colour known fromSI toSI fromX fromY toX -> NetworkLink id colour known fromSI toSI fromX fromY toX)
+        (JsDecode.field "id" JsDecode.int)
+        (JsDecode.field "colour" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "#888888" ])
+            |> JsDecode.map (\s -> if String.isEmpty s then "#888888" else s)
+        )
+        (JsDecode.field "known" (JsDecode.oneOf [ JsDecode.bool, JsDecode.null False ]))
+        (JsDecode.field "from_survey_index" JsDecode.int)
+        (JsDecode.field "to_survey_index" JsDecode.int)
+        (JsDecode.field "from_x" JsDecode.int)
+        (JsDecode.field "from_y" JsDecode.int)
+        (JsDecode.field "to_x" JsDecode.int)
+        |> JsDecode.andThen
+            (\partial ->
+                JsDecode.map partial (JsDecode.field "to_y" JsDecode.int)
+            )
+
+
 refereeSI =
     99
 
@@ -533,6 +566,7 @@ type alias ModelData =
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
     , sidebarOpen : Bool
+    , networkLinks : List NetworkLink
     }
 
 
@@ -562,6 +596,7 @@ type Msg
     | MapMouseMove ( Float, Float )
     | MapMouseLeave
     | DownloadedRoute ( RequestEntry, String ) (Result Http.Error (List Route))
+    | DownloadedNetworkLinks (Result Http.Error (List NetworkLink))
     | SetHexSize Float
     | ToggleHexmap
     | SetViewMode ViewMode
@@ -846,6 +881,7 @@ init viewport settings key hostConfig referee =
             , nativeSophontColour = settings.nativeSophontColour
             , extinctSophontColour = settings.extinctSophontColour
             , sidebarOpen = False
+            , networkLinks = []
             }
     in
     ( ( Time.millisToPosix 0
@@ -856,6 +892,7 @@ init viewport settings key hostConfig referee =
         , sendSectorRequest secReqEntry model.hostConfig
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
+        , sendNetworkLinksRequest model.hostConfig
         ]
     )
 
@@ -1674,8 +1711,9 @@ viewHexes :
     -> Maybe String
     -> Maybe String
     -> { x : Float, y : Float }
+    -> List NetworkLink
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset networkLinks =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -1930,9 +1968,46 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     regionBorderLines =
                         regions |> Dict.values |> List.filterMap renderBorderRegion
                 in
+                let
+                    visibleLinks =
+                        List.filter
+                            (\link ->
+                                isReferee
+                                    || link.fromSurveyIndex >= 10
+                                    || link.toSurveyIndex >= 10
+                                    || link.known
+                            )
+                            networkLinks
+
+                    networkLinkLines =
+                        List.map
+                            (\link ->
+                                let
+                                    ( fx, fy ) =
+                                        calcVisualOrigin hexSize { row = link.fromY, col = link.fromX }
+
+                                    ( tx, ty ) =
+                                        calcVisualOrigin hexSize { row = link.toY, col = link.toX }
+                                in
+                                Svg.line
+                                    [ SvgAttrs.x1 (String.fromInt fx)
+                                    , SvgAttrs.y1 (String.fromInt fy)
+                                    , SvgAttrs.x2 (String.fromInt tx)
+                                    , SvgAttrs.y2 (String.fromInt ty)
+                                    , SvgAttrs.stroke link.colour
+                                    , SvgAttrs.strokeWidth "2"
+                                    , SvgAttrs.strokeOpacity "0.7"
+                                    , SvgAttrs.strokeLinecap "round"
+                                    , SvgAttrs.pointerEvents "none"
+                                    ]
+                                    []
+                            )
+                            visibleLinks
+                in
                 [ keyedHexes ]
                     ++ sectorOutlines
                     ++ regionBorderLines
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] networkLinkLines ]
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
                     ++ labels
@@ -2465,6 +2540,7 @@ viewHexMap model =
         model.nativeSophontColour
         model.extinctSophontColour
         model.panOffset
+        model.networkLinks
         |> Element.html
 
 
@@ -3290,6 +3366,12 @@ update msg ( time, model ) =
 
         DownloadedRoute ( requestEntry, url ) (Err err) ->
             ( withTime { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
+
+        DownloadedNetworkLinks (Ok links) ->
+            ( withTime { model | networkLinks = links }, Cmd.none )
+
+        DownloadedNetworkLinks (Err _) ->
+            ( withTime model, Cmd.none )
 
         FetchedSolarSystem (Ok solarSystem) ->
             let
@@ -4158,3 +4240,26 @@ sendRegionRequest requestEntry hostConfig =
                 }
     in
     requestCmd
+
+
+sendNetworkLinksRequest : HostConfig -> Cmd Msg
+sendNetworkLinksRequest hostConfig =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "network_links" ])
+                []
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson DownloadedNetworkLinks (JsDecode.list networkLinkDecoder)
+        , timeout = Just 15000
+        , tracker = Nothing
+        }

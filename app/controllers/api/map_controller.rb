@@ -36,33 +36,15 @@ class Api::MapController < ApplicationController
       @systems_by_pos[[col, row]] = sys if sys
     end
 
-    fill_rows = Region
-      .joins(region_components: { region_parsecs: :parsec })
-      .where(region_parsecs: { kind: 'fill' }, parsecs: { id: viewport_parsec_ids })
-      .pluck('parsecs.x', 'parsecs.y', 'regions.colour')
+    @ul = Coordinate.new(ulx, uly)
 
-    @fills_by_pos = {}
-    fill_rows.each do |px, py, colour|
-      col = px - ulx + 1
-      row = uly - py + 1
-      (@fills_by_pos[[col, row]] ||= []) << { colour: colour }
-    end
-
-    label_rows = Region
-      .where.not(label: [nil, ''])
-      .where.not(label_x: nil)
-      .joins(region_components: :region_parsecs)
-      .where(region_parsecs: { parsec_id: viewport_parsec_ids })
-      .distinct
-      .pluck(:label, :label_x, :label_y, :label_colour)
-
-    @region_labels = label_rows.filter_map do |text, lx, ly, label_colour|
-      col = lx - ulx + 1
-      row = uly - ly + 1
-      next unless (1..@cols).include?(col) && (1..@rows).include?(row)
-
-      { col: col, row: row, text: text, colour: label_colour.presence || '#000000' }
-    end
+    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
+      viewport_parsecs,
+      @ul,
+      visible_col: 1..@cols,
+      visible_row: 1..@rows,
+      authenticated: true
+    )
 
     jump_pairs = JumpLog
       .where(from_parsec_id: viewport_parsec_ids)
@@ -97,7 +79,7 @@ class Api::MapController < ApplicationController
     fresh_when etag: cache_key
     return if performed?
 
-    svg = Rails.cache.fetch(cache_key) { render_to_string('api/map/show', formats: [:svg], layout: false) }
+    svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
     send_data svg, type: 'image/svg+xml', disposition: 'inline'
   end
 end

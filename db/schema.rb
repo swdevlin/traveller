@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_16_190802) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -69,6 +69,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
     t.index ["slug"], name: "index_campaigns_on_slug", unique: true
   end
 
+  create_table "public.communication_networks", force: :cascade do |t|
+    t.string "colour"
+    t.datetime "created_at", null: false
+    t.boolean "known"
+    t.integer "max_jump"
+    t.string "name"
+    t.text "notes"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "public.facilities", force: :cascade do |t|
     t.string "code", null: false
     t.datetime "created_at", null: false
@@ -117,6 +127,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
     t.datetime "updated_at", null: false
     t.string "weapons"
     t.index ["code"], name: "index_law_levels_on_code", unique: true
+  end
+
+  create_table "public.network_links", force: :cascade do |t|
+    t.bigint "communication_network_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "from_star_system_id", null: false
+    t.bigint "to_star_system_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["communication_network_id"], name: "index_network_links_on_communication_network_id"
+    t.index ["from_star_system_id", "to_star_system_id"], name: "index_network_links_unique_pair", unique: true
+    t.index ["to_star_system_id"], name: "index_network_links_on_to_star_system_id"
   end
 
   create_table "public.parsecs", force: :cascade do |t|
@@ -374,6 +395,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_000003) do
   add_foreign_key "public.jump_logs", "public.parsecs", column: "from_parsec_id"
   add_foreign_key "public.jump_logs", "public.parsecs", column: "to_parsec_id"
   add_foreign_key "public.jump_logs", "public.ships"
+  add_foreign_key "public.network_links", "public.communication_networks"
+  add_foreign_key "public.network_links", "public.star_systems", column: "from_star_system_id"
+  add_foreign_key "public.network_links", "public.star_systems", column: "to_star_system_id"
   add_foreign_key "public.parsecs", "public.sectors", on_delete: :cascade
   add_foreign_key "public.region_parsecs", "public.parsecs"
   add_foreign_key "public.regions", "public.allegiances"

@@ -9,6 +9,8 @@ class StarSystem < ApplicationRecord
   validates :parsec_id, presence: { message: 'You must select a hex' }
 
   has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
+  has_many :network_links_as_from, class_name: 'NetworkLink', foreign_key: :from_star_system_id, dependent: :destroy
+  has_many :network_links_as_to, class_name: 'NetworkLink', foreign_key: :to_star_system_id, dependent: :destroy
   has_many :star_system_trade_codes, dependent: :destroy
   has_many :star_system_facilities, dependent: :destroy
   has_many :trade_codes, through: :star_system_trade_codes
@@ -47,6 +49,12 @@ class StarSystem < ApplicationRecord
   def orbiting_bodies
     bodies = primary_star.stellar_objects.to_a + primary_star.stars.to_a
     bodies.sort_by { |b| b.orbit.to_f }
+  end
+
+  def network_links
+    NetworkLink
+      .where('from_star_system_id = ? OR to_star_system_id = ?', id, id)
+      .includes(:communication_network, :from_star_system, :to_star_system)
   end
 
   scope :locked, -> { where(locked: true) }

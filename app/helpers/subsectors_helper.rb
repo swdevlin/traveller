@@ -29,8 +29,12 @@ module SubsectorsHelper
   }.freeze
 
   def hex_grid_svg_dimensions
-    width = SVG_PADDING * 2 + 8 * HEX_WIDTH * 0.75 + HEX_WIDTH * 0.25
-    height = SVG_PADDING * 2 + 10 * HEX_HEIGHT + HEX_HEIGHT * 0.5
+    hex_map_svg_dimensions(8, 10)
+  end
+
+  def hex_map_svg_dimensions(cols, rows)
+    width  = SVG_PADDING * 2 + cols * HEX_WIDTH * 0.75 + HEX_WIDTH * 0.25
+    height = SVG_PADDING * 2 + rows * HEX_HEIGHT + HEX_HEIGHT * 0.5
     [width.round, height.round]
   end
 
@@ -77,5 +81,52 @@ module SubsectorsHelper
 
   def star_fill_colour(colour_name)
     STAR_COLOURS[colour_name] || colour_name || '#FFD700'
+  end
+
+  def regions_for_map(parsec_scope, ul, visible_col:, visible_row:, authenticated: true)
+    region_scope = authenticated ? Region.all : Region.where(player_visible: true)
+
+    fill_rows = region_scope
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
+      .pluck('parsecs.x', 'parsecs.y', 'regions.colour')
+
+    fills_by_pos = {}
+    fill_rows.each do |px, py, colour|
+      col = px - ul.x + 1
+      row = ul.y - py + 1
+      (fills_by_pos[[col, row]] ||= []) << { colour: colour }
+    end
+
+    label_rows = region_scope
+      .where.not(label: [nil, ''])
+      .where.not(label_x: nil)
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
+      .distinct
+      .pluck(:label, :label_x, :label_y, :colour, :label_colour)
+
+    labels = label_rows.filter_map do |text, lx, ly, colour, label_colour|
+      col = lx - ul.x + 1
+      row = ul.y - ly + 1
+      next unless visible_col.include?(col) && visible_row.include?(row)
+
+      { col: col, row: row, text: text, colour: label_colour.presence || '#000000' }
+    end
+
+    border_rows = region_scope
+      .where.not(border_colour: [nil, ''])
+      .joins(region_parsecs: :parsec)
+      .where(parsecs: { id: parsec_scope })
+      .pluck('parsecs.x', 'parsecs.y', 'region_parsecs.kind', 'regions.border_colour', 'regions.id')
+
+    region_borders = border_rows.group_by { |_, _, _, _, rid| rid }.map do |_rid, rows|
+      colour = rows.first[3]
+      border_parsecs = rows.filter_map { |px, py, kind, *| [px, py] if kind == 'border' }
+      region_set = rows.map { |px, py, *| [px, py] }.to_set
+      { colour: colour, parsecs: border_parsecs, region_set: region_set }
+    end
+
+    [fills_by_pos, labels, region_borders]
   end
 end

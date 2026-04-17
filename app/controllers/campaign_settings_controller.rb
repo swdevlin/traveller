@@ -45,6 +45,11 @@ class CampaignSettingsController < ApplicationController
     redirect_to campaign_settings_path, notice: 'Sector population queued.'
   end
 
+  def regenerate_all
+    RegenerateAllSectorsJob.perform_later
+    redirect_to campaign_settings_path, notice: 'Sector regeneration queued. Visited parsecs will be preserved.'
+  end
+
   def populate_empty
     PopulateEmptySectorsJob.perform_later
     redirect_to campaign_settings_path, notice: 'Empty sector population queued.'

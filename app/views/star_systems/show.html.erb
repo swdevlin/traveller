@@ -39,6 +39,40 @@
   <% if subsector %>
     <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
   <% end %>
+
+  <div class='mt-6'>
+    <%= render 'application/subsection', title: 'Network Links' %>
+    <div class='flex justify-between items-start mt-2'>
+      <div id="network-links-<%= @star_system.id %>" class='flex-1'>
+        <% star_system_links = @star_system.network_links %>
+        <% if star_system_links.any? %>
+          <table class='data-table w-full text-sm'>
+            <thead>
+              <tr>
+                <th>System</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% star_system_links.each do |link| %>
+                <%= render 'network_link_row', link: link, star_system_id: @star_system.id %>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class='text-sm text-slate-400'>No network links.</p>
+        <% end %>
+      </div>
+      <% if CommunicationNetwork.any? %>
+        <%= link_to link_modal_star_system_path(@star_system),
+                    class: 'btn btn-sm shrink-0 ml-4',
+                    data: { turbo_frame: 'modal' } do %>
+          <i class='fa-regular fa-plus mr-1'></i> Add Link
+        <% end %>
+      <% end %>
+    </div>
+  </div>
 <% end %>
 
 <%= render 'application/two_column_page' do %>

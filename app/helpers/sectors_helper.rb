@@ -7,53 +7,6 @@ module SectorsHelper
     [width.round, height.round]
   end
 
-  def regions_for_map(parsec_scope, sector_ul, visible_hx:, visible_hy:, authenticated: true)
-    region_scope = authenticated ? Region.all : Region.where(player_visible: true)
-
-    fill_rows = region_scope
-      .joins(region_parsecs: :parsec)
-      .where(parsecs: { id: parsec_scope })
-      .pluck('parsecs.x', 'parsecs.y', 'regions.colour')
-
-    fills_by_hex = {}
-    fill_rows.each do |px, py, colour|
-      hx = px - sector_ul.x + 1
-      hy = sector_ul.y - py + 1
-      (fills_by_hex[format('%02d%02d', hx, hy)] ||= []) << { colour: colour }
-    end
-
-    label_rows = region_scope
-      .where.not(label: [nil, ''])
-      .where.not(label_x: nil)
-      .joins(region_parsecs: :parsec)
-      .where(parsecs: { id: parsec_scope })
-      .distinct
-      .pluck(:label, :label_x, :label_y, :colour, :label_colour)
-
-    labels = label_rows.filter_map do |text, lx, ly, colour, label_colour|
-      hx = lx - sector_ul.x + 1
-      hy = sector_ul.y - ly + 1
-      next unless visible_hx.include?(hx) && visible_hy.include?(hy)
-
-      { hx: hx, hy: hy, text: text, colour: label_colour.presence || '#000000' }
-    end
-
-    border_rows = region_scope
-      .where.not(border_colour: [nil, ''])
-      .joins(region_parsecs: :parsec)
-      .where(parsecs: { id: parsec_scope })
-      .pluck('parsecs.x', 'parsecs.y', 'region_parsecs.kind', 'regions.border_colour', 'regions.id')
-
-    region_borders = border_rows.group_by { |_, _, _, _, rid| rid }.map do |_rid, rows|
-      colour = rows.first[3]
-      border_parsecs = rows.filter_map { |px, py, kind, *| [px, py] if kind == 'border' }
-      region_set = rows.map { |px, py, *| [px, py] }.to_set
-      { colour: colour, parsecs: border_parsecs, region_set: region_set }
-    end
-
-    [fills_by_hex, labels, region_borders]
-  end
-
   def sector_chart_link(sector)
     link_to map_sector_path(sector),
             target: '_blank',

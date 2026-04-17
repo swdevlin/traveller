@@ -198,6 +198,15 @@
             data: { turbo_confirm: confirm_msg } do %>
         <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
       <% end %>
+
+      <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Any parsec the players have visited (via the jump log) and any locked systems will be left untouched. Are you sure?" %>
+      <%= button_to regenerate_all_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @subsector_count.zero?,
+            data: { turbo_confirm: regenerate_confirm } do %>
+        <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
+      <% end %>
     </div>
   </div>
 <% end %>

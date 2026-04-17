@@ -107,7 +107,11 @@ class SectorsController < ApplicationController
     @show_map_links = authenticated?
     @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
     @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
-    sector_ul = @sector_ul = @sector.upper_left
+    @cols = 32
+    @rows = 40
+    @subsector_overlays = true
+
+    sector_ul = @ul = @sector.upper_left
 
     @star_systems = StarSystem
       .joins(:parsec)
@@ -127,37 +131,41 @@ class SectorsController < ApplicationController
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
 
-    @systems_by_hex = @star_systems.each_with_object({}) do |sys, h|
-      hx = sys.parsec.x - sector_ul.x + 1
-      hy = sector_ul.y - sys.parsec.y + 1
-      h[format('%04d', hx * 100 + hy)] = sys
+    @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
+      col = sys.parsec.x - sector_ul.x + 1
+      row = sector_ul.y - sys.parsec.y + 1
+      h[[col, row]] = sys
     end
 
-    @parsec_ids_by_hex = @sector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, colour|
-      hx = px - sector_ul.x + 1
-      hy = sector_ul.y - py + 1
-      [format('%04d', hx * 100 + hy), { id: pid, label: lbl, colour: colour }]
+    @parsecs_by_pos = @sector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
+      col = px - sector_ul.x + 1
+      row = sector_ul.y - py + 1
+      [[col, row], { id: pid, hex_code: format('%02d%02d', col, row), label: lbl, label_colour: label_colour }]
     end
 
-    sector_parsec_ids = @parsec_ids_by_hex.values.map { |v| v[:id] }
-    @jump_parsec_id_set = JumpLog
+    sector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
+
+    jump_parsec_ids = JumpLog
       .where(from_parsec_id: sector_parsec_ids)
       .or(JumpLog.where(to_parsec_id: sector_parsec_ids))
       .pluck(:from_parsec_id, :to_parsec_id)
       .flatten
       .to_set & sector_parsec_ids.to_set
 
-    @region_fills_by_hex, @region_labels, @region_borders = helpers.regions_for_map(
-      @sector.parsecs, sector_ul, visible_hx: 1..32, visible_hy: 1..40, authenticated: authenticated?
+    parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
+    @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set
+
+    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
+      @sector.parsecs, sector_ul, visible_col: 1..32, visible_row: 1..40, authenticated: authenticated?
     )
 
     respond_to do |format|
       format.svg do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [:svg], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
       format.html do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('sectors/map', formats: [:svg], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
     end

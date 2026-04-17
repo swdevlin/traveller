@@ -59,16 +59,22 @@ class SubsectorsController < ApplicationController
   def map
     @show_map_links = authenticated?
     @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, stars: [])
+
+    @cols = 8
+    @rows = 10
+
+    sector_ul = @subsector.sector.upper_left
+    sub_ul, _sub_lr = sector_ul.subsector_corners(@subsector)
+    @ul = sub_ul
+
     if params[:highlight].present?
       highlighted_parsec = Parsec.find_by(id: params[:highlight])
       @highlight_hex = highlighted_parsec&.hex_code
-    end
-
-    sector_ul = @sector_ul = @subsector.sector.upper_left
-    @parsec_ids_by_hex = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, colour|
-      hx = px - sector_ul.x + 1
-      hy = sector_ul.y - py + 1
-      [format('%02d%02d', hx, hy), { id: pid, label: lbl, colour: colour }]
+      if highlighted_parsec
+        hcol = highlighted_parsec.x - sub_ul.x + 1
+        hrow = sub_ul.y - highlighted_parsec.y + 1
+        @highlight_pos = [hcol, hrow] if (1..8).cover?(hcol) && (1..10).cover?(hrow)
+      end
     end
 
     @compact = params[:compact].present?
@@ -80,6 +86,10 @@ class SubsectorsController < ApplicationController
     region_record_max = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
+    subsector_star_system_ids = @star_systems.map(&:id)
+    network_link_max_updated = NetworkLink
+      .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', subsector_star_system_ids, subsector_star_system_ids)
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -87,6 +97,7 @@ class SubsectorsController < ApplicationController
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_max_updated.to_i,
+      network_link_max_updated.to_i,
       current_campaign.updated_at.to_i
     ].join('-'))
     cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
@@ -94,33 +105,59 @@ class SubsectorsController < ApplicationController
     @native_sophont_colour  = current_campaign.native_sophont_colour.presence
     @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
 
-    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated, network_link_max_updated].compact.max
     return if performed?
 
-    sub = @subsector
-    subsector_parsec_ids = @parsec_ids_by_hex.values.map { |v| v[:id] }
-    @jump_parsec_id_set = JumpLog
+    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
+      col = px - sub_ul.x + 1
+      row = sub_ul.y - py + 1
+      hex_code = format('%02d%02d', px - sector_ul.x + 1, sector_ul.y - py + 1)
+      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
+    end
+
+    @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
+      col = sys.parsec.x - sub_ul.x + 1
+      row = sub_ul.y - sys.parsec.y + 1
+      h[[col, row]] = sys
+    end
+
+    subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
+
+    jump_parsec_ids = JumpLog
       .where(from_parsec_id: subsector_parsec_ids)
       .or(JumpLog.where(to_parsec_id: subsector_parsec_ids))
       .pluck(:from_parsec_id, :to_parsec_id)
       .flatten
       .to_set & subsector_parsec_ids.to_set
 
-    @region_fills_by_hex, @region_labels, @region_borders = helpers.regions_for_map(
+    parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
+    @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set
+
+    @network_links_for_map = if subsector_star_system_ids.any?
+                               NetworkLink
+                                 .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', subsector_star_system_ids, subsector_star_system_ids)
+                                 .includes(:communication_network,
+                                           from_star_system: :parsec,
+                                           to_star_system: :parsec)
+    else
+                               []
+    end
+
+    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
       subsector_parsecs,
-      sector_ul,
-      visible_hx: ((sub.x - 1) * 8 + 1)..(sub.x * 8),
-      visible_hy: ((sub.y - 1) * 10 + 1)..(sub.y * 10),
+      sub_ul,
+      visible_col: 1..8,
+      visible_row: 1..10,
       authenticated: authenticated?
     )
 
     respond_to do |format|
       format.svg do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('subsectors/map', formats: [:svg], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
       format.html do
-        svg = Rails.cache.fetch(cache_key) { render_to_string('subsectors/map', formats: [:svg], layout: false) }
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
     end

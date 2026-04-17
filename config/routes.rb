@@ -28,9 +28,19 @@ Rails.application.routes.draw do
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
+      get 'network_links', to: 'network_links#index', defaults: { format: :json }
     end
 
     resources :jump_logs
+
+    resources :network_links, only: %i[create destroy]
+
+    resources :communication_networks do
+      member do
+        get  :export_links
+      end
+      resource :network_import, only: %i[create]
+    end
 
     resources :ships do
       collection do
@@ -92,6 +102,8 @@ Rails.application.routes.draw do
         post :update_trade_codes
         get  :assign_social_characteristics
         post :apply_social_characteristics
+        get  :link_modal
+        get  :quick_link
       end
     end
 
@@ -139,6 +151,7 @@ Rails.application.routes.draw do
       post :assign_builds
       post :populate_all
       post :populate_empty
+      post :regenerate_all
       post :generate_all_sectors_map
       post :regenerate_api_token
     end

@@ -1,0 +1,66 @@
+# frozen_string_literal: true
+
+class NetworkImportsController < ApplicationController
+  def create
+    @communication_network = CommunicationNetwork.find(params[:communication_network_id])
+
+    unless params[:file].present?
+      redirect_to communication_network_path(@communication_network), alert: 'No file selected.' and return
+    end
+
+    csv_text = params[:file].read
+    results = import_links(csv_text)
+
+    notice = "Imported #{results[:created]} link(s)."
+    notice += " #{results[:skipped]} skipped (already exist or system not found)." if results[:skipped] > 0
+    notice += " #{results[:errors]} error(s)." if results[:errors] > 0
+
+    redirect_to communication_network_path(@communication_network), notice: notice
+  end
+
+  private
+
+  def import_links(csv_text)
+    require 'csv'
+
+    created = 0
+    skipped = 0
+    errors  = 0
+
+    CSV.parse(csv_text, headers: true) do |row|
+      from_name = row['from_system']&.strip
+      to_name   = row['to_system']&.strip
+
+      unless from_name.present? && to_name.present?
+        skipped += 1
+        next
+      end
+
+      from_sys = StarSystem.find_by(name: from_name)
+      to_sys   = StarSystem.find_by(name: to_name)
+
+      unless from_sys && to_sys
+        skipped += 1
+        next
+      end
+
+      link = NetworkLink.new(
+        communication_network: @communication_network,
+        from_star_system: from_sys,
+        to_star_system: to_sys
+      )
+
+      if link.save
+        created += 1
+      elsif link.errors[:from_star_system_id].any? { |e| e.include?('already exists') }
+        skipped += 1
+      else
+        errors += 1
+      end
+    rescue StandardError
+      errors += 1
+    end
+
+    { created: created, skipped: skipped, errors: errors }
+  end
+end

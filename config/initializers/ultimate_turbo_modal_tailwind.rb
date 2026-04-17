@@ -11,7 +11,7 @@ module UltimateTurboModal::Flavors
 
     # Dialog wrapper: keep sizing, add a bit more breathing room on small screens
     DIV_DIALOG_CLASSES =
-      'fixed inset-0 overflow-y-auto sm:max-w-[80%] md:max-w-3xl sm:mx-auto m-4 opacity-0 transition-opacity'
+      'fixed inset-0 overflow-y-auto sm:max-w-[90%] md:max-w-5xl sm:mx-auto m-4 opacity-0 transition-opacity'
 
     DIV_INNER_CLASSES =
       'flex min-h-full items-start justify-center pt-[10vh] sm:p-4'
@@ -20,7 +20,7 @@ module UltimateTurboModal::Flavors
     DIV_CONTENT_CLASSES =
       'relative max-h-screen overflow-hidden rounded-2xl ' \
         'bg-gradient-to-b from-slate-950/95 to-slate-950/80 ' \
-        'text-left text-slate-100 shadow-2xl sm:my-8 sm:max-w-3xl ' \
+        'text-left text-slate-100 shadow-2xl sm:my-8 sm:max-w-5xl ' \
         'border border-slate-700/60 ' \
         'ring-1 ring-deepnight-orange/10'
 

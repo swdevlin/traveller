@@ -1,0 +1,31 @@
+<%= form_with(model: communication_network, class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-60' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :colour do %>
+      <%= form.text_field :colour,
+                          data: { controller: 'coloris' },
+                          class: 'edit-base w-32' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :max_jump do %>
+      <%= form.number_field :max_jump, class: 'edit-base w-28' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :known, field_label: 'Known' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :known,
+                 checked: communication_network.known, checked_value: 'true', unchecked_value: 'false' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :notes do %>
+      <%= form.text_area :notes, rows: 4, class: 'edit-base w-full resize-y' %>
+    <% end %>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit communication_network.persisted? ? 'Update core' : 'Commit core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', communication_network.persisted? ? communication_network : communication_networks_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>
