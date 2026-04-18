@@ -3,7 +3,7 @@
 # Tailwind CSS v4
 module UltimateTurboModal::Flavors
   class Tailwind < UltimateTurboModal::Base
-    STYLES = "html:has(dialog#modal-container[open]) { overflow: hidden; }"
+    STYLES = 'html:has(dialog#modal-container[open]) { overflow: hidden; }'
 
     # Modal constants
 

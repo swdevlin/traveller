@@ -54,7 +54,7 @@ class NetworkLinksController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        streams = [ turbo_stream.remove("network_link_#{params[:id]}") ]
+        streams = [turbo_stream.remove("network_link_#{params[:id]}")]
 
         if star_system_id.present?
           @star_system = StarSystem.includes(:parsec).find(star_system_id)

@@ -9,9 +9,9 @@ module LinkModalSetup
     @networks = CommunicationNetwork.ordered
     @selected_network = if params[:network_id].present?
                           CommunicationNetwork.find_by(id: params[:network_id])
-                        else
+    else
                           @networks.first
-                        end
+    end
 
     parsec = @star_system.parsec
     max_jump = @max_jump = @selected_network&.max_jump || 3
@@ -61,9 +61,9 @@ module LinkModalSetup
                              .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', viewport_system_ids, viewport_system_ids)
                              .includes(:communication_network, from_star_system: :parsec, to_star_system: :parsec)
                              .to_a
-                         else
+    else
                            []
-                         end
+    end
 
     @network_links_for_map = all_viewport_links
     my_links = all_viewport_links
