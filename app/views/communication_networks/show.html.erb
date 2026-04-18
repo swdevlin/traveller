@@ -24,7 +24,9 @@
 
   <% links = @communication_network.network_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
   <% if links.any? %>
-    <table class='data-table w-full text-sm'>
+    <div class='table-card'>
+      <div class='table-scroll'>
+    <table>
       <thead>
         <tr>
           <th>From System</th>
@@ -61,6 +63,8 @@
         <% end %>
       </tbody>
     </table>
+      </div>
+    </div>
   <% else %>
     <p class='text-sm text-slate-400 mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
   <% end %>

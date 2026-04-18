@@ -1,0 +1,73 @@
+<% if @nearby_systems.any? %>
+  <div class='table-card'>
+    <div class='table-scroll'>
+    <table>
+      <thead>
+        <tr>
+          <th>System</th>
+          <th>Hex</th>
+          <th class='text-right'>Dist</th>
+          <th>UWP</th>
+          <th>Importance</th>
+          <th>WTN</th>
+          <th>TZ</th>
+          <th class='actions-cell'></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% centre_parsec = @star_system.parsec %>
+        <% @nearby_systems.each do |sys| %>
+          <%
+            parsec = sys.parsec
+            dist = [parsec.q - centre_parsec.q, parsec.r - centre_parsec.r, parsec.s - centre_parsec.s].map(&:abs).max
+            already_linked = @linked_system_ids.include?(sys.id)
+          %>
+          <tr>
+            <td>
+              <%= link_to sys.display_name, star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2', target: '_top' %>
+            </td>
+            <td><span class='identifier'><%= parsec.hex_code %></span></td>
+            <td class='text-right'><%= dist %></td>
+            <td><span class='font-mono text-xs'><%= sys.main_world_uwp || '—' %></span></td>
+            <td class='text-right'><%= sys.main_world_importance %></td>
+            <td class='text-right'><%= sys.main_world_wtn %></td>
+            <td>
+              <% if sys.travel_zone %>
+                <span class='identifier-sm' style='border-color:<%= sys.travel_zone.colour %>;color:<%= sys.travel_zone.colour %>'>
+                  <%= sys.travel_zone.code %>
+                </span>
+              <% end %>
+            </td>
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <% if already_linked %>
+                  <%= button_to network_link_path(@linked_system_links[sys.id]),
+                                method: :delete,
+                                class: 'action danger',
+                                params: { star_system_id: @star_system.id, network_id: @selected_network.id },
+                                form: { data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } },
+                                data: { turbo_confirm: 'Remove this link?' } do %>
+                    <i class='fa-regular fa-trash'></i>
+                  <% end %>
+                <% else %>
+                  <%= form_with url: network_links_path, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
+                    <input type='hidden' name='network_link[communication_network_id]' value='<%= @selected_network.id %>'>
+                    <input type='hidden' name='network_link[from_star_system_id]' value='<%= @star_system.id %>'>
+                    <input type='hidden' name='network_link[to_star_system_id]' value='<%= sys.id %>'>
+                    <input type='hidden' name='star_system_id' value='<%= @star_system.id %>'>
+                    <%= f.button type: 'submit', class: 'action' do %>
+                      <i class='fa-regular fa-link'></i>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+<% else %>
+  <p class='text-slate-400 text-sm'>No other star systems within jump-<%= @max_jump %> range.</p>
+<% end %>

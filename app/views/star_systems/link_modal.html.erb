@@ -14,67 +14,16 @@
 
   <% if @selected_network %>
     <%# Hex map %>
-    <div class='mb-4 overflow-auto'>
-      <%= @map_svg.html_safe %>
+    <div id='link-modal-map' class='mb-4 overflow-auto' data-controller='hex-stream'>
+      <div style='zoom: 0.75; line-height: 0;'>
+        <%= @map_svg.html_safe %>
+      </div>
     </div>
 
     <%# Systems table %>
-    <% if @nearby_systems.any? %>
-      <div class='overflow-auto max-h-72'>
-        <table class='data-table w-full text-sm'>
-          <thead>
-            <tr>
-              <th>System</th>
-              <th>Hex</th>
-              <th class='text-right'>Dist</th>
-              <th>UWP</th>
-              <th>TZ</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% centre_parsec = @star_system.parsec %>
-            <% @nearby_systems.each do |sys| %>
-              <%
-                parsec = sys.parsec
-                dist = [parsec.q - centre_parsec.q, parsec.r - centre_parsec.r, parsec.s - centre_parsec.s].map(&:abs).max
-                already_linked = @linked_system_ids.include?(sys.id)
-              %>
-              <tr>
-                <td>
-                  <%= link_to sys.display_name, star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2', target: '_top' %>
-                </td>
-                <td><span class='identifier'><%= parsec.hex_code %></span></td>
-                <td class='text-right'><%= dist %></td>
-                <td><span class='font-mono text-xs'><%= sys.main_world_uwp || '—' %></span></td>
-                <td>
-                  <% if sys.travel_zone %>
-                    <span class='identifier-sm' style='border-color:<%= sys.travel_zone.colour %>;color:<%= sys.travel_zone.colour %>'>
-                      <%= sys.travel_zone.code %>
-                    </span>
-                  <% end %>
-                </td>
-                <td class='text-right'>
-                  <% if already_linked %>
-                    <span class='text-xs text-green-400'>Linked</span>
-                  <% else %>
-                    <%= form_with url: network_links_path do |f| %>
-                      <input type='hidden' name='network_link[communication_network_id]' value='<%= @selected_network.id %>'>
-                      <input type='hidden' name='network_link[from_star_system_id]' value='<%= @star_system.id %>'>
-                      <input type='hidden' name='network_link[to_star_system_id]' value='<%= sys.id %>'>
-                      <input type='hidden' name='star_system_id' value='<%= @star_system.id %>'>
-                      <%= f.submit 'Link', class: 'btn btn-sm btn-primary' %>
-                    <% end %>
-                  <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <p class='text-slate-400 text-sm'>No other star systems within jump-<%= @max_jump %> range.</p>
-    <% end %>
+    <div id='link-modal-systems'>
+      <%= render 'star_systems/link_modal_systems' %>
+    </div>
   <% else %>
     <p class='text-slate-400 text-sm'>Select a network to view nearby systems.</p>
   <% end %>

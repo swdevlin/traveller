@@ -4450,144 +4450,6 @@ function _Time_getZoneName()
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-// CREATE
-
-var _Regex_never = /.^/;
-
-var _Regex_fromStringWith = F2(function(options, string)
-{
-	var flags = 'g';
-	if (options.multiline) { flags += 'm'; }
-	if (options.caseInsensitive) { flags += 'i'; }
-
-	try
-	{
-		return $elm$core$Maybe$Just(new RegExp(string, flags));
-	}
-	catch(error)
-	{
-		return $elm$core$Maybe$Nothing;
-	}
-});
-
-
-// USE
-
-var _Regex_contains = F2(function(re, string)
-{
-	return string.match(re) !== null;
-});
-
-
-var _Regex_findAtMost = F3(function(n, re, str)
-{
-	var out = [];
-	var number = 0;
-	var string = str;
-	var lastIndex = re.lastIndex;
-	var prevLastIndex = -1;
-	var result;
-	while (number++ < n && (result = re.exec(string)))
-	{
-		if (prevLastIndex == re.lastIndex) break;
-		var i = result.length - 1;
-		var subs = new Array(i);
-		while (i > 0)
-		{
-			var submatch = result[i];
-			subs[--i] = submatch
-				? $elm$core$Maybe$Just(submatch)
-				: $elm$core$Maybe$Nothing;
-		}
-		out.push(A4($elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
-		prevLastIndex = re.lastIndex;
-	}
-	re.lastIndex = lastIndex;
-	return _List_fromArray(out);
-});
-
-
-var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
-{
-	var count = 0;
-	function jsReplacer(match)
-	{
-		if (count++ >= n)
-		{
-			return match;
-		}
-		var i = arguments.length - 3;
-		var submatches = new Array(i);
-		while (i > 0)
-		{
-			var submatch = arguments[i];
-			submatches[--i] = submatch
-				? $elm$core$Maybe$Just(submatch)
-				: $elm$core$Maybe$Nothing;
-		}
-		return replacer(A4($elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
-	}
-	return string.replace(re, jsReplacer);
-});
-
-var _Regex_splitAtMost = F3(function(n, re, str)
-{
-	var string = str;
-	var out = [];
-	var start = re.lastIndex;
-	var restoreLastIndex = re.lastIndex;
-	while (n--)
-	{
-		var result = re.exec(string);
-		if (!result) break;
-		out.push(string.slice(start, result.index));
-		start = re.lastIndex;
-	}
-	out.push(string.slice(start));
-	re.lastIndex = restoreLastIndex;
-	return _List_fromArray(out);
-});
-
-var _Regex_infinity = Infinity;
-
-
-
 // SEND REQUEST
 
 var _Http_toTask = F3(function(router, toTask, request)
@@ -4761,6 +4623,144 @@ function _Http_track(router, xhr, tracker)
 		}))));
 	});
 }
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+
+
+// CREATE
+
+var _Regex_never = /.^/;
+
+var _Regex_fromStringWith = F2(function(options, string)
+{
+	var flags = 'g';
+	if (options.multiline) { flags += 'm'; }
+	if (options.caseInsensitive) { flags += 'i'; }
+
+	try
+	{
+		return $elm$core$Maybe$Just(new RegExp(string, flags));
+	}
+	catch(error)
+	{
+		return $elm$core$Maybe$Nothing;
+	}
+});
+
+
+// USE
+
+var _Regex_contains = F2(function(re, string)
+{
+	return string.match(re) !== null;
+});
+
+
+var _Regex_findAtMost = F3(function(n, re, str)
+{
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex == re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch
+				? $elm$core$Maybe$Just(submatch)
+				: $elm$core$Maybe$Nothing;
+		}
+		out.push(A4($elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _List_fromArray(out);
+});
+
+
+var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
+{
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch
+				? $elm$core$Maybe$Just(submatch)
+				: $elm$core$Maybe$Nothing;
+		}
+		return replacer(A4($elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
+	}
+	return string.replace(re, jsReplacer);
+});
+
+var _Regex_splitAtMost = F3(function(n, re, str)
+{
+	var string = str;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		var result = re.exec(string);
+		if (!result) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _List_fromArray(out);
+});
+
+var _Regex_infinity = Infinity;
+
 
 
 
@@ -7299,6 +7299,345 @@ var $author$project$Traveller$HexGeometry$rawHexagonPoints = function (size) {
 			$author$project$Traveller$HexGeometry$rawHexagonPoint(size)),
 		A2($elm$core$List$range, 0, 5));
 };
+var $author$project$Traveller$DownloadedNetworkLinks = function (a) {
+	return {$: 'DownloadedNetworkLinks', a: a};
+};
+var $elm$url$Url$Builder$toQueryPair = function (_v0) {
+	var key = _v0.a;
+	var value = _v0.b;
+	return key + ('=' + value);
+};
+var $elm$url$Url$Builder$toQuery = function (parameters) {
+	if (!parameters.b) {
+		return '';
+	} else {
+		return '?' + A2(
+			$elm$core$String$join,
+			'&',
+			A2($elm$core$List$map, $elm$url$Url$Builder$toQueryPair, parameters));
+	}
+};
+var $elm$url$Url$Builder$crossOrigin = F3(
+	function (prePath, pathSegments, parameters) {
+		return prePath + ('/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters)));
+	});
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
+	});
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var $elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$http$Http$emptyBody = _Http_emptyBody;
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$http$Http$expectStringResponse = F2(
+	function (toMsg, toResult) {
+		return A3(
+			_Http_expect,
+			'',
+			$elm$core$Basics$identity,
+			A2($elm$core$Basics$composeR, toResult, toMsg));
+	});
+var $elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (result.$ === 'Ok') {
+			var v = result.a;
+			return $elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return $elm$core$Result$Err(
+				f(e));
+		}
+	});
+var $elm$http$Http$BadBody = function (a) {
+	return {$: 'BadBody', a: a};
+};
+var $elm$http$Http$BadStatus = function (a) {
+	return {$: 'BadStatus', a: a};
+};
+var $elm$http$Http$BadUrl = function (a) {
+	return {$: 'BadUrl', a: a};
+};
+var $elm$http$Http$NetworkError = {$: 'NetworkError'};
+var $elm$http$Http$Timeout = {$: 'Timeout'};
+var $elm$http$Http$resolve = F2(
+	function (toResult, response) {
+		switch (response.$) {
+			case 'BadUrl_':
+				var url = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadUrl(url));
+			case 'Timeout_':
+				return $elm$core$Result$Err($elm$http$Http$Timeout);
+			case 'NetworkError_':
+				return $elm$core$Result$Err($elm$http$Http$NetworkError);
+			case 'BadStatus_':
+				var metadata = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadStatus(metadata.statusCode));
+			default:
+				var body = response.b;
+				return A2(
+					$elm$core$Result$mapError,
+					$elm$http$Http$BadBody,
+					toResult(body));
+		}
+	});
+var $elm$http$Http$expectJson = F2(
+	function (toMsg, decoder) {
+		return A2(
+			$elm$http$Http$expectStringResponse,
+			toMsg,
+			$elm$http$Http$resolve(
+				function (string) {
+					return A2(
+						$elm$core$Result$mapError,
+						$elm$json$Json$Decode$errorToString,
+						A2($elm$json$Json$Decode$decodeString, decoder, string));
+				}));
+	});
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Traveller$NetworkLink = F9(
+	function (id, colour, known, fromSurveyIndex, toSurveyIndex, fromX, fromY, toX, toY) {
+		return {colour: colour, fromSurveyIndex: fromSurveyIndex, fromX: fromX, fromY: fromY, id: id, known: known, toSurveyIndex: toSurveyIndex, toX: toX, toY: toY};
+	});
+var $elm$json$Json$Decode$map8 = _Json_map8;
+var $author$project$Traveller$networkLinkDecoder = A2(
+	$elm$json$Json$Decode$andThen,
+	function (partial) {
+		return A2(
+			$elm$json$Json$Decode$map,
+			partial,
+			A2($elm$json$Json$Decode$field, 'to_y', $elm$json$Json$Decode$int));
+	},
+	A9(
+		$elm$json$Json$Decode$map8,
+		F8(
+			function (id, colour, known, fromSI, toSI, fromX, fromY, toX) {
+				return A8($author$project$Traveller$NetworkLink, id, colour, known, fromSI, toSI, fromX, fromY, toX);
+			}),
+		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
+		A2(
+			$elm$json$Json$Decode$map,
+			function (s) {
+				return $elm$core$String$isEmpty(s) ? '#888888' : s;
+			},
+			A2(
+				$elm$json$Json$Decode$field,
+				'colour',
+				$elm$json$Json$Decode$oneOf(
+					_List_fromArray(
+						[
+							$elm$json$Json$Decode$string,
+							$elm$json$Json$Decode$null('#888888')
+						])))),
+		A2(
+			$elm$json$Json$Decode$field,
+			'known',
+			$elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						$elm$json$Json$Decode$bool,
+						$elm$json$Json$Decode$null(false)
+					]))),
+		A2($elm$json$Json$Decode$field, 'from_survey_index', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'to_survey_index', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'from_x', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'from_y', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'to_x', $elm$json$Json$Decode$int)));
+var $elm$http$Http$Request = function (a) {
+	return {$: 'Request', a: a};
+};
+var $elm$http$Http$State = F2(
+	function (reqs, subs) {
+		return {reqs: reqs, subs: subs};
+	});
+var $elm$http$Http$init = $elm$core$Task$succeed(
+	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
+var $elm$http$Http$updateReqs = F3(
+	function (router, cmds, reqs) {
+		updateReqs:
+		while (true) {
+			if (!cmds.b) {
+				return $elm$core$Task$succeed(reqs);
+			} else {
+				var cmd = cmds.a;
+				var otherCmds = cmds.b;
+				if (cmd.$ === 'Cancel') {
+					var tracker = cmd.a;
+					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
+					if (_v2.$ === 'Nothing') {
+						var $temp$router = router,
+							$temp$cmds = otherCmds,
+							$temp$reqs = reqs;
+						router = $temp$router;
+						cmds = $temp$cmds;
+						reqs = $temp$reqs;
+						continue updateReqs;
+					} else {
+						var pid = _v2.a;
+						return A2(
+							$elm$core$Task$andThen,
+							function (_v3) {
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A2($elm$core$Dict$remove, tracker, reqs));
+							},
+							$elm$core$Process$kill(pid));
+					}
+				} else {
+					var req = cmd.a;
+					return A2(
+						$elm$core$Task$andThen,
+						function (pid) {
+							var _v4 = req.tracker;
+							if (_v4.$ === 'Nothing') {
+								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
+							} else {
+								var tracker = _v4.a;
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A3($elm$core$Dict$insert, tracker, pid, reqs));
+							}
+						},
+						$elm$core$Process$spawn(
+							A3(
+								_Http_toTask,
+								router,
+								$elm$core$Platform$sendToApp(router),
+								req)));
+				}
+			}
+		}
+	});
+var $elm$http$Http$onEffects = F4(
+	function (router, cmds, subs, state) {
+		return A2(
+			$elm$core$Task$andThen,
+			function (reqs) {
+				return $elm$core$Task$succeed(
+					A2($elm$http$Http$State, reqs, subs));
+			},
+			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
+	});
+var $elm$http$Http$maybeSend = F4(
+	function (router, desiredTracker, progress, _v0) {
+		var actualTracker = _v0.a;
+		var toMsg = _v0.b;
+		return _Utils_eq(desiredTracker, actualTracker) ? $elm$core$Maybe$Just(
+			A2(
+				$elm$core$Platform$sendToApp,
+				router,
+				toMsg(progress))) : $elm$core$Maybe$Nothing;
+	});
+var $elm$http$Http$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var tracker = _v0.a;
+		var progress = _v0.b;
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$filterMap,
+					A3($elm$http$Http$maybeSend, router, tracker, progress),
+					state.subs)));
+	});
+var $elm$http$Http$Cancel = function (a) {
+	return {$: 'Cancel', a: a};
+};
+var $elm$http$Http$cmdMap = F2(
+	function (func, cmd) {
+		if (cmd.$ === 'Cancel') {
+			var tracker = cmd.a;
+			return $elm$http$Http$Cancel(tracker);
+		} else {
+			var r = cmd.a;
+			return $elm$http$Http$Request(
+				{
+					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
+					body: r.body,
+					expect: A2(_Http_mapExpect, func, r.expect),
+					headers: r.headers,
+					method: r.method,
+					timeout: r.timeout,
+					tracker: r.tracker,
+					url: r.url
+				});
+		}
+	});
+var $elm$http$Http$MySub = F2(
+	function (a, b) {
+		return {$: 'MySub', a: a, b: b};
+	});
+var $elm$http$Http$subMap = F2(
+	function (func, _v0) {
+		var tracker = _v0.a;
+		var toMsg = _v0.b;
+		return A2(
+			$elm$http$Http$MySub,
+			tracker,
+			A2($elm$core$Basics$composeR, toMsg, func));
+	});
+_Platform_effectManagers['Http'] = _Platform_createManager($elm$http$Http$init, $elm$http$Http$onEffects, $elm$http$Http$onSelfMsg, $elm$http$Http$cmdMap, $elm$http$Http$subMap);
+var $elm$http$Http$command = _Platform_leaf('Http');
+var $elm$http$Http$subscription = _Platform_leaf('Http');
+var $elm$http$Http$request = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+};
+var $author$project$Traveller$sendNetworkLinksRequest = function (hostConfig) {
+	var _v0 = hostConfig;
+	var urlHostRoot = _v0.a;
+	var urlHostPath = _v0.b;
+	var url = A3(
+		$elm$url$Url$Builder$crossOrigin,
+		urlHostRoot,
+		_Utils_ap(
+			urlHostPath,
+			_List_fromArray(
+				['network_links'])),
+		_List_Nil);
+	return $elm$http$Http$request(
+		{
+			body: $elm$http$Http$emptyBody,
+			expect: A2(
+				$elm$http$Http$expectJson,
+				$author$project$Traveller$DownloadedNetworkLinks,
+				$elm$json$Json$Decode$list($author$project$Traveller$networkLinkDecoder)),
+			headers: _List_Nil,
+			method: 'GET',
+			timeout: $elm$core$Maybe$Just(15000),
+			tracker: $elm$core$Maybe$Nothing,
+			url: url
+		});
+};
 var $author$project$Traveller$DownloadedRegions = F2(
 	function (a, b) {
 		return {$: 'DownloadedRegions', a: a, b: b};
@@ -7841,7 +8180,6 @@ var $miniBill$elm_codec$Codec$composite = F3(
 				encoder: enc(codec.encoder)
 			});
 	});
-var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -7964,267 +8302,6 @@ var $author$project$Traveller$Region$codec = $miniBill$elm_codec$Codec$buildObje
 														hexes,
 														borderHexes);
 												}))))))))))));
-var $elm$url$Url$Builder$toQueryPair = function (_v0) {
-	var key = _v0.a;
-	var value = _v0.b;
-	return key + ('=' + value);
-};
-var $elm$url$Url$Builder$toQuery = function (parameters) {
-	if (!parameters.b) {
-		return '';
-	} else {
-		return '?' + A2(
-			$elm$core$String$join,
-			'&',
-			A2($elm$core$List$map, $elm$url$Url$Builder$toQueryPair, parameters));
-	}
-};
-var $elm$url$Url$Builder$crossOrigin = F3(
-	function (prePath, pathSegments, parameters) {
-		return prePath + ('/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters)));
-	});
-var $elm$http$Http$BadStatus_ = F2(
-	function (a, b) {
-		return {$: 'BadStatus_', a: a, b: b};
-	});
-var $elm$http$Http$BadUrl_ = function (a) {
-	return {$: 'BadUrl_', a: a};
-};
-var $elm$http$Http$GoodStatus_ = F2(
-	function (a, b) {
-		return {$: 'GoodStatus_', a: a, b: b};
-	});
-var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
-var $elm$http$Http$Receiving = function (a) {
-	return {$: 'Receiving', a: a};
-};
-var $elm$http$Http$Sending = function (a) {
-	return {$: 'Sending', a: a};
-};
-var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
-var $elm$core$Maybe$isJust = function (maybe) {
-	if (maybe.$ === 'Just') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $elm$http$Http$emptyBody = _Http_emptyBody;
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $elm$http$Http$expectStringResponse = F2(
-	function (toMsg, toResult) {
-		return A3(
-			_Http_expect,
-			'',
-			$elm$core$Basics$identity,
-			A2($elm$core$Basics$composeR, toResult, toMsg));
-	});
-var $elm$core$Result$mapError = F2(
-	function (f, result) {
-		if (result.$ === 'Ok') {
-			var v = result.a;
-			return $elm$core$Result$Ok(v);
-		} else {
-			var e = result.a;
-			return $elm$core$Result$Err(
-				f(e));
-		}
-	});
-var $elm$http$Http$BadBody = function (a) {
-	return {$: 'BadBody', a: a};
-};
-var $elm$http$Http$BadStatus = function (a) {
-	return {$: 'BadStatus', a: a};
-};
-var $elm$http$Http$BadUrl = function (a) {
-	return {$: 'BadUrl', a: a};
-};
-var $elm$http$Http$NetworkError = {$: 'NetworkError'};
-var $elm$http$Http$Timeout = {$: 'Timeout'};
-var $elm$http$Http$resolve = F2(
-	function (toResult, response) {
-		switch (response.$) {
-			case 'BadUrl_':
-				var url = response.a;
-				return $elm$core$Result$Err(
-					$elm$http$Http$BadUrl(url));
-			case 'Timeout_':
-				return $elm$core$Result$Err($elm$http$Http$Timeout);
-			case 'NetworkError_':
-				return $elm$core$Result$Err($elm$http$Http$NetworkError);
-			case 'BadStatus_':
-				var metadata = response.a;
-				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.statusCode));
-			default:
-				var body = response.b;
-				return A2(
-					$elm$core$Result$mapError,
-					$elm$http$Http$BadBody,
-					toResult(body));
-		}
-	});
-var $elm$http$Http$expectJson = F2(
-	function (toMsg, decoder) {
-		return A2(
-			$elm$http$Http$expectStringResponse,
-			toMsg,
-			$elm$http$Http$resolve(
-				function (string) {
-					return A2(
-						$elm$core$Result$mapError,
-						$elm$json$Json$Decode$errorToString,
-						A2($elm$json$Json$Decode$decodeString, decoder, string));
-				}));
-	});
-var $elm$http$Http$Request = function (a) {
-	return {$: 'Request', a: a};
-};
-var $elm$http$Http$State = F2(
-	function (reqs, subs) {
-		return {reqs: reqs, subs: subs};
-	});
-var $elm$http$Http$init = $elm$core$Task$succeed(
-	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
-var $elm$http$Http$updateReqs = F3(
-	function (router, cmds, reqs) {
-		updateReqs:
-		while (true) {
-			if (!cmds.b) {
-				return $elm$core$Task$succeed(reqs);
-			} else {
-				var cmd = cmds.a;
-				var otherCmds = cmds.b;
-				if (cmd.$ === 'Cancel') {
-					var tracker = cmd.a;
-					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
-					if (_v2.$ === 'Nothing') {
-						var $temp$router = router,
-							$temp$cmds = otherCmds,
-							$temp$reqs = reqs;
-						router = $temp$router;
-						cmds = $temp$cmds;
-						reqs = $temp$reqs;
-						continue updateReqs;
-					} else {
-						var pid = _v2.a;
-						return A2(
-							$elm$core$Task$andThen,
-							function (_v3) {
-								return A3(
-									$elm$http$Http$updateReqs,
-									router,
-									otherCmds,
-									A2($elm$core$Dict$remove, tracker, reqs));
-							},
-							$elm$core$Process$kill(pid));
-					}
-				} else {
-					var req = cmd.a;
-					return A2(
-						$elm$core$Task$andThen,
-						function (pid) {
-							var _v4 = req.tracker;
-							if (_v4.$ === 'Nothing') {
-								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
-							} else {
-								var tracker = _v4.a;
-								return A3(
-									$elm$http$Http$updateReqs,
-									router,
-									otherCmds,
-									A3($elm$core$Dict$insert, tracker, pid, reqs));
-							}
-						},
-						$elm$core$Process$spawn(
-							A3(
-								_Http_toTask,
-								router,
-								$elm$core$Platform$sendToApp(router),
-								req)));
-				}
-			}
-		}
-	});
-var $elm$http$Http$onEffects = F4(
-	function (router, cmds, subs, state) {
-		return A2(
-			$elm$core$Task$andThen,
-			function (reqs) {
-				return $elm$core$Task$succeed(
-					A2($elm$http$Http$State, reqs, subs));
-			},
-			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
-	});
-var $elm$http$Http$maybeSend = F4(
-	function (router, desiredTracker, progress, _v0) {
-		var actualTracker = _v0.a;
-		var toMsg = _v0.b;
-		return _Utils_eq(desiredTracker, actualTracker) ? $elm$core$Maybe$Just(
-			A2(
-				$elm$core$Platform$sendToApp,
-				router,
-				toMsg(progress))) : $elm$core$Maybe$Nothing;
-	});
-var $elm$http$Http$onSelfMsg = F3(
-	function (router, _v0, state) {
-		var tracker = _v0.a;
-		var progress = _v0.b;
-		return A2(
-			$elm$core$Task$andThen,
-			function (_v1) {
-				return $elm$core$Task$succeed(state);
-			},
-			$elm$core$Task$sequence(
-				A2(
-					$elm$core$List$filterMap,
-					A3($elm$http$Http$maybeSend, router, tracker, progress),
-					state.subs)));
-	});
-var $elm$http$Http$Cancel = function (a) {
-	return {$: 'Cancel', a: a};
-};
-var $elm$http$Http$cmdMap = F2(
-	function (func, cmd) {
-		if (cmd.$ === 'Cancel') {
-			var tracker = cmd.a;
-			return $elm$http$Http$Cancel(tracker);
-		} else {
-			var r = cmd.a;
-			return $elm$http$Http$Request(
-				{
-					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
-					body: r.body,
-					expect: A2(_Http_mapExpect, func, r.expect),
-					headers: r.headers,
-					method: r.method,
-					timeout: r.timeout,
-					tracker: r.tracker,
-					url: r.url
-				});
-		}
-	});
-var $elm$http$Http$MySub = F2(
-	function (a, b) {
-		return {$: 'MySub', a: a, b: b};
-	});
-var $elm$http$Http$subMap = F2(
-	function (func, _v0) {
-		var tracker = _v0.a;
-		var toMsg = _v0.b;
-		return A2(
-			$elm$http$Http$MySub,
-			tracker,
-			A2($elm$core$Basics$composeR, toMsg, func));
-	});
-_Platform_effectManagers['Http'] = _Platform_createManager($elm$http$Http$init, $elm$http$Http$onEffects, $elm$http$Http$onSelfMsg, $elm$http$Http$cmdMap, $elm$http$Http$subMap);
-var $elm$http$Http$command = _Platform_leaf('Http');
-var $elm$http$Http$subscription = _Platform_leaf('Http');
-var $elm$http$Http$request = function (r) {
-	return $elm$http$Http$command(
-		$elm$http$Http$Request(
-			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
-};
 var $author$project$Traveller$sendRegionRequest = F2(
 	function (requestEntry, hostConfig) {
 		var regionsDecoder = $miniBill$elm_codec$Codec$decoder(
@@ -8434,7 +8511,9 @@ var $author$project$Traveller$SolarSystemStars$FallibleStarSystem = function (ad
 											return function (techLevel) {
 												return function (stars) {
 													return function (mainWorldUwp) {
-														return {address: address, allegiance: allegiance, extinctSophont: extinctSophont, gasGiantCount: gasGiantCount, mainWorldUwp: mainWorldUwp, name: name, nativeSophont: nativeSophont, planetoidBeltCount: planetoidBeltCount, scanPoints: scanPoints, sectorName: sectorName, stars: stars, surveyIndex: surveyIndex, techLevel: techLevel, terrestrialPlanetCount: terrestrialPlanetCount};
+														return function (travelZone) {
+															return {address: address, allegiance: allegiance, extinctSophont: extinctSophont, gasGiantCount: gasGiantCount, mainWorldUwp: mainWorldUwp, name: name, nativeSophont: nativeSophont, planetoidBeltCount: planetoidBeltCount, scanPoints: scanPoints, sectorName: sectorName, stars: stars, surveyIndex: surveyIndex, techLevel: techLevel, terrestrialPlanetCount: terrestrialPlanetCount, travelZone: travelZone};
+														};
 													};
 												};
 											};
@@ -8738,85 +8817,112 @@ try {
 	};
 } catch ($) {
 	throw 'Some top-level definitions from `Traveller.SolarSystemStars` are causing infinite recursion:\n\n  ┌─────┐\n  │    starTypeCodec\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$Traveller$SolarSystemStars$TravelZone = F2(
+	function (code, colour) {
+		return {code: code, colour: colour};
+	});
+var $author$project$Traveller$SolarSystemStars$travelZoneCodec = $miniBill$elm_codec$Codec$buildObject(
+	A4(
+		$miniBill$elm_codec$Codec$field,
+		'colour',
+		function ($) {
+			return $.colour;
+		},
+		$miniBill$elm_codec$Codec$string,
+		A4(
+			$miniBill$elm_codec$Codec$field,
+			'code',
+			function ($) {
+				return $.code;
+			},
+			$miniBill$elm_codec$Codec$string,
+			$miniBill$elm_codec$Codec$object($author$project$Traveller$SolarSystemStars$TravelZone))));
 var $author$project$Traveller$SolarSystemStars$fallibleStarSystemDecoder = function () {
 	var decodeOrCatchError = $elm$json$Json$Decode$decodeValue(
 		$miniBill$elm_codec$Codec$decoder($author$project$Traveller$SolarSystemStars$starTypeCodec));
 	return A4(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-		'main_world_uwp',
-		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
+		'travel_zone',
+		$elm$json$Json$Decode$nullable(
+			$miniBill$elm_codec$Codec$decoder($author$project$Traveller$SolarSystemStars$travelZoneCodec)),
 		$elm$core$Maybe$Nothing,
-		A3(
-			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'stars',
-			$elm$json$Json$Decode$list(
-				A2($elm$json$Json$Decode$map, decodeOrCatchError, $elm$json$Json$Decode$value)),
+		A4(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+			'main_world_uwp',
+			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
+			$elm$core$Maybe$Nothing,
 			A3(
 				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'tech_level',
-				$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
+				'stars',
+				$elm$json$Json$Decode$list(
+					A2($elm$json$Json$Decode$map, decodeOrCatchError, $elm$json$Json$Decode$value)),
 				A3(
 					$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'extinct_sophont',
-					$elm$json$Json$Decode$bool,
+					'tech_level',
+					$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int),
 					A3(
 						$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'native_sophont',
+						'extinct_sophont',
 						$elm$json$Json$Decode$bool,
 						A3(
 							$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'allegiance',
-							$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
+							'native_sophont',
+							$elm$json$Json$Decode$bool,
 							A3(
 								$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'belt_count',
-								$elm$json$Json$Decode$int,
+								'allegiance',
+								$elm$json$Json$Decode$nullable($elm$json$Json$Decode$string),
 								A3(
 									$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'terrestrial_count',
+									'belt_count',
 									$elm$json$Json$Decode$int,
 									A3(
 										$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'gas_giant_count',
+										'terrestrial_count',
 										$elm$json$Json$Decode$int,
 										A3(
 											$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-											'survey_index',
+											'gas_giant_count',
 											$elm$json$Json$Decode$int,
 											A3(
 												$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-												'scan_points',
+												'survey_index',
 												$elm$json$Json$Decode$int,
 												A3(
 													$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-													'name',
-													$elm$json$Json$Decode$string,
+													'scan_points',
+													$elm$json$Json$Decode$int,
 													A3(
 														$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-														'sector_name',
+														'name',
 														$elm$json$Json$Decode$string,
 														A3(
 															$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-															'origin_y',
-															$elm$json$Json$Decode$int,
+															'sector_name',
+															$elm$json$Json$Decode$string,
 															A3(
 																$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-																'origin_x',
+																'origin_y',
 																$elm$json$Json$Decode$int,
-																$elm$json$Json$Decode$succeed(
-																	function (ox) {
-																		return function (oy) {
-																			return function (sname) {
-																				return function (name) {
-																					return function (sp) {
-																						return function (si) {
-																							return function (ggc) {
-																								return function (tpc) {
-																									return function (ppc) {
-																										return function (al) {
-																											return function (stars) {
-																												return $author$project$Traveller$SolarSystemStars$FallibleStarSystem(
-																													{x: ox, y: oy})(sname)(name)(sp)(si)(ggc)(tpc)(ppc)(al)(stars);
+																A3(
+																	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+																	'origin_x',
+																	$elm$json$Json$Decode$int,
+																	$elm$json$Json$Decode$succeed(
+																		function (ox) {
+																			return function (oy) {
+																				return function (sname) {
+																					return function (name) {
+																						return function (sp) {
+																							return function (si) {
+																								return function (ggc) {
+																									return function (tpc) {
+																										return function (ppc) {
+																											return function (al) {
+																												return function (stars) {
+																													return $author$project$Traveller$SolarSystemStars$FallibleStarSystem(
+																														{x: ox, y: oy})(sname)(name)(sp)(si)(ggc)(tpc)(ppc)(al)(stars);
+																												};
 																											};
 																										};
 																									};
@@ -8826,8 +8932,7 @@ var $author$project$Traveller$SolarSystemStars$fallibleStarSystemDecoder = funct
 																					};
 																				};
 																			};
-																		};
-																	}))))))))))))))));
+																		})))))))))))))))));
 }();
 var $elm$url$Url$Builder$QueryParameter = F2(
 	function (a, b) {
@@ -9026,6 +9131,7 @@ var $author$project$Traveller$init = F5(
 			key: key,
 			lastSolarSystemError: $elm$core$Maybe$Nothing,
 			nativeSophontColour: settings.nativeSophontColour,
+			networkLinks: _List_Nil,
 			newSolarSystemErrors: _List_Nil,
 			objectToBeAnalyzed: $elm$core$Maybe$Nothing,
 			oldSolarSystemErrors: _List_Nil,
@@ -9057,7 +9163,8 @@ var $author$project$Traveller$init = F5(
 						A2($author$project$Traveller$sendSolarSystemRequest, ssReqEntry, model.hostConfig),
 						A2($author$project$Traveller$sendSectorRequest, secReqEntry, model.hostConfig),
 						A2($author$project$Traveller$sendRegionRequest, secReqEntry, model.hostConfig),
-						A2($author$project$Traveller$sendRouteRequest, routeReqEntry, model.hostConfig)
+						A2($author$project$Traveller$sendRouteRequest, routeReqEntry, model.hostConfig),
+						$author$project$Traveller$sendNetworkLinksRequest(model.hostConfig)
 					])));
 	});
 var $elm$browser$Browser$Navigation$load = _Browser_load;
@@ -13848,6 +13955,20 @@ var $author$project$Traveller$update = F2(
 									})),
 							$elm$core$Platform$Cmd$none);
 					}
+				case 'DownloadedNetworkLinks':
+					if (msg.a.$ === 'Ok') {
+						var links = msg.a.a;
+						return _Utils_Tuple2(
+							withTime(
+								_Utils_update(
+									model,
+									{networkLinks: links})),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						return _Utils_Tuple2(
+							withTime(model),
+							$elm$core$Platform$Cmd$none);
+					}
 				case 'FetchedSolarSystem':
 					if (msg.a.$ === 'Ok') {
 						var solarSystem = msg.a.a;
@@ -13930,7 +14051,8 @@ var $author$project$Traveller$update = F2(
 													A2($elm$core$List$map, $elm$core$Result$toMaybe, fallibleSystem.stars)),
 												surveyIndex: si,
 												techLevel: fallibleSystem.techLevel,
-												terrestrialPlanetCount: fallibleSystem.terrestrialPlanetCount
+												terrestrialPlanetCount: fallibleSystem.terrestrialPlanetCount,
+												travelZone: fallibleSystem.travelZone
 											};
 											return _Utils_Tuple2(
 												A2(
@@ -22113,6 +22235,24 @@ var $author$project$Traveller$HexAddress$betweenWithMax = F3(
 			},
 			A2($elm$core$List$range, upperLeftHex.x, upperLeftHex.x + across));
 	});
+var $author$project$Traveller$HexGeometry$hexapointsBuilder = F3(
+	function (xOrigin, yOrigin, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return $elm$core$String$fromFloat(xOrigin + x) + (',' + $elm$core$String$fromFloat(yOrigin + y));
+	});
+var $author$project$Traveller$HexGeometry$convertRawHexagonPoints = F2(
+	function (_v0, points) {
+		var xOrigin = _v0.a;
+		var yOrigin = _v0.b;
+		return A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				A2($author$project$Traveller$HexGeometry$hexapointsBuilder, xOrigin, yOrigin),
+				points));
+	});
 var $author$project$Traveller$currentAddressHexBg = '#fe5a1d';
 var $elm$core$List$drop = F2(
 	function (n, list) {
@@ -22204,6 +22344,8 @@ var $author$project$Traveller$isOnRoute = F2(
 			},
 			route);
 	});
+var $elm$virtual_dom$VirtualDom$lazy = _VirtualDom_lazy;
+var $elm$svg$Svg$Lazy$lazy = $elm$virtual_dom$VirtualDom$lazy;
 var $elm$virtual_dom$VirtualDom$lazy3 = _VirtualDom_lazy3;
 var $elm$html$Html$Lazy$lazy3 = $elm$virtual_dom$VirtualDom$lazy3;
 var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
@@ -22267,9 +22409,91 @@ var $author$project$Traveller$regionLabel = F3(
 					$elm$svg$Svg$text(name)
 				]));
 	});
-var $elm$svg$Svg$polyline = $elm$svg$Svg$trustedNode('polyline');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $author$project$Traveller$renderHexBorderStroke = function (hexapointsStr) {
+	return A2(
+		$elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$points(hexapointsStr),
+				$elm$svg$Svg$Attributes$fill('none'),
+				$elm$svg$Svg$Attributes$stroke('#8AAFC4'),
+				$elm$svg$Svg$Attributes$strokeWidth('1'),
+				$elm$svg$Svg$Attributes$pointerEvents('none')
+			]),
+		_List_Nil);
+};
+var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
+var $author$project$Traveller$uwpSI = 10;
+var $author$project$Traveller$renderHexSystemLabels = function (_v0) {
+	var starSystem = _v0.starSystem;
+	var vox = _v0.vox;
+	var voy = _v0.voy;
+	var size = _v0.size;
+	var isReferee = _v0.isReferee;
+	var si = starSystem.surveyIndex;
+	var showStar = si > 0;
+	return ((!showStar) || (size <= 25)) ? $elm$svg$Svg$text('') : A2(
+		$elm$svg$Svg$g,
+		_List_Nil,
+		_List_fromArray(
+			[
+				function () {
+				if (isReferee || (_Utils_cmp(si, $author$project$Traveller$uwpSI) > -1)) {
+					var _v1 = starSystem.mainWorldUwp;
+					if (_v1.$ === 'Just') {
+						var uwpStr = _v1.a;
+						return A2(
+							$elm$svg$Svg$text_,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$x(
+									$elm$core$String$fromInt(vox)),
+									$elm$svg$Svg$Attributes$y(
+									$elm$core$String$fromInt(
+										voy + $elm$core$Basics$floor(size * 0.48))),
+									$elm$svg$Svg$Attributes$fontSize(
+									$elm$core$String$fromFloat(size * 0.18)),
+									$elm$svg$Svg$Attributes$textAnchor('middle'),
+									$elm$svg$Svg$Attributes$fontFamily('Oxanium'),
+									$elm$svg$Svg$Attributes$fontWeight('400'),
+									$elm$svg$Svg$Attributes$fill('#333333')
+								]),
+							_List_fromArray(
+								[
+									$elm$svg$Svg$text(uwpStr)
+								]));
+					} else {
+						return $elm$svg$Svg$text('');
+					}
+				} else {
+					return $elm$svg$Svg$text('');
+				}
+			}(),
+				((isReferee || (_Utils_cmp(si, $author$project$Traveller$uwpSI) > -1)) && (starSystem.name !== '')) ? A2(
+				$elm$svg$Svg$text_,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$x(
+						$elm$core$String$fromInt(vox)),
+						$elm$svg$Svg$Attributes$y(
+						$elm$core$String$fromInt(
+							voy + $elm$core$Basics$floor(size * 0.78))),
+						$elm$svg$Svg$Attributes$fontSize(
+						$elm$core$String$fromFloat(size * 0.25)),
+						$elm$svg$Svg$Attributes$textAnchor('middle'),
+						$elm$svg$Svg$Attributes$fontFamily('Oxanium'),
+						$elm$svg$Svg$Attributes$fontWeight('600'),
+						$elm$svg$Svg$Attributes$fill('#333333')
+					]),
+				_List_fromArray(
+					[
+						$elm$svg$Svg$text(starSystem.name)
+					])) : $elm$svg$Svg$text('')
+			]));
+};
+var $elm$svg$Svg$polyline = $elm$svg$Svg$trustedNode('polyline');
 var $author$project$Traveller$renderSectorOutline = F2(
 	function (hexSize, hex) {
 		var topRight = $author$project$Traveller$HexAddress$toUniversalAddress(
@@ -22333,6 +22557,7 @@ var $author$project$Traveller$renderSectorOutline = F2(
 var $author$project$Traveller$routeHexBg = '#FFE8C0';
 var $author$project$Traveller$selectedHexBg = '#B8E0F0';
 var $elm$svg$Svg$Attributes$strokeLinecap = _VirtualDom_attribute('stroke-linecap');
+var $elm$svg$Svg$Attributes$strokeOpacity = _VirtualDom_attribute('stroke-opacity');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $author$project$Traveller$toViewBox = F3(
 	function (hexScale, _v0, panOffset) {
@@ -22349,26 +22574,6 @@ var $author$project$Traveller$toViewBox = F3(
 				{col: x, row: y}));
 	});
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $author$project$Traveller$HexGeometry$hexapointsBuilder = F3(
-	function (xOrigin, yOrigin, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return $elm$core$String$fromFloat(xOrigin + x) + (',' + $elm$core$String$fromFloat(yOrigin + y));
-	});
-var $author$project$Traveller$HexGeometry$convertRawHexagonPoints = F2(
-	function (_v0, points) {
-		var xOrigin = _v0.a;
-		var yOrigin = _v0.b;
-		return A2(
-			$elm$core$String$join,
-			' ',
-			A2(
-				$elm$core$List$map,
-				A2($author$project$Traveller$HexGeometry$hexapointsBuilder, xOrigin, yOrigin),
-				points));
-	});
-var $elm$virtual_dom$VirtualDom$lazy = _VirtualDom_lazy;
-var $elm$svg$Svg$Lazy$lazy = $elm$virtual_dom$VirtualDom$lazy;
 var $elm$virtual_dom$VirtualDom$lazy7 = _VirtualDom_lazy7;
 var $elm$svg$Svg$Lazy$lazy7 = $elm$virtual_dom$VirtualDom$lazy7;
 var $author$project$Traveller$HoveringHex = function (a) {
@@ -22384,6 +22589,116 @@ var $author$project$Traveller$MapMouseUp = F2(
 	function (a, b) {
 		return {$: 'MapMouseUp', a: a, b: b};
 	});
+var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
+var $elm$svg$Svg$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
+var $author$project$Traveller$mouseDownDecoder = function (onDownMsg) {
+	var jsMouseEventDecoder = A2(
+		$elm$json$Json$Decode$andThen,
+		function (evt) {
+			var _v0 = evt.button;
+			if (_v0.$ === 'MainButton') {
+				return $elm$json$Json$Decode$succeed(evt);
+			} else {
+				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
+			}
+		},
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+	return A2(
+		$elm$json$Json$Decode$map,
+		function (evt) {
+			return onDownMsg(evt.clientPos);
+		},
+		jsMouseEventDecoder);
+};
+var $author$project$Traveller$mouseMoveDecoder = function (onMoveMsg) {
+	return A2(
+		$elm$json$Json$Decode$map,
+		A2(
+			$elm$core$Basics$composeR,
+			function ($) {
+				return $.clientPos;
+			},
+			onMoveMsg),
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+};
+var $author$project$Traveller$mouseUpDecoder = function (onDownMsg) {
+	var jsMouseEventDecoder = A2(
+		$elm$json$Json$Decode$andThen,
+		function (evt) {
+			var _v0 = evt.button;
+			if (_v0.$ === 'MainButton') {
+				return $elm$json$Json$Decode$succeed(evt);
+			} else {
+				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
+			}
+		},
+		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
+	return A2(
+		$elm$json$Json$Decode$map,
+		function (evt) {
+			return onDownMsg(evt.clientPos);
+		},
+		jsMouseEventDecoder);
+};
+var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
+var $elm$svg$Svg$Events$onMouseOver = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseover',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $author$project$Traveller$renderPolygon = F2(
+	function (points_, fill) {
+		var hexColour = _Utils_eq(fill, $author$project$Traveller$currentAddressHexBg) ? $author$project$Traveller$routeHexBg : fill;
+		return A2(
+			$elm$svg$Svg$polygon,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$points(points_),
+					$elm$svg$Svg$Attributes$fill(hexColour),
+					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted'),
+					$elm$svg$Svg$Attributes$class('hex-hover')
+				]),
+			_List_Nil);
+	});
+var $author$project$Traveller$renderHexBg = function (_v0) {
+	var hexColour = _v0.hexColour;
+	var hexAddrX = _v0.hexAddrX;
+	var hexAddrY = _v0.hexAddrY;
+	var hexapointsStr = _v0.hexapointsStr;
+	var hexAddress = A2($author$project$Traveller$HexAddress$HexAddress, hexAddrX, hexAddrY);
+	return A2(
+		$elm$svg$Svg$g,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Events$onMouseOver(
+				$author$project$Traveller$HoveringHex(hexAddress)),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mouseup',
+				$author$project$Traveller$mouseUpDecoder(
+					function (pos) {
+						return A2(
+							$author$project$Traveller$MapMouseUp,
+							$elm$core$Maybe$Just(hexAddress),
+							pos);
+					})),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mousedown',
+				$author$project$Traveller$mouseDownDecoder($author$project$Traveller$MapMouseDown)),
+				A2(
+				$elm$svg$Svg$Events$on,
+				'mousemove',
+				$author$project$Traveller$mouseMoveDecoder($author$project$Traveller$MapMouseMove)),
+				$elm$svg$Svg$Attributes$style('cursor: pointer; user-select: none')
+			]),
+		_List_fromArray(
+			[
+				A3($elm$svg$Svg$Lazy$lazy2, $author$project$Traveller$renderPolygon, hexapointsStr, hexColour)
+			]));
+};
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
@@ -22515,7 +22830,36 @@ var $author$project$Traveller$drawStar = F5(
 				]),
 			_List_Nil);
 	});
-var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
+var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var $elm$core$Basics$degrees = function (angleInDegrees) {
+	return (angleInDegrees * $elm$core$Basics$pi) / 180;
+};
+var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
+var $author$project$Traveller$drawTravelZoneRing = F4(
+	function (cx, cy, size, colour) {
+		var r = size * 0.78;
+		var startX = cx + (r * $elm$core$Basics$cos(
+			$elm$core$Basics$degrees(135)));
+		var startY = cy + (r * $elm$core$Basics$sin(
+			$elm$core$Basics$degrees(135)));
+		var endY = cy + (r * $elm$core$Basics$sin(
+			$elm$core$Basics$degrees(45)));
+		var endX = cx + (r * $elm$core$Basics$cos(
+			$elm$core$Basics$degrees(45)));
+		var d = 'M ' + ($elm$core$String$fromFloat(startX) + (' ' + ($elm$core$String$fromFloat(startY) + (' A ' + ($elm$core$String$fromFloat(r) + (' ' + ($elm$core$String$fromFloat(r) + (' 0 1 1 ' + ($elm$core$String$fromFloat(endX) + (' ' + $elm$core$String$fromFloat(endY)))))))))));
+		return A2(
+			$elm$svg$Svg$path,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$d(d),
+					$elm$svg$Svg$Attributes$fill('none'),
+					$elm$svg$Svg$Attributes$stroke(colour),
+					$elm$svg$Svg$Attributes$strokeWidth('2'),
+					$elm$svg$Svg$Attributes$strokeLinecap('round'),
+					$elm$svg$Svg$Attributes$pointerEvents('none')
+				]),
+			_List_Nil);
+	});
 var $elm$svg$Svg$Attributes$opacity = _VirtualDom_attribute('opacity');
 var $author$project$Traveller$drawUnknownSlot = F3(
 	function (iconX, iconY, size) {
@@ -22626,87 +22970,9 @@ var $author$project$Traveller$SolarSystemStars$isBrownDwarfType = function (theS
 		_List_fromArray(
 			['D', 'Y', 'T', 'L']));
 };
-var $elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
-var $elm$svg$Svg$Lazy$lazy2 = $elm$virtual_dom$VirtualDom$lazy2;
 var $elm$virtual_dom$VirtualDom$lazy5 = _VirtualDom_lazy5;
 var $elm$svg$Svg$Lazy$lazy5 = $elm$virtual_dom$VirtualDom$lazy5;
-var $author$project$Traveller$mouseDownDecoder = function (onDownMsg) {
-	var jsMouseEventDecoder = A2(
-		$elm$json$Json$Decode$andThen,
-		function (evt) {
-			var _v0 = evt.button;
-			if (_v0.$ === 'MainButton') {
-				return $elm$json$Json$Decode$succeed(evt);
-			} else {
-				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
-			}
-		},
-		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-	return A2(
-		$elm$json$Json$Decode$map,
-		function (evt) {
-			return onDownMsg(evt.clientPos);
-		},
-		jsMouseEventDecoder);
-};
-var $author$project$Traveller$mouseMoveDecoder = function (onMoveMsg) {
-	return A2(
-		$elm$json$Json$Decode$map,
-		A2(
-			$elm$core$Basics$composeR,
-			function ($) {
-				return $.clientPos;
-			},
-			onMoveMsg),
-		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-};
-var $author$project$Traveller$mouseUpDecoder = function (onDownMsg) {
-	var jsMouseEventDecoder = A2(
-		$elm$json$Json$Decode$andThen,
-		function (evt) {
-			var _v0 = evt.button;
-			if (_v0.$ === 'MainButton') {
-				return $elm$json$Json$Decode$succeed(evt);
-			} else {
-				return $elm$json$Json$Decode$fail('Won\'t drag on non-main/left button');
-			}
-		},
-		$mpizenberg$elm_pointer_events$Html$Events$Extra$Mouse$eventDecoder);
-	return A2(
-		$elm$json$Json$Decode$map,
-		function (evt) {
-			return onDownMsg(evt.clientPos);
-		},
-		jsMouseEventDecoder);
-};
-var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
-var $elm$svg$Svg$Events$onMouseOver = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'mouseover',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $author$project$Traveller$planetoidSI = 6;
-var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
-var $author$project$Traveller$renderPolygon = F2(
-	function (points_, fill) {
-		var hexColour = _Utils_eq(fill, $author$project$Traveller$currentAddressHexBg) ? $author$project$Traveller$routeHexBg : fill;
-		return A2(
-			$elm$svg$Svg$polygon,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$points(points_),
-					$elm$svg$Svg$Attributes$fill(hexColour),
-					$elm$svg$Svg$Attributes$stroke('#8AAFC4'),
-					$elm$svg$Svg$Attributes$strokeWidth('1'),
-					$elm$svg$Svg$Attributes$pointerEvents('visiblePainted'),
-					$elm$svg$Svg$Attributes$class('hex-hover')
-				]),
-			_List_Nil);
-	});
-var $elm$core$Basics$degrees = function (angleInDegrees) {
-	return (angleInDegrees * $elm$core$Basics$pi) / 180;
-};
 var $author$project$Traveller$HexGeometry$rotatePoint = F5(
 	function (hexSize, idx, _v0, degrees_, distance) {
 		var x_ = _v0.a;
@@ -22756,18 +23022,16 @@ var $author$project$Traveller$StarColour$starColourRGB = function (colour) {
 		return '#778899';
 	}
 };
-var $author$project$Traveller$uwpSI = 10;
-var $author$project$Traveller$renderHexWithStar = function (_v0) {
+var $author$project$Traveller$renderHexContent = function (_v0) {
 	var starSystem = _v0.starSystem;
-	var hexColour = _v0.hexColour;
 	var hexAddrX = _v0.hexAddrX;
 	var hexAddrY = _v0.hexAddrY;
 	var vox = _v0.vox;
 	var voy = _v0.voy;
 	var size = _v0.size;
-	var hexapointsStr = _v0.hexapointsStr;
 	var isReferee = _v0.isReferee;
 	var si = starSystem.surveyIndex;
+	var showTravelZone = (isReferee || (_Utils_cmp(si, $author$project$Traveller$uwpSI) > -1)) && (!_Utils_eq(starSystem.travelZone, $elm$core$Maybe$Nothing));
 	var showStar = starSystem.surveyIndex > 0;
 	var showUnknownGasGiant = showStar && ((!isReferee) && (_Utils_cmp(si, $author$project$Traveller$gasGiantSI) < 0));
 	var showUnknownPlanetoidBelt = showStar && ((!isReferee) && (_Utils_cmp(si, $author$project$Traveller$planetoidSI) < 0));
@@ -22778,31 +23042,10 @@ var $author$project$Traveller$renderHexWithStar = function (_v0) {
 		$elm$svg$Svg$g,
 		_List_fromArray(
 			[
-				$elm$svg$Svg$Events$onMouseOver(
-				$author$project$Traveller$HoveringHex(hexAddress)),
-				A2(
-				$elm$svg$Svg$Events$on,
-				'mouseup',
-				$author$project$Traveller$mouseUpDecoder(
-					function (pos) {
-						return A2(
-							$author$project$Traveller$MapMouseUp,
-							$elm$core$Maybe$Just(hexAddress),
-							pos);
-					})),
-				A2(
-				$elm$svg$Svg$Events$on,
-				'mousedown',
-				$author$project$Traveller$mouseDownDecoder($author$project$Traveller$MapMouseDown)),
-				A2(
-				$elm$svg$Svg$Events$on,
-				'mousemove',
-				$author$project$Traveller$mouseMoveDecoder($author$project$Traveller$MapMouseMove)),
-				$elm$svg$Svg$Attributes$style('cursor: pointer; user-select: none')
+				$elm$svg$Svg$Attributes$pointerEvents('none')
 			]),
 		_List_fromArray(
 			[
-				A3($elm$svg$Svg$Lazy$lazy2, $author$project$Traveller$renderPolygon, hexapointsStr, hexColour),
 				function () {
 				if (showStar) {
 					var primaryPos = _Utils_Tuple2(vox, voy);
@@ -22866,67 +23109,24 @@ var $author$project$Traveller$renderHexWithStar = function (_v0) {
 					return A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress);
 				}
 			}(),
-				showStar ? A2(
-				$elm$svg$Svg$g,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress),
-						function () {
-						if ((size > 15) && (isReferee || (_Utils_cmp(si, $author$project$Traveller$uwpSI) > -1))) {
-							var _v4 = starSystem.mainWorldUwp;
-							if (_v4.$ === 'Just') {
-								var uwpStr = _v4.a;
-								return A2(
-									$elm$svg$Svg$text_,
-									_List_fromArray(
-										[
-											$elm$svg$Svg$Attributes$x(
-											$elm$core$String$fromInt(vox)),
-											$elm$svg$Svg$Attributes$y(
-											$elm$core$String$fromInt(
-												voy + $elm$core$Basics$floor(size * 0.40))),
-											$elm$svg$Svg$Attributes$fontSize('10'),
-											$elm$svg$Svg$Attributes$textAnchor('middle'),
-											$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
-											$elm$svg$Svg$Attributes$fontWeight('400'),
-											$elm$svg$Svg$Attributes$fill('#333333')
-										]),
-									_List_fromArray(
-										[
-											$elm$svg$Svg$text(uwpStr)
-										]));
-							} else {
-								return $elm$svg$Svg$text('');
-							}
-						} else {
-							return $elm$svg$Svg$text('');
-						}
-					}(),
-						(isReferee && ((size > 15) && (starSystem.name !== ''))) ? A2(
-						$elm$svg$Svg$text_,
-						_List_fromArray(
-							[
-								$elm$svg$Svg$Attributes$x(
-								$elm$core$String$fromInt(vox)),
-								$elm$svg$Svg$Attributes$y(
-								$elm$core$String$fromInt(
-									voy + $elm$core$Basics$floor(size * 0.78))),
-								$elm$svg$Svg$Attributes$fontSize('15'),
-								$elm$svg$Svg$Attributes$textAnchor('middle'),
-								$elm$svg$Svg$Attributes$fontFamily('Tomorrow'),
-								$elm$svg$Svg$Attributes$fontWeight('700'),
-								$elm$svg$Svg$Attributes$fill('#333333')
-							]),
-						_List_fromArray(
-							[
-								$elm$svg$Svg$text(starSystem.name)
-							])) : $elm$svg$Svg$text('')
-					])) : $elm$svg$Svg$text(''),
+				showStar ? A4($author$project$Traveller$hexAddressLabel, vox, voy, size, hexAddress) : $elm$svg$Svg$text(''),
 				(showGasGiant && (size > 15)) ? A3($author$project$Traveller$drawGasGiant, vox, voy, size) : $elm$svg$Svg$text(''),
 				(showPlanetoidBelt && (size > 15)) ? A3($author$project$Traveller$drawPlanetoidBelt, vox, voy, size) : $elm$svg$Svg$text(''),
 				(showUnknownGasGiant && (size > 15)) ? A3($author$project$Traveller$drawUnknownSlot, vox + (size * 0.38), voy - (size * 0.45), size) : $elm$svg$Svg$text(''),
-				(showUnknownPlanetoidBelt && (size > 15)) ? A3($author$project$Traveller$drawUnknownSlot, vox - (size * 0.38), voy - (size * 0.45), size) : $elm$svg$Svg$text('')
+				(showUnknownPlanetoidBelt && (size > 15)) ? A3($author$project$Traveller$drawUnknownSlot, vox - (size * 0.38), voy - (size * 0.45), size) : $elm$svg$Svg$text(''),
+				function () {
+				if (showTravelZone && (size > 15)) {
+					var _v4 = starSystem.travelZone;
+					if (_v4.$ === 'Just') {
+						var tz = _v4.a;
+						return A4($author$project$Traveller$drawTravelZoneRing, vox, voy, size, tz.colour);
+					} else {
+						return $elm$svg$Svg$text('');
+					}
+				} else {
+					return $elm$svg$Svg$text('');
+				}
+			}()
 			]));
 };
 var $author$project$Traveller$viewHexEmpty = F7(
@@ -23070,37 +23270,42 @@ var $author$project$Traveller$viewHex = F8(
 			$elm$core$Dict$get,
 			$author$project$Traveller$HexAddress$toKey(hexAddress),
 			solarSystemDict);
-		var hexSVG = function () {
-			if (remoteSolarSystem.$ === 'Just') {
-				switch (remoteSolarSystem.a.$) {
-					case 'LoadedSolarSystem':
-						var loadedSystem = remoteSolarSystem.a.a;
-						var hexapointsStr = A2(
-							$author$project$Traveller$HexGeometry$convertRawHexagonPoints,
-							_Utils_Tuple2(vox, voy),
-							rawHexaPoints);
-						return A2(
-							$elm$svg$Svg$Lazy$lazy,
-							$author$project$Traveller$renderHexWithStar,
-							{hexAddrX: hexAddress.x, hexAddrY: hexAddress.y, hexColour: hexColour, hexapointsStr: hexapointsStr, isReferee: isReferee, size: hexSize, starSystem: loadedSystem, vox: vox, voy: voy});
-					case 'LoadingSolarSystem':
-						var _v1 = remoteSolarSystem.a;
-						return A6($author$project$Traveller$viewHexLoading, hexAddress.x, hexAddress.y, vox, voy, hexSize, hexColour);
-					case 'FailedSolarSystem':
-						var httpError = remoteSolarSystem.a.a;
-						return viewEmptyHelper('Failed.');
-					case 'LoadedEmptyHex':
-						var _v2 = remoteSolarSystem.a;
-						return viewEmptyHelper('');
-					default:
-						var failedSolarSystem = remoteSolarSystem.a.a;
-						return A8($elm$svg$Svg$Lazy$lazy7, $author$project$Traveller$viewHexEmpty, hexAddress.x, hexAddress.y, vox, voy, hexSize, 'Star Failed.', '#aaaaaa');
-				}
-			} else {
-				return viewEmptyHelper('');
+		if (remoteSolarSystem.$ === 'Just') {
+			switch (remoteSolarSystem.a.$) {
+				case 'LoadedSolarSystem':
+					var loadedSystem = remoteSolarSystem.a.a;
+					var hexapointsStr = A2(
+						$author$project$Traveller$HexGeometry$convertRawHexagonPoints,
+						_Utils_Tuple2(vox, voy),
+						rawHexaPoints);
+					var opts = {hexAddrX: hexAddress.x, hexAddrY: hexAddress.y, hexColour: hexColour, hexapointsStr: hexapointsStr, isReferee: isReferee, size: hexSize, starSystem: loadedSystem, vox: vox, voy: voy};
+					return _Utils_Tuple2(
+						A2($elm$svg$Svg$Lazy$lazy, $author$project$Traveller$renderHexBg, opts),
+						A2($elm$svg$Svg$Lazy$lazy, $author$project$Traveller$renderHexContent, opts));
+				case 'LoadingSolarSystem':
+					var _v1 = remoteSolarSystem.a;
+					return _Utils_Tuple2(
+						A6($author$project$Traveller$viewHexLoading, hexAddress.x, hexAddress.y, vox, voy, hexSize, hexColour),
+						$elm$svg$Svg$text(''));
+				case 'FailedSolarSystem':
+					return _Utils_Tuple2(
+						viewEmptyHelper('Failed.'),
+						$elm$svg$Svg$text(''));
+				case 'LoadedEmptyHex':
+					var _v2 = remoteSolarSystem.a;
+					return _Utils_Tuple2(
+						viewEmptyHelper(''),
+						$elm$svg$Svg$text(''));
+				default:
+					return _Utils_Tuple2(
+						A8($elm$svg$Svg$Lazy$lazy7, $author$project$Traveller$viewHexEmpty, hexAddress.x, hexAddress.y, vox, voy, hexSize, 'Star Failed.', '#aaaaaa'),
+						$elm$svg$Svg$text(''));
 			}
-		}();
-		return hexSVG;
+		} else {
+			return _Utils_Tuple2(
+				viewEmptyHelper(''),
+				$elm$svg$Svg$text(''));
+		}
 	});
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
@@ -23117,306 +23322,442 @@ var $author$project$Traveller$viewHexes = function (_v0) {
 							return function (nativeSophontColour) {
 								return function (extinctSophontColour) {
 									return function (panOffset) {
-										var upperLeftHex = _v0.a.upperLeftHex;
-										var lowerRightHex = _v0.a.lowerRightHex;
-										var rawHexaPoints = _v0.b;
-										var svgWidth = _v1.svgWidth;
-										var svgHeight = _v1.svgHeight;
-										var maxAcross = _v1.maxAcross;
-										var maxTall = _v1.maxTall;
-										var solarSystemDict = _v2.solarSystemDict;
-										var hexColours = _v2.hexColours;
-										var regionLabels = _v2.regionLabels;
-										var regions = _v2.regions;
-										var route = _v3.a;
-										var currentAddress = _v3.b;
-										var viewSingleHex = function (hexAddr) {
-											var hexKey = $author$project$Traveller$HexAddress$toKey(hexAddr);
-											var hexColour = function () {
-												if (_Utils_eq(hexAddr, currentAddress)) {
-													return $author$project$Traveller$currentAddressHexBg;
-												} else {
-													if (A2($author$project$Traveller$isOnRoute, route, hexAddr)) {
-														return $author$project$Traveller$routeHexBg;
+										return function (networkLinks) {
+											var upperLeftHex = _v0.a.upperLeftHex;
+											var lowerRightHex = _v0.a.lowerRightHex;
+											var rawHexaPoints = _v0.b;
+											var svgWidth = _v1.svgWidth;
+											var svgHeight = _v1.svgHeight;
+											var maxAcross = _v1.maxAcross;
+											var maxTall = _v1.maxTall;
+											var solarSystemDict = _v2.solarSystemDict;
+											var hexColours = _v2.hexColours;
+											var regionLabels = _v2.regionLabels;
+											var regions = _v2.regions;
+											var route = _v3.a;
+											var currentAddress = _v3.b;
+											var viewSingleHex = function (hexAddr) {
+												var hexKey = $author$project$Traveller$HexAddress$toKey(hexAddr);
+												var hexColour = function () {
+													if (_Utils_eq(hexAddr, currentAddress)) {
+														return $author$project$Traveller$currentAddressHexBg;
 													} else {
-														var _v17 = A2($elm$core$Dict$get, hexKey, hexColours);
-														if (_v17.$ === 'Just') {
-															var color = _v17.a;
-															return $noahzgordon$elm_color_extra$Color$Convert$colorToHex(color);
+														if (A2($author$project$Traveller$isOnRoute, route, hexAddr)) {
+															return $author$project$Traveller$routeHexBg;
 														} else {
-															if (maybeSelectedHex.$ === 'Just') {
-																var selectedHex = maybeSelectedHex.a;
-																return _Utils_eq(selectedHex, hexAddr) ? $author$project$Traveller$selectedHexBg : A5($author$project$Traveller$hexBackgroundColour, isReferee, hexKey, solarSystemDict, nativeSophontColour, extinctSophontColour);
+															var _v25 = A2($elm$core$Dict$get, hexKey, hexColours);
+															if (_v25.$ === 'Just') {
+																var color = _v25.a;
+																return $noahzgordon$elm_color_extra$Color$Convert$colorToHex(color);
 															} else {
-																return A5($author$project$Traveller$hexBackgroundColour, isReferee, hexKey, solarSystemDict, nativeSophontColour, extinctSophontColour);
+																if (maybeSelectedHex.$ === 'Just') {
+																	var selectedHex = maybeSelectedHex.a;
+																	return _Utils_eq(selectedHex, hexAddr) ? $author$project$Traveller$selectedHexBg : A5($author$project$Traveller$hexBackgroundColour, isReferee, hexKey, solarSystemDict, nativeSophontColour, extinctSophontColour);
+																} else {
+																	return A5($author$project$Traveller$hexBackgroundColour, isReferee, hexKey, solarSystemDict, nativeSophontColour, extinctSophontColour);
+																}
 															}
 														}
 													}
-												}
-											}();
-											var _v16 = A2(
-												$author$project$Traveller$HexGeometry$calcVisualOrigin,
-												hexSize,
-												{col: hexAddr.x, row: hexAddr.y});
-											var vox = _v16.a;
-											var voy = _v16.b;
-											return _Utils_Tuple2(
-												hexAddr,
-												A8($author$project$Traveller$viewHex, hexSize, solarSystemDict, hexAddr, vox, voy, hexColour, rawHexaPoints, isReferee));
-										};
-										var renderCurrentAddressOutline = function (ca) {
-											var locationOrigin = A3(
-												$elm$core$Tuple$mapBoth,
-												$elm$core$Basics$toFloat,
-												$elm$core$Basics$toFloat,
-												A2(
+												}();
+												var _v24 = A2(
 													$author$project$Traveller$HexGeometry$calcVisualOrigin,
 													hexSize,
-													{col: ca.x, row: ca.y}));
-											var pointsStr = A2(
-												$elm$core$String$join,
-												' ',
-												A2($author$project$Traveller$HexGeometry$hexagonPoints, locationOrigin, hexSize));
-											return A2(
-												$elm$svg$Svg$polygon,
-												_List_fromArray(
-													[
-														$elm$svg$Svg$Attributes$points(pointsStr),
-														$elm$svg$Svg$Attributes$fill('none'),
-														$elm$svg$Svg$Attributes$stroke($author$project$Traveller$currentAddressHexBg),
-														$elm$svg$Svg$Attributes$strokeWidth('3'),
-														$elm$svg$Svg$Attributes$pointerEvents('none')
-													]),
-												_List_Nil);
-										};
-										var hexRange = A3(
-											$author$project$Traveller$HexAddress$betweenWithMax,
-											A2(
-												$author$project$Traveller$HexAddress$shiftAddressBy,
-												{deltaX: -1, deltaY: -1},
-												upperLeftHex),
-											lowerRightHex,
-											{maxAcross: maxAcross, maxTall: maxTall});
-										return function () {
-											var widthString = $elm$core$String$fromFloat(svgWidth);
-											var heightString = $elm$core$String$fromFloat(svgHeight);
-											return $elm$svg$Svg$svg(
-												_List_fromArray(
-													[
-														$elm$svg$Svg$Attributes$width(widthString),
-														$elm$svg$Svg$Attributes$height(heightString),
-														$elm$svg$Svg$Attributes$id('hexmap'),
-														$elm$svg$Svg$Events$onMouseOut($author$project$Traveller$MapMouseLeave),
-														A2(
-														$elm$html$Html$Events$preventDefaultOn,
-														'wheel',
-														A2(
-															$elm$json$Json$Decode$map,
-															function (dy) {
-																return _Utils_Tuple2(
-																	$author$project$Traveller$HexMapWheelZoom(dy),
-																	true);
-															},
-															A2($elm$json$Json$Decode$field, 'deltaY', $elm$json$Json$Decode$float))),
-														$elm$svg$Svg$Attributes$viewBox(
-														A3($author$project$Traveller$toViewBox, hexSize, upperLeftHex, panOffset) + (' ' + (widthString + (' ' + heightString))))
-													]));
-										}()(
-											function (_v5) {
-												var hexSvgsWithHexAddress = _v5.a;
-												var labels = _v5.b;
-												var singlePolyHex = renderCurrentAddressOutline(currentAddress);
-												var keyedHexes = A3(
-													$elm$svg$Svg$Keyed$node,
-													'g',
-													_List_Nil,
+													{col: hexAddr.x, row: hexAddr.y});
+												var vox = _v24.a;
+												var voy = _v24.b;
+												return _Utils_Tuple2(
+													hexAddr,
+													A8($author$project$Traveller$viewHex, hexSize, solarSystemDict, hexAddr, vox, voy, hexColour, rawHexaPoints, isReferee));
+											};
+											var renderCurrentAddressOutline = function (ca) {
+												var locationOrigin = A3(
+													$elm$core$Tuple$mapBoth,
+													$elm$core$Basics$toFloat,
+													$elm$core$Basics$toFloat,
 													A2(
-														$elm$core$List$map,
-														function (_v15) {
-															var addr = _v15.a;
-															var hex = _v15.b;
-															return _Utils_Tuple2(
-																$author$project$Traveller$HexAddress$toKey(addr),
-																hex);
-														},
-														hexSvgsWithHexAddress));
-												var ulSector = $author$project$Traveller$HexAddress$toSectorAddress(upperLeftHex);
-												var lrSector = $author$project$Traveller$HexAddress$toSectorAddress(lowerRightHex);
-												var sectorOutlines = A2(
-													$elm$core$List$concatMap,
-													function (sx) {
-														return A2(
-															$elm$core$List$map,
-															function (sy) {
-																return A2(
-																	$author$project$Traveller$renderSectorOutline,
-																	hexSize,
-																	_Utils_update(
-																		ulSector,
-																		{sectorX: sx, sectorY: sy}));
-															},
+														$author$project$Traveller$HexGeometry$calcVisualOrigin,
+														hexSize,
+														{col: ca.x, row: ca.y}));
+												var pointsStr = A2(
+													$elm$core$String$join,
+													' ',
+													A2($author$project$Traveller$HexGeometry$hexagonPoints, locationOrigin, hexSize));
+												return A2(
+													$elm$svg$Svg$polygon,
+													_List_fromArray(
+														[
+															$elm$svg$Svg$Attributes$points(pointsStr),
+															$elm$svg$Svg$Attributes$fill('none'),
+															$elm$svg$Svg$Attributes$stroke($author$project$Traveller$currentAddressHexBg),
+															$elm$svg$Svg$Attributes$strokeWidth('3'),
+															$elm$svg$Svg$Attributes$pointerEvents('none')
+														]),
+													_List_Nil);
+											};
+											var hexRange = A3(
+												$author$project$Traveller$HexAddress$betweenWithMax,
+												A2(
+													$author$project$Traveller$HexAddress$shiftAddressBy,
+													{deltaX: -1, deltaY: -1},
+													upperLeftHex),
+												lowerRightHex,
+												{maxAcross: maxAcross, maxTall: maxTall});
+											return function () {
+												var widthString = $elm$core$String$fromFloat(svgWidth);
+												var heightString = $elm$core$String$fromFloat(svgHeight);
+												return $elm$svg$Svg$svg(
+													_List_fromArray(
+														[
+															$elm$svg$Svg$Attributes$width(widthString),
+															$elm$svg$Svg$Attributes$height(heightString),
+															$elm$svg$Svg$Attributes$id('hexmap'),
+															$elm$svg$Svg$Events$onMouseOut($author$project$Traveller$MapMouseLeave),
 															A2(
-																$elm$core$List$range,
-																A2($elm$core$Basics$min, ulSector.sectorY, lrSector.sectorY),
-																A2($elm$core$Basics$max, ulSector.sectorY, lrSector.sectorY)));
-													},
-													A2(
-														$elm$core$List$range,
-														A2($elm$core$Basics$min, ulSector.sectorX, lrSector.sectorX),
-														A2($elm$core$Basics$max, ulSector.sectorX, lrSector.sectorX)));
-												var hexEdgeNeighbours = function (_v14) {
-													var x = _v14.x;
-													var y = _v14.y;
-													return (!A2($elm$core$Basics$modBy, 2, x)) ? _List_fromArray(
-														[
-															{x: x + 1, y: y},
-															{x: x, y: y - 1},
-															{x: x - 1, y: y},
-															{x: x - 1, y: y + 1},
-															{x: x, y: y + 1},
-															{x: x + 1, y: y + 1}
-														]) : _List_fromArray(
-														[
-															{x: x + 1, y: y - 1},
-															{x: x, y: y - 1},
-															{x: x - 1, y: y - 1},
-															{x: x - 1, y: y},
-															{x: x, y: y + 1},
-															{x: x + 1, y: y}
-														]);
-												};
-												var renderBorderRegion = function (region) {
-													var _v6 = region.borderColour;
-													if (_v6.$ === 'Nothing') {
-														return $elm$core$Maybe$Nothing;
-													} else {
-														var colour = _v6.a;
-														var borderSet = $elm$core$Set$fromList(
-															A2($elm$core$List$map, $author$project$Traveller$HexAddress$toKey, region.hexes));
-														var edgesFor = function (hexAddr) {
-															var neighbours = hexEdgeNeighbours(hexAddr);
-															var _v10 = A2(
+															$elm$html$Html$Events$preventDefaultOn,
+															'wheel',
+															A2(
+																$elm$json$Json$Decode$map,
+																function (dy) {
+																	return _Utils_Tuple2(
+																		$author$project$Traveller$HexMapWheelZoom(dy),
+																		true);
+																},
+																A2($elm$json$Json$Decode$field, 'deltaY', $elm$json$Json$Decode$float))),
+															$elm$svg$Svg$Attributes$viewBox(
+															A3($author$project$Traveller$toViewBox, hexSize, upperLeftHex, panOffset) + (' ' + (widthString + (' ' + heightString))))
+														]));
+											}()(
+												function (_v7) {
+													var hexSvgsWithHexAddress = _v7.a;
+													var labels = _v7.b;
+													var systemLabels = _v7.c;
+													var singlePolyHex = renderCurrentAddressOutline(currentAddress);
+													var keyedHexForegrounds = A3(
+														$elm$svg$Svg$Keyed$node,
+														'g',
+														_List_fromArray(
+															[
+																$elm$svg$Svg$Attributes$pointerEvents('none')
+															]),
+														A2(
+															$elm$core$List$map,
+															function (_v22) {
+																var addr = _v22.a;
+																var _v23 = _v22.b;
+																var fg = _v23.b;
+																return _Utils_Tuple2(
+																	$author$project$Traveller$HexAddress$toKey(addr),
+																	fg);
+															},
+															hexSvgsWithHexAddress));
+													var keyedHexBorders = A3(
+														$elm$svg$Svg$Keyed$node,
+														'g',
+														_List_fromArray(
+															[
+																$elm$svg$Svg$Attributes$pointerEvents('none')
+															]),
+														A2(
+															$elm$core$List$map,
+															function (hexAddr) {
+																var _v21 = A2(
+																	$author$project$Traveller$HexGeometry$calcVisualOrigin,
+																	hexSize,
+																	{col: hexAddr.x, row: hexAddr.y});
+																var vox = _v21.a;
+																var voy = _v21.b;
+																var hexapointsStr = A2(
+																	$author$project$Traveller$HexGeometry$convertRawHexagonPoints,
+																	_Utils_Tuple2(vox, voy),
+																	rawHexaPoints);
+																return _Utils_Tuple2(
+																	$author$project$Traveller$HexAddress$toKey(hexAddr),
+																	A2($elm$svg$Svg$Lazy$lazy, $author$project$Traveller$renderHexBorderStroke, hexapointsStr));
+															},
+															hexRange));
+													var keyedHexBackgrounds = A3(
+														$elm$svg$Svg$Keyed$node,
+														'g',
+														_List_Nil,
+														A2(
+															$elm$core$List$map,
+															function (_v19) {
+																var addr = _v19.a;
+																var _v20 = _v19.b;
+																var bg = _v20.a;
+																return _Utils_Tuple2(
+																	$author$project$Traveller$HexAddress$toKey(addr),
+																	bg);
+															},
+															hexSvgsWithHexAddress));
+													var ulSector = $author$project$Traveller$HexAddress$toSectorAddress(upperLeftHex);
+													var lrSector = $author$project$Traveller$HexAddress$toSectorAddress(lowerRightHex);
+													var sectorOutlines = A2(
+														$elm$core$List$concatMap,
+														function (sx) {
+															return A2(
+																$elm$core$List$map,
+																function (sy) {
+																	return A2(
+																		$author$project$Traveller$renderSectorOutline,
+																		hexSize,
+																		_Utils_update(
+																			ulSector,
+																			{sectorX: sx, sectorY: sy}));
+																},
+																A2(
+																	$elm$core$List$range,
+																	A2($elm$core$Basics$min, ulSector.sectorY, lrSector.sectorY),
+																	A2($elm$core$Basics$max, ulSector.sectorY, lrSector.sectorY)));
+														},
+														A2(
+															$elm$core$List$range,
+															A2($elm$core$Basics$min, ulSector.sectorX, lrSector.sectorX),
+															A2($elm$core$Basics$max, ulSector.sectorX, lrSector.sectorX)));
+													var hexEdgeNeighbours = function (_v18) {
+														var x = _v18.x;
+														var y = _v18.y;
+														return (!A2($elm$core$Basics$modBy, 2, x)) ? _List_fromArray(
+															[
+																{x: x + 1, y: y},
+																{x: x, y: y - 1},
+																{x: x - 1, y: y},
+																{x: x - 1, y: y + 1},
+																{x: x, y: y + 1},
+																{x: x + 1, y: y + 1}
+															]) : _List_fromArray(
+															[
+																{x: x + 1, y: y - 1},
+																{x: x, y: y - 1},
+																{x: x - 1, y: y - 1},
+																{x: x - 1, y: y},
+																{x: x, y: y + 1},
+																{x: x + 1, y: y}
+															]);
+													};
+													var renderBorderRegion = function (region) {
+														var _v10 = region.borderColour;
+														if (_v10.$ === 'Nothing') {
+															return $elm$core$Maybe$Nothing;
+														} else {
+															var colour = _v10.a;
+															var borderSet = $elm$core$Set$fromList(
+																A2($elm$core$List$map, $author$project$Traveller$HexAddress$toKey, region.hexes));
+															var edgesFor = function (hexAddr) {
+																var neighbours = hexEdgeNeighbours(hexAddr);
+																var _v14 = A2(
+																	$author$project$Traveller$HexGeometry$calcVisualOrigin,
+																	hexSize,
+																	{col: hexAddr.x, row: hexAddr.y});
+																var vox = _v14.a;
+																var voy = _v14.b;
+																var verts = A2(
+																	$elm$core$List$map,
+																	function (_v17) {
+																		var dx = _v17.a;
+																		var dy = _v17.b;
+																		return _Utils_Tuple2(vox + dx, voy + dy);
+																	},
+																	rawHexaPoints);
+																var vertPairs = function () {
+																	if (verts.b) {
+																		var first = verts.a;
+																		return A3(
+																			$elm$core$List$map2,
+																			$elm$core$Tuple$pair,
+																			verts,
+																			_Utils_ap(
+																				A2($elm$core$List$drop, 1, verts),
+																				_List_fromArray(
+																					[first])));
+																	} else {
+																		return _List_Nil;
+																	}
+																}();
+																return A2(
+																	$elm$core$List$filterMap,
+																	function (_v15) {
+																		var edgePair = _v15.a;
+																		var neighbour = _v15.b;
+																		return A2(
+																			$elm$core$Set$member,
+																			$author$project$Traveller$HexAddress$toKey(neighbour),
+																			borderSet) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(edgePair);
+																	},
+																	A3($elm$core$List$map2, $elm$core$Tuple$pair, vertPairs, neighbours));
+															};
+															var lines = A2($elm$core$List$concatMap, edgesFor, region.borderHexes);
+															return $elm$core$Maybe$Just(
+																A2(
+																	$elm$svg$Svg$g,
+																	_List_fromArray(
+																		[
+																			$elm$svg$Svg$Attributes$stroke(
+																			$noahzgordon$elm_color_extra$Color$Convert$colorToHex(colour)),
+																			$elm$svg$Svg$Attributes$strokeWidth('2.5'),
+																			$elm$svg$Svg$Attributes$strokeLinecap('round'),
+																			$elm$svg$Svg$Attributes$fill('none'),
+																			$elm$svg$Svg$Attributes$pointerEvents('none')
+																		]),
+																	A2(
+																		$elm$core$List$map,
+																		function (_v11) {
+																			var _v12 = _v11.a;
+																			var x1 = _v12.a;
+																			var y1 = _v12.b;
+																			var _v13 = _v11.b;
+																			var x2 = _v13.a;
+																			var y2 = _v13.b;
+																			return A2(
+																				$elm$svg$Svg$line,
+																				_List_fromArray(
+																					[
+																						$elm$svg$Svg$Attributes$x1(
+																						$elm$core$String$fromFloat(x1)),
+																						$elm$svg$Svg$Attributes$y1(
+																						$elm$core$String$fromFloat(y1)),
+																						$elm$svg$Svg$Attributes$x2(
+																						$elm$core$String$fromFloat(x2)),
+																						$elm$svg$Svg$Attributes$y2(
+																						$elm$core$String$fromFloat(y2))
+																					]),
+																				_List_Nil);
+																		},
+																		lines)));
+														}
+													};
+													var regionBorderLines = A2(
+														$elm$core$List$filterMap,
+														renderBorderRegion,
+														$elm$core$Dict$values(regions));
+													var visibleLinks = A2(
+														$elm$core$List$filter,
+														function (link) {
+															return isReferee || ((link.fromSurveyIndex >= 10) || ((link.toSurveyIndex >= 10) || link.known));
+														},
+														networkLinks);
+													var networkLinkLines = A2(
+														$elm$core$List$map,
+														function (link) {
+															var _v8 = A2(
+																$author$project$Traveller$HexGeometry$calcVisualOrigin,
+																hexSize,
+																{col: link.toX, row: link.toY});
+															var tx = _v8.a;
+															var ty = _v8.b;
+															var _v9 = A2(
+																$author$project$Traveller$HexGeometry$calcVisualOrigin,
+																hexSize,
+																{col: link.fromX, row: link.fromY});
+															var fx = _v9.a;
+															var fy = _v9.b;
+															return A2(
+																$elm$svg$Svg$line,
+																_List_fromArray(
+																	[
+																		$elm$svg$Svg$Attributes$x1(
+																		$elm$core$String$fromInt(fx)),
+																		$elm$svg$Svg$Attributes$y1(
+																		$elm$core$String$fromInt(fy)),
+																		$elm$svg$Svg$Attributes$x2(
+																		$elm$core$String$fromInt(tx)),
+																		$elm$svg$Svg$Attributes$y2(
+																		$elm$core$String$fromInt(ty)),
+																		$elm$svg$Svg$Attributes$stroke(link.colour),
+																		$elm$svg$Svg$Attributes$strokeWidth('4'),
+																		$elm$svg$Svg$Attributes$strokeOpacity('0.7'),
+																		$elm$svg$Svg$Attributes$strokeLinecap('round'),
+																		$elm$svg$Svg$Attributes$pointerEvents('none')
+																	]),
+																_List_Nil);
+														},
+														visibleLinks);
+													return _Utils_ap(
+														_List_fromArray(
+															[keyedHexBackgrounds]),
+														_Utils_ap(
+															_List_fromArray(
+																[keyedHexBorders]),
+															_Utils_ap(
+																_List_fromArray(
+																	[
+																		A2(
+																		$elm$svg$Svg$g,
+																		_List_fromArray(
+																			[
+																				$elm$svg$Svg$Attributes$pointerEvents('none')
+																			]),
+																		networkLinkLines)
+																	]),
+																_Utils_ap(
+																	_List_fromArray(
+																		[keyedHexForegrounds]),
+																	_Utils_ap(
+																		sectorOutlines,
+																		_Utils_ap(
+																			regionBorderLines,
+																			_Utils_ap(
+																				_List_fromArray(
+																					[singlePolyHex]),
+																				_Utils_ap(
+																					_List_fromArray(
+																						[
+																							A2(
+																							$elm$svg$Svg$g,
+																							_List_fromArray(
+																								[
+																									$elm$svg$Svg$Attributes$pointerEvents('none'),
+																									$elm$svg$Svg$Attributes$style('transform: translateZ(0)')
+																								]),
+																							systemLabels)
+																						]),
+																					labels))))))));
+												}(
+													function (hexSvgsWithHexAddress) {
+														var viewHexSystemLabels = function (hexAddr) {
+															var hexKey = $author$project$Traveller$HexAddress$toKey(hexAddr);
+															var _v5 = A2(
 																$author$project$Traveller$HexGeometry$calcVisualOrigin,
 																hexSize,
 																{col: hexAddr.x, row: hexAddr.y});
-															var vox = _v10.a;
-															var voy = _v10.b;
-															var verts = A2(
-																$elm$core$List$map,
-																function (_v13) {
-																	var dx = _v13.a;
-																	var dy = _v13.b;
-																	return _Utils_Tuple2(vox + dx, voy + dy);
-																},
-																rawHexaPoints);
-															var vertPairs = function () {
-																if (verts.b) {
-																	var first = verts.a;
-																	return A3(
-																		$elm$core$List$map2,
-																		$elm$core$Tuple$pair,
-																		verts,
-																		_Utils_ap(
-																			A2($elm$core$List$drop, 1, verts),
-																			_List_fromArray(
-																				[first])));
-																} else {
-																	return _List_Nil;
-																}
-															}();
-															return A2(
-																$elm$core$List$filterMap,
-																function (_v11) {
-																	var edgePair = _v11.a;
-																	var neighbour = _v11.b;
-																	return A2(
-																		$elm$core$Set$member,
-																		$author$project$Traveller$HexAddress$toKey(neighbour),
-																		borderSet) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(edgePair);
-																},
-																A3($elm$core$List$map2, $elm$core$Tuple$pair, vertPairs, neighbours));
+															var vox = _v5.a;
+															var voy = _v5.b;
+															var _v6 = A2($elm$core$Dict$get, hexKey, solarSystemDict);
+															if ((_v6.$ === 'Just') && (_v6.a.$ === 'LoadedSolarSystem')) {
+																var loadedSystem = _v6.a.a;
+																return $author$project$Traveller$renderHexSystemLabels(
+																	{hexAddrX: hexAddr.x, hexAddrY: hexAddr.y, hexColour: '', hexapointsStr: '', isReferee: isReferee, size: hexSize, starSystem: loadedSystem, vox: vox, voy: voy});
+															} else {
+																return $elm$svg$Svg$text('');
+															}
 														};
-														var lines = A2($elm$core$List$concatMap, edgesFor, region.borderHexes);
-														return $elm$core$Maybe$Just(
-															A2(
-																$elm$svg$Svg$g,
-																_List_fromArray(
-																	[
-																		$elm$svg$Svg$Attributes$stroke(
-																		$noahzgordon$elm_color_extra$Color$Convert$colorToHex(colour)),
-																		$elm$svg$Svg$Attributes$strokeWidth('2.5'),
-																		$elm$svg$Svg$Attributes$strokeLinecap('round'),
-																		$elm$svg$Svg$Attributes$fill('none'),
-																		$elm$svg$Svg$Attributes$pointerEvents('none')
-																	]),
+														var systemLabels = A2($elm$core$List$map, viewHexSystemLabels, hexRange);
+														var labelPos = function (hexAddr) {
+															return A2(
+																$author$project$Traveller$HexGeometry$calcVisualOrigin,
+																hexSize,
+																{col: hexAddr.x, row: hexAddr.y});
+														};
+														var renderRegionLabel = function (hexAddress) {
+															return A2(
+																$elm$core$Maybe$map,
+																function (name) {
+																	var _v4 = labelPos(hexAddress);
+																	var x = _v4.a;
+																	var y = _v4.b;
+																	return A4($elm$html$Html$Lazy$lazy3, $author$project$Traveller$regionLabel, x, y, name);
+																},
 																A2(
-																	$elm$core$List$map,
-																	function (_v7) {
-																		var _v8 = _v7.a;
-																		var x1 = _v8.a;
-																		var y1 = _v8.b;
-																		var _v9 = _v7.b;
-																		var x2 = _v9.a;
-																		var y2 = _v9.b;
-																		return A2(
-																			$elm$svg$Svg$line,
-																			_List_fromArray(
-																				[
-																					$elm$svg$Svg$Attributes$x1(
-																					$elm$core$String$fromFloat(x1)),
-																					$elm$svg$Svg$Attributes$y1(
-																					$elm$core$String$fromFloat(y1)),
-																					$elm$svg$Svg$Attributes$x2(
-																					$elm$core$String$fromFloat(x2)),
-																					$elm$svg$Svg$Attributes$y2(
-																					$elm$core$String$fromFloat(y2))
-																				]),
-																			_List_Nil);
-																	},
-																	lines)));
-													}
-												};
-												var regionBorderLines = A2(
-													$elm$core$List$filterMap,
-													renderBorderRegion,
-													$elm$core$Dict$values(regions));
-												return _Utils_ap(
-													_List_fromArray(
-														[keyedHexes]),
-													_Utils_ap(
-														sectorOutlines,
-														_Utils_ap(
-															regionBorderLines,
-															_Utils_ap(
-																_List_fromArray(
-																	[singlePolyHex]),
-																labels))));
-											}(
-												function (hexSvgsWithHexAddress) {
-													var labelPos = function (hexAddr) {
-														return A2(
-															$author$project$Traveller$HexGeometry$calcVisualOrigin,
-															hexSize,
-															{col: hexAddr.x, row: hexAddr.y});
-													};
-													var renderRegionLabel = function (hexAddress) {
-														return A2(
-															$elm$core$Maybe$map,
-															function (name) {
-																var _v4 = labelPos(hexAddress);
-																var x = _v4.a;
-																var y = _v4.b;
-																return A4($elm$html$Html$Lazy$lazy3, $author$project$Traveller$regionLabel, x, y, name);
-															},
-															A2(
-																$elm$core$Dict$get,
-																$author$project$Traveller$HexAddress$toKey(hexAddress),
-																regionLabels));
-													};
-													var labels = A2($elm$core$List$filterMap, renderRegionLabel, hexRange);
-													return _Utils_Tuple2(hexSvgsWithHexAddress, labels);
-												}(
-													A2($elm$core$List$map, viewSingleHex, hexRange))));
+																	$elm$core$Dict$get,
+																	$author$project$Traveller$HexAddress$toKey(hexAddress),
+																	regionLabels));
+														};
+														var labels = A2($elm$core$List$filterMap, renderRegionLabel, hexRange);
+														return _Utils_Tuple3(hexSvgsWithHexAddress, labels, systemLabels);
+													}(
+														A2($elm$core$List$map, viewSingleHex, hexRange))));
+										};
 									};
 								};
 							};
@@ -23475,7 +23816,7 @@ var $author$project$Traveller$viewHexMap = function (model) {
 			_Utils_Tuple2(model.hexRect, model.rawHexaPoints))(
 			{maxAcross: maxAcross, maxTall: maxTall, svgHeight: svgHeight, svgWidth: svgWidth})(
 			{hexColours: model.hexColours, regionLabels: model.regionLabels, regions: model.regions, solarSystemDict: model.solarSystems})(
-			_Utils_Tuple2(model.route, model.currentAddress))(model.hexScale)(model.selectedHex)(model.isReferee)(model.nativeSophontColour)(model.extinctSophontColour)(model.panOffset));
+			_Utils_Tuple2(model.route, model.currentAddress))(model.hexScale)(model.selectedHex)(model.isReferee)(model.nativeSophontColour)(model.extinctSophontColour)(model.panOffset)(model.networkLinks));
 };
 var $mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
 var $mdgriffith$elm_ui$Element$alignRight = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$Right);
@@ -25563,7 +25904,6 @@ var $author$project$Traveller$StarSystemMap$renderNodes = F3(
 				A2($author$project$Traveller$StarSystemMap$renderNode, msgs, selectedStellarObject),
 				nodes));
 	});
-var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
 var $elm$svg$Svg$feGaussianBlur = $elm$svg$Svg$trustedNode('feGaussianBlur');
 var $elm$svg$Svg$feMerge = $elm$svg$Svg$trustedNode('feMerge');
@@ -25572,7 +25912,6 @@ var $elm$svg$Svg$filter = $elm$svg$Svg$trustedNode('filter');
 var $elm$svg$Svg$Attributes$in_ = _VirtualDom_attribute('in');
 var $elm$svg$Svg$linearGradient = $elm$svg$Svg$trustedNode('linearGradient');
 var $elm$svg$Svg$Attributes$offset = _VirtualDom_attribute('offset');
-var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $elm$svg$Svg$Attributes$result = _VirtualDom_attribute('result');
 var $elm$svg$Svg$Attributes$stdDeviation = _VirtualDom_attribute('stdDeviation');
 var $elm$svg$Svg$stop = $elm$svg$Svg$trustedNode('stop');

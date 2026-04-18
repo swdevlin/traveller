@@ -115,6 +115,23 @@ module HasUwp
     end
   end
 
+  def world_trade_number
+    data&.dig('economics', 'worldTradeNumber')
+  end
+
+  def importance
+    data&.dig('economics', 'importance')
+  end
+
+  def per_capita_gwp
+    data&.dig('economics', 'perCaoitaGWP')
+  end
+
+  def total_gwp
+    data&.dig('economics', 'totalGWP')
+  end
+
+
   private
 
   def sync_uwp

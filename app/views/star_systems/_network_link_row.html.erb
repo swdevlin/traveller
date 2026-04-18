@@ -6,13 +6,16 @@
   <td>
     <span class='identifier ml-1'><%= other.parsec.hex_code %></span>
   </td>
-  <td class='text-right actions-cell'>
-    <%= button_to network_link_path(link),
-          method: :delete,
-          class: 'btn btn-sm btn-danger',
-          params: { star_system_id: star_system_id },
-          data: { turbo_confirm: 'Remove this link?' } do %>
-      <i class='fa-regular fa-trash'></i>
-    <% end %>
+  <td class='actions-cell'>
+    <div class='action-group'>
+      <%= button_to network_link_path(link),
+                    method: :delete,
+                    class: 'action danger',
+                    params: { star_system_id: star_system_id },
+                    data: { turbo_confirm: 'Remove this link?' } do %>
+        <i class='fa-regular fa-trash'></i>
+      <% end %>
+
+    </div>
   </td>
 </tr>

@@ -83,7 +83,7 @@ gem 'dry-schema'
 
 gem 'commonmarker'
 
-gem 'ultimate_turbo_modal'
+gem 'ultimate_turbo_modal', '~> 3.0'
 
 gem 'discard'
 

@@ -1,4 +1,2565 @@
-// @hotwired/stimulus@3.2.2 downloaded from https://ga.jspm.io/npm:@hotwired/stimulus@3.2.2/dist/stimulus.js
+// @hotwired/stimulus@3.2.2 downloaded from https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/dist/stimulus.js
 
-class EventListener{constructor(e,t,r){this.eventTarget=e;this.eventName=t;this.eventOptions=r;this.unorderedBindings=new Set}connect(){this.eventTarget.addEventListener(this.eventName,this,this.eventOptions)}disconnect(){this.eventTarget.removeEventListener(this.eventName,this,this.eventOptions)}bindingConnected(e){this.unorderedBindings.add(e)}bindingDisconnected(e){this.unorderedBindings.delete(e)}handleEvent(e){const t=extendEvent(e);for(const e of this.bindings){if(t.immediatePropagationStopped)break;e.handleEvent(t)}}hasBindings(){return this.unorderedBindings.size>0}get bindings(){return Array.from(this.unorderedBindings).sort(((e,t)=>{const r=e.index,s=t.index;return r<s?-1:r>s?1:0}))}}function extendEvent(e){if("immediatePropagationStopped"in e)return e;{const{stopImmediatePropagation:t}=e;return Object.assign(e,{immediatePropagationStopped:false,stopImmediatePropagation(){this.immediatePropagationStopped=true;t.call(this)}})}}class Dispatcher{constructor(e){this.application=e;this.eventListenerMaps=new Map;this.started=false}start(){if(!this.started){this.started=true;this.eventListeners.forEach((e=>e.connect()))}}stop(){if(this.started){this.started=false;this.eventListeners.forEach((e=>e.disconnect()))}}get eventListeners(){return Array.from(this.eventListenerMaps.values()).reduce(((e,t)=>e.concat(Array.from(t.values()))),[])}bindingConnected(e){this.fetchEventListenerForBinding(e).bindingConnected(e)}bindingDisconnected(e,t=false){this.fetchEventListenerForBinding(e).bindingDisconnected(e);t&&this.clearEventListenersForBinding(e)}handleError(e,t,r={}){this.application.handleError(e,`Error ${t}`,r)}clearEventListenersForBinding(e){const t=this.fetchEventListenerForBinding(e);if(!t.hasBindings()){t.disconnect();this.removeMappedEventListenerFor(e)}}removeMappedEventListenerFor(e){const{eventTarget:t,eventName:r,eventOptions:s}=e;const n=this.fetchEventListenerMapForEventTarget(t);const i=this.cacheKey(r,s);n.delete(i);0==n.size&&this.eventListenerMaps.delete(t)}fetchEventListenerForBinding(e){const{eventTarget:t,eventName:r,eventOptions:s}=e;return this.fetchEventListener(t,r,s)}fetchEventListener(e,t,r){const s=this.fetchEventListenerMapForEventTarget(e);const n=this.cacheKey(t,r);let i=s.get(n);if(!i){i=this.createEventListener(e,t,r);s.set(n,i)}return i}createEventListener(e,t,r){const s=new EventListener(e,t,r);this.started&&s.connect();return s}fetchEventListenerMapForEventTarget(e){let t=this.eventListenerMaps.get(e);if(!t){t=new Map;this.eventListenerMaps.set(e,t)}return t}cacheKey(e,t){const r=[e];Object.keys(t).sort().forEach((e=>{r.push(`${t[e]?"":"!"}${e}`)}));return r.join(":")}}const e={stop({event:e,value:t}){t&&e.stopPropagation();return true},prevent({event:e,value:t}){t&&e.preventDefault();return true},self({event:e,value:t,element:r}){return!t||r===e.target}};const t=/^(?:(?:([^.]+?)\+)?(.+?)(?:\.(.+?))?(?:@(window|document))?->)?(.+?)(?:#([^:]+?))(?::(.+))?$/;function parseActionDescriptorString(e){const r=e.trim();const s=r.match(t)||[];let n=s[2];let i=s[3];if(i&&!["keydown","keyup","keypress"].includes(n)){n+=`.${i}`;i=""}return{eventTarget:parseEventTarget(s[4]),eventName:n,eventOptions:s[7]?parseEventOptions(s[7]):{},identifier:s[5],methodName:s[6],keyFilter:s[1]||i}}function parseEventTarget(e){return"window"==e?window:"document"==e?document:void 0}function parseEventOptions(e){return e.split(":").reduce(((e,t)=>Object.assign(e,{[t.replace(/^!/,"")]:!/^!/.test(t)})),{})}function stringifyEventTarget(e){return e==window?"window":e==document?"document":void 0}function camelize(e){return e.replace(/(?:[_-])([a-z0-9])/g,((e,t)=>t.toUpperCase()))}function namespaceCamelize(e){return camelize(e.replace(/--/g,"-").replace(/__/g,"_"))}function capitalize(e){return e.charAt(0).toUpperCase()+e.slice(1)}function dasherize(e){return e.replace(/([A-Z])/g,((e,t)=>`-${t.toLowerCase()}`))}function tokenize(e){return e.match(/[^\s]+/g)||[]}function isSomething(e){return null!==e&&void 0!==e}function hasProperty(e,t){return Object.prototype.hasOwnProperty.call(e,t)}const r=["meta","ctrl","alt","shift"];class Action{constructor(e,t,r,s){this.element=e;this.index=t;this.eventTarget=r.eventTarget||e;this.eventName=r.eventName||getDefaultEventNameForElement(e)||error("missing event name");this.eventOptions=r.eventOptions||{};this.identifier=r.identifier||error("missing identifier");this.methodName=r.methodName||error("missing method name");this.keyFilter=r.keyFilter||"";this.schema=s}static forToken(e,t){return new this(e.element,e.index,parseActionDescriptorString(e.content),t)}toString(){const e=this.keyFilter?`.${this.keyFilter}`:"";const t=this.eventTargetName?`@${this.eventTargetName}`:"";return`${this.eventName}${e}${t}->${this.identifier}#${this.methodName}`}shouldIgnoreKeyboardEvent(e){if(!this.keyFilter)return false;const t=this.keyFilter.split("+");if(this.keyFilterDissatisfied(e,t))return true;const s=t.filter((e=>!r.includes(e)))[0];if(!s)return false;hasProperty(this.keyMappings,s)||error(`contains unknown key filter: ${this.keyFilter}`);return this.keyMappings[s].toLowerCase()!==e.key.toLowerCase()}shouldIgnoreMouseEvent(e){if(!this.keyFilter)return false;const t=[this.keyFilter];return!!this.keyFilterDissatisfied(e,t)}get params(){const e={};const t=new RegExp(`^data-${this.identifier}-(.+)-param$`,"i");for(const{name:r,value:s}of Array.from(this.element.attributes)){const n=r.match(t);const i=n&&n[1];i&&(e[camelize(i)]=typecast(s))}return e}get eventTargetName(){return stringifyEventTarget(this.eventTarget)}get keyMappings(){return this.schema.keyMappings}keyFilterDissatisfied(e,t){const[s,n,i,o]=r.map((e=>t.includes(e)));return e.metaKey!==s||e.ctrlKey!==n||e.altKey!==i||e.shiftKey!==o}}const s={a:()=>"click",button:()=>"click",form:()=>"submit",details:()=>"toggle",input:e=>"submit"==e.getAttribute("type")?"click":"input",select:()=>"change",textarea:()=>"input"};function getDefaultEventNameForElement(e){const t=e.tagName.toLowerCase();if(t in s)return s[t](e)}function error(e){throw new Error(e)}function typecast(e){try{return JSON.parse(e)}catch(t){return e}}class Binding{constructor(e,t){this.context=e;this.action=t}get index(){return this.action.index}get eventTarget(){return this.action.eventTarget}get eventOptions(){return this.action.eventOptions}get identifier(){return this.context.identifier}handleEvent(e){const t=this.prepareActionEvent(e);this.willBeInvokedByEvent(e)&&this.applyEventModifiers(t)&&this.invokeWithEvent(t)}get eventName(){return this.action.eventName}get method(){const e=this.controller[this.methodName];if("function"==typeof e)return e;throw new Error(`Action "${this.action}" references undefined method "${this.methodName}"`)}applyEventModifiers(e){const{element:t}=this.action;const{actionDescriptorFilters:r}=this.context.application;const{controller:s}=this.context;let n=true;for(const[i,o]of Object.entries(this.eventOptions))if(i in r){const c=r[i];n=n&&c({name:i,value:o,event:e,element:t,controller:s})}return n}prepareActionEvent(e){return Object.assign(e,{params:this.action.params})}invokeWithEvent(e){const{target:t,currentTarget:r}=e;try{this.method.call(this.controller,e);this.context.logDebugActivity(this.methodName,{event:e,target:t,currentTarget:r,action:this.methodName})}catch(t){const{identifier:r,controller:s,element:n,index:i}=this;const o={identifier:r,controller:s,element:n,index:i,event:e};this.context.handleError(t,`invoking action "${this.action}"`,o)}}willBeInvokedByEvent(e){const t=e.target;return!(e instanceof KeyboardEvent&&this.action.shouldIgnoreKeyboardEvent(e))&&(!(e instanceof MouseEvent&&this.action.shouldIgnoreMouseEvent(e))&&(this.element===t||(t instanceof Element&&this.element.contains(t)?this.scope.containsElement(t):this.scope.containsElement(this.action.element))))}get controller(){return this.context.controller}get methodName(){return this.action.methodName}get element(){return this.scope.element}get scope(){return this.context.scope}}class ElementObserver{constructor(e,t){this.mutationObserverInit={attributes:true,childList:true,subtree:true};this.element=e;this.started=false;this.delegate=t;this.elements=new Set;this.mutationObserver=new MutationObserver((e=>this.processMutations(e)))}start(){if(!this.started){this.started=true;this.mutationObserver.observe(this.element,this.mutationObserverInit);this.refresh()}}pause(e){if(this.started){this.mutationObserver.disconnect();this.started=false}e();if(!this.started){this.mutationObserver.observe(this.element,this.mutationObserverInit);this.started=true}}stop(){if(this.started){this.mutationObserver.takeRecords();this.mutationObserver.disconnect();this.started=false}}refresh(){if(this.started){const e=new Set(this.matchElementsInTree());for(const t of Array.from(this.elements))e.has(t)||this.removeElement(t);for(const t of Array.from(e))this.addElement(t)}}processMutations(e){if(this.started)for(const t of e)this.processMutation(t)}processMutation(e){if("attributes"==e.type)this.processAttributeChange(e.target,e.attributeName);else if("childList"==e.type){this.processRemovedNodes(e.removedNodes);this.processAddedNodes(e.addedNodes)}}processAttributeChange(e,t){this.elements.has(e)?this.delegate.elementAttributeChanged&&this.matchElement(e)?this.delegate.elementAttributeChanged(e,t):this.removeElement(e):this.matchElement(e)&&this.addElement(e)}processRemovedNodes(e){for(const t of Array.from(e)){const e=this.elementFromNode(t);e&&this.processTree(e,this.removeElement)}}processAddedNodes(e){for(const t of Array.from(e)){const e=this.elementFromNode(t);e&&this.elementIsActive(e)&&this.processTree(e,this.addElement)}}matchElement(e){return this.delegate.matchElement(e)}matchElementsInTree(e=this.element){return this.delegate.matchElementsInTree(e)}processTree(e,t){for(const r of this.matchElementsInTree(e))t.call(this,r)}elementFromNode(e){if(e.nodeType==Node.ELEMENT_NODE)return e}elementIsActive(e){return e.isConnected==this.element.isConnected&&this.element.contains(e)}addElement(e){if(!this.elements.has(e)&&this.elementIsActive(e)){this.elements.add(e);this.delegate.elementMatched&&this.delegate.elementMatched(e)}}removeElement(e){if(this.elements.has(e)){this.elements.delete(e);this.delegate.elementUnmatched&&this.delegate.elementUnmatched(e)}}}class AttributeObserver{constructor(e,t,r){this.attributeName=t;this.delegate=r;this.elementObserver=new ElementObserver(e,this)}get element(){return this.elementObserver.element}get selector(){return`[${this.attributeName}]`}start(){this.elementObserver.start()}pause(e){this.elementObserver.pause(e)}stop(){this.elementObserver.stop()}refresh(){this.elementObserver.refresh()}get started(){return this.elementObserver.started}matchElement(e){return e.hasAttribute(this.attributeName)}matchElementsInTree(e){const t=this.matchElement(e)?[e]:[];const r=Array.from(e.querySelectorAll(this.selector));return t.concat(r)}elementMatched(e){this.delegate.elementMatchedAttribute&&this.delegate.elementMatchedAttribute(e,this.attributeName)}elementUnmatched(e){this.delegate.elementUnmatchedAttribute&&this.delegate.elementUnmatchedAttribute(e,this.attributeName)}elementAttributeChanged(e,t){this.delegate.elementAttributeValueChanged&&this.attributeName==t&&this.delegate.elementAttributeValueChanged(e,t)}}function add(e,t,r){fetch(e,t).add(r)}function del(e,t,r){fetch(e,t).delete(r);prune(e,t)}function fetch(e,t){let r=e.get(t);if(!r){r=new Set;e.set(t,r)}return r}function prune(e,t){const r=e.get(t);null!=r&&0==r.size&&e.delete(t)}class Multimap{constructor(){this.valuesByKey=new Map}get keys(){return Array.from(this.valuesByKey.keys())}get values(){const e=Array.from(this.valuesByKey.values());return e.reduce(((e,t)=>e.concat(Array.from(t))),[])}get size(){const e=Array.from(this.valuesByKey.values());return e.reduce(((e,t)=>e+t.size),0)}add(e,t){add(this.valuesByKey,e,t)}delete(e,t){del(this.valuesByKey,e,t)}has(e,t){const r=this.valuesByKey.get(e);return null!=r&&r.has(t)}hasKey(e){return this.valuesByKey.has(e)}hasValue(e){const t=Array.from(this.valuesByKey.values());return t.some((t=>t.has(e)))}getValuesForKey(e){const t=this.valuesByKey.get(e);return t?Array.from(t):[]}getKeysForValue(e){return Array.from(this.valuesByKey).filter((([t,r])=>r.has(e))).map((([e,t])=>e))}}class IndexedMultimap extends Multimap{constructor(){super();this.keysByValue=new Map}get values(){return Array.from(this.keysByValue.keys())}add(e,t){super.add(e,t);add(this.keysByValue,t,e)}delete(e,t){super.delete(e,t);del(this.keysByValue,t,e)}hasValue(e){return this.keysByValue.has(e)}getKeysForValue(e){const t=this.keysByValue.get(e);return t?Array.from(t):[]}}class SelectorObserver{constructor(e,t,r,s){this._selector=t;this.details=s;this.elementObserver=new ElementObserver(e,this);this.delegate=r;this.matchesByElement=new Multimap}get started(){return this.elementObserver.started}get selector(){return this._selector}set selector(e){this._selector=e;this.refresh()}start(){this.elementObserver.start()}pause(e){this.elementObserver.pause(e)}stop(){this.elementObserver.stop()}refresh(){this.elementObserver.refresh()}get element(){return this.elementObserver.element}matchElement(e){const{selector:t}=this;if(t){const r=e.matches(t);return this.delegate.selectorMatchElement?r&&this.delegate.selectorMatchElement(e,this.details):r}return false}matchElementsInTree(e){const{selector:t}=this;if(t){const r=this.matchElement(e)?[e]:[];const s=Array.from(e.querySelectorAll(t)).filter((e=>this.matchElement(e)));return r.concat(s)}return[]}elementMatched(e){const{selector:t}=this;t&&this.selectorMatched(e,t)}elementUnmatched(e){const t=this.matchesByElement.getKeysForValue(e);for(const r of t)this.selectorUnmatched(e,r)}elementAttributeChanged(e,t){const{selector:r}=this;if(r){const t=this.matchElement(e);const s=this.matchesByElement.has(r,e);t&&!s?this.selectorMatched(e,r):!t&&s&&this.selectorUnmatched(e,r)}}selectorMatched(e,t){this.delegate.selectorMatched(e,t,this.details);this.matchesByElement.add(t,e)}selectorUnmatched(e,t){this.delegate.selectorUnmatched(e,t,this.details);this.matchesByElement.delete(t,e)}}class StringMapObserver{constructor(e,t){this.element=e;this.delegate=t;this.started=false;this.stringMap=new Map;this.mutationObserver=new MutationObserver((e=>this.processMutations(e)))}start(){if(!this.started){this.started=true;this.mutationObserver.observe(this.element,{attributes:true,attributeOldValue:true});this.refresh()}}stop(){if(this.started){this.mutationObserver.takeRecords();this.mutationObserver.disconnect();this.started=false}}refresh(){if(this.started)for(const e of this.knownAttributeNames)this.refreshAttribute(e,null)}processMutations(e){if(this.started)for(const t of e)this.processMutation(t)}processMutation(e){const t=e.attributeName;t&&this.refreshAttribute(t,e.oldValue)}refreshAttribute(e,t){const r=this.delegate.getStringMapKeyForAttribute(e);if(null!=r){this.stringMap.has(e)||this.stringMapKeyAdded(r,e);const s=this.element.getAttribute(e);this.stringMap.get(e)!=s&&this.stringMapValueChanged(s,r,t);if(null==s){const t=this.stringMap.get(e);this.stringMap.delete(e);t&&this.stringMapKeyRemoved(r,e,t)}else this.stringMap.set(e,s)}}stringMapKeyAdded(e,t){this.delegate.stringMapKeyAdded&&this.delegate.stringMapKeyAdded(e,t)}stringMapValueChanged(e,t,r){this.delegate.stringMapValueChanged&&this.delegate.stringMapValueChanged(e,t,r)}stringMapKeyRemoved(e,t,r){this.delegate.stringMapKeyRemoved&&this.delegate.stringMapKeyRemoved(e,t,r)}get knownAttributeNames(){return Array.from(new Set(this.currentAttributeNames.concat(this.recordedAttributeNames)))}get currentAttributeNames(){return Array.from(this.element.attributes).map((e=>e.name))}get recordedAttributeNames(){return Array.from(this.stringMap.keys())}}class TokenListObserver{constructor(e,t,r){this.attributeObserver=new AttributeObserver(e,t,this);this.delegate=r;this.tokensByElement=new Multimap}get started(){return this.attributeObserver.started}start(){this.attributeObserver.start()}pause(e){this.attributeObserver.pause(e)}stop(){this.attributeObserver.stop()}refresh(){this.attributeObserver.refresh()}get element(){return this.attributeObserver.element}get attributeName(){return this.attributeObserver.attributeName}elementMatchedAttribute(e){this.tokensMatched(this.readTokensForElement(e))}elementAttributeValueChanged(e){const[t,r]=this.refreshTokensForElement(e);this.tokensUnmatched(t);this.tokensMatched(r)}elementUnmatchedAttribute(e){this.tokensUnmatched(this.tokensByElement.getValuesForKey(e))}tokensMatched(e){e.forEach((e=>this.tokenMatched(e)))}tokensUnmatched(e){e.forEach((e=>this.tokenUnmatched(e)))}tokenMatched(e){this.delegate.tokenMatched(e);this.tokensByElement.add(e.element,e)}tokenUnmatched(e){this.delegate.tokenUnmatched(e);this.tokensByElement.delete(e.element,e)}refreshTokensForElement(e){const t=this.tokensByElement.getValuesForKey(e);const r=this.readTokensForElement(e);const s=zip(t,r).findIndex((([e,t])=>!tokensAreEqual(e,t)));return-1==s?[[],[]]:[t.slice(s),r.slice(s)]}readTokensForElement(e){const t=this.attributeName;const r=e.getAttribute(t)||"";return parseTokenString(r,e,t)}}function parseTokenString(e,t,r){return e.trim().split(/\s+/).filter((e=>e.length)).map(((e,s)=>({element:t,attributeName:r,content:e,index:s})))}function zip(e,t){const r=Math.max(e.length,t.length);return Array.from({length:r},((r,s)=>[e[s],t[s]]))}function tokensAreEqual(e,t){return e&&t&&e.index==t.index&&e.content==t.content}class ValueListObserver{constructor(e,t,r){this.tokenListObserver=new TokenListObserver(e,t,this);this.delegate=r;this.parseResultsByToken=new WeakMap;this.valuesByTokenByElement=new WeakMap}get started(){return this.tokenListObserver.started}start(){this.tokenListObserver.start()}stop(){this.tokenListObserver.stop()}refresh(){this.tokenListObserver.refresh()}get element(){return this.tokenListObserver.element}get attributeName(){return this.tokenListObserver.attributeName}tokenMatched(e){const{element:t}=e;const{value:r}=this.fetchParseResultForToken(e);if(r){this.fetchValuesByTokenForElement(t).set(e,r);this.delegate.elementMatchedValue(t,r)}}tokenUnmatched(e){const{element:t}=e;const{value:r}=this.fetchParseResultForToken(e);if(r){this.fetchValuesByTokenForElement(t).delete(e);this.delegate.elementUnmatchedValue(t,r)}}fetchParseResultForToken(e){let t=this.parseResultsByToken.get(e);if(!t){t=this.parseToken(e);this.parseResultsByToken.set(e,t)}return t}fetchValuesByTokenForElement(e){let t=this.valuesByTokenByElement.get(e);if(!t){t=new Map;this.valuesByTokenByElement.set(e,t)}return t}parseToken(e){try{const t=this.delegate.parseValueForToken(e);return{value:t}}catch(e){return{error:e}}}}class BindingObserver{constructor(e,t){this.context=e;this.delegate=t;this.bindingsByAction=new Map}start(){if(!this.valueListObserver){this.valueListObserver=new ValueListObserver(this.element,this.actionAttribute,this);this.valueListObserver.start()}}stop(){if(this.valueListObserver){this.valueListObserver.stop();delete this.valueListObserver;this.disconnectAllActions()}}get element(){return this.context.element}get identifier(){return this.context.identifier}get actionAttribute(){return this.schema.actionAttribute}get schema(){return this.context.schema}get bindings(){return Array.from(this.bindingsByAction.values())}connectAction(e){const t=new Binding(this.context,e);this.bindingsByAction.set(e,t);this.delegate.bindingConnected(t)}disconnectAction(e){const t=this.bindingsByAction.get(e);if(t){this.bindingsByAction.delete(e);this.delegate.bindingDisconnected(t)}}disconnectAllActions(){this.bindings.forEach((e=>this.delegate.bindingDisconnected(e,true)));this.bindingsByAction.clear()}parseValueForToken(e){const t=Action.forToken(e,this.schema);if(t.identifier==this.identifier)return t}elementMatchedValue(e,t){this.connectAction(t)}elementUnmatchedValue(e,t){this.disconnectAction(t)}}class ValueObserver{constructor(e,t){this.context=e;this.receiver=t;this.stringMapObserver=new StringMapObserver(this.element,this);this.valueDescriptorMap=this.controller.valueDescriptorMap}start(){this.stringMapObserver.start();this.invokeChangedCallbacksForDefaultValues()}stop(){this.stringMapObserver.stop()}get element(){return this.context.element}get controller(){return this.context.controller}getStringMapKeyForAttribute(e){if(e in this.valueDescriptorMap)return this.valueDescriptorMap[e].name}stringMapKeyAdded(e,t){const r=this.valueDescriptorMap[t];this.hasValue(e)||this.invokeChangedCallback(e,r.writer(this.receiver[e]),r.writer(r.defaultValue))}stringMapValueChanged(e,t,r){const s=this.valueDescriptorNameMap[t];if(null!==e){null===r&&(r=s.writer(s.defaultValue));this.invokeChangedCallback(t,e,r)}}stringMapKeyRemoved(e,t,r){const s=this.valueDescriptorNameMap[e];this.hasValue(e)?this.invokeChangedCallback(e,s.writer(this.receiver[e]),r):this.invokeChangedCallback(e,s.writer(s.defaultValue),r)}invokeChangedCallbacksForDefaultValues(){for(const{key:e,name:t,defaultValue:r,writer:s}of this.valueDescriptors)void 0==r||this.controller.data.has(e)||this.invokeChangedCallback(t,s(r),void 0)}invokeChangedCallback(e,t,r){const s=`${e}Changed`;const n=this.receiver[s];if("function"==typeof n){const s=this.valueDescriptorNameMap[e];try{const e=s.reader(t);let i=r;r&&(i=s.reader(r));n.call(this.receiver,e,i)}catch(e){e instanceof TypeError&&(e.message=`Stimulus Value "${this.context.identifier}.${s.name}" - ${e.message}`);throw e}}}get valueDescriptors(){const{valueDescriptorMap:e}=this;return Object.keys(e).map((t=>e[t]))}get valueDescriptorNameMap(){const e={};Object.keys(this.valueDescriptorMap).forEach((t=>{const r=this.valueDescriptorMap[t];e[r.name]=r}));return e}hasValue(e){const t=this.valueDescriptorNameMap[e];const r=`has${capitalize(t.name)}`;return this.receiver[r]}}class TargetObserver{constructor(e,t){this.context=e;this.delegate=t;this.targetsByName=new Multimap}start(){if(!this.tokenListObserver){this.tokenListObserver=new TokenListObserver(this.element,this.attributeName,this);this.tokenListObserver.start()}}stop(){if(this.tokenListObserver){this.disconnectAllTargets();this.tokenListObserver.stop();delete this.tokenListObserver}}tokenMatched({element:e,content:t}){this.scope.containsElement(e)&&this.connectTarget(e,t)}tokenUnmatched({element:e,content:t}){this.disconnectTarget(e,t)}connectTarget(e,t){var r;if(!this.targetsByName.has(t,e)){this.targetsByName.add(t,e);null===(r=this.tokenListObserver)||void 0===r?void 0:r.pause((()=>this.delegate.targetConnected(e,t)))}}disconnectTarget(e,t){var r;if(this.targetsByName.has(t,e)){this.targetsByName.delete(t,e);null===(r=this.tokenListObserver)||void 0===r?void 0:r.pause((()=>this.delegate.targetDisconnected(e,t)))}}disconnectAllTargets(){for(const e of this.targetsByName.keys)for(const t of this.targetsByName.getValuesForKey(e))this.disconnectTarget(t,e)}get attributeName(){return`data-${this.context.identifier}-target`}get element(){return this.context.element}get scope(){return this.context.scope}}function readInheritableStaticArrayValues(e,t){const r=getAncestorsForConstructor(e);return Array.from(r.reduce(((e,r)=>{getOwnStaticArrayValues(r,t).forEach((t=>e.add(t)));return e}),new Set))}function readInheritableStaticObjectPairs(e,t){const r=getAncestorsForConstructor(e);return r.reduce(((e,r)=>{e.push(...getOwnStaticObjectPairs(r,t));return e}),[])}function getAncestorsForConstructor(e){const t=[];while(e){t.push(e);e=Object.getPrototypeOf(e)}return t.reverse()}function getOwnStaticArrayValues(e,t){const r=e[t];return Array.isArray(r)?r:[]}function getOwnStaticObjectPairs(e,t){const r=e[t];return r?Object.keys(r).map((e=>[e,r[e]])):[]}class OutletObserver{constructor(e,t){this.started=false;this.context=e;this.delegate=t;this.outletsByName=new Multimap;this.outletElementsByName=new Multimap;this.selectorObserverMap=new Map;this.attributeObserverMap=new Map}start(){if(!this.started){this.outletDefinitions.forEach((e=>{this.setupSelectorObserverForOutlet(e);this.setupAttributeObserverForOutlet(e)}));this.started=true;this.dependentContexts.forEach((e=>e.refresh()))}}refresh(){this.selectorObserverMap.forEach((e=>e.refresh()));this.attributeObserverMap.forEach((e=>e.refresh()))}stop(){if(this.started){this.started=false;this.disconnectAllOutlets();this.stopSelectorObservers();this.stopAttributeObservers()}}stopSelectorObservers(){if(this.selectorObserverMap.size>0){this.selectorObserverMap.forEach((e=>e.stop()));this.selectorObserverMap.clear()}}stopAttributeObservers(){if(this.attributeObserverMap.size>0){this.attributeObserverMap.forEach((e=>e.stop()));this.attributeObserverMap.clear()}}selectorMatched(e,t,{outletName:r}){const s=this.getOutlet(e,r);s&&this.connectOutlet(s,e,r)}selectorUnmatched(e,t,{outletName:r}){const s=this.getOutletFromMap(e,r);s&&this.disconnectOutlet(s,e,r)}selectorMatchElement(e,{outletName:t}){const r=this.selector(t);const s=this.hasOutlet(e,t);const n=e.matches(`[${this.schema.controllerAttribute}~=${t}]`);return!!r&&(s&&n&&e.matches(r))}elementMatchedAttribute(e,t){const r=this.getOutletNameFromOutletAttributeName(t);r&&this.updateSelectorObserverForOutlet(r)}elementAttributeValueChanged(e,t){const r=this.getOutletNameFromOutletAttributeName(t);r&&this.updateSelectorObserverForOutlet(r)}elementUnmatchedAttribute(e,t){const r=this.getOutletNameFromOutletAttributeName(t);r&&this.updateSelectorObserverForOutlet(r)}connectOutlet(e,t,r){var s;if(!this.outletElementsByName.has(r,t)){this.outletsByName.add(r,e);this.outletElementsByName.add(r,t);null===(s=this.selectorObserverMap.get(r))||void 0===s?void 0:s.pause((()=>this.delegate.outletConnected(e,t,r)))}}disconnectOutlet(e,t,r){var s;if(this.outletElementsByName.has(r,t)){this.outletsByName.delete(r,e);this.outletElementsByName.delete(r,t);null===(s=this.selectorObserverMap.get(r))||void 0===s?void 0:s.pause((()=>this.delegate.outletDisconnected(e,t,r)))}}disconnectAllOutlets(){for(const e of this.outletElementsByName.keys)for(const t of this.outletElementsByName.getValuesForKey(e))for(const r of this.outletsByName.getValuesForKey(e))this.disconnectOutlet(r,t,e)}updateSelectorObserverForOutlet(e){const t=this.selectorObserverMap.get(e);t&&(t.selector=this.selector(e))}setupSelectorObserverForOutlet(e){const t=this.selector(e);const r=new SelectorObserver(document.body,t,this,{outletName:e});this.selectorObserverMap.set(e,r);r.start()}setupAttributeObserverForOutlet(e){const t=this.attributeNameForOutletName(e);const r=new AttributeObserver(this.scope.element,t,this);this.attributeObserverMap.set(e,r);r.start()}selector(e){return this.scope.outlets.getSelectorForOutletName(e)}attributeNameForOutletName(e){return this.scope.schema.outletAttributeForScope(this.identifier,e)}getOutletNameFromOutletAttributeName(e){return this.outletDefinitions.find((t=>this.attributeNameForOutletName(t)===e))}get outletDependencies(){const e=new Multimap;this.router.modules.forEach((t=>{const r=t.definition.controllerConstructor;const s=readInheritableStaticArrayValues(r,"outlets");s.forEach((r=>e.add(r,t.identifier)))}));return e}get outletDefinitions(){return this.outletDependencies.getKeysForValue(this.identifier)}get dependentControllerIdentifiers(){return this.outletDependencies.getValuesForKey(this.identifier)}get dependentContexts(){const e=this.dependentControllerIdentifiers;return this.router.contexts.filter((t=>e.includes(t.identifier)))}hasOutlet(e,t){return!!this.getOutlet(e,t)||!!this.getOutletFromMap(e,t)}getOutlet(e,t){return this.application.getControllerForElementAndIdentifier(e,t)}getOutletFromMap(e,t){return this.outletsByName.getValuesForKey(t).find((t=>t.element===e))}get scope(){return this.context.scope}get schema(){return this.context.schema}get identifier(){return this.context.identifier}get application(){return this.context.application}get router(){return this.application.router}}class Context{constructor(e,t){this.logDebugActivity=(e,t={})=>{const{identifier:r,controller:s,element:n}=this;t=Object.assign({identifier:r,controller:s,element:n},t);this.application.logDebugActivity(this.identifier,e,t)};this.module=e;this.scope=t;this.controller=new e.controllerConstructor(this);this.bindingObserver=new BindingObserver(this,this.dispatcher);this.valueObserver=new ValueObserver(this,this.controller);this.targetObserver=new TargetObserver(this,this);this.outletObserver=new OutletObserver(this,this);try{this.controller.initialize();this.logDebugActivity("initialize")}catch(e){this.handleError(e,"initializing controller")}}connect(){this.bindingObserver.start();this.valueObserver.start();this.targetObserver.start();this.outletObserver.start();try{this.controller.connect();this.logDebugActivity("connect")}catch(e){this.handleError(e,"connecting controller")}}refresh(){this.outletObserver.refresh()}disconnect(){try{this.controller.disconnect();this.logDebugActivity("disconnect")}catch(e){this.handleError(e,"disconnecting controller")}this.outletObserver.stop();this.targetObserver.stop();this.valueObserver.stop();this.bindingObserver.stop()}get application(){return this.module.application}get identifier(){return this.module.identifier}get schema(){return this.application.schema}get dispatcher(){return this.application.dispatcher}get element(){return this.scope.element}get parentElement(){return this.element.parentElement}handleError(e,t,r={}){const{identifier:s,controller:n,element:i}=this;r=Object.assign({identifier:s,controller:n,element:i},r);this.application.handleError(e,`Error ${t}`,r)}targetConnected(e,t){this.invokeControllerMethod(`${t}TargetConnected`,e)}targetDisconnected(e,t){this.invokeControllerMethod(`${t}TargetDisconnected`,e)}outletConnected(e,t,r){this.invokeControllerMethod(`${namespaceCamelize(r)}OutletConnected`,e,t)}outletDisconnected(e,t,r){this.invokeControllerMethod(`${namespaceCamelize(r)}OutletDisconnected`,e,t)}invokeControllerMethod(e,...t){const r=this.controller;"function"==typeof r[e]&&r[e](...t)}}function bless(e){return shadow(e,getBlessedProperties(e))}function shadow(e,t){const r=i(e);const s=getShadowProperties(e.prototype,t);Object.defineProperties(r.prototype,s);return r}function getBlessedProperties(e){const t=readInheritableStaticArrayValues(e,"blessings");return t.reduce(((t,r)=>{const s=r(e);for(const e in s){const r=t[e]||{};t[e]=Object.assign(r,s[e])}return t}),{})}function getShadowProperties(e,t){return n(t).reduce(((r,s)=>{const n=getShadowedDescriptor(e,t,s);n&&Object.assign(r,{[s]:n});return r}),{})}function getShadowedDescriptor(e,t,r){const s=Object.getOwnPropertyDescriptor(e,r);const n=s&&"value"in s;if(!n){const e=Object.getOwnPropertyDescriptor(t,r).value;if(s){e.get=s.get||e.get;e.set=s.set||e.set}return e}}const n=(()=>"function"==typeof Object.getOwnPropertySymbols?e=>[...Object.getOwnPropertyNames(e),...Object.getOwnPropertySymbols(e)]:Object.getOwnPropertyNames)();const i=(()=>{function extendWithReflect(e){function extended(){return Reflect.construct(e,arguments,new.target)}extended.prototype=Object.create(e.prototype,{constructor:{value:extended}});Reflect.setPrototypeOf(extended,e);return extended}function testReflectExtension(){const a=function(){this.a.call(this)};const e=extendWithReflect(a);e.prototype.a=function(){};return new e}try{testReflectExtension();return extendWithReflect}catch(e){return e=>class extended extends e{}}})();function blessDefinition(e){return{identifier:e.identifier,controllerConstructor:bless(e.controllerConstructor)}}class Module{constructor(e,t){this.application=e;this.definition=blessDefinition(t);this.contextsByScope=new WeakMap;this.connectedContexts=new Set}get identifier(){return this.definition.identifier}get controllerConstructor(){return this.definition.controllerConstructor}get contexts(){return Array.from(this.connectedContexts)}connectContextForScope(e){const t=this.fetchContextForScope(e);this.connectedContexts.add(t);t.connect()}disconnectContextForScope(e){const t=this.contextsByScope.get(e);if(t){this.connectedContexts.delete(t);t.disconnect()}}fetchContextForScope(e){let t=this.contextsByScope.get(e);if(!t){t=new Context(this,e);this.contextsByScope.set(e,t)}return t}}class ClassMap{constructor(e){this.scope=e}has(e){return this.data.has(this.getDataKey(e))}get(e){return this.getAll(e)[0]}getAll(e){const t=this.data.get(this.getDataKey(e))||"";return tokenize(t)}getAttributeName(e){return this.data.getAttributeNameForKey(this.getDataKey(e))}getDataKey(e){return`${e}-class`}get data(){return this.scope.data}}class DataMap{constructor(e){this.scope=e}get element(){return this.scope.element}get identifier(){return this.scope.identifier}get(e){const t=this.getAttributeNameForKey(e);return this.element.getAttribute(t)}set(e,t){const r=this.getAttributeNameForKey(e);this.element.setAttribute(r,t);return this.get(e)}has(e){const t=this.getAttributeNameForKey(e);return this.element.hasAttribute(t)}delete(e){if(this.has(e)){const t=this.getAttributeNameForKey(e);this.element.removeAttribute(t);return true}return false}getAttributeNameForKey(e){return`data-${this.identifier}-${dasherize(e)}`}}class Guide{constructor(e){this.warnedKeysByObject=new WeakMap;this.logger=e}warn(e,t,r){let s=this.warnedKeysByObject.get(e);if(!s){s=new Set;this.warnedKeysByObject.set(e,s)}if(!s.has(t)){s.add(t);this.logger.warn(r,e)}}}function attributeValueContainsToken(e,t){return`[${e}~="${t}"]`}class TargetSet{constructor(e){this.scope=e}get element(){return this.scope.element}get identifier(){return this.scope.identifier}get schema(){return this.scope.schema}has(e){return null!=this.find(e)}find(...e){return e.reduce(((e,t)=>e||this.findTarget(t)||this.findLegacyTarget(t)),void 0)}findAll(...e){return e.reduce(((e,t)=>[...e,...this.findAllTargets(t),...this.findAllLegacyTargets(t)]),[])}findTarget(e){const t=this.getSelectorForTargetName(e);return this.scope.findElement(t)}findAllTargets(e){const t=this.getSelectorForTargetName(e);return this.scope.findAllElements(t)}getSelectorForTargetName(e){const t=this.schema.targetAttributeForScope(this.identifier);return attributeValueContainsToken(t,e)}findLegacyTarget(e){const t=this.getLegacySelectorForTargetName(e);return this.deprecate(this.scope.findElement(t),e)}findAllLegacyTargets(e){const t=this.getLegacySelectorForTargetName(e);return this.scope.findAllElements(t).map((t=>this.deprecate(t,e)))}getLegacySelectorForTargetName(e){const t=`${this.identifier}.${e}`;return attributeValueContainsToken(this.schema.targetAttribute,t)}deprecate(e,t){if(e){const{identifier:r}=this;const s=this.schema.targetAttribute;const n=this.schema.targetAttributeForScope(r);this.guide.warn(e,`target:${t}`,`Please replace ${s}="${r}.${t}" with ${n}="${t}". The ${s} attribute is deprecated and will be removed in a future version of Stimulus.`)}return e}get guide(){return this.scope.guide}}class OutletSet{constructor(e,t){this.scope=e;this.controllerElement=t}get element(){return this.scope.element}get identifier(){return this.scope.identifier}get schema(){return this.scope.schema}has(e){return null!=this.find(e)}find(...e){return e.reduce(((e,t)=>e||this.findOutlet(t)),void 0)}findAll(...e){return e.reduce(((e,t)=>[...e,...this.findAllOutlets(t)]),[])}getSelectorForOutletName(e){const t=this.schema.outletAttributeForScope(this.identifier,e);return this.controllerElement.getAttribute(t)}findOutlet(e){const t=this.getSelectorForOutletName(e);if(t)return this.findElement(t,e)}findAllOutlets(e){const t=this.getSelectorForOutletName(e);return t?this.findAllElements(t,e):[]}findElement(e,t){const r=this.scope.queryElements(e);return r.filter((r=>this.matchesElement(r,e,t)))[0]}findAllElements(e,t){const r=this.scope.queryElements(e);return r.filter((r=>this.matchesElement(r,e,t)))}matchesElement(e,t,r){const s=e.getAttribute(this.scope.schema.controllerAttribute)||"";return e.matches(t)&&s.split(" ").includes(r)}}class Scope{constructor(e,t,r,s){this.targets=new TargetSet(this);this.classes=new ClassMap(this);this.data=new DataMap(this);this.containsElement=e=>e.closest(this.controllerSelector)===this.element;this.schema=e;this.element=t;this.identifier=r;this.guide=new Guide(s);this.outlets=new OutletSet(this.documentScope,t)}findElement(e){return this.element.matches(e)?this.element:this.queryElements(e).find(this.containsElement)}findAllElements(e){return[...this.element.matches(e)?[this.element]:[],...this.queryElements(e).filter(this.containsElement)]}queryElements(e){return Array.from(this.element.querySelectorAll(e))}get controllerSelector(){return attributeValueContainsToken(this.schema.controllerAttribute,this.identifier)}get isDocumentScope(){return this.element===document.documentElement}get documentScope(){return this.isDocumentScope?this:new Scope(this.schema,document.documentElement,this.identifier,this.guide.logger)}}class ScopeObserver{constructor(e,t,r){this.element=e;this.schema=t;this.delegate=r;this.valueListObserver=new ValueListObserver(this.element,this.controllerAttribute,this);this.scopesByIdentifierByElement=new WeakMap;this.scopeReferenceCounts=new WeakMap}start(){this.valueListObserver.start()}stop(){this.valueListObserver.stop()}get controllerAttribute(){return this.schema.controllerAttribute}parseValueForToken(e){const{element:t,content:r}=e;return this.parseValueForElementAndIdentifier(t,r)}parseValueForElementAndIdentifier(e,t){const r=this.fetchScopesByIdentifierForElement(e);let s=r.get(t);if(!s){s=this.delegate.createScopeForElementAndIdentifier(e,t);r.set(t,s)}return s}elementMatchedValue(e,t){const r=(this.scopeReferenceCounts.get(t)||0)+1;this.scopeReferenceCounts.set(t,r);1==r&&this.delegate.scopeConnected(t)}elementUnmatchedValue(e,t){const r=this.scopeReferenceCounts.get(t);if(r){this.scopeReferenceCounts.set(t,r-1);1==r&&this.delegate.scopeDisconnected(t)}}fetchScopesByIdentifierForElement(e){let t=this.scopesByIdentifierByElement.get(e);if(!t){t=new Map;this.scopesByIdentifierByElement.set(e,t)}return t}}class Router{constructor(e){this.application=e;this.scopeObserver=new ScopeObserver(this.element,this.schema,this);this.scopesByIdentifier=new Multimap;this.modulesByIdentifier=new Map}get element(){return this.application.element}get schema(){return this.application.schema}get logger(){return this.application.logger}get controllerAttribute(){return this.schema.controllerAttribute}get modules(){return Array.from(this.modulesByIdentifier.values())}get contexts(){return this.modules.reduce(((e,t)=>e.concat(t.contexts)),[])}start(){this.scopeObserver.start()}stop(){this.scopeObserver.stop()}loadDefinition(e){this.unloadIdentifier(e.identifier);const t=new Module(this.application,e);this.connectModule(t);const r=e.controllerConstructor.afterLoad;r&&r.call(e.controllerConstructor,e.identifier,this.application)}unloadIdentifier(e){const t=this.modulesByIdentifier.get(e);t&&this.disconnectModule(t)}getContextForElementAndIdentifier(e,t){const r=this.modulesByIdentifier.get(t);if(r)return r.contexts.find((t=>t.element==e))}proposeToConnectScopeForElementAndIdentifier(e,t){const r=this.scopeObserver.parseValueForElementAndIdentifier(e,t);r?this.scopeObserver.elementMatchedValue(r.element,r):console.error(`Couldn't find or create scope for identifier: "${t}" and element:`,e)}handleError(e,t,r){this.application.handleError(e,t,r)}createScopeForElementAndIdentifier(e,t){return new Scope(this.schema,e,t,this.logger)}scopeConnected(e){this.scopesByIdentifier.add(e.identifier,e);const t=this.modulesByIdentifier.get(e.identifier);t&&t.connectContextForScope(e)}scopeDisconnected(e){this.scopesByIdentifier.delete(e.identifier,e);const t=this.modulesByIdentifier.get(e.identifier);t&&t.disconnectContextForScope(e)}connectModule(e){this.modulesByIdentifier.set(e.identifier,e);const t=this.scopesByIdentifier.getValuesForKey(e.identifier);t.forEach((t=>e.connectContextForScope(t)))}disconnectModule(e){this.modulesByIdentifier.delete(e.identifier);const t=this.scopesByIdentifier.getValuesForKey(e.identifier);t.forEach((t=>e.disconnectContextForScope(t)))}}const o={controllerAttribute:"data-controller",actionAttribute:"data-action",targetAttribute:"data-target",targetAttributeForScope:e=>`data-${e}-target`,outletAttributeForScope:(e,t)=>`data-${e}-${t}-outlet`,keyMappings:Object.assign(Object.assign({enter:"Enter",tab:"Tab",esc:"Escape",space:" ",up:"ArrowUp",down:"ArrowDown",left:"ArrowLeft",right:"ArrowRight",home:"Home",end:"End",page_up:"PageUp",page_down:"PageDown"},objectFromEntries("abcdefghijklmnopqrstuvwxyz".split("").map((e=>[e,e])))),objectFromEntries("0123456789".split("").map((e=>[e,e]))))};function objectFromEntries(e){return e.reduce(((e,[t,r])=>Object.assign(Object.assign({},e),{[t]:r})),{})}class Application{constructor(t=document.documentElement,r=o){this.logger=console;this.debug=false;this.logDebugActivity=(e,t,r={})=>{this.debug&&this.logFormattedMessage(e,t,r)};this.element=t;this.schema=r;this.dispatcher=new Dispatcher(this);this.router=new Router(this);this.actionDescriptorFilters=Object.assign({},e)}static start(e,t){const r=new this(e,t);r.start();return r}async start(){await domReady();this.logDebugActivity("application","starting");this.dispatcher.start();this.router.start();this.logDebugActivity("application","start")}stop(){this.logDebugActivity("application","stopping");this.dispatcher.stop();this.router.stop();this.logDebugActivity("application","stop")}register(e,t){this.load({identifier:e,controllerConstructor:t})}registerActionOption(e,t){this.actionDescriptorFilters[e]=t}load(e,...t){const r=Array.isArray(e)?e:[e,...t];r.forEach((e=>{e.controllerConstructor.shouldLoad&&this.router.loadDefinition(e)}))}unload(e,...t){const r=Array.isArray(e)?e:[e,...t];r.forEach((e=>this.router.unloadIdentifier(e)))}get controllers(){return this.router.contexts.map((e=>e.controller))}getControllerForElementAndIdentifier(e,t){const r=this.router.getContextForElementAndIdentifier(e,t);return r?r.controller:null}handleError(e,t,r){var s;this.logger.error("%s\n\n%o\n\n%o",t,e,r);null===(s=window.onerror)||void 0===s?void 0:s.call(window,t,"",0,0,e)}logFormattedMessage(e,t,r={}){r=Object.assign({application:this},r);this.logger.groupCollapsed(`${e} #${t}`);this.logger.log("details:",Object.assign({},r));this.logger.groupEnd()}}function domReady(){return new Promise((e=>{"loading"==document.readyState?document.addEventListener("DOMContentLoaded",(()=>e())):e()}))}function ClassPropertiesBlessing(e){const t=readInheritableStaticArrayValues(e,"classes");return t.reduce(((e,t)=>Object.assign(e,propertiesForClassDefinition(t))),{})}function propertiesForClassDefinition(e){return{[`${e}Class`]:{get(){const{classes:t}=this;if(t.has(e))return t.get(e);{const r=t.getAttributeName(e);throw new Error(`Missing attribute "${r}"`)}}},[`${e}Classes`]:{get(){return this.classes.getAll(e)}},[`has${capitalize(e)}Class`]:{get(){return this.classes.has(e)}}}}function OutletPropertiesBlessing(e){const t=readInheritableStaticArrayValues(e,"outlets");return t.reduce(((e,t)=>Object.assign(e,propertiesForOutletDefinition(t))),{})}function getOutletController(e,t,r){return e.application.getControllerForElementAndIdentifier(t,r)}function getControllerAndEnsureConnectedScope(e,t,r){let s=getOutletController(e,t,r);if(s)return s;e.application.router.proposeToConnectScopeForElementAndIdentifier(t,r);s=getOutletController(e,t,r);return s||void 0}function propertiesForOutletDefinition(e){const t=namespaceCamelize(e);return{[`${t}Outlet`]:{get(){const t=this.outlets.find(e);const r=this.outlets.getSelectorForOutletName(e);if(t){const r=getControllerAndEnsureConnectedScope(this,t,e);if(r)return r;throw new Error(`The provided outlet element is missing an outlet controller "${e}" instance for host controller "${this.identifier}"`)}throw new Error(`Missing outlet element "${e}" for host controller "${this.identifier}". Stimulus couldn't find a matching outlet element using selector "${r}".`)}},[`${t}Outlets`]:{get(){const t=this.outlets.findAll(e);return t.length>0?t.map((t=>{const r=getControllerAndEnsureConnectedScope(this,t,e);if(r)return r;console.warn(`The provided outlet element is missing an outlet controller "${e}" instance for host controller "${this.identifier}"`,t)})).filter((e=>e)):[]}},[`${t}OutletElement`]:{get(){const t=this.outlets.find(e);const r=this.outlets.getSelectorForOutletName(e);if(t)return t;throw new Error(`Missing outlet element "${e}" for host controller "${this.identifier}". Stimulus couldn't find a matching outlet element using selector "${r}".`)}},[`${t}OutletElements`]:{get(){return this.outlets.findAll(e)}},[`has${capitalize(t)}Outlet`]:{get(){return this.outlets.has(e)}}}}function TargetPropertiesBlessing(e){const t=readInheritableStaticArrayValues(e,"targets");return t.reduce(((e,t)=>Object.assign(e,propertiesForTargetDefinition(t))),{})}function propertiesForTargetDefinition(e){return{[`${e}Target`]:{get(){const t=this.targets.find(e);if(t)return t;throw new Error(`Missing target element "${e}" for "${this.identifier}" controller`)}},[`${e}Targets`]:{get(){return this.targets.findAll(e)}},[`has${capitalize(e)}Target`]:{get(){return this.targets.has(e)}}}}function ValuePropertiesBlessing(e){const t=readInheritableStaticObjectPairs(e,"values");const r={valueDescriptorMap:{get(){return t.reduce(((e,t)=>{const r=parseValueDefinitionPair(t,this.identifier);const s=this.data.getAttributeNameForKey(r.key);return Object.assign(e,{[s]:r})}),{})}}};return t.reduce(((e,t)=>Object.assign(e,propertiesForValueDefinitionPair(t))),r)}function propertiesForValueDefinitionPair(e,t){const r=parseValueDefinitionPair(e,t);const{key:s,name:n,reader:i,writer:o}=r;return{[n]:{get(){const e=this.data.get(s);return null!==e?i(e):r.defaultValue},set(e){void 0===e?this.data.delete(s):this.data.set(s,o(e))}},[`has${capitalize(n)}`]:{get(){return this.data.has(s)||r.hasCustomDefaultValue}}}}function parseValueDefinitionPair([e,t],r){return valueDescriptorForTokenAndTypeDefinition({controller:r,token:e,typeDefinition:t})}function parseValueTypeConstant(e){switch(e){case Array:return"array";case Boolean:return"boolean";case Number:return"number";case Object:return"object";case String:return"string"}}function parseValueTypeDefault(e){switch(typeof e){case"boolean":return"boolean";case"number":return"number";case"string":return"string"}return Array.isArray(e)?"array":"[object Object]"===Object.prototype.toString.call(e)?"object":void 0}function parseValueTypeObject(e){const{controller:t,token:r,typeObject:s}=e;const n=isSomething(s.type);const i=isSomething(s.default);const o=n&&i;const c=n&&!i;const l=!n&&i;const h=parseValueTypeConstant(s.type);const u=parseValueTypeDefault(e.typeObject.default);if(c)return h;if(l)return u;if(h!==u){const e=t?`${t}.${r}`:r;throw new Error(`The specified default value for the Stimulus Value "${e}" must match the defined type "${h}". The provided default value of "${s.default}" is of type "${u}".`)}return o?h:void 0}function parseValueTypeDefinition(e){const{controller:t,token:r,typeDefinition:s}=e;const n={controller:t,token:r,typeObject:s};const i=parseValueTypeObject(n);const o=parseValueTypeDefault(s);const c=parseValueTypeConstant(s);const l=i||o||c;if(l)return l;const h=t?`${t}.${s}`:r;throw new Error(`Unknown value type "${h}" for "${r}" value`)}function defaultValueForDefinition(e){const t=parseValueTypeConstant(e);if(t)return c[t];const r=hasProperty(e,"default");const s=hasProperty(e,"type");const n=e;if(r)return n.default;if(s){const{type:e}=n;const t=parseValueTypeConstant(e);if(t)return c[t]}return e}function valueDescriptorForTokenAndTypeDefinition(e){const{token:t,typeDefinition:r}=e;const s=`${dasherize(t)}-value`;const n=parseValueTypeDefinition(e);return{type:n,key:s,name:camelize(s),get defaultValue(){return defaultValueForDefinition(r)},get hasCustomDefaultValue(){return void 0!==parseValueTypeDefault(r)},reader:l[n],writer:h[n]||h.default}}const c={get array(){return[]},boolean:false,number:0,get object(){return{}},string:""};const l={array(e){const t=JSON.parse(e);if(!Array.isArray(t))throw new TypeError(`expected value of type "array" but instead got value "${e}" of type "${parseValueTypeDefault(t)}"`);return t},boolean(e){return!("0"==e||"false"==String(e).toLowerCase())},number(e){return Number(e.replace(/_/g,""))},object(e){const t=JSON.parse(e);if(null===t||"object"!=typeof t||Array.isArray(t))throw new TypeError(`expected value of type "object" but instead got value "${e}" of type "${parseValueTypeDefault(t)}"`);return t},string(e){return e}};const h={default:writeString,array:writeJSON,object:writeJSON};function writeJSON(e){return JSON.stringify(e)}function writeString(e){return`${e}`}class Controller{constructor(e){this.context=e}static get shouldLoad(){return true}static afterLoad(e,t){}get application(){return this.context.application}get scope(){return this.context.scope}get element(){return this.scope.element}get identifier(){return this.scope.identifier}get targets(){return this.scope.targets}get outlets(){return this.scope.outlets}get classes(){return this.scope.classes}get data(){return this.scope.data}initialize(){}connect(){}disconnect(){}dispatch(e,{target:t=this.element,detail:r={},prefix:s=this.identifier,bubbles:n=true,cancelable:i=true}={}){const o=s?`${s}:${e}`:e;const c=new CustomEvent(o,{detail:r,bubbles:n,cancelable:i});t.dispatchEvent(c);return c}}Controller.blessings=[ClassPropertiesBlessing,TargetPropertiesBlessing,ValuePropertiesBlessing,OutletPropertiesBlessing];Controller.targets=[];Controller.outlets=[];Controller.values={};export{Application,AttributeObserver,Context,Controller,ElementObserver,IndexedMultimap,Multimap,SelectorObserver,StringMapObserver,TokenListObserver,ValueListObserver,add,o as defaultSchema,del,fetch,prune};
+/*
+Stimulus 3.2.1
+Copyright © 2023 Basecamp, LLC
+ */
+class EventListener {
+    constructor(eventTarget, eventName, eventOptions) {
+        this.eventTarget = eventTarget;
+        this.eventName = eventName;
+        this.eventOptions = eventOptions;
+        this.unorderedBindings = new Set();
+    }
+    connect() {
+        this.eventTarget.addEventListener(this.eventName, this, this.eventOptions);
+    }
+    disconnect() {
+        this.eventTarget.removeEventListener(this.eventName, this, this.eventOptions);
+    }
+    bindingConnected(binding) {
+        this.unorderedBindings.add(binding);
+    }
+    bindingDisconnected(binding) {
+        this.unorderedBindings.delete(binding);
+    }
+    handleEvent(event) {
+        const extendedEvent = extendEvent(event);
+        for (const binding of this.bindings) {
+            if (extendedEvent.immediatePropagationStopped) {
+                break;
+            }
+            else {
+                binding.handleEvent(extendedEvent);
+            }
+        }
+    }
+    hasBindings() {
+        return this.unorderedBindings.size > 0;
+    }
+    get bindings() {
+        return Array.from(this.unorderedBindings).sort((left, right) => {
+            const leftIndex = left.index, rightIndex = right.index;
+            return leftIndex < rightIndex ? -1 : leftIndex > rightIndex ? 1 : 0;
+        });
+    }
+}
+function extendEvent(event) {
+    if ("immediatePropagationStopped" in event) {
+        return event;
+    }
+    else {
+        const { stopImmediatePropagation } = event;
+        return Object.assign(event, {
+            immediatePropagationStopped: false,
+            stopImmediatePropagation() {
+                this.immediatePropagationStopped = true;
+                stopImmediatePropagation.call(this);
+            },
+        });
+    }
+}
 
+class Dispatcher {
+    constructor(application) {
+        this.application = application;
+        this.eventListenerMaps = new Map();
+        this.started = false;
+    }
+    start() {
+        if (!this.started) {
+            this.started = true;
+            this.eventListeners.forEach((eventListener) => eventListener.connect());
+        }
+    }
+    stop() {
+        if (this.started) {
+            this.started = false;
+            this.eventListeners.forEach((eventListener) => eventListener.disconnect());
+        }
+    }
+    get eventListeners() {
+        return Array.from(this.eventListenerMaps.values()).reduce((listeners, map) => listeners.concat(Array.from(map.values())), []);
+    }
+    bindingConnected(binding) {
+        this.fetchEventListenerForBinding(binding).bindingConnected(binding);
+    }
+    bindingDisconnected(binding, clearEventListeners = false) {
+        this.fetchEventListenerForBinding(binding).bindingDisconnected(binding);
+        if (clearEventListeners)
+            this.clearEventListenersForBinding(binding);
+    }
+    handleError(error, message, detail = {}) {
+        this.application.handleError(error, `Error ${message}`, detail);
+    }
+    clearEventListenersForBinding(binding) {
+        const eventListener = this.fetchEventListenerForBinding(binding);
+        if (!eventListener.hasBindings()) {
+            eventListener.disconnect();
+            this.removeMappedEventListenerFor(binding);
+        }
+    }
+    removeMappedEventListenerFor(binding) {
+        const { eventTarget, eventName, eventOptions } = binding;
+        const eventListenerMap = this.fetchEventListenerMapForEventTarget(eventTarget);
+        const cacheKey = this.cacheKey(eventName, eventOptions);
+        eventListenerMap.delete(cacheKey);
+        if (eventListenerMap.size == 0)
+            this.eventListenerMaps.delete(eventTarget);
+    }
+    fetchEventListenerForBinding(binding) {
+        const { eventTarget, eventName, eventOptions } = binding;
+        return this.fetchEventListener(eventTarget, eventName, eventOptions);
+    }
+    fetchEventListener(eventTarget, eventName, eventOptions) {
+        const eventListenerMap = this.fetchEventListenerMapForEventTarget(eventTarget);
+        const cacheKey = this.cacheKey(eventName, eventOptions);
+        let eventListener = eventListenerMap.get(cacheKey);
+        if (!eventListener) {
+            eventListener = this.createEventListener(eventTarget, eventName, eventOptions);
+            eventListenerMap.set(cacheKey, eventListener);
+        }
+        return eventListener;
+    }
+    createEventListener(eventTarget, eventName, eventOptions) {
+        const eventListener = new EventListener(eventTarget, eventName, eventOptions);
+        if (this.started) {
+            eventListener.connect();
+        }
+        return eventListener;
+    }
+    fetchEventListenerMapForEventTarget(eventTarget) {
+        let eventListenerMap = this.eventListenerMaps.get(eventTarget);
+        if (!eventListenerMap) {
+            eventListenerMap = new Map();
+            this.eventListenerMaps.set(eventTarget, eventListenerMap);
+        }
+        return eventListenerMap;
+    }
+    cacheKey(eventName, eventOptions) {
+        const parts = [eventName];
+        Object.keys(eventOptions)
+            .sort()
+            .forEach((key) => {
+            parts.push(`${eventOptions[key] ? "" : "!"}${key}`);
+        });
+        return parts.join(":");
+    }
+}
+
+const defaultActionDescriptorFilters = {
+    stop({ event, value }) {
+        if (value)
+            event.stopPropagation();
+        return true;
+    },
+    prevent({ event, value }) {
+        if (value)
+            event.preventDefault();
+        return true;
+    },
+    self({ event, value, element }) {
+        if (value) {
+            return element === event.target;
+        }
+        else {
+            return true;
+        }
+    },
+};
+const descriptorPattern = /^(?:(?:([^.]+?)\+)?(.+?)(?:\.(.+?))?(?:@(window|document))?->)?(.+?)(?:#([^:]+?))(?::(.+))?$/;
+function parseActionDescriptorString(descriptorString) {
+    const source = descriptorString.trim();
+    const matches = source.match(descriptorPattern) || [];
+    let eventName = matches[2];
+    let keyFilter = matches[3];
+    if (keyFilter && !["keydown", "keyup", "keypress"].includes(eventName)) {
+        eventName += `.${keyFilter}`;
+        keyFilter = "";
+    }
+    return {
+        eventTarget: parseEventTarget(matches[4]),
+        eventName,
+        eventOptions: matches[7] ? parseEventOptions(matches[7]) : {},
+        identifier: matches[5],
+        methodName: matches[6],
+        keyFilter: matches[1] || keyFilter,
+    };
+}
+function parseEventTarget(eventTargetName) {
+    if (eventTargetName == "window") {
+        return window;
+    }
+    else if (eventTargetName == "document") {
+        return document;
+    }
+}
+function parseEventOptions(eventOptions) {
+    return eventOptions
+        .split(":")
+        .reduce((options, token) => Object.assign(options, { [token.replace(/^!/, "")]: !/^!/.test(token) }), {});
+}
+function stringifyEventTarget(eventTarget) {
+    if (eventTarget == window) {
+        return "window";
+    }
+    else if (eventTarget == document) {
+        return "document";
+    }
+}
+
+function camelize(value) {
+    return value.replace(/(?:[_-])([a-z0-9])/g, (_, char) => char.toUpperCase());
+}
+function namespaceCamelize(value) {
+    return camelize(value.replace(/--/g, "-").replace(/__/g, "_"));
+}
+function capitalize(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+function dasherize(value) {
+    return value.replace(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`);
+}
+function tokenize(value) {
+    return value.match(/[^\s]+/g) || [];
+}
+
+function isSomething(object) {
+    return object !== null && object !== undefined;
+}
+function hasProperty(object, property) {
+    return Object.prototype.hasOwnProperty.call(object, property);
+}
+
+const allModifiers = ["meta", "ctrl", "alt", "shift"];
+class Action {
+    constructor(element, index, descriptor, schema) {
+        this.element = element;
+        this.index = index;
+        this.eventTarget = descriptor.eventTarget || element;
+        this.eventName = descriptor.eventName || getDefaultEventNameForElement(element) || error("missing event name");
+        this.eventOptions = descriptor.eventOptions || {};
+        this.identifier = descriptor.identifier || error("missing identifier");
+        this.methodName = descriptor.methodName || error("missing method name");
+        this.keyFilter = descriptor.keyFilter || "";
+        this.schema = schema;
+    }
+    static forToken(token, schema) {
+        return new this(token.element, token.index, parseActionDescriptorString(token.content), schema);
+    }
+    toString() {
+        const eventFilter = this.keyFilter ? `.${this.keyFilter}` : "";
+        const eventTarget = this.eventTargetName ? `@${this.eventTargetName}` : "";
+        return `${this.eventName}${eventFilter}${eventTarget}->${this.identifier}#${this.methodName}`;
+    }
+    shouldIgnoreKeyboardEvent(event) {
+        if (!this.keyFilter) {
+            return false;
+        }
+        const filters = this.keyFilter.split("+");
+        if (this.keyFilterDissatisfied(event, filters)) {
+            return true;
+        }
+        const standardFilter = filters.filter((key) => !allModifiers.includes(key))[0];
+        if (!standardFilter) {
+            return false;
+        }
+        if (!hasProperty(this.keyMappings, standardFilter)) {
+            error(`contains unknown key filter: ${this.keyFilter}`);
+        }
+        return this.keyMappings[standardFilter].toLowerCase() !== event.key.toLowerCase();
+    }
+    shouldIgnoreMouseEvent(event) {
+        if (!this.keyFilter) {
+            return false;
+        }
+        const filters = [this.keyFilter];
+        if (this.keyFilterDissatisfied(event, filters)) {
+            return true;
+        }
+        return false;
+    }
+    get params() {
+        const params = {};
+        const pattern = new RegExp(`^data-${this.identifier}-(.+)-param$`, "i");
+        for (const { name, value } of Array.from(this.element.attributes)) {
+            const match = name.match(pattern);
+            const key = match && match[1];
+            if (key) {
+                params[camelize(key)] = typecast(value);
+            }
+        }
+        return params;
+    }
+    get eventTargetName() {
+        return stringifyEventTarget(this.eventTarget);
+    }
+    get keyMappings() {
+        return this.schema.keyMappings;
+    }
+    keyFilterDissatisfied(event, filters) {
+        const [meta, ctrl, alt, shift] = allModifiers.map((modifier) => filters.includes(modifier));
+        return event.metaKey !== meta || event.ctrlKey !== ctrl || event.altKey !== alt || event.shiftKey !== shift;
+    }
+}
+const defaultEventNames = {
+    a: () => "click",
+    button: () => "click",
+    form: () => "submit",
+    details: () => "toggle",
+    input: (e) => (e.getAttribute("type") == "submit" ? "click" : "input"),
+    select: () => "change",
+    textarea: () => "input",
+};
+function getDefaultEventNameForElement(element) {
+    const tagName = element.tagName.toLowerCase();
+    if (tagName in defaultEventNames) {
+        return defaultEventNames[tagName](element);
+    }
+}
+function error(message) {
+    throw new Error(message);
+}
+function typecast(value) {
+    try {
+        return JSON.parse(value);
+    }
+    catch (o_O) {
+        return value;
+    }
+}
+
+class Binding {
+    constructor(context, action) {
+        this.context = context;
+        this.action = action;
+    }
+    get index() {
+        return this.action.index;
+    }
+    get eventTarget() {
+        return this.action.eventTarget;
+    }
+    get eventOptions() {
+        return this.action.eventOptions;
+    }
+    get identifier() {
+        return this.context.identifier;
+    }
+    handleEvent(event) {
+        const actionEvent = this.prepareActionEvent(event);
+        if (this.willBeInvokedByEvent(event) && this.applyEventModifiers(actionEvent)) {
+            this.invokeWithEvent(actionEvent);
+        }
+    }
+    get eventName() {
+        return this.action.eventName;
+    }
+    get method() {
+        const method = this.controller[this.methodName];
+        if (typeof method == "function") {
+            return method;
+        }
+        throw new Error(`Action "${this.action}" references undefined method "${this.methodName}"`);
+    }
+    applyEventModifiers(event) {
+        const { element } = this.action;
+        const { actionDescriptorFilters } = this.context.application;
+        const { controller } = this.context;
+        let passes = true;
+        for (const [name, value] of Object.entries(this.eventOptions)) {
+            if (name in actionDescriptorFilters) {
+                const filter = actionDescriptorFilters[name];
+                passes = passes && filter({ name, value, event, element, controller });
+            }
+            else {
+                continue;
+            }
+        }
+        return passes;
+    }
+    prepareActionEvent(event) {
+        return Object.assign(event, { params: this.action.params });
+    }
+    invokeWithEvent(event) {
+        const { target, currentTarget } = event;
+        try {
+            this.method.call(this.controller, event);
+            this.context.logDebugActivity(this.methodName, { event, target, currentTarget, action: this.methodName });
+        }
+        catch (error) {
+            const { identifier, controller, element, index } = this;
+            const detail = { identifier, controller, element, index, event };
+            this.context.handleError(error, `invoking action "${this.action}"`, detail);
+        }
+    }
+    willBeInvokedByEvent(event) {
+        const eventTarget = event.target;
+        if (event instanceof KeyboardEvent && this.action.shouldIgnoreKeyboardEvent(event)) {
+            return false;
+        }
+        if (event instanceof MouseEvent && this.action.shouldIgnoreMouseEvent(event)) {
+            return false;
+        }
+        if (this.element === eventTarget) {
+            return true;
+        }
+        else if (eventTarget instanceof Element && this.element.contains(eventTarget)) {
+            return this.scope.containsElement(eventTarget);
+        }
+        else {
+            return this.scope.containsElement(this.action.element);
+        }
+    }
+    get controller() {
+        return this.context.controller;
+    }
+    get methodName() {
+        return this.action.methodName;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get scope() {
+        return this.context.scope;
+    }
+}
+
+class ElementObserver {
+    constructor(element, delegate) {
+        this.mutationObserverInit = { attributes: true, childList: true, subtree: true };
+        this.element = element;
+        this.started = false;
+        this.delegate = delegate;
+        this.elements = new Set();
+        this.mutationObserver = new MutationObserver((mutations) => this.processMutations(mutations));
+    }
+    start() {
+        if (!this.started) {
+            this.started = true;
+            this.mutationObserver.observe(this.element, this.mutationObserverInit);
+            this.refresh();
+        }
+    }
+    pause(callback) {
+        if (this.started) {
+            this.mutationObserver.disconnect();
+            this.started = false;
+        }
+        callback();
+        if (!this.started) {
+            this.mutationObserver.observe(this.element, this.mutationObserverInit);
+            this.started = true;
+        }
+    }
+    stop() {
+        if (this.started) {
+            this.mutationObserver.takeRecords();
+            this.mutationObserver.disconnect();
+            this.started = false;
+        }
+    }
+    refresh() {
+        if (this.started) {
+            const matches = new Set(this.matchElementsInTree());
+            for (const element of Array.from(this.elements)) {
+                if (!matches.has(element)) {
+                    this.removeElement(element);
+                }
+            }
+            for (const element of Array.from(matches)) {
+                this.addElement(element);
+            }
+        }
+    }
+    processMutations(mutations) {
+        if (this.started) {
+            for (const mutation of mutations) {
+                this.processMutation(mutation);
+            }
+        }
+    }
+    processMutation(mutation) {
+        if (mutation.type == "attributes") {
+            this.processAttributeChange(mutation.target, mutation.attributeName);
+        }
+        else if (mutation.type == "childList") {
+            this.processRemovedNodes(mutation.removedNodes);
+            this.processAddedNodes(mutation.addedNodes);
+        }
+    }
+    processAttributeChange(element, attributeName) {
+        if (this.elements.has(element)) {
+            if (this.delegate.elementAttributeChanged && this.matchElement(element)) {
+                this.delegate.elementAttributeChanged(element, attributeName);
+            }
+            else {
+                this.removeElement(element);
+            }
+        }
+        else if (this.matchElement(element)) {
+            this.addElement(element);
+        }
+    }
+    processRemovedNodes(nodes) {
+        for (const node of Array.from(nodes)) {
+            const element = this.elementFromNode(node);
+            if (element) {
+                this.processTree(element, this.removeElement);
+            }
+        }
+    }
+    processAddedNodes(nodes) {
+        for (const node of Array.from(nodes)) {
+            const element = this.elementFromNode(node);
+            if (element && this.elementIsActive(element)) {
+                this.processTree(element, this.addElement);
+            }
+        }
+    }
+    matchElement(element) {
+        return this.delegate.matchElement(element);
+    }
+    matchElementsInTree(tree = this.element) {
+        return this.delegate.matchElementsInTree(tree);
+    }
+    processTree(tree, processor) {
+        for (const element of this.matchElementsInTree(tree)) {
+            processor.call(this, element);
+        }
+    }
+    elementFromNode(node) {
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            return node;
+        }
+    }
+    elementIsActive(element) {
+        if (element.isConnected != this.element.isConnected) {
+            return false;
+        }
+        else {
+            return this.element.contains(element);
+        }
+    }
+    addElement(element) {
+        if (!this.elements.has(element)) {
+            if (this.elementIsActive(element)) {
+                this.elements.add(element);
+                if (this.delegate.elementMatched) {
+                    this.delegate.elementMatched(element);
+                }
+            }
+        }
+    }
+    removeElement(element) {
+        if (this.elements.has(element)) {
+            this.elements.delete(element);
+            if (this.delegate.elementUnmatched) {
+                this.delegate.elementUnmatched(element);
+            }
+        }
+    }
+}
+
+class AttributeObserver {
+    constructor(element, attributeName, delegate) {
+        this.attributeName = attributeName;
+        this.delegate = delegate;
+        this.elementObserver = new ElementObserver(element, this);
+    }
+    get element() {
+        return this.elementObserver.element;
+    }
+    get selector() {
+        return `[${this.attributeName}]`;
+    }
+    start() {
+        this.elementObserver.start();
+    }
+    pause(callback) {
+        this.elementObserver.pause(callback);
+    }
+    stop() {
+        this.elementObserver.stop();
+    }
+    refresh() {
+        this.elementObserver.refresh();
+    }
+    get started() {
+        return this.elementObserver.started;
+    }
+    matchElement(element) {
+        return element.hasAttribute(this.attributeName);
+    }
+    matchElementsInTree(tree) {
+        const match = this.matchElement(tree) ? [tree] : [];
+        const matches = Array.from(tree.querySelectorAll(this.selector));
+        return match.concat(matches);
+    }
+    elementMatched(element) {
+        if (this.delegate.elementMatchedAttribute) {
+            this.delegate.elementMatchedAttribute(element, this.attributeName);
+        }
+    }
+    elementUnmatched(element) {
+        if (this.delegate.elementUnmatchedAttribute) {
+            this.delegate.elementUnmatchedAttribute(element, this.attributeName);
+        }
+    }
+    elementAttributeChanged(element, attributeName) {
+        if (this.delegate.elementAttributeValueChanged && this.attributeName == attributeName) {
+            this.delegate.elementAttributeValueChanged(element, attributeName);
+        }
+    }
+}
+
+function add(map, key, value) {
+    fetch(map, key).add(value);
+}
+function del(map, key, value) {
+    fetch(map, key).delete(value);
+    prune(map, key);
+}
+function fetch(map, key) {
+    let values = map.get(key);
+    if (!values) {
+        values = new Set();
+        map.set(key, values);
+    }
+    return values;
+}
+function prune(map, key) {
+    const values = map.get(key);
+    if (values != null && values.size == 0) {
+        map.delete(key);
+    }
+}
+
+class Multimap {
+    constructor() {
+        this.valuesByKey = new Map();
+    }
+    get keys() {
+        return Array.from(this.valuesByKey.keys());
+    }
+    get values() {
+        const sets = Array.from(this.valuesByKey.values());
+        return sets.reduce((values, set) => values.concat(Array.from(set)), []);
+    }
+    get size() {
+        const sets = Array.from(this.valuesByKey.values());
+        return sets.reduce((size, set) => size + set.size, 0);
+    }
+    add(key, value) {
+        add(this.valuesByKey, key, value);
+    }
+    delete(key, value) {
+        del(this.valuesByKey, key, value);
+    }
+    has(key, value) {
+        const values = this.valuesByKey.get(key);
+        return values != null && values.has(value);
+    }
+    hasKey(key) {
+        return this.valuesByKey.has(key);
+    }
+    hasValue(value) {
+        const sets = Array.from(this.valuesByKey.values());
+        return sets.some((set) => set.has(value));
+    }
+    getValuesForKey(key) {
+        const values = this.valuesByKey.get(key);
+        return values ? Array.from(values) : [];
+    }
+    getKeysForValue(value) {
+        return Array.from(this.valuesByKey)
+            .filter(([_key, values]) => values.has(value))
+            .map(([key, _values]) => key);
+    }
+}
+
+class IndexedMultimap extends Multimap {
+    constructor() {
+        super();
+        this.keysByValue = new Map();
+    }
+    get values() {
+        return Array.from(this.keysByValue.keys());
+    }
+    add(key, value) {
+        super.add(key, value);
+        add(this.keysByValue, value, key);
+    }
+    delete(key, value) {
+        super.delete(key, value);
+        del(this.keysByValue, value, key);
+    }
+    hasValue(value) {
+        return this.keysByValue.has(value);
+    }
+    getKeysForValue(value) {
+        const set = this.keysByValue.get(value);
+        return set ? Array.from(set) : [];
+    }
+}
+
+class SelectorObserver {
+    constructor(element, selector, delegate, details) {
+        this._selector = selector;
+        this.details = details;
+        this.elementObserver = new ElementObserver(element, this);
+        this.delegate = delegate;
+        this.matchesByElement = new Multimap();
+    }
+    get started() {
+        return this.elementObserver.started;
+    }
+    get selector() {
+        return this._selector;
+    }
+    set selector(selector) {
+        this._selector = selector;
+        this.refresh();
+    }
+    start() {
+        this.elementObserver.start();
+    }
+    pause(callback) {
+        this.elementObserver.pause(callback);
+    }
+    stop() {
+        this.elementObserver.stop();
+    }
+    refresh() {
+        this.elementObserver.refresh();
+    }
+    get element() {
+        return this.elementObserver.element;
+    }
+    matchElement(element) {
+        const { selector } = this;
+        if (selector) {
+            const matches = element.matches(selector);
+            if (this.delegate.selectorMatchElement) {
+                return matches && this.delegate.selectorMatchElement(element, this.details);
+            }
+            return matches;
+        }
+        else {
+            return false;
+        }
+    }
+    matchElementsInTree(tree) {
+        const { selector } = this;
+        if (selector) {
+            const match = this.matchElement(tree) ? [tree] : [];
+            const matches = Array.from(tree.querySelectorAll(selector)).filter((match) => this.matchElement(match));
+            return match.concat(matches);
+        }
+        else {
+            return [];
+        }
+    }
+    elementMatched(element) {
+        const { selector } = this;
+        if (selector) {
+            this.selectorMatched(element, selector);
+        }
+    }
+    elementUnmatched(element) {
+        const selectors = this.matchesByElement.getKeysForValue(element);
+        for (const selector of selectors) {
+            this.selectorUnmatched(element, selector);
+        }
+    }
+    elementAttributeChanged(element, _attributeName) {
+        const { selector } = this;
+        if (selector) {
+            const matches = this.matchElement(element);
+            const matchedBefore = this.matchesByElement.has(selector, element);
+            if (matches && !matchedBefore) {
+                this.selectorMatched(element, selector);
+            }
+            else if (!matches && matchedBefore) {
+                this.selectorUnmatched(element, selector);
+            }
+        }
+    }
+    selectorMatched(element, selector) {
+        this.delegate.selectorMatched(element, selector, this.details);
+        this.matchesByElement.add(selector, element);
+    }
+    selectorUnmatched(element, selector) {
+        this.delegate.selectorUnmatched(element, selector, this.details);
+        this.matchesByElement.delete(selector, element);
+    }
+}
+
+class StringMapObserver {
+    constructor(element, delegate) {
+        this.element = element;
+        this.delegate = delegate;
+        this.started = false;
+        this.stringMap = new Map();
+        this.mutationObserver = new MutationObserver((mutations) => this.processMutations(mutations));
+    }
+    start() {
+        if (!this.started) {
+            this.started = true;
+            this.mutationObserver.observe(this.element, { attributes: true, attributeOldValue: true });
+            this.refresh();
+        }
+    }
+    stop() {
+        if (this.started) {
+            this.mutationObserver.takeRecords();
+            this.mutationObserver.disconnect();
+            this.started = false;
+        }
+    }
+    refresh() {
+        if (this.started) {
+            for (const attributeName of this.knownAttributeNames) {
+                this.refreshAttribute(attributeName, null);
+            }
+        }
+    }
+    processMutations(mutations) {
+        if (this.started) {
+            for (const mutation of mutations) {
+                this.processMutation(mutation);
+            }
+        }
+    }
+    processMutation(mutation) {
+        const attributeName = mutation.attributeName;
+        if (attributeName) {
+            this.refreshAttribute(attributeName, mutation.oldValue);
+        }
+    }
+    refreshAttribute(attributeName, oldValue) {
+        const key = this.delegate.getStringMapKeyForAttribute(attributeName);
+        if (key != null) {
+            if (!this.stringMap.has(attributeName)) {
+                this.stringMapKeyAdded(key, attributeName);
+            }
+            const value = this.element.getAttribute(attributeName);
+            if (this.stringMap.get(attributeName) != value) {
+                this.stringMapValueChanged(value, key, oldValue);
+            }
+            if (value == null) {
+                const oldValue = this.stringMap.get(attributeName);
+                this.stringMap.delete(attributeName);
+                if (oldValue)
+                    this.stringMapKeyRemoved(key, attributeName, oldValue);
+            }
+            else {
+                this.stringMap.set(attributeName, value);
+            }
+        }
+    }
+    stringMapKeyAdded(key, attributeName) {
+        if (this.delegate.stringMapKeyAdded) {
+            this.delegate.stringMapKeyAdded(key, attributeName);
+        }
+    }
+    stringMapValueChanged(value, key, oldValue) {
+        if (this.delegate.stringMapValueChanged) {
+            this.delegate.stringMapValueChanged(value, key, oldValue);
+        }
+    }
+    stringMapKeyRemoved(key, attributeName, oldValue) {
+        if (this.delegate.stringMapKeyRemoved) {
+            this.delegate.stringMapKeyRemoved(key, attributeName, oldValue);
+        }
+    }
+    get knownAttributeNames() {
+        return Array.from(new Set(this.currentAttributeNames.concat(this.recordedAttributeNames)));
+    }
+    get currentAttributeNames() {
+        return Array.from(this.element.attributes).map((attribute) => attribute.name);
+    }
+    get recordedAttributeNames() {
+        return Array.from(this.stringMap.keys());
+    }
+}
+
+class TokenListObserver {
+    constructor(element, attributeName, delegate) {
+        this.attributeObserver = new AttributeObserver(element, attributeName, this);
+        this.delegate = delegate;
+        this.tokensByElement = new Multimap();
+    }
+    get started() {
+        return this.attributeObserver.started;
+    }
+    start() {
+        this.attributeObserver.start();
+    }
+    pause(callback) {
+        this.attributeObserver.pause(callback);
+    }
+    stop() {
+        this.attributeObserver.stop();
+    }
+    refresh() {
+        this.attributeObserver.refresh();
+    }
+    get element() {
+        return this.attributeObserver.element;
+    }
+    get attributeName() {
+        return this.attributeObserver.attributeName;
+    }
+    elementMatchedAttribute(element) {
+        this.tokensMatched(this.readTokensForElement(element));
+    }
+    elementAttributeValueChanged(element) {
+        const [unmatchedTokens, matchedTokens] = this.refreshTokensForElement(element);
+        this.tokensUnmatched(unmatchedTokens);
+        this.tokensMatched(matchedTokens);
+    }
+    elementUnmatchedAttribute(element) {
+        this.tokensUnmatched(this.tokensByElement.getValuesForKey(element));
+    }
+    tokensMatched(tokens) {
+        tokens.forEach((token) => this.tokenMatched(token));
+    }
+    tokensUnmatched(tokens) {
+        tokens.forEach((token) => this.tokenUnmatched(token));
+    }
+    tokenMatched(token) {
+        this.delegate.tokenMatched(token);
+        this.tokensByElement.add(token.element, token);
+    }
+    tokenUnmatched(token) {
+        this.delegate.tokenUnmatched(token);
+        this.tokensByElement.delete(token.element, token);
+    }
+    refreshTokensForElement(element) {
+        const previousTokens = this.tokensByElement.getValuesForKey(element);
+        const currentTokens = this.readTokensForElement(element);
+        const firstDifferingIndex = zip(previousTokens, currentTokens).findIndex(([previousToken, currentToken]) => !tokensAreEqual(previousToken, currentToken));
+        if (firstDifferingIndex == -1) {
+            return [[], []];
+        }
+        else {
+            return [previousTokens.slice(firstDifferingIndex), currentTokens.slice(firstDifferingIndex)];
+        }
+    }
+    readTokensForElement(element) {
+        const attributeName = this.attributeName;
+        const tokenString = element.getAttribute(attributeName) || "";
+        return parseTokenString(tokenString, element, attributeName);
+    }
+}
+function parseTokenString(tokenString, element, attributeName) {
+    return tokenString
+        .trim()
+        .split(/\s+/)
+        .filter((content) => content.length)
+        .map((content, index) => ({ element, attributeName, content, index }));
+}
+function zip(left, right) {
+    const length = Math.max(left.length, right.length);
+    return Array.from({ length }, (_, index) => [left[index], right[index]]);
+}
+function tokensAreEqual(left, right) {
+    return left && right && left.index == right.index && left.content == right.content;
+}
+
+class ValueListObserver {
+    constructor(element, attributeName, delegate) {
+        this.tokenListObserver = new TokenListObserver(element, attributeName, this);
+        this.delegate = delegate;
+        this.parseResultsByToken = new WeakMap();
+        this.valuesByTokenByElement = new WeakMap();
+    }
+    get started() {
+        return this.tokenListObserver.started;
+    }
+    start() {
+        this.tokenListObserver.start();
+    }
+    stop() {
+        this.tokenListObserver.stop();
+    }
+    refresh() {
+        this.tokenListObserver.refresh();
+    }
+    get element() {
+        return this.tokenListObserver.element;
+    }
+    get attributeName() {
+        return this.tokenListObserver.attributeName;
+    }
+    tokenMatched(token) {
+        const { element } = token;
+        const { value } = this.fetchParseResultForToken(token);
+        if (value) {
+            this.fetchValuesByTokenForElement(element).set(token, value);
+            this.delegate.elementMatchedValue(element, value);
+        }
+    }
+    tokenUnmatched(token) {
+        const { element } = token;
+        const { value } = this.fetchParseResultForToken(token);
+        if (value) {
+            this.fetchValuesByTokenForElement(element).delete(token);
+            this.delegate.elementUnmatchedValue(element, value);
+        }
+    }
+    fetchParseResultForToken(token) {
+        let parseResult = this.parseResultsByToken.get(token);
+        if (!parseResult) {
+            parseResult = this.parseToken(token);
+            this.parseResultsByToken.set(token, parseResult);
+        }
+        return parseResult;
+    }
+    fetchValuesByTokenForElement(element) {
+        let valuesByToken = this.valuesByTokenByElement.get(element);
+        if (!valuesByToken) {
+            valuesByToken = new Map();
+            this.valuesByTokenByElement.set(element, valuesByToken);
+        }
+        return valuesByToken;
+    }
+    parseToken(token) {
+        try {
+            const value = this.delegate.parseValueForToken(token);
+            return { value };
+        }
+        catch (error) {
+            return { error };
+        }
+    }
+}
+
+class BindingObserver {
+    constructor(context, delegate) {
+        this.context = context;
+        this.delegate = delegate;
+        this.bindingsByAction = new Map();
+    }
+    start() {
+        if (!this.valueListObserver) {
+            this.valueListObserver = new ValueListObserver(this.element, this.actionAttribute, this);
+            this.valueListObserver.start();
+        }
+    }
+    stop() {
+        if (this.valueListObserver) {
+            this.valueListObserver.stop();
+            delete this.valueListObserver;
+            this.disconnectAllActions();
+        }
+    }
+    get element() {
+        return this.context.element;
+    }
+    get identifier() {
+        return this.context.identifier;
+    }
+    get actionAttribute() {
+        return this.schema.actionAttribute;
+    }
+    get schema() {
+        return this.context.schema;
+    }
+    get bindings() {
+        return Array.from(this.bindingsByAction.values());
+    }
+    connectAction(action) {
+        const binding = new Binding(this.context, action);
+        this.bindingsByAction.set(action, binding);
+        this.delegate.bindingConnected(binding);
+    }
+    disconnectAction(action) {
+        const binding = this.bindingsByAction.get(action);
+        if (binding) {
+            this.bindingsByAction.delete(action);
+            this.delegate.bindingDisconnected(binding);
+        }
+    }
+    disconnectAllActions() {
+        this.bindings.forEach((binding) => this.delegate.bindingDisconnected(binding, true));
+        this.bindingsByAction.clear();
+    }
+    parseValueForToken(token) {
+        const action = Action.forToken(token, this.schema);
+        if (action.identifier == this.identifier) {
+            return action;
+        }
+    }
+    elementMatchedValue(element, action) {
+        this.connectAction(action);
+    }
+    elementUnmatchedValue(element, action) {
+        this.disconnectAction(action);
+    }
+}
+
+class ValueObserver {
+    constructor(context, receiver) {
+        this.context = context;
+        this.receiver = receiver;
+        this.stringMapObserver = new StringMapObserver(this.element, this);
+        this.valueDescriptorMap = this.controller.valueDescriptorMap;
+    }
+    start() {
+        this.stringMapObserver.start();
+        this.invokeChangedCallbacksForDefaultValues();
+    }
+    stop() {
+        this.stringMapObserver.stop();
+    }
+    get element() {
+        return this.context.element;
+    }
+    get controller() {
+        return this.context.controller;
+    }
+    getStringMapKeyForAttribute(attributeName) {
+        if (attributeName in this.valueDescriptorMap) {
+            return this.valueDescriptorMap[attributeName].name;
+        }
+    }
+    stringMapKeyAdded(key, attributeName) {
+        const descriptor = this.valueDescriptorMap[attributeName];
+        if (!this.hasValue(key)) {
+            this.invokeChangedCallback(key, descriptor.writer(this.receiver[key]), descriptor.writer(descriptor.defaultValue));
+        }
+    }
+    stringMapValueChanged(value, name, oldValue) {
+        const descriptor = this.valueDescriptorNameMap[name];
+        if (value === null)
+            return;
+        if (oldValue === null) {
+            oldValue = descriptor.writer(descriptor.defaultValue);
+        }
+        this.invokeChangedCallback(name, value, oldValue);
+    }
+    stringMapKeyRemoved(key, attributeName, oldValue) {
+        const descriptor = this.valueDescriptorNameMap[key];
+        if (this.hasValue(key)) {
+            this.invokeChangedCallback(key, descriptor.writer(this.receiver[key]), oldValue);
+        }
+        else {
+            this.invokeChangedCallback(key, descriptor.writer(descriptor.defaultValue), oldValue);
+        }
+    }
+    invokeChangedCallbacksForDefaultValues() {
+        for (const { key, name, defaultValue, writer } of this.valueDescriptors) {
+            if (defaultValue != undefined && !this.controller.data.has(key)) {
+                this.invokeChangedCallback(name, writer(defaultValue), undefined);
+            }
+        }
+    }
+    invokeChangedCallback(name, rawValue, rawOldValue) {
+        const changedMethodName = `${name}Changed`;
+        const changedMethod = this.receiver[changedMethodName];
+        if (typeof changedMethod == "function") {
+            const descriptor = this.valueDescriptorNameMap[name];
+            try {
+                const value = descriptor.reader(rawValue);
+                let oldValue = rawOldValue;
+                if (rawOldValue) {
+                    oldValue = descriptor.reader(rawOldValue);
+                }
+                changedMethod.call(this.receiver, value, oldValue);
+            }
+            catch (error) {
+                if (error instanceof TypeError) {
+                    error.message = `Stimulus Value "${this.context.identifier}.${descriptor.name}" - ${error.message}`;
+                }
+                throw error;
+            }
+        }
+    }
+    get valueDescriptors() {
+        const { valueDescriptorMap } = this;
+        return Object.keys(valueDescriptorMap).map((key) => valueDescriptorMap[key]);
+    }
+    get valueDescriptorNameMap() {
+        const descriptors = {};
+        Object.keys(this.valueDescriptorMap).forEach((key) => {
+            const descriptor = this.valueDescriptorMap[key];
+            descriptors[descriptor.name] = descriptor;
+        });
+        return descriptors;
+    }
+    hasValue(attributeName) {
+        const descriptor = this.valueDescriptorNameMap[attributeName];
+        const hasMethodName = `has${capitalize(descriptor.name)}`;
+        return this.receiver[hasMethodName];
+    }
+}
+
+class TargetObserver {
+    constructor(context, delegate) {
+        this.context = context;
+        this.delegate = delegate;
+        this.targetsByName = new Multimap();
+    }
+    start() {
+        if (!this.tokenListObserver) {
+            this.tokenListObserver = new TokenListObserver(this.element, this.attributeName, this);
+            this.tokenListObserver.start();
+        }
+    }
+    stop() {
+        if (this.tokenListObserver) {
+            this.disconnectAllTargets();
+            this.tokenListObserver.stop();
+            delete this.tokenListObserver;
+        }
+    }
+    tokenMatched({ element, content: name }) {
+        if (this.scope.containsElement(element)) {
+            this.connectTarget(element, name);
+        }
+    }
+    tokenUnmatched({ element, content: name }) {
+        this.disconnectTarget(element, name);
+    }
+    connectTarget(element, name) {
+        var _a;
+        if (!this.targetsByName.has(name, element)) {
+            this.targetsByName.add(name, element);
+            (_a = this.tokenListObserver) === null || _a === void 0 ? void 0 : _a.pause(() => this.delegate.targetConnected(element, name));
+        }
+    }
+    disconnectTarget(element, name) {
+        var _a;
+        if (this.targetsByName.has(name, element)) {
+            this.targetsByName.delete(name, element);
+            (_a = this.tokenListObserver) === null || _a === void 0 ? void 0 : _a.pause(() => this.delegate.targetDisconnected(element, name));
+        }
+    }
+    disconnectAllTargets() {
+        for (const name of this.targetsByName.keys) {
+            for (const element of this.targetsByName.getValuesForKey(name)) {
+                this.disconnectTarget(element, name);
+            }
+        }
+    }
+    get attributeName() {
+        return `data-${this.context.identifier}-target`;
+    }
+    get element() {
+        return this.context.element;
+    }
+    get scope() {
+        return this.context.scope;
+    }
+}
+
+function readInheritableStaticArrayValues(constructor, propertyName) {
+    const ancestors = getAncestorsForConstructor(constructor);
+    return Array.from(ancestors.reduce((values, constructor) => {
+        getOwnStaticArrayValues(constructor, propertyName).forEach((name) => values.add(name));
+        return values;
+    }, new Set()));
+}
+function readInheritableStaticObjectPairs(constructor, propertyName) {
+    const ancestors = getAncestorsForConstructor(constructor);
+    return ancestors.reduce((pairs, constructor) => {
+        pairs.push(...getOwnStaticObjectPairs(constructor, propertyName));
+        return pairs;
+    }, []);
+}
+function getAncestorsForConstructor(constructor) {
+    const ancestors = [];
+    while (constructor) {
+        ancestors.push(constructor);
+        constructor = Object.getPrototypeOf(constructor);
+    }
+    return ancestors.reverse();
+}
+function getOwnStaticArrayValues(constructor, propertyName) {
+    const definition = constructor[propertyName];
+    return Array.isArray(definition) ? definition : [];
+}
+function getOwnStaticObjectPairs(constructor, propertyName) {
+    const definition = constructor[propertyName];
+    return definition ? Object.keys(definition).map((key) => [key, definition[key]]) : [];
+}
+
+class OutletObserver {
+    constructor(context, delegate) {
+        this.started = false;
+        this.context = context;
+        this.delegate = delegate;
+        this.outletsByName = new Multimap();
+        this.outletElementsByName = new Multimap();
+        this.selectorObserverMap = new Map();
+        this.attributeObserverMap = new Map();
+    }
+    start() {
+        if (!this.started) {
+            this.outletDefinitions.forEach((outletName) => {
+                this.setupSelectorObserverForOutlet(outletName);
+                this.setupAttributeObserverForOutlet(outletName);
+            });
+            this.started = true;
+            this.dependentContexts.forEach((context) => context.refresh());
+        }
+    }
+    refresh() {
+        this.selectorObserverMap.forEach((observer) => observer.refresh());
+        this.attributeObserverMap.forEach((observer) => observer.refresh());
+    }
+    stop() {
+        if (this.started) {
+            this.started = false;
+            this.disconnectAllOutlets();
+            this.stopSelectorObservers();
+            this.stopAttributeObservers();
+        }
+    }
+    stopSelectorObservers() {
+        if (this.selectorObserverMap.size > 0) {
+            this.selectorObserverMap.forEach((observer) => observer.stop());
+            this.selectorObserverMap.clear();
+        }
+    }
+    stopAttributeObservers() {
+        if (this.attributeObserverMap.size > 0) {
+            this.attributeObserverMap.forEach((observer) => observer.stop());
+            this.attributeObserverMap.clear();
+        }
+    }
+    selectorMatched(element, _selector, { outletName }) {
+        const outlet = this.getOutlet(element, outletName);
+        if (outlet) {
+            this.connectOutlet(outlet, element, outletName);
+        }
+    }
+    selectorUnmatched(element, _selector, { outletName }) {
+        const outlet = this.getOutletFromMap(element, outletName);
+        if (outlet) {
+            this.disconnectOutlet(outlet, element, outletName);
+        }
+    }
+    selectorMatchElement(element, { outletName }) {
+        const selector = this.selector(outletName);
+        const hasOutlet = this.hasOutlet(element, outletName);
+        const hasOutletController = element.matches(`[${this.schema.controllerAttribute}~=${outletName}]`);
+        if (selector) {
+            return hasOutlet && hasOutletController && element.matches(selector);
+        }
+        else {
+            return false;
+        }
+    }
+    elementMatchedAttribute(_element, attributeName) {
+        const outletName = this.getOutletNameFromOutletAttributeName(attributeName);
+        if (outletName) {
+            this.updateSelectorObserverForOutlet(outletName);
+        }
+    }
+    elementAttributeValueChanged(_element, attributeName) {
+        const outletName = this.getOutletNameFromOutletAttributeName(attributeName);
+        if (outletName) {
+            this.updateSelectorObserverForOutlet(outletName);
+        }
+    }
+    elementUnmatchedAttribute(_element, attributeName) {
+        const outletName = this.getOutletNameFromOutletAttributeName(attributeName);
+        if (outletName) {
+            this.updateSelectorObserverForOutlet(outletName);
+        }
+    }
+    connectOutlet(outlet, element, outletName) {
+        var _a;
+        if (!this.outletElementsByName.has(outletName, element)) {
+            this.outletsByName.add(outletName, outlet);
+            this.outletElementsByName.add(outletName, element);
+            (_a = this.selectorObserverMap.get(outletName)) === null || _a === void 0 ? void 0 : _a.pause(() => this.delegate.outletConnected(outlet, element, outletName));
+        }
+    }
+    disconnectOutlet(outlet, element, outletName) {
+        var _a;
+        if (this.outletElementsByName.has(outletName, element)) {
+            this.outletsByName.delete(outletName, outlet);
+            this.outletElementsByName.delete(outletName, element);
+            (_a = this.selectorObserverMap
+                .get(outletName)) === null || _a === void 0 ? void 0 : _a.pause(() => this.delegate.outletDisconnected(outlet, element, outletName));
+        }
+    }
+    disconnectAllOutlets() {
+        for (const outletName of this.outletElementsByName.keys) {
+            for (const element of this.outletElementsByName.getValuesForKey(outletName)) {
+                for (const outlet of this.outletsByName.getValuesForKey(outletName)) {
+                    this.disconnectOutlet(outlet, element, outletName);
+                }
+            }
+        }
+    }
+    updateSelectorObserverForOutlet(outletName) {
+        const observer = this.selectorObserverMap.get(outletName);
+        if (observer) {
+            observer.selector = this.selector(outletName);
+        }
+    }
+    setupSelectorObserverForOutlet(outletName) {
+        const selector = this.selector(outletName);
+        const selectorObserver = new SelectorObserver(document.body, selector, this, { outletName });
+        this.selectorObserverMap.set(outletName, selectorObserver);
+        selectorObserver.start();
+    }
+    setupAttributeObserverForOutlet(outletName) {
+        const attributeName = this.attributeNameForOutletName(outletName);
+        const attributeObserver = new AttributeObserver(this.scope.element, attributeName, this);
+        this.attributeObserverMap.set(outletName, attributeObserver);
+        attributeObserver.start();
+    }
+    selector(outletName) {
+        return this.scope.outlets.getSelectorForOutletName(outletName);
+    }
+    attributeNameForOutletName(outletName) {
+        return this.scope.schema.outletAttributeForScope(this.identifier, outletName);
+    }
+    getOutletNameFromOutletAttributeName(attributeName) {
+        return this.outletDefinitions.find((outletName) => this.attributeNameForOutletName(outletName) === attributeName);
+    }
+    get outletDependencies() {
+        const dependencies = new Multimap();
+        this.router.modules.forEach((module) => {
+            const constructor = module.definition.controllerConstructor;
+            const outlets = readInheritableStaticArrayValues(constructor, "outlets");
+            outlets.forEach((outlet) => dependencies.add(outlet, module.identifier));
+        });
+        return dependencies;
+    }
+    get outletDefinitions() {
+        return this.outletDependencies.getKeysForValue(this.identifier);
+    }
+    get dependentControllerIdentifiers() {
+        return this.outletDependencies.getValuesForKey(this.identifier);
+    }
+    get dependentContexts() {
+        const identifiers = this.dependentControllerIdentifiers;
+        return this.router.contexts.filter((context) => identifiers.includes(context.identifier));
+    }
+    hasOutlet(element, outletName) {
+        return !!this.getOutlet(element, outletName) || !!this.getOutletFromMap(element, outletName);
+    }
+    getOutlet(element, outletName) {
+        return this.application.getControllerForElementAndIdentifier(element, outletName);
+    }
+    getOutletFromMap(element, outletName) {
+        return this.outletsByName.getValuesForKey(outletName).find((outlet) => outlet.element === element);
+    }
+    get scope() {
+        return this.context.scope;
+    }
+    get schema() {
+        return this.context.schema;
+    }
+    get identifier() {
+        return this.context.identifier;
+    }
+    get application() {
+        return this.context.application;
+    }
+    get router() {
+        return this.application.router;
+    }
+}
+
+class Context {
+    constructor(module, scope) {
+        this.logDebugActivity = (functionName, detail = {}) => {
+            const { identifier, controller, element } = this;
+            detail = Object.assign({ identifier, controller, element }, detail);
+            this.application.logDebugActivity(this.identifier, functionName, detail);
+        };
+        this.module = module;
+        this.scope = scope;
+        this.controller = new module.controllerConstructor(this);
+        this.bindingObserver = new BindingObserver(this, this.dispatcher);
+        this.valueObserver = new ValueObserver(this, this.controller);
+        this.targetObserver = new TargetObserver(this, this);
+        this.outletObserver = new OutletObserver(this, this);
+        try {
+            this.controller.initialize();
+            this.logDebugActivity("initialize");
+        }
+        catch (error) {
+            this.handleError(error, "initializing controller");
+        }
+    }
+    connect() {
+        this.bindingObserver.start();
+        this.valueObserver.start();
+        this.targetObserver.start();
+        this.outletObserver.start();
+        try {
+            this.controller.connect();
+            this.logDebugActivity("connect");
+        }
+        catch (error) {
+            this.handleError(error, "connecting controller");
+        }
+    }
+    refresh() {
+        this.outletObserver.refresh();
+    }
+    disconnect() {
+        try {
+            this.controller.disconnect();
+            this.logDebugActivity("disconnect");
+        }
+        catch (error) {
+            this.handleError(error, "disconnecting controller");
+        }
+        this.outletObserver.stop();
+        this.targetObserver.stop();
+        this.valueObserver.stop();
+        this.bindingObserver.stop();
+    }
+    get application() {
+        return this.module.application;
+    }
+    get identifier() {
+        return this.module.identifier;
+    }
+    get schema() {
+        return this.application.schema;
+    }
+    get dispatcher() {
+        return this.application.dispatcher;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get parentElement() {
+        return this.element.parentElement;
+    }
+    handleError(error, message, detail = {}) {
+        const { identifier, controller, element } = this;
+        detail = Object.assign({ identifier, controller, element }, detail);
+        this.application.handleError(error, `Error ${message}`, detail);
+    }
+    targetConnected(element, name) {
+        this.invokeControllerMethod(`${name}TargetConnected`, element);
+    }
+    targetDisconnected(element, name) {
+        this.invokeControllerMethod(`${name}TargetDisconnected`, element);
+    }
+    outletConnected(outlet, element, name) {
+        this.invokeControllerMethod(`${namespaceCamelize(name)}OutletConnected`, outlet, element);
+    }
+    outletDisconnected(outlet, element, name) {
+        this.invokeControllerMethod(`${namespaceCamelize(name)}OutletDisconnected`, outlet, element);
+    }
+    invokeControllerMethod(methodName, ...args) {
+        const controller = this.controller;
+        if (typeof controller[methodName] == "function") {
+            controller[methodName](...args);
+        }
+    }
+}
+
+function bless(constructor) {
+    return shadow(constructor, getBlessedProperties(constructor));
+}
+function shadow(constructor, properties) {
+    const shadowConstructor = extend(constructor);
+    const shadowProperties = getShadowProperties(constructor.prototype, properties);
+    Object.defineProperties(shadowConstructor.prototype, shadowProperties);
+    return shadowConstructor;
+}
+function getBlessedProperties(constructor) {
+    const blessings = readInheritableStaticArrayValues(constructor, "blessings");
+    return blessings.reduce((blessedProperties, blessing) => {
+        const properties = blessing(constructor);
+        for (const key in properties) {
+            const descriptor = blessedProperties[key] || {};
+            blessedProperties[key] = Object.assign(descriptor, properties[key]);
+        }
+        return blessedProperties;
+    }, {});
+}
+function getShadowProperties(prototype, properties) {
+    return getOwnKeys(properties).reduce((shadowProperties, key) => {
+        const descriptor = getShadowedDescriptor(prototype, properties, key);
+        if (descriptor) {
+            Object.assign(shadowProperties, { [key]: descriptor });
+        }
+        return shadowProperties;
+    }, {});
+}
+function getShadowedDescriptor(prototype, properties, key) {
+    const shadowingDescriptor = Object.getOwnPropertyDescriptor(prototype, key);
+    const shadowedByValue = shadowingDescriptor && "value" in shadowingDescriptor;
+    if (!shadowedByValue) {
+        const descriptor = Object.getOwnPropertyDescriptor(properties, key).value;
+        if (shadowingDescriptor) {
+            descriptor.get = shadowingDescriptor.get || descriptor.get;
+            descriptor.set = shadowingDescriptor.set || descriptor.set;
+        }
+        return descriptor;
+    }
+}
+const getOwnKeys = (() => {
+    if (typeof Object.getOwnPropertySymbols == "function") {
+        return (object) => [...Object.getOwnPropertyNames(object), ...Object.getOwnPropertySymbols(object)];
+    }
+    else {
+        return Object.getOwnPropertyNames;
+    }
+})();
+const extend = (() => {
+    function extendWithReflect(constructor) {
+        function extended() {
+            return Reflect.construct(constructor, arguments, new.target);
+        }
+        extended.prototype = Object.create(constructor.prototype, {
+            constructor: { value: extended },
+        });
+        Reflect.setPrototypeOf(extended, constructor);
+        return extended;
+    }
+    function testReflectExtension() {
+        const a = function () {
+            this.a.call(this);
+        };
+        const b = extendWithReflect(a);
+        b.prototype.a = function () { };
+        return new b();
+    }
+    try {
+        testReflectExtension();
+        return extendWithReflect;
+    }
+    catch (error) {
+        return (constructor) => class extended extends constructor {
+        };
+    }
+})();
+
+function blessDefinition(definition) {
+    return {
+        identifier: definition.identifier,
+        controllerConstructor: bless(definition.controllerConstructor),
+    };
+}
+
+class Module {
+    constructor(application, definition) {
+        this.application = application;
+        this.definition = blessDefinition(definition);
+        this.contextsByScope = new WeakMap();
+        this.connectedContexts = new Set();
+    }
+    get identifier() {
+        return this.definition.identifier;
+    }
+    get controllerConstructor() {
+        return this.definition.controllerConstructor;
+    }
+    get contexts() {
+        return Array.from(this.connectedContexts);
+    }
+    connectContextForScope(scope) {
+        const context = this.fetchContextForScope(scope);
+        this.connectedContexts.add(context);
+        context.connect();
+    }
+    disconnectContextForScope(scope) {
+        const context = this.contextsByScope.get(scope);
+        if (context) {
+            this.connectedContexts.delete(context);
+            context.disconnect();
+        }
+    }
+    fetchContextForScope(scope) {
+        let context = this.contextsByScope.get(scope);
+        if (!context) {
+            context = new Context(this, scope);
+            this.contextsByScope.set(scope, context);
+        }
+        return context;
+    }
+}
+
+class ClassMap {
+    constructor(scope) {
+        this.scope = scope;
+    }
+    has(name) {
+        return this.data.has(this.getDataKey(name));
+    }
+    get(name) {
+        return this.getAll(name)[0];
+    }
+    getAll(name) {
+        const tokenString = this.data.get(this.getDataKey(name)) || "";
+        return tokenize(tokenString);
+    }
+    getAttributeName(name) {
+        return this.data.getAttributeNameForKey(this.getDataKey(name));
+    }
+    getDataKey(name) {
+        return `${name}-class`;
+    }
+    get data() {
+        return this.scope.data;
+    }
+}
+
+class DataMap {
+    constructor(scope) {
+        this.scope = scope;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get identifier() {
+        return this.scope.identifier;
+    }
+    get(key) {
+        const name = this.getAttributeNameForKey(key);
+        return this.element.getAttribute(name);
+    }
+    set(key, value) {
+        const name = this.getAttributeNameForKey(key);
+        this.element.setAttribute(name, value);
+        return this.get(key);
+    }
+    has(key) {
+        const name = this.getAttributeNameForKey(key);
+        return this.element.hasAttribute(name);
+    }
+    delete(key) {
+        if (this.has(key)) {
+            const name = this.getAttributeNameForKey(key);
+            this.element.removeAttribute(name);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    getAttributeNameForKey(key) {
+        return `data-${this.identifier}-${dasherize(key)}`;
+    }
+}
+
+class Guide {
+    constructor(logger) {
+        this.warnedKeysByObject = new WeakMap();
+        this.logger = logger;
+    }
+    warn(object, key, message) {
+        let warnedKeys = this.warnedKeysByObject.get(object);
+        if (!warnedKeys) {
+            warnedKeys = new Set();
+            this.warnedKeysByObject.set(object, warnedKeys);
+        }
+        if (!warnedKeys.has(key)) {
+            warnedKeys.add(key);
+            this.logger.warn(message, object);
+        }
+    }
+}
+
+function attributeValueContainsToken(attributeName, token) {
+    return `[${attributeName}~="${token}"]`;
+}
+
+class TargetSet {
+    constructor(scope) {
+        this.scope = scope;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get identifier() {
+        return this.scope.identifier;
+    }
+    get schema() {
+        return this.scope.schema;
+    }
+    has(targetName) {
+        return this.find(targetName) != null;
+    }
+    find(...targetNames) {
+        return targetNames.reduce((target, targetName) => target || this.findTarget(targetName) || this.findLegacyTarget(targetName), undefined);
+    }
+    findAll(...targetNames) {
+        return targetNames.reduce((targets, targetName) => [
+            ...targets,
+            ...this.findAllTargets(targetName),
+            ...this.findAllLegacyTargets(targetName),
+        ], []);
+    }
+    findTarget(targetName) {
+        const selector = this.getSelectorForTargetName(targetName);
+        return this.scope.findElement(selector);
+    }
+    findAllTargets(targetName) {
+        const selector = this.getSelectorForTargetName(targetName);
+        return this.scope.findAllElements(selector);
+    }
+    getSelectorForTargetName(targetName) {
+        const attributeName = this.schema.targetAttributeForScope(this.identifier);
+        return attributeValueContainsToken(attributeName, targetName);
+    }
+    findLegacyTarget(targetName) {
+        const selector = this.getLegacySelectorForTargetName(targetName);
+        return this.deprecate(this.scope.findElement(selector), targetName);
+    }
+    findAllLegacyTargets(targetName) {
+        const selector = this.getLegacySelectorForTargetName(targetName);
+        return this.scope.findAllElements(selector).map((element) => this.deprecate(element, targetName));
+    }
+    getLegacySelectorForTargetName(targetName) {
+        const targetDescriptor = `${this.identifier}.${targetName}`;
+        return attributeValueContainsToken(this.schema.targetAttribute, targetDescriptor);
+    }
+    deprecate(element, targetName) {
+        if (element) {
+            const { identifier } = this;
+            const attributeName = this.schema.targetAttribute;
+            const revisedAttributeName = this.schema.targetAttributeForScope(identifier);
+            this.guide.warn(element, `target:${targetName}`, `Please replace ${attributeName}="${identifier}.${targetName}" with ${revisedAttributeName}="${targetName}". ` +
+                `The ${attributeName} attribute is deprecated and will be removed in a future version of Stimulus.`);
+        }
+        return element;
+    }
+    get guide() {
+        return this.scope.guide;
+    }
+}
+
+class OutletSet {
+    constructor(scope, controllerElement) {
+        this.scope = scope;
+        this.controllerElement = controllerElement;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get identifier() {
+        return this.scope.identifier;
+    }
+    get schema() {
+        return this.scope.schema;
+    }
+    has(outletName) {
+        return this.find(outletName) != null;
+    }
+    find(...outletNames) {
+        return outletNames.reduce((outlet, outletName) => outlet || this.findOutlet(outletName), undefined);
+    }
+    findAll(...outletNames) {
+        return outletNames.reduce((outlets, outletName) => [...outlets, ...this.findAllOutlets(outletName)], []);
+    }
+    getSelectorForOutletName(outletName) {
+        const attributeName = this.schema.outletAttributeForScope(this.identifier, outletName);
+        return this.controllerElement.getAttribute(attributeName);
+    }
+    findOutlet(outletName) {
+        const selector = this.getSelectorForOutletName(outletName);
+        if (selector)
+            return this.findElement(selector, outletName);
+    }
+    findAllOutlets(outletName) {
+        const selector = this.getSelectorForOutletName(outletName);
+        return selector ? this.findAllElements(selector, outletName) : [];
+    }
+    findElement(selector, outletName) {
+        const elements = this.scope.queryElements(selector);
+        return elements.filter((element) => this.matchesElement(element, selector, outletName))[0];
+    }
+    findAllElements(selector, outletName) {
+        const elements = this.scope.queryElements(selector);
+        return elements.filter((element) => this.matchesElement(element, selector, outletName));
+    }
+    matchesElement(element, selector, outletName) {
+        const controllerAttribute = element.getAttribute(this.scope.schema.controllerAttribute) || "";
+        return element.matches(selector) && controllerAttribute.split(" ").includes(outletName);
+    }
+}
+
+class Scope {
+    constructor(schema, element, identifier, logger) {
+        this.targets = new TargetSet(this);
+        this.classes = new ClassMap(this);
+        this.data = new DataMap(this);
+        this.containsElement = (element) => {
+            return element.closest(this.controllerSelector) === this.element;
+        };
+        this.schema = schema;
+        this.element = element;
+        this.identifier = identifier;
+        this.guide = new Guide(logger);
+        this.outlets = new OutletSet(this.documentScope, element);
+    }
+    findElement(selector) {
+        return this.element.matches(selector) ? this.element : this.queryElements(selector).find(this.containsElement);
+    }
+    findAllElements(selector) {
+        return [
+            ...(this.element.matches(selector) ? [this.element] : []),
+            ...this.queryElements(selector).filter(this.containsElement),
+        ];
+    }
+    queryElements(selector) {
+        return Array.from(this.element.querySelectorAll(selector));
+    }
+    get controllerSelector() {
+        return attributeValueContainsToken(this.schema.controllerAttribute, this.identifier);
+    }
+    get isDocumentScope() {
+        return this.element === document.documentElement;
+    }
+    get documentScope() {
+        return this.isDocumentScope
+            ? this
+            : new Scope(this.schema, document.documentElement, this.identifier, this.guide.logger);
+    }
+}
+
+class ScopeObserver {
+    constructor(element, schema, delegate) {
+        this.element = element;
+        this.schema = schema;
+        this.delegate = delegate;
+        this.valueListObserver = new ValueListObserver(this.element, this.controllerAttribute, this);
+        this.scopesByIdentifierByElement = new WeakMap();
+        this.scopeReferenceCounts = new WeakMap();
+    }
+    start() {
+        this.valueListObserver.start();
+    }
+    stop() {
+        this.valueListObserver.stop();
+    }
+    get controllerAttribute() {
+        return this.schema.controllerAttribute;
+    }
+    parseValueForToken(token) {
+        const { element, content: identifier } = token;
+        return this.parseValueForElementAndIdentifier(element, identifier);
+    }
+    parseValueForElementAndIdentifier(element, identifier) {
+        const scopesByIdentifier = this.fetchScopesByIdentifierForElement(element);
+        let scope = scopesByIdentifier.get(identifier);
+        if (!scope) {
+            scope = this.delegate.createScopeForElementAndIdentifier(element, identifier);
+            scopesByIdentifier.set(identifier, scope);
+        }
+        return scope;
+    }
+    elementMatchedValue(element, value) {
+        const referenceCount = (this.scopeReferenceCounts.get(value) || 0) + 1;
+        this.scopeReferenceCounts.set(value, referenceCount);
+        if (referenceCount == 1) {
+            this.delegate.scopeConnected(value);
+        }
+    }
+    elementUnmatchedValue(element, value) {
+        const referenceCount = this.scopeReferenceCounts.get(value);
+        if (referenceCount) {
+            this.scopeReferenceCounts.set(value, referenceCount - 1);
+            if (referenceCount == 1) {
+                this.delegate.scopeDisconnected(value);
+            }
+        }
+    }
+    fetchScopesByIdentifierForElement(element) {
+        let scopesByIdentifier = this.scopesByIdentifierByElement.get(element);
+        if (!scopesByIdentifier) {
+            scopesByIdentifier = new Map();
+            this.scopesByIdentifierByElement.set(element, scopesByIdentifier);
+        }
+        return scopesByIdentifier;
+    }
+}
+
+class Router {
+    constructor(application) {
+        this.application = application;
+        this.scopeObserver = new ScopeObserver(this.element, this.schema, this);
+        this.scopesByIdentifier = new Multimap();
+        this.modulesByIdentifier = new Map();
+    }
+    get element() {
+        return this.application.element;
+    }
+    get schema() {
+        return this.application.schema;
+    }
+    get logger() {
+        return this.application.logger;
+    }
+    get controllerAttribute() {
+        return this.schema.controllerAttribute;
+    }
+    get modules() {
+        return Array.from(this.modulesByIdentifier.values());
+    }
+    get contexts() {
+        return this.modules.reduce((contexts, module) => contexts.concat(module.contexts), []);
+    }
+    start() {
+        this.scopeObserver.start();
+    }
+    stop() {
+        this.scopeObserver.stop();
+    }
+    loadDefinition(definition) {
+        this.unloadIdentifier(definition.identifier);
+        const module = new Module(this.application, definition);
+        this.connectModule(module);
+        const afterLoad = definition.controllerConstructor.afterLoad;
+        if (afterLoad) {
+            afterLoad.call(definition.controllerConstructor, definition.identifier, this.application);
+        }
+    }
+    unloadIdentifier(identifier) {
+        const module = this.modulesByIdentifier.get(identifier);
+        if (module) {
+            this.disconnectModule(module);
+        }
+    }
+    getContextForElementAndIdentifier(element, identifier) {
+        const module = this.modulesByIdentifier.get(identifier);
+        if (module) {
+            return module.contexts.find((context) => context.element == element);
+        }
+    }
+    proposeToConnectScopeForElementAndIdentifier(element, identifier) {
+        const scope = this.scopeObserver.parseValueForElementAndIdentifier(element, identifier);
+        if (scope) {
+            this.scopeObserver.elementMatchedValue(scope.element, scope);
+        }
+        else {
+            console.error(`Couldn't find or create scope for identifier: "${identifier}" and element:`, element);
+        }
+    }
+    handleError(error, message, detail) {
+        this.application.handleError(error, message, detail);
+    }
+    createScopeForElementAndIdentifier(element, identifier) {
+        return new Scope(this.schema, element, identifier, this.logger);
+    }
+    scopeConnected(scope) {
+        this.scopesByIdentifier.add(scope.identifier, scope);
+        const module = this.modulesByIdentifier.get(scope.identifier);
+        if (module) {
+            module.connectContextForScope(scope);
+        }
+    }
+    scopeDisconnected(scope) {
+        this.scopesByIdentifier.delete(scope.identifier, scope);
+        const module = this.modulesByIdentifier.get(scope.identifier);
+        if (module) {
+            module.disconnectContextForScope(scope);
+        }
+    }
+    connectModule(module) {
+        this.modulesByIdentifier.set(module.identifier, module);
+        const scopes = this.scopesByIdentifier.getValuesForKey(module.identifier);
+        scopes.forEach((scope) => module.connectContextForScope(scope));
+    }
+    disconnectModule(module) {
+        this.modulesByIdentifier.delete(module.identifier);
+        const scopes = this.scopesByIdentifier.getValuesForKey(module.identifier);
+        scopes.forEach((scope) => module.disconnectContextForScope(scope));
+    }
+}
+
+const defaultSchema = {
+    controllerAttribute: "data-controller",
+    actionAttribute: "data-action",
+    targetAttribute: "data-target",
+    targetAttributeForScope: (identifier) => `data-${identifier}-target`,
+    outletAttributeForScope: (identifier, outlet) => `data-${identifier}-${outlet}-outlet`,
+    keyMappings: Object.assign(Object.assign({ enter: "Enter", tab: "Tab", esc: "Escape", space: " ", up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", home: "Home", end: "End", page_up: "PageUp", page_down: "PageDown" }, objectFromEntries("abcdefghijklmnopqrstuvwxyz".split("").map((c) => [c, c]))), objectFromEntries("0123456789".split("").map((n) => [n, n]))),
+};
+function objectFromEntries(array) {
+    return array.reduce((memo, [k, v]) => (Object.assign(Object.assign({}, memo), { [k]: v })), {});
+}
+
+class Application {
+    constructor(element = document.documentElement, schema = defaultSchema) {
+        this.logger = console;
+        this.debug = false;
+        this.logDebugActivity = (identifier, functionName, detail = {}) => {
+            if (this.debug) {
+                this.logFormattedMessage(identifier, functionName, detail);
+            }
+        };
+        this.element = element;
+        this.schema = schema;
+        this.dispatcher = new Dispatcher(this);
+        this.router = new Router(this);
+        this.actionDescriptorFilters = Object.assign({}, defaultActionDescriptorFilters);
+    }
+    static start(element, schema) {
+        const application = new this(element, schema);
+        application.start();
+        return application;
+    }
+    async start() {
+        await domReady();
+        this.logDebugActivity("application", "starting");
+        this.dispatcher.start();
+        this.router.start();
+        this.logDebugActivity("application", "start");
+    }
+    stop() {
+        this.logDebugActivity("application", "stopping");
+        this.dispatcher.stop();
+        this.router.stop();
+        this.logDebugActivity("application", "stop");
+    }
+    register(identifier, controllerConstructor) {
+        this.load({ identifier, controllerConstructor });
+    }
+    registerActionOption(name, filter) {
+        this.actionDescriptorFilters[name] = filter;
+    }
+    load(head, ...rest) {
+        const definitions = Array.isArray(head) ? head : [head, ...rest];
+        definitions.forEach((definition) => {
+            if (definition.controllerConstructor.shouldLoad) {
+                this.router.loadDefinition(definition);
+            }
+        });
+    }
+    unload(head, ...rest) {
+        const identifiers = Array.isArray(head) ? head : [head, ...rest];
+        identifiers.forEach((identifier) => this.router.unloadIdentifier(identifier));
+    }
+    get controllers() {
+        return this.router.contexts.map((context) => context.controller);
+    }
+    getControllerForElementAndIdentifier(element, identifier) {
+        const context = this.router.getContextForElementAndIdentifier(element, identifier);
+        return context ? context.controller : null;
+    }
+    handleError(error, message, detail) {
+        var _a;
+        this.logger.error(`%s\n\n%o\n\n%o`, message, error, detail);
+        (_a = window.onerror) === null || _a === void 0 ? void 0 : _a.call(window, message, "", 0, 0, error);
+    }
+    logFormattedMessage(identifier, functionName, detail = {}) {
+        detail = Object.assign({ application: this }, detail);
+        this.logger.groupCollapsed(`${identifier} #${functionName}`);
+        this.logger.log("details:", Object.assign({}, detail));
+        this.logger.groupEnd();
+    }
+}
+function domReady() {
+    return new Promise((resolve) => {
+        if (document.readyState == "loading") {
+            document.addEventListener("DOMContentLoaded", () => resolve());
+        }
+        else {
+            resolve();
+        }
+    });
+}
+
+function ClassPropertiesBlessing(constructor) {
+    const classes = readInheritableStaticArrayValues(constructor, "classes");
+    return classes.reduce((properties, classDefinition) => {
+        return Object.assign(properties, propertiesForClassDefinition(classDefinition));
+    }, {});
+}
+function propertiesForClassDefinition(key) {
+    return {
+        [`${key}Class`]: {
+            get() {
+                const { classes } = this;
+                if (classes.has(key)) {
+                    return classes.get(key);
+                }
+                else {
+                    const attribute = classes.getAttributeName(key);
+                    throw new Error(`Missing attribute "${attribute}"`);
+                }
+            },
+        },
+        [`${key}Classes`]: {
+            get() {
+                return this.classes.getAll(key);
+            },
+        },
+        [`has${capitalize(key)}Class`]: {
+            get() {
+                return this.classes.has(key);
+            },
+        },
+    };
+}
+
+function OutletPropertiesBlessing(constructor) {
+    const outlets = readInheritableStaticArrayValues(constructor, "outlets");
+    return outlets.reduce((properties, outletDefinition) => {
+        return Object.assign(properties, propertiesForOutletDefinition(outletDefinition));
+    }, {});
+}
+function getOutletController(controller, element, identifier) {
+    return controller.application.getControllerForElementAndIdentifier(element, identifier);
+}
+function getControllerAndEnsureConnectedScope(controller, element, outletName) {
+    let outletController = getOutletController(controller, element, outletName);
+    if (outletController)
+        return outletController;
+    controller.application.router.proposeToConnectScopeForElementAndIdentifier(element, outletName);
+    outletController = getOutletController(controller, element, outletName);
+    if (outletController)
+        return outletController;
+}
+function propertiesForOutletDefinition(name) {
+    const camelizedName = namespaceCamelize(name);
+    return {
+        [`${camelizedName}Outlet`]: {
+            get() {
+                const outletElement = this.outlets.find(name);
+                const selector = this.outlets.getSelectorForOutletName(name);
+                if (outletElement) {
+                    const outletController = getControllerAndEnsureConnectedScope(this, outletElement, name);
+                    if (outletController)
+                        return outletController;
+                    throw new Error(`The provided outlet element is missing an outlet controller "${name}" instance for host controller "${this.identifier}"`);
+                }
+                throw new Error(`Missing outlet element "${name}" for host controller "${this.identifier}". Stimulus couldn't find a matching outlet element using selector "${selector}".`);
+            },
+        },
+        [`${camelizedName}Outlets`]: {
+            get() {
+                const outlets = this.outlets.findAll(name);
+                if (outlets.length > 0) {
+                    return outlets
+                        .map((outletElement) => {
+                        const outletController = getControllerAndEnsureConnectedScope(this, outletElement, name);
+                        if (outletController)
+                            return outletController;
+                        console.warn(`The provided outlet element is missing an outlet controller "${name}" instance for host controller "${this.identifier}"`, outletElement);
+                    })
+                        .filter((controller) => controller);
+                }
+                return [];
+            },
+        },
+        [`${camelizedName}OutletElement`]: {
+            get() {
+                const outletElement = this.outlets.find(name);
+                const selector = this.outlets.getSelectorForOutletName(name);
+                if (outletElement) {
+                    return outletElement;
+                }
+                else {
+                    throw new Error(`Missing outlet element "${name}" for host controller "${this.identifier}". Stimulus couldn't find a matching outlet element using selector "${selector}".`);
+                }
+            },
+        },
+        [`${camelizedName}OutletElements`]: {
+            get() {
+                return this.outlets.findAll(name);
+            },
+        },
+        [`has${capitalize(camelizedName)}Outlet`]: {
+            get() {
+                return this.outlets.has(name);
+            },
+        },
+    };
+}
+
+function TargetPropertiesBlessing(constructor) {
+    const targets = readInheritableStaticArrayValues(constructor, "targets");
+    return targets.reduce((properties, targetDefinition) => {
+        return Object.assign(properties, propertiesForTargetDefinition(targetDefinition));
+    }, {});
+}
+function propertiesForTargetDefinition(name) {
+    return {
+        [`${name}Target`]: {
+            get() {
+                const target = this.targets.find(name);
+                if (target) {
+                    return target;
+                }
+                else {
+                    throw new Error(`Missing target element "${name}" for "${this.identifier}" controller`);
+                }
+            },
+        },
+        [`${name}Targets`]: {
+            get() {
+                return this.targets.findAll(name);
+            },
+        },
+        [`has${capitalize(name)}Target`]: {
+            get() {
+                return this.targets.has(name);
+            },
+        },
+    };
+}
+
+function ValuePropertiesBlessing(constructor) {
+    const valueDefinitionPairs = readInheritableStaticObjectPairs(constructor, "values");
+    const propertyDescriptorMap = {
+        valueDescriptorMap: {
+            get() {
+                return valueDefinitionPairs.reduce((result, valueDefinitionPair) => {
+                    const valueDescriptor = parseValueDefinitionPair(valueDefinitionPair, this.identifier);
+                    const attributeName = this.data.getAttributeNameForKey(valueDescriptor.key);
+                    return Object.assign(result, { [attributeName]: valueDescriptor });
+                }, {});
+            },
+        },
+    };
+    return valueDefinitionPairs.reduce((properties, valueDefinitionPair) => {
+        return Object.assign(properties, propertiesForValueDefinitionPair(valueDefinitionPair));
+    }, propertyDescriptorMap);
+}
+function propertiesForValueDefinitionPair(valueDefinitionPair, controller) {
+    const definition = parseValueDefinitionPair(valueDefinitionPair, controller);
+    const { key, name, reader: read, writer: write } = definition;
+    return {
+        [name]: {
+            get() {
+                const value = this.data.get(key);
+                if (value !== null) {
+                    return read(value);
+                }
+                else {
+                    return definition.defaultValue;
+                }
+            },
+            set(value) {
+                if (value === undefined) {
+                    this.data.delete(key);
+                }
+                else {
+                    this.data.set(key, write(value));
+                }
+            },
+        },
+        [`has${capitalize(name)}`]: {
+            get() {
+                return this.data.has(key) || definition.hasCustomDefaultValue;
+            },
+        },
+    };
+}
+function parseValueDefinitionPair([token, typeDefinition], controller) {
+    return valueDescriptorForTokenAndTypeDefinition({
+        controller,
+        token,
+        typeDefinition,
+    });
+}
+function parseValueTypeConstant(constant) {
+    switch (constant) {
+        case Array:
+            return "array";
+        case Boolean:
+            return "boolean";
+        case Number:
+            return "number";
+        case Object:
+            return "object";
+        case String:
+            return "string";
+    }
+}
+function parseValueTypeDefault(defaultValue) {
+    switch (typeof defaultValue) {
+        case "boolean":
+            return "boolean";
+        case "number":
+            return "number";
+        case "string":
+            return "string";
+    }
+    if (Array.isArray(defaultValue))
+        return "array";
+    if (Object.prototype.toString.call(defaultValue) === "[object Object]")
+        return "object";
+}
+function parseValueTypeObject(payload) {
+    const { controller, token, typeObject } = payload;
+    const hasType = isSomething(typeObject.type);
+    const hasDefault = isSomething(typeObject.default);
+    const fullObject = hasType && hasDefault;
+    const onlyType = hasType && !hasDefault;
+    const onlyDefault = !hasType && hasDefault;
+    const typeFromObject = parseValueTypeConstant(typeObject.type);
+    const typeFromDefaultValue = parseValueTypeDefault(payload.typeObject.default);
+    if (onlyType)
+        return typeFromObject;
+    if (onlyDefault)
+        return typeFromDefaultValue;
+    if (typeFromObject !== typeFromDefaultValue) {
+        const propertyPath = controller ? `${controller}.${token}` : token;
+        throw new Error(`The specified default value for the Stimulus Value "${propertyPath}" must match the defined type "${typeFromObject}". The provided default value of "${typeObject.default}" is of type "${typeFromDefaultValue}".`);
+    }
+    if (fullObject)
+        return typeFromObject;
+}
+function parseValueTypeDefinition(payload) {
+    const { controller, token, typeDefinition } = payload;
+    const typeObject = { controller, token, typeObject: typeDefinition };
+    const typeFromObject = parseValueTypeObject(typeObject);
+    const typeFromDefaultValue = parseValueTypeDefault(typeDefinition);
+    const typeFromConstant = parseValueTypeConstant(typeDefinition);
+    const type = typeFromObject || typeFromDefaultValue || typeFromConstant;
+    if (type)
+        return type;
+    const propertyPath = controller ? `${controller}.${typeDefinition}` : token;
+    throw new Error(`Unknown value type "${propertyPath}" for "${token}" value`);
+}
+function defaultValueForDefinition(typeDefinition) {
+    const constant = parseValueTypeConstant(typeDefinition);
+    if (constant)
+        return defaultValuesByType[constant];
+    const hasDefault = hasProperty(typeDefinition, "default");
+    const hasType = hasProperty(typeDefinition, "type");
+    const typeObject = typeDefinition;
+    if (hasDefault)
+        return typeObject.default;
+    if (hasType) {
+        const { type } = typeObject;
+        const constantFromType = parseValueTypeConstant(type);
+        if (constantFromType)
+            return defaultValuesByType[constantFromType];
+    }
+    return typeDefinition;
+}
+function valueDescriptorForTokenAndTypeDefinition(payload) {
+    const { token, typeDefinition } = payload;
+    const key = `${dasherize(token)}-value`;
+    const type = parseValueTypeDefinition(payload);
+    return {
+        type,
+        key,
+        name: camelize(key),
+        get defaultValue() {
+            return defaultValueForDefinition(typeDefinition);
+        },
+        get hasCustomDefaultValue() {
+            return parseValueTypeDefault(typeDefinition) !== undefined;
+        },
+        reader: readers[type],
+        writer: writers[type] || writers.default,
+    };
+}
+const defaultValuesByType = {
+    get array() {
+        return [];
+    },
+    boolean: false,
+    number: 0,
+    get object() {
+        return {};
+    },
+    string: "",
+};
+const readers = {
+    array(value) {
+        const array = JSON.parse(value);
+        if (!Array.isArray(array)) {
+            throw new TypeError(`expected value of type "array" but instead got value "${value}" of type "${parseValueTypeDefault(array)}"`);
+        }
+        return array;
+    },
+    boolean(value) {
+        return !(value == "0" || String(value).toLowerCase() == "false");
+    },
+    number(value) {
+        return Number(value.replace(/_/g, ""));
+    },
+    object(value) {
+        const object = JSON.parse(value);
+        if (object === null || typeof object != "object" || Array.isArray(object)) {
+            throw new TypeError(`expected value of type "object" but instead got value "${value}" of type "${parseValueTypeDefault(object)}"`);
+        }
+        return object;
+    },
+    string(value) {
+        return value;
+    },
+};
+const writers = {
+    default: writeString,
+    array: writeJSON,
+    object: writeJSON,
+};
+function writeJSON(value) {
+    return JSON.stringify(value);
+}
+function writeString(value) {
+    return `${value}`;
+}
+
+class Controller {
+    constructor(context) {
+        this.context = context;
+    }
+    static get shouldLoad() {
+        return true;
+    }
+    static afterLoad(_identifier, _application) {
+        return;
+    }
+    get application() {
+        return this.context.application;
+    }
+    get scope() {
+        return this.context.scope;
+    }
+    get element() {
+        return this.scope.element;
+    }
+    get identifier() {
+        return this.scope.identifier;
+    }
+    get targets() {
+        return this.scope.targets;
+    }
+    get outlets() {
+        return this.scope.outlets;
+    }
+    get classes() {
+        return this.scope.classes;
+    }
+    get data() {
+        return this.scope.data;
+    }
+    initialize() {
+    }
+    connect() {
+    }
+    disconnect() {
+    }
+    dispatch(eventName, { target = this.element, detail = {}, prefix = this.identifier, bubbles = true, cancelable = true, } = {}) {
+        const type = prefix ? `${prefix}:${eventName}` : eventName;
+        const event = new CustomEvent(type, { detail, bubbles, cancelable });
+        target.dispatchEvent(event);
+        return event;
+    }
+}
+Controller.blessings = [
+    ClassPropertiesBlessing,
+    TargetPropertiesBlessing,
+    ValuePropertiesBlessing,
+    OutletPropertiesBlessing,
+];
+Controller.targets = [];
+Controller.outlets = [];
+Controller.values = {};
+
+export { Application, AttributeObserver, Context, Controller, ElementObserver, IndexedMultimap, Multimap, SelectorObserver, StringMapObserver, TokenListObserver, ValueListObserver, add, defaultSchema, del, fetch, prune };

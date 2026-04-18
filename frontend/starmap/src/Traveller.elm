@@ -981,10 +981,20 @@ renderPolygon points_ fill =
     Svg.polygon
         [ points points_
         , SvgAttrs.fill hexColour
-        , SvgAttrs.stroke "#8AAFC4"
-        , SvgAttrs.strokeWidth "1"
         , SvgAttrs.pointerEvents "visiblePainted"
         , SvgAttrs.class "hex-hover"
+        ]
+        []
+
+
+renderHexBorderStroke : String -> Svg msg
+renderHexBorderStroke hexapointsStr =
+    Svg.polygon
+        [ points hexapointsStr
+        , SvgAttrs.fill "none"
+        , SvgAttrs.stroke "#8AAFC4"
+        , SvgAttrs.strokeWidth "1"
+        , SvgAttrs.pointerEvents "none"
         ]
         []
 
@@ -1267,8 +1277,25 @@ type alias HexRenderOpts =
     }
 
 
-renderHexWithStar : HexRenderOpts -> Svg Msg
-renderHexWithStar { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, hexapointsStr, isReferee } =
+renderHexBg : HexRenderOpts -> Svg Msg
+renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
+    let
+        hexAddress =
+            HexAddress hexAddrX hexAddrY
+    in
+    Svg.g
+        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
+        , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
+          SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
+        , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
+        , SvgAttrs.style "cursor: pointer; user-select: none"
+        ]
+        [ Svg.Lazy.lazy2 renderPolygon hexapointsStr hexColour ]
+
+
+renderHexContent : HexRenderOpts -> Svg Msg
+renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -1295,16 +1322,8 @@ renderHexWithStar { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, h
             (isReferee || si >= uwpSI) && starSystem.travelZone /= Nothing
     in
     Svg.g
-        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
-        , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
-          SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
-        , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
-        , SvgAttrs.style "cursor: pointer; user-select: none"
-        ]
-        [ -- background hex
-          Svg.Lazy.lazy2 renderPolygon hexapointsStr hexColour
-        , -- center star
+        [ SvgAttrs.pointerEvents "none" ]
+        [ -- center star
           if showStar then
             let
                 primaryPos =
@@ -1529,7 +1548,7 @@ viewHex :
     -> String
     -> List ( Float, Float )
     -> Bool
-    -> Svg Msg
+    -> ( Svg Msg, Svg Msg )
 viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee =
     let
         remoteSolarSystem =
@@ -1537,42 +1556,53 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
 
         viewEmptyHelper txt =
             Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize txt hexColour
-
-        hexSVG =
-            case remoteSolarSystem of
-                Just (LoadedSolarSystem loadedSystem) ->
-                    let
-                        hexapointsStr =
-                            convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
-                    in
-                    Svg.Lazy.lazy renderHexWithStar
-                        { starSystem = loadedSystem
-                        , hexColour = hexColour
-                        , hexAddrX = hexAddress.x
-                        , hexAddrY = hexAddress.y
-                        , vox = vox
-                        , voy = voy
-                        , size = hexSize
-                        , hexapointsStr = hexapointsStr
-                        , isReferee = isReferee
-                        }
-
-                Just LoadingSolarSystem ->
-                    viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour
-
-                Just (FailedSolarSystem httpError) ->
-                    viewEmptyHelper "Failed."
-
-                Just LoadedEmptyHex ->
-                    viewEmptyHelper ""
-
-                Just (FailedStarsSolarSystem failedSolarSystem) ->
-                    Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." "#aaaaaa"
-
-                Nothing ->
-                    viewEmptyHelper ""
     in
-    hexSVG
+    case remoteSolarSystem of
+        Just (LoadedSolarSystem loadedSystem) ->
+            let
+                hexapointsStr =
+                    convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+
+                opts =
+                    { starSystem = loadedSystem
+                    , hexColour = hexColour
+                    , hexAddrX = hexAddress.x
+                    , hexAddrY = hexAddress.y
+                    , vox = vox
+                    , voy = voy
+                    , size = hexSize
+                    , hexapointsStr = hexapointsStr
+                    , isReferee = isReferee
+                    }
+            in
+            ( Svg.Lazy.lazy renderHexBg opts
+            , Svg.Lazy.lazy renderHexContent opts
+            )
+
+        Just LoadingSolarSystem ->
+            ( viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour
+            , Svg.text ""
+            )
+
+        Just (FailedSolarSystem _) ->
+            ( viewEmptyHelper "Failed."
+            , Svg.text ""
+            )
+
+        Just LoadedEmptyHex ->
+            ( viewEmptyHelper ""
+            , Svg.text ""
+            )
+
+        Just (FailedStarsSolarSystem _) ->
+            ( Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." "#aaaaaa"
+            , Svg.text ""
+            )
+
+        Nothing ->
+            ( viewEmptyHelper ""
+            , Svg.text ""
+            )
 
 
 type RemoteSolarSystem
@@ -1848,14 +1878,41 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     singlePolyHex =
                         renderCurrentAddressOutline currentAddress
 
-                    keyedHexes : Svg Msg
-                    keyedHexes =
+                    keyedHexBackgrounds : Svg Msg
+                    keyedHexBackgrounds =
                         hexSvgsWithHexAddress
                             |> List.map
-                                (\( addr, hex ) ->
-                                    ( HexAddress.toKey addr, hex )
+                                (\( addr, ( bg, _ ) ) ->
+                                    ( HexAddress.toKey addr, bg )
                                 )
                             |> Svg.Keyed.node "g" []
+
+                    keyedHexBorders : Svg Msg
+                    keyedHexBorders =
+                        hexRange
+                            |> List.map
+                                (\hexAddr ->
+                                    let
+                                        ( vox, voy ) =
+                                            calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+
+                                        hexapointsStr =
+                                            convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+                                    in
+                                    ( HexAddress.toKey hexAddr
+                                    , Svg.Lazy.lazy renderHexBorderStroke hexapointsStr
+                                    )
+                                )
+                            |> Svg.Keyed.node "g" [ SvgAttrs.pointerEvents "none" ]
+
+                    keyedHexForegrounds : Svg Msg
+                    keyedHexForegrounds =
+                        hexSvgsWithHexAddress
+                            |> List.map
+                                (\( addr, ( _, fg ) ) ->
+                                    ( HexAddress.toKey addr, fg )
+                                )
+                            |> Svg.Keyed.node "g" [ SvgAttrs.pointerEvents "none" ]
                 in
                 let
                     ulSector =
@@ -1995,7 +2052,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     , SvgAttrs.x2 (String.fromInt tx)
                                     , SvgAttrs.y2 (String.fromInt ty)
                                     , SvgAttrs.stroke link.colour
-                                    , SvgAttrs.strokeWidth "2"
+                                    , SvgAttrs.strokeWidth "4"
                                     , SvgAttrs.strokeOpacity "0.7"
                                     , SvgAttrs.strokeLinecap "round"
                                     , SvgAttrs.pointerEvents "none"
@@ -2004,11 +2061,13 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                             )
                             visibleLinks
                 in
-                [ keyedHexes ]
+                [ keyedHexBackgrounds ]
+                    ++ [ keyedHexBorders ]
+                    ++ [ singlePolyHex ]
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] networkLinkLines ]
+                    ++ [ keyedHexForegrounds ]
                     ++ sectorOutlines
                     ++ regionBorderLines
-                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] networkLinkLines ]
-                    ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
                     ++ labels
            )

@@ -455,12 +455,13 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2025.3)
       tzinfo (>= 1.0.0)
-    ultimate_turbo_modal (2.2.2)
-      actionpack
-      activesupport
-      phlex-rails
-      railties
+    ultimate_turbo_modal (3.0.4)
+      actionpack (>= 8.0)
+      activesupport (>= 8.0)
+      phlex-rails (>= 2.0)
+      railties (>= 8.0)
       stimulus-rails
+      tsort
       turbo-rails
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
@@ -534,7 +535,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
-  ultimate_turbo_modal
+  ultimate_turbo_modal (~> 3.0)
   web-console
   webmock
 
@@ -717,7 +718,7 @@ CHECKSUMS
   turbo-rails (2.0.23) sha256=ee0d90733aafff056cf51ff11e803d65e43cae258cc55f6492020ec1f9f9315f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   tzinfo-data (1.2025.3) sha256=b546e2f1e5e5c40a0c619aafb24e30d3d6a128c2f689278f721b7286dd499562
-  ultimate_turbo_modal (2.2.2) sha256=4035d1e2efd594672e42ece3c99cd687e41e1aa150090a4b4f37f446b9986135
+  ultimate_turbo_modal (3.0.4) sha256=daa952f8b7eb56a455a55bfde6e903311210c7d37c1d7e0eebcf41775297655d
   unicode-display_width (3.2.0) sha256=0cdd96b5681a5949cdbc2c55e7b420facae74c4aaf9a9815eee1087cb1853c42
   unicode-emoji (4.1.0) sha256=4997d2d5df1ed4252f4830a9b6e86f932e2013fbff2182a9ce9ccabda4f325a5
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6

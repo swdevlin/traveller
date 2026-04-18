@@ -107,17 +107,23 @@ class StarSystem < ApplicationRecord
     @main_world_uwp ||= StellarObject.where(id: main_world_id).pick(:uwp)
   end
 
+  def main_world_importance
+    main_world.respond_to?(:importance) ? main_world.importance : nil
+  end
+
+  def main_world_wtn
+    main_world.respond_to?(:world_trade_number) ? main_world.world_trade_number : nil
+  end
+
   def pbg
     "#{HexDigit.hex_digit(terrestrial_count)}#{HexDigit.hex_digit(belt_count)}#{HexDigit.hex_digit(gas_giant_count)}"
   end
-
 
   def display_name
     return name if name.present?
 
     'Unnamed Star System'
   end
-
 
   private
 

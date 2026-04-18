@@ -21,7 +21,7 @@ class NetworkLinksControllerTest < AuthenticatedIntegrationTest
              },
              star_system_id: @sys_a.id
            },
-           headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+           headers: { 'Accept' => 'text/vnd.turbo-stream.html', 'Turbo-Frame' => 'modal' }
     end
     assert_response :success
   end
