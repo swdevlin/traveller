@@ -1,0 +1,80 @@
+<% allegiance_value =
+     if allegiance
+       safe_join([allegiance.name, content_tag(:span, allegiance.code, class: 'identifier')])
+     else
+       'None'
+     end
+%>
+
+<% is_moon = stellar_object.is_a?(Moon) %>
+
+<div class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <% if parsec %>
+      <%= render 'application/data_block', label: 'Hex', value: tag.span(parsec.hex_code, class: 'identifier') %>
+    <% end %>
+
+    <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+
+    <% if parent %>
+      <% if is_moon %>
+        <%= render 'application/data_block',
+                   label: 'Orbit',
+                   value: number_with_precision(stellar_object.orbit, precision: stellar_object.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true),
+                   suffix: 'diameters' %>
+      <% else %>
+        <% if show_orbit_number? %>
+          <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(stellar_object.orbit, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <% if show_au? %>
+          <%= render 'application/data_block', label: 'AU', value: number_with_precision(stellar_object.au, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(stellar_object.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+      <% end %>
+
+      <%= render 'application/data_block', label: 'Period', value: format_period(stellar_object.period) %>
+      <%= render 'application/data_block', label: 'Retrograde', value: stellar_object.retrograde ? 'Yes' : 'No' %>
+      <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(stellar_object.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+      <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(stellar_object.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+
+      <% if stellar_object.respond_to?(:tidal_lock_target) && stellar_object.tidal_lock_target %>
+        <% target = stellar_object.tidal_lock_target %>
+        <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+        <%= render 'application/data_block',
+                   label: 'Tidally Locked',
+                   value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+
+      <% if stellar_object.respond_to?(:sidereal_day) && stellar_object.sidereal_day.present? %>
+        <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(stellar_object.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <% end %>
+
+      <% if stellar_object.respond_to?(:twilight_zone) && stellar_object.twilight_zone %>
+        <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+      <% end %>
+
+      <% if stellar_object.respond_to?(:planetoid_belt_id) && stellar_object.planetoid_belt_id.present? %>
+        <% belt = PlanetoidBelt.find_by(id: stellar_object.planetoid_belt_id) %>
+        <% if belt %>
+          <%= render 'application/data_block',
+                     label: 'Belt',
+                     value: link_to(belt.display_name, stellar_object_path(belt), class: 'no-underline hover:underline') %>
+        <% end %>
+      <% end %>
+
+      <% if shadow_km&.positive? %>
+        <% shadow_source = local_assigns[:shadow_source] %>
+        <%= render 'application/data_block',
+                   label: 'Jump Shadow',
+                   value: number_with_delimiter(number_with_precision(shadow_km, precision: 0)),
+                   suffix: 'km' %>
+        <% if shadow_source %>
+          <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+          <%= render 'application/data_block',
+                     label: 'Shadow Source',
+                     value: link_to(shadow_source.display_name, source_path, class: 'no-underline hover:underline') %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

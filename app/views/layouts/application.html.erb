@@ -38,6 +38,12 @@
   <%= turbo_frame_tag "modal" %>
   <%= render "application/navbar" %>
 
+  <% if content_for?(:breadcrumb) %>
+    <div class="w-full px-8 pt-3 pb-2 border-b border-slate-800/60">
+      <%= yield :breadcrumb %>
+    </div>
+  <% end %>
+
   <% flash.each do |key, message| %>
     <% next if message.blank? %>
 
@@ -59,7 +65,7 @@
   <% end %>
 
 
-<main class="w-full mt-8 px-8 flex pb-16">
+<main class="w-full mt-4 px-8 flex pb-16">
     <%= yield %>
   </main>
 

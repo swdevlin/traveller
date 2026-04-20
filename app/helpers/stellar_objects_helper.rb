@@ -48,6 +48,18 @@ module StellarObjectsHelper
 
   include JumpShadowMath
 
+  def format_importance(value)
+    return nil if value.nil?
+
+    value >= 0 ? "+#{value}" : value.to_s
+  end
+
+  def format_gwp(value)
+    return nil if value.nil?
+
+    number_to_human(value, units: { thousand: 'K', million: 'M', billion: 'B', trillion: 'Tr' }, precision: 2)
+  end
+
   def biodiversity_description(rating)
     return nil if rating.nil?
 
@@ -120,16 +132,16 @@ module StellarObjectsHelper
   end
 
   POPULATION_RANGES = {
-    0  => '0',
-    1  => '1 – 99',
-    2  => '100 – 999',
-    3  => '1,000 – 9,999',
-    4  => '10,000 – 99,999',
-    5  => '100,000 – 999,999',
-    6  => '1,000,000 – 9,999,999',
-    7  => '10,000,000 – 99,999,999',
-    8  => '100,000,000 – 999,999,999',
-    9  => '1,000,000,000 – 9,999,999,999',
+    0 => '0',
+    1 => '1 – 99',
+    2 => '100 – 999',
+    3 => '1,000 – 9,999',
+    4 => '10,000 – 99,999',
+    5 => '100,000 – 999,999',
+    6 => '1,000,000 – 9,999,999',
+    7 => '10,000,000 – 99,999,999',
+    8 => '100,000,000 – 999,999,999',
+    9 => '1,000,000,000 – 9,999,999,999',
     10 => '10,000,000,000 – 99,999,999,999',
     11 => '100,000,000,000 – 999,999,999,999',
     12 => '1,000,000,000,000 – 9,999,999,999,999'
@@ -170,17 +182,17 @@ module StellarObjectsHelper
   }.freeze
 
   SIZE_DESCRIPTIONS = {
-    '0'  => 'Belt',
-    'S'  => '600 km',
-    '1'  => '1,600 km',
-    '2'  => '3,200 km',
-    '3'  => '4,800 km',
-    '4'  => '6,400 km',
-    '5'  => '8,000 km',
-    '6'  => '9,600 km',
-    '7'  => '11,200 km',
-    '8'  => '12,800 km',
-    '9'  => '14,400 km',
+    '0' => 'Belt',
+    'S' => '600 km',
+    '1' => '1,600 km',
+    '2' => '3,200 km',
+    '3' => '4,800 km',
+    '4' => '6,400 km',
+    '5' => '8,000 km',
+    '6' => '9,600 km',
+    '7' => '11,200 km',
+    '8' => '12,800 km',
+    '9' => '14,400 km',
     'A' => '16,000 km',
     'B' => '17,600 km',
     'C' => '19,200 km',
@@ -217,16 +229,16 @@ module StellarObjectsHelper
   end
 
   ATMOSPHERE_SURVIVAL_REQUIREMENTS = {
-    0  => 'Vacc Suit',
-    1  => 'Vacc Suit',
-    2  => 'Respirator',
-    3  => 'Respirator',
-    4  => 'None',
-    5  => 'None',
-    6  => 'None',
-    7  => 'None',
-    8  => 'None',
-    9  => 'None',
+    0 => 'Vacc Suit',
+    1 => 'Vacc Suit',
+    2 => 'Respirator',
+    3 => 'Respirator',
+    4 => 'None',
+    5 => 'None',
+    6 => 'None',
+    7 => 'None',
+    8 => 'None',
+    9 => 'None',
     10 => 'Air Supply',
     11 => 'Vacc Suit',
     12 => 'HEV Suit',
@@ -242,7 +254,7 @@ module StellarObjectsHelper
     return base unless tainted
 
     case base
-    when 'None'       then 'Filter Mask'
+    when 'None' then 'Filter Mask'
     when 'Respirator' then 'Respirator + Filter'
     else base
     end
@@ -265,16 +277,16 @@ module StellarObjectsHelper
   end
 
   HYDROGRAPHICS_DESCRIPTIONS = {
-    0  => '0%–5%',
-    1  => '6%–15%',
-    2  => '16%–25%',
-    3  => '26%–35%',
-    4  => '36%–45%',
-    5  => '46%–55%',
-    6  => '56%–65%',
-    7  => '66%–75%',
-    8  => '76%–85%',
-    9  => '86%–95%',
+    0 => '0%–5%',
+    1 => '6%–15%',
+    2 => '16%–25%',
+    3 => '26%–35%',
+    4 => '36%–45%',
+    5 => '46%–55%',
+    6 => '56%–65%',
+    7 => '66%–75%',
+    8 => '76%–85%',
+    9 => '86%–95%',
     10 => '96%–100%'
   }.freeze
 
@@ -305,15 +317,15 @@ module StellarObjectsHelper
   end
 
   TAINT_SEVERITY_DESCRIPTIONS = {
-    1  => 'Trivial irritant',
-    2  => 'Surmountable irritant',
-    3  => 'Minor irritant',
-    4  => 'Major irritant',
-    5  => 'Serious irritant',
-    6  => 'Hazardous irritant',
-    7  => 'Long term lethal',
-    8  => 'Inevitably lethal',
-    9  => 'Rapidly lethal'
+    1 => 'Trivial irritant',
+    2 => 'Surmountable irritant',
+    3 => 'Minor irritant',
+    4 => 'Major irritant',
+    5 => 'Serious irritant',
+    6 => 'Hazardous irritant',
+    7 => 'Long term lethal',
+    8 => 'Inevitably lethal',
+    9 => 'Rapidly lethal'
   }.freeze
 
   def taint_severity_description(code)
@@ -323,19 +335,57 @@ module StellarObjectsHelper
   end
 
   TAINT_PERSISTENCE_DESCRIPTIONS = {
-    2  => 'Occasional and brief: Occurs periodically or on a 2D roll of 12 per day and lasts 1D hours',
-    3  => 'Occasional and lingering: Occurs periodically or on a 2D roll of 12 per day and lasts 1D days',
-    4  => 'Irregular: Occurs on a 2D roll of 9+ and lasts for D3 days',
-    5  => 'Fluctuating: roll 2D daily: on 6-, reduce severity by one level; on 12 increase severity by one level',
-    6  => 'Varying: Always present but roll 2D daily: on 6-, reduce severity by one level for 1D hours',
-    7  => 'Varying: Always present but roll 2D daily: on 4-, reduce severity by one level for 1D hours',
-    8  => 'Varying: Always present but roll 2D daily: on 2, reduce severity by one level for 1D hours',
-    9  => 'Constant: Ever-present at indicated severity'
+    2 => 'Occasional and brief: Occurs periodically or on a 2D roll of 12 per day and lasts 1D hours',
+    3 => 'Occasional and lingering: Occurs periodically or on a 2D roll of 12 per day and lasts 1D days',
+    4 => 'Irregular: Occurs on a 2D roll of 9+ and lasts for D3 days',
+    5 => 'Fluctuating: roll 2D daily: on 6-, reduce severity by one level; on 12 increase severity by one level',
+    6 => 'Varying: Always present but roll 2D daily: on 6-, reduce severity by one level for 1D hours',
+    7 => 'Varying: Always present but roll 2D daily: on 4-, reduce severity by one level for 1D hours',
+    8 => 'Varying: Always present but roll 2D daily: on 2, reduce severity by one level for 1D hours',
+    9 => 'Constant: Ever-present at indicated severity'
   }.freeze
 
   def taint_persistence_description(code)
     return if code.blank?
 
     TAINT_PERSISTENCE_DESCRIPTIONS[code]
+  end
+
+  LAW_UNIFORMITY_DESCRIPTIONS = { 'P' => 'Personal', 'T' => 'Territorial', 'U' => 'Universal' }.freeze
+  LAW_JUDICIAL_SYSTEM_DESCRIPTIONS = { 'I' => 'Inquisitorial', 'A' => 'Adversarial', 'T' => 'Traditional' }.freeze
+
+  GOVERNMENT_AUTHORITY_DESCRIPTIONS = {
+    'L' => 'Legislative', 'E' => 'Executive', 'J' => 'Judicial', 'B' => 'Balance'
+  }.freeze
+  GOVERNMENT_CENTRALISATION_DESCRIPTIONS = {
+    'C' => 'Confederal', 'F' => 'Federal', 'U' => 'Unitary'
+  }.freeze
+  GOVERNMENT_STRUCTURE_DESCRIPTIONS = {
+    'D' => 'Demos', 'S' => 'Single Council', 'M' => 'Multiple Councils', 'R' => 'Ruler'
+  }.freeze
+
+  CULTURE_TRAIT_DATA = [
+    { code: 'D', label: 'Diversity',       getter: :population_diversity,       low_label: 'Monolithic',      high_label: 'Multicultural',  min: 1, max: 20, description: '' },
+    { code: 'X', label: 'Xenophilia',      getter: :population_xenophilia,      low_label: 'Xenophobic',      high_label: 'Xenophilic',     min: 1, max: 17, description: '' },
+    { code: 'U', label: 'Uniqueness',      getter: :population_uniqueness,      low_label: 'Normal',          high_label: 'Obscure',        min: 1, max: 18, description: '' },
+    { code: 'S', label: 'Symbology',       getter: :population_symbology,       low_label: 'Concrete',        high_label: 'Abstract',       min: 1, max: 19, description: '' },
+    { code: 'C', label: 'Cohesion',        getter: :population_cohesion,        low_label: 'Individualistic', high_label: 'Collective',     min: 1, max: 22, description: '' },
+    { code: 'P', label: 'Progressiveness', getter: :population_progressiveness, low_label: 'Reactionary',     high_label: 'Radical',        min: 1, max: 18, description: '' },
+    { code: 'E', label: 'Expansionism',    getter: :population_expansionism,    low_label: 'Passive',         high_label: 'Expansionistic', min: 1, max: 18, description: '' },
+    { code: 'M', label: 'Militancy',       getter: :population_militancy,       low_label: 'Peaceful',        high_label: 'Militant',       min: 1, max: 20, description: '' }
+  ].freeze
+
+  def culture_trait_dm(value)
+    return nil if value.nil?
+
+    case value.to_i
+    when 1..2 then '±2'
+    when 3..5 then '±1'
+    when 6..8 then '±0'
+    when 9..11 then '±1'
+    when 12..14 then '±2'
+    when 15..17 then '±3'
+    else '±4'
+    end
   end
 end
