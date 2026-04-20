@@ -11,4 +11,3 @@ module GaugeHelper
     (((value - min) / (max - min)) * 100).round(2)
   end
 end
-
