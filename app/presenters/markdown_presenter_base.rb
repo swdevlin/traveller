@@ -13,6 +13,11 @@ class MarkdownPresenterBase
   BIOCOMPLEXITY_DESCRIPTIONS = StellarObjectsHelper::BIOCOMPLEXITY_DESCRIPTIONS
   POPULATION_RANGES = StellarObjectsHelper::POPULATION_RANGES
   CONCENTRATION_RATING_DESCRIPTIONS = StellarObjectsHelper::CONCENTRATION_RATING_DESCRIPTIONS
+  LAW_UNIFORMITY_DESCRIPTIONS = StellarObjectsHelper::LAW_UNIFORMITY_DESCRIPTIONS
+  LAW_JUDICIAL_SYSTEM_DESCRIPTIONS = StellarObjectsHelper::LAW_JUDICIAL_SYSTEM_DESCRIPTIONS
+  GOVERNMENT_AUTHORITY_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_AUTHORITY_DESCRIPTIONS
+  GOVERNMENT_CENTRALISATION_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_CENTRALISATION_DESCRIPTIONS
+  GOVERNMENT_STRUCTURE_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS
 
   def initialize(obj)
     @obj = obj
@@ -131,6 +136,20 @@ class MarkdownPresenterBase
     end
   end
 
+  def culture_trait_dm(value)
+    return nil if value.nil?
+
+    case value.to_i
+    when 1..2   then '±2'
+    when 3..5   then '±1'
+    when 6..8   then '±0'
+    when 9..11  then '±1'
+    when 12..14 then '±2'
+    when 15..17 then '±3'
+    else             '±4'
+    end
+  end
+
   def biodiversity_description(rating)
     return nil if rating.nil?
 
@@ -228,15 +247,67 @@ class MarkdownPresenterBase
     end
     rows << ['Urbanisation', "#{@obj.population_urbanization_percentage}%"] if @obj.population_urbanization_percentage.present?
     rows << ['Major Cities', @obj.population_major_cities] if @obj.population_major_cities.present?
+    if @obj.population_major_city_population.present?
+      rows << ['Major City Population', number_with_delimiter(@obj.population_major_city_population)]
+    end
+    [
+      ['Cohesion',        @obj.population_cohesion],
+      ['Diversity',       @obj.population_diversity],
+      ['Militancy',       @obj.population_militancy],
+      ['Symbology',       @obj.population_symbology],
+      ['Uniqueness',      @obj.population_uniqueness],
+      ['Xenophilia',      @obj.population_xenophilia],
+      ['Expansionism',    @obj.population_expansionism],
+      ['Progressiveness', @obj.population_progressiveness]
+    ].each do |label, val|
+      next unless val.present?
+
+      rows << [label, "#{val} (DM #{culture_trait_dm(val)})"]
+    end
     rows << ['Native Sophont', @obj.native_sophont ? 'Yes' : 'No']
     rows << ['Extinct Sophont', @obj.extinct_sophont ? 'Yes' : 'No']
     if @obj.government_code.present?
       gov = Government.find_by(code: @obj.government_code)
       rows << ['Government', "#{@obj.government_code} — #{gov&.government_type}"] if gov
+      if (auth = @obj.government_authority)
+        rows << ['Government Authority', "#{auth} — #{GOVERNMENT_AUTHORITY_DESCRIPTIONS[auth]}"]
+      end
+      if (cent = @obj.government_centralisation)
+        rows << ['Government Centralisation', "#{cent} — #{GOVERNMENT_CENTRALISATION_DESCRIPTIONS[cent]}"]
+      end
+      if (jud = @obj.government_judicial)
+        rows << ['Judicial Structure', "#{jud} — #{GOVERNMENT_STRUCTURE_DESCRIPTIONS[jud]}"]
+      end
+      if (exe = @obj.government_executive)
+        rows << ['Executive Structure', "#{exe} — #{GOVERNMENT_STRUCTURE_DESCRIPTIONS[exe]}"]
+      end
+      if (leg = @obj.government_legislative)
+        rows << ['Legislative Structure', "#{leg} — #{GOVERNMENT_STRUCTURE_DESCRIPTIONS[leg]}"]
+      end
     end
     if @obj.law_level_code.present?
-      law = LawLevel.find_by(code: @obj.law_level_code)
-      rows << ['Law Level', "#{@obj.law_level_code} — #{law&.weapons}"] if law
+      law_by_code = LawLevel.all.index_by(&:code)
+      rows << ['Law Level', HexDigit.hex_digit(@obj.law_level_code)]
+      [
+        ['Weapons & Armour', @obj.law_level_weapons_and_armour, :weapons],
+        ['Criminal Law',     @obj.law_level_criminal_law,       :criminal_law],
+        ['Economic Law',     @obj.law_level_economic_law,       :economic_law],
+        ['Private Law',      @obj.law_level_private_law,        :private_law],
+        ['Personal Rights',  @obj.law_level_personal_rights,    :personal_law]
+      ].each do |label, sub_code, col|
+        next unless sub_code
+        sub = law_by_code[sub_code]
+        rows << [label, "#{HexDigit.hex_digit(sub_code)} — #{sub&.public_send(col)}"]
+      end
+      if (unif = @obj.law_level_uniformity)
+        rows << ['Law Uniformity', "#{unif} — #{LAW_UNIFORMITY_DESCRIPTIONS[unif]}"]
+      end
+      if (jud = @obj.law_level_judicial_system)
+        rows << ['Judicial System', "#{jud} — #{LAW_JUDICIAL_SYSTEM_DESCRIPTIONS[jud]}"]
+      end
+      rows << ['Death Penalty', @obj.law_level_death_penalty ? 'Yes' : 'No']
+      rows << ['Presumed Innocence', @obj.law_level_presumed_innocence ? 'Yes' : 'No']
+      rows << ['Econometric Infractions Admin.', @obj.law_level_econometric_infractions_administrative ? 'Yes' : 'No']
     end
     if @obj.tech_level_code.present?
       tl = TechLevel.find_by(code: @obj.tech_level_code)

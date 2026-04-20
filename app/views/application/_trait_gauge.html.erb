@@ -1,0 +1,30 @@
+<div class='w-100'>
+  <div class='flex items-center gap-3'>
+    <div class='relative min-w-0 flex-1'>
+      <div class='h-4 relative'>
+        <div class='absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-slate-300'></div>
+        <div
+          class='absolute top-1/2 -translate-x-1/2 -translate-y-1/2'
+          style='left: <%= gauge_position_percent(value, min: min, max: max) %>%'>
+          <i class='fa-regular fa-caret-up text-[10px] leading-none text-slate-100'></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='mt-1 flex items-start justify-between gap-4 text-xs text-slate-400'>
+    <div class='min-w-0 truncate'>
+      <%= low_label %>
+    </div>
+    <div>
+      <span class="identifier-sm"><%= HexDigit.hex_digit(value) %></span>
+      <% dm = culture_trait_dm(value) %>
+      <% unless dm == '±0' %>
+        <span class="ml-1">DM: <%= dm %></span>
+      <% end %>
+    </div>
+    <div class='min-w-0 truncate text-right'>
+      <%= high_label %>
+    </div>
+  </div>
+</div>

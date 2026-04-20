@@ -13,6 +13,7 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * Export subsector file that can be used by Traveller Map
 * Import default configuration for parsec
 * Quickly set survey index for a subsector
+* import communication network from travellermap
 
 ### Map to do
 
@@ -23,7 +24,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 
 ### To do?
 
-* Communication routes
 * custom properties for objects
   * Deepnight properties
   * Drinax properties

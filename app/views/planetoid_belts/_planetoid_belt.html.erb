@@ -1,134 +1,37 @@
 <% allegiance = planetoid_belt.allegiance %>
-<% star = planetoid_belt.orbiting %>
-<% star_system = star&.star_system %>
+<% parent = planetoid_belt.orbiting %>
+<% star_system = parent&.star_system %>
 <% parsec = planetoid_belt.parsec || star_system&.parsec %>
 <% subsector = parsec&.subsector %>
 <% sector = parsec&.sector %>
+<% shadow_km = planetoid_belt.effective_jump_shadow_km %>
+<% shadow_source = shadow_km&.positive? ? planetoid_belt.effective_jump_shadow_source : nil %>
 
-<% allegiance_value =
-     if allegiance
-       safe_join([
-                   allegiance.name,
-                   content_tag(:span, allegiance.code, class: "identifier")
-                 ])
-     else
-       "None"
-     end
+<%
+  hierarchy = []
+  hierarchy << [sector.name, sector_path(sector)] if sector
+  hierarchy << [subsector.name, subsector_path(subsector)] if subsector
+  hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
+  hierarchy << [parent.display_name, star_path(parent)] if parent
+
+  extra_tabs = [
+    { id: 'significant_bodies', code: (@planetoid_count || 0).to_s, label: 'Bodies',
+      partial: 'planetoid_belts/significant_bodies_tab', locals: {} }
+  ]
 %>
 
 <div id="<%= dom_id planetoid_belt %>" class="space-y-4">
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
-    <% if planetoid_belt.starport_code.present? %>
-      <%= render 'application/data_block',
-                 label: 'Starport',
-                 value: tag.span(planetoid_belt.starport_code, class: 'identifier-sm') %>
-    <% end %>
-    <%= render 'application/data_block', label: 'UWP', value: planetoid_belt.uwp, value_style: :mono %>
-  </div>
+  <%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
 
-  <% if star %>
-    <div class="space-y-2">
-      <%= render 'application/subsection', title: 'Orbital Data' %>
+  <%= render 'stellar_objects/uwp_tabs',
+             stellar_object: planetoid_belt,
+             parent: parent,
+             parsec: parsec,
+             allegiance: allegiance,
+             shadow_km: shadow_km,
+             shadow_source: shadow_source,
+             physical_tab: 'planetoid_belts/physical_belt_tab',
+             extra_tabs: extra_tabs %>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-        <% if show_orbit_number? %>
-          <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(planetoid_belt.orbit, precision: 2, strip_insignificant_zeros: true) %>
-        <% end %>
-        <% if show_au? %>
-          <%= render 'application/data_block', label: 'AU', value: number_with_precision(planetoid_belt.au, precision: 2, strip_insignificant_zeros: true) %>
-        <% end %>
-        <%= render 'application/data_block', label: 'Period', value: format_period(planetoid_belt.period) %>
-        <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(planetoid_belt.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
-        <%= render 'application/data_block', label: 'Retrograde', value: planetoid_belt.retrograde ? 'Yes' : 'No' %>
-        <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(planetoid_belt.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
-        <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(planetoid_belt.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
-        <%= render 'application/data_block',
-                   label: 'Orbiting',
-                   value: link_to(star.display_name, star_path(star), class: 'no-underline hover:underline') %>
-        <% if star_system %>
-          <%= render 'application/data_block',
-                     label: 'Star System',
-                     value: link_to(star_system.display_name, star_system_path(star_system), class: 'no-underline hover:underline') %>
-        <% end %>
-        <% if subsector %>
-          <%= render 'application/data_block',
-                     label: 'Subsector',
-                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
-        <% end %>
-        <% if sector %>
-          <%= render 'application/data_block',
-                     label: 'Sector',
-                     value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
-                     value_wrap_class: 'flex flex-wrap items-center gap-2',
-                     suffix: tag.span(parsec.hex_code, class: 'identifier') %>
-        <% end %>
-        <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
-      </div>
-
-      <% shadow_km = planetoid_belt.effective_jump_shadow_km %>
-      <% if shadow_km&.positive? %>
-        <% shadow_source = planetoid_belt.effective_jump_shadow_source %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-          <%= render 'application/data_block',
-                     label: 'Jump Shadow',
-                     value: number_with_delimiter(number_with_precision(shadow_km, precision: 0)),
-                     suffix: 'km' %>
-          <% if shadow_source %>
-            <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
-            <%= render 'application/data_block',
-                       label: 'Shadow Source',
-                       value: link_to(shadow_source.display_name, source_path, class: 'no-underline hover:underline') %>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
-      <% if subsector %>
-        <%= render 'application/data_block',
-                   label: 'Subsector',
-                   value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
-      <% end %>
-      <% if sector %>
-        <%= render 'application/data_block',
-                   label: 'Sector',
-                   value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
-                   value_wrap_class: 'flex flex-wrap items-center gap-2',
-                   suffix: tag.span(parsec.hex_code, class: 'identifier') %>
-      <% end %>
-      <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
-    </div>
-  <% end %>
-
-  <div class="space-y-2">
-    <%= render 'application/subsection', title: 'Belt Data' %>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-      <%= render 'application/data_block',
-                 label: 'Resource Rating',
-                 value: safe_join([tag.span(HexDigit.hex_digit(planetoid_belt.resource_rating), class: 'identifier-sm'), resource_rating_description(planetoid_belt.resource_rating)], ' '),
-                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
-      <%= render 'application/data_block', label: 'Bulk', value: planetoid_belt.bulk %>
-      <%= render 'application/data_block', label: 'Span', value: number_with_precision(planetoid_belt.span, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Significant Bodies', value: planetoid_belt.significant_bodies.count || 0 %>
-    </div>
-  </div>
-
-  <div class="space-y-2">
-    <%= render 'application/subsection', title: 'Belt Composition' %>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
-      <%= render 'application/data_block', label: 'Metalic', value: planetoid_belt.m_type, suffix: ' %' %>
-      <%= render 'application/data_block', label: 'Stony', value: planetoid_belt.s_type, suffix: ' %' %>
-      <%= render 'application/data_block', label: 'Carbonaceous', value: planetoid_belt.c_type, suffix: ' %' %>
-      <%= render 'application/data_block', label: 'Other', value: planetoid_belt.o_type, suffix: ' %' %>
-    </div>
-  </div>
-
-  <%= render 'application/observation_block',
-             notes: planetoid_belt.notes %>
-
-  <% if @planetoid_count&.positive? %>
-    <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
-  <% end %>
+  <%= render 'application/observation_block', notes: planetoid_belt.notes %>
 </div>
