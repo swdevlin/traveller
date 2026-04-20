@@ -28,7 +28,9 @@
 
         <tbody>
         <% @law_levels.each do |law_level| %>
-          <tr>
+          <tr data-controller='row-link'
+              data-row-link-url-value='<%= law_level_path(law_level) %>'
+              data-action='click->row-link#navigate'>
             <td class='whitespace-nowrap'>
               <%= link_to law_level_path(law_level), class: 't-link' do %>
                 <span class='pill'><%= traveller_hex(law_level.code) %></span>
