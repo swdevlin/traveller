@@ -3,6 +3,8 @@ class Api::BaseController < ActionController::API
 
   before_action :set_current_campaign
 
+  helper_method :current_campaign
+
   private
 
   def set_current_campaign

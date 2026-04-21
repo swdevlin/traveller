@@ -26,6 +26,8 @@ Rails.application.routes.draw do
       resources :ships, only: :index, defaults: { format: :json }
       get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
+      get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
+      get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
       get 'network_links', to: 'network_links#index', defaults: { format: :json }
