@@ -185,7 +185,7 @@ subsectors:
             - uwp: Small Gas Giant
             - uwp: Large Gas Giant
             - uwp: C6657A7-9
-              habitable: true
+              orbit: habitable
             - uwp: D6004A7-9
             - uwp: X7A2000-0
             - uwp: terrestrial
@@ -358,7 +358,7 @@ subsectors:
               - uwp: X7A9000-0
               - uwp: X420000-0
               - uwp: C677796-9
-                habitable: true
+                orbit: habitable
               - uwp: Small Gas Giant
               - uwp: X6A7000-0
               - uwp: X532000-0
@@ -427,7 +427,7 @@ subsectors:
             - uwp: X32A000-0
             - uwp: C996796-9
               name: Heavy-Air
-              habitable: true
+              orbit: habitable
             - uwp: Small Gas Giant
             - uwp: X210000-0
             - uwp: Large Gas Giant
@@ -967,7 +967,7 @@ subsectors:
               - uwp: X3A1000-0
               - uwp: C554645-A
                 name: Czath
-                habitable: outer
+                orbit: habitable
               - uwp: Small Gas Giant
               - uwp: Small Gas Giant
               - uwp: Small Gas Giant
@@ -1103,7 +1103,7 @@ subsectors:
           bodies:
             - uwp: E746775-5
               name: Kskatk
-              habitable: true
+              orbit: habitable
             - uwp: Small Gas Giant
             - uwp: X521000-0
       - x: 8
