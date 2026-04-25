@@ -70,6 +70,8 @@ Rails.application.routes.draw do
 
     resources :stellar_objects
 
+    resources :social_characteristics_presets, only: %i[index create destroy]
+
     resources :allegiances do
       collection do
         post 'import_from_traveller_map'

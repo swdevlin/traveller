@@ -1,4 +1,4 @@
-<%= modal(title: 'Edit Bases', padding: true, advance: false) do %>
+<%= modal(title: 'Edit Bases', padding: true, advance: false, overlay: false) do %>
   <%= form_with url: update_bases_star_system_path(@star_system) do |f| %>
     <input type="hidden" name="facility_ids[]" value="">
 

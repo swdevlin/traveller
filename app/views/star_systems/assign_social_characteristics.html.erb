@@ -1,6 +1,29 @@
-<%= modal(title: 'Assign Social Characteristics', padding: true, advance: false) do %>
-  <%= form_with url: apply_social_characteristics_star_system_path(@star_system) do |f| %>
+<%= modal(title: 'Assign Social Characteristics', padding: true, advance: false, overlay: false) do %>
+  <%= form_with url: apply_social_characteristics_star_system_path(@star_system),
+                data: {
+                  controller: 'social-characteristics-preset',
+                  social_characteristics_preset_url_value: social_characteristics_presets_path
+                } do |f| %>
     <div class='space-y-4'>
+      <%# Preset row %>
+      <div class='pb-2 border-b border-slate-700'>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Preset</label>
+        <div class='mt-1 flex gap-2 items-center'>
+          <select data-social-characteristics-preset-target='select'
+                  data-action='change->social-characteristics-preset#load'
+                  class='edit-base flex-1'>
+            <option value=''>— load a preset —</option>
+          </select>
+          <button type='button'
+                  class='text-slate-400 hover:text-red-400'
+                  title='Delete preset'
+                  data-action='click->social-characteristics-preset#deletePreset'>
+            <i class='fa-regular fa-trash'></i>
+          </button>
+        </div>
+      </div>
+
+      <%# Main World Criteria — full width %>
       <div>
         <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Main World Criteria</label>
         <div class='mt-1'>
@@ -14,72 +37,132 @@
         </div>
       </div>
 
+      <%# Population + Tech Level side by side %>
+      <div class='grid grid-cols-2 gap-4'>
+        <div>
+          <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Population Code</label>
+          <div class='mt-1 flex gap-2'>
+            <div class='flex-1'>
+              <div class='text-xs text-slate-500 mb-1'>Min</div>
+              <%= number_field_tag 'social_characteristics[population][min]',
+                                   1, min: 0, max: 15,
+                                   placeholder: '0–15',
+                                   class: 'edit-base w-full' %>
+            </div>
+            <div class='flex-1'>
+              <div class='text-xs text-slate-500 mb-1'>Max</div>
+              <%= number_field_tag 'social_characteristics[population][max]',
+                                   nil, min: 0, max: 15,
+                                   placeholder: '0–15',
+                                   class: 'edit-base w-full' %>
+            </div>
+          </div>
+          <p class='text-xs text-slate-500 mt-1'>Same value in both for exact code.</p>
+        </div>
+        <div>
+          <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Tech Level</label>
+          <div class='mt-1 flex gap-2'>
+            <div class='flex-1'>
+              <div class='text-xs text-slate-500 mb-1'>Min</div>
+              <%= number_field_tag 'social_characteristics[tech_level][min]',
+                                   0, min: 0, max: 33,
+                                   placeholder: '0–33',
+                                   class: 'edit-base w-full' %>
+            </div>
+            <div class='flex-1'>
+              <div class='text-xs text-slate-500 mb-1'>Max</div>
+              <%= number_field_tag 'social_characteristics[tech_level][max]',
+                                   15, min: 0, max: 33,
+                                   placeholder: '0–33',
+                                   class: 'edit-base w-full' %>
+            </div>
+          </div>
+          <p class='text-xs text-slate-500 mt-1'>Leave blank for random.</p>
+        </div>
+      </div>
+
+      <%# Government + Allow Captive side by side %>
+      <div class='grid grid-cols-2 gap-4 items-end'>
+        <div>
+          <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Government</label>
+          <div class='mt-1'>
+            <%= select_tag 'social_characteristics[government_code]',
+                           options_from_collection_for_select(@governments, :code, :government_type),
+                           prompt: '— random —',
+                           class: 'edit-base w-full' %>
+          </div>
+        </div>
+        <div class='flex items-center gap-3 pb-1'>
+          <%= check_box_tag 'social_characteristics[allow_captive_government]', '1', true,
+                            class: 'rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50' %>
+          <label class='text-sm text-slate-300'>Allow captive government</label>
+        </div>
+      </div>
+
+      <%# Law Level + Starport side by side %>
+      <div class='grid grid-cols-2 gap-4'>
+        <div>
+          <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Law Level</label>
+          <div class='mt-1'>
+            <%= select_tag 'social_characteristics[law_level_code]',
+                           options_from_collection_for_select(@law_levels, :code, :code),
+                           prompt: '— random —',
+                           class: 'edit-base w-full' %>
+          </div>
+        </div>
+        <div>
+          <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Starport</label>
+          <div class='mt-1'>
+            <%= select_tag 'social_characteristics[starport_code]',
+                           options_for_select(StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] }),
+                           prompt: '— random —',
+                           class: 'edit-base w-full' %>
+          </div>
+        </div>
+      </div>
+
+      <%# Allegiance — full width %>
       <div>
-        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Population Code</label>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Allegiance</label>
+        <div class='mt-1 relative'
+             data-controller='allegiance-combobox'
+             data-allegiance-combobox-search-url-value='<%= search_allegiances_path %>'>
+          <%= hidden_field_tag 'social_characteristics[allegiance_id]', nil,
+                               data: { allegiance_combobox_target: 'hidden' } %>
+          <input type='text'
+                 placeholder='Search by code or name&hellip;'
+                 autocomplete='off'
+                 data-allegiance-combobox-target='input'
+                 data-action='input->allegiance-combobox#search focus->allegiance-combobox#open'
+                 class='w-full edit-base pr-8' />
+          <button type='button'
+                  class='hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200'
+                  data-allegiance-combobox-target='clear'
+                  data-action='click->allegiance-combobox#clear'>
+            <i class='fa-regular fa-xmark'></i>
+          </button>
+          <div class='hidden absolute z-10 w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg overflow-hidden'
+               data-allegiance-combobox-target='dropdown'>
+            <ul data-allegiance-combobox-target='list'
+                data-action='click->allegiance-combobox#select'></ul>
+          </div>
+        </div>
+      </div>
+
+      <%# Save as Preset — full width %>
+      <div class='pt-2 border-t border-slate-700'>
+        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Save as Preset</label>
         <div class='mt-1 flex gap-2'>
-          <div class='flex-1'>
-            <div class='text-xs text-slate-500 mb-1'>Min</div>
-            <%= number_field_tag 'social_characteristics[population][min]',
-                                 1, min: 0, max: 15,
-                                 placeholder: '0–15',
-                                 class: 'edit-base w-full' %>
-          </div>
-          <div class='flex-1'>
-            <div class='text-xs text-slate-500 mb-1'>Max</div>
-            <%= number_field_tag 'social_characteristics[population][max]',
-                                 nil, min: 0, max: 15,
-                                 placeholder: '0–15',
-                                 class: 'edit-base w-full' %>
-          </div>
+          <%= text_field_tag nil, nil,
+                             placeholder: 'Preset name',
+                             class: 'edit-base flex-1',
+                             data: { social_characteristics_preset_target: 'nameInput' } %>
+          <button type='button'
+                  class='btn btn-secondary'
+                  data-action='click->social-characteristics-preset#save'>Save</button>
         </div>
-        <p class='text-xs text-slate-500 mt-1'>Leave blank to default to min 1. Enter the same value in both for an exact code.</p>
-      </div>
-
-      <div>
-        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Government</label>
-        <div class='mt-1'>
-          <%= select_tag 'social_characteristics[government_code]',
-                         options_from_collection_for_select(@governments, :code, :government_type),
-                         prompt: '— random —',
-                         class: 'edit-base w-full' %>
-        </div>
-      </div>
-
-      <div>
-        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Law Level</label>
-        <div class='mt-1'>
-          <%= select_tag 'social_characteristics[law_level_code]',
-                         options_from_collection_for_select(@law_levels, :code, :code),
-                         prompt: '— random —',
-                         class: 'edit-base w-full' %>
-        </div>
-      </div>
-
-      <div>
-        <label class='text-xs uppercase tracking-[0.22em] text-slate-400'>Tech Level</label>
-        <div class='mt-1 flex gap-2'>
-          <div class='flex-1'>
-            <div class='text-xs text-slate-500 mb-1'>Min</div>
-            <%= number_field_tag 'social_characteristics[tech_level][min]',
-                                 0, min: 0, max: 33,
-                                 placeholder: '0–33',
-                                 class: 'edit-base w-full' %>
-          </div>
-          <div class='flex-1'>
-            <div class='text-xs text-slate-500 mb-1'>Max</div>
-            <%= number_field_tag 'social_characteristics[tech_level][max]',
-                                 15, min: 0, max: 33,
-                                 placeholder: '0–33',
-                                 class: 'edit-base w-full' %>
-          </div>
-        </div>
-        <p class='text-xs text-slate-500 mt-1'>Leave blank for random. Enter the same value in both for an exact level.</p>
-      </div>
-
-      <div class='pt-2 flex items-center gap-3'>
-        <%= check_box_tag 'social_characteristics[allow_captive_government]', '1', true,
-                          class: 'rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50' %>
-        <label class='text-sm text-slate-300'>Allow captive government</label>
+        <p class='text-xs text-red-400 mt-1'
+           data-social-characteristics-preset-target='saveError'></p>
       </div>
     </div>
 

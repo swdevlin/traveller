@@ -415,8 +415,10 @@ class StarSystemsController < ApplicationController
     params.require(:social_characteristics).permit(
       :government_code,
       :law_level_code,
+      :starport_code,
       :main_world_criteria,
       :allow_captive_government,
+      :allegiance_id,
       population: [:min, :max],
       tech_level: [:min, :max]
     )

@@ -48,6 +48,20 @@ export default class extends Controller {
     this.#closeDropdown()
   }
 
+  async loadById(id) {
+    if (!id) { this.clear(); return }
+    const url = new URL(this.searchUrlValue, window.location.origin)
+    url.searchParams.set('id', String(id))
+    const response = await fetch(url, { headers: { Accept: 'application/json' } })
+    const results = await response.json()
+    if (results.length > 0) {
+      const a = results[0]
+      this.hiddenTarget.value = String(a.id)
+      this.inputTarget.value = `${a.code} — ${a.name}`
+      this.clearTarget.classList.remove('hidden')
+    }
+  }
+
   async #fetch({ q, id } = {}) {
     const url = new URL(this.searchUrlValue, window.location.origin)
     if (id) url.searchParams.set('id', id)

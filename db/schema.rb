@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_16_190803) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_25_153307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -227,6 +227,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_16_190803) do
     t.integer "jump_drive"
     t.string "name"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "public.social_characteristics_presets", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.jsonb "settings", default: {}, null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_social_characteristics_presets_on_name", unique: true
   end
 
   create_table "public.star_system_facilities", force: :cascade do |t|

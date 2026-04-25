@@ -11,7 +11,7 @@ class SocialCharacteristicsAssigner
     'government'   => :government=,
     'lawLevel'     => :law_level=,
     'techLevel'    => :tech_level_code=,
-    'starPort'     => :starport_code=
+    'starport'     => :starport_code=
   }.freeze
 
   def initialize(star_system, generator_service)
@@ -26,13 +26,14 @@ class SocialCharacteristicsAssigner
     payload['population'] = population_payload(params[:population])
     tl = range_payload(params[:tech_level])
     payload['techLevel'] = tl if tl
+    payload['starport'] = params[:starport_code] if params[:starport_code].present?
     payload['mainWorldCriteria'] = params[:main_world_criteria] if params[:main_world_criteria].present?
     payload['allowCaptiveGovernment'] = true if params[:allow_captive_government] == '1'
 
     result = @generator_service.assign_social_characteristics(payload)
     return Result.new(errors: result.errors) unless result.success?
 
-    apply_result(result.value)
+    apply_result(result.value, params[:allegiance_id])
     Result.new(errors: [])
   end
 
@@ -60,7 +61,7 @@ class SocialCharacteristicsAssigner
     end
   end
 
-  def apply_result(data)
+  def apply_result(data, allegiance_id = nil)
     world_data = data['world']
     return if world_data.blank?
 
@@ -69,9 +70,12 @@ class SocialCharacteristicsAssigner
     return unless so&.respond_to?(:government_code)
 
     ActiveRecord::Base.transaction do
+      so.allegiance_id = allegiance_id if allegiance_id.present?
       update_social_fields(so, world_data)
       update_trade_codes(so, world_data['tradeCodes'])
-      @star_system.update!(main_world: so)
+      star_system_attrs = { main_world: so }
+      star_system_attrs[:allegiance_id] = allegiance_id if allegiance_id.present?
+      @star_system.update!(star_system_attrs)
     end
   end
 
