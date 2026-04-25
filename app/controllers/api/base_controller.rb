@@ -3,6 +3,12 @@ class Api::BaseController < ActionController::API
 
   before_action :set_current_campaign
 
+  helper_method :current_campaign
+
+  def default_url_options
+    params[:campaign_slug].present? ? { campaign_slug: params[:campaign_slug] } : {}
+  end
+
   private
 
   def set_current_campaign

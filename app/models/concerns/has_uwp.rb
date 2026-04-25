@@ -78,6 +78,16 @@ module HasUwp
     self.population = (population || {}).merge('majorCities' => val.present? ? val.to_i : nil)
   end
 
+  def population_cohesion              = population&.dig('cohesion')
+  def population_diversity             = population&.dig('diversity')
+  def population_militancy             = population&.dig('militancy')
+  def population_symbology             = population&.dig('symbology')
+  def population_uniqueness            = population&.dig('uniqueness')
+  def population_xenophilia            = population&.dig('xenophilia')
+  def population_expansionism          = population&.dig('expansionism')
+  def population_progressiveness       = population&.dig('progressiveness')
+  def population_major_city_population = population&.dig('majorCityPopulation')
+
   def government_code
     government&.dig('code')
   end
@@ -85,6 +95,12 @@ module HasUwp
   def government_code=(val)
     self.government = (government || {}).merge('code' => val.present? ? val.to_i : nil)
   end
+
+  def government_authority      = government&.dig('authority')
+  def government_centralisation = government&.dig('centralisation')
+  def government_judicial       = government&.dig('structure', 'judicial')
+  def government_executive      = government&.dig('structure', 'executive')
+  def government_legislative    = government&.dig('structure', 'legislative')
 
   def law_level_code
     law_level&.dig('code')
@@ -94,6 +110,17 @@ module HasUwp
     self.law_level = (law_level || {}).merge('code' => val.present? ? val.to_i : nil)
   end
 
+  def law_level_private_law        = law_level&.dig('privateLaw')
+  def law_level_criminal_law       = law_level&.dig('criminalLaw')
+  def law_level_economic_law       = law_level&.dig('economicLaw')
+  def law_level_personal_rights    = law_level&.dig('personalRights')
+  def law_level_weapons_and_armour = law_level&.dig('weaponsAndArmour')
+  def law_level_uniformity         = law_level&.dig('uniformity')
+  def law_level_judicial_system    = law_level&.dig('judicialSystem')
+  def law_level_death_penalty      = law_level&.dig('deathPenalty')
+  def law_level_presumed_innocence = law_level&.dig('presumedInnocence')
+  def law_level_econometric_infractions_administrative = law_level&.dig('econometricInfractionsAdministrative')
+
   def starport_code
     data&.dig('starport_code')
   end
@@ -101,6 +128,7 @@ module HasUwp
   def starport_code=(val)
     self.data = (data || {}).merge('starport_code' => val.presence)
   end
+
 
   module ClassMethods
     def uwp_attribute_names
@@ -124,13 +152,48 @@ module HasUwp
   end
 
   def per_capita_gwp
-    data&.dig('economics', 'perCaoitaGWP')
+    data&.dig('economics', 'perCapitaGWP')
   end
 
   def total_gwp
     data&.dig('economics', 'totalGWP')
   end
 
+  def efficiency
+    data&.dig('economics', 'efficiency')
+  end
+
+  def labour_factor
+    data&.dig('economics', 'labourFactor')
+  end
+
+  def resource_units
+    data&.dig('economics', 'resourceUnits')
+  end
+
+  def infrastructure
+    data&.dig('economics', 'infrastructure')
+  end
+
+  def resource_factor
+    data&.dig('economics', 'resourceFactor')
+  end
+
+  def development_score
+    data&.dig('economics', 'developmentScore')
+  end
+
+  def inequality_rating
+    data&.dig('economics', 'inequalityRating')
+  end
+
+  def tariff_rate
+    data&.dig('economics', 'tariffs', 'rate')
+  end
+
+  def tariff_regime
+    data&.dig('economics', 'tariffs', 'regime')
+  end
 
   private
 

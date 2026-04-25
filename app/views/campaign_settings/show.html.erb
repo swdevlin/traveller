@@ -129,14 +129,14 @@
 
     <div class='mt-4'>
       <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-1'>API Token</div>
-      <div class='flex items-center gap-2'>
-        <input type='text' readonly value='<%= @campaign.api_token %>'
+      <div class='flex items-center gap-2' data-token='<%= @campaign.api_token %>'>
+        <input type='text' readonly value='<%= '•' * 64 %>'
                id='api-token-field'
-               class='edit-base font-mono text-xs w-full sm:w-2/3 select-all'
-               onclick='this.select()' />
+               class='edit-base font-mono text-xs w-full sm:w-2/3 select-all cursor-default'
+               tabindex='-1' />
         <button type='button'
                 class='btn btn-sm shrink-0'
-                onclick="navigator.clipboard.writeText(document.getElementById('api-token-field').value).then(() => this.textContent = 'Copied!').catch(() => {}); setTimeout(() => this.textContent = 'Copy', 1500)">
+                onclick="const t=this.closest('[data-token]').dataset.token; navigator.clipboard.writeText(t).then(() => this.textContent = 'Copied!').catch(() => {}); setTimeout(() => this.textContent = 'Copy', 1500)">
           Copy
         </button>
         <%= button_to regenerate_api_token_campaign_settings_path,

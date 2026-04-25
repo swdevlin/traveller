@@ -1,0 +1,14 @@
+<% content_for :breadcrumb do %>
+  <nav class="uwp-breadcrumb">
+    <% hierarchy.each_with_index do |(label, path), i| %>
+      <% if path %>
+        <%= link_to label, path, class: 'uwp-breadcrumb-link' %>
+      <% else %>
+        <span class="text-slate-300"><%= label %></span>
+      <% end %>
+      <% if i < hierarchy.length - 1 %>
+        <span class="uwp-breadcrumb-sep">›</span>
+      <% end %>
+    <% end %>
+  </nav>
+<% end %>
