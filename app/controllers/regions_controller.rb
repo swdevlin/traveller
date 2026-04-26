@@ -89,6 +89,8 @@ class RegionsController < ApplicationController
     else
       redirect_to @region, alert: result[:error]
     end
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @region, alert: "Import failed: #{e.message}"
   end
 
   def destroy

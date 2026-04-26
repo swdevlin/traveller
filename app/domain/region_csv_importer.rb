@@ -30,7 +30,9 @@ class RegionCsvImporter
     ActiveRecord::Base.transaction do
       @region.region_parsecs.delete_all
 
+      seen_ids = Set.new
       parsecs.each_with_index do |parsec, idx|
+        next unless seen_ids.add?(parsec.id)
         RegionParsec.create!(region: @region, parsec: parsec, kind: 'border', position: idx)
       end
 

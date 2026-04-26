@@ -87,6 +87,7 @@ module SubsectorsHelper
     region_scope = authenticated ? Region.all : Region.where(player_visible: true)
 
     fill_rows = region_scope
+      .where.not(colour: [nil, ''])
       .joins(region_parsecs: :parsec)
       .where(parsecs: { id: parsec_scope })
       .pluck('parsecs.x', 'parsecs.y', 'regions.colour')
