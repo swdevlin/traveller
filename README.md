@@ -16,7 +16,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 
 ### Map to do
 
-* [ ] display name if known
 * [ ] making HexAddress fail on invalid addresses
 * [ ] render neutron star
 

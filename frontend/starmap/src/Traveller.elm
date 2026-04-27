@@ -580,6 +580,7 @@ type Msg
     = NoOpMsg
     | Tick Time.Posix
     | DownloadSolarSystems
+    | RefreshMap
     | DownloadedSolarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
     | ClearAllErrors
     | FetchedSolarSystem (Result Http.Error SolarSystem)
@@ -2444,13 +2445,39 @@ viewStatusRow model =
         extras =
             case model.viewMode of
                 HexMap ->
-                    [ -- hovered hex
+                    [ el
+                        [ uiDeepnightColorFontColour
+                        , Font.size 14
+                        , Element.pointer
+                        , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)))
+                        , Element.alignBottom
+                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
+                        , Element.mouseOver
+                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
+                            ]
+                        ]
+                      <|
+                        renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
+                    , el
+                        [ uiDeepnightColorFontColour
+                        , Font.size 14
+                        , Element.pointer
+                        , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)))
+                        , Element.alignBottom
+                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
+                        , Element.mouseOver
+                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
+                            ]
+                        ]
+                      <|
+                        renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
+                    , -- hovered hex
                       el
                         [ uiDeepnightColorFontColour
                         , Font.size 14
                         , Element.spacing 5
                         , Element.pointer
-                        , Events.onClick DownloadSolarSystems
+                        , Events.onClick RefreshMap
                         , Element.alignBottom
                         , Element.htmlAttribute <| HtmlAttrs.title "Refresh map"
                         , Element.mouseOver
@@ -2512,7 +2539,33 @@ viewStatusRow model =
                     ]
 
                 FullJourney ->
-                    []
+                    [ el
+                        [ uiDeepnightColorFontColour
+                        , Font.size 14
+                        , Element.pointer
+                        , Events.onClick (JourneyMsg (Zoom ZoomIn))
+                        , Element.alignBottom
+                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
+                        , Element.mouseOver
+                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
+                            ]
+                        ]
+                      <|
+                        renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
+                    , el
+                        [ uiDeepnightColorFontColour
+                        , Font.size 14
+                        , Element.pointer
+                        , Events.onClick (JourneyMsg (Zoom ZoomOut))
+                        , Element.alignBottom
+                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
+                        , Element.mouseOver
+                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
+                            ]
+                        ]
+                      <|
+                        renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
+                    ]
     in
     let
         viewModeIcon : ViewMode -> String -> Element.Element Msg
@@ -3131,6 +3184,14 @@ update msg ( time, model ) =
                         |> Tuple.mapSecond (\newestCmds -> Cmd.batch [ newCmds_, newestCmds ])
             in
             ( newModel, newCmds )
+
+        RefreshMap ->
+            let
+                clearedSolarSystems =
+                    HexAddress.between model.hexRect.upperLeftHex model.hexRect.lowerRightHex
+                        |> List.foldl (\addr dict -> Dict.remove (HexAddress.toKey addr) dict) model.solarSystems
+            in
+            update DownloadSolarSystems (withTime { model | solarSystems = clearedSolarSystems })
 
         DownloadSolarSystems ->
             let

@@ -13727,6 +13727,26 @@ var $author$project$Traveller$update = F2(
 					var newModel = _v20.a;
 					var newCmds = _v20.b;
 					return _Utils_Tuple2(newModel, newCmds);
+				case 'RefreshMap':
+					var clearedSolarSystems = A3(
+						$elm$core$List$foldl,
+						F2(
+							function (addr, dict) {
+								return A2(
+									$elm$core$Dict$remove,
+									$author$project$Traveller$HexAddress$toKey(addr),
+									dict);
+							}),
+						model.solarSystems,
+						A2($author$project$Traveller$HexAddress$between, model.hexRect.upperLeftHex, model.hexRect.lowerRightHex));
+					var $temp$msg = $author$project$Traveller$DownloadSolarSystems,
+						$temp$_v18 = withTime(
+						_Utils_update(
+							model,
+							{solarSystems: clearedSolarSystems}));
+					msg = $temp$msg;
+					_v18 = $temp$_v18;
+					continue update;
 				case 'DownloadSolarSystems':
 					var _v22 = A3(
 						$author$project$Traveller$prepAndSendRequests,
@@ -23681,25 +23701,25 @@ var $author$project$Traveller$viewHexes = function (_v0) {
 																[keyedHexBorders]),
 															_Utils_ap(
 																_List_fromArray(
-																	[
-																		A2(
-																		$elm$svg$Svg$g,
-																		_List_fromArray(
-																			[
-																				$elm$svg$Svg$Attributes$pointerEvents('none')
-																			]),
-																		networkLinkLines)
-																	]),
+																	[singlePolyHex]),
 																_Utils_ap(
 																	_List_fromArray(
-																		[keyedHexForegrounds]),
+																		[
+																			A2(
+																			$elm$svg$Svg$g,
+																			_List_fromArray(
+																				[
+																					$elm$svg$Svg$Attributes$pointerEvents('none')
+																				]),
+																			networkLinkLines)
+																		]),
 																	_Utils_ap(
-																		sectorOutlines,
+																		_List_fromArray(
+																			[keyedHexForegrounds]),
 																		_Utils_ap(
-																			regionBorderLines,
+																			sectorOutlines,
 																			_Utils_ap(
-																				_List_fromArray(
-																					[singlePolyHex]),
+																				regionBorderLines,
 																				_Utils_ap(
 																					_List_fromArray(
 																						[
@@ -26310,6 +26330,12 @@ var $author$project$Traveller$Sidebar$viewSidebarColumn = F2(
 				]));
 	});
 var $author$project$Traveller$JumpToShip = {$: 'JumpToShip'};
+var $author$project$Traveller$RefreshMap = {$: 'RefreshMap'};
+var $author$project$Traveller$Zoom = function (a) {
+	return {$: 'Zoom', a: a};
+};
+var $author$project$Traveller$ZoomIn = {$: 'ZoomIn'};
+var $author$project$Traveller$ZoomOut = {$: 'ZoomOut'};
 var $avh4$elm_color$Color$hsla = F4(
 	function (hue, sat, light, alpha) {
 		var _v0 = _Utils_Tuple3(hue, sat, light);
@@ -26619,9 +26645,53 @@ var $author$project$Traveller$viewStatusRow = function (model) {
 						[
 							$author$project$Traveller$UI$uiDeepnightColorFontColour,
 							$mdgriffith$elm_ui$Element$Font$size(14),
+							$mdgriffith$elm_ui$Element$pointer,
+							$mdgriffith$elm_ui$Element$Events$onClick(
+							$author$project$Traveller$SetHexSize(
+								A3($elm$core$Basics$clamp, $author$project$Traveller$minHexSize, $author$project$Traveller$maxHexSize, model.hexScale * 1.1))),
+							$mdgriffith$elm_ui$Element$alignBottom,
+							$mdgriffith$elm_ui$Element$htmlAttribute(
+							$elm$html$Html$Attributes$title('Zoom in')),
+							$mdgriffith$elm_ui$Element$mouseOver(
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Font$color(
+									$author$project$Traveller$StellarObjectView$convertColor(
+										A2($noahzgordon$elm_color_extra$Color$Manipulate$lighten, 0.25, $author$project$Traveller$UI$deepnightColor)))
+								]))
+						]),
+					A2($author$project$Traveller$renderFAIcon, 'fa-regular fa-magnifying-glass-plus', 14)),
+					A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$author$project$Traveller$UI$uiDeepnightColorFontColour,
+							$mdgriffith$elm_ui$Element$Font$size(14),
+							$mdgriffith$elm_ui$Element$pointer,
+							$mdgriffith$elm_ui$Element$Events$onClick(
+							$author$project$Traveller$SetHexSize(
+								A3($elm$core$Basics$clamp, $author$project$Traveller$minHexSize, $author$project$Traveller$maxHexSize, model.hexScale / 1.1))),
+							$mdgriffith$elm_ui$Element$alignBottom,
+							$mdgriffith$elm_ui$Element$htmlAttribute(
+							$elm$html$Html$Attributes$title('Zoom out')),
+							$mdgriffith$elm_ui$Element$mouseOver(
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Font$color(
+									$author$project$Traveller$StellarObjectView$convertColor(
+										A2($noahzgordon$elm_color_extra$Color$Manipulate$lighten, 0.25, $author$project$Traveller$UI$deepnightColor)))
+								]))
+						]),
+					A2($author$project$Traveller$renderFAIcon, 'fa-regular fa-magnifying-glass-minus', 14)),
+					A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$author$project$Traveller$UI$uiDeepnightColorFontColour,
+							$mdgriffith$elm_ui$Element$Font$size(14),
 							$mdgriffith$elm_ui$Element$spacing(5),
 							$mdgriffith$elm_ui$Element$pointer,
-							$mdgriffith$elm_ui$Element$Events$onClick($author$project$Traveller$DownloadSolarSystems),
+							$mdgriffith$elm_ui$Element$Events$onClick($author$project$Traveller$RefreshMap),
 							$mdgriffith$elm_ui$Element$alignBottom,
 							$mdgriffith$elm_ui$Element$htmlAttribute(
 							$elm$html$Html$Attributes$title('Refresh map')),
@@ -26714,7 +26784,53 @@ var $author$project$Traveller$viewStatusRow = function (model) {
 						]))
 				]);
 		} else {
-			return _List_Nil;
+			return _List_fromArray(
+				[
+					A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$author$project$Traveller$UI$uiDeepnightColorFontColour,
+							$mdgriffith$elm_ui$Element$Font$size(14),
+							$mdgriffith$elm_ui$Element$pointer,
+							$mdgriffith$elm_ui$Element$Events$onClick(
+							$author$project$Traveller$JourneyMsg(
+								$author$project$Traveller$Zoom($author$project$Traveller$ZoomIn))),
+							$mdgriffith$elm_ui$Element$alignBottom,
+							$mdgriffith$elm_ui$Element$htmlAttribute(
+							$elm$html$Html$Attributes$title('Zoom in')),
+							$mdgriffith$elm_ui$Element$mouseOver(
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Font$color(
+									$author$project$Traveller$StellarObjectView$convertColor(
+										A2($noahzgordon$elm_color_extra$Color$Manipulate$lighten, 0.25, $author$project$Traveller$UI$deepnightColor)))
+								]))
+						]),
+					A2($author$project$Traveller$renderFAIcon, 'fa-regular fa-magnifying-glass-plus', 14)),
+					A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$author$project$Traveller$UI$uiDeepnightColorFontColour,
+							$mdgriffith$elm_ui$Element$Font$size(14),
+							$mdgriffith$elm_ui$Element$pointer,
+							$mdgriffith$elm_ui$Element$Events$onClick(
+							$author$project$Traveller$JourneyMsg(
+								$author$project$Traveller$Zoom($author$project$Traveller$ZoomOut))),
+							$mdgriffith$elm_ui$Element$alignBottom,
+							$mdgriffith$elm_ui$Element$htmlAttribute(
+							$elm$html$Html$Attributes$title('Zoom out')),
+							$mdgriffith$elm_ui$Element$mouseOver(
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Font$color(
+									$author$project$Traveller$StellarObjectView$convertColor(
+										A2($noahzgordon$elm_color_extra$Color$Manipulate$lighten, 0.25, $author$project$Traveller$UI$deepnightColor)))
+								]))
+						]),
+					A2($author$project$Traveller$renderFAIcon, 'fa-regular fa-magnifying-glass-minus', 14))
+				]);
 		}
 	}();
 	var viewModeIcon = F2(
