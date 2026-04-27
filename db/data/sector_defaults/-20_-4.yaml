@@ -941,7 +941,7 @@ subsectors:
           bodies:
             - uwp: X000000-0
             - uwp: large gas giant
-            - uwp: X757000-0
+            - uwp: X777000-0
               name: Erline
             - uwp: small gas giant
             - uwp: large gas giant
