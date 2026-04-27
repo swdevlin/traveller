@@ -22,7 +22,7 @@ subsectors:
     index: E
   - name: Last F
     type: LOW
-    index: C
+    index: F
   - name: Last G
     type: MODERATE
     index: G

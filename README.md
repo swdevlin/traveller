@@ -12,7 +12,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 * Import default configuration for parsec
 * Quickly set survey index for a subsector
 * import communication network from travellermap
-* Display jump map for a star system
 
 ### Map to do
 
