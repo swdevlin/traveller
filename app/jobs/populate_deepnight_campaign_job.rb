@@ -7,6 +7,8 @@ class PopulateDeepnightCampaignJob < ApplicationJob
     campaign = Campaign.find(campaign_id)
     source = campaign.source_deepnight_defaults? ? 'deepnight' : 'traveller_map'
 
+    create_allegiances
+
     sector_defaults_path = Rails.root.join('db', 'data', 'sector_defaults')
 
     Dir.glob(sector_defaults_path.join('*.yaml')).sort.each do |path|
@@ -16,6 +18,17 @@ class PopulateDeepnightCampaignJob < ApplicationJob
   end
 
   private
+
+  def create_allegiances
+    path = Rails.root.join('db', 'data', 'deepnight_allegiances.yaml')
+    YAML.safe_load(File.read(path)).each do |attrs|
+      Allegiance.find_or_create_by(code: attrs['code']) do |a|
+        a.name              = attrs['name']
+        a.background_colour = attrs['background_colour']
+        a.border_colour     = attrs['border_colour']
+      end
+    end
+  end
 
   def create_sector(data, source)
     sector = Sector.find_or_initialize_by(x: data['X'], y: data['Y'])
