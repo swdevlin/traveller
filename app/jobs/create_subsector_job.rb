@@ -48,7 +48,12 @@ class CreateSubsectorJob < ApplicationJob
     now = Time.current
     records = (0...8).flat_map do |x|
       (0...10).map do |y|
-        { sector_id: sector.id, x: ul.x + x, y: ul.y - y, created_at: now, updated_at: now }
+        wx = ul.x + x
+        wy = ul.y - y
+        q = wx
+        r = -wy - ((wx - (wx & 1)) / 2)
+        s = -q - r
+        { sector_id: sector.id, x: wx, y: wy, q: q, r: r, s: s, created_at: now, updated_at: now }
       end
     end
     Parsec.insert_all!(records)

@@ -40,6 +40,10 @@
     <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
   <% end %>
 
+  <% if parsec %>
+    <%= render 'star_systems/jump_survey', star_system: @star_system %>
+  <% end %>
+
   <div class='mt-6'>
     <%= render 'application/subsection', title: 'Network Links' %>
     <div id="network-links-<%= @star_system.id %>" class='mt-2'>

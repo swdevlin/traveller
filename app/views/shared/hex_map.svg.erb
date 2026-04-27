@@ -10,11 +10,31 @@
   jump_highlight_positions = @jump_highlight_positions  || Set.new
   highlight_pos            = @highlight_pos
   ul                       = @ul
+  valid_positions          = @valid_positions
+
+  if valid_positions&.any?
+    all_centers = valid_positions.map { |c, r| hex_center(c, r) }
+    all_centers << hex_center(*highlight_pos) if highlight_pos
+    min_cx = all_centers.map(&:first).min
+    max_cx = all_centers.map(&:first).max
+    min_cy = all_centers.map(&:last).min
+    max_cy = all_centers.map(&:last).max
+    pad = SubsectorsHelper::SVG_PADDING
+    vb_x = (min_cx - SubsectorsHelper::HEX_SIZE - pad).floor
+    vb_y = (min_cy - SubsectorsHelper::HEX_HEIGHT / 2.0 - pad).floor
+    vb_w = (max_cx - min_cx + SubsectorsHelper::HEX_WIDTH + pad * 2).ceil
+    vb_h = (max_cy - min_cy + SubsectorsHelper::HEX_HEIGHT + pad * 2).ceil
+    svg_width  = vb_w
+    svg_height = vb_h
+    view_box   = "#{vb_x} #{vb_y} #{vb_w} #{vb_h}"
+  else
+    view_box = "0 0 #{svg_width} #{svg_height}"
+  end
 -%><svg xmlns="http://www.w3.org/2000/svg"
      width="<%= svg_width %>"
      height="<%= svg_height %>"
      preserveAspectRatio="xMidYMid meet"
-     viewBox="0 0 <%= svg_width %> <%= svg_height %>">
+     viewBox="<%= view_box %>">
 
   <defs>
     <symbol id="gas-giant-icon" viewBox="0 0 640 640">
@@ -53,6 +73,7 @@
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
         <%
+          next if valid_positions && !valid_positions.include?([col, row])
           next if highlight_pos == [col, row]
           cx, cy = hex_center(col, row)
           sys = systems_by_pos[[col, row]]
@@ -104,6 +125,7 @@
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
         <%
+          next if valid_positions && !valid_positions.include?([col, row])
           next if highlight_pos == [col, row]
           cx, cy = hex_center(col, row)
           bd = systems_by_pos[[col, row]]&.allegiance&.border_colour
@@ -155,6 +177,7 @@
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
         <%
+          next if valid_positions && !valid_positions.include?([col, row])
           sys = systems_by_pos[[col, row]]
           next unless sys&.travel_zone
             cx, cy = hex_center(col, row)
@@ -200,6 +223,7 @@
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
         <%
+          next if valid_positions && !valid_positions.include?([col, row])
           cx, cy = hex_center(col, row)
           star_system = systems_by_pos[[col, row]]
         %>
@@ -301,6 +325,7 @@
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
         <%
+          next if valid_positions && !valid_positions.include?([col, row])
           cx, cy = hex_center(col, row)
           parsec_data = parsecs_by_pos[[col, row]]
           star_system = systems_by_pos[[col, row]]

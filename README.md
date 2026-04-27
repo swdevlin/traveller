@@ -9,11 +9,10 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
   * Option to generate blank?
 * Display error messages from background jobs
 * Verify social UWP characteristic calculations for other worlds
-* Export sector file that can be used by Traveller Map
-* Export subsector file that can be used by Traveller Map
 * Import default configuration for parsec
 * Quickly set survey index for a subsector
 * import communication network from travellermap
+* Display jump map for a star system
 
 ### Map to do
 

@@ -108,6 +108,8 @@ Rails.application.routes.draw do
         post :apply_social_characteristics
         get  :link_modal
         get  :quick_link
+        get  :jump_map
+        get  :jump_map_modal
       end
     end
 

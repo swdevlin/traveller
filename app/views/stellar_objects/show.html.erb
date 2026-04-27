@@ -34,6 +34,9 @@
     <% if subsector %>
       <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
     <% end %>
+    <% if star_system %>
+      <%= render 'star_systems/jump_survey', star_system: star_system %>
+    <% end %>
   </div>
 <% end %>
 

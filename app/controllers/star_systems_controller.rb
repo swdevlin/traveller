@@ -8,8 +8,8 @@ class StarSystemsController < ApplicationController
   include ParentHex
   include UrlTokenVerification
   include LinkModalSetup
-  optional_authentication only: [:map]
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics link_modal quick_link ]
+  optional_authentication only: [:map, :jump_map]
+  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics link_modal quick_link jump_map jump_map_modal ]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
@@ -120,6 +120,35 @@ class StarSystemsController < ApplicationController
 
   def link_modal
     setup_link_modal_ivars
+    render layout: false
+  end
+
+  def jump_map
+    radius = jump_radius
+    cache_key = jump_map_cache_key(radius)
+    respond_to do |format|
+      format.png do
+        png = Rails.cache.fetch("jump_map_png/#{cache_key}") do
+          build_jump_map_ivars(radius)
+          svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
+          image = Vips::Image.new_from_buffer(svg, '')
+          image.pngsave_buffer
+        end
+        send_data png, type: 'image/png', disposition: 'inline'
+      end
+      format.svg do
+        svg = Rails.cache.fetch("jump_map_svg/#{cache_key}") do
+          build_jump_map_ivars(radius)
+          render_to_string('shared/hex_map', formats: [:svg], layout: false)
+        end
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+    end
+  end
+
+  def jump_map_modal
+    @radius = jump_radius
+    @zoom = jump_map_zoom(@radius)
     render layout: false
   end
 
@@ -542,6 +571,104 @@ class StarSystemsController < ApplicationController
     types = %w[O B A F G K M].map { |t| [t, t] }
     types << ['Brown Dwarf', 'BD']
     types << ['White Dwarf', 'D']
+  end
+
+  def jump_radius
+    params[:radius].to_i.clamp(1, 6)
+  end
+
+  def jump_map_zoom(radius)
+    cols = radius * 2 + 1
+    image_width = 60 + cols * 60
+    [1.0, (500.0 / image_width)].min.round(2)
+  end
+
+  def jump_map_cache_key(radius)
+    parsec = @star_system.parsec
+    ulx = parsec.x - radius
+    ulx -= 1 if ulx.odd?
+    uly = parsec.y + radius
+    cols = parsec.x + radius - ulx + 1
+    rows = radius * 2 + 1
+
+    x_range = ulx..(ulx + cols - 1)
+    y_range = (uly - rows + 1)..uly
+
+    viewport_parsec_ids = Parsec.where(x: x_range, y: y_range).pluck(:id)
+
+    max_system_updated = StarSystem.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)
+    max_parsec_updated = Parsec.where(id: viewport_parsec_ids).maximum(:updated_at)
+    region_parsec_max  = RegionParsec.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)
+    region_record_max  = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: viewport_parsec_ids }).maximum(:updated_at)
+    region_max_updated = [region_parsec_max, region_record_max].compact.max
+
+    auth_variant = authenticated? ? 'auth' : 'public'
+
+    version = Digest::SHA256.hexdigest([
+      max_system_updated.to_i,
+      max_parsec_updated.to_i,
+      region_max_updated.to_i,
+      current_campaign.updated_at.to_i
+    ].join('-'))
+
+    "#{current_campaign.id}/#{@star_system.id}/r#{radius}/#{version}/#{auth_variant}"
+  end
+
+  def build_jump_map_ivars(radius)
+    parsec = @star_system.parsec
+    ulx = parsec.x - radius
+    ulx -= 1 if ulx.odd?  # hex_center offsets even grid cols; ulx must be even so parity matches universal-x
+    uly = parsec.y + radius
+    @cols = parsec.x + radius - ulx + 1
+    @rows = radius * 2 + 1
+    @ul = Coordinate.new(ulx, uly)
+    @highlight_pos = [parsec.x - ulx + 1, uly - parsec.y + 1]
+    @show_map_links = false
+
+    center_q, center_r, center_s = parsec.q, parsec.r, parsec.s
+
+    # Build the set of valid grid positions within hex distance `radius`.
+    # The rectangular bounding box contains corner cells at cube distance up to
+    # 2*radius − 1, so we must clip at the hex ring boundary.
+    valid_positions = Set.new
+    (1..@cols).each do |col|
+      (1..@rows).each do |row|
+        wx = ulx + col - 1
+        wy = uly - row + 1
+        q  = wx
+        r  = -wy - (wx >> 1)
+        s  = -q - r
+        dist = [(q - center_q).abs, (r - center_r).abs, (s - center_s).abs].max
+        valid_positions.add([col, row]) if dist <= radius
+      end
+    end
+    @valid_positions = valid_positions
+
+    viewport_parsecs = Parsec.includes(:sector)
+                             .where(x: ulx..(ulx + @cols - 1), y: (uly - @rows + 1)..uly)
+                             .select { |p| [(p.q - center_q).abs, (p.r - center_r).abs, (p.s - center_s).abs].max <= radius }
+
+    star_systems = StarSystem.where(parsec_id: viewport_parsecs.map(&:id))
+                             .includes(:parsec, :allegiance, :travel_zone, stars: [])
+                             .load
+
+    systems_by_parsec_id = star_systems.index_by(&:parsec_id)
+    @parsecs_by_pos = {}
+    @systems_by_pos = {}
+
+    viewport_parsecs.each do |p|
+      col = p.x - ulx + 1
+      row = uly - p.y + 1
+      @parsecs_by_pos[[col, row]] = { id: p.id, hex_code: p.hex_code, label: p.label, label_colour: p.label_colour }
+      sys = systems_by_parsec_id[p.id]
+      @systems_by_pos[[col, row]] = sys if sys
+    end
+
+    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
+      viewport_parsecs, @ul,
+      visible_col: 1..@cols, visible_row: 1..@rows,
+      authenticated: true
+    )
   end
 
   def set_form_context

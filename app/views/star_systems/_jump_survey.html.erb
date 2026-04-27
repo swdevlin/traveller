@@ -1,0 +1,15 @@
+<%# locals: (star_system:) %>
+<div class='mt-6'>
+  <%= render 'application/subsection', title: 'Jump Survey' %>
+  <div class='mt-2 p-1 text-sm text-slate-400'>
+    <p class='mb-3'>Generate local jump map centred on this system.</p>
+    <div class='flex flex-wrap gap-2'>
+      <% (1..6).each do |n| %>
+        <%= link_to "J#{n}",
+                    jump_map_modal_star_system_path(star_system, radius: n),
+                    class: 'no-underline hover:underline',
+                    data: { turbo_frame: 'modal' } %>
+      <% end %>
+    </div>
+  </div>
+</div>

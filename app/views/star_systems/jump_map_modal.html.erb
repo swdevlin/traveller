@@ -1,0 +1,19 @@
+<%= modal(title: "Jump-#{@radius} Survey", padding: true, advance: false, overlay: false) do %>
+  <% svg_path = jump_map_star_system_path(@star_system, radius: @radius, format: :svg) %>
+  <div class='mb-3 flex justify-end'>
+    <%= link_to signed_map_url(svg_path),
+                target: '_blank',
+                rel: 'noopener',
+                class: 'text-xs text-slate-400 hover:text-slate-200 no-underline hover:underline flex items-center gap-1' do %>
+      <i class='fa-regular fa-link'></i>
+      Embed link
+    <% end %>
+  </div>
+  <div class='overflow-auto'>
+    <div style='display: inline-block; line-height: 0; zoom: <%= @zoom %>;'>
+      <img src='<%= jump_map_star_system_path(@star_system, radius: @radius, format: :png) %>'
+           alt='Jump-<%= @radius %> survey map'
+           class='block'>
+    </div>
+  </div>
+<% end %>
