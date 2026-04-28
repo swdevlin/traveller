@@ -22,6 +22,37 @@ module HasUwp
     self.atmosphere = (atmosphere || {}).merge('composition' => val.presence)
   end
 
+  def atmosphere_taint_code      = atmosphere&.dig('taint', 'code').presence
+  def atmosphere_taint_severity  = atmosphere&.dig('taint', 'severity').presence
+  def atmosphere_taint_persistence = atmosphere&.dig('taint', 'persistence').presence
+  def atmosphere_hazard_code     = atmosphere&.dig('hazardCode').presence
+
+  TAINT_SUBTYPE_LABELS = {
+    'L' => 'Low Oxygen', 'R' => 'Radioactivity', 'B' => 'Biological',
+    'G' => 'Gas Mix', 'P' => 'Particulates', 'S' => 'Sulphur Compounds', 'H' => 'High Oxygen'
+  }.freeze
+
+  def atmosphere_taint_code=(val)
+    taint = (atmosphere&.dig('taint') || {})
+    self.atmosphere = (atmosphere || {}).merge(
+      'taint' => taint.merge('code' => val.presence || '', 'subtype' => TAINT_SUBTYPE_LABELS[val] || '')
+    )
+  end
+
+  def atmosphere_taint_severity=(val)
+    taint = (atmosphere&.dig('taint') || {})
+    self.atmosphere = (atmosphere || {}).merge('taint' => taint.merge('severity' => val.present? ? val.to_i : 0))
+  end
+
+  def atmosphere_taint_persistence=(val)
+    taint = (atmosphere&.dig('taint') || {})
+    self.atmosphere = (atmosphere || {}).merge('taint' => taint.merge('persistence' => val.present? ? val.to_i : 0))
+  end
+
+  def atmosphere_hazard_code=(val)
+    self.atmosphere = (atmosphere || {}).merge('hazardCode' => val.presence)
+  end
+
   def hydrographics_code
     hydrographics&.dig('code')
   end
@@ -102,6 +133,29 @@ module HasUwp
   def government_executive      = government&.dig('structure', 'executive')
   def government_legislative    = government&.dig('structure', 'legislative')
 
+  def government_authority=(val)
+    self.government = (government || {}).merge('authority' => val.presence)
+  end
+
+  def government_centralisation=(val)
+    self.government = (government || {}).merge('centralisation' => val.presence)
+  end
+
+  def government_judicial=(val)
+    structure = (government&.dig('structure') || {})
+    self.government = (government || {}).merge('structure' => structure.merge('judicial' => val.presence))
+  end
+
+  def government_executive=(val)
+    structure = (government&.dig('structure') || {})
+    self.government = (government || {}).merge('structure' => structure.merge('executive' => val.presence))
+  end
+
+  def government_legislative=(val)
+    structure = (government&.dig('structure') || {})
+    self.government = (government || {}).merge('structure' => structure.merge('legislative' => val.presence))
+  end
+
   def law_level_code
     law_level&.dig('code')
   end
@@ -121,6 +175,46 @@ module HasUwp
   def law_level_presumed_innocence = law_level&.dig('presumedInnocence')
   def law_level_econometric_infractions_administrative = law_level&.dig('econometricInfractionsAdministrative')
 
+  def law_level_weapons_and_armour=(val)
+    self.law_level = (law_level || {}).merge('weaponsAndArmour' => val.present? ? val.to_i : nil)
+  end
+
+  def law_level_criminal_law=(val)
+    self.law_level = (law_level || {}).merge('criminalLaw' => val.present? ? val.to_i : nil)
+  end
+
+  def law_level_economic_law=(val)
+    self.law_level = (law_level || {}).merge('economicLaw' => val.present? ? val.to_i : nil)
+  end
+
+  def law_level_private_law=(val)
+    self.law_level = (law_level || {}).merge('privateLaw' => val.present? ? val.to_i : nil)
+  end
+
+  def law_level_personal_rights=(val)
+    self.law_level = (law_level || {}).merge('personalRights' => val.present? ? val.to_i : nil)
+  end
+
+  def law_level_uniformity=(val)
+    self.law_level = (law_level || {}).merge('uniformity' => val.presence)
+  end
+
+  def law_level_judicial_system=(val)
+    self.law_level = (law_level || {}).merge('judicialSystem' => val.presence)
+  end
+
+  def law_level_death_penalty=(val)
+    self.law_level = (law_level || {}).merge('deathPenalty' => ActiveModel::Type::Boolean.new.cast(val))
+  end
+
+  def law_level_presumed_innocence=(val)
+    self.law_level = (law_level || {}).merge('presumedInnocence' => ActiveModel::Type::Boolean.new.cast(val))
+  end
+
+  def law_level_econometric_infractions_administrative=(val)
+    self.law_level = (law_level || {}).merge('econometricInfractionsAdministrative' => ActiveModel::Type::Boolean.new.cast(val))
+  end
+
   def starport_code
     data&.dig('starport_code')
   end
@@ -134,9 +228,15 @@ module HasUwp
     def uwp_attribute_names
       [
         :atmosphere_code, :atmosphere_composition,
+        :atmosphere_taint_code, :atmosphere_taint_severity, :atmosphere_taint_persistence,
+        :atmosphere_hazard_code,
         :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
         :population_code, :population_concentration_rating, :population_urbanization_percentage, :population_major_cities,
-        :government_code, :law_level_code,
+        :government_code, :government_authority, :government_centralisation,
+        :government_judicial, :government_executive, :government_legislative,
+        :law_level_code, :law_level_weapons_and_armour, :law_level_criminal_law, :law_level_economic_law,
+        :law_level_private_law, :law_level_personal_rights, :law_level_uniformity, :law_level_judicial_system,
+        :law_level_death_penalty, :law_level_presumed_innocence, :law_level_econometric_infractions_administrative,
         :starport_code,
         :tech_level_code
       ]

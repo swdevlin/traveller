@@ -9,19 +9,9 @@
       <%= form.text_field :name, class: 'edit-base w-100' %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
-      <%= form.select :starport_code,
-                      options_for_select(
-                        StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
-                        stellar_object.starport_code
-                      ),
-                      { include_blank: 'Select starport' },
-                      class: 'edit-base' %>
-    <% end %>
-
     <% if parent %>
       <div class='flex items-center gap-2 pt-2'>
-        <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital Data</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital</div>
         <div class='h-px flex-1 bg-slate-700/70'></div>
       </div>
 
@@ -68,7 +58,22 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Physical Data</div>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Starport</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
+      <%= form.select :starport_code,
+                      options_for_select(
+                        StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.starport_code
+                      ),
+                      { include_blank: 'Select starport' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Physical</div>
       <div class='h-px flex-1 bg-slate-700/70'></div>
     </div>
 
@@ -117,11 +122,6 @@
       <% end %>
     </div>
 
-    <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Environmental Data</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
-    </div>
-
     <%= render 'application/edit_field', form: form, attribute: :temperature do %>
       <%= form.number_field :temperature,
                             value: format_precision(stellar_object.temperature, precision: 5),
@@ -150,6 +150,11 @@
                             step: 'any' %>
     <% end %>
 
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Atmosphere</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
+
     <%= render 'application/edit_field', form: form, attribute: :atmosphere_code, field_label: 'Atmosphere', required: true do %>
       <%= form.select :atmosphere_code,
                       options_for_select(
@@ -165,6 +170,51 @@
                           value: stellar_object.atmosphere_composition,
                           class: 'edit-base w-full sm:max-w-xl' %>
     <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_code, field_label: 'Irritant' do %>
+      <%= form.select :atmosphere_taint_code,
+                      options_for_select(
+                        StellarObjectsHelper::TAINT_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.atmosphere_taint_code
+                      ),
+                      { include_blank: 'None' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_severity, field_label: 'Taint Severity' do %>
+      <%= form.select :atmosphere_taint_severity,
+                      options_for_select(
+                        StellarObjectsHelper::TAINT_SEVERITY_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.atmosphere_taint_severity
+                      ),
+                      { include_blank: 'Select severity' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_persistence, field_label: 'Taint Persistence' do %>
+      <%= form.select :atmosphere_taint_persistence,
+                      options_for_select(
+                        StellarObjectsHelper::TAINT_PERSISTENCE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.atmosphere_taint_persistence
+                      ),
+                      { include_blank: 'Select persistence' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :atmosphere_hazard_code, field_label: 'Hazard' do %>
+      <%= form.select :atmosphere_hazard_code,
+                      options_for_select(
+                        StellarObjectsHelper::INSIDIOUS_HAZARD_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.atmosphere_hazard_code
+                      ),
+                      { include_blank: 'None' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Hydrographics</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
 
     <%= render 'application/edit_field', form: form, attribute: :hydrographics_code, field_label: 'Hydrographics', required: true do %>
       <%= form.select :hydrographics_code,
@@ -193,48 +243,7 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Biological Data</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
-    </div>
-
-    <%= render 'application/edit_field', form: form, attribute: :habitability_rating, field_label: 'Habitability Rating' do %>
-      <%= form.number_field :habitability_rating,
-                            value: stellar_object.habitability_rating,
-                            class: 'edit-base sm:w-28 w-24',
-                            step: 1 %>
-    <% end %>
-
-    <%= render 'application/edit_field', form: form, attribute: :biomass_rating, field_label: 'Biomass Rating' do %>
-      <%= form.number_field :biomass_rating,
-                            value: stellar_object.biomass_rating,
-                            class: 'edit-base sm:w-28 w-24',
-                            step: 1 %>
-    <% end %>
-
-    <%= render 'application/edit_field', form: form, attribute: :biodiversity_rating, field_label: 'Biodiversity Rating' do %>
-      <%= form.number_field :biodiversity_rating,
-                            value: stellar_object.biodiversity_rating,
-                            class: 'edit-base sm:w-28 w-24',
-                            step: 1 %>
-    <% end %>
-
-    <%= render 'application/edit_field', form: form, attribute: :biocomplexity_rating, field_label: 'Biocomplexity Rating' do %>
-      <%= form.text_field :biocomplexity_rating,
-                          value: stellar_object.biocomplexity_rating,
-                          class: 'edit-base w-24' %>
-    <% end %>
-
-    <%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating' do %>
-      <%= form.number_field :resource_rating,
-                            value: stellar_object.resource_rating,
-                            class: 'edit-base sm:w-28 w-24',
-                            step: 1,
-                            min: 2,
-                            max: 12 %>
-    <% end %>
-
-    <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Social Data</div>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Population</div>
       <div class='h-px flex-1 bg-slate-700/70'></div>
     </div>
 
@@ -283,6 +292,47 @@
             checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :habitability_rating, field_label: 'Habitability Rating' do %>
+      <%= form.number_field :habitability_rating,
+                            value: stellar_object.habitability_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :biomass_rating, field_label: 'Biomass Rating' do %>
+      <%= form.number_field :biomass_rating,
+                            value: stellar_object.biomass_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :biodiversity_rating, field_label: 'Biodiversity Rating' do %>
+      <%= form.number_field :biodiversity_rating,
+                            value: stellar_object.biodiversity_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :biocomplexity_rating, field_label: 'Biocomplexity Rating' do %>
+      <%= form.text_field :biocomplexity_rating,
+                          value: stellar_object.biocomplexity_rating,
+                          class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating' do %>
+      <%= form.number_field :resource_rating,
+                            value: stellar_object.resource_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 2,
+                            max: 12 %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Government</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
+
     <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
       <%= form.select :government_code,
                       options_for_select(
@@ -293,15 +343,178 @@
                       class: 'edit-base' %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
-      <%= form.select :law_level_code,
+    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Structure</div>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_judicial, field_label: 'Judicial' do %>
+      <%= form.select :government_judicial,
                       options_for_select(
-                        LawLevel.where.not(weapons: [nil, '']).order(:code).map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
-                        stellar_object.law_level_code
+                        StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.government_judicial
                       ),
-                      { include_blank: 'Select law level' },
+                      { include_blank: 'Select' },
                       class: 'edit-base' %>
     <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_executive, field_label: 'Executive' do %>
+      <%= form.select :government_executive,
+                      options_for_select(
+                        StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.government_executive
+                      ),
+                      { include_blank: 'Select' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_legislative, field_label: 'Legislative' do %>
+      <%= form.select :government_legislative,
+                      options_for_select(
+                        StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.government_legislative
+                      ),
+                      { include_blank: 'Select' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Characteristics</div>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_centralisation, field_label: 'Centralisation' do %>
+      <%= form.select :government_centralisation,
+                      options_for_select(
+                        StellarObjectsHelper::GOVERNMENT_CENTRALISATION_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.government_centralisation
+                      ),
+                      { include_blank: 'Select' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_authority, field_label: 'Authority' do %>
+      <%= form.select :government_authority,
+                      options_for_select(
+                        StellarObjectsHelper::GOVERNMENT_AUTHORITY_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.government_authority
+                      ),
+                      { include_blank: 'Select' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Law Level</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
+
+    <% law_levels = LawLevel.order(:code) %>
+
+    <div data-controller='law-level' class='space-y-2'>
+      <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
+        <%= form.select :law_level_code,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                          stellar_object.law_level_code
+                        ),
+                        { include_blank: 'Select law level' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'code', action: 'change->law-level#sync' } %>
+      <% end %>
+
+      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Sub-Classifications</div>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_weapons_and_armour, field_label: 'Weapons & Armour' do %>
+        <%= form.select :law_level_weapons_and_armour,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                          stellar_object.law_level_weapons_and_armour
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'subClassification' } %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_criminal_law, field_label: 'Criminal Law' do %>
+        <%= form.select :law_level_criminal_law,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.criminal_law}", l.code] },
+                          stellar_object.law_level_criminal_law
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'subClassification' } %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_economic_law, field_label: 'Economic Law' do %>
+        <%= form.select :law_level_economic_law,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.economic_law}", l.code] },
+                          stellar_object.law_level_economic_law
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'subClassification' } %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_private_law, field_label: 'Private Law' do %>
+        <%= form.select :law_level_private_law,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.private_law}", l.code] },
+                          stellar_object.law_level_private_law
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'subClassification' } %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_personal_rights, field_label: 'Personal Rights' do %>
+        <%= form.select :law_level_personal_rights,
+                        options_for_select(
+                          law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.personal_law}", l.code] },
+                          stellar_object.law_level_personal_rights
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base',
+                        data: { law_level_target: 'subClassification' } %>
+      <% end %>
+
+      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Characteristics</div>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_uniformity, field_label: 'Uniformity' do %>
+        <%= form.select :law_level_uniformity,
+                        options_for_select(
+                          StellarObjectsHelper::LAW_UNIFORMITY_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                          stellar_object.law_level_uniformity
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_judicial_system, field_label: 'Judicial System' do %>
+        <%= form.select :law_level_judicial_system,
+                        options_for_select(
+                          StellarObjectsHelper::LAW_JUDICIAL_SYSTEM_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                          stellar_object.law_level_judicial_system
+                        ),
+                        { include_blank: 'Select' },
+                        class: 'edit-base' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_death_penalty, field_label: 'Death Penalty' do %>
+        <%= render 'application/boolean_toggle', form: form, attribute: :law_level_death_penalty,
+              checked: stellar_object.law_level_death_penalty, checked_value: 'true', unchecked_value: 'false' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_presumed_innocence, field_label: 'Presumed Innocence' do %>
+        <%= render 'application/boolean_toggle', form: form, attribute: :law_level_presumed_innocence,
+              checked: stellar_object.law_level_presumed_innocence, checked_value: 'true', unchecked_value: 'false' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :law_level_econometric_infractions_administrative, field_label: 'Econometric Infractions Administrative' do %>
+        <%= render 'application/boolean_toggle', form: form, attribute: :law_level_econometric_infractions_administrative,
+              checked: stellar_object.law_level_econometric_infractions_administrative, checked_value: 'true', unchecked_value: 'false' %>
+      <% end %>
+    </div>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Tech Level</div>
+      <div class='h-px flex-1 bg-slate-700/70'></div>
+    </div>
 
     <%= render 'application/edit_field', form: form, attribute: :tech_level_code, field_label: 'Tech Level' do %>
       <%= form.number_field :tech_level_code,

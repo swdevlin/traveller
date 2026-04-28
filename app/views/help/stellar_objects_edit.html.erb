@@ -2,31 +2,27 @@
 
 <%= render 'help/page', title: 'Edit Planetary Body' do %>
   <div class='max-w-2xl space-y-6'>
-    <div class='rounded-2xl border border-slate-800/70 bg-slate-950/50 p-5 space-y-6'>
+    <div class='rounded-2xl bg-slate-950/50 p-5 space-y-6'>
       <div class='space-y-3 text-sm text-slate-300'>
         <p>
           The edit form applies to terrestrial planets, planetoids, and moons.
-          Orbital Data fields are only shown when the body orbits a star.
+          The Orbital section is only shown when the body orbits a star.
           Press <span class='font-semibold text-slate-200'>Update core</span> to save changes.
         </p>
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>General</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Name</p>
         <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Name</dt>
             <dd class='mt-1 text-slate-300'>The body's designation or proper name.</dd>
           </div>
-          <div>
-            <dt class='font-semibold text-slate-200'>Starport</dt>
-            <dd class='mt-1 text-slate-300'>Class of the primary port facility (A–E, X for none).</dd>
-          </div>
         </dl>
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Orbital Data</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Orbital</p>
         <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Orbit</dt>
@@ -56,7 +52,17 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Physical Data</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Starport</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Starport</dt>
+            <dd class='mt-1 text-slate-300'>Class of the primary port facility (A–E, X for none).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Physical</p>
         <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Size</dt>
@@ -74,12 +80,6 @@
             <dt class='font-semibold text-slate-200'>Mass / Gravity</dt>
             <dd class='mt-1 text-slate-300'>Calculated from diameter and density. Can be overridden manually.</dd>
           </div>
-        </dl>
-      </div>
-
-      <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Environmental Data</p>
-        <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Temperature</dt>
             <dd class='mt-1 text-slate-300'>Mean surface temperature in Kelvin.</dd>
@@ -96,14 +96,34 @@
             <dt class='font-semibold text-slate-200'>Greenhouse</dt>
             <dd class='mt-1 text-slate-300'>Greenhouse effect factor.</dd>
           </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Atmosphere</p>
+        <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Atmosphere</dt>
-            <dd class='mt-1 text-slate-300'>Atmosphere type code (UWP digit). Taint details are set separately on the atmosphere record.</dd>
+            <dd class='mt-1 text-slate-300'>Atmosphere type code (UWP digit).</dd>
           </div>
           <div>
             <dt class='font-semibold text-slate-200'>Composition</dt>
             <dd class='mt-1 text-slate-300'>Free-text description of atmospheric composition.</dd>
           </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Irritant / Taint Severity / Taint Persistence</dt>
+            <dd class='mt-1 text-slate-300'>Atmospheric taint type, how dangerous it is, and how quickly it disperses.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Hazard</dt>
+            <dd class='mt-1 text-slate-300'>Insidious atmospheric hazard code (B Biological, R Radioactive, G Gas, T Thermal).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Hydrographics</p>
+        <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Hydrographics</dt>
             <dd class='mt-1 text-slate-300'>Percentage of surface covered by liquid (UWP code).</dd>
@@ -120,8 +140,28 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Biological Data</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Population</p>
         <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-slate-200'>Population</dt>
+            <dd class='mt-1 text-slate-300'>Population code 0–12.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Concentration Rating</dt>
+            <dd class='mt-1 text-slate-300'>How concentrated the population is (0 = extremely dispersed, 9 = extremely concentrated).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Urbanisation %</dt>
+            <dd class='mt-1 text-slate-300'>Percentage of the population living in urban settlements (0–100).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Major Cities</dt>
+            <dd class='mt-1 text-slate-300'>Number of significant urban centres.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Native / Extinct Sophont</dt>
+            <dd class='mt-1 text-slate-300'>Whether a sophont species is or was native to this body.</dd>
+          </div>
           <div>
             <dt class='font-semibold text-slate-200'>Habitability Rating</dt>
             <dd class='mt-1 text-slate-300'>
@@ -149,36 +189,91 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Social Data</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Government</p>
         <dl class='space-y-5 text-sm'>
           <div>
-            <dt class='font-semibold text-slate-200'>Population</dt>
-            <dd class='mt-1 text-slate-300'>Population code 0–12.</dd>
-          </div>
-          <div>
-            <dt class='font-semibold text-slate-200'>Concentration Rating</dt>
-            <dd class='mt-1 text-slate-300'>How concentrated the population is (0 = extremely dispersed, 9 = extremely concentrated).</dd>
-          </div>
-          <div>
-            <dt class='font-semibold text-slate-200'>Urbanisation %</dt>
-            <dd class='mt-1 text-slate-300'>Percentage of the population living in urban settlements (0–100).</dd>
-          </div>
-          <div>
-            <dt class='font-semibold text-slate-200'>Major Cities</dt>
-            <dd class='mt-1 text-slate-300'>Number of significant urban centres.</dd>
-          </div>
-          <div>
-            <dt class='font-semibold text-slate-200'>Native / Extinct Sophont</dt>
-            <dd class='mt-1 text-slate-300'>Whether a sophont species is or was native to this body.</dd>
-          </div>
-          <div>
             <dt class='font-semibold text-slate-200'>Government</dt>
-            <dd class='mt-1 text-slate-300'>Government type code.</dd>
+            <dd class='mt-1 text-slate-300'>Government type code (0–F hex). See WBH p. 156.</dd>
           </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Judicial / Executive / Legislative</dt>
+            <dd class='mt-1 text-slate-300'>
+              Structural composition of each branch: D Demos (elected assembly), S Single Council,
+              M Multiple Councils, R Ruler. See WBH p. 158.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Authority</dt>
+            <dd class='mt-1 text-slate-300'>
+              Which branch holds supreme authority: L Legislative, E Executive, J Judicial, B Balance (no dominant branch). See WBH p. 159.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Centralisation</dt>
+            <dd class='mt-1 text-slate-300'>
+              Degree of central control: C Confederal (constituent units hold power), F Federal (power shared between centre and units), U Unitary (centre holds power). See WBH p. 159.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Law Level</p>
+        <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Law Level</dt>
-            <dd class='mt-1 text-slate-300'>Degree of legal restriction (0–F hex).</dd>
+            <dd class='mt-1 text-slate-300'>
+              Overall degree of legal restriction (0–F hex). Changing this value automatically resets
+              all five sub-classification selects to match, providing a baseline that can then be
+              adjusted individually.
+            </dd>
           </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Weapons &amp; Armour</dt>
+            <dd class='mt-1 text-slate-300'>Law level governing possession and carry of weapons and personal armour.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Criminal Law</dt>
+            <dd class='mt-1 text-slate-300'>Law level for criminal offences and prosecution thresholds.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Economic Law</dt>
+            <dd class='mt-1 text-slate-300'>Law level regulating commerce, licensing, and trade.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Private Law</dt>
+            <dd class='mt-1 text-slate-300'>Law level governing civil disputes and private contracts.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Personal Rights</dt>
+            <dd class='mt-1 text-slate-300'>Law level covering individual freedoms such as identification requirements and movement.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Uniformity</dt>
+            <dd class='mt-1 text-slate-300'>How consistently laws are applied: P Personal (varies by individual), T Territorial (varies by region), U Universal (applied equally to all).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Judicial System</dt>
+            <dd class='mt-1 text-slate-300'>Court structure: I Inquisitorial (state-led investigation), A Adversarial (opposing counsel), T Traditional (customary or religious law).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Death Penalty</dt>
+            <dd class='mt-1 text-slate-300'>Whether capital punishment is in use.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Presumed Innocence</dt>
+            <dd class='mt-1 text-slate-300'>Whether defendants are presumed innocent until proven guilty.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-slate-200'>Econometric Infractions Administrative</dt>
+            <dd class='mt-1 text-slate-300'>Whether economic violations are handled administratively rather than criminally.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Tech Level</p>
+        <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Tech Level</dt>
             <dd class='mt-1 text-slate-300'>Technological sophistication of the dominant culture (0–35).</dd>
@@ -187,7 +282,7 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-slate-200 mb-2'>Observations</p>
+        <p class='text-sm font-semibold text-deepnight-orange mb-2'>Observations</p>
         <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-slate-200'>Observations</dt>
