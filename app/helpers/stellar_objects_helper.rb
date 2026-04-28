@@ -276,6 +276,19 @@ module StellarObjectsHelper
     TAINT_DESCRIPTIONS[code]
   end
 
+  INSIDIOUS_HAZARD_DESCRIPTIONS = {
+    'B' => 'Biologic',
+    'R' => 'Radioactivity',
+    'G' => 'Gas Mix',
+    'T' => 'Temperature'
+  }.freeze
+
+  def insidious_hazard_description(code)
+    return if code.blank?
+
+    INSIDIOUS_HAZARD_DESCRIPTIONS[code]
+  end
+
   HYDROGRAPHICS_DESCRIPTIONS = {
     0 => '0%–5%',
     1 => '6%–15%',
