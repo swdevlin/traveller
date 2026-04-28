@@ -344,6 +344,7 @@ subsectors:
             - uwp: small gas giant
             - uwp: E765396-9
               name: Lucky-Find
+              orbit: habitable
             - uwp: terrestrial
             - uwp: small gas giant
             - uwp: X000000-0
@@ -502,6 +503,7 @@ subsectors:
             bodies:
               - uwp: C311396-9
                 name: Support-For-Ships
+                orbit: habitable
               - uwp: X100000-0
               - uwp: X000000-0
               - uwp: X210200-0
@@ -648,6 +650,7 @@ subsectors:
           bodies:
             - uwp: C659845-A
               name: Zrenh
+              orbit: habitable
             - uwp: E9A1345-A
       - x: 2
         y: 3
@@ -943,6 +946,7 @@ subsectors:
             - uwp: large gas giant
             - uwp: X777000-0
               name: Erline
+              orbit: habitable
             - uwp: small gas giant
             - uwp: large gas giant
             - uwp: X000000-0
@@ -1092,6 +1096,7 @@ subsectors:
             - uwp: small gas giant
             - uwp: X777671-2
               name: Erhal
+              orbit: habitable
             - uwp: large gas giant
           far:
             type: M9
