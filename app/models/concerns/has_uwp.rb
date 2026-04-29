@@ -223,6 +223,29 @@ module HasUwp
     self.data = (data || {}).merge('starport_code' => val.presence)
   end
 
+  def tech_level_code
+    data&.dig('tech_level', 'code')
+  end
+
+  def tech_level_code=(value)
+    self.data ||= {}
+    self.data['tech_level'] ||= {}
+    self.data['tech_level']['code'] = value.presence ? value.to_i : nil
+  end
+
+  TECH_LEVEL_CATEGORIES = %w[electronics energy land sea air space personal_military heavy_military manufacturing environmental medical].freeze
+
+  TECH_LEVEL_CATEGORIES.each do |cat|
+    define_method(:"tech_level_#{cat}") do
+      data&.dig('tech_level', cat)
+    end
+
+    define_method(:"tech_level_#{cat}=") do |val|
+      self.data ||= {}
+      self.data['tech_level'] ||= {}
+      self.data['tech_level'][cat] = val.present? ? val.to_i : nil
+    end
+  end
 
   module ClassMethods
     def uwp_attribute_names
@@ -238,7 +261,10 @@ module HasUwp
         :law_level_private_law, :law_level_personal_rights, :law_level_uniformity, :law_level_judicial_system,
         :law_level_death_penalty, :law_level_presumed_innocence, :law_level_econometric_infractions_administrative,
         :starport_code,
-        :tech_level_code
+        :tech_level_code,
+        :tech_level_electronics, :tech_level_energy, :tech_level_land, :tech_level_sea,
+        :tech_level_air, :tech_level_space, :tech_level_personal_military, :tech_level_heavy_military,
+        :tech_level_manufacturing, :tech_level_medical, :tech_level_environmental
       ]
     end
   end

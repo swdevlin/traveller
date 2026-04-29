@@ -56,7 +56,35 @@ module GeneratorMappings
     raise
   end
 
+  def self.build_tech_level_from_generator(tl)
+    if tl.is_a?(Hash)
+      code = tl['code']
+      {
+        'code'              => code,
+        'energy'            => tl['energy'].nil?            ? code : tl['energy'],
+        'electronics'       => tl['electronics'].nil?       ? code : tl['electronics'],
+        'manufacturing'     => tl['manufacturing'].nil?     ? code : tl['manufacturing'],
+        'medical'           => tl['medical'].nil?           ? code : tl['medical'],
+        'environmental'     => tl['environmental'].nil?     ? code : tl['environmental'],
+        'land'              => tl['landTransport'].nil?     ? code : tl['landTransport'],
+        'sea'               => tl['waterTransport'].nil?    ? code : tl['waterTransport'],
+        'air'               => tl['airTransport'].nil?      ? code : tl['airTransport'],
+        'space'             => tl['spaceTransport'].nil?    ? code : tl['spaceTransport'],
+        'personal_military' => tl['personalMilitary'].nil?  ? code : tl['personalMilitary'],
+        'heavy_military'    => tl['heavyMilitary'].nil?     ? code : tl['heavyMilitary']
+      }
+    else
+      { 'code' => tl }
+    end
+  end
+
   def assign_data_from_generator(payload, merge: true)
+    tech_level_payload = payload['techLevel']
+    unless tech_level_payload.nil?
+      self.data ||= {}
+      self.data['tech_level'] = GeneratorMappings.build_tech_level_from_generator(tech_level_payload)
+    end
+
     mapped = self.class.mapped_data_from_generator(payload)
 
     self.diameter = payload['diameter']

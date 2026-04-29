@@ -42,7 +42,6 @@ class Moon < StellarObject
     population: 'population',
     government: 'government',
     law_level: 'lawLevel',
-    tech_level_code: 'techLevel',
     starport_code: 'starPort',
     tidal_lock: 'tidalLock',
     tidal_lock_note: 'tidalLockNote',

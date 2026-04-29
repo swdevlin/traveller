@@ -96,7 +96,15 @@ class SocialCharacteristicsAssigner
 
   def update_social_fields(so, data)
     SOCIAL_API_FIELDS.each do |api_key, setter|
-      so.public_send(setter, data[api_key]) if data.key?(api_key)
+      next unless data.key?(api_key)
+      value = data[api_key]
+      if api_key == 'techLevel'
+        tech_level = GeneratorMappings.build_tech_level_from_generator(value)
+        so.data ||= {}
+        so.data['tech_level'] = tech_level
+        value = tech_level['code']
+      end
+      so.public_send(setter, value)
     end
     so.population = data['population'] if data.key?('population')
     so.uwp = data['uwp'] if data.key?('uwp')

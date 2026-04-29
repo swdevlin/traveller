@@ -323,10 +323,23 @@ class MarkdownPresenterBase
 
     rows = [['Tech Level', "#{HexDigit.hex_digit(@obj.tech_level_code)} — #{tl.descriptor}"]]
     rows << ['Era', tl.short_description] if tl.short_description.present?
-    %i[electronics energy land sea air space personal_military heavy_military manufacturing medical environmental].each do |cap|
-      val = tl.public_send(cap)
-      rows << [cap.to_s.humanize, val] if val.present?
+
+    tl_data = @obj.data&.dig('tech_level')
+    if tl_data.present?
+      tl_records = TechLevel.where(code: tl_data.values.grep(Integer).uniq).index_by(&:code)
+      %i[electronics energy land sea air space personal_military heavy_military manufacturing medical environmental].each do |cap|
+        c = tl_data[cap.to_s]
+        next unless c
+        val = tl_records[c]&.public_send(cap)
+        rows << [cap.to_s.humanize, "#{HexDigit.hex_digit(c)} — #{val}"] if val.present?
+      end
+    else
+      %i[electronics energy land sea air space personal_military heavy_military manufacturing medical environmental].each do |cap|
+        val = tl.public_send(cap)
+        rows << [cap.to_s.humanize, val] if val.present?
+      end
     end
+    rows << ['Environmental', tl.environmental] if tl.environmental.present?
     table_section('Tech Level', rows)
   end
 

@@ -48,7 +48,6 @@ class PlanetoidBelt < StellarObject
     population: 'population',
     government: 'government',
     law_level: 'lawLevel',
-    tech_level_code: 'techLevel',
     starport_code: 'starPort',
     economics: 'economics',
   )

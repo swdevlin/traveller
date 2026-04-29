@@ -1,0 +1,114 @@
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Tech Level</div>
+  <div class='h-px flex-1 bg-slate-700/70'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_code, field_label: 'Tech Level' do %>
+  <%= form.number_field :tech_level_code,
+                        value: stellar_object.tech_level_code,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Sub-Classifications</div>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_energy, field_label: 'Energy' do %>
+  <%= form.number_field :tech_level_energy,
+                        value: stellar_object.tech_level_energy,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_electronics, field_label: 'Electronics' do %>
+  <%= form.number_field :tech_level_electronics,
+                        value: stellar_object.tech_level_electronics,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_manufacturing, field_label: 'Manufacturing' do %>
+  <%= form.number_field :tech_level_manufacturing,
+                        value: stellar_object.tech_level_manufacturing,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_medical, field_label: 'Medical' do %>
+  <%= form.number_field :tech_level_medical,
+                        value: stellar_object.tech_level_medical,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_environmental, field_label: 'Environmental' do %>
+  <%= form.number_field :tech_level_medical,
+                        value: stellar_object.tech_level_environmental,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_land, field_label: 'Land Transport' do %>
+  <%= form.number_field :tech_level_land,
+                        value: stellar_object.tech_level_land,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_sea, field_label: 'Water Transport' do %>
+  <%= form.number_field :tech_level_sea,
+                        value: stellar_object.tech_level_sea,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_air, field_label: 'Air Transport' do %>
+  <%= form.number_field :tech_level_air,
+                        value: stellar_object.tech_level_air,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_space, field_label: 'Space Transport' do %>
+  <%= form.number_field :tech_level_space,
+                        value: stellar_object.tech_level_space,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_personal_military, field_label: 'Personal Military' do %>
+  <%= form.number_field :tech_level_personal_military,
+                        value: stellar_object.tech_level_personal_military,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tech_level_heavy_military, field_label: 'Heavy Military' do %>
+  <%= form.number_field :tech_level_heavy_military,
+                        value: stellar_object.tech_level_heavy_military,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 35 %>
+<% end %>

@@ -511,19 +511,7 @@
       <% end %>
     </div>
 
-    <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Tech Level</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
-    </div>
-
-    <%= render 'application/edit_field', form: form, attribute: :tech_level_code, field_label: 'Tech Level' do %>
-      <%= form.number_field :tech_level_code,
-                            value: stellar_object.tech_level_code,
-                            class: 'edit-base sm:w-28 w-24',
-                            step: 1,
-                            min: 0,
-                            max: 35 %>
-    <% end %>
+    <%= render 'tech_level_form', form: form, stellar_object: stellar_object %>
 
     <div class='edit-row-notes'>
       <div class='edit-label'>Observations<%= required_icon(stellar_object, :notes) %></div>
