@@ -331,6 +331,7 @@ subsectors:
             type: K3
       - x: 1
         y: 6
+        name: Lucky-Find
         bases:
           - O
         allegiance: TA
@@ -431,6 +432,7 @@ subsectors:
             bodies: [ ]
       - x: 3
         y: 7
+        name: Home-of-Tenipal
         allegiance: TA
         primary:
           type: K5
@@ -463,6 +465,7 @@ subsectors:
               - uwp: X700000-0
       - x: 3
         y: 8
+        name: Heavy-Air
         allegiance: TA
         primary:
           type: M8
@@ -493,6 +496,7 @@ subsectors:
       - x: 4
         y: 5
         allegiance: TA
+        name: Support-For-Ships
         bases:
           - O
         primary:
@@ -644,6 +648,7 @@ subsectors:
             type: G5
       - x: 2
         y: 2
+        name: Zrenh
         allegiance: Er
         primary:
           type: K5
@@ -661,6 +666,7 @@ subsectors:
       - x: 2
         y: 5
         allegiance: Er
+        name: Czath
         primary:
           type: M1
           near:
@@ -723,6 +729,7 @@ subsectors:
       - x: 4
         y: 7
         allegiance: Er
+        name: Zahline
         primary:
           type: M0
           bodies:
@@ -806,6 +813,7 @@ subsectors:
       - x: 7
         y: 10
         allegiance: Er
+        name: Kskatk
         primary:
           type: K8
           bodies:
@@ -1087,6 +1095,7 @@ subsectors:
             type: M3
       - x: 6
         y: 7
+        name: Erhal
         allegiance: Er
         primary:
           type: G3
@@ -1148,6 +1157,7 @@ subsectors:
       - x: 7
         y: 10
         allegiance: Er
+        name: Ctskath
         primary:
           type: M3
           bodies:
