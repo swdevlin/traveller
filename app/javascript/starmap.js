@@ -23,6 +23,7 @@ document.addEventListener('turbo:load', () => {
       hexSize,
       viewMode,
       journeyState,
+      centerOn: null,
       ...serverFlags
     }
   })

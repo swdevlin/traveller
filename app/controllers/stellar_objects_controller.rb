@@ -10,6 +10,13 @@ class StellarObjectsController < ApplicationController
 
   # GET /stellar_objects/1 or /stellar_objects/1.json or /stellar_objects/1.md
   def show
+    @starmap_center = if @stellar_object.parsec
+      [@stellar_object.parsec.x, @stellar_object.parsec.y]
+    else
+      parsec = @stellar_object.orbiting.star_system.parsec
+      [parsec.x, parsec.y]
+    end
+
     if @stellar_object.is_a?(PlanetoidBelt)
       scope = @stellar_object.significant_bodies
       @planetoid_count = scope.count

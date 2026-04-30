@@ -26,5 +26,8 @@ class StarmapsController < ApplicationController
       nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
       extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence
     }
+    if params[:cx].present? && params[:cy].present?
+      @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]
+    end
   end
 end

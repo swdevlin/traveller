@@ -10,6 +10,8 @@ class SubsectorsController < ApplicationController
 
   # GET /subsectors/1 or /subsectors/1.json
   def show
+    ul, = @subsector.universal_coordinates
+    @starmap_center = [ul.x + 4, ul.y - 5]
   end
 
   # GET /subsectors/1/edit

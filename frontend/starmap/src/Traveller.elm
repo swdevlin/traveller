@@ -717,6 +717,7 @@ type alias Flags =
     , extinctSophontColour : Maybe String
     , viewMode : Maybe String
     , journeyState : Maybe String
+    , centerOn : Maybe ( Int, Int )
     }
 
 
@@ -773,19 +774,6 @@ init viewport settings key hostConfig referee =
 
         hexRect =
             let
-                upperLeftHex =
-                    case settings.upperLeft of
-                        Just ( x, y ) ->
-                            HexAddress x y
-
-                        Nothing ->
-                            toUniversalAddress
-                                { sectorX = -10
-                                , sectorY = -2
-                                , x = 21
-                                , y = 12
-                                }
-
                 hexmapWidth =
                     viewport.viewport.width
 
@@ -797,6 +785,24 @@ init viewport settings key hostConfig referee =
 
                 deltaY =
                     (hexmapHeight / hexHeight settings.hexSize |> ceiling) + 2
+
+                upperLeftHex =
+                    case settings.centerOn of
+                        Just ( cx, cy ) ->
+                            HexAddress (cx - deltaX // 2) (cy + deltaY // 2)
+
+                        Nothing ->
+                            case settings.upperLeft of
+                                Just ( x, y ) ->
+                                    HexAddress x y
+
+                                Nothing ->
+                                    toUniversalAddress
+                                        { sectorX = -10
+                                        , sectorY = -2
+                                        , x = 21
+                                        , y = 12
+                                        }
 
                 lowerRightHex =
                     upperLeftHex
@@ -894,6 +900,12 @@ init viewport settings key hostConfig referee =
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
         , sendNetworkLinksRequest model.hostConfig
+        , case settings.centerOn of
+            Just _ ->
+                saveMapCoords hexRect.upperLeftHex
+
+            Nothing ->
+                Cmd.none
         ]
     )
 
@@ -2379,7 +2391,7 @@ viewFullJourney allSectorsMapUrl model viewport =
                                         ( -21, -2 )
 
                                     ( oursX, oursY ) =
-                                        ( 5, 1 )
+                                        ( 3, 2 )
                                 in
                                 ( officialX - oursX, officialY + oursY )
 

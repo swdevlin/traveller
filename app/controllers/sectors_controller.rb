@@ -80,6 +80,8 @@ class SectorsController < ApplicationController
 
     position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
     @page = (position + 9) / 10
+    ul = @sector.upper_left
+    @starmap_center = [ul.x + 16, ul.y - 20]
   end
 
   def new_from_traveller_map

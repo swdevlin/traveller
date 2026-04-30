@@ -35,7 +35,8 @@
         <% end %>
         <% if current_campaign %>
         <li>
-          <%= link_to "Starmap", campaign_starmap_path, class: "hover:text-traveller-red hover:underline hover:underline-offset-2", target: "_blank", rel: "noopener" %>
+          <% starmap_params = @starmap_center ? { cx: @starmap_center[0], cy: @starmap_center[1] } : {} %>
+          <%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-traveller-red hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %>
         </li>
         <% end %>
         <li>

@@ -73,6 +73,7 @@ type alias Flags =
     , extinctSophontColour : Maybe String
     , viewMode : Maybe String
     , journeyState : Maybe String
+    , centerOn : Maybe ( Int, Int )
     }
 
 
@@ -191,6 +192,7 @@ update msg model =
                                 , extinctSophontColour = model.flags.extinctSophontColour
                                 , viewMode = model.flags.viewMode
                                 , journeyState = model.flags.journeyState
+                                , centerOn = model.flags.centerOn
                                 }
                                 model.key
                                 model.hostConfig

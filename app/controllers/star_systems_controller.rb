@@ -21,6 +21,7 @@ class StarSystemsController < ApplicationController
   def show
     @primary = @star_system.primary_star
     @orbiting_bodies = @star_system.orbiting_bodies
+    @starmap_center = [@star_system.parsec.x, @star_system.parsec.y]
 
     respond_to do |format|
       format.html
