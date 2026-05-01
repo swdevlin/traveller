@@ -22,7 +22,7 @@
       <div class="page-main">
         <%= yield %>
         <% if content_for?(:iiss_form) %>
-          <div class="pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-400">
+          <div class="pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted">
             FORM <%= yield :iiss_form %>
           </div>
         <% end %>

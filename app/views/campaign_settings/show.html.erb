@@ -16,7 +16,7 @@
 <% content_for :page_side do %>
   <div class='space-y-6'>
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-1'>
-      <div class="uppercase tracking-[0.22em] text-deepnight-orange">Statistics</div>
+      <div class="uppercase tracking-[0.22em] text-highlight">Statistics</div>
       <%= render 'application/data_block',
                  label: 'Sectors',
                  value: number_with_delimiter(@sector_count) %>
@@ -128,7 +128,7 @@
     </div>
 
     <div class='mt-4'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-1'>API Token</div>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-1'>API Token</div>
       <div class='flex items-center gap-2' data-token='<%= @campaign.api_token %>'>
         <input type='text' readonly value='<%= '•' * 64 %>'
                id='api-token-field'

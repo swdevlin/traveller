@@ -33,11 +33,11 @@
               <span class='pill'><%= sector['SectorX'] %>/<%= sector['SectorY'] %></span>
             </td>
 
-            <td class='text-xs text-slate-400'><%= sector['SectorTags'] %></td>
+            <td class='text-xs text-fg-muted'><%= sector['SectorTags'] %></td>
 
             <td class='text-right whitespace-nowrap'>
               <% if existing %>
-                <span class='text-xs text-slate-400 mr-2'>Already imported</span>
+                <span class='text-xs text-fg-muted mr-2'>Already imported</span>
                 <%= link_to existing.name, sector_path(existing), class: 'btn btn-sm' %>
               <% else %>
                 <%= button_to 'Import',
@@ -59,11 +59,11 @@
     </div>
 
   <% elsif query.present? && query.length >= 3 %>
-    <div class='p-6 text-center text-slate-400'>
+    <div class='p-6 text-center text-fg-muted'>
       No sectors found matching "<%= query %>"
     </div>
   <% else %>
-    <div class='p-6 text-center text-slate-400'>
+    <div class='p-6 text-center text-fg-muted'>
       <i class='fa-regular fa-globe text-2xl block mb-2'></i>
       <p>Search the Traveller Map database for sectors to import.</p>
     </div>

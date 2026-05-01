@@ -22,32 +22,32 @@
                  value: @region.label.presence || '—' %>
 
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Label Position</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Label Position</div>
         <div class='mt-2'>
           <% if (lsh = @region.label_sector_and_hex) %>
             <% lsector, hx, hy = lsh %>
             <% lp = @region.label_parsec %>
-            <span class='font-mono text-sm text-slate-300'>
+            <span class='font-mono text-sm text-fg'>
               <%= link_to lsector.name, sector_path(lsector), class: 'no-underline hover:underline' %>
               &#32;<%= lp ? link_to(format('%02d%02d', hx, hy), parsec_path(lp), class: 'no-underline hover:underline') : format('%02d%02d', hx, hy) %>
             </span>
           <% else %>
-            <span class='text-slate-500'>—</span>
+            <span class='text-fg-muted'>—</span>
           <% end %>
         </div>
       </div>
 
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Sectors</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Sectors</div>
         <div class='mt-2'>
           <% if @region.sectors.any? %>
-            <span class='text-sm text-slate-300'>
+            <span class='text-sm text-fg'>
               <% @region.sectors.each_with_index do |sector, i| %>
                 <%= link_to sector.name, sector_path(sector), class: 'no-underline hover:underline hover:underline-offset-2' %><%= i < @region.sectors.size - 1 ? ', ' : '' %>
               <% end %>
             </span>
           <% else %>
-            <span class='text-slate-500'>—</span>
+            <span class='text-fg-muted'>—</span>
           <% end %>
         </div>
       </div>
@@ -55,7 +55,7 @@
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Fill</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Fill</div>
         <div class='mt-2 flex items-center gap-2'>
           <% if @region.colour.present? %>
             <svg width="18" height="20" viewBox="0 0 20 22" aria-hidden="true">
@@ -64,15 +64,15 @@
                        stroke="<%= @region.border_colour.presence || 'transparent' %>"
                        stroke-width="2"/>
             </svg>
-            <span class='font-mono text-sm text-slate-300'><%= @region.colour %></span>
+            <span class='font-mono text-sm text-fg'><%= @region.colour %></span>
           <% else %>
-            <span class='text-slate-500'>—</span>
+            <span class='text-fg-muted'>—</span>
           <% end %>
         </div>
       </div>
 
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Border</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Border</div>
         <div class='mt-2 flex items-center gap-2'>
           <% if @region.border_colour.present? %>
             <svg width="18" height="20" viewBox="0 0 20 22" aria-hidden="true">
@@ -81,24 +81,24 @@
                        stroke="<%= @region.border_colour %>"
                        stroke-width="2"/>
             </svg>
-            <span class='font-mono text-sm text-slate-300'><%= @region.border_colour %></span>
+            <span class='font-mono text-sm text-fg'><%= @region.border_colour %></span>
           <% else %>
-            <span class='text-slate-500'>—</span>
+            <span class='text-fg-muted'>—</span>
           <% end %>
         </div>
       </div>
 
       <%= form_with url: region_path(@region), method: :patch, class: 'min-w-0' do |f| %>
         <%= f.hidden_field :player_visible, value: !@region.player_visible? %>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Player Visible</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Player Visible</div>
         <div class='mt-2 flex items-center gap-3'>
           <button type='submit'
                   role='switch'
                   aria-checked='<%= @region.player_visible? %>'
-                  class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= @region.player_visible? ? "bg-sky-700" : "bg-slate-600" %>'>
-            <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= @region.player_visible? ? "translate-x-5 bg-white" : "translate-x-0 bg-slate-300" %>'></span>
+                  class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= @region.player_visible? ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+            <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= @region.player_visible? ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
           </button>
-          <span class='text-xs text-slate-400 italic'><%= @region.player_visible? ? 'Visible to players' : 'Hidden from players' %></span>
+          <span class='text-xs text-fg-muted italic'><%= @region.player_visible? ? 'Visible to players' : 'Hidden from players' %></span>
         </div>
       <% end %>
     </div>
@@ -123,7 +123,7 @@
           <% end %>
         </div>
       </div>
-      <div class='px-4 py-3 text-sm text-slate-400'>
+      <div class='px-4 py-3 text-sm text-fg-muted'>
         <%= pluralize(@region.border_parsecs_ordered.count, 'border hex') %>,
         <%= pluralize(@region.fill_parsecs.count, 'fill hex') %>
       </div>

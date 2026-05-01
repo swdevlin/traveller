@@ -4,7 +4,7 @@
 
 <% content_for :page_kicker, 'IISS Hex Survey' %>
 <% content_for :page_title do %>
-  <%= @parsec.display_name %><span class='text-slate-500'>, <%= sector.name %></span>
+  <%= @parsec.display_name %><span class='text-fg-muted'>, <%= sector.name %></span>
 <% end %>
 
 <% content_for :page_buttons do %>
@@ -52,8 +52,8 @@
 
         <%= form_with model: @parsec, url: parsec_path(@parsec), method: :patch do |f| %>
           <div class='min-w-0'>
-            <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Survey Index</div>
-            <div class='mt-2 text-slate-100'>
+            <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Survey Index</div>
+            <div class='mt-2 text-fg-bright'>
               <%= f.select :survey_index,
                            (0..12).map { |i| [i, i] },
                            { selected: @parsec.survey_index },
@@ -70,12 +70,12 @@
 
         <%= form_with model: @parsec, url: parsec_path(@parsec), method: :patch do |f| %>
           <div class='min-w-0'>
-            <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Known to Players</div>
+            <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Known to Players</div>
             <div class='mt-2'>
               <%= f.check_box :player_visible,
                               checked: @parsec.player_visible,
                               onchange: 'this.form.requestSubmit()',
-                              class: 'rounded border-slate-600' %>
+                              class: 'rounded border-outline' %>
             </div>
           </div>
         <% end %>

@@ -13,7 +13,7 @@
                          placeholder: "Filter allegiances\u2026",
                          autocomplete: "off",
                          data: { controller: params[:q].present? ? "autofocus" : nil, action: "input->autosubmit#queue" },
-                         class: "w-56 rounded-lg bg-slate-900/50 border border-slate-700 px-3 py-2" %>
+                         class: "input w-56" %>
 
       <% if params[:q].present? %>
         <%= link_to "Clear",

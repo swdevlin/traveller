@@ -4,8 +4,8 @@
   checked_value    = local_assigns.fetch(:checked_value, '1')
   unchecked_value  = local_assigns.fetch(:unchecked_value, '0')
   extra_data       = local_assigns.fetch(:checkbox_data, {})
-  btn_class        = checked ? 'bg-sky-700' : 'bg-slate-600'
-  knob_class       = checked ? 'translate-x-5 bg-white' : 'translate-x-0 bg-slate-300'
+  btn_class        = checked ? 'bg-toggle-on' : 'bg-toggle-off'
+  knob_class       = checked ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off'
 %>
 <% toggle_html = capture do %>
   <div data-controller='boolean-toggle'>

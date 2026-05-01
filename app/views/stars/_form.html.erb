@@ -12,8 +12,8 @@
          data-star-classification-lookup-url-value="<%= lookup_stars_path %>">
 
     <div class="flex items-center gap-2 pt-2">
-      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Stellar Classification</div>
-      <div class="h-px flex-1 bg-slate-700/70"></div>
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">Stellar Classification</div>
+      <div class="h-px flex-1 bg-panel"></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :stellar_type, field_label: 'Spectral Type' do %>
@@ -41,8 +41,8 @@
     <% end %>
 
     <div class="flex items-center gap-2 pt-2">
-      <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Stellar Properties</div>
-      <div class="h-px flex-1 bg-slate-700/70"></div>
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">Stellar Properties</div>
+      <div class="h-px flex-1 bg-panel"></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉', calculated: true do %>
@@ -96,8 +96,8 @@
 
     <% if orbiting %>
       <div class="flex items-center gap-2 pt-2">
-        <div class="text-xs uppercase tracking-[0.22em] text-deepnight-orange">Orbital Data</div>
-        <div class="h-px flex-1 bg-slate-700/70"></div>
+        <div class="text-xs uppercase tracking-[0.22em] text-highlight">Orbital Data</div>
+        <div class="h-px flex-1 bg-panel"></div>
       </div>
 
       <div data-controller='star-orbit'>

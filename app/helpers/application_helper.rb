@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def current_theme
+    cookies[:theme].presence || 'dark'
+  end
+
   def show_au?
     current_campaign&.show_orbit_number? != true
   end

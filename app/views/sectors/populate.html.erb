@@ -49,7 +49,7 @@
                     <%= label %>
                   </span>
                 <% else %>
-                  <%= link_to edit_subsector_path(subsector), class: 't-link text-slate-400 hover:text-traveller-red/90' do %>
+                  <%= link_to edit_subsector_path(subsector), class: 't-link text-fg-muted hover:text-highlight/90' do %>
                     <i class='fa-regular fa-circle-minus mr-1'></i>
                     Not configured
                   <% end %>
@@ -63,7 +63,7 @@
   </div>
 
   <% unless all_have_build %>
-    <p class="mt-2 text-sm text-slate-400">
+    <p class="mt-2 text-sm text-fg-muted">
       <i class="fa-regular fa-circle-info mr-1"></i>
       Configure a build for each subsector before generating the sector.
     </p>

@@ -11,8 +11,8 @@
 
     <% if parent %>
       <div class='flex items-center gap-2 pt-2'>
-        <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital</div>
-        <div class='h-px flex-1 bg-slate-700/70'></div>
+        <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital</div>
+        <div class='h-px flex-1 bg-panel'></div>
       </div>
 
       <%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
@@ -58,8 +58,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Starport</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Starport</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
@@ -73,8 +73,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Physical</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Physical</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <div data-controller='planet-size' class='space-y-6'>
@@ -151,8 +151,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Atmosphere</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Atmosphere</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :atmosphere_code, field_label: 'Atmosphere', required: true do %>
@@ -212,8 +212,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Hydrographics</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Hydrographics</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :hydrographics_code, field_label: 'Hydrographics', required: true do %>
@@ -243,8 +243,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Population</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Population</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
@@ -329,8 +329,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Government</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Government</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
@@ -343,7 +343,7 @@
                       class: 'edit-base' %>
     <% end %>
 
-    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Structure</div>
+    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Structure</div>
 
     <%= render 'application/edit_field', form: form, attribute: :government_judicial, field_label: 'Judicial' do %>
       <%= form.select :government_judicial,
@@ -375,7 +375,7 @@
                       class: 'edit-base' %>
     <% end %>
 
-    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Characteristics</div>
+    <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Characteristics</div>
 
     <%= render 'application/edit_field', form: form, attribute: :government_centralisation, field_label: 'Centralisation' do %>
       <%= form.select :government_centralisation,
@@ -398,8 +398,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Law Level</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Law Level</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <% law_levels = LawLevel.order(:code) %>
@@ -416,7 +416,7 @@
                         data: { law_level_target: 'code', action: 'change->law-level#sync' } %>
       <% end %>
 
-      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Sub-Classifications</div>
+      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Sub-Classifications</div>
 
       <%= render 'application/edit_field', form: form, attribute: :law_level_weapons_and_armour, field_label: 'Weapons & Armour' do %>
         <%= form.select :law_level_weapons_and_armour,
@@ -473,7 +473,7 @@
                         data: { law_level_target: 'subClassification' } %>
       <% end %>
 
-      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-slate-500'>Characteristics</div>
+      <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Characteristics</div>
 
       <%= render 'application/edit_field', form: form, attribute: :law_level_uniformity, field_label: 'Uniformity' do %>
         <%= form.select :law_level_uniformity,

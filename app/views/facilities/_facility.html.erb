@@ -1,19 +1,19 @@
 <div id="<%= dom_id facility %>" class='space-y-6 mb-4'>
   <%= render 'application/data_block',
              label: 'Code',
-             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: tag.span(facility.code, class: 'identifier')
   %>
 
   <%= render 'application/data_block',
              label: 'Name',
-             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: facility.name
   %>
 
   <%= render 'application/data_block',
              label: 'TravellerMap',
-             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: tag.span(facility.traveller_map_code, class: 'identifier')
   %>
 </div>

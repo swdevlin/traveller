@@ -49,11 +49,11 @@
               <% current_type = (@rogue.data || {})['comet_type'] %>
               <legend class="edit-label">Comet type</legend>
               <% Comet::DESCRIPTIONS.each do |value, label| %>
-                <label class="flex items-start gap-3 rounded-lg border border-slate-800/70 bg-slate-950/40 px-3 py-2 hover:bg-slate-900/40 cursor-pointer">
+                <label class="flex items-start gap-3 rounded-lg border border-outline bg-panel px-3 py-2 hover:bg-panel cursor-pointer">
                   <%= df.radio_button :comet_type, value,
                                       checked: current_type == value,
-                                      class: 'mt-1 h-4 w-4 text-red-600 bg-slate-950 border-slate-700 focus:ring-red-600/40' %>
-                  <span class="text-sm text-slate-100"><%= label %></span>
+                                      class: 'mt-1 h-4 w-4 text-red-600 bg-panel border-outline focus:ring-highlight' %>
+                  <span class="text-sm text-fg-bright"><%= label %></span>
                 </label>
               <% end %>
             </fieldset>

@@ -3,7 +3,7 @@
 
 <% content_for :page_kicker, 'IISS Class I Subsector Survey' %>
 <% content_for :page_title do %>
-  <%= @subsector.name %><span class='text-slate-500'>, <%= sector.name %></span>
+  <%= @subsector.name %><span class='text-fg-muted'>, <%= sector.name %></span>
 <% end %>
 
 <% content_for :page_buttons do %>
@@ -59,7 +59,7 @@
                        link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
                                class: 'hover:underline underline-offset-4')
                      else
-                       content_tag(:span, 'Undocumented', class: 'text-slate-400')
+                       content_tag(:span, 'Undocumented', class: 'text-fg-muted')
                      end
                    ) %>
       </div>

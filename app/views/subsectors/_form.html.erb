@@ -14,10 +14,10 @@
     <div>
       <div class='flex items-end justify-between gap-3'>
         <div>
-          <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+          <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
             Build plan
           </div>
-          <div class='mt-1 text-lg font-semibold text-slate-400'>
+          <div class='mt-1 text-lg font-semibold text-fg-muted'>
             YAML input
           </div>
         </div>
@@ -28,7 +28,7 @@
       </div>
 
       <% if subsector.errors[:build].any? %>
-        <ul class='mt-2 space-y-1 text-sm text-red-400'>
+        <ul class='mt-2 space-y-1 text-sm text-danger'>
           <% subsector.errors[:build].each do |message| %>
             <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
           <% end %>

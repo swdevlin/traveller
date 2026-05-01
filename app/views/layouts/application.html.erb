@@ -1,87 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html data-theme='<%= current_theme %>'>
 <head>
-  <title><%= content_for(:title) || "Traveller" %></title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Traveller">
-  <meta name="mobile-web-app-capable" content="yes">
+  <title><%= content_for(:title) || 'Traveller' %></title>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <meta name='apple-mobile-web-app-capable' content='yes'>
+  <meta name='application-name' content='Traveller'>
+  <meta name='mobile-web-app-capable' content='yes'>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
   <%= yield :head %>
 
-  <!-- Google Fonts: Exo 2 (UI) + Orbitron (headings) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel='preconnect' href='https://fonts.googleapis.com'>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    rel="stylesheet"
+    href='https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap'
+    rel='stylesheet'
   >
 
-  <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-  <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+  <%#= tag.link rel: 'manifest', href: pwa_manifest_path(format: :json) %>
 
-  <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_path('apple-touch-icon.png') %>">
-  <link rel="icon" type="image/png" sizes="32x32" href="<%= asset_path('favicon-32x32.png') %>">
-  <link rel="icon" type="image/png" sizes="16x16" href="<%= asset_path('favicon-16x16.png') %>">
+  <link rel='apple-touch-icon' sizes='180x180' href='<%= asset_path('apple-touch-icon.png') %>'>
+  <link rel='icon' type='image/png' sizes='32x32' href='<%= asset_path('favicon-32x32.png') %>'>
+  <link rel='icon' type='image/png' sizes='16x16' href='<%= asset_path('favicon-16x16.png') %>'>
 
-  <script src="https://kit.fontawesome.com/6da76bfdd0.js" crossorigin="anonymous"></script>
-  <%# Includes all stylesheet files in app/assets/stylesheets %>
-  <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-  <%= stylesheet_link_tag 'coloris.min', "data-turbo-track": "reload" %>
-  <script src="<%= asset_path('coloris.min.js') %>"></script>
+  <script src='https://kit.fontawesome.com/6da76bfdd0.js' crossorigin='anonymous'></script>
+
+  <%= stylesheet_link_tag :app, 'data-turbo-track': 'reload' %>
+  <%= stylesheet_link_tag 'coloris.min', 'data-turbo-track': 'reload' %>
+  <script src='<%= asset_path('coloris.min.js') %>'></script>
   <%= javascript_importmap_tags %>
 </head>
 
-<body class="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-black text-slate-100 pt-10">
-  <%= turbo_frame_tag "modal" %>
-  <%= render "application/navbar" %>
+<body class='min-h-screen bg-bg text-fg-bright pt-10'>
+<%= turbo_frame_tag 'modal' %>
+<%= render 'application/navbar' %>
 
-  <% if content_for?(:breadcrumb) %>
-    <div class="w-full px-8 pt-3 pb-2 border-b border-slate-800/60">
-      <%= yield :breadcrumb %>
-    </div>
-  <% end %>
+<% if content_for?(:breadcrumb) %>
+  <div class='w-full px-8 pt-3 pb-2 border-b border-outline'>
+    <%= yield :breadcrumb %>
+  </div>
+<% end %>
 
-  <% flash.each do |key, message| %>
-    <% next if message.blank? %>
+<% flash.each do |key, message| %>
+  <% next if message.blank? %>
 
-    <% classes =
-         case key.to_sym
+  <% classes =
+       case key.to_sym
          when :notice
-           "border-emerald-500/40 bg-emerald-900/30 text-emerald-200"
+           'border-notice-outline bg-notice-bg text-notice-fg'
          when :alert, :error
-           "border-deepnight-orange/40 bg-deepnight-orange/15 text-deepnight-orange-foreground"
+           'border-danger-outline bg-danger-bg text-danger-fg'
          else
-           "border-slate-500/40 bg-slate-900/60 text-slate-100"
-         end %>
-    <p
-      class="mb-4 inline-flex w-full items-center justify-between rounded-lg border px-4 py-2 text-sm font-medium shadow-sm <%= classes %>"
-      role="status"
-    >
-      <span><%= message %></span>
-    </p>
-  <% end %>
+           'border-outline bg-panel text-fg-bright'
+       end %>
 
+  <p class='mb-4 inline-flex w-full items-center justify-between rounded-lg border px-4 py-2 text-sm font-medium shadow-sm <%= classes %>'
+     role='status'>
+    <span><%= message %></span>
+  </p>
+<% end %>
 
-<main class="w-full mt-4 px-8 flex pb-16">
-    <%= yield %>
-  </main>
+<main class='w-full mt-4 px-8 flex pb-16'>
+  <%= yield %>
+</main>
 
-  <footer class="mt-auto border-t border-slate-800 bg-slate-950/80 py-6 mb-4">
-    <div class="w-full px-8 flex justify-end gap-2 text-sm text-slate-400">
-      <%= link_to 'https://github.com/swdevlin/traveller',
-                  target: '_blank',
-                  rel: 'noopener',
-                  class: 'no-underline hover:text-traveller-red transition-colors' do %>
-        <i class="fa-brands fa-github mr-1"></i>
-      <% end %>
-      <%= link_to fairuse_path, class: 'no-underline hover:text-traveller-red transition-colors' do %>
-        <i class="fa-regular fa-scale-balanced"></i>
-      <% end %>
-      <%= link_to 'Δ', deltas_path, class: 'no-underline hover:text-traveller-red transition-colors font-bold' %>
-    </div>
-  </footer>
+<footer class='mt-auto border-t border-outline bg-panel py-6 mb-4'>
+  <div class='w-full px-8 flex justify-end gap-2 text-sm text-fg-muted'>
+    <%= link_to 'https://github.com/swdevlin/traveller',
+                target: '_blank',
+                rel: 'noopener',
+                class: 'no-underline hover:text-highlight transition-colors' do %>
+      <i class='fa-brands fa-github mr-1'></i>
+    <% end %>
+
+    <%= link_to fairuse_path,
+                class: 'no-underline hover:text-highlight transition-colors' do %>
+      <i class='fa-regular fa-scale-balanced'></i>
+    <% end %>
+
+    <%= link_to 'Δ',
+                deltas_path,
+                class: 'no-underline hover:text-highlight transition-colors font-bold' %>
+  </div>
+</footer>
 </body>
 </html>

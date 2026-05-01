@@ -4,13 +4,13 @@
   <div class='grid grid-cols-1 gap-6 lg:grid-cols-3' data-controller='sample-toggle'>
     <section class='min-w-0 lg:col-span-1'>
       <div class='flex flex-wrap gap-2'>
-        <div class='w-full text-xs uppercase tracking-[0.22em] text-slate-400'>
+        <div class='w-full text-xs uppercase tracking-[0.22em] text-fg-muted'>
           Sample specification
         </div>
 
         <div class='w-full flex flex-wrap gap-2 justify-start'>
           <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  class='identifier-sm cursor-pointer select-none text-fg-bright'
                   data-sample-toggle-target='tab'
                   data-name='minimal'
                   data-action='sample-toggle#show'
@@ -19,7 +19,7 @@
           </button>
 
           <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  class='identifier-sm cursor-pointer select-none text-fg-bright'
                   data-sample-toggle-target='tab'
                   data-name='full'
                   data-action='sample-toggle#show'
@@ -28,7 +28,7 @@
           </button>
 
           <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  class='identifier-sm cursor-pointer select-none text-fg-bright'
                   data-sample-toggle-target='tab'
                   data-name='moon-world'
                   data-action='sample-toggle#show'
@@ -37,7 +37,7 @@
           </button>
 
           <button type='button'
-                  class='identifier-sm cursor-pointer select-none text-slate-200'
+                  class='identifier-sm cursor-pointer select-none text-fg-bright'
                   data-sample-toggle-target='tab'
                   data-name='populated'
                   data-action='sample-toggle#show'
@@ -47,15 +47,15 @@
         </div>
       </div>
 
-      <div class='mt-2 rounded-2xl border border-slate-800/70 bg-slate-950/50 overflow-hidden'>
-        <div class='flex items-center justify-between px-4 py-3 border-b border-slate-800/70'>
-          <span class='identifier-sm text-slate-200'>YAML</span>
-          <span class='text-xs text-slate-500 font-mono'>2-space indentation</span>
+      <div class='mt-2 rounded-2xl border border-outline bg-panel overflow-hidden'>
+        <div class='flex items-center justify-between px-4 py-3 border-b border-outline'>
+          <span class='identifier-sm text-fg-bright'>YAML</span>
+          <span class='text-xs text-fg-muted font-mono'>2-space indentation</span>
         </div>
 
-        <pre data-sample-toggle-target='panel' data-name='minimal' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD</code></pre>
+        <pre data-sample-toggle-target='panel' data-name='minimal' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD</code></pre>
 
-        <pre data-sample-toggle-target='panel' data-name='moon-world' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
+        <pre data-sample-toggle-target='panel' data-name='moon-world' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
 systems:
   - x: 5
     y: 5
@@ -75,7 +75,7 @@ systems:
     bases: []
     allegiance: NaHu</code></pre>
 
-        <pre data-sample-toggle-target='panel' data-name='populated' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
+        <pre data-sample-toggle-target='panel' data-name='populated' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
 populated:
   type: split-horizontal
   demarcation: 2
@@ -86,7 +86,7 @@ populated:
     maxTechLevel: 12
     allegiance: 3eIm</code></pre>
 
-        <pre data-sample-toggle-target='panel' data-name='full' class='hidden p-4 text-sm font-mono text-slate-100 whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
+        <pre data-sample-toggle-target='panel' data-name='full' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>type: STANDARD
 unusualChance: 4
 defaultSI: 2
 
@@ -154,188 +154,188 @@ systems:
 
     <!-- Right: Documentation (2/3) -->
     <section class='min-w-0 lg:col-span-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
         Reference
       </div>
 
-      <div class='mt-2 rounded-2xl bg-slate-950/50 p-5 space-y-6'>
-        <div class='space-y-3 text-sm text-slate-300'>
-          <p class='text-slate-400'>
+      <div class='mt-2 rounded-2xl bg-panel p-5 space-y-6'>
+        <div class='space-y-3 text-sm text-fg'>
+          <p class='text-fg-muted'>
             The build specification is YAML. Use 2-space indentation. Unknown keys are rejected.
           </p>
 
-          <div class='rounded-xl bg-slate-900/30 p-3'>
-            <p class='text-xs text-slate-200 font-semibold mb-2'>Precedence</p>
-            <ul class='text-xs text-slate-300 space-y-1 list-disc ml-5'>
+          <div class='rounded-xl bg-panel p-3'>
+            <p class='text-xs text-fg-bright font-semibold mb-2'>Precedence</p>
+            <ul class='text-xs text-fg space-y-1 list-disc ml-5'>
               <li>
-                If <span class='font-mono text-slate-200'>systems</span> is present and non-empty, the generator places systems
-                <span class='font-semibold text-slate-200'>only</span> in those hexes. In this mode,
-                <span class='font-mono text-slate-200'>exclude</span>, <span class='font-mono text-slate-200'>required</span>,
-                and density <span class='font-mono text-slate-200'>type</span> are ignored.
+                If <span class='font-mono text-fg-bright'>systems</span> is present and non-empty, the generator places systems
+                <span class='font-semibold text-fg-bright'>only</span> in those hexes. In this mode,
+                <span class='font-mono text-fg-bright'>exclude</span>, <span class='font-mono text-fg-bright'>required</span>,
+                and density <span class='font-mono text-fg-bright'>type</span> are ignored.
               </li>
               <li>
-                <span class='font-mono text-slate-200'>required</span> may include full system definitions (not just coordinates).
+                <span class='font-mono text-fg-bright'>required</span> may include full system definitions (not just coordinates).
               </li>
               <li>
-                <span class='font-mono text-slate-200'>populated</span> is top-level and applies globally. It is not part of a system entry.
+                <span class='font-mono text-fg-bright'>populated</span> is top-level and applies globally. It is not part of a system entry.
               </li>
             </ul>
           </div>
         </div>
 
         <div>
-          <p class='text-sm font-semibold text-deepnight-orange mb-2'>Top-level properties</p>
+          <p class='text-sm font-semibold text-highlight mb-2'>Top-level properties</p>
 
           <dl class='space-y-5 text-sm'>
             <div>
-              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>type <span class='text-fg-muted font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-fg'>
                 Subsector star density profile. Controls the per-hex probability that a star system is placed when not using
-                <span class='font-mono text-slate-200'>systems</span>.
+                <span class='font-mono text-fg-bright'>systems</span>.
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>DENSE</span> – 60%</li>
-                  <li><span class='font-mono text-slate-200'>STANDARD</span> – 50%</li>
-                  <li><span class='font-mono text-slate-200'>MODERATE</span> – 40%</li>
-                  <li><span class='font-mono text-slate-200'>LOW</span> – 30%</li>
-                  <li><span class='font-mono text-slate-200'>SPARSE</span> – 20%</li>
-                  <li><span class='font-mono text-slate-200'>MINIMAL</span> – 10%</li>
-                  <li><span class='font-mono text-slate-200'>RIFT</span> – 3%</li>
-                  <li><span class='font-mono text-slate-200'>RIFT_FADE</span> – 2%</li>
-                  <li><span class='font-mono text-slate-200'>DEEP_RIFT</span> – 1%</li>
-                  <li><span class='font-mono text-slate-200'>EMPTY</span> – 0%</li>
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <p class='text-xs text-fg font-semibold mb-2'>Options</p>
+                <ul class='text-xs text-fg space-y-1'>
+                  <li><span class='font-mono text-fg-bright'>DENSE</span> – 60%</li>
+                  <li><span class='font-mono text-fg-bright'>STANDARD</span> – 50%</li>
+                  <li><span class='font-mono text-fg-bright'>MODERATE</span> – 40%</li>
+                  <li><span class='font-mono text-fg-bright'>LOW</span> – 30%</li>
+                  <li><span class='font-mono text-fg-bright'>SPARSE</span> – 20%</li>
+                  <li><span class='font-mono text-fg-bright'>MINIMAL</span> – 10%</li>
+                  <li><span class='font-mono text-fg-bright'>RIFT</span> – 3%</li>
+                  <li><span class='font-mono text-fg-bright'>RIFT_FADE</span> – 2%</li>
+                  <li><span class='font-mono text-fg-bright'>DEEP_RIFT</span> – 1%</li>
+                  <li><span class='font-mono text-fg-bright'>EMPTY</span> – 0%</li>
                 </ul>
-                <p class='mt-2 text-xs text-slate-400'>
-                  Example: <span class='font-mono text-slate-200'>type: STANDARD</span>
+                <p class='mt-2 text-xs text-fg-muted'>
+                  Example: <span class='font-mono text-fg-bright'>type: STANDARD</span>
                 </p>
               </div>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>unusualChance</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>unusualChance</dt>
+              <dd class='mt-1 text-fg'>
                 Percentage chance (0–100) that an ‘unusual’ result overrides normal generation for a system.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>defaultSI</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>defaultSI</dt>
+              <dd class='mt-1 text-fg'>
                 Default survey index (0–12) applied when a system does not specify one.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>populated</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>populated</dt>
+              <dd class='mt-1 text-fg'>
                 Global population constraint used by the generator. This is a top-level key.
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <ul class='text-slate-300 space-y-2 text-xs'>
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <ul class='text-fg space-y-2 text-xs'>
                   <li>
-                    <span class='font-mono text-slate-200'>type</span> <span class='text-slate-500'>(required)</span> –
+                    <span class='font-mono text-fg-bright'>type</span> <span class='text-fg-muted'>(required)</span> –
                     layout preset for how populated worlds are distributed:
-                    <span class='font-mono text-slate-200'>full</span>,
-                    <span class='font-mono text-slate-200'>hard-horizontal</span>,
-                    <span class='font-mono text-slate-200'>hard-vertical</span>,
-                    <span class='font-mono text-slate-200'>split-horizontal</span>,
-                    <span class='font-mono text-slate-200'>split-vertical</span>.
-                    Use <span class='font-mono text-slate-200'>full</span> to apply a single constraint to the whole subsector.
+                    <span class='font-mono text-fg-bright'>full</span>,
+                    <span class='font-mono text-fg-bright'>hard-horizontal</span>,
+                    <span class='font-mono text-fg-bright'>hard-vertical</span>,
+                    <span class='font-mono text-fg-bright'>split-horizontal</span>,
+                    <span class='font-mono text-fg-bright'>split-vertical</span>.
+                    Use <span class='font-mono text-fg-bright'>full</span> to apply a single constraint to the whole subsector.
                     The split and hard types divide the subsector into two regions at a demarcation line.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>demarcation</span> –
+                    <span class='font-mono text-fg-bright'>demarcation</span> –
                     dividing line for split and hard types.
                     Interpreted as a column (1–8) for vertical splits, or a row (1–10) for horizontal splits.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>before</span>, <span class='font-mono text-slate-200'>after</span> –
+                    <span class='font-mono text-fg-bright'>before</span>, <span class='font-mono text-fg-bright'>after</span> –
                     region configuration hashes for split and hard types.
-                    <span class='font-mono text-slate-200'>before</span> covers hexes up to and including the demarcation line;
-                    <span class='font-mono text-slate-200'>after</span> covers those beyond it.
+                    <span class='font-mono text-fg-bright'>before</span> covers hexes up to and including the demarcation line;
+                    <span class='font-mono text-fg-bright'>after</span> covers those beyond it.
                     Each region accepts:
                     <ul class='mt-1 ml-4 space-y-1 list-disc'>
                       <li>
-                        <span class='font-mono text-slate-200'>allegiance</span> –
-                        allegiance code for this region, or <span class='font-mono text-slate-200'>null</span> for no constraint.
+                        <span class='font-mono text-fg-bright'>allegiance</span> –
+                        allegiance code for this region, or <span class='font-mono text-fg-bright'>null</span> for no constraint.
                         See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
                       </li>
                       <li>
-                        <span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span> –
+                        <span class='font-mono text-fg-bright'>minTechLevel</span>, <span class='font-mono text-fg-bright'>maxTechLevel</span> –
                         tech level constraints for this region (0–100).
                       </li>
                       <li>
-                        <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
+                        <span class='font-mono text-fg-bright'>minPopulationCode</span>, <span class='font-mono text-fg-bright'>maxPopulationCode</span> –
                         population code constraints for this region (0–16).
                       </li>
                       <li>
-                        <span class='font-mono text-slate-200'>populationDM</span> –
+                        <span class='font-mono text-fg-bright'>populationDM</span> –
                         flat dice modifier applied to the population roll for this region (−12 to +12).
                       </li>
                     </ul>
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>allegiance</span> –
-                    allegiance code applied to the whole subsector. Used with <span class='font-mono text-slate-200'>full</span>;
-                    omit when using <span class='font-mono text-slate-200'>before</span>/<span class='font-mono text-slate-200'>after</span>.
+                    <span class='font-mono text-fg-bright'>allegiance</span> –
+                    allegiance code applied to the whole subsector. Used with <span class='font-mono text-fg-bright'>full</span>;
+                    omit when using <span class='font-mono text-fg-bright'>before</span>/<span class='font-mono text-fg-bright'>after</span>.
                     See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>minTechLevel</span>, <span class='font-mono text-slate-200'>maxTechLevel</span> –
-                    top-level tech level constraints applied to the whole subsector. Used with <span class='font-mono text-slate-200'>full</span>.
+                    <span class='font-mono text-fg-bright'>minTechLevel</span>, <span class='font-mono text-fg-bright'>maxTechLevel</span> –
+                    top-level tech level constraints applied to the whole subsector. Used with <span class='font-mono text-fg-bright'>full</span>.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>minPopulationCode</span>, <span class='font-mono text-slate-200'>maxPopulationCode</span> –
-                    top-level population code constraints (0–16). Used with <span class='font-mono text-slate-200'>full</span>.
+                    <span class='font-mono text-fg-bright'>minPopulationCode</span>, <span class='font-mono text-fg-bright'>maxPopulationCode</span> –
+                    top-level population code constraints (0–16). Used with <span class='font-mono text-fg-bright'>full</span>.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>populationDM</span> –
+                    <span class='font-mono text-fg-bright'>populationDM</span> –
                     flat dice modifier applied to the population roll across the whole subsector (−12 to +12). Stacks with min/max constraints.
                   </li>
                 </ul>
-                <p class='mt-2 text-slate-400 text-xs'>
+                <p class='mt-2 text-fg-muted text-xs'>
                   The generator also assigns population detail fields to each world: Concentration Rating (WBH p. 150), Urbanisation Percentage (WBH p. 151), and Major Cities (WBH p. 152).
                 </p>
               </div>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>sophontCheck</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>sophontCheck</dt>
+              <dd class='mt-1 text-fg'>
                 Controls the procedure used when determining whether a world has a native sophont species.
-                Accepted values: <span class='font-mono text-slate-200'>standard</span>,
-                <span class='font-mono text-slate-200'>rareEarth</span>,
-                <span class='font-mono text-slate-200'>veryRareEarth</span> (house rule — not a standard Traveller variant),
-                <span class='font-mono text-slate-200'>none</span>.
+                Accepted values: <span class='font-mono text-fg-bright'>standard</span>,
+                <span class='font-mono text-fg-bright'>rareEarth</span>,
+                <span class='font-mono text-fg-bright'>veryRareEarth</span> (house rule — not a standard Traveller variant),
+                <span class='font-mono text-fg-bright'>none</span>.
                 Overrides the campaign-level Sophont Check setting for this subsector generation run.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>maxTechLevel</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>maxTechLevel</dt>
+              <dd class='mt-1 text-fg'>
                 Sets a ceiling on the tech level assigned to any generated world in this subsector (0–33).
                 Overrides the campaign-level Max Tech Level setting for this subsector generation run.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>nativeTechLevel</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>true</span>, tech level for worlds
+              <dt class='font-semibold text-fg-bright'>nativeTechLevel</dt>
+              <dd class='mt-1 text-fg'>
+                Boolean. When <span class='font-mono text-fg-bright'>true</span>, tech level for worlds
                 with a native sophont population is determined using native sophont rules.
                 Overrides the campaign-level setting for this subsector generation run.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>allowCaptiveGovernment</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>false</span>, the generator will
+              <dt class='font-semibold text-fg-bright'>allowCaptiveGovernment</dt>
+              <dd class='mt-1 text-fg'>
+                Boolean. When <span class='font-mono text-fg-bright'>false</span>, the generator will
                 not assign government code 6 (Captive Government) to any world in this subsector.
                 Overrides the campaign-level Allow Captive Government setting for this subsector
                 generation run. Useful for exploration campaigns where political dependency on another
@@ -344,34 +344,34 @@ systems:
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>exclude</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>exclude</dt>
+              <dd class='mt-1 text-fg'>
                 List of subsector hex coordinates (x: 1–8, y: 1–10) where the generator must
-                <span class='font-semibold text-slate-200'>not</span> place a star system.
-                Ignored when <span class='font-mono text-slate-200'>systems</span> is present.
+                <span class='font-semibold text-fg-bright'>not</span> place a star system.
+                Ignored when <span class='font-mono text-fg-bright'>systems</span> is present.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>required</dt>
-              <dd class='mt-1 text-slate-300'>
-                List of systems that must <span class='font-semibold text-slate-200'>always</span> exist.
+              <dt class='font-semibold text-fg-bright'>required</dt>
+              <dd class='mt-1 text-fg'>
+                List of systems that must <span class='font-semibold text-fg-bright'>always</span> exist.
                 Entries may be coordinates only, or a full system definition.
-                Ignored when <span class='font-mono text-slate-200'>systems</span> is present.
+                Ignored when <span class='font-mono text-fg-bright'>systems</span> is present.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>systems</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>systems</dt>
+              <dd class='mt-1 text-fg'>
                 Explicit list of systems. If present and non-empty, the generator places systems
-                <span class='font-semibold text-slate-200'>only</span> in these hexes.
+                <span class='font-semibold text-fg-bright'>only</span> in these hexes.
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Example behaviour</p>
-                <p class='text-xs text-slate-300'>
-                  When <span class='font-mono text-slate-200'>systems</span> is set, only those hexes get systems. Nothing else does.
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <p class='text-xs text-fg font-semibold mb-2'>Example behaviour</p>
+                <p class='text-xs text-fg'>
+                  When <span class='font-mono text-fg-bright'>systems</span> is set, only those hexes get systems. Nothing else does.
                 </p>
               </div>
             </div>
@@ -379,92 +379,92 @@ systems:
         </div>
 
         <div>
-          <p class='text-sm font-semibold text-deepnight-orange mb-2'>System definition (entries in required/systems)</p>
+          <p class='text-sm font-semibold text-highlight mb-2'>System definition (entries in required/systems)</p>
 
           <dl class='space-y-5 text-sm'>
             <div>
-              <dt class='font-semibold text-slate-200'>x, y <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>x, y <span class='text-fg-muted font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-fg'>
                 Hex coordinates for the system (x: 1–8, y: 1–10).
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>name</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>name</dt>
+              <dd class='mt-1 text-fg'>
                 Optional name for the system entry.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>primary</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>primary</dt>
+              <dd class='mt-1 text-fg'>
                 Optional star definition for the primary star. See star definition below.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>companion, close, near, far</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>companion, close, near, far</dt>
+              <dd class='mt-1 text-fg'>
                 Optional companion star definitions at the system level. Each accepts a star definition.
                 Companion stars may alternatively be declared nested inside the
-                <span class='font-mono text-slate-200'>primary</span> star record;
+                <span class='font-mono text-fg-bright'>primary</span> star record;
                 both forms are accepted.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>counts</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>counts</dt>
+              <dd class='mt-1 text-fg'>
                 Optional orbital body counts for the system. See counts definition below.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>surveyIndex</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>surveyIndex</dt>
+              <dd class='mt-1 text-fg'>
                 Survey index (0–12). Controls the level of detail generated for orbital bodies.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>allegiance</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>allegiance</dt>
+              <dd class='mt-1 text-fg'>
                 Allegiance code for the system. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>bases</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>bases</dt>
+              <dd class='mt-1 text-fg'>
                 Array of base facility codes present in the system. See <%= current_campaign ? link_to('bases', facilities_path, class: 'hover:underline underline-offset-4') : 'bases' %>.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>known</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>true</span>, marks the system as a known/charted system.
+              <dt class='font-semibold text-fg-bright'>known</dt>
+              <dd class='mt-1 text-fg'>
+                Boolean. When <span class='font-mono text-fg-bright'>true</span>, marks the system as a known/charted system.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>populated</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>populated</dt>
+              <dd class='mt-1 text-fg'>
                 Optional population constraints for this system. Uses the same structure as the top-level
-                <span class='font-mono text-slate-200'>populated</span> key.
+                <span class='font-mono text-fg-bright'>populated</span> key.
               </dd>
             </div>
           </dl>
         </div>
 
         <div>
-          <p class='text-sm font-semibold text-deepnight-orange mb-2'>Counts definition</p>
+          <p class='text-sm font-semibold text-highlight mb-2'>Counts definition</p>
 
           <dl class='space-y-5 text-sm'>
             <div>
-              <dt class='font-semibold text-slate-200'>density</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>density</dt>
+              <dd class='mt-1 text-fg'>
                 Orbital body density modifier (0–30). When specified, the generator determines
                 the number of terrestrial planets, planetoid belts, and gas giants automatically.
                 Rules on density can be found in <cite>Book 3 – Referee's Handbook</cite>.
@@ -472,57 +472,57 @@ systems:
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>terrestrialPlanets</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>terrestrialPlanets</dt>
+              <dd class='mt-1 text-fg'>
                 Explicit count of terrestrial planets (0–20).
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>planetoidBelts</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>planetoidBelts</dt>
+              <dd class='mt-1 text-fg'>
                 Explicit count of planetoid belts (0–20).
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>gasGiants</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>gasGiants</dt>
+              <dd class='mt-1 text-fg'>
                 Explicit count of gas giants (0–20).
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>mainWorld</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>mainWorld</dt>
+              <dd class='mt-1 text-fg'>
                 Optional main world definition. Supports the following fields:
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <ul class='text-xs text-slate-300 space-y-1'>
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <ul class='text-xs text-fg space-y-1'>
                   <li>
-                    <span class='font-mono text-slate-200'>uwp</span> <span class='text-slate-500'>(required)</span> –
+                    <span class='font-mono text-fg-bright'>uwp</span> <span class='text-fg-muted'>(required)</span> –
                     UWP code or label. See orbital bodies below.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>orbit</span> –
+                    <span class='font-mono text-fg-bright'>orbit</span> –
                     optional orbit placement label
-                    (<span class='font-mono text-slate-200'>inner</span>,
-                    <span class='font-mono text-slate-200'>warm</span>,
-                    <span class='font-mono text-slate-200'>hzco</span>,
-                    <span class='font-mono text-slate-200'>cold</span>,
-                    <span class='font-mono text-slate-200'>outer</span>,
-                    <span class='font-mono text-slate-200'>habitable</span>).
+                    (<span class='font-mono text-fg-bright'>inner</span>,
+                    <span class='font-mono text-fg-bright'>warm</span>,
+                    <span class='font-mono text-fg-bright'>hzco</span>,
+                    <span class='font-mono text-fg-bright'>cold</span>,
+                    <span class='font-mono text-fg-bright'>outer</span>,
+                    <span class='font-mono text-fg-bright'>habitable</span>).
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>name</span> –
+                    <span class='font-mono text-fg-bright'>name</span> –
                     optional name for the main world.
                   </li>
                   <li>
-                    <span class='font-mono text-slate-200'>moon</span> –
-                    boolean. When <span class='font-mono text-slate-200'>true</span>, the main world is
+                    <span class='font-mono text-fg-bright'>moon</span> –
+                    boolean. When <span class='font-mono text-fg-bright'>true</span>, the main world is
                     placed as a moon of a gas giant rather than as a direct orbital body.
-                    Requires <span class='font-mono text-slate-200'>gasGiants</span> to be at least 1.
+                    Requires <span class='font-mono text-fg-bright'>gasGiants</span> to be at least 1.
                     The generator selects an appropriate gas giant and assigns the main world as its moon.
                   </li>
                 </ul>
@@ -530,98 +530,98 @@ systems:
             </div>
           </dl>
 
-          <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-            <p class='text-xs text-slate-300 font-semibold mb-2'>Requirements</p>
-            <p class='text-xs text-slate-300'>
-              Counts must specify either <span class='font-mono text-slate-200'>density</span> alone,
-              or all three of <span class='font-mono text-slate-200'>terrestrialPlanets</span>,
-              <span class='font-mono text-slate-200'>planetoidBelts</span>, and
-              <span class='font-mono text-slate-200'>gasGiants</span>.
-              The <span class='font-mono text-slate-200'>mainWorld</span> field is optional in both cases.
-              When <span class='font-mono text-slate-200'>mainWorld.moon</span> is <span class='font-mono text-slate-200'>true</span>,
-              <span class='font-mono text-slate-200'>gasGiants</span> must be at least 1.
+          <div class='mt-2 rounded-xl bg-panel p-3'>
+            <p class='text-xs text-fg font-semibold mb-2'>Requirements</p>
+            <p class='text-xs text-fg'>
+              Counts must specify either <span class='font-mono text-fg-bright'>density</span> alone,
+              or all three of <span class='font-mono text-fg-bright'>terrestrialPlanets</span>,
+              <span class='font-mono text-fg-bright'>planetoidBelts</span>, and
+              <span class='font-mono text-fg-bright'>gasGiants</span>.
+              The <span class='font-mono text-fg-bright'>mainWorld</span> field is optional in both cases.
+              When <span class='font-mono text-fg-bright'>mainWorld.moon</span> is <span class='font-mono text-fg-bright'>true</span>,
+              <span class='font-mono text-fg-bright'>gasGiants</span> must be at least 1.
             </p>
           </div>
         </div>
 
         <div>
-          <p class='text-sm font-semibold text-deepnight-orange mb-2'>Star definition</p>
+          <p class='text-sm font-semibold text-highlight mb-2'>Star definition</p>
 
           <dl class='space-y-5 text-sm'>
             <div>
-              <dt class='font-semibold text-slate-200'>type <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Spectral type in the form <span class='font-mono text-slate-200'>OBAFGKM</span> + <span class='font-mono text-slate-200'>0..9</span>,
-                for example <span class='font-mono text-slate-200'>G2</span>.
+              <dt class='font-semibold text-fg-bright'>type <span class='text-fg-muted font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-fg'>
+                Spectral type in the form <span class='font-mono text-fg-bright'>OBAFGKM</span> + <span class='font-mono text-fg-bright'>0..9</span>,
+                for example <span class='font-mono text-fg-bright'>G2</span>.
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Special types</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>BD</span> – Brown Dwarf</li>
-                  <li><span class='font-mono text-slate-200'>D</span> – White Dwarf</li>
-                  <li><span class='font-mono text-slate-200'>BH</span> – Black Hole</li>
-                  <li><span class='font-mono text-slate-200'>PSR</span> – Pulsar</li>
-                  <li><span class='font-mono text-slate-200'>NS</span> – Neutron Star</li>
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <p class='text-xs text-fg font-semibold mb-2'>Special types</p>
+                <ul class='text-xs text-fg space-y-1'>
+                  <li><span class='font-mono text-fg-bright'>BD</span> – Brown Dwarf</li>
+                  <li><span class='font-mono text-fg-bright'>D</span> – White Dwarf</li>
+                  <li><span class='font-mono text-fg-bright'>BH</span> – Black Hole</li>
+                  <li><span class='font-mono text-fg-bright'>PSR</span> – Pulsar</li>
+                  <li><span class='font-mono text-fg-bright'>NS</span> – Neutron Star</li>
                 </ul>
-                <p class='mt-2 text-xs text-slate-400'>
-                  Special types do not require a <span class='font-mono text-slate-200'>class</span>.
+                <p class='mt-2 text-xs text-fg-muted'>
+                  Special types do not require a <span class='font-mono text-fg-bright'>class</span>.
                 </p>
               </div>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>class <span class='text-slate-500 font-normal'>(conditionally required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                Luminosity class. Required unless <span class='font-mono text-slate-200'>type</span> is a special type.
+              <dt class='font-semibold text-fg-bright'>class <span class='text-fg-muted font-normal'>(conditionally required)</span></dt>
+              <dd class='mt-1 text-fg'>
+                Luminosity class. Required unless <span class='font-mono text-fg-bright'>type</span> is a special type.
               </dd>
 
-              <div class='mt-2 rounded-xl bg-slate-900/30 p-3'>
-                <p class='text-xs text-slate-300 font-semibold mb-2'>Options</p>
-                <ul class='text-xs text-slate-300 space-y-1'>
-                  <li><span class='font-mono text-slate-200'>Ia</span> – Luminous supergiant</li>
-                  <li><span class='font-mono text-slate-200'>Ib</span> – Less luminous supergiant</li>
-                  <li><span class='font-mono text-slate-200'>II</span> – Bright giant</li>
-                  <li><span class='font-mono text-slate-200'>III</span> – Giant</li>
-                  <li><span class='font-mono text-slate-200'>IV</span> – Subgiant</li>
-                  <li><span class='font-mono text-slate-200'>V</span> – Main sequence</li>
-                  <li><span class='font-mono text-slate-200'>VI</span> – Subdwarf</li>
-                  <li><span class='font-mono text-slate-200'>giant</span> – Gas giant star</li>
+              <div class='mt-2 rounded-xl bg-panel p-3'>
+                <p class='text-xs text-fg font-semibold mb-2'>Options</p>
+                <ul class='text-xs text-fg space-y-1'>
+                  <li><span class='font-mono text-fg-bright'>Ia</span> – Luminous supergiant</li>
+                  <li><span class='font-mono text-fg-bright'>Ib</span> – Less luminous supergiant</li>
+                  <li><span class='font-mono text-fg-bright'>II</span> – Bright giant</li>
+                  <li><span class='font-mono text-fg-bright'>III</span> – Giant</li>
+                  <li><span class='font-mono text-fg-bright'>IV</span> – Subgiant</li>
+                  <li><span class='font-mono text-fg-bright'>V</span> – Main sequence</li>
+                  <li><span class='font-mono text-fg-bright'>VI</span> – Subdwarf</li>
+                  <li><span class='font-mono text-fg-bright'>giant</span> – Gas giant star</li>
                 </ul>
               </div>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>companion</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>companion</dt>
+              <dd class='mt-1 text-fg'>
                 Optional companion star (another star definition).
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>close</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>close</dt>
+              <dd class='mt-1 text-fg'>
                 Optional star in close orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>near</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>near</dt>
+              <dd class='mt-1 text-fg'>
                 Optional star in near orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>far</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>far</dt>
+              <dd class='mt-1 text-fg'>
                 Optional star in far orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>bodies</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>bodies</dt>
+              <dd class='mt-1 text-fg'>
                 Optional list of orbital bodies for this star. See orbital bodies below.
               </dd>
             </div>
@@ -629,51 +629,51 @@ systems:
         </div>
 
         <div>
-          <p class='text-sm font-semibold text-deepnight-orange mb-2'>Orbital bodies</p>
+          <p class='text-sm font-semibold text-highlight mb-2'>Orbital bodies</p>
 
           <dl class='space-y-5 text-sm'>
             <div>
-              <dt class='font-semibold text-slate-200'>uwp <span class='text-slate-500 font-normal'>(required)</span></dt>
-              <dd class='mt-1 text-slate-300'>
-                UWP code (e.g. <span class='font-mono text-slate-200'>X674000-0</span>), a known label
-                (<span class='font-mono text-slate-200'>terrestrial</span>, <span class='font-mono text-slate-200'>small gas giant</span>,
-                <span class='font-mono text-slate-200'>gas giant</span>, <span class='font-mono text-slate-200'>large gas giant</span>,
-                <span class='font-mono text-slate-200'>super earth</span>),
-                or empty (<span class='font-mono text-slate-200'>uwp: 'empty'</span>) to indicate no orbital body at that position.
+              <dt class='font-semibold text-fg-bright'>uwp <span class='text-fg-muted font-normal'>(required)</span></dt>
+              <dd class='mt-1 text-fg'>
+                UWP code (e.g. <span class='font-mono text-fg-bright'>X674000-0</span>), a known label
+                (<span class='font-mono text-fg-bright'>terrestrial</span>, <span class='font-mono text-fg-bright'>small gas giant</span>,
+                <span class='font-mono text-fg-bright'>gas giant</span>, <span class='font-mono text-fg-bright'>large gas giant</span>,
+                <span class='font-mono text-fg-bright'>super earth</span>),
+                or empty (<span class='font-mono text-fg-bright'>uwp: 'empty'</span>) to indicate no orbital body at that position.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>orbit</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>orbit</dt>
+              <dd class='mt-1 text-fg'>
                 Optional orbit placement label. Must be one of
-                <span class='font-mono text-slate-200'>inner</span>,
-                <span class='font-mono text-slate-200'>warm</span>,
-                <span class='font-mono text-slate-200'>hzco</span>,
-                <span class='font-mono text-slate-200'>cold</span>,
-                <span class='font-mono text-slate-200'>outer</span>, or
-                <span class='font-mono text-slate-200'>habitable</span>.
+                <span class='font-mono text-fg-bright'>inner</span>,
+                <span class='font-mono text-fg-bright'>warm</span>,
+                <span class='font-mono text-fg-bright'>hzco</span>,
+                <span class='font-mono text-fg-bright'>cold</span>,
+                <span class='font-mono text-fg-bright'>outer</span>, or
+                <span class='font-mono text-fg-bright'>habitable</span>.
                 Only one body per star may specify an orbit label.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>name</dt>
-              <dd class='mt-1 text-slate-300'>
+              <dt class='font-semibold text-fg-bright'>name</dt>
+              <dd class='mt-1 text-fg'>
                 Optional name for the orbital body.
               </dd>
             </div>
 
             <div>
-              <dt class='font-semibold text-slate-200'>mainWorld</dt>
-              <dd class='mt-1 text-slate-300'>
-                Boolean. When <span class='font-mono text-slate-200'>true</span>, designates this body as the main world.
+              <dt class='font-semibold text-fg-bright'>mainWorld</dt>
+              <dd class='mt-1 text-fg'>
+                Boolean. When <span class='font-mono text-fg-bright'>true</span>, designates this body as the main world.
               </dd>
             </div>
           </dl>
         </div>
 
-        <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+        <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
           REFERENCE 0421RD
         </div>
       </div>

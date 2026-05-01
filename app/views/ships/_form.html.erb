@@ -1,15 +1,15 @@
 <%= form_with(model: ship, class: 'contents') do |form| %>
   <div class='space-y-6 pb-10'>
     <% if ship.errors.any? %>
-      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>
+      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
           Validation
         </div>
-        <div class='mt-1 text-sm font-semibold text-slate-200'>
+        <div class='mt-1 text-sm font-semibold text-fg-bright'>
           <%= pluralize(ship.errors.count, 'error') %> prevented this ship from being saved
         </div>
 
-        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+        <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
           <% ship.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>
@@ -18,7 +18,7 @@
     <% end %>
 
     <div class='mt-4'>
-      <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
       <%= form.text_field :name,
                           class: [
                             'w-full edit-base mt-2 sm:w-1/2',
@@ -30,7 +30,7 @@
     </div>
 
     <div>
-      <%= form.label :jump_drive, class: 'text-xs uppercase tracking-[0.22em] text-slate-400' %>
+      <%= form.label :jump_drive, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
       <%= form.number_field :jump_drive,
                           class: [
                             'w-full edit-base mt-2 sm:w-1/2',
