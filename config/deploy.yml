@@ -14,16 +14,24 @@ servers:
   web:
     hosts:
       - <%= ENV["KAMAL_SERVER_IP"] %>
-    proxy: false
     options:
-      publish:
-        - "127.0.0.1:3025:3000"
       add-host:
         - "host.docker.internal:host-gateway"
 #  job:
 #    hosts:
 #      - <%#= ENV["KAMAL_SERVER_IP"] %>
 #    cmd: bin/jobs
+
+proxy:
+  app_port: 3000
+  healthcheck:
+    path: /up
+    interval: 2
+  run:
+    http_port: 3025
+    https_port: 3026
+    bind_ips:
+      - 127.0.0.1
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
