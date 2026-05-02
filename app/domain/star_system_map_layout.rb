@@ -151,7 +151,7 @@ class StarSystemMapLayout
     Node.new(
       id: "body-#{body.id}",
       kind: body_kind(body),
-      label: body.name.presence,
+      label: body.name.presence || body.orbit_sequence.presence,
       x: x,
       y: y,
       radius: radius_for(body),
