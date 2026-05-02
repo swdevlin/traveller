@@ -23,7 +23,8 @@ servers:
 #    cmd: bin/jobs
 
 proxy:
-  app_port: 3000
+  app_port: 80
+  forward_headers: true
   healthcheck:
     path: /up
     interval: 2
