@@ -5,6 +5,7 @@ require 'yaml'
 
 class GenerateSubsectorJob < ApplicationJob
   queue_as :default
+  self.log_arguments = false
 
   def perform(subsector_id, definition)
     subsector = Subsector.find(subsector_id)
