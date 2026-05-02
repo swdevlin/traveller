@@ -1,6 +1,10 @@
-<%= content_for :title, @star_system.name.presence || 'Unlabelled System' %>
+<% parsec = @star_system.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = subsector&.sector %>
+
+<%= content_for :title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
 <%= content_for :page_kicker, 'IISS Class III Survey' %>
-<%= content_for :page_title, @star_system.name.presence || 'Unlabelled System' %>
+<%= content_for :page_title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
 <%= content_for :iiss_form, '0421D' %>
 <%= content_for :page_buttons do %>
   <div class='flex items-center justify-between'>
@@ -31,9 +35,6 @@
     </button>
   </div>
 <% end %>
-
-<% parsec = @star_system.parsec %>
-<% subsector = parsec&.subsector %>
 
 <%= content_for :page_side do %>
   <% if subsector %>

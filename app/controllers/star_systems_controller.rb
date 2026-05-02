@@ -5,6 +5,7 @@ require 'yaml'
 require 'vips'
 
 class StarSystemsController < ApplicationController
+  MAP_TEMPLATE_VERSION = 2
   include ParentHex
   include UrlTokenVerification
   include LinkModalSetup
@@ -268,7 +269,7 @@ class StarSystemsController < ApplicationController
   private
 
   def map_cache_variant
-    authenticated? ? 'auth' : 'public'
+    authenticated? ? "auth_v#{MAP_TEMPLATE_VERSION}" : "public_v#{MAP_TEMPLATE_VERSION}"
   end
 
   def cached_svg
