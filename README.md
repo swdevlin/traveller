@@ -22,19 +22,11 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 ### To do?
 
 * custom properties for objects
-  * Deepnight properties
   * Drinax properties
 * System generation from Deepnight book
   * Barycenter support
 * Support generation by CRB
 * Support generation by The Deep Space Exploration Handbook
-* Themes
-  * Imperial
-  * Deepnight
-  * Light
-  * vargr
-  * Zhodani
-  * Solomani
 * Name generation
 * Trade generation
   * publish test module
