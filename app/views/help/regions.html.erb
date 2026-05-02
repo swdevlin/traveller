@@ -1,9 +1,9 @@
 <% content_for :title, 'Regions' %>
 
 <%= render 'help/page', title: 'Regions' do %>
-  <div class='rounded-2xl bg-slate-950/50 p-5 space-y-8 text-sm'>
+  <div class='rounded-2xl bg-panel p-5 space-y-8 text-sm'>
 
-    <p class='text-slate-400'>
+    <p class='text-fg-muted'>
       Regions define named areas of space drawn across one or more sectors. They are used to
       overlay fill colours and borders on the starmap and can be shared with players or kept
       referee-only. Each region is defined by two sets of hexes: a clockwise-ordered border
@@ -14,50 +14,50 @@
       <dl class='space-y-6'>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Name</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>
             The region's display name. Shown on the starmap if a label is configured.
           </dd>
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Label</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Label</dt>
+          <dd class='mt-1 text-fg'>
             Optional text rendered on the starmap at the label position. If left blank the
             region is drawn without a name.
           </dd>
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Label Position</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Label Position</dt>
+          <dd class='mt-1 text-fg'>
             The hex at which the label is anchored on the starmap, expressed as a sector name
-            and four-digit hex coordinate (<span class='font-mono text-slate-200'>XXYY</span>).
+            and four-digit hex coordinate (<span class='font-mono text-fg-bright'>XXYY</span>).
             The hex does not need to be inside the region.
           </dd>
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Fill Colour</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Fill Colour</dt>
+          <dd class='mt-1 text-fg'>
             CSS colour value (hex code or named colour) used to flood-fill the interior of the
             region on the starmap. Use a colour with an alpha channel — e.g.
-            <span class='font-mono text-slate-200'>rgba(100, 149, 237, 0.25)</span> — to keep
+            <span class='font-mono text-fg-bright'>rgba(100, 149, 237, 0.25)</span> — to keep
             underlying hex content legible.
           </dd>
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Border Colour</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Border Colour</dt>
+          <dd class='mt-1 text-fg'>
             CSS colour value used to draw the outline of the region. The border follows the
             clockwise hex sequence defined in the uploaded CSV.
           </dd>
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Player Visible</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Player Visible</dt>
+          <dd class='mt-1 text-fg'>
             Controls whether the region is rendered in player mode on the starmap. Referee mode
             always shows all regions. Toggle directly from the region show page.
           </dd>
@@ -67,21 +67,21 @@
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-deepnight-orange mb-4'>Hex Lists</p>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Hex Lists</p>
 
-      <p class='text-slate-400 mb-4'>
-        A region's shape is defined by two sets of hexes: <span class='text-slate-200'>border</span>
-        hexes and <span class='text-slate-200'>fill</span> hexes. The border ring is supplied via CSV
+      <p class='text-fg-muted mb-4'>
+        A region's shape is defined by two sets of hexes: <span class='text-fg-bright'>border</span>
+        hexes and <span class='text-fg-bright'>fill</span> hexes. The border ring is supplied via CSV
         upload; fill hexes are derived automatically.
       </p>
 
       <dl class='space-y-6'>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Border hexes — clockwise order</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Border hexes — clockwise order</dt>
+          <dd class='mt-1 text-fg'>
             The border is the ring of hexes that defines the outer edge of the region. They must be
-            listed in <span class='font-semibold text-slate-100'>clockwise order</span>, and each hex
+            listed in <span class='font-semibold text-fg-bright'>clockwise order</span>, and each hex
             must be adjacent to the next — including the last hex back to the first. The starmap
             traces a path along the outer edges of these hexes in sequence to draw the region outline.
             Providing hexes out of order or with gaps will produce a malformed border.
@@ -89,8 +89,8 @@
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>Fill hexes</dt>
-          <dd class='mt-1 text-slate-300'>
+          <dt class='font-semibold text-fg-bright'>Fill hexes</dt>
+          <dd class='mt-1 text-fg'>
             Fill hexes are computed automatically from the border ring — you do not supply them in
             the CSV. The importer flood-fills the interior enclosed by the border and stores the
             result. Fill hexes determine which parsecs are considered part of the region for
@@ -99,38 +99,38 @@
         </div>
 
         <div>
-          <dt class='font-semibold text-slate-200'>CSV format</dt>
-          <dd class='mt-1 text-slate-300 mb-3'>
+          <dt class='font-semibold text-fg-bright'>CSV format</dt>
+          <dd class='mt-1 text-fg mb-3'>
             The upload file lists the border hexes only, one per row, in clockwise order.
             The upload replaces all existing hexes for the region.
           </dd>
           <table class='w-full text-sm font-mono'>
             <thead>
-              <tr class='text-left text-xs uppercase tracking-[0.18em] text-slate-500 border-b border-slate-700'>
+              <tr class='text-left text-xs uppercase tracking-[0.18em] text-fg-muted border-b border-outline'>
                 <th class='pb-2 pr-4'>Column</th>
                 <th class='pb-2'>Description</th>
               </tr>
             </thead>
-            <tbody class='text-slate-300 divide-y divide-slate-800'>
+            <tbody class='text-fg divide-y divide-outline'>
               <tr>
-                <td class='py-1.5 pr-4 text-deepnight-orange'>sector_x</td>
-                <td class='py-1.5 font-sans text-slate-400'>Sector X coordinate</td>
+                <td class='py-1.5 pr-4 text-highlight'>sector_x</td>
+                <td class='py-1.5 font-sans text-fg-muted'>Sector X coordinate</td>
               </tr>
               <tr>
-                <td class='py-1.5 pr-4 text-deepnight-orange'>sector_y</td>
-                <td class='py-1.5 font-sans text-slate-400'>Sector Y coordinate</td>
+                <td class='py-1.5 pr-4 text-highlight'>sector_y</td>
+                <td class='py-1.5 font-sans text-fg-muted'>Sector Y coordinate</td>
               </tr>
               <tr>
-                <td class='py-1.5 pr-4 text-deepnight-orange'>hex_x</td>
-                <td class='py-1.5 font-sans text-slate-400'>Hex column within sector (1–32)</td>
+                <td class='py-1.5 pr-4 text-highlight'>hex_x</td>
+                <td class='py-1.5 font-sans text-fg-muted'>Hex column within sector (1–32)</td>
               </tr>
               <tr>
-                <td class='py-1.5 pr-4 text-deepnight-orange'>hex_y</td>
-                <td class='py-1.5 font-sans text-slate-400'>Hex row within sector (1–40)</td>
+                <td class='py-1.5 pr-4 text-highlight'>hex_y</td>
+                <td class='py-1.5 font-sans text-fg-muted'>Hex row within sector (1–40)</td>
               </tr>
             </tbody>
           </table>
-          <p class='mt-3 text-slate-400 text-xs'>
+          <p class='mt-3 text-fg-muted text-xs'>
             Use the download icon on the region show page to export the current border as a
             correctly-formatted CSV.
           </p>
@@ -139,7 +139,7 @@
       </dl>
     </div>
 
-    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-slate-500'>
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
       REFERENCE 0417RG
     </div>
 

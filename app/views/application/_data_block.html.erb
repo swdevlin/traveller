@@ -2,21 +2,21 @@
 
 <% value_classes =
      case value_style
-     when :mono
-       'mt-2 font-mono text-lg text-slate-100'
-     when :muted
-       'mt-2 text-slate-300'
-     else
-       'mt-2 text-slate-100'
+       when :mono
+         'mt-2 font-mono text-lg text-fg-bright'
+       when :muted
+         'mt-2 text-fg'
+       else
+         'mt-2 text-fg-bright'
      end
 %>
 
-<div class="min-w-0">
-  <div class="text-xs uppercase tracking-[0.22em] text-slate-400">
+<div class='min-w-0'>
+  <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
     <%= label %>
   </div>
 
-  <div class="<%= [value_classes, local_assigns[:value_wrap_class]].compact.join(' ') %>">
+  <div class='<%= [value_classes, local_assigns[:value_wrap_class]].compact.join(' ') %>'>
     <%= value %>
     <% if local_assigns[:suffix].present? %>
       <%= suffix %>

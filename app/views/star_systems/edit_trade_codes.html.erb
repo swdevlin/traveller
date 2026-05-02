@@ -5,13 +5,13 @@
     <div class='grid grid-cols-2 sm:grid-cols-3 gap-2'>
       <% @trade_codes.each do |tc| %>
         <label class='flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition
-                      <%= @current_ids.include?(tc.id) ? "border-deepnight-orange bg-deepnight-orange/10" : "border-slate-700 bg-slate-800 hover:border-slate-500" %>'>
+              <%= @current_ids.include?(tc.id) ? 'border-highlight bg-highlight/10' : 'border-outline bg-panel hover:border-highlight hover:bg-panel-muted' %>'>
           <input type="checkbox" name="trade_code_ids[]" value="<%= tc.id %>"
                  <%= 'checked' if @current_ids.include?(tc.id) %>
-                 class="rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50 shrink-0">
+                 class="rounded border-outline bg-panel-muted text-highlight focus:ring-highlight/50 shrink-0">
           <div class='min-w-0'>
             <span class='identifier-sm'><%= tc.code %></span>
-            <div class='text-xs text-slate-400 mt-0.5 truncate'><%= tc.definition %></div>
+            <div class='text-xs text-fg-muted mt-0.5 truncate'><%= tc.definition %></div>
           </div>
         </label>
       <% end %>

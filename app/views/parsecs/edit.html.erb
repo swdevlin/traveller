@@ -1,7 +1,7 @@
 <% content_for :title, "Edit #{@parsec.display_name}" %>
 <% content_for :page_kicker, 'IISS Hex Survey' %>
 <% content_for :page_title do %>
-  <%= @parsec.display_name %><span class='text-slate-500'>, <%= @parsec.sector.name %></span>
+  <%= @parsec.display_name %><span class='text-fg-muted'>, <%= @parsec.sector.name %></span>
 <% end %>
 
 <%= render 'application/page' do %>

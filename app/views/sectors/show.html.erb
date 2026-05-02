@@ -1,7 +1,7 @@
 <% content_for :title, "Sector #{@sector.name}" %>
 <% content_for :page_kicker, 'IISS Class 0 Sector Survey' %>
 <% content_for :page_title do %>
-  <%= @sector.name %><% if @sector.abbreviation.present? %><span class='text-slate-500'>, <%= @sector.abbreviation %></span><% end %>
+  <%= @sector.name %><% if @sector.abbreviation.present? %><span class='text-fg-muted'>, <%= @sector.abbreviation %></span><% end %>
 <% end %>
 <% content_for :iiss_form, '0398D-0' %>
 
@@ -38,11 +38,11 @@
 
 <% content_for :page_side do %>
   <div class='flex items-center justify-between mb-2'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Subsectors</div>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Subsectors</div>
     <div class='flex items-center gap-3'>
       <button type='button'
               title='Copy public map link'
-              class='text-slate-400 hover:text-slate-200'
+              class='text-fg-muted hover:text-fg-bright'
               data-controller='clipboard'
               data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
               data-action='click->clipboard#copy'>
@@ -52,7 +52,7 @@
                   target: '_blank',
                   rel: 'noopener',
                   title: 'Star Map',
-                  class: 'text-slate-400 hover:text-traveller-red transition-colors' do %>
+                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
         <i class="fa-regular fa-map"></i>
       <% end %>
     </div>
@@ -60,7 +60,7 @@
   <%= render 'subsector_grid', sector: @sector %>
 
   <div class='mt-6'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>
       Neighbouring sectors
     </div>
     <%= render 'sector_grid', sector: @sector %>
@@ -81,7 +81,7 @@
                      link_to('Traveller Map', u, target: '_blank', rel: 'noopener',
                              class: 'hover:underline underline-offset-4')
                    else
-                     tag.span('Undocumented', class: 'text-slate-400')
+                     tag.span('Undocumented', class: 'text-fg-muted')
                    end
                  ) %>
 
@@ -92,7 +92,7 @@
                      link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
                              class: 'hover:underline underline-offset-4')
                    else
-                     tag.span('Undocumented', class: 'text-slate-400')
+                     tag.span('Undocumented', class: 'text-fg-muted')
                    end
                  ) %>
     </div>

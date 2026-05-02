@@ -20,8 +20,8 @@
 
     <% if star %>
       <div class='flex items-center gap-2 pt-2'>
-        <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Orbital Data</div>
-        <div class='h-px flex-1 bg-slate-700/70'></div>
+        <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital Data</div>
+        <div class='h-px flex-1 bg-panel'></div>
       </div>
 
       <%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
@@ -63,8 +63,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Composition</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Composition</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
@@ -132,8 +132,8 @@
     <% end %>
 
     <div class='flex items-center gap-2 pt-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-deepnight-orange'>Social Data</div>
-      <div class='h-px flex-1 bg-slate-700/70'></div>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Social Data</div>
+      <div class='h-px flex-1 bg-panel'></div>
     </div>
 
     <%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>

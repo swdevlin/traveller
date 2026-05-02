@@ -3,12 +3,12 @@
                                        action: 'change->jump-dates#departChanged parsec-select:hex-selected->jump-form#fromParsecSelected' }) do |form| %>
   <div class='space-y-6 pb-10'>
     <% if jump_log.errors.any? %>
-      <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Validation</div>
-        <div class='mt-1 text-sm font-semibold text-slate-200'>
+      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
+        <div class='mt-1 text-sm font-semibold text-fg-bright'>
           <%= pluralize(jump_log.errors.count, 'error') %> prevented this jump log from being saved
         </div>
-        <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+        <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
           <% jump_log.errors.each do |error| %>
             <li><%= error.full_message %></li>
           <% end %>

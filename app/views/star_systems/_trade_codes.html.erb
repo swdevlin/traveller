@@ -5,7 +5,7 @@
                safe_join(star_system.trade_codes.order(:code).map { |tc|
                  link_to(tc.code, trade_code_path(tc), title: tc.definition, class: 'identifier-sm no-underline hover:no-underline')
                }, ' ') :
-               tag.span('None', class: 'text-slate-500'),
+               tag.span('None', class: 'text-fg-muted'),
              value_wrap_class: 'flex flex-wrap items-center gap-2',
              suffix: link_to(edit_trade_codes_star_system_path(star_system),
                              data: { turbo_frame: 'modal' },

@@ -45,8 +45,8 @@
   <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4">
     <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Survey Index</div>
-        <div class='mt-2 text-slate-100'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Survey Index</div>
+        <div class='mt-2 text-fg-bright'>
           <%= f.select :survey_index,
                        (0..12).map { |i| [i, i] },
                        { selected: star_system.survey_index },
@@ -57,8 +57,8 @@
 
     <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
       <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Travel Zone</div>
-        <div class='mt-2 text-slate-100'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Travel Zone</div>
+        <div class='mt-2 text-fg-bright'>
           <%= f.select :travel_zone_id,
                        TravelZone.ordered.map { |tz| [tz.name, tz.id] },
                        { include_blank: 'None', selected: star_system.travel_zone_id },
@@ -68,34 +68,34 @@
     <% end %>
 
     <%= form_with url: toggle_lock_star_system_path(star_system), method: :patch, class: 'min-w-0' do %>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Locked</div>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Locked</div>
       <div class='mt-2 flex items-center gap-3'>
         <button type='submit'
                 role='switch'
                 aria-checked='<%= star_system.locked? %>'
-                class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= star_system.locked? ? "bg-sky-700" : "bg-slate-600" %>'>
-          <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= star_system.locked? ? "translate-x-5 bg-white" : "translate-x-0 bg-slate-300" %>'></span>
+                class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= star_system.locked? ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+          <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= star_system.locked? ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
         </button>
-        <span class='text-xs text-slate-400 italic'>Locked systems are preserved during subsector generation.</span>
+        <span class='text-xs text-fg-muted italic'>Locked systems are preserved during subsector generation.</span>
       </div>
     <% end %>
   </div>
-  <%= render 'application/observation_block', notes: star_system.notes %>
+    <%= render 'application/observation_block', notes: star_system.notes %>
 
-  <% map_path = map_star_system_path(star_system) %>
-  <div class='flex justify-end mb-1'>
-    <button type='button'
-            title='Copy public map link'
-            class='text-slate-400 hover:text-slate-200'
-            data-controller='clipboard'
-            data-clipboard-url-value='<%= signed_map_url(map_path) %>'
-            data-action='click->clipboard#copy'>
-      <i class='fa-regular fa-link'></i>
-    </button>
+    <% map_path = map_star_system_path(star_system) %>
+    <div class='flex justify-end mb-1'>
+      <button type='button'
+              title='Copy public map link'
+              class='text-fg-muted hover:text-fg-bright'
+              data-controller='clipboard'
+              data-clipboard-url-value='<%= signed_map_url(map_path) %>'
+              data-action='click->clipboard#copy'>
+        <i class='fa-regular fa-link'></i>
+      </button>
+    </div>
+    <%= render 'system_map', star_system: star_system %>
+
+    <%= render 'stars_table', stars: star_system.ordered_stars %>
+
+    <%= render 'stellar_objects_table', primary: star_system.primary_star %>
   </div>
-  <%= render 'system_map', star_system: star_system %>
-
-  <%= render 'stars_table', stars: star_system.ordered_stars %>
-
-  <%= render 'stellar_objects_table', primary: star_system.primary_star %>
-</div>

@@ -1,17 +1,22 @@
 <%= modal(title: 'Edit Bases', padding: true, advance: false, overlay: false) do %>
   <%= form_with url: update_bases_star_system_path(@star_system) do |f| %>
-    <input type="hidden" name="facility_ids[]" value="">
+    <input type='hidden' name='facility_ids[]' value=''>
 
     <div class='grid grid-cols-2 sm:grid-cols-3 gap-2'>
       <% @facilities.each do |facility| %>
+        <% selected = @current_ids.include?(facility.id) %>
+
         <label class='flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition
-                      <%= @current_ids.include?(facility.id) ? "border-deepnight-orange bg-deepnight-orange/10" : "border-slate-700 bg-slate-800 hover:border-slate-500" %>'>
-          <input type="checkbox" name="facility_ids[]" value="<%= facility.id %>"
-                 <%= 'checked' if @current_ids.include?(facility.id) %>
-                 class="rounded border-slate-600 bg-slate-900 text-deepnight-orange focus:ring-deepnight-orange/50 shrink-0">
+                      <%= selected ? 'border-highlight bg-highlight/10' : 'border-outline bg-panel hover:border-highlight' %>'>
+          <input type='checkbox'
+                 name='facility_ids[]'
+                 value='<%= facility.id %>'
+                 <%= 'checked' if selected %>
+                 class='rounded border-outline bg-panel-muted text-highlight focus:ring-highlight/50 shrink-0'>
+
           <div class='min-w-0'>
             <span class='identifier-sm'><%= facility.code %></span>
-            <div class='text-xs text-slate-400 mt-0.5 truncate'><%= facility.name %></div>
+            <div class='text-xs text-fg-muted mt-0.5 truncate'><%= facility.name %></div>
           </div>
         </label>
       <% end %>

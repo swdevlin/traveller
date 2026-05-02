@@ -1,20 +1,20 @@
 <div id="<%= dom_id jump_log %>" class='space-y-6 mb-4'>
   <%= render 'application/data_block',
              label: 'Ship',
-             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: jump_log.ship.name
   %>
 
   <div class='flex flex-wrap gap-x-10 gap-y-6'>
     <%= render 'application/data_block',
                label: 'From',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
                value: jump_log.from_parsec.display_name
     %>
 
     <%= render 'application/data_block',
                label: 'Depart',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
                value: jump_log.depart_year ? "#{jump_log.depart_year}-#{format('%03d', jump_log.depart_day || 0)}" : nil
     %>
   </div>
@@ -22,13 +22,13 @@
   <div class='flex flex-wrap gap-x-10 gap-y-6'>
     <%= render 'application/data_block',
                label: 'To',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
                value: jump_log.to_parsec.display_name
     %>
 
     <%= render 'application/data_block',
                label: 'Arrive',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
                value: jump_log.arrive_year ? "#{jump_log.arrive_year}-#{format('%03d', jump_log.arrive_day || 0)}" : nil
     %>
 
@@ -43,7 +43,7 @@
 
   <%= render 'application/data_block',
              label: 'Notes',
-             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: jump_log.notes
   %>
 </div>

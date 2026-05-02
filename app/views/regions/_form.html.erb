@@ -1,8 +1,8 @@
 <%= form_with(model: region, class: 'space-y-8') do |form| %>
   <% if region.errors[:base].any? %>
-    <div class='rounded-2xl border border-traveller-red/40 bg-slate-950/60 p-4'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Validation</div>
-      <ul class='mt-3 list-disc ml-6 text-sm text-slate-300 space-y-1'>
+    <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
+      <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
         <% region.errors[:base].each do |msg| %>
           <li><%= msg %></li>
         <% end %>
@@ -23,7 +23,7 @@
   </div>
 
   <div class='space-y-4'>
-    <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>Colours</div>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Colours</div>
     <div data-controller='colour-pair' class='flex flex-col sm:flex-row gap-6'>
       <div>
         <%= form.label :colour, 'Fill', class: 'block text-sm font-semibold mb-1' %>
@@ -76,7 +76,7 @@
 
   <div>
     <%= form.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>
-    <p class='text-xs text-slate-400 mb-2'>Supports Markdown</p>
+    <p class='text-xs text-fg-muted mb-2'>Supports Markdown</p>
     <%= form.text_area :notes, rows: 6, class: 'edit-base w-full resize-y' %>
     <%= render 'application/field_error', form: form, attribute: :notes %>
   </div>

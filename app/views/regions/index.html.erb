@@ -29,7 +29,7 @@
         <tbody>
           <% if @regions.any? %>
             <% @regions.each do |region| %>
-              <tr class='cursor-pointer hover:bg-slate-800/40' onclick="window.location='<%= region_path(region) %>'">
+              <tr class='cursor-pointer hover:border-outline/40' onclick="window.location='<%= region_path(region) %>'">
                 <td>
                   <%= link_to region.name, region_path(region), class: 't-link' %>
                 </td>
@@ -51,14 +51,14 @@
                   <% if (lsh = region.label_sector_and_hex) %>
                     <% lsector, hx, hy = lsh %>
                     <% lp = region.label_parsec %>
-                    <span class='font-mono text-sm text-slate-300'>
+                    <span class='font-mono text-sm text-fg'>
                       <%= link_to lsector.name, sector_path(lsector),
                                   class: 'no-underline hover:underline',
                                   onclick: 'event.stopPropagation()' %>
                       &#32;<%= lp ? link_to(format('%02d%02d', hx, hy), parsec_path(lp), class: 'no-underline hover:underline', onclick: 'event.stopPropagation()') : format('%02d%02d', hx, hy) %>
                     </span>
                   <% else %>
-                    <span class='text-slate-500'>—</span>
+                    <span class='text-fg-muted'>—</span>
                   <% end %>
                 </td>
 

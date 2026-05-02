@@ -1,6 +1,6 @@
 <%= modal(title: 'Select Main World', padding: false, advance: false, overlay: false) do %>
   <% if @worlds.empty? %>
-    <p class='p-5 text-slate-400 text-sm'>No worlds with a UWP in this system.</p>
+    <p class='p-5 text-fg-muted text-sm'>No worlds with a UWP in this system.</p>
   <% else %>
     <div class='table-card rounded-none border-x-0 border-b-0'>
       <div class='table-scroll'>
@@ -18,7 +18,7 @@
           <tbody>
             <% @worlds.each do |world| %>
               <% is_current = world.id == @star_system.main_world_id %>
-              <tr class='<%= is_current ? "text-deepnight-orange" : "" %>'>
+              <tr class='<%= is_current ? "text-highlight" : "" %>'>
                 <td class='whitespace-nowrap'>
                   <% if world.orbit_sequence.present? %>
                     <span class='pill'><%= world.orbit_sequence %></span>
@@ -30,14 +30,14 @@
                   <% if world.temperature.present? %>
                     <%= format_temperature_celsius(world.temperature) %> °C
                   <% else %>
-                    <span class='text-slate-500'>—</span>
+                    <span class='text-fg-muted'>—</span>
                   <% end %>
                 </td>
                 <td class='text-right whitespace-nowrap'>
                   <% if world.effective_hzco_deviation.present? %>
                     <%= number_with_precision(world.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
                   <% else %>
-                    <span class='text-slate-500'>—</span>
+                    <span class='text-fg-muted'>—</span>
                   <% end %>
                 </td>
                 <td class='actions-cell'>
@@ -48,7 +48,7 @@
                                   method: :patch,
                                   class: 'btn btn-primary btn-sm' %>
                   <% else %>
-                    <span class='text-xs text-deepnight-orange block text-center'>Current</span>
+                    <span class='text-xs text-highlight block text-center'>Current</span>
                   <% end %>
                 </td>
               </tr>

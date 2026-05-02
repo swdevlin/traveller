@@ -16,7 +16,7 @@
 
       <%= form_with url: communication_network_network_import_path(@communication_network),
                     multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
-        <%= f.file_field :file, accept: '.csv', class: 'text-xs text-slate-400' %>
+        <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
         <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
       <% end %>
     </div>
@@ -66,7 +66,7 @@
       </div>
     </div>
   <% else %>
-    <p class='text-sm text-slate-400 mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
+    <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
   <% end %>
 
   <%= link_to 'Edit', edit_communication_network_path(@communication_network), class: 'w-full sm:w-auto btn btn-primary' %>

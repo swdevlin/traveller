@@ -1,52 +1,52 @@
 <%= modal(title: 'Import Hexes', padding: true, advance: false, overlay: false) do %>
   <div class='space-y-6'>
     <div class='space-y-2'>
-      <div class='text-xs uppercase tracking-[0.22em] text-slate-400'>CSV Format</div>
-      <p class='text-sm text-slate-300'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>CSV Format</div>
+      <p class='text-sm text-fg'>
         Rows must be in clockwise order. Each hex must be adjacent to the next (including last to first).
         The upload replaces all existing hexes for this region.
       </p>
       <table class='w-full text-sm font-mono'>
         <thead>
-          <tr class='text-left text-xs uppercase tracking-[0.18em] text-slate-500 border-b border-slate-700'>
+          <tr class='text-left text-xs uppercase tracking-[0.18em] text-fg-muted border-b border-outline'>
             <th class='pb-2 pr-4'>Column</th>
             <th class='pb-2'>Description</th>
           </tr>
         </thead>
-        <tbody class='text-slate-300 divide-y divide-slate-800'>
+        <tbody class='text-fg divide-y divide-outline'>
           <tr>
-            <td class='py-1.5 pr-4 text-deepnight-orange'>sector_x</td>
-            <td class='py-1.5 font-sans text-slate-400'>Sector X coordinate</td>
+            <td class='py-1.5 pr-4 text-highlight'>sector_x</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Sector X coordinate</td>
           </tr>
           <tr>
-            <td class='py-1.5 pr-4 text-deepnight-orange'>sector_y</td>
-            <td class='py-1.5 font-sans text-slate-400'>Sector Y coordinate</td>
+            <td class='py-1.5 pr-4 text-highlight'>sector_y</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Sector Y coordinate</td>
           </tr>
           <tr>
-            <td class='py-1.5 pr-4 text-deepnight-orange'>hex_x</td>
-            <td class='py-1.5 font-sans text-slate-400'>Hex column within sector (1–32)</td>
+            <td class='py-1.5 pr-4 text-highlight'>hex_x</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Hex column within sector (1–32)</td>
           </tr>
           <tr>
-            <td class='py-1.5 pr-4 text-deepnight-orange'>hex_y</td>
-            <td class='py-1.5 font-sans text-slate-400'>Hex row within sector (1–40)</td>
+            <td class='py-1.5 pr-4 text-highlight'>hex_y</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Hex row within sector (1–40)</td>
           </tr>
         </tbody>
       </table>
       <%= link_to download_csv_region_path(@region),
-                  class: 'inline-flex items-center gap-2 text-sm text-slate-400 hover:text-slate-200 transition no-underline',
+                  class: 'inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg-bright transition no-underline',
                   data: { turbo: false } do %>
         <i class='fa-regular fa-file-csv'></i>
         Download current CSV
       <% end %>
     </div>
 
-    <div class='h-px bg-slate-800'></div>
+    <div class='h-px border-outline'></div>
 
     <%= form_with url: upload_hexes_region_path(@region), multipart: true, class: 'space-y-4' do |f| %>
       <div>
-        <div class='text-xs uppercase tracking-[0.22em] text-slate-400 mb-2'>CSV File</div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>CSV File</div>
         <%= f.file_field :csv_file, accept: '.csv',
-                         class: 'w-full text-sm text-slate-400 file:btn file:mr-3' %>
+                         class: 'w-full text-sm text-fg-muted file:btn file:mr-3' %>
       </div>
       <div class='flex justify-end'>
         <%= f.submit 'Upload', class: 'btn btn-primary' %>

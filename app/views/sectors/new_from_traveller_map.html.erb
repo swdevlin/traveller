@@ -4,7 +4,7 @@
 
 <%= render 'application/page' do %>
   <div class="max-w-2xl space-y-6">
-    <p class="text-slate-300">
+    <p class="text-fg">
       Search the Traveller Map database to import a sector.
     </p>
 
@@ -25,7 +25,7 @@
                            controller: params[:q].present? ? "autofocus" : nil,
                            action: "input->autosubmit#queue"
                          },
-                         class: "w-full rounded-lg bg-slate-900/50 border border-slate-700 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500" %>
+                         class: 'input w-full px-4 text-fg-bright' %>
 
       <% if params[:q].present? %>
         <%= link_to "Clear",
