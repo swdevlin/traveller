@@ -71,7 +71,7 @@ env:
 
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
-    GENERATOR_SERVICE_URL: http:///host.docker.internal:3007
+    GENERATOR_SERVICE_URL: http://host.docker.internal:3007
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.
