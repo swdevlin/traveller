@@ -929,7 +929,7 @@
 
   .identifier,
   .identifier-sm {
-    @apply inline-flex items-center gap-2 rounded-full border border-outline bg-panel-muted font-mono text-fg-bright;
+    @apply inline-flex items-center gap-2 rounded-full border border-highlight bg-panel-muted font-mono text-fg-bright;
   }
 
   .identifier {
@@ -1128,7 +1128,7 @@
   }
 
   .t-pill {
-    @apply inline-flex items-center rounded-full border border-outline bg-panel
+    @apply inline-flex items-center rounded-full border border-highlight bg-panel
     px-2 py-0.5 font-mono tracking-wide text-fg;
   }
 
