@@ -122,10 +122,17 @@
                   class="subway-<%= node.kind.to_s.dasherize %>" />
         <% end %>
         <% if node.label %>
-          <text x="<%= node.x %>" y="<%= node.y - node.radius - 10 %>"
-                text-anchor="middle" class="subway-label">
-            <%= node.label %>
-          </text>
+          <% if node.vertical %>
+            <text x="<%= node.x + node.radius + 10 %>" y="<%= node.y + 4 %>"
+                  text-anchor="start" class="subway-label">
+              <%= node.label %>
+            </text>
+          <% else %>
+            <text x="<%= node.x %>" y="<%= node.y - node.radius - 10 %>"
+                  text-anchor="middle" class="subway-label">
+              <%= node.label %>
+            </text>
+          <% end %>
         <% end %>
         <% if node.sublabel %>
           <text x="<%= node.x %>" y="<%= node.y + node.radius + 18 %>"

@@ -13,7 +13,7 @@ class StarSystemMapLayout
   PLANETOID_BELT_RADIUS = 18
   DEFAULT_BODY_RADIUS = 10
 
-  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, keyword_init: true)
+  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, :vertical, keyword_init: true)
   Edge = Struct.new(:x1, :y1, :x2, :y2, :kind, :au_label, keyword_init: true)
   JumpShadow = Struct.new(:x, :y, :x1, :x2, :vertical, :y1_branch, :y2_branch, :colour, :has_marker, keyword_init: true)
 
@@ -61,7 +61,7 @@ class StarSystemMapLayout
         @nodes << make_star_node(body, current_x, star_y)
         layout_vertical_branch(body, current_x, star_y, primary_jump_x: primary_jump_x)
       else
-        @nodes << make_body_node(body, current_x, star_y, star, primary: true)
+        @nodes << make_body_node(body, current_x, star_y, star, vertical: false)
       end
       track_end_x = current_x
       prev_x = current_x
@@ -95,7 +95,7 @@ class StarSystemMapLayout
         @nodes << make_star_node(body, x, current_y)
         layout_vertical_branch(body, x, current_y, primary_jump_x: primary_jump_x)
       else
-        @nodes << make_body_node(body, x, current_y, star, primary: false)
+        @nodes << make_body_node(body, x, current_y, star, vertical: true)
       end
       branch_end_y = current_y
       prev_y = current_y
@@ -147,7 +147,7 @@ class StarSystemMapLayout
     )
   end
 
-  def make_body_node(body, x, y, parent_star, primary:)
+  def make_body_node(body, x, y, parent_star, vertical:)
     Node.new(
       id: "body-#{body.id}",
       kind: body_kind(body),
@@ -158,7 +158,8 @@ class StarSystemMapLayout
       colour: body.is_a?(TerrestrialPlanet) ? terrestrial_colour(body) : nil,
       url_target: body,
       sublabel: body_sublabel(body),
-      tooltip: body_tooltip(body, parent_star, primary)
+      tooltip: body_tooltip(body, parent_star, !vertical),
+      vertical: vertical
     )
   end
 
