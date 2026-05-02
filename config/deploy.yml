@@ -18,6 +18,8 @@ servers:
     options:
       publish:
         - "127.0.0.1:3025:3000"
+      add-host:
+        - "host.docker.internal:host-gateway"
 #  job:
 #    hosts:
 #      - <%#= ENV["KAMAL_SERVER_IP"] %>
