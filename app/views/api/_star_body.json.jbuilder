@@ -61,7 +61,7 @@ json.stellar_objects all_objects do |obj|
       json.x obj.orbit_x || 0.0
       json.y obj.orbit_y || 0.0
     end
-    json.jump_shadow        obj.effective_jump_shadow_km
+    json.jump_shadow obj.effective_jump_shadow_km
     obj_shadow_source = obj.effective_jump_shadow_source
     json.jump_shadow_source obj_shadow_source ? { id: obj_shadow_source.id, name: obj_shadow_source.display_name } : nil
     json.orbit_type         obj.orbit_type
@@ -84,7 +84,7 @@ json.stellar_objects all_objects do |obj|
         json.x m.orbit_x || 0.0
         json.y m.orbit_y || 0.0
       end
-      json.jump_shadow        m.effective_jump_shadow_km
+      json.jump_shadow m.effective_jump_shadow_km
       m_shadow_source = m.effective_jump_shadow_source
       json.jump_shadow_source m_shadow_source ? { id: m_shadow_source.id, name: m_shadow_source.display_name } : nil
       json.axial_tilt         m.axial_tilt
