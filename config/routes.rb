@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     get 'starmap', to: 'starmaps#show', as: :campaign_starmap
     namespace :api do
       resources :sectors, only: :index, defaults: { format: :json }
+      resources :subsectors, only: :show, defaults: { format: :json }
       resources :regions, only: :index, defaults: { format: :json }
       resources :parsecs, only: :index
       get  'jumps',       to: 'jump_logs#index', defaults: { format: :json }
