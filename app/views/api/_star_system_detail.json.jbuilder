@@ -1,4 +1,5 @@
 json.partial! 'api/solar_system', star_system: star_system
+json.map_url signed_map_url(map_star_system_path(star_system))
 
 primary = star_system.primary_star
 mw = star_system.main_world
