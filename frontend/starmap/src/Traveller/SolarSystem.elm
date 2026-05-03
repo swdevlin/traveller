@@ -7,7 +7,8 @@ import Traveller.StellarObject exposing (StarData, codecStarData, codecStellarOb
 
 
 type alias SolarSystem =
-    { address : HexAddress
+    { id : Int
+    , address : HexAddress
     , primaryStar : StarData
     , gasGiants : Int
     , planetoidBelts : Int
@@ -23,7 +24,8 @@ type alias SolarSystem =
 
 
 type alias RawSolarSystem =
-    { x : Int
+    { id : Int
+    , x : Int
     , y : Int
     , primaryStar : StarData
     , gasGiants : Int
@@ -50,7 +52,8 @@ codec =
 rawToFinal : RawSolarSystem -> Codec.Codec SolarSystem
 rawToFinal rawSolarSystem =
     Codec.succeed
-        { address = HexAddress.createFromStarSystem rawSolarSystem
+        { id = rawSolarSystem.id
+        , address = HexAddress.createFromStarSystem rawSolarSystem
         , primaryStar = rawSolarSystem.primaryStar
         , gasGiants = rawSolarSystem.gasGiants
         , planetoidBelts = rawSolarSystem.planetoidBelts
@@ -67,7 +70,8 @@ rawToFinal rawSolarSystem =
 
 finalToRaw : SolarSystem -> RawSolarSystem
 finalToRaw solarSystem =
-    { x = 9999999999
+    { id = solarSystem.id
+    , x = 9999999999
     , y = 9999999999
     , primaryStar = solarSystem.primaryStar
     , gasGiants = solarSystem.gasGiants
@@ -88,6 +92,7 @@ finalToRaw solarSystem =
 rawCodec : Codec.Codec RawSolarSystem
 rawCodec =
     Codec.object RawSolarSystem
+        |> Codec.field "id" .id Codec.int
         |> Codec.field "x" .x Codec.int
         |> Codec.field "y" .y Codec.int
         |> Codec.field "primary_star" .primaryStar codecStarData

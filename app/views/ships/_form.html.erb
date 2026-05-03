@@ -41,6 +41,18 @@
                           ] %>
     </div>
 
+    <div>
+      <%= form.label :m_drive, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
+      <%= form.number_field :m_drive, in: 0..10,
+                            class: [
+                              'w-full edit-base mt-2 sm:w-1/2',
+                              {
+                                'border-gray-400 focus:outline-blue-600': ship.errors[:m_drive].none?,
+                                'border-red-400 focus:outline-red-600': ship.errors[:m_drive].any?
+                              }
+                            ] %>
+    </div>
+
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', ship.persisted? ? ship : ships_path, class: 'w-full sm:w-auto btn' %>

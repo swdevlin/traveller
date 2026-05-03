@@ -21,6 +21,7 @@
           <tr>
             <th scope='col'>Name</th>
             <th scope='col'>Jump drive</th>
+            <th scope='col'>M-drive</th>
             <th scope='col' class='text-right actions-cell'>Actions</th>
           </tr>
         </thead>
@@ -37,6 +38,7 @@
                 <% end %>
               </td>
               <td><%= ship.jump_drive %></td>
+              <td><%= ship.m_drive %></td>
               <td class='actions-cell'>
                 <div class='action-group'>
                   <%= link_to edit_ship_path(ship), class: 'action' do %>

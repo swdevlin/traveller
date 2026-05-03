@@ -1,6 +1,7 @@
 module Traveller.TravelCalculations exposing
     ( auToKMs
     , calcDistance2F
+    , safeJumpTimeFromShadow
     , secondsToDaysWatches
     , travelTime
     , travelTimeInSeconds
@@ -39,6 +40,23 @@ secondsToDaysWatches secs =
             watches - days * 3
     in
     Round.floor 0 days ++ "d " ++ Round.ceiling 0 watches_ ++ "w"
+
+
+{-| Calculate safe jump time from a jump shadow distance, using the ship's M-drive rating.
+Returns "—" if no drive is available or not set.
+-}
+safeJumpTimeFromShadow : Maybe Int -> Maybe Float -> String
+safeJumpTimeFromShadow maybeMDrive maybeKms =
+    case ( maybeMDrive, maybeKms ) of
+        ( Just mDrive, Just kms ) ->
+            if mDrive <= 0 || kms <= 0 then
+                "0d 0w"
+
+            else
+                secondsToDaysWatches (travelTimeInSeconds kms mDrive)
+
+        _ ->
+            "—"
 
 
 {-| Calculate travel time as a formatted string

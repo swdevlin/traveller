@@ -104,6 +104,7 @@ import Traveller.StellarObjectView
         , StellarObjectMsgs
         , convertColor
         )
+import Traveller.Ship exposing (Ship)
 import Traveller.StellarTaint exposing (taintPersistenceDescription, taintSeverityDescription, taintSubtypeDescription)
 import Traveller.TechLevel as TechLevel
 import Traveller.UI
@@ -557,11 +558,12 @@ type alias ModelData =
     , regions : RegionDict
     , regionLabels : Dict.Dict String String
     , hexColours : Dict.Dict String Color
+    , ship : Maybe Ship
     , isReferee : Bool
+    , pendingCtrlNavigation : Bool
     , objectToBeAnalyzed : Maybe { stellarObject : StellarObject, data : AnalysisDetail }
     , timeOpened : Time.Posix
     , campaignName : String
-    , shipName : String
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
@@ -593,7 +595,7 @@ type Msg
     | GotResize Int Int
     | FocusInSidebar StellarObject
     | MapMouseDown ( Float, Float )
-    | MapMouseUp (Maybe HexAddress) ( Float, Float )
+    | MapMouseUp (Maybe HexAddress) ( Float, Float ) Bool
     | MapMouseMove ( Float, Float )
     | MapMouseLeave
     | DownloadedRoute ( RequestEntry, String ) (Result Http.Error (List Route))
@@ -711,7 +713,7 @@ type alias Flags =
     { upperLeft : Maybe ( Int, Int )
     , hexSize : Float
     , campaignName : Maybe String
-    , shipName : Maybe String
+    , ship : Maybe Ship
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
     , extinctSophontColour : Maybe String
@@ -880,10 +882,11 @@ init viewport settings key hostConfig referee =
             , regionLabels = Dict.empty
             , hexColours = Dict.empty
             , isReferee = referee
+            , pendingCtrlNavigation = False
             , objectToBeAnalyzed = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
-            , shipName = settings.shipName |> Maybe.withDefault "Ship"
+            , ship = settings.ship
             , allSectorsMapUrl = settings.allSectorsMapUrl
             , nativeSophontColour = settings.nativeSophontColour
             , extinctSophontColour = settings.extinctSophontColour
@@ -955,7 +958,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -1064,7 +1067,7 @@ mouseClickDecoder onDownMsg =
            JsDecode.map (\evt -> onDownMsg evt.offsetPos)
 
 
-mouseUpDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
+mouseUpDecoder : (( Float, Float ) -> Bool -> msg) -> JsDecode.Decoder msg
 mouseUpDecoder onDownMsg =
     let
         -- takes a raw JS mouse event and turns it into a parsed Elm mouse event
@@ -1086,7 +1089,7 @@ mouseUpDecoder onDownMsg =
     -- run the mouse event decoder
     jsMouseEventDecoder
         |> -- then if that succeeds, pass the event object into msgConstructor
-           JsDecode.map (\evt -> onDownMsg evt.clientPos)
+           JsDecode.map (\evt -> onDownMsg evt.clientPos evt.keys.ctrl)
 
 
 mouseMoveDecoder : (( Float, Float ) -> msg) -> JsDecode.Decoder msg
@@ -1298,7 +1301,7 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -1538,7 +1541,7 @@ viewHexLoading hx hy x y size hexColour =
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
-        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos -> MapMouseUp (Just hexAddress) pos)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
         , SvgAttrs.style "cursor: pointer; user-select: none"
@@ -2541,7 +2544,7 @@ viewStatusRow model =
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
                             ]
                         ]
-                        [ text model.shipName
+                        [ text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
                         , renderFAIcon "fa-regular fa-crosshairs-simple" 14
                         , text <|
                             (universalHexLabelMaybe model.sectors model.currentAddress
@@ -2714,6 +2717,7 @@ view ( time, model ) =
             , selectedStellarObject = model.selectedStellarObject
             , isReferee = model.isReferee
             , allSectorsMapUrl = model.allSectorsMapUrl
+            , mDrive = model.ship |> Maybe.andThen .mDrive
             }
 
         sidebarColumn =
@@ -2895,6 +2899,9 @@ saveHexSize size =
 
 
 port storeHexSize : Float -> Cmd msg
+
+
+port navigateToUrl : String -> Cmd msg
 
 
 encodeJourneyState : Float -> ( Float, Float ) -> String
@@ -3506,31 +3513,47 @@ update msg ( time, model ) =
             ( withTime model, Cmd.none )
 
         FetchedSolarSystem (Ok solarSystem) ->
-            let
-                si =
-                    if model.isReferee then
-                        refereeSI
+            if model.pendingCtrlNavigation then
+                let
+                    ( _, pathParts ) =
+                        model.hostConfig
 
-                    else
-                        solarSystem.surveyIndex
+                    campaignPrefix =
+                        List.take 2 pathParts |> String.join "/"
 
-                updatedSS =
-                    { solarSystem
-                        | surveyIndex = si
+                    url =
+                        "/" ++ campaignPrefix ++ "/star_systems/" ++ String.fromInt solarSystem.id
+                in
+                ( withTime { model | pendingCtrlNavigation = False }
+                , navigateToUrl url
+                )
+
+            else
+                let
+                    si =
+                        if model.isReferee then
+                            refereeSI
+
+                        else
+                            solarSystem.surveyIndex
+
+                    updatedSS =
+                        { solarSystem
+                            | surveyIndex = si
+                        }
+                in
+                ( withTime
+                    { model
+                        | selectedSystem = Just updatedSS
                     }
-            in
-            ( withTime
-                { model
-                    | selectedSystem = Just updatedSS
-                }
-            , Cmd.none
-            )
+                , Cmd.none
+                )
 
         FetchedSolarSystem (Err (Http.BadBody err)) ->
-            ( withTime { model | newSolarSystemErrors = model.newSolarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
+            ( withTime { model | pendingCtrlNavigation = False, newSolarSystemErrors = model.newSolarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
 
         FetchedSolarSystem (Err err) ->
-            ( withTime model, Cmd.none )
+            ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
 
         DownloadedSolarSystems ( requestEntry, url ) (Err err) ->
             let
@@ -3772,7 +3795,7 @@ update msg ( time, model ) =
             else
                 ( newModel, Cmd.none )
 
-        MapMouseUp maybeHexAddress ( upX, upY ) ->
+        MapMouseUp maybeHexAddress ( upX, upY ) ctrlKey ->
             case model.dragMode of
                 IsDragging { start } ->
                     let
@@ -3802,44 +3825,54 @@ update msg ( time, model ) =
                     else
                         case maybeHexAddress of
                             Just hexAddress ->
-                                let
-                                    focusedErrors =
-                                        Dict.get (HexAddress.toKey hexAddress) model.solarSystems
-                                            |> Maybe.map
-                                                (\system ->
-                                                    case system of
-                                                        FailedStarsSolarSystem fallibleSystem ->
-                                                            fallibleSystem.stars
-                                                                |> List.filterMap
-                                                                    (\res ->
-                                                                        case res of
-                                                                            Ok _ ->
-                                                                                Nothing
+                                if ctrlKey && model.isReferee then
+                                    ( withTime
+                                        { model
+                                            | dragMode = NoDragging
+                                            , pendingCtrlNavigation = True
+                                        }
+                                    , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                    )
 
-                                                                            Err er ->
-                                                                                Just ("Specific Star failed to decode:\n" ++ JsDecode.errorToString er)
-                                                                    )
-                                                                |> List.map
-                                                                    (\er ->
-                                                                        ( Http.BadBody er, "TODO: tie RequestEntry to URL" )
-                                                                    )
+                                else
+                                    let
+                                        focusedErrors =
+                                            Dict.get (HexAddress.toKey hexAddress) model.solarSystems
+                                                |> Maybe.map
+                                                    (\system ->
+                                                        case system of
+                                                            FailedStarsSolarSystem fallibleSystem ->
+                                                                fallibleSystem.stars
+                                                                    |> List.filterMap
+                                                                        (\res ->
+                                                                            case res of
+                                                                                Ok _ ->
+                                                                                    Nothing
 
-                                                        _ ->
-                                                            []
-                                                )
-                                            |> Maybe.withDefault []
-                                in
-                                ( withTime
-                                    { model
-                                        | dragMode = NoDragging
-                                        , selectedHex = Just hexAddress
-                                        , selectedStellarObject = Nothing
-                                        , selectedSystem = Nothing
-                                        , newSolarSystemErrors = focusedErrors
-                                        , sidebarOpen = True
-                                    }
-                                , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
-                                )
+                                                                                Err er ->
+                                                                                    Just ("Specific Star failed to decode:\n" ++ JsDecode.errorToString er)
+                                                                        )
+                                                                    |> List.map
+                                                                        (\er ->
+                                                                            ( Http.BadBody er, "TODO: tie RequestEntry to URL" )
+                                                                        )
+
+                                                            _ ->
+                                                                []
+                                                    )
+                                                |> Maybe.withDefault []
+                                    in
+                                    ( withTime
+                                        { model
+                                            | dragMode = NoDragging
+                                            , selectedHex = Just hexAddress
+                                            , selectedStellarObject = Nothing
+                                            , selectedSystem = Nothing
+                                            , newSolarSystemErrors = focusedErrors
+                                            , sidebarOpen = True
+                                        }
+                                    , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                    )
 
                             Nothing ->
                                 ( withTime { model | dragMode = NoDragging }

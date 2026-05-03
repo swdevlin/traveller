@@ -59,7 +59,7 @@ import Traveller.StellarObject
         , getStellarOrbit
         , isBrownDwarf
         )
-import Traveller.TravelCalculations exposing (auToKMs, calcDistance2F, secondsToDaysWatches, travelTime)
+import Traveller.TravelCalculations exposing (auToKMs, calcDistance2F, safeJumpTimeFromShadow, secondsToDaysWatches, travelTime)
 import Traveller.UI
     exposing
         ( descriptionStyle
@@ -187,8 +187,8 @@ renderIconRaw icon =
         |> Element.el [ Element.paddingEach iconSpacing, height <| Element.px 10, width <| Element.px 10 ]
 
 
-renderJumpTime : Maybe Float -> String -> Element msg
-renderJumpTime maxJumpTime time =
+renderJumpTime : Maybe Int -> Maybe Float -> Maybe Float -> Element msg
+renderJumpTime mDrive maxJumpTime jumpShadowKms =
     Element.row safeJumpStyle
         [ renderIcon Icon.arrowUpFromBracket
         , text <|
@@ -197,7 +197,7 @@ renderJumpTime maxJumpTime time =
                     secondsToDaysWatches maxTime
 
                 Nothing ->
-                    time
+                    safeJumpTimeFromShadow mDrive jumpShadowKms
         ]
 
 
@@ -290,8 +290,8 @@ renderTravelTime destination origin =
             monospaceText <| ""
 
 
-renderGasGiant : StellarObjectMsgs msg -> Int -> GasGiantData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-renderGasGiant msgs newNestingLevel gasGiantData jumpShadowCheckers selectedStellarObject isReferee =
+renderGasGiant : StellarObjectMsgs msg -> Int -> GasGiantData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+renderGasGiant msgs newNestingLevel gasGiantData jumpShadowCheckers selectedStellarObject isReferee mDrive =
     let
         stellarObject =
             GasGiant gasGiantData
@@ -313,13 +313,13 @@ renderGasGiant msgs newNestingLevel gasGiantData jumpShadowCheckers selectedStel
         , renderOrbitSequence gasGiantData.orbitSequence
         , renderSODescription (msgs.onViewDetail stellarObject) gasGiantData.code gasGiantData.orbitSequence
         , renderImage gasGiantData.code Nothing
-        , renderJumpTime maxShadow gasGiantData.safeJumpTime
+        , renderJumpTime mDrive maxShadow gasGiantData.jumpShadow
         , renderTravelTime stellarObject selectedStellarObject
         ]
 
 
-renderTerrestrialPlanet : StellarObjectMsgs msg -> Int -> SharedPData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers selectedStellarObject isReferee =
+renderTerrestrialPlanet : StellarObjectMsgs msg -> Int -> SharedPData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers selectedStellarObject isReferee mDrive =
     let
         planet =
             TerrestrialPlanet terrestrialData
@@ -340,13 +340,13 @@ renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers 
         , renderOrbitSequence terrestrialData.orbitSequence
         , renderSODescription (msgs.onViewDetail planet) terrestrialData.uwp terrestrialData.orbitSequence
         , renderImage terrestrialData.uwp terrestrialData.meanTemperature
-        , renderJumpTime maxShadow terrestrialData.safeJumpTime
+        , renderJumpTime mDrive maxShadow terrestrialData.jumpShadow
         , renderTravelTime planet selectedStellarObject
         ]
 
 
-renderPlanetoidBelt : StellarObjectMsgs msg -> Int -> PlanetoidBeltData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers selectedStellarObject isReferee =
+renderPlanetoidBelt : StellarObjectMsgs msg -> Int -> PlanetoidBeltData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers selectedStellarObject isReferee mDrive =
     let
         belt =
             PlanetoidBelt planetoidBeltData
@@ -367,13 +367,13 @@ renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers se
         , renderOrbitSequence planetoidBeltData.orbitSequence
         , renderSODescription (msgs.onViewDetail belt) planetoidBeltData.uwp planetoidBeltData.orbitSequence
         , renderImage planetoidBeltData.uwp Nothing
-        , renderJumpTime maxShadow planetoidBeltData.safeJumpTime
+        , renderJumpTime mDrive maxShadow planetoidBeltData.jumpShadow
         , renderTravelTime belt selectedStellarObject
         ]
 
 
-renderPlanetoid : StellarObjectMsgs msg -> Int -> SharedPData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers selectedStellarObject isReferee =
+renderPlanetoid : StellarObjectMsgs msg -> Int -> SharedPData -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers selectedStellarObject isReferee mDrive =
     let
         planet =
             Planetoid planetoidData
@@ -394,13 +394,13 @@ renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers selectedSt
         , renderOrbitSequence planetoidData.orbitSequence
         , renderSODescription (msgs.onViewDetail planet) planetoidData.uwp planetoidData.orbitSequence
         , renderImage planetoidData.uwp planetoidData.meanTemperature
-        , renderJumpTime maxShadow planetoidData.safeJumpTime
+        , renderJumpTime mDrive maxShadow planetoidData.jumpShadow
         , renderTravelTime planet selectedStellarObject
         ]
 
 
-renderStellarObject : StellarObjectMsgs msg -> Int -> Int -> StellarObject -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-renderStellarObject msgs surveyIndex newNestingLevel stellarObject jumpShadowCheckers selectedStellarObject isReferee =
+renderStellarObject : StellarObjectMsgs msg -> Int -> Int -> StellarObject -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+renderStellarObject msgs surveyIndex newNestingLevel stellarObject jumpShadowCheckers selectedStellarObject isReferee mDrive =
     row
         [ Element.spacing 8
         , Font.size 14
@@ -408,25 +408,25 @@ renderStellarObject msgs surveyIndex newNestingLevel stellarObject jumpShadowChe
         ]
         [ case stellarObject of
             GasGiant gasGiantData ->
-                renderGasGiant msgs newNestingLevel gasGiantData jumpShadowCheckers selectedStellarObject isReferee
+                renderGasGiant msgs newNestingLevel gasGiantData jumpShadowCheckers selectedStellarObject isReferee mDrive
 
             TerrestrialPlanet terrestrialData ->
-                renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers selectedStellarObject isReferee
+                renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers selectedStellarObject isReferee mDrive
 
             PlanetoidBelt planetoidBeltData ->
-                renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers selectedStellarObject isReferee
+                renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers selectedStellarObject isReferee mDrive
 
             Planetoid planetoidData ->
-                renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers selectedStellarObject isReferee
+                renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers selectedStellarObject isReferee mDrive
 
             Star starDataConfig ->
                 el [ Element.width Element.fill, Element.paddingEach { top = 0, left = 0, right = 0, bottom = 5 } ] <|
-                    displayStarDetails msgs surveyIndex starDataConfig newNestingLevel jumpShadowCheckers selectedStellarObject isReferee
+                    displayStarDetails msgs surveyIndex starDataConfig newNestingLevel jumpShadowCheckers selectedStellarObject isReferee mDrive
         ]
 
 
-displayStarDetails : StellarObjectMsgs msg -> Int -> StarData -> Int -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Element msg
-displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpShadowCheckers selectedStellarObject isReferee =
+displayStarDetails : StellarObjectMsgs msg -> Int -> StarData -> Int -> JumpShadowCheckers -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpShadowCheckers selectedStellarObject isReferee mDrive =
     let
         inJumpShadow obj =
             case starData.jumpShadow of
@@ -499,7 +499,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
         , starData.companion
             |> Maybe.map
                 (\compStarData ->
-                    displayStarDetails msgs surveyIndex compStarData nextNestingLevel jumpShadowCheckers selectedStellarObject isReferee
+                    displayStarDetails msgs surveyIndex compStarData nextNestingLevel jumpShadowCheckers selectedStellarObject isReferee mDrive
                 )
             |> Maybe.withDefault Element.none
         , column [ Element.paddingXY 4 0, Element.width Element.fill ] <|
@@ -527,7 +527,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
                 |> List.filter isDisplayable
                 |> List.filter inJumpShadow
                 |> List.filter isKnown
-                |> List.map (\so -> renderStellarObject msgs surveyIndex nextNestingLevel so jumpShadowCheckers selectedStellarObject isReferee)
+                |> List.map (\so -> renderStellarObject msgs surveyIndex nextNestingLevel so jumpShadowCheckers selectedStellarObject isReferee mDrive)
                 |> column []
             , column [ Font.size 14, Font.shadow { blur = 1, color = jumpShadowTextColor, offset = ( 0.5, 0.5 ) }, Element.width Element.fill, Element.behindContent red ]
                 [ case starData.jumpShadow of
@@ -541,7 +541,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
                 |> List.filter isDisplayable
                 |> List.filter (not << inJumpShadow)
                 |> List.filter isKnown
-                |> List.map (\so -> renderStellarObject msgs surveyIndex nextNestingLevel so jumpShadowCheckers selectedStellarObject isReferee)
+                |> List.map (\so -> renderStellarObject msgs surveyIndex nextNestingLevel so jumpShadowCheckers selectedStellarObject isReferee mDrive)
                 |> column []
             ]
         ]

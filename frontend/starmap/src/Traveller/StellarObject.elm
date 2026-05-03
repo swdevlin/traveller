@@ -7,6 +7,7 @@ import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
 import Traveller.Population as Population exposing (StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
+import Traveller.TravelCalculations as TravelCalculations
 
 
 type alias SharedPData =
@@ -43,7 +44,7 @@ type alias SharedPData =
     , gravity : Maybe Float
     , mass : Maybe Float
     , escapeVelocity : Maybe Float
-    , safeJumpTime : String
+    , jumpShadow : Maybe Float
     , orbitType : Int
     , au : Float
     , population : Maybe StellarPopulation
@@ -81,7 +82,7 @@ type alias PlanetoidData =
     , gravity : Maybe Float
     , mass : Maybe Float
     , escapeVelocity : Maybe Float
-    , safeJumpTime : String
+    , jumpShadow : Maybe Float
     , orbitType : Int
     , au : Float
 
@@ -105,7 +106,7 @@ type alias GasGiantData =
     , axialTilt : Float
     , period : Float
     , orbitSequence : String
-    , safeJumpTime : String
+    , jumpShadow : Maybe Float
     , orbitType : Int
     , au : Float
     }
@@ -127,7 +128,7 @@ type alias PlanetoidBeltData =
     , period : Float
     , orbitSequence : String
     , uwp : String
-    , safeJumpTime : String
+    , jumpShadow : Maybe Float
     , orbitType : Int
     , au : Float
     , retrograde : Bool
@@ -154,7 +155,6 @@ type alias InnerStarData =
     , baseline : Int
     , stellarObjects : List StellarObject
     , orbitSequence : String
-    , safeJumpTime : String
     , au : Float
     , jumpShadow : Maybe Float
     , luminosity : Maybe Float
@@ -218,23 +218,23 @@ extractStellarOrbit orbit =
     }
 
 
-getSafeJumpTime : StellarObject -> String
-getSafeJumpTime stellarObject =
+getSafeJumpTime : Maybe Int -> StellarObject -> String
+getSafeJumpTime mDrive stellarObject =
     case stellarObject of
-        GasGiant gasGiantData ->
-            gasGiantData.safeJumpTime
+        GasGiant data ->
+            TravelCalculations.safeJumpTimeFromShadow mDrive data.jumpShadow
 
-        TerrestrialPlanet terrestrialData ->
-            terrestrialData.safeJumpTime
+        TerrestrialPlanet data ->
+            TravelCalculations.safeJumpTimeFromShadow mDrive data.jumpShadow
 
-        PlanetoidBelt planetoidBeltData ->
-            planetoidBeltData.safeJumpTime
+        PlanetoidBelt data ->
+            TravelCalculations.safeJumpTimeFromShadow mDrive data.jumpShadow
 
-        Planetoid planetoidData ->
-            planetoidData.safeJumpTime
+        Planetoid data ->
+            TravelCalculations.safeJumpTimeFromShadow mDrive data.jumpShadow
 
-        Star (StarDataWrap starDataConfig) ->
-            starDataConfig.safeJumpTime
+        Star (StarDataWrap data) ->
+            TravelCalculations.safeJumpTimeFromShadow mDrive data.jumpShadow
 
 
 getStellarOrbit : StellarObject -> StellarOrbit
@@ -347,7 +347,7 @@ codecPlanetoidBeltData =
         |> Codec.field "period" .period Codec.float
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
         |> Codec.field "uwp" .uwp Codec.string
-        |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.field "retrograde" .retrograde Codec.bool
@@ -357,7 +357,7 @@ codecPlanetoidBeltData =
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq sjt ot au ->
+        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -372,7 +372,7 @@ codecGasGiantData =
             , axialTilt = axTilt
             , period = per
             , orbitSequence = orbitSeq
-            , safeJumpTime = sjt
+            , jumpShadow = js
             , orbitType = ot
             , au = au
             }
@@ -400,7 +400,7 @@ codecGasGiantData =
         |> Codec.field "axial_tilt" .axialTilt Codec.float
         |> Codec.field "period" .period Codec.float
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
-        |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.buildObject
@@ -409,7 +409,7 @@ codecGasGiantData =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV sjt ot au pop ->
+        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -443,7 +443,7 @@ codecSharedPData =
             , gravity = grav
             , mass = mass_
             , escapeVelocity = escV
-            , safeJumpTime = sjt
+            , jumpShadow = js
             , orbitType = ot
             , au = au
             , population = pop
@@ -497,7 +497,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "gravity" .gravity Codec.float
         |> Codec.optionalNullableField "mass" .mass Codec.float
         |> Codec.optionalNullableField "escape_velocity" .escapeVelocity Codec.float
-        |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.optionalNullableField "population" .population
@@ -558,7 +558,6 @@ codecStarData =
         |> Codec.field "baseline" .baseline Codec.int
         |> Codec.field "stellar_objects" .stellarObjects (Codec.list (Codec.lazy (\_ -> codecStellarObject)))
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
-        |> Codec.field "safe_jump_time" .safeJumpTime Codec.string
         |> Codec.field "au" .au Codec.float
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.optionalNullableField "luminosity" .luminosity Codec.float

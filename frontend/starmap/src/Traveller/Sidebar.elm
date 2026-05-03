@@ -93,8 +93,8 @@ universalHexLabel sectors hexAddress =
 
 {-| View the system details in the sidebar.
 -}
-viewSystemDetailsSidebar : SidebarMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Element msg
-viewSystemDetailsSidebar msgs solarSystem selectedStellarObject isReferee =
+viewSystemDetailsSidebar : SidebarMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+viewSystemDetailsSidebar msgs solarSystem selectedStellarObject isReferee mDrive =
     let
         stellarObjectMsgs : StellarObjectMsgs msg
         stellarObjectMsgs =
@@ -102,7 +102,7 @@ viewSystemDetailsSidebar msgs solarSystem selectedStellarObject isReferee =
             , onViewDetail = msgs.viewDetail
             }
     in
-    viewStarSystemMap stellarObjectMsgs solarSystem selectedStellarObject isReferee
+    viewStarSystemMap stellarObjectMsgs solarSystem selectedStellarObject isReferee mDrive
 
 
 {-| View the main sidebar column.
@@ -125,9 +125,10 @@ viewSidebarColumn :
             , selectedStellarObject : Maybe StellarObject
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
+            , mDrive : Maybe Int
         }
     -> Element msg
-viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl } =
+viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl, mDrive } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ row [ Element.width Element.fill, Element.paddingXY 8 6 ]
             [ el
@@ -188,11 +189,12 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         ]
             , case selectedSystem of
                 Just solarSystem ->
-                    Element.Lazy.lazy4 viewSystemDetailsSidebar
+                    Element.Lazy.lazy5 viewSystemDetailsSidebar
                         msgs
                         solarSystem
                         selectedStellarObject
                         isReferee
+                        mDrive
 
                 Nothing ->
                     column [ centerX, centerY, Font.size 10, Element.moveDown 20 ]

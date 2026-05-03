@@ -167,8 +167,8 @@ type alias SpineAcc =
 -- ── ENTRY POINT ──────────────────────────────────────────────────────────────
 
 
-viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Element msg
-viewStarSystemMap msgs solarSystem selectedStellarObject _ =
+viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
+viewStarSystemMap msgs solarSystem selectedStellarObject _ mDrive =
     let
         layout =
             computeLayout solarSystem
@@ -193,7 +193,7 @@ viewStarSystemMap msgs solarSystem selectedStellarObject _ =
             , svgStyle
             , renderJumpShadows layout.jumpShadows
             , renderEdges layout.edges
-            , renderNodes msgs selectedStellarObject layout.nodes
+            , renderNodes msgs selectedStellarObject mDrive layout.nodes
             ]
 
 
@@ -724,13 +724,13 @@ renderJumpShadow shadow =
             [ lineEl ]
 
 
-renderNodes : StellarObjectMsgs msg -> Maybe StellarObject -> List MapNode -> Svg msg
-renderNodes msgs selectedStellarObject nodes =
-    Svg.g [] (List.map (renderNode msgs selectedStellarObject) nodes)
+renderNodes : StellarObjectMsgs msg -> Maybe StellarObject -> Maybe Int -> List MapNode -> Svg msg
+renderNodes msgs selectedStellarObject mDrive nodes =
+    Svg.g [] (List.map (renderNode msgs selectedStellarObject mDrive) nodes)
 
 
-renderNode : StellarObjectMsgs msg -> Maybe StellarObject -> MapNode -> Svg msg
-renderNode msgs selectedStellarObject node =
+renderNode : StellarObjectMsgs msg -> Maybe StellarObject -> Maybe Int -> MapNode -> Svg msg
+renderNode msgs selectedStellarObject mDrive node =
     let
         isSelected =
             selectedStellarObject == Just node.stellarObject
@@ -833,7 +833,7 @@ renderNode msgs selectedStellarObject node =
                 , SA.textAnchor "end"
                 , SA.class "sm-jump-time"
                 ]
-                [ Svg.text (getSafeJumpTime node.stellarObject) ]
+                [ Svg.text (getSafeJumpTime mDrive node.stellarObject) ]
 
         -- ⊙ when not selected (click to set as travel reference), ⊛ when active
         travelIconClass =

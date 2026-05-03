@@ -77,6 +77,6 @@ class ShipsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def ship_params
-      params.expect(ship: [:name, :jump_drive])
+      params.expect(ship: [:name, :jump_drive, :m_drive])
     end
 end

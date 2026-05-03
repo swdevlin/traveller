@@ -16,11 +16,12 @@ class StarmapsController < ApplicationController
         campaign_all_sectors_map_url(v: map_path.mtime.to_i) if map_path.exist?
       end
 
+    ship = Ship.first
     @starmap_flags = {
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
       campaignName: Current.campaign&.name,
-      shipName: Ship.first&.name,
+      ship: ship && { name: ship.name, jDrive: ship.jump_drive, mDrive: ship.m_drive },
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
       allSectorsMapUrl: all_sectors_map_url,
       nativeSophontColour: Current.campaign&.native_sophont_colour.presence,

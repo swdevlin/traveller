@@ -52,6 +52,12 @@ document.addEventListener('turbo:load', () => {
     })
   }
 
+  if (elm.ports.navigateToUrl) {
+    elm.ports.navigateToUrl.subscribe(url => {
+      window.open(url, '_blank');
+    })
+  }
+
   if (elm.ports.toggleDialog) {
     elm.ports.toggleDialog.subscribe(id => {
       const dialog = document.querySelector(`#${id}`)

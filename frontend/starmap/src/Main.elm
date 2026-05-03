@@ -11,6 +11,7 @@ import Html.Attributes exposing (class, href)
 import Json.Encode
 import Task
 import Traveller
+import Traveller.Ship exposing (Ship)
 import Url
 import Url.Parser exposing (Parser, map, oneOf, top)
 
@@ -66,7 +67,7 @@ type alias Flags =
     , referee : Bool
     , campaignSlug : String
     , campaignName : Maybe String
-    , shipName : Maybe String
+    , ship : Maybe Ship
     , apiBaseUrl : String
     , allSectorsMapUrl : Maybe String
     , nativeSophontColour : Maybe String
@@ -186,7 +187,7 @@ update msg model =
                                 { upperLeft = model.flags.upperLeft
                                 , hexSize = model.flags.hexSize
                                 , campaignName = model.flags.campaignName
-                                , shipName = model.flags.shipName
+                                , ship = model.flags.ship
                                 , allSectorsMapUrl = model.flags.allSectorsMapUrl
                                 , nativeSophontColour = model.flags.nativeSophontColour
                                 , extinctSophontColour = model.flags.extinctSophontColour
@@ -224,7 +225,7 @@ elmUiHackLayout =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = model.flags.shipName |> Maybe.withDefault "Starmap"
+    { title = model.flags.ship |> Maybe.map .name |> Maybe.withDefault "Starmap"
     , body =
         [ Dialog.view "error-dialog" ToggleErrorDialog model.dialogBody
         , div
