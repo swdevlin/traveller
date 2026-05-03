@@ -61,8 +61,10 @@ json.stellar_objects all_objects do |obj|
       json.x obj.orbit_x || 0.0
       json.y obj.orbit_y || 0.0
     end
-    json.safe_jump_time obj.safe_jump_time
-    json.orbit_type     obj.orbit_type
+    json.jump_shadow        obj.effective_jump_shadow_km
+    obj_shadow_source = obj.effective_jump_shadow_source
+    json.jump_shadow_source obj_shadow_source ? { id: obj_shadow_source.id, name: obj_shadow_source.display_name } : nil
+    json.orbit_type         obj.orbit_type
     json.retrograde     obj.retrograde || false if obj.respond_to?(:retrograde)
     json.axial_tilt     obj.axial_tilt if obj.is_a?(TerrestrialPlanet) || obj.is_a?(Planetoid) || obj.is_a?(GasGiant)
 
@@ -82,8 +84,10 @@ json.stellar_objects all_objects do |obj|
         json.x m.orbit_x || 0.0
         json.y m.orbit_y || 0.0
       end
-      json.safe_jump_time m.safe_jump_time
-      json.axial_tilt     m.axial_tilt
+      json.jump_shadow        m.effective_jump_shadow_km
+      m_shadow_source = m.effective_jump_shadow_source
+      json.jump_shadow_source m_shadow_source ? { id: m_shadow_source.id, name: m_shadow_source.display_name } : nil
+      json.axial_tilt         m.axial_tilt
     end
   end
 end
