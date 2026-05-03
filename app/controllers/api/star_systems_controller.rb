@@ -1,4 +1,6 @@
 class Api::StarSystemsController < Api::BaseController
+  helper ApplicationHelper
+
   def index
     @star_systems = star_systems_in_region
     if @star_systems.nil?

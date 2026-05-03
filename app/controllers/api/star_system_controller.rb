@@ -1,4 +1,6 @@
 class Api::StarSystemController < Api::BaseController
+  helper ApplicationHelper
+
   def show
     unless params[:sx].present? && params[:sy].present? && params[:hx].present? && params[:hy].present?
       return render json: { error: 'sx, sy, hx, hy required' }, status: :bad_request
