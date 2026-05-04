@@ -64,6 +64,6 @@ class Api::BaseController < ActionController::API
     return nil if parsecs.nil?
 
     StarSystem.where(parsec: parsecs)
-              .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities, stars: :stellar_objects)
+              .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, :trade_codes, :facilities, stars: :stellar_objects)
   end
 end

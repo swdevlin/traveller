@@ -11,6 +11,8 @@ json.belt_count        star_system.belt_count
 json.sector_x    sector.x
 json.sector_y    sector.y
 json.sector_name sector.name
+json.sector_id   sector.id
+json.subsector_id parsec.subsector&.id
 json.x           parsec.x - sector.x * 32 + 1
 json.y           sector.y * 40 - parsec.y + 1
 json.origin_x    parsec.x

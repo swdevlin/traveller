@@ -11,7 +11,7 @@ class Api::StarSystemsController < Api::BaseController
 
   def show
     @star_system = StarSystem
-                   .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities,
+                   .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, :trade_codes, :facilities,
                               stars: [{ stellar_objects: :moons }, :companion,
                                       { stars: [{ stellar_objects: :moons }, :companion] }])
                    .find_by(id: params[:id])

@@ -20,7 +20,7 @@ class Api::StarSystemController < Api::BaseController
     end
 
     @star_system = parsec.star_systems
-                         .includes({ parsec: :sector }, :allegiance, :main_world, :trade_codes, :facilities,
+                         .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, :trade_codes, :facilities,
                    stars: [{ stellar_objects: :moons }, :companion,
                            { stars: [{ stellar_objects: :moons }, :companion] }])
                          .first
