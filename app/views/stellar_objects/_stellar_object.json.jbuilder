@@ -50,3 +50,7 @@ end
 
 json.star_system_map_url signed_map_url(map_star_system_path(star_system)) if star_system
 json.url stellar_object_url(stellar_object, format: :json)
+
+if stellar_object.is_a?(HasUwp)
+  json.partial! 'stellar_objects/uwp_details', stellar_object: stellar_object
+end
