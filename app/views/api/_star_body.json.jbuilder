@@ -45,49 +45,9 @@ json.stellar_objects all_objects do |obj|
     json.type 'Star'
     json.partial! 'api/star_body', star: obj
   else
-    json.merge! obj.data.except('build_log')
-    json.type                     obj.type
-    json.orbit                    obj.orbit || 0.0
-    json.eccentricity             obj.eccentricity || 0.0
-    json.inclination              obj.inclination || 0.0
-    json.effective_hzco_deviation obj.effective_hzco_deviation || 0.0
-    json.orbit_sequence           obj.orbit_sequence || ''
-    json.au                       obj.au || 0.0
-    json.diameter                 obj.diameter
-    json.mass                     obj.mass
-    json.uwp                      obj.uwp
-    json.size                     obj.size_code
-    json.orbit_position do
-      json.x obj.orbit_x || 0.0
-      json.y obj.orbit_y || 0.0
-    end
-    json.jump_shadow obj.effective_jump_shadow_km
-    obj_shadow_source = obj.effective_jump_shadow_source
-    json.jump_shadow_source obj_shadow_source ? { id: obj_shadow_source.id, name: obj_shadow_source.display_name } : nil
-    json.orbit_type         obj.orbit_type
-    json.retrograde     obj.retrograde || false if obj.respond_to?(:retrograde)
-    json.axial_tilt     obj.axial_tilt if obj.is_a?(TerrestrialPlanet) || obj.is_a?(Planetoid) || obj.is_a?(GasGiant)
-
+    json.partial! 'stellar_objects/stellar_object', stellar_object: obj
     json.moons obj.moons do |m|
-      json.merge! m.data.except('build_log')
-      json.orbit                    m.orbit || 0.0
-      json.eccentricity             m.eccentricity || 0.0
-      json.inclination              m.inclination || 0.0
-      json.effective_hzco_deviation m.effective_hzco_deviation || 0.0
-      json.orbit_sequence           m.orbit_sequence || ''
-      json.au                       m.au || 0.0
-      json.diameter                 m.diameter
-      json.mass                     m.mass
-      json.uwp                      m.uwp
-      json.size                     m.size_code
-      json.orbit_position do
-        json.x m.orbit_x || 0.0
-        json.y m.orbit_y || 0.0
-      end
-      json.jump_shadow m.effective_jump_shadow_km
-      m_shadow_source = m.effective_jump_shadow_source
-      json.jump_shadow_source m_shadow_source ? { id: m_shadow_source.id, name: m_shadow_source.display_name } : nil
-      json.axial_tilt         m.axial_tilt
+      json.partial! 'stellar_objects/stellar_object', stellar_object: m
     end
   end
 end

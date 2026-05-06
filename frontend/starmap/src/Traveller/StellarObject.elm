@@ -347,7 +347,7 @@ codecPlanetoidBeltData =
         |> Codec.field "period" .period Codec.float
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
         |> Codec.field "uwp" .uwp Codec.string
-        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.build (Codec.encoder (Codec.nullable Codec.float)) (JsDecode.nullable (JsDecode.field "distance_km" JsDecode.float)))
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.field "retrograde" .retrograde Codec.bool
@@ -400,7 +400,7 @@ codecGasGiantData =
         |> Codec.field "axial_tilt" .axialTilt Codec.float
         |> Codec.field "period" .period Codec.float
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
-        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.build (Codec.encoder (Codec.nullable Codec.float)) (JsDecode.nullable (JsDecode.field "distance_km" JsDecode.float)))
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.buildObject
@@ -497,7 +497,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "gravity" .gravity Codec.float
         |> Codec.optionalNullableField "mass" .mass Codec.float
         |> Codec.optionalNullableField "escape_velocity" .escapeVelocity Codec.float
-        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.build (Codec.encoder (Codec.nullable Codec.float)) (JsDecode.nullable (JsDecode.field "distance_km" JsDecode.float)))
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.optionalNullableField "population" .population

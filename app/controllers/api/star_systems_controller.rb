@@ -1,5 +1,6 @@
 class Api::StarSystemsController < Api::BaseController
   helper ApplicationHelper
+  helper StellarObjectsHelper
 
   def index
     @star_systems = star_systems_in_region
@@ -12,8 +13,8 @@ class Api::StarSystemsController < Api::BaseController
   def show
     @star_system = StarSystem
                    .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, :trade_codes, :facilities,
-                              stars: [{ stellar_objects: :moons }, :companion,
-                                      { stars: [{ stellar_objects: :moons }, :companion] }])
+                              stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion,
+                                      { stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion] }])
                    .find_by(id: params[:id])
     render json: { error: 'star system not found' }, status: :not_found unless @star_system
   end
