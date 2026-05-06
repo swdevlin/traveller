@@ -1,5 +1,5 @@
 class Api::StarSystemController < Api::BaseController
-  helper ApplicationHelper
+  helper ApplicationHelper, StellarObjectsHelper
 
   def show
     unless params[:sx].present? && params[:sy].present? && params[:hx].present? && params[:hy].present?
