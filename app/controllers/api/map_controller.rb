@@ -66,18 +66,39 @@ class Api::MapController < ApplicationController
     system_max = star_systems.map(&:updated_at).compact.max&.to_i || 0
     region_max = RegionParsec.where(parsec_id: viewport_parsec_ids).maximum(:updated_at)&.to_i || 0
     jump_max   = JumpLog.maximum(:updated_at)&.to_i || 0
+    rogue_max  = StellarObject
+      .where(parsec_id: viewport_parsec_ids, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .maximum(:updated_at)&.to_i || 0
 
     @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
     @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
 
     version = Digest::SHA256.hexdigest([
-      parsec_max, system_max, region_max, jump_max,
+      parsec_max, system_max, region_max, jump_max, rogue_max,
       current_campaign.updated_at.to_i
     ].join('-'))
     cache_key = "api_map/#{current_campaign.id}/#{ulx}/#{uly}/#{lrx}/#{lry}/#{version}"
 
     fresh_when etag: cache_key
     return if performed?
+
+    parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
+    rogue_data = StellarObject
+      .where(parsec_id: viewport_parsec_ids, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .pluck(:parsec_id, :type)
+    @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
+      pos = parsec_id_to_pos[pid]
+      next unless pos
+      h[pos] ||= Set.new
+      h[pos] << t
+    end.transform_values do |types|
+      ordered = []
+      ordered << :gas_giant if types.include?('GasGiant')
+      ordered << :comet     if types.include?('Comet')
+      ordered
+    end
 
     svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
     send_data svg, type: 'image/svg+xml', disposition: 'inline'

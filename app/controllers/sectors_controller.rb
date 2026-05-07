@@ -126,9 +126,13 @@ class SectorsController < ApplicationController
     region_record_max = Region.joins(region_parsecs: :parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
+    rogue_max_updated = StellarObject
+      .where(parsec: @sector.parsecs, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -160,6 +164,22 @@ class SectorsController < ApplicationController
     @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
       @sector.parsecs, sector_ul, visible_col: 1..32, visible_row: 1..40, authenticated: authenticated?
     )
+
+    rogue_data = StellarObject
+      .where(parsec: @sector.parsecs, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .pluck(:parsec_id, :type)
+    @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
+      pos = parsec_id_to_pos[pid]
+      next unless pos
+      h[pos] ||= Set.new
+      h[pos] << t
+    end.transform_values do |types|
+      ordered = []
+      ordered << :gas_giant if types.include?('GasGiant')
+      ordered << :comet     if types.include?('Comet')
+      ordered
+    end
 
     respond_to do |format|
       format.svg do

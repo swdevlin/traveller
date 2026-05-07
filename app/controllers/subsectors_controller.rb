@@ -92,6 +92,10 @@ class SubsectorsController < ApplicationController
     network_link_max_updated = NetworkLink
       .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', subsector_star_system_ids, subsector_star_system_ids)
       .maximum(:updated_at)
+    rogue_max_updated = StellarObject
+      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -100,6 +104,7 @@ class SubsectorsController < ApplicationController
       region_max_updated.to_i,
       jump_max_updated.to_i,
       network_link_max_updated.to_i,
+      rogue_max_updated.to_i,
       current_campaign.updated_at.to_i
     ].join('-'))
     cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
@@ -152,6 +157,22 @@ class SubsectorsController < ApplicationController
       visible_row: 1..10,
       authenticated: authenticated?
     )
+
+    rogue_data = StellarObject
+      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .pluck(:parsec_id, :type)
+    @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
+      pos = parsec_id_to_pos[pid]
+      next unless pos
+      h[pos] ||= Set.new
+      h[pos] << t
+    end.transform_values do |types|
+      ordered = []
+      ordered << :gas_giant if types.include?('GasGiant')
+      ordered << :comet     if types.include?('Comet')
+      ordered
+    end
 
     respond_to do |format|
       format.svg do

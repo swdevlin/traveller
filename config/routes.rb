@@ -32,6 +32,7 @@ Rails.application.routes.draw do
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
       get 'network_links', to: 'network_links#index', defaults: { format: :json }
+      get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
     end
 
     resources :jump_logs

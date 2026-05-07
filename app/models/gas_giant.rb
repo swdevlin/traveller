@@ -20,6 +20,10 @@ class GasGiant < StellarObject
 
   def orbit_type = 10
 
+  def self.allowed_data_keys
+    [:size]
+  end
+
   def self.permitted_params
     [
       :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass,

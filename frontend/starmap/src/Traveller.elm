@@ -173,6 +173,10 @@ uwpSI =
     10
 
 
+cometSI =
+    12
+
+
 consoleTitleHeight =
     46
 
@@ -503,7 +507,7 @@ prepAndSendRequests ( dict, history ) hexRect hostConfig =
                     ( entry, ( d2, h2 ) ) =
                         prepNextRequest ( d, h ) rect
                 in
-                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: cmds )
+                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: sendRoguesRequest entry hostConfig :: cmds )
             )
             ( ( dict, history ), [] )
         |> Tuple.mapSecond Cmd.batch
@@ -562,6 +566,7 @@ type alias ModelData =
     , isReferee : Bool
     , pendingCtrlNavigation : Bool
     , objectToBeAnalyzed : Maybe { stellarObject : StellarObject, data : AnalysisDetail }
+    , rogueDetailModal : Maybe (List RogueObjectDetail)
     , timeOpened : Time.Posix
     , campaignName : String
     , allSectorsMapUrl : Maybe String
@@ -613,6 +618,8 @@ type Msg
     | PanPixels { dx : Float, dy : Float }
     | HexMapWheelZoom Float
     | CloseSidebar
+    | DownloadedRogues String (Result Http.Error (List RogueResponseItem))
+    | CloseRogueDetail
 
 
 type JourneyMsg
@@ -884,6 +891,7 @@ init viewport settings key hostConfig referee =
             , isReferee = referee
             , pendingCtrlNavigation = False
             , objectToBeAnalyzed = Nothing
+            , rogueDetailModal = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , ship = settings.ship
@@ -969,6 +977,123 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
           Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
         , hexAddressLabel x y size hexAddress
         , childSvg
+        ]
+
+
+viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> RogueHexData -> Svg Msg
+viewHexRogue hexAddress x y size hexColour isReferee { surveyIndex, objects } =
+    let
+        origin =
+            ( toFloat x, toFloat y )
+
+        hasComet =
+            List.any
+                (\o ->
+                    case o of
+                        RogueCometDetail _ ->
+                            True
+
+                        _ ->
+                            False
+                )
+                objects
+
+        hasGasGiant =
+            List.any
+                (\o ->
+                    case o of
+                        RogueGasGiantDetail _ ->
+                            True
+
+                        _ ->
+                            False
+                )
+                objects
+
+        showComet =
+            hasComet && (isReferee || surveyIndex >= cometSI)
+
+        showGasGiant =
+            hasGasGiant && (isReferee || surveyIndex >= gasGiantSI)
+    in
+    Svg.g
+        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
+        , SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
+        , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
+        , SvgAttrs.style "cursor: pointer; user-select: none"
+        , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
+        ]
+        [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
+        , hexAddressLabel x y size hexAddress
+        , if showComet && size > 15 then drawCometIcon (toFloat x) (toFloat y) size else Svg.text ""
+        , if showGasGiant && size > 15 then drawRogueGasGiant (toFloat x) (toFloat y) size else Svg.text ""
+        ]
+
+
+drawCometIcon : Float -> Float -> Float -> Svg Msg
+drawCometIcon cx cy size =
+    let
+        iconSize =
+            size * 0.5
+
+        scale =
+            iconSize / 640
+
+        tx =
+            cx - 320 * scale
+
+        ty =
+            cy - 320 * scale
+    in
+    Svg.g
+        [ SvgAttrs.transform <|
+            "translate("
+                ++ String.fromFloat tx
+                ++ ","
+                ++ String.fromFloat ty
+                ++ ") scale("
+                ++ String.fromFloat scale
+                ++ ")"
+        ]
+        [ Svg.path
+            [ SvgAttrs.d "M363.4 139.6L557.7 64.9C559.2 64.3 560.9 64 562.5 64C570 64 576 70 576 77.5C576 79.2 575.7 80.8 575.1 82.3L500.4 276.5L529.7 274.2C542.5 273.2 551.2 287 544.8 298.2L442.6 474.7C406.3 537.4 339.4 576 267 576C154.9 576 64 485.1 64 373C64 300.6 102.6 233.7 165.3 197.4L341.7 95.2C352.8 88.7 366.7 97.4 365.7 110.3L363.4 139.6zM256 264C249.9 264 244.3 267.5 241.7 272.9L212.5 332.1L147.2 341.6C141.2 342.5 136.2 346.7 134.3 352.5C132.4 358.3 134 364.7 138.3 368.9L185.5 414.9L174.3 479.9C173.3 485.9 175.7 492 180.7 495.6C185.7 499.2 192.2 499.7 197.5 496.8L255.9 466.1L314.3 496.8C319.7 499.6 326.2 499.2 331.1 495.6C336 492 338.5 486 337.5 479.9L326.3 414.9L373.5 368.9C377.9 364.6 379.4 358.3 377.5 352.5C375.6 346.7 370.6 342.5 364.6 341.6L299.3 332.1L270.1 272.9C267.4 267.4 261.8 264 255.8 264z"
+            , SvgAttrs.fill "#222222"
+            ]
+            []
+        ]
+
+
+drawRogueGasGiant : Float -> Float -> Float -> Svg Msg
+drawRogueGasGiant cx cy size =
+    let
+        r =
+            size * 0.5 / 4
+    in
+    Svg.g []
+        [ Svg.circle
+            [ SvgAttrs.cx <| String.fromFloat cx
+            , SvgAttrs.cy <| String.fromFloat cy
+            , SvgAttrs.r <| String.fromFloat r
+            , SvgAttrs.fill "#222222"
+            ]
+            []
+        , Svg.ellipse
+            [ SvgAttrs.cx <| String.fromFloat cx
+            , SvgAttrs.cy <| String.fromFloat cy
+            , SvgAttrs.rx <| String.fromFloat (r * 1.8)
+            , SvgAttrs.ry <| String.fromFloat (r * 0.55)
+            , SvgAttrs.fill "none"
+            , SvgAttrs.stroke "#222222"
+            , SvgAttrs.strokeWidth "1.2"
+            , SvgAttrs.transform <|
+                "rotate(-30 "
+                    ++ String.fromFloat cx
+                    ++ " "
+                    ++ String.fromFloat cy
+                    ++ ")"
+            ]
+            []
         ]
 
 
@@ -1610,6 +1735,11 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             , Svg.text ""
             )
 
+        Just (LoadedRogueHex rogueData) ->
+            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueData
+            , Svg.text ""
+            )
+
         Just (FailedStarsSolarSystem _) ->
             ( Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." "#aaaaaa"
             , Svg.text ""
@@ -1621,9 +1751,66 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             )
 
 
+type RogueObjectDetail
+    = RogueCometDetail { name : String, cometType : String }
+    | RogueGasGiantDetail { name : String, code : String, diameter : Float, mass : Maybe Float }
+    | RogueOtherDetail { name : String, typeName : String }
+
+
+type alias RogueHexData =
+    { surveyIndex : Int
+    , objects : List RogueObjectDetail
+    }
+
+
+type alias RogueResponseItem =
+    { detail : RogueObjectDetail
+    , x : Int
+    , y : Int
+    , surveyIndex : Int
+    }
+
+
+rogueObjectDetailDecoder : JsDecode.Decoder RogueObjectDetail
+rogueObjectDetailDecoder =
+    JsDecode.field "type" JsDecode.string
+        |> JsDecode.andThen
+            (\objType ->
+                case objType of
+                    "Comet" ->
+                        JsDecode.map2
+                            (\n ct -> RogueCometDetail { name = n, cometType = ct })
+                            (JsDecode.field "name" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+                            (JsDecode.field "comet_type" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+
+                    "GasGiant" ->
+                        JsDecode.map4
+                            (\n code diam mass -> RogueGasGiantDetail { name = n, code = code, diameter = diam, mass = mass })
+                            (JsDecode.field "name" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+                            (JsDecode.field "code" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+                            (JsDecode.field "diameter" (JsDecode.oneOf [ JsDecode.float, JsDecode.null 0 ]))
+                            (JsDecode.field "mass" (JsDecode.nullable JsDecode.float))
+
+                    _ ->
+                        JsDecode.map
+                            (\n -> RogueOtherDetail { name = n, typeName = objType })
+                            (JsDecode.field "name" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+            )
+
+
+rogueResponseItemDecoder : JsDecode.Decoder RogueResponseItem
+rogueResponseItemDecoder =
+    JsDecode.map4 RogueResponseItem
+        rogueObjectDetailDecoder
+        (JsDecode.field "x" JsDecode.int)
+        (JsDecode.field "y" JsDecode.int)
+        (JsDecode.field "survey_index" JsDecode.int)
+
+
 type RemoteSolarSystem
     = LoadedSolarSystem StarSystem
     | LoadedEmptyHex
+    | LoadedRogueHex RogueHexData
     | LoadingSolarSystem
     | FailedStarsSolarSystem FallibleStarSystem
     | FailedSolarSystem Http.Error
@@ -2671,6 +2858,106 @@ viewHexMap model =
         |> Element.html
 
 
+viewRogueDetailModal : Msg -> List RogueObjectDetail -> Element Msg
+viewRogueDetailModal closeMsg objects =
+    el
+        [ width fill
+        , height fill
+        , Events.onClick closeMsg
+        ]
+    <|
+        column
+            [ centerX
+            , centerY
+            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True )))
+            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
+            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , width <| Element.px 400
+            , Element.padding 20
+            , Border.rounded 6
+            , Border.width 1
+            , Border.color <| Element.rgba 0.17 0.42 0.55 0.3
+            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
+            , Element.spacing 16
+            ]
+            (List.map (viewRogueObject closeMsg) objects)
+
+
+viewRogueObject : Msg -> RogueObjectDetail -> Element Msg
+viewRogueObject closeMsg detail =
+    let
+        ( header, fields ) =
+            case detail of
+                RogueCometDetail d ->
+                    ( "Comet"
+                    , [ ( "Name", d.name )
+                      , ( "Type", cometTypeDescription d.cometType )
+                      ]
+                    )
+
+                RogueGasGiantDetail d ->
+                    ( "Gas Giant"
+                    , [ ( "Name", d.name )
+                      , ( "Size", d.code )
+                      , ( "Diameter (km)", format { usLocale | decimals = Exact 0, thousandSeparator = " " } d.diameter )
+                      , ( "Mass (earths)", d.mass |> Maybe.map (Round.round 2) |> Maybe.withDefault "—" )
+                      ]
+                    )
+
+                RogueOtherDetail d ->
+                    ( d.typeName
+                    , [ ( "Name", d.name ) ]
+                    )
+    in
+    column [ Element.spacing 4 ]
+        (row
+            [ width fill
+            , Element.paddingEach { top = 0, right = 0, bottom = 8, left = 0 }
+            , Border.widthEach { top = 0, right = 0, bottom = 1, left = 0 }
+            , Border.color <| Element.rgba 0.17 0.42 0.55 0.15
+            ]
+            [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] (text header)
+            , el
+                [ Element.alignRight
+                , Element.pointer
+                , Element.mouseOver [ Font.color <| Element.rgb 0 0 0 ]
+                , Font.size 16
+                , Font.color <| Element.rgba 0.17 0.42 0.55 0.7
+                , Events.onClick closeMsg
+                ]
+                (text "✕")
+            ]
+            :: List.map
+                (\( label, value ) ->
+                    row [ Element.spacing 8 ]
+                        [ el [ Font.size 12, Font.color <| Element.rgba 0.17 0.42 0.55 0.7, Element.width (Element.px 120) ] (text label)
+                        , el [ Font.size 12 ] (text value)
+                        ]
+                )
+                fields
+        )
+
+
+cometTypeDescription : String -> String
+cometTypeDescription cometType =
+    case cometType of
+        "tiny" ->
+            "Tiny, ice-bearing suitable for one refuelling only"
+
+        "medium" ->
+            "Ice-bearing suitable for multiple refuellings"
+
+        "large" ->
+            "Large"
+
+        "inhabited" ->
+            "Inhabited"
+
+        _ ->
+            cometType
+
+
 view : Model -> Element.Element Msg
 view ( time, model ) =
     let
@@ -2763,6 +3050,12 @@ view ( time, model ) =
 
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
+        , case model.rogueDetailModal of
+            Just rogueObjects ->
+                Element.inFront <| viewRogueDetailModal CloseRogueDetail rogueObjects
+
+            Nothing ->
+                Element.htmlAttribute <| HtmlAttrs.class ""
         ]
         [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
@@ -2808,6 +3101,33 @@ sendSolarSystemRequest requestEntry hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson (DownloadedSolarSystems ( requestEntry, url )) solarSystemsDecoder
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendRoguesRequest : RequestEntry -> HostConfig -> Cmd Msg
+sendRoguesRequest requestEntry hostConfig =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "rogues" ])
+                [ Url.Builder.int "ulx" requestEntry.upperLeftHex.x
+                , Url.Builder.int "uly" requestEntry.upperLeftHex.y
+                , Url.Builder.int "lrx" requestEntry.lowerRightHex.x
+                , Url.Builder.int "lry" requestEntry.lowerRightHex.y
+                ]
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson (DownloadedRogues url) (JsDecode.list rogueResponseItemDecoder)
         , timeout = Just 15000
         , tracker = Nothing
         }
@@ -3236,7 +3556,17 @@ update msg ( time, model ) =
                                         HexAddress.toKey addr
                                 in
                                 ( addrKey
-                                , Dict.get addrKey sortedSolarSystems |> Maybe.withDefault LoadedEmptyHex
+                                , case Dict.get addrKey sortedSolarSystems of
+                                    Just system ->
+                                        system
+
+                                    Nothing ->
+                                        case Dict.get addrKey model.solarSystems of
+                                            Just (LoadedRogueHex data) ->
+                                                LoadedRogueHex data
+
+                                            _ ->
+                                                LoadedEmptyHex
                                 )
                             )
 
@@ -3587,6 +3917,9 @@ update msg ( time, model ) =
                                                 Just (FailedStarsSolarSystem _) ->
                                                     FailedSolarSystem err
 
+                                                Just (LoadedRogueHex data) ->
+                                                    LoadedRogueHex data
+
                                                 Nothing ->
                                                     FailedSolarSystem err
                                        )
@@ -3836,6 +4169,14 @@ update msg ( time, model ) =
 
                                 else
                                     let
+                                        rogueObjects =
+                                            case Dict.get (HexAddress.toKey hexAddress) model.solarSystems of
+                                                Just (LoadedRogueHex data) ->
+                                                    Just data.objects
+
+                                                _ ->
+                                                    Nothing
+
                                         focusedErrors =
                                             Dict.get (HexAddress.toKey hexAddress) model.solarSystems
                                                 |> Maybe.map
@@ -3868,10 +4209,16 @@ update msg ( time, model ) =
                                             , selectedHex = Just hexAddress
                                             , selectedStellarObject = Nothing
                                             , selectedSystem = Nothing
+                                            , rogueDetailModal = rogueObjects
                                             , newSolarSystemErrors = focusedErrors
                                             , sidebarOpen = True
                                         }
-                                    , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                    , case rogueObjects of
+                                        Just _ ->
+                                            Cmd.none
+
+                                        Nothing ->
+                                            fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                             Nothing ->
@@ -4267,6 +4614,48 @@ update msg ( time, model ) =
             ( withTime { model | sidebarOpen = False }
             , Cmd.none
             )
+
+        DownloadedRogues _ (Ok items) ->
+            let
+                grouped =
+                    List.foldl
+                        (\item acc ->
+                            Dict.update (HexAddress.toKey { x = item.x, y = item.y })
+                                (\existing ->
+                                    case existing of
+                                        Just data ->
+                                            Just { data | objects = item.detail :: data.objects }
+
+                                        Nothing ->
+                                            Just { surveyIndex = item.surveyIndex, objects = [ item.detail ] }
+                                )
+                                acc
+                        )
+                        Dict.empty
+                        items
+
+                newEntries =
+                    Dict.toList grouped
+                        |> List.filterMap
+                            (\( key, data ) ->
+                                case Dict.get key model.solarSystems of
+                                    Just (LoadedSolarSystem _) ->
+                                        Nothing
+
+                                    _ ->
+                                        Just ( key, LoadedRogueHex data )
+                            )
+
+                newSolarSystems =
+                    List.foldl (\( k, v ) d -> Dict.insert k v d) model.solarSystems newEntries
+            in
+            ( withTime { model | solarSystems = newSolarSystems }, Cmd.none )
+
+        DownloadedRogues _ (Err _) ->
+            ( withTime model, Cmd.none )
+
+        CloseRogueDetail ->
+            ( withTime { model | rogueDetailModal = Nothing }, Cmd.none )
 
 
 stripDataFromRemoteData : RemoteData err data -> RemoteData err ()

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'net/http'
+
 class GeneratorService
   Result = Struct.new(:value, :errors, keyword_init: true) do
     def success?
