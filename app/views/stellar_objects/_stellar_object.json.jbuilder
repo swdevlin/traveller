@@ -33,6 +33,10 @@ if stellar_object.allegiance
   end
 end
 
+json.orbit_position do
+  json.x stellar_object.orbit_x || 0.0
+  json.y stellar_object.orbit_y || 0.0
+end
 json.orbit_type stellar_object.orbit_type if stellar_object.respond_to?(:orbit_type)
 json.orbiting_name stellar_object.orbiting&.display_name
 
