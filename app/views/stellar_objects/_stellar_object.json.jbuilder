@@ -51,6 +51,8 @@ if shadow_km&.positive?
       (1..6).each { |g| json.set! "#{g}g", flip_burn_travel_time_hours(shadow_km, g)&.round(2) }
     end
   end
+else
+  json.jump_shadow nil
 end
 
 json.star_system_map_url signed_map_url(map_star_system_path(star_system)) if star_system
