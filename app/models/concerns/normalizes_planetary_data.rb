@@ -51,7 +51,8 @@ module NormalizesPlanetaryData
 
   def cast_boolean_fields(fields)
     fields.each do |field|
-      public_send(:"#{field}=", BOOLEAN_TYPE.cast(public_send(field)))
+      value = BOOLEAN_TYPE.cast(public_send(field))
+      public_send(:"#{field}=", value.nil? ? false : value)
     end
   end
 end
