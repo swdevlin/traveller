@@ -2,6 +2,7 @@ module Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidB
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
+import Json.Encode as JsEncode
 import Traveller.Atmosphere as Atmosphere exposing (StellarAtmosphere)
 import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
@@ -596,8 +597,28 @@ codecHydrographics : Codec Hydrographics
 codecHydrographics =
     Codec.object Hydrographics
         |> Codec.field "code" .code Codec.int
-        |> Codec.field "distribution" .distribution (Codec.nullable Codec.int)
+        |> Codec.field "distribution" .distribution codecDistribution
         |> Codec.buildObject
+
+
+codecDistribution : Codec (Maybe Int)
+codecDistribution =
+    Codec.build
+        (\maybeInt ->
+            case maybeInt of
+                Nothing ->
+                    JsEncode.null
+
+                Just n ->
+                    JsEncode.int n
+        )
+        (JsDecode.nullable
+            (JsDecode.oneOf
+                [ JsDecode.int
+                , JsDecode.field "code" JsDecode.int
+                ]
+            )
+        )
 
 
 codecStellarObject : Codec StellarObject

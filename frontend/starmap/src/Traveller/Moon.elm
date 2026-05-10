@@ -35,7 +35,7 @@ codec =
         |> Codec.field "eccentricity" .eccentricity Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
         |> Codec.field "orbit" .orbit (Codec.nullable Orbit.codec)
-        |> Codec.field "size" .size codecMoonSize
+        |> Codec.field "size_code" .size codecMoonSize
         |> Codec.optionalNullableField "period" .period Codec.float
         |> Codec.field "biomass_rating" .biomassRating Codec.int
         |> Codec.field "axial_tilt" .axialTilt Codec.float

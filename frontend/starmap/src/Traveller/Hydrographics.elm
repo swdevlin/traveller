@@ -1,17 +1,36 @@
 module Traveller.Hydrographics exposing (StellarHydrographics, codec, hydrographicsPercentageDescription, surfaceDistributionDescription)
 
 import Codec exposing (Codec)
+import Json.Decode as JsDecode
+import Json.Encode as JsEncode
 
 
 type alias StellarHydrographics =
-    { code : Int, distribution : Int }
+    { code : Int, distribution : Maybe Int }
 
 
 codec : Codec StellarHydrographics
 codec =
     Codec.object StellarHydrographics
         |> Codec.field "code" .code Codec.int
-        |> Codec.field "distribution" .distribution Codec.int
+        |> Codec.field "distribution" .distribution
+            (Codec.build
+                (\maybeInt ->
+                    case maybeInt of
+                        Nothing ->
+                            JsEncode.null
+
+                        Just n ->
+                            JsEncode.int n
+                )
+                (JsDecode.nullable
+                    (JsDecode.oneOf
+                        [ JsDecode.int
+                        , JsDecode.field "code" JsDecode.int
+                        ]
+                    )
+                )
+            )
         |> Codec.buildObject
 
 
