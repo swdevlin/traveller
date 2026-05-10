@@ -10,12 +10,12 @@ import Traveller.StellarTaint exposing (StellarTaint, codecStellarTaint)
 
 type alias StellarAtmosphere =
     { code : Int
-    , irritant : Bool
+    , irritant : Maybe Bool
     , taint : StellarTaint
-    , characteristic : String
+    , characteristic : Maybe String
     , bar : Float
     , gasType : Maybe String
-    , density : String
+    , density : Maybe String
     , hazardCode : Maybe String
     }
 
@@ -24,13 +24,13 @@ codec : Codec StellarAtmosphere
 codec =
     Codec.object StellarAtmosphere
         |> Codec.field "code" .code Codec.int
-        |> Codec.field "irritant" .irritant Codec.bool
+        |> Codec.optionalField "irritant" .irritant Codec.bool
         |> Codec.field "taint" .taint codecStellarTaint
-        |> Codec.field "characteristic" .characteristic Codec.string
+        |> Codec.optionalField "characteristic" .characteristic Codec.string
         |> Codec.field "bar" .bar Codec.float
-        |> Codec.field "gasType" .gasType (Codec.maybe Codec.string)
-        |> Codec.field "density" .density Codec.string
-        |> Codec.field "hazardCode" .hazardCode (Codec.maybe Codec.string)
+        |> Codec.optionalNullableField "gasType" .gasType Codec.string
+        |> Codec.optionalField "density" .density Codec.string
+        |> Codec.optionalNullableField "hazardCode" .hazardCode Codec.string
         |> Codec.buildObject
 
 

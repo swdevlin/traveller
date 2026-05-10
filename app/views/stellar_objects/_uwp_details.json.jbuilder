@@ -22,28 +22,28 @@ json.size do
   json.description StellarObjectsHelper::SIZE_DESCRIPTIONS[stellar_object.size_code]
 end
 
+atm_raw  = stellar_object.atmosphere || {}
 atm_code = stellar_object.atmosphere_code
 json.atmosphere do
+  # Raw fields preserved for the Elm map codec
+  json.merge! atm_raw.slice('bar', 'code', 'gases', 'taint', 'density', 'gasType',
+                             'subtype', 'irritant', 'hazardCode', 'composition', 'characteristic')
+
+  # Enriched fields for API consumers (Foundry plugin, etc.)
   json.label       'Atmosphere'
-  json.code        atm_code
   json.description StellarObjectsHelper::ATMOSPHERE_DESCRIPTIONS[atm_code]
   json.survival_requirement do
     json.label 'Survival Requirement'
     json.value atmosphere_survival_requirement(atm_code, tainted: stellar_object.atmosphere_taint_code.present?)
   end
-  if stellar_object.atmosphere_composition.present?
-    json.composition do
-      json.label 'Composition'
-      json.value stellar_object.atmosphere_composition
-    end
-  end
   tc = stellar_object.atmosphere_taint_code
   if tc.present?
-    json.taint do
+    sev = stellar_object.atmosphere_taint_severity
+    per = stellar_object.atmosphere_taint_persistence
+    json.taint_detail do
       json.label       'Irritant'
       json.code        tc
       json.description StellarObjectsHelper::TAINT_DESCRIPTIONS[tc]
-      sev = stellar_object.atmosphere_taint_severity
       if sev.present?
         json.severity do
           json.label       'Severity'
@@ -51,7 +51,6 @@ json.atmosphere do
           json.description StellarObjectsHelper::TAINT_SEVERITY_DESCRIPTIONS[sev]
         end
       end
-      per = stellar_object.atmosphere_taint_persistence
       if per.present?
         json.persistence do
           json.label       'Persistence'
