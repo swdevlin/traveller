@@ -454,7 +454,7 @@ codecSharedPData =
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
-        |> Codec.field "size"
+        |> Codec.field "size_code"
             .size
             (Codec.oneOf Codec.string
                 [ -- force int to string
