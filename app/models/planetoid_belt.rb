@@ -2,6 +2,7 @@ class PlanetoidBelt < StellarObject
   include GeneratorMappings
   include HasUwp
 
+  after_initialize :normalize_data_types
   before_validation :normalize_data_types
 
   validates :orbit, presence: true
@@ -61,7 +62,7 @@ class PlanetoidBelt < StellarObject
     end
   end
 
-def normalize_data_types
+  def normalize_data_types
     self.period = period.to_f if period.present?
     self.span = span.to_f if span.present?
     self.temperature = temperature.to_f if temperature.present?
@@ -71,6 +72,7 @@ def normalize_data_types
     self.o_type = o_type.to_i if o_type.present?
     self.resource_rating = resource_rating.to_i if resource_rating.present?
     self.bulk = bulk.to_i if bulk.present?
+    self.retrograde = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(retrograde) || false
   end
 
   def composition_sums_to_100
