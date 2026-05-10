@@ -6,9 +6,9 @@ module LinkModalSetup
   private
 
   def setup_link_modal_ivars
-    @networks = CommunicationNetwork.ordered
+    @networks = Network.ordered
     @selected_network = if params[:network_id].present?
-                          CommunicationNetwork.find_by(id: params[:network_id])
+                          Network.find_by(id: params[:network_id])
     else
                           @networks.first
     end
@@ -57,9 +57,9 @@ module LinkModalSetup
     viewport_system_ids = star_systems.map(&:id)
 
     all_viewport_links = if @selected_network && viewport_system_ids.any?
-                           NetworkLink.where(communication_network: @selected_network)
+                           NetworkLink.where(network: @selected_network)
                              .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', viewport_system_ids, viewport_system_ids)
-                             .includes(:communication_network, from_star_system: :parsec, to_star_system: :parsec)
+                             .includes(:network, from_star_system: :parsec, to_star_system: :parsec)
                              .to_a
     else
                            []

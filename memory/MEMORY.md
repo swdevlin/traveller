@@ -26,6 +26,10 @@ Links should **not** have an underline by default; underline only on hover. Use 
 
 Always use semicolons in JS code.
 
+## Hex Orientation
+
+- [Hexes are always flat-top](../memory/feedback_hex_orientation.md) — first vertex at 0° (rightmost); never pointy-top.
+
 ## Notes Fields
 
 `notes` columns are CommonMark (Markdown). Display with a markdown renderer; edit with a markdown-aware textarea (not plain text).

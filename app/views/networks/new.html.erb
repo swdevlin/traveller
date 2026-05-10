@@ -1,0 +1,7 @@
+<% content_for :title, 'New Network' %>
+<% content_for :page_kicker, 'Network' %>
+<% content_for :page_title, 'New Network' %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', network: @network %>
+<% end %>

@@ -1,7 +1,0 @@
-<% content_for :title, "Editing #{@communication_network.name}" %>
-<% content_for :page_kicker, 'Communication Network' %>
-<% content_for :page_title, @communication_network.name %>
-
-<%= render 'application/page' do %>
-  <%= render 'form', communication_network: @communication_network %>
-<% end %>

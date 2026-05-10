@@ -43,7 +43,7 @@ class StarSystem < ApplicationRecord
   end
 
   def primary_star
-    @primary_star ||= stars.find_by(orbiting_id: nil)
+    @primary_star ||= stars.loaded? ? stars.find { |s| s.orbiting_id.nil? } : stars.find_by(orbiting_id: nil)
   end
 
   def orbiting_bodies
@@ -54,7 +54,7 @@ class StarSystem < ApplicationRecord
   def network_links
     NetworkLink
       .where('from_star_system_id = ? OR to_star_system_id = ?', id, id)
-      .includes(:communication_network, :from_star_system, :to_star_system)
+      .includes(:network, :from_star_system, :to_star_system)
   end
 
   scope :locked, -> { where(locked: true) }
@@ -65,7 +65,7 @@ class StarSystem < ApplicationRecord
   }
 
   def has_gas_giant?
-    @has_gas_giant ||= gas_giants.exists?
+    gas_giant_count.to_i > 0
   end
 
   def has_populated_world?
@@ -104,7 +104,7 @@ class StarSystem < ApplicationRecord
   def main_world_uwp
     return nil if main_world_id.nil?
 
-    @main_world_uwp ||= StellarObject.where(id: main_world_id).pick(:uwp)
+    @main_world_uwp ||= main_world&.uwp
   end
 
   def main_world_importance

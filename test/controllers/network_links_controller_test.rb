@@ -2,7 +2,7 @@ require 'test_helper'
 
 class NetworkLinksControllerTest < AuthenticatedIntegrationTest
   setup do
-    @network = communication_networks(:one)
+    @network = networks(:one)
     @sys_a   = star_systems(:in_one)
     @sys_b   = star_systems(:in_two)
     @link    = network_links(:one)
@@ -15,7 +15,7 @@ class NetworkLinksControllerTest < AuthenticatedIntegrationTest
       post network_links_url,
            params: {
              network_link: {
-               communication_network_id: @network.id,
+               network_id: @network.id,
                from_star_system_id: @sys_a.id,
                to_star_system_id: third.id
              },
@@ -31,7 +31,7 @@ class NetworkLinksControllerTest < AuthenticatedIntegrationTest
     post network_links_url,
          params: {
            network_link: {
-             communication_network_id: @network.id,
+             network_id: @network.id,
              from_star_system_id: higher.id,
              to_star_system_id: lower.id
            },
@@ -44,13 +44,13 @@ class NetworkLinksControllerTest < AuthenticatedIntegrationTest
   test 'create rejects duplicate and responds with redirect on html' do
     # Create via AR so normalize_direction runs and the pair is correctly stored
     NetworkLink.delete_all
-    NetworkLink.create!(communication_network: @network, from_star_system: @sys_a, to_star_system: @sys_b)
+    NetworkLink.create!(network: @network, from_star_system: @sys_a, to_star_system: @sys_b)
 
     assert_no_difference('NetworkLink.count') do
       post network_links_url,
            params: {
              network_link: {
-               communication_network_id: @network.id,
+               network_id: @network.id,
                from_star_system_id: @sys_a.id,
                to_star_system_id: @sys_b.id
              },

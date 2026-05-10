@@ -12,45 +12,45 @@
       </thead>
 
       <tbody>
-      <% communication_networks.each do |communication_network| %>
+      <% networks.each do |network| %>
         <tr class='cursor-pointer'
             data-controller='row-link'
-            data-row-link-url-value='<%= communication_network_path(communication_network) %>'
+            data-row-link-url-value='<%= network_path(network) %>'
             data-action='click->row-link#navigate'>
           <td class='whitespace-nowrap'>
-            <%= communication_network.name %>
+            <%= network.name %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <% if communication_network.colour.present? %>
+            <% if network.colour.present? %>
               <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
-                <circle cx="10" cy="10" r="7" fill="<%= communication_network.colour %>" stroke="none"/>
+                <circle cx="10" cy="10" r="7" fill="<%= network.colour %>" stroke="none"/>
               </svg>
-              <span class='font-mono text-sm ml-1'><%= communication_network.colour %></span>
+              <span class='font-mono text-sm ml-1'><%= network.colour %></span>
             <% end %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <%= communication_network.max_jump %>
+            <%= network.max_jump %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <% if communication_network.known? %>
+            <% if network.known? %>
               <i class='fa-regular fa-check text-fg-muted'></i>
             <% end %>
           </td>
 
           <td class='actions-cell'>
             <div class='action-group'>
-              <%= link_to edit_communication_network_path(communication_network), class: 'action', title: 'Edit' do %>
+              <%= link_to edit_network_path(network), class: 'action', title: 'Edit' do %>
                 <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
-              <%= button_to communication_network,
+              <%= button_to network,
                             method: :delete,
                             class: 'action danger',
                             title: 'Delete',
-                            data: { turbo_confirm: "Delete #{communication_network.name}?" } do %>
+                            data: { turbo_confirm: "Delete #{network.name}?" } do %>
                 <i class='fa-regular fa-trash'></i>
               <% end %>
             </div>

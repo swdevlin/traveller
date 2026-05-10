@@ -155,10 +155,10 @@ class StarSystemsController < ApplicationController
   end
 
   def quick_link
-    network = CommunicationNetwork.find(params[:network_id])
+    network = Network.find(params[:network_id])
     target  = StarSystem.find(params[:to_system_id])
     link    = NetworkLink.new(
-      communication_network: network,
+      network: network,
       from_star_system: @star_system,
       to_star_system: target
     )

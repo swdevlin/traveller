@@ -39,7 +39,7 @@ Rails.application.routes.draw do
 
     resources :network_links, only: %i[create destroy]
 
-    resources :communication_networks do
+    resources :networks do
       member do
         get  :export_links
       end
@@ -147,6 +147,7 @@ Rails.application.routes.draw do
         post :load_defaults
         get  :defaults_source
         get  :map
+        get  :poster
       end
       resources :rogues, only: %i[index new create destroy]
       resources :star_systems, only: %i[new create index destroy]

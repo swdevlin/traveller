@@ -1,20 +1,20 @@
-<% content_for :title, @communication_network.name %>
-<% content_for :page_kicker, 'Communication Network' %>
-<% content_for :page_title, @communication_network.name %>
+<% content_for :title, @network.name %>
+<% content_for :page_kicker, 'Network' %>
+<% content_for :page_title, @network.name %>
 
 <%= render 'application/page' do %>
-  <%= render @communication_network %>
+  <%= render @network %>
 
   <%= render 'application/subsection', title: 'Links' %>
 
   <div class='flex justify-between items-start mb-3'>
     <div class='flex gap-2 flex-wrap'>
-      <%= link_to export_links_communication_network_path(@communication_network),
+      <%= link_to export_links_network_path(@network),
                   class: 'btn btn-sm' do %>
         <i class='fa-regular fa-download mr-1'></i> Export CSV
       <% end %>
 
-      <%= form_with url: communication_network_network_import_path(@communication_network),
+      <%= form_with url: network_network_import_path(@network),
                     multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
         <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
         <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <% links = @communication_network.network_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
+  <% links = @network.network_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
   <% if links.any? %>
     <div class='table-card'>
       <div class='table-scroll'>
@@ -69,15 +69,15 @@
     <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
   <% end %>
 
-  <%= link_to 'Edit', edit_communication_network_path(@communication_network), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= link_to 'Edit', edit_network_path(@network), class: 'w-full sm:w-auto btn btn-primary' %>
   <%= render 'application/back_button',
-             path: communication_networks_path,
-             label: 'Communication Networks',
+             path: networks_path,
+             label: 'Networks',
              class: 'w-full sm:w-auto' %>
   <%= button_to 'Delete',
-                @communication_network,
+                @network,
                 method: :delete,
                 form_class: 'w-full sm:w-auto inline-flex m-0',
                 class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
-                data: { turbo_confirm: "Delete #{@communication_network.name}?" } %>
+                data: { turbo_confirm: "Delete #{@network.name}?" } %>
 <% end %>

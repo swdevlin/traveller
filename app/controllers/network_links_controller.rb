@@ -16,7 +16,7 @@ class NetworkLinksController < ApplicationController
           ]
 
           if @star_system
-            params[:network_id] = @network_link.communication_network_id.to_s
+            params[:network_id] = @network_link.network_id.to_s
             setup_link_modal_ivars
             modal_html = render_to_string('star_systems/link_modal', layout: false)
             streams.unshift(turbo_stream.replace('modal', html: modal_html.html_safe))
@@ -49,7 +49,7 @@ class NetworkLinksController < ApplicationController
   def destroy
     @network_link = NetworkLink.find(params[:id])
     star_system_id = params[:star_system_id]
-    communication_network_id = @network_link.communication_network_id
+    network_id = @network_link.network_id
     @network_link.destroy
 
     respond_to do |format|
@@ -80,7 +80,7 @@ class NetworkLinksController < ApplicationController
         if star_system_id.present?
           redirect_to star_system_path(star_system_id)
         else
-          redirect_to communication_network_path(communication_network_id)
+          redirect_to network_path(network_id)
         end
       end
     end
@@ -89,6 +89,6 @@ class NetworkLinksController < ApplicationController
   private
 
   def network_link_params
-    params.expect(network_link: %i[communication_network_id from_star_system_id to_star_system_id])
+    params.expect(network_link: %i[network_id from_star_system_id to_star_system_id])
   end
 end

@@ -1,4 +1,4 @@
-class CommunicationNetwork < ApplicationRecord
+class Network < ApplicationRecord
   validates :name, presence: true
 
   has_many :network_links, dependent: :destroy

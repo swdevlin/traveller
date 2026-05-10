@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class NetworkLink < ApplicationRecord
-  belongs_to :communication_network
+  belongs_to :network
   belongs_to :from_star_system, class_name: 'StarSystem'
   belongs_to :to_star_system, class_name: 'StarSystem'
 

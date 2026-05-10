@@ -71,7 +71,7 @@
     .region-label { font-family: monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
   </style>
 
-  <rect width="100%" height="100%" fill="rgba(15, 23, 42, 0.7)"/>
+  <rect width="100%" height="100%" fill="<%= @poster_mode ? '#ffffff' : 'rgba(15, 23, 42, 0.7)' %>"/>
 
   <%# Layer 1a: Hex fills — all backgrounds drawn first so no fill covers a neighbour's border %>
   <g>
@@ -205,7 +205,7 @@
   <%# Layer 1g: Network link lines %>
   <% (@network_links_for_map || []).each do |link| %>
     <%
-      colour = link.communication_network.colour.presence || '#888888'
+      colour = link.network.colour.presence || '#888888'
       from_p = link.from_star_system.parsec
       to_p   = link.to_star_system.parsec
 
@@ -235,7 +235,11 @@
         <% if star_system %>
           <%
             primary = star_system.primary_star
-            orbiting_stars = primary&.secondary_stars&.to_a || []
+            orbiting_stars = if primary && star_system.stars.loaded?
+              star_system.stars.select { |s| s.orbiting_id == primary.id && s.id != primary.companion_id }
+            else
+              primary&.secondary_stars&.to_a || []
+            end
             star_cy = cy
             primary_r = hex_size * 0.18
             orbiting_r = hex_size * 0.10

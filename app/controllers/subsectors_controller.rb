@@ -88,9 +88,10 @@ class SubsectorsController < ApplicationController
     region_record_max = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
-    subsector_star_system_ids = @star_systems.map(&:id)
+    star_system_subquery = @subsector.star_systems_scope.select(:id)
     network_link_max_updated = NetworkLink
-      .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', subsector_star_system_ids, subsector_star_system_ids)
+      .where(from_star_system_id: star_system_subquery)
+      .or(NetworkLink.where(to_star_system_id: star_system_subquery))
       .maximum(:updated_at)
     rogue_max_updated = StellarObject
       .where(parsec: @subsector.parsecs, orbiting_id: nil)
@@ -129,10 +130,11 @@ class SubsectorsController < ApplicationController
     end
 
     subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
+    subsector_parsec_subquery = @subsector.parsecs.select(:id)
 
     jump_parsec_ids = JumpLog
-      .where(from_parsec_id: subsector_parsec_ids)
-      .or(JumpLog.where(to_parsec_id: subsector_parsec_ids))
+      .where(from_parsec_id: subsector_parsec_subquery)
+      .or(JumpLog.where(to_parsec_id: subsector_parsec_subquery))
       .pluck(:from_parsec_id, :to_parsec_id)
       .flatten
       .to_set & subsector_parsec_ids.to_set
@@ -140,15 +142,10 @@ class SubsectorsController < ApplicationController
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
     @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set
 
-    @network_links_for_map = if subsector_star_system_ids.any?
-                               NetworkLink
-                                 .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', subsector_star_system_ids, subsector_star_system_ids)
-                                 .includes(:communication_network,
-                                           from_star_system: :parsec,
-                                           to_star_system: :parsec)
-    else
-                               []
-    end
+    @network_links_for_map = NetworkLink
+      .where(from_star_system_id: star_system_subquery)
+      .or(NetworkLink.where(to_star_system_id: star_system_subquery))
+      .includes(:network, from_star_system: :parsec, to_star_system: :parsec)
 
     @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
       subsector_parsecs,

@@ -51,7 +51,7 @@
                   <% end %>
                 <% else %>
                   <%= form_with url: network_links_path, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
-                    <input type='hidden' name='network_link[communication_network_id]' value='<%= @selected_network.id %>'>
+                    <input type='hidden' name='network_link[network_id]' value='<%= @selected_network.id %>'>
                     <input type='hidden' name='network_link[from_star_system_id]' value='<%= @star_system.id %>'>
                     <input type='hidden' name='network_link[to_star_system_id]' value='<%= sys.id %>'>
                     <input type='hidden' name='star_system_id' value='<%= @star_system.id %>'>

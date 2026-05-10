@@ -1,0 +1,25 @@
+<div id="<%= dom_id network %>" class='space-y-6 mb-4'>
+  <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+    <%= render 'application/data_block', label: 'Name', value: network.name %>
+
+    <% if network.colour.present? %>
+      <%
+        swatch = %(<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#{network.colour}" stroke="none"/></svg>).html_safe
+      %>
+      <%= render 'application/data_block',
+                 label: 'Colour',
+                 value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-fg-bright',
+                 value: safe_join([swatch, tag.span(network.colour, class: 'font-mono text-sm')])
+      %>
+    <% end %>
+
+    <%= render 'application/data_block', label: 'Max Jump', value: network.max_jump %>
+    <%= render 'application/data_block', label: 'Known', value: network.known? ? 'Yes' : 'No' %>
+  </div>
+
+  <% if network.notes.present? %>
+    <div class='grid grid-cols-1 gap-4'>
+      <%= render 'application/data_block', label: 'Notes', value: network.notes %>
+    </div>
+  <% end %>
+</div>

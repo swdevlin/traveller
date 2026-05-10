@@ -53,7 +53,7 @@
         <div class='table-banner'>
           <p>Network links</p>
           <div class='actions'>
-            <% if CommunicationNetwork.any? %>
+            <% if Network.any? %>
               <%= link_to link_modal_star_system_path(@star_system),
                           class: 'btn-header',
                           data: { turbo_frame: 'modal' } do %>

@@ -55,6 +55,11 @@
                   class: 'text-fg-muted hover:text-highlight transition-colors' do %>
         <i class="fa-regular fa-map"></i>
       <% end %>
+      <%= link_to poster_sector_path(@sector),
+                  title: 'Download poster PDF',
+                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
+        <i class="fa-regular fa-rectangle-vertical"></i>
+      <% end %>
     </div>
   </div>
   <%= render 'subsector_grid', sector: @sector %>

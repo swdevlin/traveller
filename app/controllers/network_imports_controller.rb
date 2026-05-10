@@ -2,10 +2,10 @@
 
 class NetworkImportsController < ApplicationController
   def create
-    @communication_network = CommunicationNetwork.find(params[:communication_network_id])
+    @network = Network.find(params[:network_id])
 
     unless params[:file].present?
-      redirect_to communication_network_path(@communication_network), alert: 'No file selected.' and return
+      redirect_to network_path(@network), alert: 'No file selected.' and return
     end
 
     csv_text = params[:file].read
@@ -15,7 +15,7 @@ class NetworkImportsController < ApplicationController
     notice += " #{results[:skipped]} skipped (already exist or system not found)." if results[:skipped] > 0
     notice += " #{results[:errors]} error(s)." if results[:errors] > 0
 
-    redirect_to communication_network_path(@communication_network), notice: notice
+    redirect_to network_path(@network), notice: notice
   end
 
   private
@@ -45,7 +45,7 @@ class NetworkImportsController < ApplicationController
       end
 
       link = NetworkLink.new(
-        communication_network: @communication_network,
+        network: @network,
         from_star_system: from_sys,
         to_star_system: to_sys
       )

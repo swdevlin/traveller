@@ -3,7 +3,7 @@ require 'test_helper'
 class StarSystemsLinkModalTest < AuthenticatedIntegrationTest
   setup do
     @star_system = star_systems(:in_one)
-    @network     = communication_networks(:one)
+    @network     = networks(:one)
   end
 
   test 'link_modal renders without network selected' do

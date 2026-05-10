@@ -46,9 +46,10 @@ class Api::MapController < ApplicationController
       authenticated: true
     )
 
+    viewport_parsec_subquery = Parsec.where(x: ulx..lrx, y: lry..uly).select(:id)
     jump_pairs = JumpLog
-      .where(from_parsec_id: viewport_parsec_ids)
-      .or(JumpLog.where(to_parsec_id: viewport_parsec_ids))
+      .where(from_parsec_id: viewport_parsec_subquery)
+      .or(JumpLog.where(to_parsec_id: viewport_parsec_subquery))
       .pluck(:from_parsec_id, :to_parsec_id)
 
     jump_ids = jump_pairs.flatten.to_set & viewport_parsec_ids.to_set
