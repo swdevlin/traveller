@@ -28,16 +28,18 @@ class NetworkLinksControllerTest < AuthenticatedIntegrationTest
 
   test 'create normalises direction before saving' do
     higher, lower = [@sys_a, star_systems(:also_in_one)].sort_by(&:id).reverse
-    post network_links_url,
-         params: {
-           network_link: {
-             network_id: @network.id,
-             from_star_system_id: higher.id,
-             to_star_system_id: lower.id
-           },
-           star_system_id: higher.id
-         }
-    saved = NetworkLink.order(:created_at).last
+    assert_difference('NetworkLink.count') do
+      post network_links_url,
+           params: {
+             network_link: {
+               network_id: @network.id,
+               from_star_system_id: higher.id,
+               to_star_system_id: lower.id
+             },
+             star_system_id: higher.id
+           }
+    end
+    saved = NetworkLink.find_by!(from_star_system_id: lower.id, to_star_system_id: higher.id)
     assert saved.from_star_system_id < saved.to_star_system_id
   end
 
