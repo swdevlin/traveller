@@ -16,7 +16,7 @@ json.starport do
   json.facilities sp[:facilities]
 end
 
-json.size do
+json.size_detail do
   json.label       'Size'
   json.code        stellar_object.size_code
   json.description StellarObjectsHelper::SIZE_DESCRIPTIONS[stellar_object.size_code]
