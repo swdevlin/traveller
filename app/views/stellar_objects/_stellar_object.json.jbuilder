@@ -33,6 +33,7 @@ if stellar_object.allegiance
   end
 end
 
+json.orbit_type stellar_object.orbit_type if stellar_object.respond_to?(:orbit_type)
 json.orbiting_name stellar_object.orbiting&.display_name
 
 shadow_km = stellar_object.effective_jump_shadow_km
