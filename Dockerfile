@@ -33,16 +33,16 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install fonts for SVG rasterisation (Orbitron + JetBrains Mono + Inter)
-# Sources: google/fonts static instances, JetBrains/JetBrainsMono, rsms/inter
+# Sources: google/fonts variable instances, JetBrains/JetBrainsMono, google/fonts inter
 RUN mkdir -p /usr/local/share/fonts/orbitron /usr/local/share/fonts/jetbrains-mono /usr/local/share/fonts/inter && \
-    curl -fsSL -o /usr/local/share/fonts/orbitron/Orbitron-Regular.ttf \
-      "https://github.com/google/fonts/raw/main/ofl/orbitron/static/Orbitron-Regular.ttf" && \
+    curl -fsSL -o "/usr/local/share/fonts/orbitron/Orbitron[wght].ttf" \
+      "https://github.com/google/fonts/raw/main/ofl/orbitron/Orbitron%5Bwght%5D.ttf" && \
     curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono-Regular.ttf \
-      "https://github.com/JetBrains/JetBrainsMono/raw/main/fonts/ttf/JetBrainsMono-Regular.ttf" && \
+      "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Regular.ttf" && \
     curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono-Italic.ttf \
-      "https://github.com/JetBrains/JetBrainsMono/raw/main/fonts/ttf/JetBrainsMono-Italic.ttf" && \
-    curl -fsSL -o /usr/local/share/fonts/inter/Inter-Regular.ttf \
-      "https://github.com/rsms/inter/raw/master/docs/font-files/Inter-Regular.ttf" && \
+      "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Italic.ttf" && \
+    curl -fsSL -o "/usr/local/share/fonts/inter/Inter[opsz,wght].ttf" \
+      "https://github.com/google/fonts/raw/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf" && \
     fc-cache -f
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
