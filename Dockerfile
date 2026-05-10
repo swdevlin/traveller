@@ -32,16 +32,16 @@ RUN apt-get update -qq && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install Google Fonts for SVG rasterisation (Orbitron + JetBrains Mono)
-RUN mkdir -p /usr/local/share/fonts/orbitron /usr/local/share/fonts/jetbrains-mono /usr/local/share/fonts/share-tech-mono && \
+# Install Google Fonts for SVG rasterisation (Orbitron + JetBrains Mono + Inter)
+RUN mkdir -p /usr/local/share/fonts/orbitron /usr/local/share/fonts/jetbrains-mono /usr/local/share/fonts/inter && \
     curl -fsSL -o /usr/local/share/fonts/orbitron/Orbitron.ttf \
       "https://github.com/google/fonts/raw/main/ofl/orbitron/Orbitron%5Bwght%5D.ttf" && \
     curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono.ttf \
       "https://github.com/google/fonts/raw/main/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf" && \
     curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono-Italic.ttf \
       "https://github.com/google/fonts/raw/main/ofl/jetbrainsmono/JetBrainsMono-Italic%5Bwght%5D.ttf" && \
-    curl -fsSL -o /usr/local/share/fonts/share-tech-mono/ShareTechMono.ttf \
-      "https://github.com/google/fonts/raw/main/ofl/sharetechmono/ShareTechMono-Regular.ttf" && \
+    curl -fsSL -o /usr/local/share/fonts/inter/Inter.ttf \
+      "https://github.com/google/fonts/raw/main/ofl/inter/Inter%5Bwght%5D.ttf" && \
     fc-cache -f
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
