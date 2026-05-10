@@ -176,16 +176,16 @@
   <!-- Networks -->
   <% if @networks_on_poster&.any? %>
     <%
-      net_legend_y = legend_strip_y + 25
+      net_legend_y = legend_strip_y + 2
       hex_r        = 4.0
       entry_h      = 10.0
       entry_w      = 55.0
-      avail_h      = disclaim_y - 5 - net_legend_y
-      max_rows     = [(avail_h / entry_h).floor, 1].max
+      network_x    = legend_strip_x + 180
+      max_rows     = 3
       @networks_on_poster.each_with_index do |net, idx|
         col_idx = idx / max_rows
         row_idx = idx % max_rows
-        hx = legend_strip_x + hex_r + col_idx * entry_w
+        hx = network_x + hex_r + col_idx * entry_w
         hy = net_legend_y + hex_r + row_idx * entry_h
         colour = net.colour.presence || '#888888'
     %>
