@@ -80,6 +80,47 @@ class Api::JumpLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test 'create sets survey_index to 10 for star systems in destination parsec' do
+    system_in_dest = star_systems(:in_two)
+    system_in_dest.update!(survey_index: 3)
+
+    post api_jumps_url(campaign_slug: @campaign.slug),
+         params: { jump_log: {
+           ship_id:        ships(:one).id,
+           from_parsec_id: parsecs(:one).id,
+           to_parsec_id:   parsecs(:two).id,
+           depart_year: 1105, depart_day: 100,
+           arrive_year: 1105, arrive_day: 107
+         } },
+         headers: { 'Authorization' => "Bearer #{@campaign.api_token}" },
+         as: :json
+
+    assert_response :created
+    assert_equal 10, system_in_dest.reload.survey_index
+  end
+
+  test 'create does not lower survey_index already above 10 in destination parsec' do
+    system_in_dest = star_systems(:in_two)
+    system_in_dest.update!(survey_index: 11)
+    original_updated_at = system_in_dest.updated_at
+
+    post api_jumps_url(campaign_slug: @campaign.slug),
+         params: { jump_log: {
+           ship_id:        ships(:one).id,
+           from_parsec_id: parsecs(:one).id,
+           to_parsec_id:   parsecs(:two).id,
+           depart_year: 1105, depart_day: 100,
+           arrive_year: 1105, arrive_day: 107
+         } },
+         headers: { 'Authorization' => "Bearer #{@campaign.api_token}" },
+         as: :json
+
+    assert_response :created
+    system_in_dest.reload
+    assert_equal 11, system_in_dest.survey_index
+    assert_equal original_updated_at, system_in_dest.updated_at
+  end
+
   test 'create with missing required fields returns unprocessable entity' do
     assert_no_difference 'JumpLog.count' do
       post api_jumps_url(campaign_slug: @campaign.slug),
