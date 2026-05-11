@@ -29,6 +29,7 @@ class Api::JumpLogsController < Api::BaseController
     jump_log = JumpLog.new(jump_log_params)
 
     if jump_log.save
+      StarSystem.where(parsec_id: jump_log.to_parsec_id).where('survey_index < ?', 10).update_all(survey_index: 10)
       render json: jump_log, status: :created
     else
       render json: { errors: jump_log.errors.full_messages }, status: :unprocessable_entity
