@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_09_195139) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_11_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -72,10 +72,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_09_195139) do
   create_table "public.facilities", force: :cascade do |t|
     t.string "code", null: false
     t.datetime "created_at", null: false
+    t.string "icon_class"
     t.string "name"
     t.string "traveller_map_code"
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_facilities_on_code", unique: true
+  end
+
+  create_table "public.font_awesome_icons", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "style", default: "regular", null: false
+    t.text "svg_content", null: false
+    t.datetime "updated_at", null: false
+    t.string "view_box", null: false
+    t.index ["name", "style"], name: "index_font_awesome_icons_on_name_and_style", unique: true
   end
 
   create_table "public.governments", force: :cascade do |t|

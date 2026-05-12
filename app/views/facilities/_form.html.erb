@@ -16,6 +16,10 @@
       <%= form.text_field :traveller_map_code, class: 'edit-base x-24' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :icon_class do %>
+      <%= form.text_field :icon_class, class: 'edit-base w-64', placeholder: 'fa-solid fa-star' %>
+    <% end %>
+
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', facility.persisted? ? facility : facilities_path, class: 'w-full sm:w-auto btn' %>

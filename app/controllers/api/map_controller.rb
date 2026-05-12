@@ -1,4 +1,5 @@
 class Api::MapController < ApplicationController
+  include HexMapBases
   def show
     ulx = params[:ulx].to_i
     uly = params[:uly].to_i
@@ -71,19 +72,23 @@ class Api::MapController < ApplicationController
       .where(parsec_id: viewport_parsec_ids, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)&.to_i || 0
+    facility_max = StarSystemFacility
+      .where(star_system_id: star_systems.map(&:id))
+      .maximum(:updated_at)&.to_i || 0
 
     @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
     @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
 
     version = Digest::SHA256.hexdigest([
-      parsec_max, system_max, region_max, jump_max, rogue_max,
-      current_campaign.updated_at.to_i
+      parsec_max, system_max, region_max, jump_max, rogue_max, facility_max,
+      current_campaign.updated_at.to_i, MAP_TEMPLATE_VERSION
     ].join('-'))
     cache_key = "api_map/#{current_campaign.id}/#{ulx}/#{uly}/#{lrx}/#{lry}/#{version}"
 
     fresh_when etag: cache_key
     return if performed?
 
+    build_bases_data
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
     rogue_data = StellarObject
       .where(parsec_id: viewport_parsec_ids, orbiting_id: nil)

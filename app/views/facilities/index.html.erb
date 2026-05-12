@@ -20,6 +20,7 @@
         <thead>
         <tr>
           <th scope='col'>Code</th>
+          <th scope='col'>Icon</th>
           <th scope='col'>Name</th>
           <th scope='col'>TravellerMap Code</th>
           <th scope='col' class='text-right'>Actions</th>
@@ -31,6 +32,12 @@
           <tr>
             <td class='whitespace-nowrap'>
               <span class='pill'><%= facility.code %></span>
+            </td>
+
+            <td class='whitespace-nowrap'>
+              <% if facility.icon_class.present? %>
+                <i class='<%= facility.icon_class %>'></i>
+              <% end %>
             </td>
 
             <td>

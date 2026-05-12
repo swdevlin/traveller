@@ -2,6 +2,7 @@ require 'open3'
 
 class SectorsController < ApplicationController
   include UrlTokenVerification
+  include HexMapBases
   optional_authentication only: %i[map poster]
   before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source map poster ]
 
@@ -132,9 +133,13 @@ class SectorsController < ApplicationController
       .where(parsec: @sector.parsecs, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
+    facility_max_updated = StarSystemFacility
+      .joins(star_system: :parsec)
+      .where(parsecs: { sector_id: @sector.id })
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{facility_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -270,6 +275,7 @@ class SectorsController < ApplicationController
         row = sector_ul.y - sys.parsec.y + 1
         h[[col, row]] = sys
       end
+      build_bases_data
 
       @parsecs_by_pos = @sector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
         col = px - sector_ul.x + 1

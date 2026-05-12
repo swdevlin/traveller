@@ -39,6 +39,11 @@
 
   <defs>
     <%= render 'shared/svg_icon_symbols', prefix: '' %>
+    <% @facility_icons&.each do |code, icon| %>
+      <symbol id="facility-icon-<%= code %>" viewBox="<%= icon.view_box %>">
+        <%= icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
   </defs>
 
   <style>
@@ -55,6 +60,7 @@
     .parsec-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
     .allegiance { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_ALLEGIANCE %>px; fill: #666666; }
     .uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
+    .base-icon { fill: #333333; }
     .system-name { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
@@ -279,6 +285,36 @@
       <% end %>
     <% end %>
   </g>
+
+  <%# Layer 3c: Base icons (9–12 o'clock region, upper-left of hex) %>
+  <% if @bases_by_pos&.any? && @facility_icons&.any? %>
+    <g>
+      <% @bases_by_pos.each do |(col, row), codes| %>
+        <%
+          renderable = codes.first(3).select { |c| @facility_icons.key?(c) }
+          next if renderable.empty?
+          cx, cy   = hex_center(col, row)
+          center_y = cy - hex_size * 0.38
+          anchor   = cx - hex_size * 0.35
+          icon_hw  = 4
+          offsets  = case renderable.length
+                     when 1 then [[0, 0]]
+                     when 2 then [[-6, 0], [6, 0]]
+                     else        [[-4, -6], [-10, 6], [2, 6]]
+                     end
+        %>
+        <% renderable.each_with_index do |code, idx| %>
+          <% ox, oy = offsets[idx] %>
+          <use href="#facility-icon-<%= code %>"
+               x="<%= (anchor + ox - icon_hw).round(2) %>"
+               y="<%= (center_y + oy - icon_hw).round(2) %>"
+               width="8"
+               height="8"
+               class="base-icon"/>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
 
   <%# Layer 3b: Rogue object icons (comets and gas giants in starless parsecs) %>
   <% if rogues_by_pos.any? %>

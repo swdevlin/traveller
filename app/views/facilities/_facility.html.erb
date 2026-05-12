@@ -16,4 +16,12 @@
              value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
              value: tag.span(facility.traveller_map_code, class: 'identifier')
   %>
+
+  <% if facility.icon_class.present? %>
+    <%= render 'application/data_block',
+               label: 'Icon',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+               value: tag.i(nil, class: facility.icon_class)
+    %>
+  <% end %>
 </div>
