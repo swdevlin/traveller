@@ -9,7 +9,13 @@ class StarmapsController < ApplicationController
       if Current.campaign
         generator = AllSectorsMapGenerator.new(Current.campaign)
         map_path  = generator.output_path
-        latest_change = [JumpLog.maximum(:updated_at), StarSystem.maximum(:updated_at)].compact.max
+        latest_change = [
+          JumpLog.maximum(:updated_at),
+          StarSystem.maximum(:updated_at),
+          Sector.with_discarded.maximum(:updated_at),
+          Sector.with_discarded.maximum(:discarded_at),
+          Subsector.maximum(:updated_at)
+        ].compact.max
         if !map_path.exist? || (latest_change && latest_change > map_path.mtime)
           map_path = generator.call || map_path
         end
