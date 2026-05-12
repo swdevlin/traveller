@@ -1,5 +1,6 @@
 class SubsectorsController < ApplicationController
   include UrlTokenVerification
+  include HexMapBases
   optional_authentication only: [:map]
   before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate star_systems_table map]
   before_action :set_counts, only: %i[show populate]
@@ -97,6 +98,9 @@ class SubsectorsController < ApplicationController
       .where(parsec: @subsector.parsecs, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
+    facility_max_updated = StarSystemFacility
+      .where(star_system_id: star_system_subquery)
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -106,7 +110,9 @@ class SubsectorsController < ApplicationController
       jump_max_updated.to_i,
       network_link_max_updated.to_i,
       rogue_max_updated.to_i,
-      current_campaign.updated_at.to_i
+      facility_max_updated.to_i,
+      current_campaign.updated_at.to_i,
+      MAP_TEMPLATE_VERSION
     ].join('-'))
     cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
 
@@ -128,6 +134,7 @@ class SubsectorsController < ApplicationController
       row = sub_ul.y - sys.parsec.y + 1
       h[[col, row]] = sys
     end
+    build_bases_data
 
     subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
     subsector_parsec_subquery = @subsector.parsecs.select(:id)

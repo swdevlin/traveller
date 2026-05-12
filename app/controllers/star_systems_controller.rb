@@ -5,8 +5,8 @@ require 'yaml'
 require 'vips'
 
 class StarSystemsController < ApplicationController
-  MAP_TEMPLATE_VERSION = 2
   include ParentHex
+  include HexMapBases
   include UrlTokenVerification
   include LinkModalSetup
   optional_authentication only: [:map, :jump_map]
@@ -671,6 +671,7 @@ class StarSystemsController < ApplicationController
       visible_col: 1..@cols, visible_row: 1..@rows,
       authenticated: true
     )
+    build_bases_data
   end
 
   def set_form_context
