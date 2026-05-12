@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # app/services/font_awesome_icon_fetcher.rb
 require 'net/http'
 require 'json'
