@@ -32,6 +32,13 @@
             <li><%= link_to 'Jumps', jump_logs_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
             <% starmap_params = @starmap_center ? { cx: @starmap_center[0], cy: @starmap_center[1] } : {} %>
             <li><%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-highlight hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %></li>
+            <li>
+              <%= link_to new_route_plan_path(from_id: @route_from_system&.id),
+                          data: { turbo_frame: 'modal' },
+                          class: 'hover:text-highlight hover:underline hover:underline-offset-2 no-underline' do %>
+                <i class='fa-regular fa-route'></i> Route
+              <% end %>
+            </li>
           <% end %>
 
           <li><%= link_to 'Reference Manual', 'https://radiofreewaba.net/traveller/webindex.html', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>

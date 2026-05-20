@@ -1,0 +1,63 @@
+<%= modal(title: 'Route', padding: true, advance: false, overlay: false) do %>
+  <% if @plan %>
+    <div class='space-y-4'>
+      <div class='grid grid-cols-3 gap-4 text-sm text-center'>
+        <div>
+          <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Jumps</div>
+          <div class='font-semibold text-fg'><%= @plan.hops.size - 1 %></div>
+        </div>
+        <div>
+          <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Jump Distance</div>
+          <div class='font-semibold text-fg'><%= @total_distance %></div>
+        </div>
+        <div>
+          <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Parsec Distance</div>
+          <div class='font-semibold text-fg'><%= @parsec_distance %></div>
+        </div>
+      </div>
+
+      <table class='w-full text-sm'>
+        <thead>
+          <tr class='border-b border-outline text-fg-muted text-xs uppercase tracking-wider'>
+            <th class='text-right pb-2 pr-4 w-16'>Jump</th>
+            <th class='text-left pb-2'>System</th>
+          </tr>
+        </thead>
+        <tbody class='divide-y divide-outline/50'>
+          <% @plan.hops.each_with_index do |hop, i| %>
+            <tr class='<%= 'text-highlight font-medium' if i == 0 || i == @plan.hops.size - 1 %>'>
+              <td class='py-2 pr-4 text-right tabular-nums text-fg-muted'>
+                <% if i > 0 %>J-<%= hop.distance %><% end %>
+              </td>
+              <td class='py-2'>
+                <%= link_to hop.system.name.presence || hop.system.hex_label,
+                            star_system_path(hop.system.id),
+                            class: 'no-underline hover:underline hover:underline-offset-2' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class='py-6 text-center space-y-2'>
+      <div class='text-fg-bright font-medium'>No route found</div>
+      <div class='text-sm text-fg-muted'>
+        No <%= @refueling == 'any' ? '' : "#{@refueling == 'commercial' ? 'commercial' : 'wilderness-capable'} " %>route exists between
+        <span class='text-fg'><%= @from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}" %></span> and
+        <span class='text-fg'><%= @to_system.name.presence || "#{@to_system.parsec.sector.name} #{@to_system.parsec.hex_code}" %></span>
+        within jump-<%= @jump_range %> range.
+        <% unless @jump_range == 6 %>
+          Try a higher jump range.
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class='mt-6 pt-4 border-t border-outline'>
+    <%= link_to 'Plan another route',
+                new_route_plan_path(from_id: @from_system.id, jump_range: @jump_range, refueling: @refueling),
+                data: { turbo_frame: 'modal-inner' },
+                class: 'text-sm text-highlight no-underline hover:underline hover:underline-offset-2' %>
+  </div>
+<% end %>

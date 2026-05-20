@@ -1,5 +1,6 @@
 class ParsecsController < ApplicationController
-  before_action :set_parsec, only: %i[ show edit update clear star_systems_table ]
+  before_action :set_parsec, except: :index
+  before_action :set_star_systems, only: [:show, :star_systems_table]
   before_action do
     Rails.logger.warn(">>> HIT ParsecsController##{action_name} params=#{params.to_unsafe_h.inspect}")
   end
@@ -45,6 +46,10 @@ class ParsecsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_parsec
       @parsec = Parsec.find(params[:id])
+    end
+
+    def set_star_systems
+      @star_systems = @parsec.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
     end
 
     def parsec_params

@@ -85,7 +85,7 @@
                    target="_top"
                    <% if subsector %>data-subsector-refresh-target="frame"<% end %>>
         <%= render 'star_systems/table',
-                   star_systems: @parsec.star_systems,
+                   star_systems: @star_systems,
                    new_url: new_parsec_star_system_path(@parsec) %>
       </turbo-frame>
 

@@ -153,7 +153,9 @@ Rails.application.routes.draw do
       resources :star_systems, only: %i[new create index destroy]
     end
 
-    get '/search',   to: 'search#query'
+    get '/search',              to: 'search#query'
+    get '/search/star-systems', to: 'search#star_systems', as: :search_star_systems
+    resource :route_plan, only: [:new]
     get '/data-cores', to: 'data_cores#index', as: :data_cores
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight

@@ -13,6 +13,7 @@ class SubsectorsController < ApplicationController
   def show
     ul, = @subsector.universal_coordinates
     @starmap_center = [ul.x + 4, ul.y - 5]
+    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
   end
 
   # GET /subsectors/1/edit
@@ -55,7 +56,7 @@ class SubsectorsController < ApplicationController
   end
 
   def star_systems_table
-    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, stars: [])
+    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
     render layout: false
   end
 

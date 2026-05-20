@@ -56,7 +56,7 @@
   </td>
 
   <td class='text-right whitespace-nowrap'>
-    <% moon_count = stellar_object.moons.size %>
+    <% moon_count = stellar_object.has_attribute?('moon_count') ? stellar_object[:moon_count].to_i : stellar_object.moons.size %>
     <%= moon_count if moon_count > 0 %>
   </td>
 
@@ -66,7 +66,7 @@
     <% elsif stellar_object.is_a?(PlanetoidBelt) %>
       Rating: <%= stellar_object.resource_rating %>
     <% else %>
-      <%= temperature_label(stellar_object.temperature) %>
+      <%= temperature_label(stellar_object.temperature) if stellar_object.respond_to?(:temperature) %>
     <% end %>
     <% if stellar_object.respond_to?(:data) && stellar_object.data['native_sophont'] %>
       <i class='fa-regular fa-user-alien ml-1' title='Native sophont'></i>

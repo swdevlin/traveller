@@ -16,6 +16,7 @@ class StellarObjectsController < ApplicationController
       parsec = @stellar_object.orbiting.star_system.parsec
       [parsec.x, parsec.y]
     end
+    @route_from_system = @stellar_object.parsec ? nil : @stellar_object.orbiting&.star_system
 
     if @stellar_object.is_a?(PlanetoidBelt)
       scope = @stellar_object.significant_bodies
