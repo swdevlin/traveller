@@ -69,7 +69,10 @@ class Star < StellarObject
   end
 
   def orbiting_bodies
-    bodies = primary_stellar_objects.to_a + stars.to_a
+    moon_count_sql = Arel.sql(
+      "(SELECT COUNT(*) FROM stellar_objects m WHERE m.type = 'Moon' AND m.orbiting_id = stellar_objects.id) AS moon_count"
+    )
+    bodies = primary_stellar_objects.select('stellar_objects.*', moon_count_sql).to_a + stars.to_a
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
