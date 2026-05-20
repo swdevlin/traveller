@@ -1,7 +1,7 @@
 require 'csv'
 
 class RegionsController < ApplicationController
-  before_action :set_region, only: %i[show edit update destroy import_hexes upload_hexes download_csv]
+  before_action :set_region, except: %i[index new create]
 
   def index
     @pagy, @regions = pagy(Region.includes(:sectors).order(:name), limit: 20)
