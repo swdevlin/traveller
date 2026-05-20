@@ -1,5 +1,5 @@
 class NetworksController < ApplicationController
-  before_action :set_network, only: %i[show edit update destroy export_links]
+  before_action :set_network, except: %i[index new create]
 
   def index
     @networks = Network.ordered
