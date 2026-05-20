@@ -2,7 +2,7 @@ class SubsectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
   optional_authentication only: [:map]
-  before_action :set_subsector, only: %i[ show edit update clear load_defaults populate generate star_systems_table map]
+  before_action :set_subsector, except: :index
   before_action :set_counts, only: %i[show populate]
   # GET /subsectors or /subsectors.json
   def index
