@@ -10,7 +10,7 @@ class StarSystemsController < ApplicationController
   include UrlTokenVerification
   include LinkModalSetup
   optional_authentication only: [:map, :jump_map]
-  before_action :set_star_system, only: %i[ show edit update destroy map select_main_world set_main_world edit_bases update_bases edit_trade_codes update_trade_codes replace do_replace toggle_lock assign_social_characteristics apply_social_characteristics link_modal quick_link jump_map jump_map_modal ]
+  before_action :set_star_system, except: %i[index new create]
   before_action :set_form_context
 
   # GET /star_systems or /star_systems.json
