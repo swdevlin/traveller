@@ -4,7 +4,7 @@ class SectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
   optional_authentication only: %i[map poster]
-  before_action :set_sector, only: %i[ show edit update destroy clear load_defaults populate generate defaults_source map poster ]
+  before_action :set_sector, except: %i[index new new_from_traveller_map create]
 
   # GET /sectors or /sectors.json
   def index
