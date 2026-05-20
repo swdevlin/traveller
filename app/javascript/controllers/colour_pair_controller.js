@@ -2,6 +2,7 @@ import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
   static targets = ['background', 'border']
+  #handler = null
 
   connect() {
     this.#handler = () => this.#sync()
