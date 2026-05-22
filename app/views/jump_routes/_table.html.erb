@@ -28,6 +28,7 @@
                 <line x1="4" y1="50%" x2="56" y2="50%"
                       stroke="<%= jump_route.colour %>"
                       stroke-width="<%= jump_route.line_width %>"
+                      stroke-linecap="round"
                       <% if jump_route.stroke_dasharray %>stroke-dasharray="<%= jump_route.stroke_dasharray %>"<% end %>/>
               </svg>
             <% end %>
