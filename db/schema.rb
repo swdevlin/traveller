@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_21_182210) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -130,13 +130,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_182210) do
   create_table "public.jump_routes", force: :cascade do |t|
     t.string "colour"
     t.datetime "created_at", null: false
+    t.integer "excluded_travel_zone_ids", default: [], array: true
+    t.bigint "from_star_system_id"
     t.boolean "known"
     t.string "line_style", default: "solid", null: false
     t.integer "line_width", default: 4, null: false
     t.integer "max_jump"
     t.string "name"
     t.text "notes"
+    t.string "refueling"
+    t.string "route_type", default: "network", null: false
+    t.bigint "to_star_system_id"
     t.datetime "updated_at", null: false
+    t.index ["from_star_system_id"], name: "index_jump_routes_on_from_star_system_id"
+    t.index ["to_star_system_id"], name: "index_jump_routes_on_to_star_system_id"
   end
 
   create_table "public.law_levels", force: :cascade do |t|
@@ -420,6 +427,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_21_182210) do
   add_foreign_key "public.jump_route_links", "public.jump_routes"
   add_foreign_key "public.jump_route_links", "public.star_systems", column: "from_star_system_id"
   add_foreign_key "public.jump_route_links", "public.star_systems", column: "to_star_system_id"
+  add_foreign_key "public.jump_routes", "public.star_systems", column: "from_star_system_id"
+  add_foreign_key "public.jump_routes", "public.star_systems", column: "to_star_system_id"
   add_foreign_key "public.parsecs", "public.sectors", on_delete: :cascade
   add_foreign_key "public.region_parsecs", "public.parsecs"
   add_foreign_key "public.regions", "public.allegiances"

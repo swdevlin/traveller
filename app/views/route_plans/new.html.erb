@@ -83,7 +83,7 @@
     <%# Refueling %>
     <div>
       <label class='edit-label'>Refuelling</label>
-      <div class='mt-2 flex gap-6 text-sm'>
+      <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
         <label class='flex items-center gap-2 cursor-pointer'>
           <%= f.radio_button :refueling, 'any', checked: @refueling == 'any', class: 'accent-highlight' %>
           Any
@@ -96,8 +96,36 @@
           <%= f.radio_button :refueling, 'wilderness', checked: @refueling == 'wilderness', class: 'accent-highlight' %>
           Wilderness only (gas giant)
         </label>
+        <label class='flex items-center gap-2 cursor-pointer'>
+          <%= f.radio_button :refueling, 'refined', checked: @refueling == 'refined', class: 'accent-highlight' %>
+          Refined fuel only (A/B starport)
+        </label>
       </div>
     </div>
+
+    <%# Travel zone exclusions %>
+    <% if @travel_zones.any? %>
+      <div>
+        <label class='edit-label'>Exclude Travel Zones</label>
+        <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+          <% @travel_zones.each do |tz| %>
+            <label class='flex items-center gap-2 cursor-pointer'>
+              <input type='checkbox'
+                     name='excluded_travel_zone_ids[]'
+                     value='<%= tz.id %>'
+                     class='accent-highlight'
+                     <%= 'checked' if @excluded_travel_zone_ids.include?(tz.id) %>>
+              <span class='inline-flex items-center gap-1'>
+                <svg width='12' height='12' viewBox='0 0 12 12'>
+                  <circle cx='6' cy='6' r='5' fill='<%= tz.colour %>'/>
+                </svg>
+                <%= tz.name %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
 
     <div>
       <%= f.submit 'Plot route', class: 'w-full btn btn-primary' %>

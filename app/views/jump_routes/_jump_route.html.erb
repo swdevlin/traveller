@@ -19,6 +19,40 @@
     <%= render 'application/data_block', label: 'Known', value: jump_route.known? ? 'Yes' : 'No' %>
   </div>
 
+  <% if jump_route.plotted? && (jump_route.from_star_system || jump_route.to_star_system || jump_route.refueling.present? || jump_route.excluded_travel_zone_ids.present?) %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <% if jump_route.from_star_system %>
+        <%= render 'application/data_block',
+                   label: 'From',
+                   value: link_to(jump_route.from_star_system.display_name,
+                                  star_system_path(jump_route.from_star_system),
+                                  class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+      <% if jump_route.to_star_system %>
+        <%= render 'application/data_block',
+                   label: 'To',
+                   value: link_to(jump_route.to_star_system.display_name,
+                                  star_system_path(jump_route.to_star_system),
+                                  class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+      <% if jump_route.refueling.present? %>
+        <%= render 'application/data_block', label: 'Refuelling Filter', value: refueling_label(jump_route.refueling) %>
+      <% end %>
+      <% zones = jump_route.excluded_travel_zones; if zones.any? %>
+        <%
+          zone_content = safe_join(zones.map { |tz|
+            swatch = %(<svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="#{tz.colour}"/></svg>).html_safe
+            safe_join([swatch, tag.span(tz.name, class: 'ml-1 mr-2')])
+          })
+        %>
+        <%= render 'application/data_block',
+                   label: 'Excluded Zones',
+                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-1 text-sm',
+                   value: zone_content %>
+      <% end %>
+    </div>
+  <% end %>
+
   <% if jump_route.notes.present? %>
     <div class='grid grid-cols-1 gap-4'>
       <%= render 'application/data_block', label: 'Notes', value: jump_route.notes %>

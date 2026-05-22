@@ -3,17 +3,19 @@
 class RoutePlanner
   include HexDistance
 
-  SystemNode = Struct.new(:id, :name, :x, :y, :gas_giant_count, :starport_code, :hex_label, keyword_init: true)
+  SystemNode = Struct.new(:id, :name, :x, :y, :gas_giant_count, :starport_code, :hex_label, :travel_zone_id, keyword_init: true)
   Hop        = Struct.new(:system, :distance, keyword_init: true)
   RoutePlan  = Struct.new(:hops, keyword_init: true)
 
   STARPORT_COMMERCIAL = %w[A B C D].freeze
+  STARPORT_REFINED    = %w[A B].freeze
 
-  def initialize(from_id:, to_id:, jump_range:, refueling:)
-    @from_id    = from_id
-    @to_id      = to_id
-    @jump_range = jump_range
-    @refueling  = refueling
+  def initialize(from_id:, to_id:, jump_range:, refueling:, excluded_travel_zone_ids: [])
+    @from_id                  = from_id
+    @to_id                    = to_id
+    @jump_range               = jump_range
+    @refueling                = refueling
+    @excluded_travel_zone_ids = Array(excluded_travel_zone_ids).map(&:to_i).uniq
   end
 
   # Returns a RoutePlan or nil when no route exists.
@@ -45,7 +47,7 @@ class RoutePlanner
 
   def load_nodes
     sql = <<~SQL
-      SELECT ss.id, ss.name, p.x, p.y, ss.gas_giant_count,
+      SELECT ss.id, ss.name, p.x, p.y, ss.gas_giant_count, ss.travel_zone_id,
              so.data->>'starport_code' AS starport_code,
              sec.name || ' ' ||
                LPAD((p.x - sec.x * 32 + 1)::text, 2, '0') ||
@@ -59,13 +61,14 @@ class RoutePlanner
 
     ActiveRecord::Base.connection.execute(sql).map do |row|
       SystemNode.new(
-        id:             row['id'].to_i,
-        name:           row['name'],
-        x:              row['x'].to_i,
-        y:              row['y'].to_i,
+        id:              row['id'].to_i,
+        name:            row['name'],
+        x:               row['x'].to_i,
+        y:               row['y'].to_i,
         gas_giant_count: row['gas_giant_count'].to_i,
-        starport_code:  row['starport_code'],
-        hex_label:      row['hex_label']
+        starport_code:   row['starport_code'],
+        hex_label:       row['hex_label'],
+        travel_zone_id:  row['travel_zone_id']&.to_i
       )
     end
   end
@@ -73,8 +76,10 @@ class RoutePlanner
   # Origin and destination are always eligible; the filter only constrains intermediates.
   def eligible?(node)
     return true if node.id == @from_id || node.id == @to_id
+    return false if @excluded_travel_zone_ids.any? && @excluded_travel_zone_ids.include?(node.travel_zone_id)
 
     case @refueling
+    when 'refined'    then STARPORT_REFINED.include?(node.starport_code)
     when 'commercial' then STARPORT_COMMERCIAL.include?(node.starport_code)
     when 'wilderness' then node.gas_giant_count > 0
     else true

@@ -122,7 +122,7 @@ class StarSystem < ApplicationRecord
   def display_name
     return name if name.present?
 
-    'Unnamed Star System'
+    "#{parsec.sector.name} #{parsec.hex_code}"
   end
 
   private

@@ -5,86 +5,246 @@
 <%= render 'application/page' do %>
   <%= render @jump_route %>
 
-  <% if @show_map %>
-    <%= render 'application/subsection', title: 'Map' %>
-    <div class='my-4'>
-      <div class='mb-1 relative flex items-center justify-end h-9'>
-        <%= link_to map_jump_route_path(@jump_route),
-                    target: '_blank',
-                    rel: 'noopener',
-                    class: 'text-fg-muted hover:text-fg-bright',
-                    title: 'Open map in new tab' do %>
-          <i class='fa-regular fa-arrow-up-right-from-square'></i>
-        <% end %>
-      </div>
-      <img src="<%= map_jump_route_path(@jump_route) %>"
-           class='w-full h-auto rounded-md'
-           alt='Route map' />
-    </div>
-  <% end %>
-
-  <%= render 'application/subsection', title: 'Links' %>
-
-  <div class='flex justify-between items-start mb-3'>
-    <div class='flex gap-2 flex-wrap'>
-      <%= link_to export_links_jump_route_path(@jump_route),
-                  class: 'btn btn-sm' do %>
-        <i class='fa-regular fa-download mr-1'></i> Export CSV
-      <% end %>
-
-      <%= form_with url: jump_route_jump_route_import_path(@jump_route),
-                    multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
-        <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
-        <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
-      <% end %>
-    </div>
-  </div>
-
-  <% links = @jump_route.jump_route_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
-  <% if links.any? %>
-    <div class='table-card'>
-      <div class='table-scroll'>
-    <table>
-      <thead>
-        <tr>
-          <th>From System</th>
-          <th>Hex</th>
-          <th>To System</th>
-          <th>Hex</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% links.each do |link| %>
-          <tr id="<%= dom_id link %>">
-            <td>
-              <%= link_to link.from_star_system.display_name,
-                          star_system_path(link.from_star_system),
-                          class: 'no-underline hover:underline hover:underline-offset-2' %>
-            </td>
-            <td><span class='identifier'><%= link.from_star_system.parsec.hex_code %></span></td>
-            <td>
-              <%= link_to link.to_star_system.display_name,
-                          star_system_path(link.to_star_system),
-                          class: 'no-underline hover:underline hover:underline-offset-2' %>
-            </td>
-            <td><span class='identifier'><%= link.to_star_system.parsec.hex_code %></span></td>
-            <td class='text-right'>
-              <%= button_to jump_route_link_path(link),
-                    method: :delete,
-                    class: 'btn btn-sm btn-danger',
-                    data: { turbo_confirm: 'Remove this link?' } do %>
-                <i class='fa-regular fa-trash'></i>
+  <% if @jump_route.plotted? %>
+    <% systems = @jump_route.ordered_systems %>
+    <% if @show_map && @map_svg %>
+      <div class='flex gap-6 items-start my-4'>
+        <div class='flex-1 min-w-0'>
+          <div class='mb-1 relative flex items-center justify-end h-9'>
+            <%= link_to map_jump_route_path(@jump_route),
+                        target: '_blank',
+                        rel: 'noopener',
+                        class: 'text-fg-muted hover:text-fg-bright',
+                        title: 'Open map in new tab' do %>
+              <i class='fa-regular fa-arrow-up-right-from-square'></i>
+            <% end %>
+          </div>
+          <div class='overflow-auto rounded-md'>
+            <%= @map_svg.html_safe %>
+          </div>
+        </div>
+        <div class='shrink-0'>
+          <%= render 'application/subsection', title: 'Path' %>
+          <% if systems.any? %>
+            <div class='table-card'>
+              <div class='table-scroll'>
+                <table>
+                  <thead>
+                    <tr>
+                      <th class='text-right w-12'>#</th>
+                      <th>System</th>
+                      <th>UWP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% systems.each_with_index do |sys, i| %>
+                      <tr class='<%= 'text-highlight font-medium' if i == 0 || i == systems.size - 1 %>'>
+                        <td class='text-right tabular-nums text-fg-muted'><%= i + 1 %></td>
+                        <td>
+                          <%= link_to star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                            <span class='block'><%= sys.display_name %></span>
+                            <% if sys.name.present? %>
+                              <span class='block text-xs text-fg-muted'><%= sys.parsec.sector.name %> · <%= sys.parsec.hex_code %></span>
+                            <% end %>
+                          <% end %>
+                        </td>
+                        <td class='font-mono'><%= sys.main_world_uwp %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class='mt-2'>
+              <%= link_to export_path_jump_route_path(@jump_route), class: 'btn btn-sm' do %>
+                <i class='fa-regular fa-download mr-1'></i> Export CSV
               <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+            </div>
+          <% else %>
+            <p class='text-sm text-fg-muted mb-4'>Path could not be resolved. Edit the route to recalculate.</p>
+          <% end %>
+        </div>
       </div>
-    </div>
+    <% else %>
+      <%= render 'application/subsection', title: 'Path' %>
+      <% if systems.any? %>
+        <div class='table-card'>
+          <div class='table-scroll'>
+            <table>
+              <thead>
+                <tr>
+                  <th class='text-right w-12'>#</th>
+                  <th>System</th>
+                  <th>UWP</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% systems.each_with_index do |sys, i| %>
+                  <tr class='<%= 'text-highlight font-medium' if i == 0 || i == systems.size - 1 %>'>
+                    <td class='text-right tabular-nums text-fg-muted'><%= i + 1 %></td>
+                    <td>
+                      <%= link_to star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                        <span class='block'><%= sys.display_name %></span>
+                        <% if sys.name.present? %>
+                          <span class='block text-xs text-fg-muted'><%= sys.parsec.sector.name %> · <%= sys.parsec.hex_code %></span>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td class='font-mono'><%= sys.main_world_uwp %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class='mt-2'>
+          <%= link_to export_path_jump_route_path(@jump_route), class: 'btn btn-sm' do %>
+            <i class='fa-regular fa-download mr-1'></i> Export CSV
+          <% end %>
+        </div>
+      <% else %>
+        <p class='text-sm text-fg-muted mb-4'>Path could not be resolved. Edit the route to recalculate.</p>
+      <% end %>
+    <% end %>
   <% else %>
-    <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
+    <% links = @jump_route.jump_route_links.includes(from_star_system: { parsec: :sector }, to_star_system: { parsec: :sector }).order(:id) %>
+    <% if @show_map && @map_svg %>
+      <div class='flex gap-6 items-start my-4'>
+        <div class='flex-1 min-w-0'>
+          <div class='mb-1 relative flex items-center justify-end h-9'>
+            <%= link_to map_jump_route_path(@jump_route),
+                        target: '_blank',
+                        rel: 'noopener',
+                        class: 'text-fg-muted hover:text-fg-bright',
+                        title: 'Open map in new tab' do %>
+              <i class='fa-regular fa-arrow-up-right-from-square'></i>
+            <% end %>
+          </div>
+          <div class='overflow-auto rounded-md'>
+            <%= @map_svg.html_safe %>
+          </div>
+        </div>
+        <div class='shrink-0'>
+          <%= render 'application/subsection', title: 'Links' %>
+          <% if links.any? %>
+            <div class='table-card'>
+              <div class='table-scroll'>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>From System</th>
+                      <th>To System</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% links.each do |link| %>
+                      <tr id="<%= dom_id link %>">
+                        <td>
+                          <%= link_to star_system_path(link.from_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                            <span class='block'><%= link.from_star_system.display_name %></span>
+                            <% if link.from_star_system.name.present? %>
+                              <span class='block text-xs text-fg-muted'><%= link.from_star_system.parsec.sector.name %> · <%= link.from_star_system.parsec.hex_code %></span>
+                            <% end %>
+                          <% end %>
+                        </td>
+                        <td>
+                          <%= link_to star_system_path(link.to_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                            <span class='block'><%= link.to_star_system.display_name %></span>
+                            <% if link.to_star_system.name.present? %>
+                              <span class='block text-xs text-fg-muted'><%= link.to_star_system.parsec.sector.name %> · <%= link.to_star_system.parsec.hex_code %></span>
+                            <% end %>
+                          <% end %>
+                        </td>
+                        <td class='text-right'>
+                          <%= button_to jump_route_link_path(link),
+                                method: :delete,
+                                class: 'btn btn-sm btn-danger',
+                                data: { turbo_confirm: 'Remove this link?' } do %>
+                            <i class='fa-regular fa-trash'></i>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class='mt-2 flex gap-2 flex-wrap'>
+              <%= link_to export_links_jump_route_path(@jump_route), class: 'btn btn-sm' do %>
+                <i class='fa-regular fa-download mr-1'></i> Export CSV
+              <% end %>
+              <%= form_with url: jump_route_jump_route_import_path(@jump_route),
+                            multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
+                <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
+                <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <%= render 'application/subsection', title: 'Links' %>
+      <% if links.any? %>
+        <div class='table-card'>
+          <div class='table-scroll'>
+            <table>
+              <thead>
+                <tr>
+                  <th>From System</th>
+                  <th>To System</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% links.each do |link| %>
+                  <tr id="<%= dom_id link %>">
+                    <td>
+                      <%= link_to star_system_path(link.from_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                        <span class='block'><%= link.from_star_system.display_name %></span>
+                        <% if link.from_star_system.name.present? %>
+                          <span class='block text-xs text-fg-muted'><%= link.from_star_system.parsec.sector.name %> · <%= link.from_star_system.parsec.hex_code %></span>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= link_to star_system_path(link.to_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+                        <span class='block'><%= link.to_star_system.display_name %></span>
+                        <% if link.to_star_system.name.present? %>
+                          <span class='block text-xs text-fg-muted'><%= link.to_star_system.parsec.sector.name %> · <%= link.to_star_system.parsec.hex_code %></span>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td class='text-right'>
+                      <%= button_to jump_route_link_path(link),
+                            method: :delete,
+                            class: 'btn btn-sm btn-danger',
+                            data: { turbo_confirm: 'Remove this link?' } do %>
+                        <i class='fa-regular fa-trash'></i>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class='mt-2 flex gap-2 flex-wrap'>
+          <%= link_to export_links_jump_route_path(@jump_route), class: 'btn btn-sm' do %>
+            <i class='fa-regular fa-download mr-1'></i> Export CSV
+          <% end %>
+          <%= form_with url: jump_route_jump_route_import_path(@jump_route),
+                        multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
+            <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
+            <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
+      <% end %>
+    <% end %>
   <% end %>
 
   <%= link_to 'Edit', edit_jump_route_path(@jump_route), class: 'w-full sm:w-auto btn btn-primary' %>

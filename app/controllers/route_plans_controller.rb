@@ -2,11 +2,13 @@
 
 class RoutePlansController < ApplicationController
   def new
-    @from_system = StarSystem.find_by(id: params[:from_id])
-    @to_system   = StarSystem.find_by(id: params[:to_id])
-    @ships       = Ship.all.order(:name)
-    @jump_range  = params[:jump_range].presence&.to_i || 2
-    @refueling   = params[:refueling].presence_in(%w[any commercial wilderness]) || 'any'
+    @from_system              = StarSystem.find_by(id: params[:from_id])
+    @to_system                = StarSystem.find_by(id: params[:to_id])
+    @ships                    = Ship.all.order(:name)
+    @jump_range               = params[:jump_range].presence&.to_i || 2
+    @refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
+    @excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
+    @travel_zones             = TravelZone.ordered
 
     return unless @from_system && @to_system
 
@@ -16,10 +18,11 @@ class RoutePlansController < ApplicationController
     end
 
     planner = RoutePlanner.new(
-      from_id:    @from_system.id,
-      to_id:      @to_system.id,
-      jump_range: @jump_range,
-      refueling:  @refueling
+      from_id:                  @from_system.id,
+      to_id:                    @to_system.id,
+      jump_range:               @jump_range,
+      refueling:                @refueling,
+      excluded_travel_zone_ids: @excluded_travel_zone_ids
     )
     @plan = planner.plan
     if @plan
@@ -40,10 +43,16 @@ class RoutePlansController < ApplicationController
     end
 
     route = JumpRoute.create!(
-      name:       params[:name].presence || 'Saved Route',
-      colour:     params[:colour].presence || '#E87040',
-      line_style: 'dashed',
-      line_width: 8
+      name:                     params[:name].presence || 'Saved Route',
+      colour:                   params[:colour].presence || '#E87040',
+      line_style:               'dashed',
+      line_width:               8,
+      route_type:               'plotted',
+      max_jump:                 params[:jump_range].to_i.clamp(1, 6),
+      refueling:                params[:refueling].presence_in(JumpRoute::REFUELING),
+      excluded_travel_zone_ids: Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?),
+      from_star_system_id:      params[:from_id].to_i.nonzero?,
+      to_star_system_id:        params[:to_id].to_i.nonzero?
     )
     pairs.each do |from_id, to_id|
       JumpRouteLink.create!(
