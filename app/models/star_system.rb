@@ -9,8 +9,8 @@ class StarSystem < ApplicationRecord
   validates :parsec_id, presence: { message: 'You must select a hex' }
 
   has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
-  has_many :network_links_as_from, class_name: 'NetworkLink', foreign_key: :from_star_system_id, dependent: :destroy
-  has_many :network_links_as_to, class_name: 'NetworkLink', foreign_key: :to_star_system_id, dependent: :destroy
+  has_many :jump_route_links_as_from, class_name: 'JumpRouteLink', foreign_key: :from_star_system_id, dependent: :destroy
+  has_many :jump_route_links_as_to, class_name: 'JumpRouteLink', foreign_key: :to_star_system_id, dependent: :destroy
   has_many :star_system_trade_codes, dependent: :destroy
   has_many :star_system_facilities, dependent: :destroy
   has_many :trade_codes, through: :star_system_trade_codes
@@ -51,10 +51,10 @@ class StarSystem < ApplicationRecord
     bodies.sort_by { |b| b.orbit.to_f }
   end
 
-  def network_links
-    NetworkLink
+  def jump_route_links
+    JumpRouteLink
       .where('from_star_system_id = ? OR to_star_system_id = ?', id, id)
-      .includes(:network, :from_star_system, :to_star_system)
+      .includes(:jump_route, :from_star_system, :to_star_system)
   end
 
   scope :locked, -> { where(locked: true) }

@@ -156,10 +156,10 @@ class StarSystemsController < ApplicationController
   end
 
   def quick_link
-    network = Network.find(params[:network_id])
-    target  = StarSystem.find(params[:to_system_id])
-    link    = NetworkLink.new(
-      network: network,
+    jump_route = JumpRoute.find(params[:jump_route_id])
+    target     = StarSystem.find(params[:to_system_id])
+    link       = JumpRouteLink.new(
+      jump_route: jump_route,
       from_star_system: @star_system,
       to_star_system: target
     )
@@ -173,8 +173,8 @@ class StarSystemsController < ApplicationController
           streams = [
             turbo_stream.replace('link-modal-map',     html: map_div_html.html_safe),
             turbo_stream.replace('link-modal-systems', partial: 'star_systems/link_modal_systems'),
-            turbo_stream.prepend("network-links-#{@star_system.id}",
-                                 partial: 'star_systems/network_link_row',
+            turbo_stream.prepend("jump-route-links-#{@star_system.id}",
+                                 partial: 'star_systems/jump_route_link_row',
                                  locals: { link: link, star_system_id: @star_system.id })
           ]
 

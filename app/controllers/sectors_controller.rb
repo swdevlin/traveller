@@ -137,9 +137,17 @@ class SectorsController < ApplicationController
       .joins(star_system: :parsec)
       .where(parsecs: { sector_id: @sector.id })
       .maximum(:updated_at)
+    sector_star_system_ids = @star_systems.select(:id)
+    jump_route_link_max_updated = JumpRouteLink
+      .where(from_star_system_id: sector_star_system_ids, to_star_system_id: sector_star_system_ids)
+      .maximum(:updated_at)
+    jump_route_max_updated = JumpRoute
+      .joins(:jump_route_links)
+      .where(jump_route_links: { from_star_system_id: sector_star_system_ids })
+      .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{facility_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -189,10 +197,10 @@ class SectorsController < ApplicationController
     @trailing_subsectors = trailing_sector&.subsectors&.where(x: 1)&.order(:y)&.to_a || []
 
     star_system_subquery = StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).select(:id)
-    @network_links_for_map = NetworkLink
+    @jump_route_links_for_map = JumpRouteLink
       .where(from_star_system_id: star_system_subquery, to_star_system_id: star_system_subquery)
-      .includes(:network, from_star_system: :parsec, to_star_system: :parsec)
-    @networks_on_poster = @network_links_for_map.map(&:network).uniq
+      .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
+    @jump_routes_on_poster = @jump_route_links_for_map.map(&:jump_route).uniq
 
     @hex_map_svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
 
@@ -315,6 +323,11 @@ class SectorsController < ApplicationController
         ordered << :comet     if types.include?('Comet')
         ordered
       end
+
+      star_system_subquery = @star_systems.select(:id)
+      @jump_route_links_for_map = JumpRouteLink
+        .where(from_star_system_id: star_system_subquery, to_star_system_id: star_system_subquery)
+        .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
     end
 
     # Use callbacks to share common setup or constraints between actions.

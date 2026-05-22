@@ -204,12 +204,13 @@
       <% end %>
     </g>
 
-  <%# Layer 1g: Network link lines %>
-  <% (@network_links_for_map || []).each do |link| %>
+  <%# Layer 1g: Jump route link lines %>
+  <% (@jump_route_links_for_map || []).each do |link| %>
     <%
-      colour = link.network.colour.presence || '#888888'
-      from_p = link.from_star_system.parsec
-      to_p   = link.to_star_system.parsec
+      route    = link.jump_route
+      colour   = route.colour.presence || '#888888'
+      from_p   = link.from_star_system.parsec
+      to_p     = link.to_star_system.parsec
 
       from_col = from_p.x - ul.x + 1
       from_row = ul.y - from_p.y + 1
@@ -218,11 +219,16 @@
 
       from_cx, from_cy = hex_center(from_col, from_row)
       to_cx,   to_cy   = hex_center(to_col, to_row)
+      dasharray = route.stroke_dasharray
     %>
     <line x1="<%= from_cx.round(2) %>" y1="<%= from_cy.round(2) %>"
           x2="<%= to_cx.round(2) %>"   y2="<%= to_cy.round(2) %>"
-          stroke="<%= colour %>" stroke-width="4" stroke-opacity="0.7"
-          stroke-linecap="round" pointer-events="none"/>
+          stroke="<%= colour %>"
+          stroke-width="<%= route.line_width %>"
+          stroke-opacity="0.7"
+          stroke-linecap="round"
+          <% if dasharray %>stroke-dasharray="<%= dasharray %>"<% end %>
+          pointer-events="none"/>
   <% end %>
 
   <%# Layer 3: Star circles (drawn under text) %>

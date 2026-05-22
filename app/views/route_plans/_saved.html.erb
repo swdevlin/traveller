@@ -1,0 +1,5 @@
+<div id='route-save-form' class='flex items-center gap-2 text-sm text-fg-muted'>
+  <i class='fa-regular fa-check text-green-500'></i>
+  Saved as
+  <%= link_to route.name, jump_route_path(route), class: 'text-highlight no-underline hover:underline hover:underline-offset-2' %>
+</div>

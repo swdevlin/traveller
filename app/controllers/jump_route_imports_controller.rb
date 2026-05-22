@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class NetworkImportsController < ApplicationController
+class JumpRouteImportsController < ApplicationController
   def create
-    @network = Network.find(params[:network_id])
+    @jump_route = JumpRoute.find(params[:jump_route_id])
 
     unless params[:file].present?
-      redirect_to network_path(@network), alert: 'No file selected.' and return
+      redirect_to jump_route_path(@jump_route), alert: 'No file selected.' and return
     end
 
     csv_text = params[:file].read
@@ -15,7 +15,7 @@ class NetworkImportsController < ApplicationController
     notice += " #{results[:skipped]} skipped (already exist or system not found)." if results[:skipped] > 0
     notice += " #{results[:errors]} error(s)." if results[:errors] > 0
 
-    redirect_to network_path(@network), notice: notice
+    redirect_to jump_route_path(@jump_route), notice: notice
   end
 
   private
@@ -44,8 +44,8 @@ class NetworkImportsController < ApplicationController
         next
       end
 
-      link = NetworkLink.new(
-        network: @network,
+      link = JumpRouteLink.new(
+        jump_route: @jump_route,
         from_star_system: from_sys,
         to_star_system: to_sys
       )

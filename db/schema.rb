@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_11_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_182210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -116,6 +116,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_180000) do
     t.index ["to_parsec_id"], name: "index_jump_logs_on_to_parsec_id"
   end
 
+  create_table "public.jump_route_links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "from_star_system_id", null: false
+    t.bigint "jump_route_id", null: false
+    t.bigint "to_star_system_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_star_system_id", "to_star_system_id"], name: "idx_on_from_star_system_id_to_star_system_id_90e126fb8d", unique: true
+    t.index ["jump_route_id"], name: "index_jump_route_links_on_jump_route_id"
+    t.index ["to_star_system_id"], name: "index_jump_route_links_on_to_star_system_id"
+  end
+
+  create_table "public.jump_routes", force: :cascade do |t|
+    t.string "colour"
+    t.datetime "created_at", null: false
+    t.boolean "known"
+    t.string "line_style", default: "solid", null: false
+    t.integer "line_width", default: 4, null: false
+    t.integer "max_jump"
+    t.string "name"
+    t.text "notes"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "public.law_levels", force: :cascade do |t|
     t.string "armour"
     t.integer "code"
@@ -128,27 +151,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_180000) do
     t.datetime "updated_at", null: false
     t.string "weapons"
     t.index ["code"], name: "index_law_levels_on_code", unique: true
-  end
-
-  create_table "public.network_links", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "from_star_system_id", null: false
-    t.bigint "network_id", null: false
-    t.bigint "to_star_system_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["from_star_system_id", "to_star_system_id"], name: "idx_on_from_star_system_id_to_star_system_id_5dc5d7aaf1", unique: true
-    t.index ["network_id"], name: "index_network_links_on_network_id"
-    t.index ["to_star_system_id"], name: "index_network_links_on_to_star_system_id"
-  end
-
-  create_table "public.networks", force: :cascade do |t|
-    t.string "colour"
-    t.datetime "created_at", null: false
-    t.boolean "known"
-    t.integer "max_jump"
-    t.string "name"
-    t.text "notes"
-    t.datetime "updated_at", null: false
   end
 
   create_table "public.parsecs", force: :cascade do |t|
@@ -415,9 +417,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_180000) do
   add_foreign_key "public.jump_logs", "public.parsecs", column: "from_parsec_id"
   add_foreign_key "public.jump_logs", "public.parsecs", column: "to_parsec_id"
   add_foreign_key "public.jump_logs", "public.ships"
-  add_foreign_key "public.network_links", "public.networks"
-  add_foreign_key "public.network_links", "public.star_systems", column: "from_star_system_id"
-  add_foreign_key "public.network_links", "public.star_systems", column: "to_star_system_id"
+  add_foreign_key "public.jump_route_links", "public.jump_routes"
+  add_foreign_key "public.jump_route_links", "public.star_systems", column: "from_star_system_id"
+  add_foreign_key "public.jump_route_links", "public.star_systems", column: "to_star_system_id"
   add_foreign_key "public.parsecs", "public.sectors", on_delete: :cascade
   add_foreign_key "public.region_parsecs", "public.parsecs"
   add_foreign_key "public.regions", "public.allegiances"

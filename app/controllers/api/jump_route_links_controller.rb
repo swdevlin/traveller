@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-class Api::NetworkLinksController < Api::BaseController
+class Api::JumpRouteLinksController < Api::BaseController
   def index
     links = if parsecs_in_region
               parsec_ids      = parsecs_in_region.select(:id)
               star_system_ids = StarSystem.where(parsec_id: parsec_ids).select(:id)
-              NetworkLink.where(from_star_system_id: star_system_ids)
-                         .or(NetworkLink.where(to_star_system_id: star_system_ids))
+              JumpRouteLink.where(from_star_system_id: star_system_ids)
+                           .or(JumpRouteLink.where(to_star_system_id: star_system_ids))
     else
-              NetworkLink.all
+              JumpRouteLink.all
     end
 
-    links = links.includes(:network,
+    links = links.includes(:jump_route,
                            from_star_system: :parsec,
                            to_star_system: :parsec)
 
@@ -23,8 +23,10 @@ class Api::NetworkLinksController < Api::BaseController
   def serialize_link(link)
     {
       id: link.id,
-      colour: link.network.colour,
-      known: link.network.known?,
+      colour: link.jump_route.colour,
+      known: link.jump_route.known?,
+      stroke_dasharray: link.jump_route.stroke_dasharray.to_s,
+      line_width: link.jump_route.line_width,
       from_survey_index: link.from_star_system.survey_index.to_i,
       to_survey_index: link.to_star_system.survey_index.to_i,
       from_x: link.from_star_system.parsec.x,

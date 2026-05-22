@@ -91,9 +91,9 @@ class SubsectorsController < ApplicationController
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     star_system_subquery = @subsector.star_systems_scope.select(:id)
-    network_link_max_updated = NetworkLink
+    jump_route_link_max_updated = JumpRouteLink
       .where(from_star_system_id: star_system_subquery)
-      .or(NetworkLink.where(to_star_system_id: star_system_subquery))
+      .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
       .maximum(:updated_at)
     rogue_max_updated = StellarObject
       .where(parsec: @subsector.parsecs, orbiting_id: nil)
@@ -109,7 +109,7 @@ class SubsectorsController < ApplicationController
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_max_updated.to_i,
-      network_link_max_updated.to_i,
+      jump_route_link_max_updated.to_i,
       rogue_max_updated.to_i,
       facility_max_updated.to_i,
       current_campaign.updated_at.to_i,
@@ -120,7 +120,7 @@ class SubsectorsController < ApplicationController
     @native_sophont_colour  = current_campaign.native_sophont_colour.presence
     @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
 
-    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated, network_link_max_updated].compact.max
+    fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated, jump_route_link_max_updated].compact.max
     return if performed?
 
     @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
@@ -150,10 +150,10 @@ class SubsectorsController < ApplicationController
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
     @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set
 
-    @network_links_for_map = NetworkLink
+    @jump_route_links_for_map = JumpRouteLink
       .where(from_star_system_id: star_system_subquery)
-      .or(NetworkLink.where(to_star_system_id: star_system_subquery))
-      .includes(:network, from_star_system: :parsec, to_star_system: :parsec)
+      .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
+      .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
 
     @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
       subsector_parsecs,

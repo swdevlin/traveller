@@ -6,15 +6,15 @@ module LinkModalSetup
   private
 
   def setup_link_modal_ivars
-    @networks = Network.ordered
-    @selected_network = if params[:network_id].present?
-                          Network.find_by(id: params[:network_id])
+    @jump_routes = JumpRoute.ordered
+    @selected_jump_route = if params[:jump_route_id].present?
+                             JumpRoute.find_by(id: params[:jump_route_id])
     else
-                          @networks.first
+                             @jump_routes.first
     end
 
     parsec = @star_system.parsec
-    max_jump = @max_jump = @selected_network&.max_jump || 3
+    max_jump = @max_jump = @selected_jump_route&.max_jump || 3
 
     ulx = parsec.x - max_jump
     uly = parsec.y + max_jump
@@ -56,16 +56,16 @@ module LinkModalSetup
 
     viewport_system_ids = star_systems.map(&:id)
 
-    all_viewport_links = if @selected_network && viewport_system_ids.any?
-                           NetworkLink.where(network: @selected_network)
+    all_viewport_links = if @selected_jump_route && viewport_system_ids.any?
+                           JumpRouteLink.where(jump_route: @selected_jump_route)
                              .where('from_star_system_id IN (?) OR to_star_system_id IN (?)', viewport_system_ids, viewport_system_ids)
-                             .includes(:network, from_star_system: :parsec, to_star_system: :parsec)
+                             .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
                              .to_a
     else
                            []
     end
 
-    @network_links_for_map = all_viewport_links
+    @jump_route_links_for_map = all_viewport_links
     my_links = all_viewport_links
                  .select { |l| l.from_star_system_id == @star_system.id || l.to_star_system_id == @star_system.id }
     @linked_system_ids = my_links
@@ -78,13 +78,13 @@ module LinkModalSetup
     end
 
     @hex_click_map = {}
-    if @selected_network
+    if @selected_jump_route
       @systems_by_pos.each do |(col, row), sys|
         next if sys.id == @star_system.id
         next if @linked_system_ids.include?(sys.id)
         @hex_click_map[[col, row]] = quick_link_star_system_path(
           @star_system,
-          network_id: @selected_network.id,
+          jump_route_id: @selected_jump_route.id,
           to_system_id: sys.id
         )
       end

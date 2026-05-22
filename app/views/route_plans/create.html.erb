@@ -54,7 +54,28 @@
     </div>
   <% end %>
 
-  <div class='mt-6 pt-4 border-t border-outline'>
+  <div class='mt-6 pt-4 border-t border-outline space-y-4'>
+    <% if @plan %>
+      <div id='route-save-form'>
+        <%= form_with url: save_route_plan_path, method: :post do |f| %>
+          <% @plan.hops.each do |h| %>
+            <input type='hidden' name='system_ids[]' value='<%= h.system.id %>'>
+          <% end %>
+          <div class='flex flex-wrap items-center gap-2'>
+            <%= f.text_field :name,
+                             placeholder: 'Route name',
+                             value: "#{@from_system.display_name} → #{@to_system.display_name}",
+                             class: 'edit-base flex-1 min-w-0' %>
+            <%= f.text_field :colour,
+                             value: '#E87040',
+                             data: { controller: 'coloris' },
+                             class: 'edit-base w-28' %>
+            <%= f.submit 'Save to map', class: 'btn btn-sm btn-primary' %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <%= link_to 'Plan another route',
                 new_route_plan_path(from_id: @from_system.id, jump_range: @jump_range, refueling: @refueling),
                 data: { turbo_frame: 'modal-inner' },

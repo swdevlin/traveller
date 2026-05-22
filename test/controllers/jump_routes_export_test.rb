@@ -1,12 +1,12 @@
 require 'test_helper'
 
-class NetworksExportTest < AuthenticatedIntegrationTest
+class JumpRoutesExportTest < AuthenticatedIntegrationTest
   setup do
-    @network = networks(:one)
+    @jump_route = jump_routes(:one)
   end
 
   test 'export_links returns csv with headers' do
-    get export_links_network_url(@network)
+    get export_links_jump_route_url(@jump_route)
     assert_response :success
     assert_equal 'text/csv', response.media_type
     assert_includes response.body, 'from_system'
@@ -14,8 +14,8 @@ class NetworksExportTest < AuthenticatedIntegrationTest
   end
 
   test 'export_links includes link data' do
-    link = network_links(:one)
-    get export_links_network_url(@network)
+    link = jump_route_links(:one)
+    get export_links_jump_route_url(@jump_route)
     assert_includes response.body, link.from_star_system.name
     assert_includes response.body, link.to_star_system.name
   end

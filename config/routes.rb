@@ -31,19 +31,19 @@ Rails.application.routes.draw do
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
-      get 'network_links', to: 'network_links#index', defaults: { format: :json }
+      get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
     end
 
     resources :jump_logs
 
-    resources :network_links, only: %i[create destroy]
+    resources :jump_route_links, only: %i[create destroy]
 
-    resources :networks do
+    resources :jump_routes do
       member do
-        get  :export_links
+        get :export_links
       end
-      resource :network_import, only: %i[create]
+      resource :jump_route_import, only: %i[create]
     end
 
     resources :ships do
@@ -155,7 +155,12 @@ Rails.application.routes.draw do
 
     get '/search',              to: 'search#query'
     get '/search/star-systems', to: 'search#star_systems', as: :search_star_systems
-    resource :route_plan, only: [:new]
+    resource :route_plan, only: [:new] do
+      collection do
+        post :save
+        delete :clear
+      end
+    end
     get '/data-cores', to: 'data_cores#index', as: :data_cores
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight

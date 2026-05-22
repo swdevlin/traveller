@@ -4,53 +4,61 @@
       <thead>
       <tr>
         <th scope='col'>Name</th>
-        <th scope='col'>Colour</th>
+        <th scope='col'>Style</th>
         <th scope='col'>Max Jump</th>
         <th scope='col'>Known</th>
+        <th scope='col' class='text-right'>Systems</th>
         <th scope='col' class='text-right'>Actions</th>
       </tr>
       </thead>
 
       <tbody>
-      <% networks.each do |network| %>
+      <% jump_routes.each do |jump_route| %>
         <tr class='cursor-pointer'
             data-controller='row-link'
-            data-row-link-url-value='<%= network_path(network) %>'
+            data-row-link-url-value='<%= jump_route_path(jump_route) %>'
             data-action='click->row-link#navigate'>
           <td class='whitespace-nowrap'>
-            <%= network.name %>
+            <%= jump_route.name %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <% if network.colour.present? %>
-              <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
-                <circle cx="10" cy="10" r="7" fill="<%= network.colour %>" stroke="none"/>
+            <% if jump_route.colour.present? %>
+              <svg width="60" height="<%= [jump_route.line_width * 2 + 4, 12].max %>" style="vertical-align:middle;">
+                <line x1="4" y1="50%" x2="56" y2="50%"
+                      stroke="<%= jump_route.colour %>"
+                      stroke-width="<%= jump_route.line_width %>"
+                      <% if jump_route.stroke_dasharray %>stroke-dasharray="<%= jump_route.stroke_dasharray %>"<% end %>/>
               </svg>
-              <span class='font-mono text-sm ml-1'><%= network.colour %></span>
             <% end %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <%= network.max_jump %>
+            <%= jump_route.max_jump %>
           </td>
 
           <td class='whitespace-nowrap'>
-            <% if network.known? %>
+            <% if jump_route.known? %>
               <i class='fa-regular fa-check text-fg-muted'></i>
             <% end %>
           </td>
 
+          <td class='text-right whitespace-nowrap'>
+            <% count = jump_route.jump_route_links.size %>
+            <%= count > 0 ? count + 1 : '—' %>
+          </td>
+
           <td class='actions-cell'>
             <div class='action-group'>
-              <%= link_to edit_network_path(network), class: 'action', title: 'Edit' do %>
+              <%= link_to edit_jump_route_path(jump_route), class: 'action', title: 'Edit' do %>
                 <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
-              <%= button_to network,
+              <%= button_to jump_route,
                             method: :delete,
                             class: 'action danger',
                             title: 'Delete',
-                            data: { turbo_confirm: "Delete #{network.name}?" } do %>
+                            data: { turbo_confirm: "Delete #{jump_route.name}?" } do %>
                 <i class='fa-regular fa-trash'></i>
               <% end %>
             </div>

@@ -1,20 +1,20 @@
-<% content_for :title, @network.name %>
-<% content_for :page_kicker, 'Network' %>
-<% content_for :page_title, @network.name %>
+<% content_for :title, @jump_route.name %>
+<% content_for :page_kicker, 'Jump Route' %>
+<% content_for :page_title, @jump_route.name %>
 
 <%= render 'application/page' do %>
-  <%= render @network %>
+  <%= render @jump_route %>
 
   <%= render 'application/subsection', title: 'Links' %>
 
   <div class='flex justify-between items-start mb-3'>
     <div class='flex gap-2 flex-wrap'>
-      <%= link_to export_links_network_path(@network),
+      <%= link_to export_links_jump_route_path(@jump_route),
                   class: 'btn btn-sm' do %>
         <i class='fa-regular fa-download mr-1'></i> Export CSV
       <% end %>
 
-      <%= form_with url: network_network_import_path(@network),
+      <%= form_with url: jump_route_jump_route_import_path(@jump_route),
                     multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
         <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
         <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <% links = @network.network_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
+  <% links = @jump_route.jump_route_links.includes(from_star_system: :parsec, to_star_system: :parsec).order(:id) %>
   <% if links.any? %>
     <div class='table-card'>
       <div class='table-scroll'>
@@ -52,7 +52,7 @@
             </td>
             <td><span class='identifier'><%= link.to_star_system.parsec.hex_code %></span></td>
             <td class='text-right'>
-              <%= button_to network_link_path(link),
+              <%= button_to jump_route_link_path(link),
                     method: :delete,
                     class: 'btn btn-sm btn-danger',
                     data: { turbo_confirm: 'Remove this link?' } do %>
@@ -69,15 +69,15 @@
     <p class='text-sm text-fg-muted mb-4'>No links defined yet. Import a CSV or add links from individual star systems.</p>
   <% end %>
 
-  <%= link_to 'Edit', edit_network_path(@network), class: 'w-full sm:w-auto btn btn-primary' %>
+  <%= link_to 'Edit', edit_jump_route_path(@jump_route), class: 'w-full sm:w-auto btn btn-primary' %>
   <%= render 'application/back_button',
-             path: networks_path,
-             label: 'Networks',
+             path: jump_routes_path,
+             label: 'Jump Routes',
              class: 'w-full sm:w-auto' %>
   <%= button_to 'Delete',
-                @network,
+                @jump_route,
                 method: :delete,
                 form_class: 'w-full sm:w-auto inline-flex m-0',
                 class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
-                data: { turbo_confirm: "Delete #{@network.name}?" } %>
+                data: { turbo_confirm: "Delete #{@jump_route.name}?" } %>
 <% end %>

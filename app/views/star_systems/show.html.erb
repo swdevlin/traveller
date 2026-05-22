@@ -46,14 +46,14 @@
   <% end %>
 
   <div class='mt-6'>
-    <%= render 'application/subsection', title: 'Network Links' %>
-    <div id="network-links-<%= @star_system.id %>" class='mt-2'>
-      <% star_system_links = @star_system.network_links %>
+    <%= render 'application/subsection', title: 'Jump Route Links' %>
+    <div id="jump-route-links-<%= @star_system.id %>" class='mt-2'>
+      <% star_system_links = @star_system.jump_route_links %>
       <div class='table-card'>
         <div class='table-banner'>
-          <p>Network links</p>
+          <p>Jump route links</p>
           <div class='actions'>
-            <% if Network.any? %>
+            <% if JumpRoute.any? %>
               <%= link_to link_modal_star_system_path(@star_system),
                           class: 'btn-header',
                           data: { turbo_frame: 'modal' } do %>
@@ -74,7 +74,7 @@
             </thead>
             <tbody>
               <% star_system_links.each do |link| %>
-                <%= render 'network_link_row', link: link, star_system_id: @star_system.id %>
+                <%= render 'jump_route_link_row', link: link, star_system_id: @star_system.id %>
               <% end %>
             </tbody>
           </table>

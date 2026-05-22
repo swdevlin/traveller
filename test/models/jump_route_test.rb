@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class NetworkTest < ActiveSupport::TestCase
+class JumpRouteTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

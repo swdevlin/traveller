@@ -41,19 +41,19 @@
             <td class='actions-cell'>
               <div class='action-group'>
                 <% if already_linked %>
-                  <%= button_to network_link_path(@linked_system_links[sys.id]),
+                  <%= button_to jump_route_link_path(@linked_system_links[sys.id]),
                                 method: :delete,
                                 class: 'action danger',
-                                params: { star_system_id: @star_system.id, network_id: @selected_network.id },
+                                params: { star_system_id: @star_system.id, jump_route_id: @selected_jump_route.id },
                                 form: { data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } },
                                 data: { turbo_confirm: 'Remove this link?' } do %>
                     <i class='fa-regular fa-trash'></i>
                   <% end %>
                 <% else %>
-                  <%= form_with url: network_links_path, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
-                    <input type='hidden' name='network_link[network_id]' value='<%= @selected_network.id %>'>
-                    <input type='hidden' name='network_link[from_star_system_id]' value='<%= @star_system.id %>'>
-                    <input type='hidden' name='network_link[to_star_system_id]' value='<%= sys.id %>'>
+                  <%= form_with url: jump_route_links_path, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
+                    <input type='hidden' name='jump_route_link[jump_route_id]' value='<%= @selected_jump_route.id %>'>
+                    <input type='hidden' name='jump_route_link[from_star_system_id]' value='<%= @star_system.id %>'>
+                    <input type='hidden' name='jump_route_link[to_star_system_id]' value='<%= sys.id %>'>
                     <input type='hidden' name='star_system_id' value='<%= @star_system.id %>'>
                     <%= f.button type: 'submit', class: 'action' do %>
                       <i class='fa-regular fa-link'></i>

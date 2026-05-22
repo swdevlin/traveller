@@ -19,8 +19,8 @@ module ClearableParsecs
     end
 
     star_system_ids = star_system_scope.select(:id)
-    NetworkLink.where(from_star_system_id: star_system_ids).delete_all
-    NetworkLink.where(to_star_system_id: star_system_ids).delete_all
+    JumpRouteLink.where(from_star_system_id: star_system_ids).delete_all
+    JumpRouteLink.where(to_star_system_id: star_system_ids).delete_all
     star_system_scope.delete_all
     stellar_object_scope.delete_all
   end

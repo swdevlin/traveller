@@ -1,4 +1,4 @@
-<%= form_with(model: network, class: 'contents') do |form| %>
+<%= form_with(model: jump_route, class: 'contents') do |form| %>
   <div class='space-y-2 pb-10'>
     <%= render 'application/edit_field', form: form, attribute: :name do %>
       <%= form.text_field :name, class: 'edit-base w-60' %>
@@ -10,13 +10,24 @@
                           class: 'edit-base w-32' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :line_style, field_label: 'Line Style' do %>
+      <%= form.select :line_style,
+                      JumpRoute::LINE_STYLES.map { |s| [s.capitalize, s] },
+                      {},
+                      class: 'edit-base w-40' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :line_width, field_label: 'Line Width' do %>
+      <%= form.number_field :line_width, min: 1, max: 20, class: 'edit-base w-28' %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :max_jump do %>
       <%= form.number_field :max_jump, class: 'edit-base w-28' %>
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :known, field_label: 'Known' do %>
       <%= render 'application/boolean_toggle', form: form, attribute: :known,
-                 checked: network.known, checked_value: 'true', unchecked_value: 'false' %>
+                 checked: jump_route.known, checked_value: 'true', unchecked_value: 'false' %>
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :notes do %>
@@ -24,8 +35,8 @@
     <% end %>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit network.persisted? ? 'Update core' : 'Commit core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', network.persisted? ? network : networks_path, class: 'w-full sm:w-auto btn' %>
+      <%= form.submit jump_route.persisted? ? 'Update core' : 'Commit core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', jump_route.persisted? ? jump_route : jump_routes_path, class: 'w-full sm:w-auto btn' %>
     </div>
   </div>
 <% end %>

@@ -6,6 +6,8 @@ one:
   max_jump: 1
   known: false
   notes: MyText
+  line_style: solid
+  line_width: 4
 
 two:
   name: MyString
@@ -13,3 +15,5 @@ two:
   max_jump: 1
   known: false
   notes: MyText
+  line_style: solid
+  line_width: 4

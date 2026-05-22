@@ -168,8 +168,8 @@
 <!--        stroke="#666666" stroke-width="1.5" stroke-linecap="round"/>-->
 <!--  <text class="p-legend" x="<%#= (strip_x + 23).round(1) %>" y="<%#= (legend_strip_y + 49).round(1) %>">Region border</text>-->
 
-  <!-- Networks -->
-  <% if @networks_on_poster&.any? %>
+  <!-- Jump Routes -->
+  <% if @jump_routes_on_poster&.any? %>
     <%
       net_legend_y = legend_strip_y + 2
       hex_r        = 4.0
@@ -177,7 +177,7 @@
       entry_w      = 55.0
       network_x    = legend_strip_x + 180
       max_rows     = 3
-      @networks_on_poster.each_with_index do |net, idx|
+      @jump_routes_on_poster.each_with_index do |net, idx|
         col_idx = idx / max_rows
         row_idx = idx % max_rows
         hx = network_x + hex_r + col_idx * entry_w
