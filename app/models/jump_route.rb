@@ -9,7 +9,23 @@ class JumpRoute < ApplicationRecord
 
   has_many :jump_route_links, dependent: :destroy
 
+  SECTOR_COLS = 32
+  SECTOR_ROWS = 40
+
   scope :ordered, -> { order(:name) }
+
+  def fits_in_sector?
+    system_ids = jump_route_links.pluck(:from_star_system_id, :to_star_system_id).flatten.uniq
+    return false if system_ids.empty?
+
+    min_x, max_x, min_y, max_y = Parsec
+      .joins(:star_systems)
+      .where(star_systems: { id: system_ids })
+      .pick(Arel.sql('MIN(parsecs.x), MAX(parsecs.x), MIN(parsecs.y), MAX(parsecs.y)'))
+
+    return false if min_x.nil?
+    (max_x - min_x + 1) <= SECTOR_COLS && (max_y - min_y + 1) <= SECTOR_ROWS
+  end
 
   def stroke_dasharray
     case line_style

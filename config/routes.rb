@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     resources :jump_routes do
       member do
         get :export_links
+        get :map
       end
       resource :jump_route_import, only: %i[create]
     end

@@ -5,6 +5,24 @@
 <%= render 'application/page' do %>
   <%= render @jump_route %>
 
+  <% if @show_map %>
+    <%= render 'application/subsection', title: 'Map' %>
+    <div class='my-4'>
+      <div class='mb-1 relative flex items-center justify-end h-9'>
+        <%= link_to map_jump_route_path(@jump_route),
+                    target: '_blank',
+                    rel: 'noopener',
+                    class: 'text-fg-muted hover:text-fg-bright',
+                    title: 'Open map in new tab' do %>
+          <i class='fa-regular fa-arrow-up-right-from-square'></i>
+        <% end %>
+      </div>
+      <img src="<%= map_jump_route_path(@jump_route) %>"
+           class='w-full h-auto rounded-md'
+           alt='Route map' />
+    </div>
+  <% end %>
+
   <%= render 'application/subsection', title: 'Links' %>
 
   <div class='flex justify-between items-start mb-3'>

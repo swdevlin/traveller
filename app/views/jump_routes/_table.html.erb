@@ -51,6 +51,16 @@
 
           <td class='actions-cell'>
             <div class='action-group'>
+              <% if jump_route.jump_route_links.size > 0 %>
+                <%= link_to map_jump_route_path(jump_route),
+                            target: '_blank',
+                            rel: 'noopener',
+                            class: 'action',
+                            title: 'View map' do %>
+                  <i class='fa-regular fa-map'></i>
+                <% end %>
+              <% end %>
+
               <%= link_to edit_jump_route_path(jump_route), class: 'action', title: 'Edit' do %>
                 <i class='fa-regular fa-pen-to-square'></i>
               <% end %>

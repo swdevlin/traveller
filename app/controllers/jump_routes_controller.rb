@@ -8,6 +8,7 @@ class JumpRoutesController < ApplicationController
   end
 
   def show
+    @show_map = @jump_route.fits_in_sector?
   end
 
   def new
@@ -38,6 +39,60 @@ class JumpRoutesController < ApplicationController
   def destroy
     @jump_route.destroy!
     redirect_to jump_routes_path, notice: 'Jump route deleted.', status: :see_other
+  end
+
+  def map
+    links = @jump_route.jump_route_links.includes(
+      :jump_route,
+      from_star_system: :parsec,
+      to_star_system: :parsec
+    )
+
+    return head :not_found unless links.any?
+
+    coords = links.flat_map { |l|
+      [[l.from_star_system.parsec.x, l.from_star_system.parsec.y],
+       [l.to_star_system.parsec.x,   l.to_star_system.parsec.y]]
+    }
+    xs = coords.map(&:first)
+    ys = coords.map(&:last)
+    min_x, max_x = xs.min, xs.max
+    min_y, max_y = ys.min, ys.max
+
+    return head :not_found if (max_x - min_x + 1) > JumpRoute::SECTOR_COLS ||
+                               (max_y - min_y + 1) > JumpRoute::SECTOR_ROWS
+
+    @ul   = Coordinate.new(min_x, max_y)
+    @cols = max_x - min_x + 1
+    @rows = max_y - min_y + 1
+
+    parsec_rows = Parsec
+      .where(x: min_x..max_x, y: min_y..max_y)
+      .joins(:sector)
+      .pluck('parsecs.id, parsecs.x, parsecs.y, parsecs.label, parsecs.label_colour, sectors.x, sectors.y')
+
+    @parsecs_by_pos = parsec_rows.to_h do |pid, px, py, lbl, lc, sx, sy|
+      col      = px - @ul.x + 1
+      row      = @ul.y - py + 1
+      hex_code = Parsec.hex_address_from_coords(px, py, sx, sy)
+      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: lc }]
+    end
+
+    star_systems = StarSystem
+      .joins(:parsec)
+      .where(parsecs: { x: min_x..max_x, y: min_y..max_y })
+      .includes(:parsec, :allegiance, :main_world, stars: [:companion])
+
+    @systems_by_pos = star_systems.each_with_object({}) do |sys, h|
+      col = sys.parsec.x - @ul.x + 1
+      row = @ul.y - sys.parsec.y + 1
+      h[[col, row]] = sys
+    end
+
+    @jump_route_links_for_map = links
+
+    svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
+    send_data svg, type: 'image/svg+xml', disposition: 'inline'
   end
 
   def export_links
