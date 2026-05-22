@@ -31,6 +31,11 @@
   else
     view_box = "0 0 #{svg_width} #{svg_height}"
   end
+  clip_rect = if valid_positions&.any?
+    [vb_x, vb_y, vb_w, vb_h]
+  else
+    [0, 0, svg_width, svg_height]
+  end
 -%><svg xmlns="http://www.w3.org/2000/svg"
      width="<%= svg_width %>"
      height="<%= svg_height %>"
@@ -44,6 +49,9 @@
         <%= icon.svg_content.html_safe %>
       </symbol>
     <% end %>
+    <clipPath id="map-viewport-clip">
+      <rect x="<%= clip_rect[0] %>" y="<%= clip_rect[1] %>" width="<%= clip_rect[2] %>" height="<%= clip_rect[3] %>"/>
+    </clipPath>
   </defs>
 
   <style>
@@ -205,6 +213,7 @@
     </g>
 
   <%# Layer 1g: Jump route link lines %>
+  <g clip-path="url(#map-viewport-clip)">
   <% (@jump_route_links_for_map || []).each do |link| %>
     <%
       route    = link.jump_route
@@ -230,6 +239,7 @@
           <% if dasharray %>stroke-dasharray="<%= dasharray %>"<% end %>
           pointer-events="none"/>
   <% end %>
+  </g>
 
   <%# Layer 3: Star circles (drawn under text) %>
   <g>
