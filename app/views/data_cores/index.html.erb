@@ -55,6 +55,21 @@
           </div>
         <% end %>
 
+        <%= link_to languages_path, class: 'menu-row' do %>
+          <div class='flex items-center gap-4'>
+            <div class='menu-icon'>
+              <i class='fa-regular fa-language text-fg-bright'></i>
+            </div>
+            <div>
+              <h2 class='menu-title'>Languages</h2>
+              <p class='menu-description'>Generate words in Traveller alien and human languages.</p>
+            </div>
+          </div>
+          <div class='menu-chevron'>
+            <i class='fa-regular fa-chevron-right'></i>
+          </div>
+        <% end %>
+
         <%= link_to governments_path, class: 'menu-row' do %>
           <div class='flex items-center gap-4'>
             <div class='menu-icon'>

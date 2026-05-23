@@ -1,0 +1,15 @@
+<% if words.any? %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p><%= language.to_s.capitalize %></p>
+      <div class='actions'>
+        <span class='text-xs text-fg-muted'><%= words.size %> words</span>
+      </div>
+    </div>
+    <div class='divide-y divide-outline'>
+      <% words.each do |word| %>
+        <div class='px-4 py-2 font-mono text-sm text-fg-bright'><%= word %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

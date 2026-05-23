@@ -8,6 +8,12 @@
 #   WordGenerator.new(language: :aslan, dice_roller: DiceRoller.new(seed: 42)).generate
 #
 class WordGenerator
+  def self.languages
+    Dir[Rails.root.join('app/domain/word_generators/*_word_generator.rb')]
+      .map { |f| File.basename(f, '_word_generator.rb').to_sym }
+      .sort
+  end
+
   def initialize(language:, dice_roller: nil)
     @language = language
     @dice_roller = dice_roller || DiceRoller.new
@@ -36,6 +42,7 @@ class WordGenerator
     when :arrghoun  then ArrghounWordGenerator.new(@dice_roller)
     when :gurvin    then GurvinWordGenerator.new(@dice_roller)
     when :zdetl     then ZdetlWordGenerator.new(@dice_roller)
+    when :imperium  then ImperiumWordGenerator.new(@dice_roller)
     else raise ArgumentError, "Unknown language: #{@language}"
     end
   end

@@ -1,0 +1,3 @@
+<%= turbo_stream.update 'word_results' do %>
+  <%= render 'results', words: @words, language: @selected, count: @count %>
+<% end %>

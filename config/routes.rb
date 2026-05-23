@@ -163,6 +163,8 @@ Rails.application.routes.draw do
         delete :clear
       end
     end
+    get  '/languages',          to: 'languages#index',    as: :languages
+    post '/languages/generate', to: 'languages#generate', as: :generate_languages
     get '/data-cores', to: 'data_cores#index', as: :data_cores
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight

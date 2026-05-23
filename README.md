@@ -34,7 +34,6 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 
 #### To do??
 
-* Foundry VTT integration
 * T5
 * Cepheus Engine
 * Clement Sector
