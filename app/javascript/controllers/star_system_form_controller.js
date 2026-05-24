@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['starConfig', 'buildConfigSection', 'buildConfig']
+  static targets = ['starConfig', 'buildConfigSection', 'buildConfig', 'populated']
 
   connect() {
     this.sync()
@@ -34,6 +34,12 @@ export default class extends Controller {
 
     if (this.hasBuildConfigTarget) {
       this.buildConfigTarget.disabled = mode !== 'build_configuration'
+    }
+
+    if (this.hasPopulatedTarget) {
+      const isRandom = mode === 'random'
+      this.populatedTarget.disabled = !isRandom
+      if (!isRandom) this.populatedTarget.checked = false
     }
   }
 

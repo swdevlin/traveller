@@ -49,6 +49,13 @@
           </div>
         </label>
 
+        <div class='ml-7'>
+          <label class='flex items-center gap-2 cursor-pointer'>
+            <%= f.check_box :populated, class: 'h-4 w-4', data: { star_system_form_target: 'populated' } %>
+            <span class='text-sm text-fg-muted'>Populated</span>
+          </label>
+        </div>
+
         <div class='border-t border-outline'></div>
 
         <%# ── Build configuration ── %>
