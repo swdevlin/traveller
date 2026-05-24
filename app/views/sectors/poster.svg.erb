@@ -36,6 +36,12 @@
   legend_strip_x = map_x
   legend_strip_y = map_bottom + 15
   disclaim_y     = 825.0
+
+  logo_path = Rails.root.join('app/assets/images/android-chrome-512x512.png')
+  logo_data = Base64.strict_encode64(File.binread(logo_path))
+  logo_size = (35.0 * 0.70).round(1)
+  logo_x    = (strip_rx - logo_size - 3).round(1)
+  logo_y    = (disclaim_y + 10 - logo_size).round(1)
 -%>
 <svg xmlns="http://www.w3.org/2000/svg"
      width="594mm" height="841mm"
@@ -189,6 +195,11 @@
       <text class="p-legend" x="<%= (hx + hex_r + 2).round(1) %>" y="<%= (hy + 1).round(1) %>"><%= h(net.name) %></text>
     <% end %>
   <% end %>
+
+  <!-- ── Logo (branding, bottom right) ── -->
+  <image href="data:image/png;base64,<%= logo_data %>"
+         x="<%= logo_x %>" y="<%= logo_y %>"
+         width="<%= logo_size %>" height="<%= logo_size %>"/>
 
   <!-- ── Disclaimer (full width, bottom of poster) ── -->
   <text class="p-disclaim" x="<%= map_x %>" y="<%= disclaim_y %>">Mongoose Publishing permits websites and fanzines for this game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission on 90-day notice.</text>
