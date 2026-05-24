@@ -1153,6 +1153,62 @@
     @apply h-px flex-1 bg-outline;
   }
 
+  .spec-dl {
+    @apply space-y-4;
+  }
+
+  .spec-dl dt {
+    @apply font-mono font-semibold text-fg;
+  }
+
+  .spec-dl dd {
+    @apply text-sm text-fg-muted;
+  }
+
+  .spec {
+    @apply space-y-10;
+  }
+
+  .spec section {
+    @apply space-y-4;
+  }
+
+  .spec article {
+    @apply space-y-4;
+  }
+
+  .spec h2 {
+    @apply text-xl font-semibold text-highlight;
+  }
+
+  .spec h3 {
+    @apply text-base font-semibold text-highlight border-b border-outline pb-2;
+  }
+
+  .spec p {
+    @apply text-fg-muted;
+  }
+
+  .spec pre {
+    @apply overflow-x-auto rounded-lg border border-outline bg-panel p-4 text-sm;
+  }
+
+  .spec .spec-card {
+    @apply border-outline/60 pl-4 space-y-3;
+  }
+
+  .spec-card h3 {
+    @apply text-sm;
+  }
+
+  .spec span.yaml-tag {
+    @apply p-1 border border-outline/30 bg-panel font-mono;
+  }
+
+  .spec-card pre {
+    @apply rounded-lg border border-outline bg-panel;
+  }
+
   .uwp-tab-bar {
     @apply flex flex-wrap gap-0 border-b border-outline mb-4;
   }

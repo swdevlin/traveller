@@ -1,76 +1,431 @@
 <% content_for :title, 'Star system build specification' %>
 
 <%= render 'help/page', title: 'Star system build specification' do %>
-    <div class='grid grid-cols-1 gap-6 lg:grid-cols-3' data-controller='sample-toggle'>
-      <section class='min-w-0 lg:col-span-1'>
-        <div class='flex flex-wrap gap-2'>
-          <div class='w-full text-xs uppercase tracking-[0.22em] text-fg-muted'>
-            Sample specification
+  <div class='spec'>
+    <section>
+      <p>
+        Star systems are generated from a build specification using the rules from the <cite>World Builder's Handbook</cite>. Much
+        of the build specification is optional. The generator will fill in the system as required.
+      </p>
+
+      <p>
+        The specification is a YAML document. The document uses two spaces when nesting data. And invalid YAML document,
+        either due to an invalid specification or bad formatting, will not be saved.
+      </p>
+    </section>
+
+    <div class='grid gap-10 lg:grid-cols-4 items-start'>
+      <section>
+        <h2>Configuration structure</h2>
+
+        <p>
+          Most fields are optional, but when present they must appear at the correct level.
+          The tree below shows where each section belongs.
+        </p>
+
+        <pre><code>name
+surveyIndex:
+known:
+allegiance:
+bases:
+primary:
+  close:
+  near:
+  far:
+counts:
+  density:
+  terrestrialPlanets:
+  planetoidBelts:
+  gasGiants:
+  mainWorld:
+populated:
+  type:
+  allegiance:
+  minTechLevel:
+  maxTechLevel:
+  populationDM:
+  minPopulationCode:
+  maxPopulationCode:</code></pre>
+
+      </section>
+
+      <section class='space-y-8 lg:col-span-3'>
+      <article>
+        <h3>Top-level properties</h3>
+
+        <dl class='spec-dl'>
+          <div>
+            <dt>name</dt>
+            <dd>Optional name for the star system.</dd>
           </div>
 
-          <div class='w-full flex flex-wrap gap-2 justify-start'>
-            <button type='button'
-                    class='identifier-sm shrink-0 cursor-pointer select-none text-fg-bright'
-                    data-sample-toggle-target='tab'
-                    data-name='minimal'
-                    data-action='sample-toggle#show'
-                    data-sample-toggle-name-param='minimal'>
-              Minimal
-            </button>
-
-            <button type='button'
-                    class='identifier-sm shrink-0 cursor-pointer select-none text-fg-bright'
-                    data-sample-toggle-target='tab'
-                    data-name='with-bodies'
-                    data-action='sample-toggle#show'
-                    data-sample-toggle-name-param='with-bodies'>
-              With bodies
-            </button>
-
-            <button type='button'
-                    class='identifier-sm shrink-0 cursor-pointer select-none text-fg-bright'
-                    data-sample-toggle-target='tab'
-                    data-name='without-bodies'
-                    data-action='sample-toggle#show'
-                    data-sample-toggle-name-param='without-bodies'>
-              Without bodies
-            </button>
-
-            <button type='button'
-                    class='identifier-sm shrink-0 cursor-pointer select-none text-fg-bright'
-                    data-sample-toggle-target='tab'
-                    data-name='moon-world'
-                    data-action='sample-toggle#show'
-                    data-sample-toggle-name-param='moon-world'>
-              Moon world
-            </button>
+          <div>
+            <dt>surveyIndex</dt>
+            <dd>Survey index, from 0 to 12. Survey index represents how much information the players
+              have about the star system. When running an exploration game, such as Deepnight Revelation, setting the
+              default to 3 means the stars in the system are known, but nothing else. When running a game in charted
+              space, a survey index of 12 would be appropriate and the IISS has mapped out all the star systems.</dd>
           </div>
+
+          <div>
+            <dt>known</dt>
+            <dd>Boolean. If true, it means the players know about the system. The default is false for an exploration game.</dd>
+          </div>
+
+          <div>
+            <dt>allegiance</dt>
+            <dd>
+              Allegiance code for the system. If a code is specified that is not in the database, it will be added.
+              See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %> for
+              the list of known allegiances.
+            </dd>
+          </div>
+
+          <div>
+            <dt>bases</dt>
+            <dd class='space-y-2'>
+              <p>Sets what bases are present in the star system. The generator does not randomly assign bases, so you will want
+                to specify which ones are present if known. You can always add bases after the system is generated.</p>
+              <p>Bases are listed as a YAML array. For example, to indicate the system has both a naval and scout base, you would use</p>
+              <pre class='text-fg'><code>bases:
+  - S
+  - N</code></pre>
+              <p>You can define what bases are possible using <%= current_campaign ? link_to('bases', facilities_path, class: 'hover:underline underline-offset-4') : 'bases' %>.</p>
+            </dd>
+          </div>
+
+          <div>
+            <dt>primary</dt>
+            <dd>Optional star definition for the primary star. When laying out the structure of
+              a star system, the primary star is the root; all other stellar objects in the star system are nested
+              under the primary star. See star definition below for the full star specification.</dd>
+          </div>
+
+          <div>
+            <dt>close</dt>
+            <dd>Optional star in close orbit around the primary. See star definition below for the
+              full star specification.</dd>
+          </div>
+
+          <div>
+            <dt>near</dt>
+            <dd>Optional star in near orbit around the primary. See star definition below for the
+              full star specification.</dd>
+          </div>
+
+          <div>
+            <dt>far</dt>
+            <dd>Optional star in far orbit around the primary. See star definition below for the
+              full star specification.</dd>
+          </div>
+
+          <div>
+            <dt>counts</dt>
+            <dd>counts is used when the number of terrestrial planets,
+              planetoid belts, and gas giants is know but the placement of them is either not known or does not matter. It
+            can also be used if the star system has a system density rating. See counts definition below.</dd>
+          </div>
+
+          <div>
+            <dt>populated</dt>
+            <dd>populated ensures the system is populated. Use this when a polity
+              settles a region of space. See populated definition below.</dd>
+          </div>
+        </dl>
+      </article>
+      </section>
+    </div>
+
+    <article>
+      <h3>Star definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>The primary star is the root of the star system. close, near, and far stars can also be specified. Each
+            star can have a companion star orbiting them. A companion star cannot have a companion star. All stars use the
+          same definition, except companion stars do not have a companion entry</p>
+          <p>See <cite>World Builder's Handbook, pg. 27</cite>.</p>
+        <pre><code>primary|close|near|far|companion:
+  type
+  class
+  companion
+  bodies</code></pre>
+
         </div>
 
-        <div class='mt-2 rounded-2xl border border-outline bg-panel overflow-hidden'>
-          <div class='flex items-center justify-between px-4 py-3 border-b border-outline'>
-            <span class='identifier-sm text-fg-bright'>YAML</span>
-            <span class='text-xs text-fg-muted font-mono'>2-space indentation</span>
+        <div class='space-y-4 lg:col-span-3'>
+          <dl class='spec-dl'>
+            <div>
+              <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+              <dd class="space-y-2">
+                <p>Spectral type for the star. For standard stars, use OBAFGKM + 0..9, for example <code>G2</code>. For
+                unusual stars, use one of the codes below. If the star is a unusual star, no class needs to be specified.</p>
+                <div class='space-y-2'>
+                  <p class='text-sm font-semibold text-fg-bright'>Special star types</p>
+                  <ul class='list-disc space-y-1 pl-6 text-fg-muted text-sm'>
+                    <li><code class="text-fg-bright">BD</code>: Brown Dwarf</li>
+                    <li><code class="text-fg-bright">D</code>: White Dwarf</li>
+                    <li><code class="text-fg-bright">BH</code>: Black Hole</li>
+                    <li><code class="text-fg-bright">PSR</code>: Pulsar</li>
+                    <li><code class="text-fg-bright">NS</code>: Neutron Star</li>
+                  </ul>
+                </div>
+              </dd>
+            </div>
+
+            <div>
+              <dt>class <span class='font-sans font-normal text-fg-muted'>(conditionally required)</span></dt>
+              <dd class="space-y-2">
+                <p>Luminosity class, I through VI. If <span class="yaml-tag">type</span> is specified
+                  and <span class="yaml-tag">class</span> is not, <span class="yaml-tag">class</span> defaults
+                  to V unless <span class="yaml-tag">type</span> is a special type, like a white dwarf.</p>
+                <p><span class="yaml-tag">class</span> can also be <code>giant</code>, which tells the generator to
+                  use the giant column when determining the class. See <cite>World Builder's Handbook, pg. 15</cite>.</p>
+              </dd>
+            </div>
+
+            <div>
+              <dt>companion</dt>
+              <dd>Optional companion star nested inside this star definition. A companion cannot have a nested companion.</dd>
+            </div>
+
+            <div>
+              <dt>bodies</dt>
+              <dd>Optional list of orbital bodies for this star. If not specified, the generator will assign bodies.</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </article>
+
+    <article>
+      <h3>Counts definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>counts is used when either the number of stellar objects is known and their placement does not matter,
+            or when only the system density is known. counts cannot be used if any star has a bodies list.</p>
+          <p>
+            Counts must specify either <span class="yaml-tag">density</span> alone, or all three of
+            <span class="yaml-tag">terrestrialPlanets</span>,
+            <span class="yaml-tag">planetoidBelts</span>, and <span class="yaml-tag">gasGiants</span>.
+            The <span class="yaml-tag">mainWorld</span> field is optional in both cases.
+          </p>
+        <pre><code>counts:
+  density:
+  terrestrialPlanets:
+  planetoidBelts:
+  gasGiants:
+  mainWorld:
+    uwp: (required)
+    orbit:
+    name:
+    moon:</code></pre>
+          <p class='text-sm'>System density is detailed on page 8 in the <cite>Deepnight Revelation Referee Handbook</cite>.</p>
+        </div>
+
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>density</dt>
+            <dd>Orbital body density modifier, from 0 to 22+. A value of 0 means the system only
+              contains star(s). The higher the value, the more stellar objects can be found in the system.</dd>
           </div>
 
-          <pre data-sample-toggle-target='panel' data-name='minimal' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>name: Catanach
-primary:
-  type: G2
-  class: V</code></pre>
+          <div>
+            <dt>terrestrialPlanets</dt>
+            <dd>The number of terrestrial planets in the star system.</dd>
+          </div>
 
-          <pre data-sample-toggle-target='panel' data-name='without-bodies' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>name: ALS-BMM
-surveyIndex: 3
+          <div>
+            <dt>planetoidBelts</dt>
+            <dd>The number of planetoid belts in the star system.</dd>
+          </div>
+
+          <div>
+            <dt>gasGiants</dt>
+            <dd>The number of gas giants in the star system.</dd>
+          </div>
+
+          <div>
+            <dt>mainWorld</dt>
+            <dd>Optional main world definition.
+              <dl class='spec-dl mt-4 ml-4'>
+                <div>
+                  <dt>uwp</dt>
+                  <dd>The UWP for the main world. This is required.</dd>
+                </div>
+                <div>
+                  <dt>orbit</dt>
+                  <dd>The location of the main world. orbit can be either an integer from 1–20, which is
+                    the orbit number for the main world, or one of
+                    <ul class='mt-2 list-disc space-y-1 pl-6 text-fg-muted text-sm'>
+                      <li><code class="text-fg">inner</code>: located in the hot zone around the star</li>
+                      <li><code class="text-fg">warm</code>: located in the habitable zone, but closer to the star</li>
+                      <li><code class="text-fg">habitable</code>: located anywhere in the habitable zone</li>
+                      <li><code class="text-fg">hzco</code>: located at the sweet spot of the habitable zone</li>
+                      <li><code class="text-fg">cold</code>: located in the habitable zone, but on the far side of the star</li>
+                      <li><code class="text-fg">outer</code>: located away from the star, outside of the habitable zone</li>
+                    </ul>
+                  </dd>
+                </div>
+                <div>
+                  <dt>name</dt>
+                  <dd>name of the main world.</dd>
+                </div>
+                <div>
+                  <dt>moon</dt>
+                  <dd>moon is a boolean value. If true, then the main world is a moon orbiting a
+                    gas giant. gasGiants must be at least one for moon to be true.</dd>
+                </div>
+              </dl>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <article>
+      <h3>bodies definition</h3>
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>bodies is a list the stellar objects that orbit the star. If specified, only the bodies listed will
+            be generated and placed in orbit around the star. bodies and the top level counts cannot be used together
+            in the same star system.</p>
+          <p>If you want a star with no orbiting bodies, add orbits as an empty list.
+          </p>
+
+          <pre><code>bodies:
+  - uwp
+    orbit:
+    name:
+    mainWorld:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>uwp <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd>UWP code such as <code>X674000-0</code> or one of <code>terrestrial</code>, <code>small gas giant</code>,
+              <code>gas giant</code>, <code>large gas giant</code>, <code>super earth</code>, or <code>empty</code>.
+              Use <code>super earth</code> to generate a very large terrestrial planet. Use <code>empty</code> to mark
+              the orbit as empty.</dd>
+          </div>
+
+          <div>
+            <dt>orbit</dt>
+            <dd class="space-y-2">
+              <p>If specified, orbit determines the distance of the stellar object from the star it is orbiting. Only one
+                body can specify its orbit. The permitted values are:</p>
+              <ul class='mt-2 list-disc space-y-1 pl-6 text-fg-muted text-sm'>
+                <li><code class="text-fg">inner</code>: located in the hot zone around the star</li>
+                <li><code class="text-fg">warm</code>: located in the habitable zone, but closer to the star</li>
+                <li><code class="text-fg">habitable</code>: located anywhere in the habitable zone</li>
+                <li><code class="text-fg">hzco</code>: located at the sweet spot of the habitable zone</li>
+                <li><code class="text-fg">cold</code>: located in the habitable zone, but on the far side of the star</li>
+                <li><code class="text-fg">outer</code>: located away from the star, outside of the habitable zone</li>
+              </ul>
+
+            </dd>
+          </div>
+
+          <div>
+            <dt>name</dt>
+            <dd>Optional name for the orbital body.</dd>
+          </div>
+
+          <div>
+            <dt>mainWorld</dt>
+            <dd>Boolean. When true, designates this body as the main world. Note this does not mean the world will be
+            populated. An empty star system still has a main world, at least according to the IISS.</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <article>
+      <h3>Populated definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>populated ensures the system is populated. Use this when a polity settles a region of space. populated
+          can either be true, or can specify additional generation parameters.</p>
+          <pre><code>populated: true</code></pre>
+          <pre><code>populated:
+  allegiance:
+  minTechLevel:
+  maxTechLevel:
+  minPopulationCode:
+  maxPopulationCode:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>allegiance</dt>
+            <dd>Allegiance code for the system. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.</dd>
+          </div>
+
+          <div>
+            <dt>minTechLevel</dt>
+            <dd>Minimum tech level for the star system</dd>
+          </div>
+
+          <div>
+            <dt>maxTechLevel</dt>
+            <dd>Maximum tech level for the star system</dd>
+          </div>
+
+          <div>
+            <dt>minPopulationCode</dt>
+            <dd>Minimum population for the primary world in the star system.</dd>
+          </div>
+
+          <div>
+            <dt>maxPopulationCode</dt>
+            <dd>Maximum population for the primary world in the star system.</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <section>
+      <h2>Sample specifications</h2>
+
+      <div class='grid gap-x-10 gap-y-8 lg:grid-cols-2'>
+        <article class="spec-card">
+          <h3>Minimal</h3>
+          <p>The simplest valid specification, a blank entry. The system generator will handle everything.</p>
+          <pre><code></code></pre>
+        </article>
+
+        <article class="spec-card">
+          <h3>Primary Star</h3>
+          <p>Set the primary star and let the generator determine everything else.</p>
+          <pre><code>name: Grant
 primary:
-  type: M6
+  type: K6
   class: V
-  close:
-    type: M8
-    class: V
-counts:
-  density: 12
 </code></pre>
+        </article>
 
-          <pre data-sample-toggle-target='panel' data-name='moon-world' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>name: Vume
+        <article class="spec-card">
+          <h3>TravellerMap</h3>
+          <p>Traveller map has the star types, main world UWP, and a count of the stellar objects in the system.</p>
+          <pre><code>name: Kinorbes
+primary:
+  type: G3
+  class: V
+counts:
+  terrestrialPlanets: 8
+  planetoidBelts: 3
+  gasGiants: 4
+  mainWorld:
+    uwp: E888765-2
+    orbit: habitable
+</code></pre>
+        </article>
+
+        <article class="spec-card">
+          <h3>Main world as moon</h3>
+
+          <p>Specifies body counts explicitly and places the main world as a moon of a gas giant via <code>counts.mainWorld</code>.</p>
+
+          <pre><code>name: Vume
 counts:
   mainWorld:
     uwp: B100477-C
@@ -84,10 +439,13 @@ primary:
   type: K7
   class: II
 bases: []
-allegiance: NaHu
-</code></pre>
+allegiance: NaHu</code></pre>
+        </article>
 
-          <pre data-sample-toggle-target='panel' data-name='with-bodies' class='hidden p-4 text-sm font-mono text-fg-bright whitespace-pre overflow-auto leading-relaxed'><code>name: Demnan
+        <article class="spec-card">
+          <h3>Full System Definition</h3>
+          <p>List every stellar object in the star system.</p>
+          <pre><code>name: Demnan
 primary:
   type: F7
   class: V
@@ -97,9 +455,6 @@ primary:
   far:
     type: G2
     class: V
-  bases:
-    - N
-    - S
   bodies:
     - uwp: terrestrial
     - uwp: large gas giant
@@ -111,384 +466,31 @@ primary:
     - uwp: planetoid belt
     - uwp: terrestrial
     - uwp: small gas giant
-</code></pre>
-        </div>
-      </section>
+bases:
+  - N
+  - S</code></pre>
+        </article>
 
-      <!-- Right: Documentation (2/3) -->
-      <section class='min-w-0 lg:col-span-2'>
-        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
-          Reference
-        </div>
+        <article class='spec-card'>
+          <h3>Using System Density</h3>
+          <p>
+            The system generator will assign stellar objects based on the system density; the higher the density, the
+            higher the number of stellar objects generated. See <cite>Deepnight Revelation Referee Handbook, pg. 8</cite>.
+          </p>
+          <pre><code>name: ALS-BMM
+primary:
+  type: M6
+  class: V
+  close:
+    type: M8
+    class: V
+counts:
+  density: 12</code></pre>
+        </article>
 
-        <div class='mt-2 rounded-2xl bg-panel p-5 space-y-6'>
-          <div class='space-y-3 text-sm text-fg'>
-            <p class='text-fg-muted'>
-              The build specification is YAML. Use 2-space indentation. Unknown keys are rejected.
-              This schema is used when creating a single star system via build configuration mode.
-            </p>
-          </div>
+      </div>
+    </section>
 
-          <div>
-            <p class='text-sm font-semibold text-highlight mb-2'>Top-level properties</p>
-
-            <dl class='space-y-5 text-sm'>
-              <div>
-                <dt class='font-semibold text-fg-bright'>name</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional name for the star system.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>primary</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional star definition for the primary star. See star definition below.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>companion, close, near, far</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional companion star definitions at the system level. Each accepts a star definition.
-                  Companion stars may alternatively be declared nested inside the
-                  <span class='font-mono text-fg-bright'>primary</span> star record;
-                  both forms are accepted.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>surveyIndex</dt>
-                <dd class='mt-1 text-fg'>
-                  Survey index (0–12). Controls the level of detail generated for orbital bodies.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>allegiance</dt>
-                <dd class='mt-1 text-fg'>
-                  Allegiance code for the system. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>bases</dt>
-                <dd class='mt-1 text-fg'>
-                  Array of base facility codes present in the system. See <%= current_campaign ? link_to('bases', facilities_path, class: 'hover:underline underline-offset-4') : 'bases' %>.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>known</dt>
-                <dd class='mt-1 text-fg'>
-                  Boolean. When <span class='font-mono text-fg-bright'>true</span>, marks the system as a known/charted system.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>counts</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional orbital body counts. See counts definition below.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>populated</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional population constraints used by the generator. See populated definition below.
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div>
-            <p class='text-sm font-semibold text-highlight mb-2'>Star definition</p>
-
-            <dl class='space-y-5 text-sm'>
-              <div>
-                <dt class='font-semibold text-fg-bright'>type <span class='text-fg-muted font-normal'>(required)</span></dt>
-                <dd class='mt-1 text-fg'>
-                  Spectral type in the form <span class='font-mono text-fg-bright'>OBAFGKM</span> + <span class='font-mono text-fg-bright'>0..9</span>,
-                  for example <span class='font-mono text-fg-bright'>G2</span>.
-                </dd>
-
-                <div class='mt-2 rounded-xl bg-panel p-3'>
-                  <p class='text-xs text-fg font-semibold mb-2'>Special types</p>
-                  <ul class='text-xs text-fg space-y-1'>
-                    <li><span class='font-mono text-fg-bright'>BD</span> – Brown Dwarf</li>
-                    <li><span class='font-mono text-fg-bright'>D</span> – White Dwarf</li>
-                    <li><span class='font-mono text-fg-bright'>BH</span> – Black Hole</li>
-                    <li><span class='font-mono text-fg-bright'>PSR</span> – Pulsar</li>
-                    <li><span class='font-mono text-fg-bright'>NS</span> – Neutron Star</li>
-                  </ul>
-                  <p class='mt-2 text-xs text-fg-muted'>
-                    Special types do not require a <span class='font-mono text-fg-bright'>class</span>.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>class <span class='text-fg-muted font-normal'>(conditionally required)</span></dt>
-                <dd class='mt-1 text-fg'>
-                  Luminosity class. Required unless <span class='font-mono text-fg-bright'>type</span> is a special type.
-                </dd>
-
-                <div class='mt-2 rounded-xl bg-panel p-3'>
-                  <p class='text-xs text-fg font-semibold mb-2'>Options</p>
-                  <ul class='text-xs text-fg space-y-1'>
-                    <li><span class='font-mono text-fg-bright'>Ia</span> – Luminous supergiant</li>
-                    <li><span class='font-mono text-fg-bright'>Ib</span> – Less luminous supergiant</li>
-                    <li><span class='font-mono text-fg-bright'>II</span> – Bright giant</li>
-                    <li><span class='font-mono text-fg-bright'>III</span> – Giant</li>
-                    <li><span class='font-mono text-fg-bright'>IV</span> – Subgiant</li>
-                    <li><span class='font-mono text-fg-bright'>V</span> – Main sequence</li>
-                    <li><span class='font-mono text-fg-bright'>VI</span> – Subdwarf</li>
-                    <li><span class='font-mono text-fg-bright'>giant</span> – Gas giant star</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>companion</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional companion star (another star definition).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>close</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional star in close orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>near</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional star in near orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>far</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional star in far orbit (another star definition). See <cite>World Builder's Handbook</cite>, page 27 for the orbit ranges.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>bodies</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional list of orbital bodies for this star. See orbital bodies below.
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div>
-            <p class='text-sm font-semibold text-highlight mb-2'>Counts definition</p>
-
-            <dl class='space-y-5 text-sm'>
-              <div>
-                <dt class='font-semibold text-fg-bright'>density</dt>
-                <dd class='mt-1 text-fg'>
-                  Orbital body density modifier (0–30). When specified, the generator determines
-                  the number of terrestrial planets, planetoid belts, and gas giants automatically.
-                  Rules on density can be found in <cite>Book 3 – Referee's Handbook</cite>.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>terrestrialPlanets</dt>
-                <dd class='mt-1 text-fg'>
-                  Explicit count of terrestrial planets (0–20).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>planetoidBelts</dt>
-                <dd class='mt-1 text-fg'>
-                  Explicit count of planetoid belts (0–20).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>gasGiants</dt>
-                <dd class='mt-1 text-fg'>
-                  Explicit count of gas giants (0–20).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>mainWorld</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional main world definition. Supports the following fields:
-                </dd>
-
-                <div class='mt-2 rounded-xl bg-panel p-3'>
-                  <ul class='text-xs text-fg space-y-1'>
-                    <li>
-                      <span class='font-mono text-fg-bright'>uwp</span> <span class='text-fg-muted'>(required)</span> –
-                      UWP code or label. See orbital bodies below.
-                    </li>
-                    <li>
-                      <span class='font-mono text-fg-bright'>orbit</span> –
-                      optional orbit placement label
-                      (<span class='font-mono text-fg-bright'>inner</span>,
-                      <span class='font-mono text-fg-bright'>warm</span>,
-                      <span class='font-mono text-fg-bright'>hzco</span>,
-                      <span class='font-mono text-fg-bright'>cold</span>,
-                      <span class='font-mono text-fg-bright'>outer</span>,
-                      <span class='font-mono text-fg-bright'>habitable</span>).
-                    </li>
-                    <li>
-                      <span class='font-mono text-fg-bright'>name</span> –
-                      optional name for the main world.
-                    </li>
-                    <li>
-                      <span class='font-mono text-fg-bright'>moon</span> –
-                      boolean. When <span class='font-mono text-fg-bright'>true</span>, the main world is
-                      placed as a moon of a gas giant rather than as a direct orbital body.
-                      Requires <span class='font-mono text-fg-bright'>gasGiants</span> to be at least 1.
-                      The generator selects an appropriate gas giant and assigns the main world as its moon.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </dl>
-
-            <div class='mt-2 rounded-xl bg-panel p-3'>
-              <p class='text-xs text-fg font-semibold mb-2'>Requirements</p>
-              <p class='text-xs text-fg'>
-                Counts must specify either <span class='font-mono text-fg-bright'>density</span> alone,
-                or all three of <span class='font-mono text-fg-bright'>terrestrialPlanets</span>,
-                <span class='font-mono text-fg-bright'>planetoidBelts</span>, and
-                <span class='font-mono text-fg-bright'>gasGiants</span>.
-                The <span class='font-mono text-fg-bright'>mainWorld</span> field is optional in both cases.
-                When <span class='font-mono text-fg-bright'>mainWorld.moon</span> is <span class='font-mono text-fg-bright'>true</span>,
-                <span class='font-mono text-fg-bright'>gasGiants</span> must be at least 1.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <p class='text-sm font-semibold text-highlight mb-2'>Orbital bodies</p>
-
-            <dl class='space-y-5 text-sm'>
-              <div>
-                <dt class='font-semibold text-fg-bright'>uwp <span class='text-fg-muted font-normal'>(required)</span></dt>
-                <dd class='mt-1 text-fg'>
-                  UWP code (e.g. <span class='font-mono text-fg-bright'>X674000-0</span>), a known label
-                  (<span class='font-mono text-fg-bright'>terrestrial</span>, <span class='font-mono text-fg-bright'>small gas giant</span>,
-                  <span class='font-mono text-fg-bright'>gas giant</span>, <span class='font-mono text-fg-bright'>large gas giant</span>,
-                  <span class='font-mono text-fg-bright'>super earth</span>),
-                  or empty (<span class='font-mono text-fg-bright'>uwp: 'empty'</span>) to indicate no orbital body at that position.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>orbit</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional orbit placement label. Must be one of
-                  <span class='font-mono text-fg-bright'>inner</span>,
-                  <span class='font-mono text-fg-bright'>warm</span>,
-                  <span class='font-mono text-fg-bright'>hzco</span>,
-                  <span class='font-mono text-fg-bright'>cold</span>,
-                  <span class='font-mono text-fg-bright'>outer</span>, or
-                  <span class='font-mono text-fg-bright'>habitable</span>.
-                  Only one body per star may specify an orbit label.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>name</dt>
-                <dd class='mt-1 text-fg'>
-                  Optional name for the orbital body.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>mainWorld</dt>
-                <dd class='mt-1 text-fg'>
-                  Boolean. When <span class='font-mono text-fg-bright'>true</span>, designates this body as the main world.
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div>
-            <p class='text-sm font-semibold text-highlight mb-2'>Populated definition</p>
-
-            <dl class='space-y-5 text-sm'>
-              <div>
-                <dt class='font-semibold text-fg-bright'>type <span class='text-fg-muted font-normal'>(required)</span></dt>
-                <dd class='mt-1 text-fg'>
-                  Layout preset for how populated worlds are distributed.
-                </dd>
-
-                <div class='mt-2 rounded-xl bg-panel p-3'>
-                  <p class='text-xs text-fg font-semibold mb-2'>Options</p>
-                  <ul class='text-xs text-fg space-y-1'>
-                    <li><span class='font-mono text-fg-bright'>full</span></li>
-                    <li><span class='font-mono text-fg-bright'>hard-horizontal</span></li>
-                    <li><span class='font-mono text-fg-bright'>hard-vertical</span></li>
-                    <li><span class='font-mono text-fg-bright'>split-horizontal</span></li>
-                    <li><span class='font-mono text-fg-bright'>split-vertical</span></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>allegiance <span class='text-fg-muted font-normal'>(required)</span></dt>
-                <dd class='mt-1 text-fg'>
-                  Default allegiance code. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>minTechLevel, maxTechLevel</dt>
-                <dd class='mt-1 text-fg'>
-                  Constraints for generated tech level (0–100).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>minPopulationCode, maxPopulationCode</dt>
-                <dd class='mt-1 text-fg'>
-                  Constraints for generated population code (0–16).
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>Population Concentration Rating</dt>
-                <dd class='mt-1 text-fg'>
-                  Indicates how population is distributed across a world. Generated automatically and displayed on world detail pages.
-                  See World Builder's Handbook, p. 150.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>Urbanisation Percentage</dt>
-                <dd class='mt-1 text-fg'>
-                  Percentage of population living in urban settlements. Generated automatically and displayed on world detail pages.
-                  See World Builder's Handbook, p. 151.
-                </dd>
-              </div>
-
-              <div>
-                <dt class='font-semibold text-fg-bright'>Major Cities</dt>
-                <dd class='mt-1 text-fg'>
-                  Count of major cities on the world. Generated automatically and displayed on world detail pages.
-                  See World Builder's Handbook, p. 152.
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
-            REFERENCE 0422RD
-          </div>
-        </div>
-      </section>
+    <p class='text-xs uppercase tracking-wide text-fg-muted'>Reference 0422RD</p>
   </div>
 <% end %>
