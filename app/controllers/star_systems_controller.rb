@@ -417,7 +417,10 @@ class StarSystemsController < ApplicationController
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     when 'random'
-      result = generator_service.generate_star_system({ 'name' => create_params['name'] }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options).merge(realistic_star_distribution_options))
+      config = { 'name' => create_params['name'] }
+      config['populated'] = true if create_params['populated'] == '1'
+      config.merge!(sophont_check_options).merge!(max_tech_level_options).merge!(native_tech_level_options).merge!(realistic_star_distribution_options)
+      result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     when 'build_configuration'
@@ -478,7 +481,7 @@ class StarSystemsController < ApplicationController
   end
 
   def new_star_system_params
-    params.expect(star_system: [:name, :parsec_id, :create_mode, :build_configuration, :primary_spectral_type, :primary_spectral_subtype, :primary_luminosity])
+    params.expect(star_system: [:name, :parsec_id, :create_mode, :build_configuration, :primary_spectral_type, :primary_spectral_subtype, :primary_luminosity, :populated])
   end
 
   def star_system_params
