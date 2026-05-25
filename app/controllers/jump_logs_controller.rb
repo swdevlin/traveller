@@ -20,6 +20,9 @@ class JumpLogsController < ApplicationController
   def new
     @jump_log = JumpLog.new(ship_id: params[:ship_id])
     @jump_log.destination_survey_index = 10 if current_campaign.tracks_survey_index?
+    scope = params[:ship_id].present? ? JumpLog.where(ship_id: params[:ship_id]) : JumpLog
+    last = scope.includes(to_parsec: :sector).order(sequence: :desc, id: :desc).first
+    @map_url = api_map_path(helpers.jump_chart_viewport(last.to_parsec)) if last&.to_parsec
     load_form_collections
   end
 

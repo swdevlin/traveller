@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ['shipSelect', 'misjumpCheckbox'];
   static values = {
     shipsUrl: { type: String, default: '' },
+    mapBaseUrl: { type: String, default: '' },
     newRecord: { type: Boolean, default: false }
   };
 
@@ -50,6 +51,7 @@ export default class extends Controller {
     this.#fromX = (x !== null && x !== undefined) ? x : null;
     this.#fromY = (y !== null && y !== undefined) ? y : null;
     this.#applyConstraints();
+    this.updateMap();
   }
 
   #applyConstraints() {
@@ -138,6 +140,22 @@ export default class extends Controller {
     } catch (_e) {
       // ignore fetch errors
     }
+  }
+
+  buildMapUrl(x, y) {
+    const ulx = x - 3;
+    const lrx = x + 4;
+    const uly = y + 4;
+    const lry = y - 5;
+    return `${this.mapBaseUrlValue}?ulx=${ulx}&uly=${uly}&lrx=${lrx}&lry=${lry}`;
+  }
+
+  updateMap() {
+    if (!this.mapBaseUrlValue || this.#fromX === null) return;
+    const mapObject = document.querySelector('[data-role="jump-map"]');
+    if (!mapObject) return;
+    mapObject.data = this.buildMapUrl(this.#fromX, this.#fromY);
+    mapObject.classList.remove('hidden');
   }
 
   #toElement() {

@@ -2,6 +2,7 @@
                                data: { controller: 'jump-form jump-dates',
                                        action: 'change->jump-dates#departChanged parsec-select:hex-selected->jump-form#fromParsecSelected',
                                        jump_form_ships_url_value: api_ships_path,
+                                       jump_form_map_base_url_value: api_map_path({}),
                                        jump_form_new_record_value: jump_log.new_record? }) do |form| %>
   <div class='space-y-6 pb-10'>
     <% if jump_log.errors.any? %>
