@@ -132,6 +132,7 @@ type alias JumpRouteLink =
     , toY : Int
     , strokeDasharray : String
     , lineWidth : Int
+    , routeType : String
     }
 
 
@@ -160,6 +161,11 @@ jumpRouteLinkDecoder =
         |> JsDecode.andThen
             (\partial ->
                 JsDecode.map partial (JsDecode.field "line_width" (JsDecode.oneOf [ JsDecode.int, JsDecode.null 2 ]))
+            )
+        |> JsDecode.andThen
+            (\partial ->
+                JsDecode.map partial
+                    (JsDecode.field "route_type" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "network" ]))
             )
 
 
@@ -2243,9 +2249,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                         List.filter
                             (\link ->
                                 isReferee
-                                    || link.fromSurveyIndex >= 10
-                                    || link.toSurveyIndex >= 10
                                     || link.known
+                                    || (link.routeType == "network"
+                                            && (link.fromSurveyIndex >= 10 || link.toSurveyIndex >= 10)
+                                       )
                             )
                             jumpRouteLinks
 
@@ -3047,7 +3054,7 @@ view ( time, model ) =
 
         timeChars : Int
         timeChars =
-            (Time.posixToMillis time - Time.posixToMillis model.timeOpened) // 20
+            (Time.posixToMillis time - Time.posixToMillis model.timeOpened) // 12
     in
     row
         [ width fill

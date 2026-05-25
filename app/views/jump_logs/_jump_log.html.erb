@@ -6,11 +6,12 @@
   %>
 
   <div class='flex flex-wrap gap-x-10 gap-y-6'>
-    <%= render 'application/data_block',
-               label: 'From',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
-               value: jump_log.from_parsec.display_name
-    %>
+    <div class='min-w-0'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>From</div>
+      <div class='mt-2 text-fg-bright'>
+        <%= render 'parsecs/location', parsec: jump_log.from_parsec %>
+      </div>
+    </div>
 
     <%= render 'application/data_block',
                label: 'Depart',
@@ -20,11 +21,12 @@
   </div>
 
   <div class='flex flex-wrap gap-x-10 gap-y-6'>
-    <%= render 'application/data_block',
-               label: 'To',
-               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
-               value: jump_log.to_parsec.display_name
-    %>
+    <div class='min-w-0'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>To</div>
+      <div class='mt-2 text-fg-bright'>
+        <%= render 'parsecs/location', parsec: jump_log.to_parsec %>
+      </div>
+    </div>
 
     <%= render 'application/data_block',
                label: 'Arrive',

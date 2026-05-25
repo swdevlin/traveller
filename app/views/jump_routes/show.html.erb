@@ -41,12 +41,7 @@
                       <tr class='<%= 'text-highlight font-medium' if i == 0 || i == systems.size - 1 %>'>
                         <td class='text-right tabular-nums text-fg-muted'><%= i + 1 %></td>
                         <td>
-                          <%= link_to star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                            <span class='block'><%= sys.display_name %></span>
-                            <% if sys.name.present? %>
-                              <span class='block text-xs text-fg-muted'><%= sys.parsec.sector.name %> · <%= sys.parsec.hex_code %></span>
-                            <% end %>
-                          <% end %>
+                          <%= render 'star_systems/system_link', star_system: sys %>
                         </td>
                         <td class='font-mono'><%= sys.main_world_uwp %></td>
                       </tr>
@@ -83,12 +78,7 @@
                   <tr class='<%= 'text-highlight font-medium' if i == 0 || i == systems.size - 1 %>'>
                     <td class='text-right tabular-nums text-fg-muted'><%= i + 1 %></td>
                     <td>
-                      <%= link_to star_system_path(sys), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                        <span class='block'><%= sys.display_name %></span>
-                        <% if sys.name.present? %>
-                          <span class='block text-xs text-fg-muted'><%= sys.parsec.sector.name %> · <%= sys.parsec.hex_code %></span>
-                        <% end %>
-                      <% end %>
+                      <%= render 'star_systems/system_link', star_system: sys %>
                     </td>
                     <td class='font-mono'><%= sys.main_world_uwp %></td>
                   </tr>
@@ -141,20 +131,10 @@
                     <% links.each do |link| %>
                       <tr id="<%= dom_id link %>">
                         <td>
-                          <%= link_to star_system_path(link.from_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                            <span class='block'><%= link.from_star_system.display_name %></span>
-                            <% if link.from_star_system.name.present? %>
-                              <span class='block text-xs text-fg-muted'><%= link.from_star_system.parsec.sector.name %> · <%= link.from_star_system.parsec.hex_code %></span>
-                            <% end %>
-                          <% end %>
+                          <%= render 'star_systems/system_link', star_system: link.from_star_system %>
                         </td>
                         <td>
-                          <%= link_to star_system_path(link.to_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                            <span class='block'><%= link.to_star_system.display_name %></span>
-                            <% if link.to_star_system.name.present? %>
-                              <span class='block text-xs text-fg-muted'><%= link.to_star_system.parsec.sector.name %> · <%= link.to_star_system.parsec.hex_code %></span>
-                            <% end %>
-                          <% end %>
+                          <%= render 'star_systems/system_link', star_system: link.to_star_system %>
                         </td>
                         <td class='text-right'>
                           <%= button_to jump_route_link_path(link),
@@ -202,20 +182,10 @@
                 <% links.each do |link| %>
                   <tr id="<%= dom_id link %>">
                     <td>
-                      <%= link_to star_system_path(link.from_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                        <span class='block'><%= link.from_star_system.display_name %></span>
-                        <% if link.from_star_system.name.present? %>
-                          <span class='block text-xs text-fg-muted'><%= link.from_star_system.parsec.sector.name %> · <%= link.from_star_system.parsec.hex_code %></span>
-                        <% end %>
-                      <% end %>
+                      <%= render 'star_systems/system_link', star_system: link.from_star_system %>
                     </td>
                     <td>
-                      <%= link_to star_system_path(link.to_star_system), class: 'no-underline hover:underline hover:underline-offset-2' do %>
-                        <span class='block'><%= link.to_star_system.display_name %></span>
-                        <% if link.to_star_system.name.present? %>
-                          <span class='block text-xs text-fg-muted'><%= link.to_star_system.parsec.sector.name %> · <%= link.to_star_system.parsec.hex_code %></span>
-                        <% end %>
-                      <% end %>
+                      <%= render 'star_systems/system_link', star_system: link.to_star_system %>
                     </td>
                     <td class='text-right'>
                       <%= button_to jump_route_link_path(link),

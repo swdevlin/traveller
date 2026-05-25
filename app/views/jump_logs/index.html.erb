@@ -8,7 +8,14 @@
       <p>Jump log registry</p>
 
       <div class='actions'>
-        <%= link_to new_jump_log_path, class: 'btn-header' do %>
+        <%= form_with url: jump_logs_path, method: :get, data: { turbo_frame: '_top' } do |f| %>
+          <%= f.select :ship_id,
+                       options_from_collection_for_select(@ships, :id, :name, params[:ship_id]),
+                       { include_blank: 'All ships' },
+                       class: 'edit-base text-sm py-1.5', onchange: 'this.form.submit()' %>
+        <% end %>
+
+        <%= link_to new_jump_log_path(ship_id: params[:ship_id]), class: 'btn-header' do %>
           <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
@@ -24,7 +31,7 @@
             <th scope='col'>Depart</th>
             <th scope='col'>From</th>
             <th scope='col'>Arrive</th>
-            <th scope='col'>In</th>
+            <th scope='col'>To</th>
             <th scope='col' class='text-right actions-cell'>Actions</th>
           </tr>
         </thead>
@@ -41,20 +48,16 @@
                   <%= jump_log.depart_year %>-<%= format('%03d', jump_log.depart_day || 0) %>
                 <% end %>
               </td>
-              <td class='whitespace-nowrap'>
-                <%= link_to jump_log.from_parsec.sector.name, sector_path(jump_log.from_parsec.sector), class: 'no-underline hover:underline' %>
-                (<%= link_to jump_log.from_parsec.hex_code, parsec_path(jump_log.from_parsec), class: 'no-underline hover:underline' %>)
-              </td>
+              <td><%= render 'parsecs/location', parsec: jump_log.from_parsec %></td>
               <td class='whitespace-nowrap'>
                 <% if jump_log.arrive_year %>
                   <%= jump_log.arrive_year %>-<%= format('%03d', jump_log.arrive_day || 0) %>
                 <% end %>
               </td>
-              <td class='whitespace-nowrap'>
-                <%= link_to jump_log.to_parsec.sector.name, sector_path(jump_log.to_parsec.sector), class: 'no-underline hover:underline' %>
-                (<%= link_to jump_log.to_parsec.hex_code, parsec_path(jump_log.to_parsec), class: 'no-underline hover:underline' %>)
+              <td>
+                <%= render 'parsecs/location', parsec: jump_log.to_parsec %>
                 <% if jump_log.misjump? %>
-                  <i class='fa-regular fa-triangle-exclamation text-amber-400 ml-1' title='Misjump'></i>
+                  <i class='fa-regular fa-triangle-exclamation text-amber-400 mt-1' title='Misjump'></i>
                 <% end %>
               </td>
               <td class='actions-cell'>

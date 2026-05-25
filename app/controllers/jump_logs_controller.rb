@@ -3,8 +3,10 @@ class JumpLogsController < ApplicationController
 
   # GET /jump_logs or /jump_logs.json
   def index
-    scope = JumpLog.includes(:ship, from_parsec: :sector, to_parsec: :sector)
+    @ships = Ship.order(:name)
+    scope = JumpLog.includes(:ship, from_parsec: [:sector, :star_systems], to_parsec: [:sector, :star_systems])
                    .order(sequence: :desc, id: :desc)
+    scope = scope.where(ship_id: params[:ship_id]) if params[:ship_id].present?
     @pagy, @jump_logs = pagy(scope, limit: 25)
   end
 
@@ -16,14 +18,8 @@ class JumpLogsController < ApplicationController
 
   # GET /jump_logs/new
   def new
-    last = JumpLog.includes(to_parsec: :sector).order(sequence: :desc, id: :desc).first
-    @jump_log = JumpLog.new(
-      from_parsec: last&.to_parsec,
-      depart_year: last&.arrive_year,
-      depart_day:  last&.arrive_day
-    )
+    @jump_log = JumpLog.new(ship_id: params[:ship_id])
     @jump_log.destination_survey_index = 10 if current_campaign.tracks_survey_index?
-    @map_url = api_map_path(helpers.jump_chart_viewport(@jump_log.from_parsec)) if @jump_log.from_parsec
     load_form_collections
   end
 
@@ -80,7 +76,7 @@ class JumpLogsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_jump_log
-      @jump_log = JumpLog.includes(from_parsec: :sector, to_parsec: :sector).find(params.expect(:id))
+      @jump_log = JumpLog.includes(from_parsec: [:sector, :star_systems], to_parsec: [:sector, :star_systems]).find(params.expect(:id))
     end
 
     def load_form_collections

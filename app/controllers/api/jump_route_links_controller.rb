@@ -25,6 +25,7 @@ class Api::JumpRouteLinksController < Api::BaseController
       id: link.id,
       colour: link.jump_route.colour,
       known: link.jump_route.known?,
+      route_type: link.jump_route.route_type,
       stroke_dasharray: link.jump_route.stroke_dasharray.to_s,
       line_width: link.jump_route.line_width,
       from_survey_index: link.from_star_system.survey_index.to_i,

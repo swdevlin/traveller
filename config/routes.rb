@@ -24,7 +24,11 @@ Rails.application.routes.draw do
       resources :parsecs, only: :index
       get  'jumps',       to: 'jump_logs#index', defaults: { format: :json }
       post 'jumps',       to: 'jump_logs#create', defaults: { format: :json }
-      resources :ships, only: :index, defaults: { format: :json }
+      resources :ships, only: :index, defaults: { format: :json } do
+        member do
+          get :last_jump
+        end
+      end
       get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }

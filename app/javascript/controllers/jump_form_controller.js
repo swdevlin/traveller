@@ -1,111 +1,146 @@
-import { Controller } from '@hotwired/stimulus'
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ['shipSelect', 'misjumpCheckbox']
+  static targets = ['shipSelect', 'misjumpCheckbox'];
+  static values = {
+    shipsUrl: { type: String, default: '' },
+    newRecord: { type: Boolean, default: false }
+  };
 
-  #fromX = null
-  #fromY = null
-  #jumpDrive = 0
+  #fromX = null;
+  #fromY = null;
+  #jumpDrive = 0;
 
   connect() {
-    const fromContainer = this.element.querySelector('[data-parsec-role="from"]')
+    const fromContainer = this.element.querySelector('[data-parsec-role="from"]');
     if (fromContainer?.dataset.fromX) {
-      this.#fromX = parseInt(fromContainer.dataset.fromX)
-      this.#fromY = parseInt(fromContainer.dataset.fromY)
+      this.#fromX = parseInt(fromContainer.dataset.fromX);
+      this.#fromY = parseInt(fromContainer.dataset.fromY);
     }
 
-    const options = this.shipSelectTarget.querySelectorAll('option[value]:not([value=""])')
+    const options = this.shipSelectTarget.querySelectorAll('option[value]:not([value=""])');
     if (options.length === 1 && !this.shipSelectTarget.value) {
-      this.shipSelectTarget.value = options[0].value
+      this.shipSelectTarget.value = options[0].value;
     }
 
-    const option = this.shipSelectTarget.selectedOptions[0]
-    this.#jumpDrive = option ? parseInt(option.dataset.jumpDrive) || 0 : 0
-    requestAnimationFrame(() => this.#applyConstraints())
+    const option = this.shipSelectTarget.selectedOptions[0];
+    this.#jumpDrive = option ? parseInt(option.dataset.jumpDrive) || 0 : 0;
+    requestAnimationFrame(() => this.#applyConstraints());
+
+    if (this.newRecordValue && this.shipSelectTarget.value) {
+      this.#loadLastJump(this.shipSelectTarget.value);
+    }
   }
 
-  shipChanged() {
-    const option = this.shipSelectTarget.selectedOptions[0]
-    this.#jumpDrive = option ? parseInt(option.dataset.jumpDrive) || 0 : 0
-    this.#applyConstraints()
+  async shipChanged() {
+    const option = this.shipSelectTarget.selectedOptions[0];
+    this.#jumpDrive = option ? parseInt(option.dataset.jumpDrive) || 0 : 0;
+    this.#applyConstraints();
+    await this.#loadLastJump(this.shipSelectTarget.value);
   }
 
   misjumpChanged() {
-    this.#applyConstraints()
+    this.#applyConstraints();
   }
 
   fromParsecSelected(event) {
-    const fromContainer = this.element.querySelector('[data-parsec-role="from"]')
-    if (!fromContainer?.contains(event.target)) return
-    const { x, y } = event.detail
-    this.#fromX = (x !== null && x !== undefined) ? x : null
-    this.#fromY = (y !== null && y !== undefined) ? y : null
-    this.#applyConstraints()
+    const fromContainer = this.element.querySelector('[data-parsec-role="from"]');
+    if (!fromContainer?.contains(event.target)) return;
+    const { x, y } = event.detail;
+    this.#fromX = (x !== null && x !== undefined) ? x : null;
+    this.#fromY = (y !== null && y !== undefined) ? y : null;
+    this.#applyConstraints();
   }
 
   #applyConstraints() {
-    const to = this.#toElement()
-    if (!to) return
+    const to = this.#toElement();
+    if (!to) return;
 
-    const misjump = this.hasMisjumpCheckboxTarget && this.misjumpCheckboxTarget.checked
+    const misjump = this.hasMisjumpCheckboxTarget && this.misjumpCheckboxTarget.checked;
 
     if (this.#fromX !== null) {
-      to.setAttribute('data-parsec-select-from-x-value', this.#fromX)
-      to.setAttribute('data-parsec-select-from-y-value', this.#fromY)
+      to.setAttribute('data-parsec-select-from-x-value', this.#fromX);
+      to.setAttribute('data-parsec-select-from-y-value', this.#fromY);
     }
-    to.setAttribute('data-parsec-select-max-distance-value', misjump ? 0 : this.#jumpDrive)
+    to.setAttribute('data-parsec-select-max-distance-value', misjump ? 0 : this.#jumpDrive);
 
     if (misjump) {
-      this.#showAllSectors()
+      this.#showAllSectors();
     } else if (this.#fromX !== null && this.#jumpDrive > 0) {
-      this.#updateToSector()
+      this.#updateToSector();
     }
   }
 
   #showAllSectors() {
-    const sectorSelect = this.#toElement()?.querySelector('[data-parsec-select-target="sector"]')
-    if (!sectorSelect) return
+    const sectorSelect = this.#toElement()?.querySelector('[data-parsec-select-target="sector"]');
+    if (!sectorSelect) return;
 
     Array.from(sectorSelect.querySelectorAll('option')).forEach(opt => {
-      opt.hidden = false
-    })
-    sectorSelect.disabled = false
+      opt.hidden = false;
+    });
+    sectorSelect.disabled = false;
   }
 
   #updateToSector() {
-    const sectorSelect = this.#toElement()?.querySelector('[data-parsec-select-target="sector"]')
-    if (!sectorSelect) return
+    const sectorSelect = this.#toElement()?.querySelector('[data-parsec-select-target="sector"]');
+    if (!sectorSelect) return;
 
-    const fx = this.#fromX, fy = this.#fromY, d = this.#jumpDrive
-    const options = Array.from(sectorSelect.querySelectorAll('option[value]:not([value=""])'))
-    const reachable = []
+    const fx = this.#fromX, fy = this.#fromY, d = this.#jumpDrive;
+    const options = Array.from(sectorSelect.querySelectorAll('option[value]:not([value=""])'));
+    const reachable = [];
 
     options.forEach(opt => {
-      const sx = parseInt(opt.dataset.sectorX)
-      const sy = parseInt(opt.dataset.sectorY)
-      if (isNaN(sx) || isNaN(sy)) return
-      const sxMin = sx * 32, sxMax = sx * 32 + 31
-      const syMin = sy * 40 - 39, syMax = sy * 40
-      const cx = Math.max(sxMin, Math.min(sxMax, fx))
-      const cy = Math.max(syMin, Math.min(syMax, fy))
-      const inRange = Math.abs(fx - cx) <= d && Math.abs(fy - cy) <= d
-      opt.hidden = !inRange
-      if (inRange) reachable.push(opt)
-    })
+      const sx = parseInt(opt.dataset.sectorX);
+      const sy = parseInt(opt.dataset.sectorY);
+      if (isNaN(sx) || isNaN(sy)) return;
+      const sxMin = sx * 32, sxMax = sx * 32 + 31;
+      const syMin = sy * 40 - 39, syMax = sy * 40;
+      const cx = Math.max(sxMin, Math.min(sxMax, fx));
+      const cy = Math.max(syMin, Math.min(syMax, fy));
+      const inRange = Math.abs(fx - cx) <= d && Math.abs(fy - cy) <= d;
+      opt.hidden = !inRange;
+      if (inRange) reachable.push(opt);
+    });
 
     if (reachable.length === 1) {
-      const prev = sectorSelect.value
-      sectorSelect.value = reachable[0].value
-      sectorSelect.disabled = true
+      const prev = sectorSelect.value;
+      sectorSelect.value = reachable[0].value;
+      sectorSelect.disabled = true;
       if (prev !== reachable[0].value) {
-        sectorSelect.dispatchEvent(new Event('change', { bubbles: true }))
+        sectorSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
     } else {
-      sectorSelect.disabled = false
+      sectorSelect.disabled = false;
+    }
+  }
+
+  async #loadLastJump(shipId) {
+    if (!shipId || !this.shipsUrlValue) return;
+    try {
+      const response = await fetch(`${this.shipsUrlValue}/${shipId}/last_jump`);
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data) return;
+
+      const departYearInput = this.element.querySelector('[data-jump-dates-target="departYear"]');
+      const departDayInput = this.element.querySelector('[data-jump-dates-target="departDay"]');
+      if (departYearInput) departYearInput.value = data.arrive_year ?? '';
+      if (departDayInput) departDayInput.value = data.arrive_day ?? '';
+      if (departDayInput) departDayInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+      if (data.sector_id && data.parsec_id) {
+        const fromContainer = this.element.querySelector('[data-parsec-role="from"]');
+        const parsecSelectController = this.application.getControllerForElementAndIdentifier(fromContainer, 'parsec-select');
+        if (parsecSelectController) {
+          await parsecSelectController.setDefaults(data.sector_id, data.parsec_id);
+        }
+      }
+    } catch (_e) {
+      // ignore fetch errors
     }
   }
 
   #toElement() {
-    return this.element.querySelector('[data-parsec-role="to"]')
+    return this.element.querySelector('[data-parsec-role="to"]');
   }
 }

@@ -1,6 +1,8 @@
 <%= form_with(model: jump_log, class: 'contents',
                                data: { controller: 'jump-form jump-dates',
-                                       action: 'change->jump-dates#departChanged parsec-select:hex-selected->jump-form#fromParsecSelected' }) do |form| %>
+                                       action: 'change->jump-dates#departChanged parsec-select:hex-selected->jump-form#fromParsecSelected',
+                                       jump_form_ships_url_value: api_ships_path,
+                                       jump_form_new_record_value: jump_log.new_record? }) do |form| %>
   <div class='space-y-6 pb-10'>
     <% if jump_log.errors.any? %>
       <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
@@ -59,7 +61,7 @@
         <%= select_tag 'from_hex',
                        '<option value="">Hex…</option>'.html_safe,
                        disabled: jump_log.from_parsec_id.blank?,
-                       class: 'edit-base w-28',
+                       class: 'edit-base w-52',
                        data: { parsec_select_target: 'hex', action: 'change->parsec-select#hexChanged' } %>
         <%= hidden_field_tag 'jump_log[from_parsec_id]', jump_log.from_parsec_id,
                              data: { parsec_select_target: 'hiddenId' } %>
@@ -77,7 +79,7 @@
          data-parsec-select-url-value='<%= api_parsecs_path %>'>
       <%= hidden_field_tag 'jump_log[to_parsec_id]', jump_log.to_parsec_id,
                            data: { parsec_select_target: 'hiddenId' } %>
-      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 7rem<%= ' 5rem' if current_campaign.tracks_survey_index? %>'>
+      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 13rem<%= ' 5rem' if current_campaign.tracks_survey_index? %>'>
         <%# Labels row %>
         <div class='flex items-center gap-4'>
           <span class='edit-label'>To</span>

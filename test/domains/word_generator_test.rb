@@ -12,7 +12,8 @@ class WordGeneratorTest < ActiveSupport::TestCase
   NORDIC_CHARS   = /\A[a-zåäöæø]+\z/
   OYNPRITH_CHARS  = /\A[a-z]+\z/
   ARRGHOUN_CHARS  = /\A[a-z]+\z/
-  GURVIN_CHARS    = /\A[a-z'!]+\z/
+  GURVIN_CHARS    = /\A[a-z0-9'\-æ ]+\z/i
+  XENGRI_CHARS    = /\A[a-z'!]+\z/
   ZDETL_CHARS     = /\A[a-z']+\z/
 
   test 'raises ArgumentError for unknown language' do
@@ -267,7 +268,7 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal 'kanllaegzzog', word
   end
 
-  # --- Gurvin (K'kree) ---
+  # --- Gurvin (Hiver) ---
 
   test 'gurvin: generates a non-empty string' do
     word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
@@ -275,7 +276,7 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert word.length > 0
   end
 
-  test 'gurvin: generated word contains only Gurvin phoneme characters' do
+  test 'gurvin: generated word contains only Gurvin corpus characters' do
     [42, 1, 99, 1337, 0].each do |seed|
       word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: seed)).generate
       assert_match GURVIN_CHARS, word, "Unexpected characters in #{word.inspect} (seed #{seed})"
@@ -288,8 +289,34 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test "gurvin: snapshot seed 42 produces ktal'gr" do
+  test 'gurvin: snapshot seed 42 produces Enafururoi' do
     word = WordGenerator.new(language: :gurvin, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal 'Enafururoi', word
+  end
+
+  # --- Xengri (K'kree) ---
+
+  test 'xengri: generates a non-empty string' do
+    word = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert word.is_a?(String)
+    assert word.length > 0
+  end
+
+  test 'xengri: generated word contains only Xengri phoneme characters' do
+    [42, 1, 99, 1337, 0].each do |seed|
+      word = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: seed)).generate
+      assert_match XENGRI_CHARS, word, "Unexpected characters in #{word.inspect} (seed #{seed})"
+    end
+  end
+
+  test 'xengri: seeded generation is deterministic' do
+    word_a = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: 42)).generate
+    word_b = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: 42)).generate
+    assert_equal word_a, word_b
+  end
+
+  test "xengri: snapshot seed 42 produces ktal'gr" do
+    word = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: 42)).generate
     assert_equal "ktal'gr", word
   end
 
