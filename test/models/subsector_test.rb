@@ -5,6 +5,38 @@ class SubsectorTest < ActiveSupport::TestCase
     @subsector = subsectors(:subsector_1_1)
   end
 
+  test 'effective_language returns own language when set' do
+    campaign = campaigns(:one)
+    @subsector.language = 'aslan'
+    assert_equal 'aslan', @subsector.effective_language(campaign)
+  end
+
+  test 'effective_language falls back to sector language' do
+    campaign = campaigns(:one)
+    @subsector.sector.language = 'hindi'
+    assert_equal 'hindi', @subsector.effective_language(campaign)
+  end
+
+  test 'effective_language own language overrides sector language' do
+    campaign = campaigns(:one)
+    @subsector.sector.language = 'hindi'
+    @subsector.language = 'aslan'
+    assert_equal 'aslan', @subsector.effective_language(campaign)
+  end
+
+  test 'effective_language falls back to campaign default' do
+    campaign = campaigns(:one)
+    campaign.default_language = 'nordic'
+    assert_nil @subsector.language
+    assert_nil @subsector.sector.language
+    assert_equal 'nordic', @subsector.effective_language(campaign)
+  end
+
+  test 'effective_language returns nil when nothing set' do
+    campaign = campaigns(:one)
+    assert_nil @subsector.effective_language(campaign)
+  end
+
   test 'apply_deepnight_defaults! inherits sector-level populated when subsector has none' do
     data = YAML.safe_load(<<~YAML)
       name: Test Sector

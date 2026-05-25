@@ -2,6 +2,7 @@ class Sector < ApplicationRecord
   include Discard::Model
   include ClearableParsecs
   validates :x, :y, presence: true
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
@@ -11,6 +12,10 @@ class Sector < ApplicationRecord
 
   validate :coordinates_unique_with_link
   validate :traveller_map_accessible, if: -> { source == 'traveller_map' && new_record? && x.present? && y.present? }
+
+  def effective_language(campaign)
+    language.presence || campaign.default_language.presence
+  end
 
   def wiki_link
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"

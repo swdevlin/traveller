@@ -1,10 +1,7 @@
 <%= form_with model: @star_system, url: @form_url, class: 'flex flex-col space-y-6', data: { controller: 'star-system-form' } do |f| %>
   <%= hidden_field_tag :return_to, @return_to if @return_to.present? %>
 
-  <div>
-    <%= f.label :name, 'Name', class: 'block text-sm font-semibold mb-1' %>
-    <%= f.text_field :name, class: 'w-full edit-base' %>
-  </div>
+  <%= render 'application/name_generator_field', form: f %>
 
   <div>
     <%= f.label :allegiance_id, 'Allegiance', class: 'block text-sm font-semibold mb-1' %>

@@ -7,6 +7,7 @@ class StarSystem < ApplicationRecord
   belongs_to :travel_zone, optional: true
 
   validates :parsec_id, presence: { message: 'You must select a hex' }
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
 
   has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
   has_many :jump_route_links_as_from, class_name: 'JumpRouteLink', foreign_key: :from_star_system_id, dependent: :destroy
@@ -21,6 +22,13 @@ class StarSystem < ApplicationRecord
   has_many :gas_giants, through: :stars, source: :stellar_objects, class_name: 'GasGiant'
 
   validate :main_world_must_be_in_system
+
+  def effective_language(campaign)
+    language.presence ||
+      parsec.subsector&.language.presence ||
+      parsec.sector.language.presence ||
+      campaign.default_language.presence
+  end
 
   def ordered_stars
     stars.order(:orbit_sequence)

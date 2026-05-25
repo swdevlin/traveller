@@ -142,6 +142,7 @@ class BuildConfigValidator
     validate_populated_population
     validate_populated_demarcation
     validate_bases
+    validate_languages
 
     systems = Array(config['systems']) + Array(config['required'])
     systems.each_with_index do |sys, idx|
@@ -163,6 +164,7 @@ class BuildConfigValidator
     validate_populated_population
     validate_populated_demarcation
     validate_bases
+    validate_languages
 
     validate_allegiance(config)
     validate_counts(config['counts'], config['counts'])
@@ -314,6 +316,25 @@ class BuildConfigValidator
         @errors << "#{path}: gasGiants must be at least 1 when mainWorld moon is true"
       end
     end
+  end
+
+  def validate_languages
+    check_language(config['language'], 'language')
+    systems = Array(config['systems']) + Array(config['required'])
+    systems.each_with_index do |sys, idx|
+      check_language(sys['language'], "systems[#{idx}].language")
+      check_language(sys.dig('counts', 'mainWorld', 'language'), "systems[#{idx}].counts.mainWorld.language")
+      (sys.dig('primary', 'bodies') || []).each_with_index do |body, bidx|
+        check_language(body['language'], "systems[#{idx}].primary.bodies[#{bidx}].language")
+      end
+    end
+  end
+
+  def check_language(lang, path)
+    return if lang.blank?
+    return if WordGenerator.languages.map(&:to_s).include?(lang)
+
+    @errors << "#{path}: must be one of #{WordGenerator.languages.join(', ')}"
   end
 
   def validate_systems_exclusivity

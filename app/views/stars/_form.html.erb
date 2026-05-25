@@ -4,9 +4,7 @@
   <div class="space-y-6 pb-10">
     <%= render 'application/form_errors', errors: star.errors.where(:base) %>
 
-    <%= render 'application/edit_field', form: form, attribute: :name do %>
-      <%= form.text_field :name, class: 'edit-base w-100' %>
-    <% end %>
+    <%= render 'application/name_generator_field', form: form %>
 
     <div data-controller="star-classification"
          data-star-classification-lookup-url-value="<%= lookup_stars_path %>">

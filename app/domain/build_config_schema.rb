@@ -32,6 +32,7 @@ CountsSchema = Dry::Schema.Params do
       (int? & gteq?(1)) | (str? & included_in?(ORBIT_TYPES))
     end
     optional(:name).filled(:string)
+    optional(:language).filled(:string)
     optional(:moon).filled(:bool)
   end
 end
@@ -51,6 +52,7 @@ BaseStarSchema = Dry::Schema.Params do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
     optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
     optional(:name).filled(:string)
+    optional(:language).filled(:string)
     optional(:mainWorld).filled(:bool)
   end
 end
@@ -101,6 +103,7 @@ SystemSchema = Dry::Schema.Params do
   required(:x).filled(:integer, gteq?: 1, lteq?: 8)
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
   optional(:name).filled(:string)
+  optional(:language).filled(:string)
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
   optional(:bases).array(:string).each(:filled?)
@@ -114,6 +117,7 @@ SOPHONT_CHECK_VALUES = %w[standard rareEarth veryRareEarth none].freeze
 
 SingleSystemSchema = Dry::Schema.Params do
   optional(:name).filled(:string)
+  optional(:language).filled(:string)
   optional(:populated).hash(PopulatedSchema)
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
@@ -134,6 +138,7 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:unusualChance).filled(:integer, gteq?: 0, lteq?: 100)
   optional(:defaultSI).filled(:integer, gteq?: 0, lteq?: 12)
   required(:type).filled(:string, included_in?: VALID_TYPES)
+  optional(:language).filled(:string)
 
   optional(:exclude).value(:array).each { hash(CoordinateSchema) }
   optional(:required).value(:array).each { hash(SystemSchema) }

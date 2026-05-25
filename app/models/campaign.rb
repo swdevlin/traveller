@@ -17,7 +17,8 @@ class Campaign < ApplicationRecord
   store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
                             :native_sophont_colour, :extinct_sophont_colour,
                             :show_native_sophont, :show_extinct_sophont,
-                            :allow_captive_government, :orbit_distance_display, :realisticStarDistribution
+                            :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
+                            :default_language
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)

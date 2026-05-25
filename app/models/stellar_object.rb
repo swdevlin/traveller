@@ -34,6 +34,7 @@ class StellarObject < ApplicationRecord
 
   belongs_to :parsec, optional: true
   belongs_to :orbiting, class_name: 'StellarObject', foreign_key: :orbiting_id, optional: true, touch: true
+  belongs_to :star_system, optional: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes
@@ -86,7 +87,13 @@ class StellarObject < ApplicationRecord
   end
 
   def self.permitted_params
-    [:name, :notes]
+    [:name, :notes, :language]
+  end
+
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
+
+  def effective_language(campaign)
+    language.presence || star_system&.effective_language(campaign) || campaign.default_language.presence
   end
 
   def jump_shadow

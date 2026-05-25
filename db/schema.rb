@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_183956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "shared_extensions.pg_trgm"
@@ -221,6 +221,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
     t.jsonb "build_log"
     t.datetime "created_at", null: false
     t.datetime "discarded_at"
+    t.string "language"
     t.string "name"
     t.text "notes"
     t.string "source", default: "manual"
@@ -285,6 +286,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
     t.datetime "created_at", null: false
     t.boolean "extinct_sophont", default: false, null: false
     t.integer "gas_giant_count", default: 0, null: false
+    t.string "language"
     t.boolean "locked", default: false
     t.bigint "main_world_id"
     t.jsonb "meta"
@@ -326,6 +328,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
     t.float "eccentricity"
     t.float "effective_hzco_deviation"
     t.float "inclination"
+    t.string "language"
     t.float "mass"
     t.string "name"
     t.text "notes"
@@ -359,6 +362,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_210542) do
     t.jsonb "build_log"
     t.string "build_source"
     t.datetime "created_at", null: false
+    t.string "language"
     t.string "name"
     t.text "notes"
     t.bigint "sector_id", null: false

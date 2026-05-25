@@ -74,6 +74,21 @@ class GenerateSubsectorJob < ApplicationJob
       codes = entry[:bases].presence
       h[[entry[:x], entry[:y]]] = codes if codes
     end
+    subsector_language = config[:language].presence || subsector.effective_language(campaign)
+    name_by_xy = all_input_systems.each_with_object({}) do |entry, h|
+      h[[entry[:x], entry[:y]]] = entry[:name].presence
+    end
+    language_by_xy = all_input_systems.each_with_object({}) do |entry, h|
+      lang = entry[:language].presence
+      h[[entry[:x], entry[:y]]] = lang if lang
+    end
+    main_world_language_by_xy = all_input_systems.each_with_object({}) do |entry, h|
+      lang = entry.dig(:counts, :mainWorld, :language).presence
+      lang ||= entry[:primary]&.fetch(:bodies, [])
+                               &.find { |b| b[:mainWorld] }
+                               &.fetch(:language, nil).presence
+      h[[entry[:x], entry[:y]]] = lang if lang
+    end
 
     importer = StarSystemImporter.new
     ul, = subsector.universal_coordinates
@@ -84,7 +99,14 @@ class GenerateSubsectorJob < ApplicationJob
         next if parsec.nil?
         next if parsec.star_systems.locked.exists?
 
-        star_system = importer.import!(parsec, s)
+        star_system = importer.import!(
+          parsec, s,
+          campaign: campaign,
+          subsector_language: subsector_language,
+          system_language: language_by_xy[[s['x'], s['y']]],
+          main_world_language: main_world_language_by_xy[[s['x'], s['y']]],
+          system_name: name_by_xy[[s['x'], s['y']]]
+        )
 
         zone_code = zone_by_xy[[s['x'], s['y']]]
         if zone_code && (tz = TravelZone.find_by(code: zone_code))

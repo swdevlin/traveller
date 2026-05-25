@@ -70,13 +70,19 @@ class StarSystemImporter
     @star_system
   end
 
-  def import!(parsec, data)
+  def import!(parsec, data, campaign: nil, subsector_language: nil,
+              system_language: nil, main_world_language: nil, system_name: nil)
     @parsec = parsec
+    @campaign = campaign
+    @subsector_language = subsector_language
+    @system_language = system_language
+    @main_world_language = main_world_language
 
     ActiveRecord::Base.transaction do
       @star_system = StarSystem.new
       @star_system.parsec = parsec
-      @star_system.name = data['name']
+      @star_system.name = resolve_system_name(system_name, data['name'])
+      @star_system.language = system_language if system_language.present?
       @star_system.build_log = data['buildLog']
       @star_system.survey_index = data['surveyIndex'] || 0
       allegiance = data['allegiance']
@@ -111,8 +117,9 @@ class StarSystemImporter
         @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
         Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
       unless @star_system.main_world.nil?
-        if @star_system.main_world.name.blank? && @star_system.name.present?
-          @star_system.main_world.name = @star_system.name
+        if @star_system.main_world.name.blank? || effective_system_language.present?
+          @star_system.main_world.name = resolve_main_world_name
+          @star_system.main_world.language = main_world_language if main_world_language.present?
           @star_system.main_world.save!
         end
       end
@@ -124,6 +131,33 @@ class StarSystemImporter
   end
 
   private
+
+  def effective_system_language
+    @system_language.presence || @subsector_language.presence || @campaign&.default_language.presence
+  end
+
+  def effective_main_world_language
+    @main_world_language.presence || effective_system_language
+  end
+
+  def resolve_system_name(yaml_name, generator_name)
+    return yaml_name if yaml_name.present?
+
+    lang = effective_system_language
+    return WordGenerator.new(language: lang.to_sym).generate if lang.present?
+
+    generator_name
+  end
+
+  def resolve_main_world_name
+    mw_lang = effective_main_world_language
+    sys_lang = effective_system_language
+    if mw_lang.present? && mw_lang != sys_lang
+      WordGenerator.new(language: mw_lang.to_sym).generate
+    else
+      @star_system.name
+    end
+  end
 
   def resolve_tidal_lock_targets
     return if @deferred_tidal_lock_assignments.blank?

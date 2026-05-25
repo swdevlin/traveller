@@ -212,6 +212,15 @@
         </div>
       <% end %>
 
+      <%= render 'application/subsection', title: 'Name Generation' %>
+
+      <%= render 'application/edit_field', form: form, attribute: :default_language, field_label: 'Default Language' do %>
+        <%= form.select :default_language,
+                        WordGenerator.languages.map { |l| [l.to_s.capitalize, l.to_s] },
+                        { selected: @campaign.default_language, include_blank: '— None —' },
+                        { class: 'edit-base' } %>
+      <% end %>
+
       <%= render 'application/subsection', title: 'Map Colours' %>
 
       <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>

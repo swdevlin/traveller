@@ -4,9 +4,7 @@
   <div class='space-y-2 pb-10'>
     <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
-    <%= render 'application/edit_field', form: form, attribute: :name do %>
-      <%= form.text_field :name, class: 'edit-base w-100' %>
-    <% end %>
+    <%= render 'application/name_generator_field', form: form %>
 
     <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
       <%= form.select :starport_code,

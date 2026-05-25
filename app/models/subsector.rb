@@ -4,6 +4,7 @@ class Subsector < ApplicationRecord
   normalizes *attribute_names, with: -> { it.presence }
 
   validates :x, :y, :sector, presence: true
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   belongs_to :sector
 
   scope :with_build, -> { where.not(build: nil) }
@@ -13,6 +14,10 @@ class Subsector < ApplicationRecord
     scope: [:y, :sector_id],
     message: 'Subsector already exists'
   }
+
+  def effective_language(campaign)
+    language.presence || sector.language.presence || campaign.default_language.presence
+  end
 
   def spinward
     return sector.subsectors.find_by(x: x - 1, y: y) if x > 1

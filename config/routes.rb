@@ -169,6 +169,7 @@ Rails.application.routes.draw do
     end
     get  '/languages',          to: 'languages#index',    as: :languages
     post '/languages/generate', to: 'languages#generate', as: :generate_languages
+    get  '/languages/word',     to: 'languages#word',     as: :language_word
     get '/data-cores', to: 'data_cores#index', as: :data_cores
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight

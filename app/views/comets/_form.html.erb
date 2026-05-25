@@ -2,9 +2,7 @@
   <div class='space-y-2'>
     <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
-    <%= render 'application/edit_field', form: form, attribute: :name do %>
-      <%= form.text_field :name, class: 'edit-base w-100' %>
-    <% end %>
+    <%= render 'application/name_generator_field', form: form %>
 
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
       <%= render 'application/edit_field', form: form, attribute: :comet_type do %>

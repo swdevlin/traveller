@@ -1,6 +1,45 @@
 require 'test_helper'
 
 class StellarObjectTest < ActiveSupport::TestCase
+  # effective_language tests
+
+  test 'effective_language returns own language when set' do
+    campaign = campaigns(:one)
+    # Use a Star fixture that has star_system_id populated
+    obj = stellar_objects(:primary_for_hierarchy)
+    obj.language = 'aslan'
+    assert_equal 'aslan', obj.effective_language(campaign)
+  end
+
+  test 'effective_language falls back to star system language' do
+    campaign = campaigns(:one)
+    obj = stellar_objects(:primary_for_hierarchy)
+    obj.star_system.update!(language: 'zdetl')
+    assert_equal 'zdetl', obj.effective_language(campaign)
+  end
+
+  test 'effective_language own language overrides star system language' do
+    campaign = campaigns(:one)
+    obj = stellar_objects(:primary_for_hierarchy)
+    obj.star_system.update!(language: 'zdetl')
+    obj.language = 'french'
+    assert_equal 'french', obj.effective_language(campaign)
+  end
+
+  test 'effective_language rogue falls back to campaign default' do
+    campaign = campaigns(:one)
+    campaign.default_language = 'imperium'
+    rogue = stellar_objects(:rogue)
+    assert_nil rogue.star_system_id
+    assert_equal 'imperium', rogue.effective_language(campaign)
+  end
+
+  test 'effective_language returns nil for rogue when nothing set' do
+    campaign = campaigns(:one)
+    rogue = stellar_objects(:rogue)
+    assert_nil rogue.effective_language(campaign)
+  end
+
   # jump_shadow tests
 
   test 'jump_shadow returns 100 times diameter' do

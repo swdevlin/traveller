@@ -2,9 +2,7 @@
   <div class="space-y-2">
     <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
-    <%= render 'application/edit_field', form: form, attribute: :name do %>
-      <%= form.text_field :name, class: 'edit-base w-100' %>
-    <% end %>
+    <%= render 'application/name_generator_field', form: form %>
 
     <div>
       <div class="edit-label">Observations</div>

@@ -3,6 +3,15 @@ class LanguagesController < ApplicationController
     @languages = WordGenerator.languages
   end
 
+  def word
+    lang = params[:language]&.to_sym
+    if lang.in?(WordGenerator.languages)
+      render json: { word: WordGenerator.new(language: lang).generate }
+    else
+      render json: { error: 'Unknown language' }, status: :unprocessable_entity
+    end
+  end
+
   def generate
     @languages = WordGenerator.languages
     @selected  = params[:language]&.to_sym

@@ -14,9 +14,7 @@
       </div>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :name do %>
-      <%= form.text_field :name, class: 'edit-base w-100' %>
-    <% end %>
+    <%= render 'application/name_generator_field', form: form %>
 
     <%= render 'application/edit_field', form: form, attribute: :abbreviation do %>
       <%= form.text_field :abbreviation, class: 'edit-base w-24' %>
