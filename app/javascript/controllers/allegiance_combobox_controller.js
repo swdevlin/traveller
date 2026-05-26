@@ -6,7 +6,7 @@ export default class extends Controller {
 
   connect() {
     this.timer = null
-    this.boundHandleOutsideClick = this.#handleOutsideClick.bind(this)
+    this.boundHandleOutsideClick = this.handleOutsideClick.bind(this)
     document.addEventListener('click', this.boundHandleOutsideClick)
   }
 
@@ -20,16 +20,19 @@ export default class extends Controller {
     this.hiddenTarget.value = ''
     this.clearTarget.classList.add('hidden')
     clearTimeout(this.timer)
-    this.timer = setTimeout(() => this.#fetch({ q }), 200)
+    this.timer = setTimeout(() => this.fetch({ q }), 200)
   }
 
   open() {
     const id = this.hiddenTarget.value
-    if (id) {
-      this.#fetch({ id })
-    } else {
-      this.#fetch({ q: this.inputTarget.value.trim() })
-    }
+    clearTimeout(this.timer)
+    this.timer = setTimeout(() => {
+      if (id) {
+        this.fetch({ id })
+      } else {
+        this.fetch({ q: this.inputTarget.value.trim() })
+      }
+    }, 0)
   }
 
   select(event) {
@@ -38,14 +41,14 @@ export default class extends Controller {
     this.hiddenTarget.value = li.dataset.allegianceId
     this.inputTarget.value = li.dataset.allegianceText
     this.clearTarget.classList.remove('hidden')
-    this.#closeDropdown()
+    this.closeDropdown()
   }
 
   clear() {
     this.hiddenTarget.value = ''
     this.inputTarget.value = ''
     this.clearTarget.classList.add('hidden')
-    this.#closeDropdown()
+    this.closeDropdown()
   }
 
   async loadById(id) {
@@ -62,16 +65,16 @@ export default class extends Controller {
     }
   }
 
-  async #fetch({ q, id } = {}) {
+  async fetch({ q, id } = {}) {
     const url = new URL(this.searchUrlValue, window.location.origin)
     if (id) url.searchParams.set('id', id)
     else if (q) url.searchParams.set('q', q)
     const response = await fetch(url, { headers: { Accept: 'application/json' } })
     const results = await response.json()
-    this.#render(results)
+    this.render(results)
   }
 
-  #render(results) {
+  render(results) {
     this.listTarget.innerHTML = ''
     if (results.length === 0) {
       const empty = document.createElement('li')
@@ -83,7 +86,7 @@ export default class extends Controller {
         const li = document.createElement('li')
         li.className = 'px-3 py-2 cursor-pointer hover:bg-slate-700 text-sm flex items-center gap-2'
         li.dataset.allegianceId = a.id
-        li.dataset.allegianceText = `${a.code} \u2014 ${a.name}`
+        li.dataset.allegianceText = `${a.code} — ${a.name}`
 
         const code = document.createElement('span')
         code.className = 'font-mono text-slate-300'
@@ -101,13 +104,13 @@ export default class extends Controller {
     this.dropdownTarget.classList.remove('hidden')
   }
 
-  #closeDropdown() {
+  closeDropdown() {
     this.dropdownTarget.classList.add('hidden')
   }
 
-  #handleOutsideClick(event) {
+  handleOutsideClick(event) {
     if (!this.element.contains(event.target)) {
-      this.#closeDropdown()
+      this.closeDropdown()
     }
   }
 }

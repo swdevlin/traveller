@@ -196,6 +196,31 @@
     <% end %>
   <% end %>
 
+  <!-- Allegiances -->
+  <% if @allegiances_on_poster&.any? %>
+    <%
+      hex_r    = 4.0
+      entry_h  = 9.0
+      entry_w  = 65.0
+      max_rows = 3
+    %>
+    <% @allegiances_on_poster.each_with_index do |alleg, idx| %>
+      <%
+        col_idx = idx / max_rows
+        row_idx = idx % max_rows
+        hx = legend_strip_x + 175 + hex_r + col_idx * entry_w
+        hy = legend_strip_y + 5.5 + row_idx * entry_h
+        bg = alleg.background_colour.presence || '#ffffff'
+        bd = alleg.border_colour.presence || '#999999'
+      %>
+      <polygon points="<%= hex_polygon_points(hx, hy, hex_r) %>"
+               fill="<%= bg %>" stroke="<%= bd %>" stroke-width="0.3"/>
+      <text class="p-legend"
+            x="<%= (hx + hex_r + 2).round(1) %>"
+            y="<%= (hy + 1.5).round(1) %>"><%= h(alleg.name) %></text>
+    <% end %>
+  <% end %>
+
   <!-- ── Logo (branding, bottom right) ── -->
   <image href="data:image/png;base64,<%= logo_data %>"
          x="<%= logo_x %>" y="<%= logo_y %>"

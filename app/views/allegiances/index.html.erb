@@ -12,7 +12,7 @@
       <%= text_field_tag :q, params[:q],
                          placeholder: "Filter allegiances\u2026",
                          autocomplete: "off",
-                         data: { controller: params[:q].present? ? "autofocus" : nil, action: "input->autosubmit#queue" },
+                         data: { controller: "autofocus", action: "input->autosubmit#queue" },
                          class: "input w-56" %>
 
       <% if params[:q].present? %>

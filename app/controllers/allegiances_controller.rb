@@ -26,7 +26,7 @@ class AllegiancesController < ApplicationController
       q = "%#{params[:q].to_s.strip.downcase}%"
       scope = scope.where('LOWER(code) LIKE ? OR LOWER(name) LIKE ?', q, q)
     end
-    render json: scope.limit(20).map { |a| { id: a.id, code: a.code, name: a.name } }
+    render json: scope.limit(100).map { |a| { id: a.id, code: a.code, name: a.name } }
   end
 
   # GET /allegiances/1 or /allegiances/1.json

@@ -16,14 +16,14 @@
              value='<%= current_allegiance ? "#{current_allegiance.code} \u2014 #{current_allegiance.name}" : "" %>'
              data-allegiance-combobox-target='input'
              data-action='input->allegiance-combobox#search focus->allegiance-combobox#open'
-             class='w-full edit-base pr-8' />
+             class='w-64 edit-base pr-8' />
       <button type='button'
               class='<%= current_allegiance ? "" : "hidden" %> absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-bright'
               data-allegiance-combobox-target='clear'
               data-action='click->allegiance-combobox#clear'>
         <i class='fa-regular fa-xmark'></i>
       </button>
-      <div class='hidden absolute z-10 w-full mt-1 border-outline border border-outline rounded-lg shadow-lg overflow-hidden'
+      <div class='hidden absolute z-50 w-full mt-1 bg-dropdown border border-outline rounded-lg shadow-xl overflow-hidden'
            data-allegiance-combobox-target='dropdown'>
         <ul data-allegiance-combobox-target='list'
             data-action='click->allegiance-combobox#select'></ul>

@@ -184,6 +184,8 @@ class SectorsController < ApplicationController
 
     build_sector_map_data
 
+    @allegiances_on_poster = @sector.get_allegiances.order(:name)
+
     neighbours = @sector.neighbours
 
     coreward_sector = neighbours[[@sector.x,     @sector.y + 1]]
