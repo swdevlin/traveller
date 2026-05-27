@@ -879,6 +879,24 @@
     @apply text-xl sm:text-4xl font-semibold tracking-tight;
   }
 
+  .prose-theme {
+    --tw-prose-body: var(--color-fg);
+    --tw-prose-headings: var(--color-fg-bright);
+    --tw-prose-lead: var(--color-fg-muted);
+    --tw-prose-links: var(--color-link);
+    --tw-prose-bold: var(--color-fg-bright);
+    --tw-prose-counters: var(--color-fg-muted);
+    --tw-prose-bullets: var(--color-fg-muted);
+    --tw-prose-hr: var(--color-fg-muted);
+    --tw-prose-quotes: var(--color-fg-muted);
+    --tw-prose-quote-borders: var(--color-fg-muted);
+    --tw-prose-captions: var(--color-fg-muted);
+    --tw-prose-code: var(--color-fg);
+    --tw-prose-pre-code: var(--color-fg);
+    --tw-prose-th-borders: var(--color-fg-muted);
+    --tw-prose-td-borders: var(--color-fg-muted);
+  }
+
   a {
     @apply text-link no-underline hover:text-link-hover hover:underline hover:underline-offset-2;
   }
