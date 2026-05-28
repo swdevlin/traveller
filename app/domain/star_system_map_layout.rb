@@ -9,11 +9,11 @@ class StarSystemMapLayout
 
   STAR_RADIUS = 26
   GAS_GIANT_RADIUS = 18
-  TERRESTRIAL_RADIUS = 12
+  TERRESTRIAL_RADIUS = 15
   PLANETOID_BELT_RADIUS = 18
   DEFAULT_BODY_RADIUS = 10
 
-  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, :vertical, keyword_init: true)
+  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, :vertical, :image, keyword_init: true)
   Edge = Struct.new(:x1, :y1, :x2, :y2, :kind, :au_label, keyword_init: true)
   JumpShadow = Struct.new(:x, :y, :x1, :x2, :vertical, :y1_branch, :y2_branch, :colour, :has_marker, keyword_init: true)
 
@@ -132,6 +132,8 @@ class StarSystemMapLayout
     @svg_height = [@max_y + bottom_padding, TOP_Y + bottom_padding].max
   end
 
+  STANDARD_STAR_TYPES = %w[O B A F G K M BD NS D PS L T Y].freeze
+
   def make_star_node(star, x, y)
     Node.new(
       id: "star-#{star.id}",
@@ -143,8 +145,14 @@ class StarSystemMapLayout
       colour: star.colour,
       url_target: star,
       sublabel: nil,
-      tooltip: star.display_name
+      tooltip: star.display_name,
+      image: star_image(star)
     )
+  end
+
+  def star_image(star)
+    type = star.stellar_type.to_s.upcase
+    :"#{type.downcase}_star" if STANDARD_STAR_TYPES.include?(type)
   end
 
   def make_body_node(body, x, y, parent_star, vertical:)
@@ -156,6 +164,7 @@ class StarSystemMapLayout
       y: y,
       radius: radius_for(body),
       colour: body.is_a?(TerrestrialPlanet) ? terrestrial_colour(body) : nil,
+      image: image_for(body),
       url_target: body,
       sublabel: body_sublabel(body),
       tooltip: body_tooltip(body, parent_star, !vertical),
@@ -201,6 +210,53 @@ class StarSystemMapLayout
       bodies = body.significant_bodies
       bodies.present? && bodies.size > 0 ? "#{bodies.size} bodies" : nil
     end
+  end
+
+  ICE_THRESHOLD_K = 263.15 # -10 °C
+  HOT_ROCKBALL_THRESHOLD_K = 473.15 # 200 °C
+  MOLTEN_THRESHOLD_K = 673.15 # 400 °C
+  SPARSE_ATMOSPHERE_DENSITIES = %w[Trace Thin Very\ Thin].freeze
+
+  def image_for(body)
+    return terrestrial_image(body) if body.is_a?(TerrestrialPlanet)
+    return gas_giant_image(body) if body.is_a?(GasGiant)
+    return :planetoid_belt if body.is_a?(PlanetoidBelt)
+  end
+
+  def gas_giant_image(body)
+    case body.code
+    when 'GS' then :gg_small
+    when 'GM' then :gg_medium
+    when 'GL' then :gg_large
+    end
+  end
+
+  def terrestrial_image(body)
+    atmo_code = body.atmosphere&.dig('code') || 0
+    hydro_code = body.hydrographics&.dig('code') || 0
+    return :unusual if atmo_code == 10
+    return :corrosive if atmo_code == 11
+    return :insidious if atmo_code == 12
+    return :dense if atmo_code == 13
+    return :low if atmo_code == 14
+    return :unusual if atmo_code == 15
+    return :helium if atmo_code == 16
+    return :hydrogen if atmo_code == 17
+    return :biological if body.atmosphere&.dig('taint', 'code').to_s.upcase == 'B'
+    if hydro_code == 0
+      return :hot_rockball if body.temperature.present? && body.temperature.to_f > HOT_ROCKBALL_THRESHOLD_K
+      density = body.atmosphere&.dig('density').to_s
+      return :trace if SPARSE_ATMOSPHERE_DENSITIES.any? { |d| density.start_with?(d) }
+      return :desert
+    end
+    return :molten if hydro_code > 0 && body.temperature.present? && body.temperature.to_f >= MOLTEN_THRESHOLD_K
+    return :ice if hydro_code > 0 && body.temperature.present? && body.temperature.to_f < ICE_THRESHOLD_K
+    if (2..9).cover?(atmo_code)
+      return :waterworld if hydro_code == 10
+      return :"tp_#{hydro_code * 10}" if (1..9).cover?(hydro_code)
+    end
+
+    nil
   end
 
   def terrestrial_colour(body)

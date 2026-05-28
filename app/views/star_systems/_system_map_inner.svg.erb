@@ -21,6 +21,11 @@
     <stop offset="88%"  stop-color="#c4b5fd" />
     <stop offset="100%" stop-color="#a78bfa" />
   </linearGradient>
+  <% layout.nodes.select { |n| n.image.present? }.each do |node| %>
+    <clipPath id="clip-<%= node.id %>">
+      <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>" />
+    </clipPath>
+  <% end %>
   <symbol id="belt-icon" viewBox="-16 -16 32 32">
     <polygon points="-12,-6 -7,-10 -3,-5 -6,-1 -10,-2" fill="#94a3b8" />
     <polygon points="4,-11 10,-9 8,-4 3,-6" fill="#cbd5e1" />
@@ -93,9 +98,18 @@
         <title><%= node.tooltip %></title>
         <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius + 8 %>"
                 fill="transparent" />
-        <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
-                fill="<%= star_fill_colour(node.colour) %>"
-                class="subway-star" />
+        <% if node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-star" />
+        <% else %>
+          <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
+                  fill="<%= star_fill_colour(node.colour) %>"
+                  class="subway-star" />
+        <% end %>
         <text x="<%= node.x %>" y="<%= node.y - node.radius - 12 %>"
               text-anchor="middle" class="subway-label subway-star-label">
           <%= node.label %>
@@ -107,13 +121,34 @@
         <title><%= node.tooltip %></title>
         <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius + 6 %>"
                 fill="transparent" />
-        <% if node.kind == :gas_giant %>
+        <% if node.kind == :gas_giant && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-gas-giant" />
+        <% elsif node.kind == :gas_giant %>
           <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
                   fill="url(#gg-bands)" class="subway-gas-giant" />
+        <% elsif node.kind == :planetoid_belt && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-planetoid-belt" />
         <% elsif node.kind == :planetoid_belt %>
           <use href="#belt-icon"
                x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
                width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>" />
+        <% elsif node.kind == :terrestrial && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-terrestrial" />
         <% elsif node.kind == :terrestrial && node.colour %>
           <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
                   fill="<%= node.colour %>" class="subway-terrestrial" />

@@ -18,7 +18,8 @@ import Traveller.SolarSystem exposing (SolarSystem)
 import Traveller.StarColour exposing (starFillColour)
 import Traveller.StellarObject
     exposing
-        ( InnerStarData
+        ( GasGiantData
+        , InnerStarData
         , SharedPData
         , StarData(..)
         , StellarObject(..)
@@ -82,7 +83,7 @@ gasGiantRadius =
 
 terrRadius : Float
 terrRadius =
-    7
+    8.05
 
 
 beltRadius : Float
@@ -121,6 +122,7 @@ type alias MapNode =
     , label : String
     , sublabel : Maybe String
     , stellarObject : StellarObject
+    , image : Maybe String
     }
 
 
@@ -161,6 +163,126 @@ type alias SpineAcc =
     , prevY : Float
     , bodyAnchors : List ( Float, Float )
     }
+
+
+
+-- ── IMAGE SELECTION ─────────────────────────────────────────────────────────
+
+
+startsWithPrefix : String -> String -> Bool
+startsWithPrefix prefix str =
+    String.left (String.length prefix) str == prefix
+
+
+standardStarTypes : List String
+standardStarTypes =
+    [ "O", "B", "A", "F", "G", "K", "M", "BD", "NS", "D", "PS", "L", "T", "Y" ]
+
+
+starImageName : InnerStarData -> Maybe String
+starImageName star =
+    let
+        upperType =
+            String.toUpper star.stellarType
+    in
+    if List.member upperType standardStarTypes then
+        Just (String.toLower upperType ++ "_star")
+
+    else
+        Nothing
+
+
+gasGiantImageName : GasGiantData -> Maybe String
+gasGiantImageName data =
+    case data.code of
+        "GS" ->
+            Just "gg_small"
+
+        "GM" ->
+            Just "gg_medium"
+
+        "GL" ->
+            Just "gg_large"
+
+        _ ->
+            Nothing
+
+
+terrestrialImageName : SharedPData -> Maybe String
+terrestrialImageName pdata =
+    let
+        atmo =
+            pdata.atmosphere.code
+
+        hydro =
+            pdata.hydrographics |> Maybe.map .code |> Maybe.withDefault 0
+
+        temp =
+            pdata.meanTemperature
+
+        density =
+            pdata.atmosphere.density |> Maybe.withDefault ""
+
+        isSparse =
+            startsWithPrefix "Trace" density
+                || startsWithPrefix "Thin" density
+                || startsWithPrefix "Very Thin" density
+    in
+    if atmo == 10 then
+        Just "unusual"
+
+    else if atmo == 11 then
+        Just "corrosive"
+
+    else if atmo == 12 then
+        Just "insidious"
+
+    else if atmo == 13 then
+        Just "dense"
+
+    else if atmo == 14 then
+        Just "low"
+
+    else if atmo == 15 then
+        Just "unusual"
+
+    else if atmo == 16 then
+        Just "helium"
+
+    else if atmo == 17 then
+        Just "hydrogen"
+
+    else if String.toUpper pdata.atmosphere.taint.code == "B" then
+        Just "biological"
+
+    else if hydro == 0 then
+        if temp |> Maybe.map (\t -> t > 473.15) |> Maybe.withDefault False then
+            Just "hot_rockball"
+
+        else if isSparse then
+            Just "trace"
+
+        else
+            Just "desert"
+
+    else if temp |> Maybe.map (\t -> t >= 673.15) |> Maybe.withDefault False then
+        Just "molten"
+
+    else if temp |> Maybe.map (\t -> t < 263.15) |> Maybe.withDefault False then
+        Just "ice"
+
+    else if atmo >= 2 && atmo <= 9 then
+        if hydro == 10 then
+            Just "waterworld"
+
+        else if hydro >= 1 && hydro <= 9 then
+            Just ("tp_" ++ String.fromInt (hydro * 10))
+
+        else
+            Nothing
+
+    else
+        Nothing
 
 
 
@@ -426,6 +548,7 @@ makeStarNode (StarDataWrap starData) x y =
     , label = starLabel starData
     , sublabel = Nothing
     , stellarObject = Star (StarDataWrap starData)
+    , image = starImageName starData
     }
 
 
@@ -441,6 +564,7 @@ makeBodyNode body x y =
             , label = data.code
             , sublabel = Nothing
             , stellarObject = body
+            , image = gasGiantImageName data
             }
 
         TerrestrialPlanet data ->
@@ -452,6 +576,7 @@ makeBodyNode body x y =
             , label = data.uwp
             , sublabel = Nothing
             , stellarObject = body
+            , image = terrestrialImageName data
             }
 
         PlanetoidBelt data ->
@@ -463,6 +588,7 @@ makeBodyNode body x y =
             , label = data.uwp
             , sublabel = Nothing
             , stellarObject = body
+            , image = Just "planetoid_belt"
             }
 
         Planetoid data ->
@@ -474,6 +600,7 @@ makeBodyNode body x y =
             , label = data.uwp
             , sublabel = Nothing
             , stellarObject = body
+            , image = terrestrialImageName data
             }
 
         Star starData ->
@@ -572,7 +699,12 @@ isDisplayable obj =
 svgDefs : Svg msg
 svgDefs =
     Svg.defs []
-        [ Svg.linearGradient
+        [ Svg.clipPath
+            [ SA.id "circle-clip"
+            , SA.clipPathUnits "objectBoundingBox"
+            ]
+            [ Svg.circle [ SA.cx "0.5", SA.cy "0.5", SA.r "0.5" ] [] ]
+        , Svg.linearGradient
             [ SA.id "gg-bands", SA.x1 "0", SA.y1 "0", SA.x2 "0", SA.y2 "1" ]
             [ Svg.stop [ SA.offset "0%", SA.stopColor "#c4b5fd" ] []
             , Svg.stop [ SA.offset "25%", SA.stopColor "#8b5cf6" ] []
@@ -617,7 +749,7 @@ svgStyle =
             .sm-travel-btn-active { font-size: 12px; fill: #007A6A; cursor: pointer; font-family: ui-monospace, monospace; }
             .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
             .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
-            .sm-node:hover circle { opacity: 0.75; }
+            .sm-node:hover circle, .sm-node:hover image { opacity: 0.75; }
             .sm-node { cursor: pointer; }
         """
         ]
@@ -742,38 +874,52 @@ renderNode msgs selectedStellarObject mDrive node =
             "1.5"
 
         circleEl =
-            case node.kind of
-                GasGiantNodeKind ->
-                    Svg.circle
-                        [ SA.cx (String.fromFloat node.x)
-                        , SA.cy (String.fromFloat node.y)
-                        , SA.r (String.fromFloat node.radius)
-                        , SA.fill "url(#gg-bands)"
-                        , SA.stroke strokeColour
-                        , SA.strokeWidth strokeWidth
-                        ]
-                        []
-
-                BeltNodeKind ->
-                    Svg.node "use"
-                        [ SA.xlinkHref "#belt-icon"
+            case node.image of
+                Just imageName ->
+                    Svg.image
+                        [ SA.xlinkHref ("/stellar_objects/" ++ imageName ++ ".webp")
                         , SA.x (String.fromFloat (node.x - node.radius))
                         , SA.y (String.fromFloat (node.y - node.radius))
                         , SA.width (String.fromFloat (node.radius * 2))
                         , SA.height (String.fromFloat (node.radius * 2))
+                        , SA.clipPath "url(#circle-clip)"
+                        , SA.preserveAspectRatio "xMidYMid slice"
                         ]
                         []
 
-                _ ->
-                    Svg.circle
-                        [ SA.cx (String.fromFloat node.x)
-                        , SA.cy (String.fromFloat node.y)
-                        , SA.r (String.fromFloat node.radius)
-                        , SA.fill node.fillColour
-                        , SA.stroke strokeColour
-                        , SA.strokeWidth strokeWidth
-                        ]
-                        []
+                Nothing ->
+                    case node.kind of
+                        GasGiantNodeKind ->
+                            Svg.circle
+                                [ SA.cx (String.fromFloat node.x)
+                                , SA.cy (String.fromFloat node.y)
+                                , SA.r (String.fromFloat node.radius)
+                                , SA.fill "url(#gg-bands)"
+                                , SA.stroke strokeColour
+                                , SA.strokeWidth strokeWidth
+                                ]
+                                []
+
+                        BeltNodeKind ->
+                            Svg.node "use"
+                                [ SA.xlinkHref "#belt-icon"
+                                , SA.x (String.fromFloat (node.x - node.radius))
+                                , SA.y (String.fromFloat (node.y - node.radius))
+                                , SA.width (String.fromFloat (node.radius * 2))
+                                , SA.height (String.fromFloat (node.radius * 2))
+                                ]
+                                []
+
+                        _ ->
+                            Svg.circle
+                                [ SA.cx (String.fromFloat node.x)
+                                , SA.cy (String.fromFloat node.y)
+                                , SA.r (String.fromFloat node.radius)
+                                , SA.fill node.fillColour
+                                , SA.stroke strokeColour
+                                , SA.strokeWidth strokeWidth
+                                ]
+                                []
 
         labelX =
             node.x + node.radius + 8
