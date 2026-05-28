@@ -220,7 +220,7 @@ class StarSystemMapLayout
   def image_for(body)
     return terrestrial_image(body) if body.is_a?(TerrestrialPlanet)
     return gas_giant_image(body) if body.is_a?(GasGiant)
-    return :planetoid_belt if body.is_a?(PlanetoidBelt)
+    :planetoid_belt if body.is_a?(PlanetoidBelt)
   end
 
   def gas_giant_image(body)
