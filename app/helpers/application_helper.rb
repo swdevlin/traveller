@@ -35,6 +35,13 @@ module ApplicationHelper
     tag.i(class: 'fa-thin fa-microchip ml-1 align-middle', aria: { hidden: true })
   end
 
+  def format_traveller_date(year, day)
+    return nil unless year
+
+    day_str = format('%03d', day || 0)
+    current_campaign&.traveller_date_format? != false ? "#{day_str}-#{year}" : "#{year}-#{day_str}"
+  end
+
   def format_precision(value, precision: 2)
     return if value.nil?
 

@@ -88,6 +88,10 @@
       <%= render 'application/data_block',
                  label: 'Distance Display',
                  value: @campaign.show_au? ? 'AU' : 'Orbit #' %>
+
+      <%= render 'application/data_block',
+                 label: 'Date Format',
+                 value: @campaign.traveller_date_format? ? 'Traveller Standard' : 'ISO 8601' %>
     </div>
 
     <%= render 'application/subsection', title: 'Map Colours' %>

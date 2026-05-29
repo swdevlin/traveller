@@ -68,6 +68,6 @@ class CampaignSettingsController < ApplicationController
   private
 
   def campaign_settings_params
-    params.expect(campaign: [:name, :campaign_type, :sector_source, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :native_sophont_colour, :extinct_sophont_colour, :show_native_sophont, :show_extinct_sophont, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :default_language])
+    params.expect(campaign: [:name, :campaign_type, :sector_source, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :native_sophont_colour, :extinct_sophont_colour, :show_native_sophont, :show_extinct_sophont, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :default_language, :date_format])
   end
 end

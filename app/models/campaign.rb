@@ -18,7 +18,7 @@ class Campaign < ApplicationRecord
                             :native_sophont_colour, :extinct_sophont_colour,
                             :show_native_sophont, :show_extinct_sophont,
                             :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
-                            :default_language
+                            :default_language, :date_format
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
@@ -43,6 +43,10 @@ class Campaign < ApplicationRecord
 
   def show_au?
     orbit_distance_display.presence != 'orbit_number'
+  end
+
+  def traveller_date_format?
+    date_format.presence != 'iso'
   end
 
   def show_orbit_number?
@@ -95,6 +99,7 @@ class Campaign < ApplicationRecord
     self.allow_captive_government  = !deepnight_revelation?
     self.orbit_distance_display    = 'au'
     self.realisticStarDistribution = false
+    self.date_format               = 'traveller'
   end
 
   def set_schema_name

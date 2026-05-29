@@ -1,6 +1,7 @@
-<%= content_for :title, "Editing #{@jump_log}" %>
+<% jump_log_label = [format_traveller_date(@jump_log.arrive_year, @jump_log.arrive_day), @jump_log.to_parsec&.display_name].compact.join(' – ') %>
+<%= content_for :title, "Editing #{jump_log_label}" %>
 <%= content_for :page_kicker, 'Ship Records' %>
-<%= content_for :page_title, @jump_log.to_s %>
+<%= content_for :page_title, jump_log_label %>
 
 <% content_for :page_side do %>
   <div class='mt-2'>

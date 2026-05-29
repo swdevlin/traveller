@@ -25,6 +25,11 @@
     { label: 'AU', value: 'au', hint: 'Show distance from the primary star in Astronomical Units.' },
     { label: 'Orbit #', value: 'orbit_number', hint: 'Show the Traveller orbit number (0–19 scale).' }
   ]
+
+  date_format_options = [
+    { label: 'Traveller Standard', value: 'traveller', hint: 'Day-year format, e.g. 001-1105.' },
+    { label: 'ISO 8601', value: 'iso', hint: 'Year-day format, e.g. 1105-001.' }
+  ]
 %>
 
 <%= render 'application/page' do %>
@@ -198,6 +203,38 @@
           <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
                data-hint-select-target='panel'>
             <% orbit_display_options.each do |opt| %>
+              <button type='button'
+                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
+                <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :date_format, field_label: 'Date Format' do %>
+        <div data-controller='hint-select' class='relative'>
+          <%= form.hidden_field :date_format,
+                                data: { hint_select_target: 'input' } %>
+
+          <button type='button'
+                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= date_format_options.find { |o| o[:value] == (@campaign.date_format.presence || 'traveller') }&.dig(:label) %>
+            </span>
+            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+          </button>
+
+          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+               data-hint-select-target='panel'>
+            <% date_format_options.each do |opt| %>
               <button type='button'
                       class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'

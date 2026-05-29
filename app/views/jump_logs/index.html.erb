@@ -44,15 +44,11 @@
                 data-action='click->row-link#navigate'>
               <td><%= link_to jump_log.ship.name, ship_path(jump_log.ship), class: 'no-underline hover:underline' %></td>
               <td class='whitespace-nowrap'>
-                <% if jump_log.depart_year %>
-                  <%= jump_log.depart_year %>-<%= format('%03d', jump_log.depart_day || 0) %>
-                <% end %>
+                <%= format_traveller_date(jump_log.depart_year, jump_log.depart_day) %>
               </td>
               <td><%= render 'parsecs/location', parsec: jump_log.from_parsec %></td>
               <td class='whitespace-nowrap'>
-                <% if jump_log.arrive_year %>
-                  <%= jump_log.arrive_year %>-<%= format('%03d', jump_log.arrive_day || 0) %>
-                <% end %>
+                <%= format_traveller_date(jump_log.arrive_year, jump_log.arrive_day) %>
               </td>
               <td>
                 <%= render 'parsecs/location', parsec: jump_log.to_parsec %>
