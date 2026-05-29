@@ -1159,6 +1159,22 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-highlight) 18%, transparent);
   }
 
+  .chart-cell-active {
+    @apply border-2 border-highlight bg-highlight/10;
+  }
+
+  body.sectors-chart-mode > main {
+    padding-bottom: 0;
+  }
+
+  body.sectors-chart-mode footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+
   .dg-subsection {
     @apply flex items-center gap-2 pt-1 mb-1;
   }

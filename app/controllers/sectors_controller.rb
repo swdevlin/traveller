@@ -16,6 +16,7 @@ class SectorsController < ApplicationController
                   .order(:name)
     scope = scope.where('LOWER(sectors.name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, limit: 10, params: request.query_parameters)
+    @chart_sectors = Sector.kept.order(:x, :y)
   end
 
   def populate

@@ -1,0 +1,41 @@
+<%# locals: (sectors:) %>
+<%
+  return if sectors.empty?
+  min_x = sectors.min_by(&:x).x
+  max_x = sectors.max_by(&:x).x
+  min_y = sectors.min_by(&:y).y
+  max_y = sectors.max_by(&:y).y
+  col_count = max_x - min_x + 1
+  sectors_by_pos = sectors.index_by { |s| [s.x, s.y] }
+%>
+
+<div class="flex-1 overflow-auto rounded-xl cursor-grab"
+     data-sectors-view-target="chartContainer">
+  <div class="inline-grid gap-1 p-2"
+       style="grid-template-columns: repeat(<%= col_count %>, 7rem);">
+    <% (max_y).downto(min_y) do |y| %>
+      <% (min_x).upto(max_x) do |x| %>
+        <% sector = sectors_by_pos[[x, y]] %>
+        <% if sector %>
+          <%= link_to sector_path(sector),
+                      data: {
+                        'sectors-view-target' => 'chartCell',
+                        'cx' => x,
+                        'cy' => y,
+                        'sector-name' => sector.name,
+                        action: 'click->sectors-view#setCenterAndNavigate',
+                        turbo_frame: '_top'
+                      },
+                      class: 'aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-outline/70 bg-panel px-1 py-1 text-center hover:border-highlight transition no-underline hover:underline-offset-2' do %>
+            <div class="font-semibold text-[0.7rem] text-fg-bright w-full text-center break-words">
+              <%= sector.name %>
+            </div>
+            <div class="text-[0.6rem] text-fg-muted italic"><%= x %>/<%= y %></div>
+          <% end %>
+        <% else %>
+          <div class="aspect-[4/5] rounded-md border border-outline/20 bg-panel/20"></div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

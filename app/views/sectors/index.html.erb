@@ -4,7 +4,53 @@
 <%= content_for :iiss_form, '0420A-ISSR' %>
 
 <%= render 'application/page' do %>
-  <turbo-frame id="sectors">
-    <%= render "list", sectors: @sectors, pagy: @pagy %>
-  </turbo-frame>
+  <div data-controller="sectors-view"
+       data-sectors-view-campaign-slug-value="<%= current_campaign.schema_name %>">
+
+    <div class="flex justify-end mb-3">
+      <div class="flex gap-1 rounded-lg border border-outline p-0.5">
+        <button data-sectors-view-target="listBtn"
+                data-action="click->sectors-view#showList"
+                class="px-2.5 py-1.5 rounded-md text-sm transition"
+                title="List view">
+          <i class="fa-regular fa-list"></i>
+        </button>
+        <button data-sectors-view-target="chartBtn"
+                data-action="click->sectors-view#showChart"
+                class="px-2.5 py-1.5 rounded-md text-sm transition"
+                title="Chart view">
+          <i class="fa-regular fa-border-all"></i>
+        </button>
+      </div>
+    </div>
+
+    <div data-sectors-view-target="listPanel">
+      <turbo-frame id="sectors">
+        <%= render "list", sectors: @sectors, pagy: @pagy %>
+      </turbo-frame>
+    </div>
+
+    <div data-sectors-view-target="chartPanel" class="hidden">
+      <div class="flex items-center gap-2 mb-3">
+        <input type="text"
+               placeholder="Find sector…"
+               autocomplete="off"
+               list="chart-sector-names"
+               data-action="input->sectors-view#jumpToSector"
+               class="w-56 rounded-lg bg-panel border border-outline px-3 py-2 text-sm">
+        <datalist id="chart-sector-names">
+          <% @chart_sectors.each do |s| %>
+            <option value="<%= s.name %>"></option>
+          <% end %>
+        </datalist>
+      </div>
+      <div data-sectors-view-target="chartWrapper" class="flex flex-col">
+        <%= render 'chart', sectors: @chart_sectors %>
+        <div class="pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted">
+          FORM 0420A-ISSR
+        </div>
+      </div>
+    </div>
+
+  </div>
 <% end %>
