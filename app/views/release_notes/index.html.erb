@@ -7,13 +7,13 @@
   <% @releases.each do |release| %>
     <article class='space-y-4 mb-6'>
       <div class='flex items-center gap-4'>
-        <div class='text-sm uppercase tracking-[0.22em] font-semibold text-highlight'>
+        <div class='text-sm uppercase tracking-[0.22em] font-semibold text-fg-bright'>
           <%= release.date_code %>
         </div>
         <div class='h-px flex-1 bg-panel'></div>
       </div>
 
-      <div class='release-markdown prose prose-invert max-w-none prose-headings:uppercase prose-headings:tracking-[0.2em] prose-headings:text-fg-bright prose-p:text-fg prose-a:text-highlight hover:prose-a:text-highlight prose-img:rounded-2xl prose-img:border prose-img:border-outline/70'>
+      <div class='release-markdown prose prose-invert max-w-none prose-headings:uppercase prose-headings:tracking-[0.2em] prose-headings:text-highlight prose-p:text-fg prose-a:text-highlight hover:prose-a:text-highlight prose-img:rounded-2xl prose-img:border prose-img:border-outline/70'>
         <%= render_markdown(release.markdown) %>
       </div>
     </article>
