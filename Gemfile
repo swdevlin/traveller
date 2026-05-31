@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'erb', '>= 6.0.4'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 8.1.2'
 gem 'csv'
