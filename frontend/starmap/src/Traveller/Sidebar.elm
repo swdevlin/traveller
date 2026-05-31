@@ -344,7 +344,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
         , column [ Element.width Element.fill, Element.height Element.fill, Element.scrollbarY ]
             [ case selectedHex of
                 Just viewingAddress ->
-                    column [ centerY, Element.paddingXY 0 4, width fill, centerX ]
+                    column [ Element.paddingXY 0 4, width fill, centerX ]
                         [ case solarSystemStatus of
                             Just status ->
                                 el [ centerX, Element.htmlAttribute <| HtmlAttrs.class "status-scan" ] (text status)
@@ -393,7 +393,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         ]
 
                 Nothing ->
-                    column [ centerX, centerY, Font.size 10 ]
+                    column [ centerX, Font.size 10 ]
                         [ text "Select hex in console to view parsec details."
                         ]
             , case selectedSystem of
@@ -407,7 +407,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         }
 
                 Nothing ->
-                    column [ centerX, centerY, Font.size 10, Element.moveDown 20 ]
+                    column [ centerX, Font.size 10 ]
                         [ text "Click a hex to view system details."
                         ]
             ]

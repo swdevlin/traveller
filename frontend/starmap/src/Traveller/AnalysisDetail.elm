@@ -283,7 +283,7 @@ viewOneTab activeTab setTab tab =
             , Element.pointer
             ]
             (column [ Element.spacing 1, Element.centerX ]
-                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX ] (text tab.code)
+                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, uiDeepnightColorFontColour ] (text tab.code)
                 , el [ Font.size 11, Font.center, Element.centerX ] (text tab.label)
                 ]
             )
