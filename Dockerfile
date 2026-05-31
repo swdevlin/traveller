@@ -18,7 +18,8 @@ COPY frontend/starmap/elm.json frontend/starmap/package.json frontend/starmap/pa
 RUN npm ci
 
 COPY frontend/starmap ./
-RUN npx elm make src/Main.elm --output=starmap.js --optimize
+RUN --mount=type=cache,target=/root/.elm \
+    npx elm make src/Main.elm --output=starmap.js --optimize
 
 
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
