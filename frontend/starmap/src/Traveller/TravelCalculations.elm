@@ -4,6 +4,7 @@ module Traveller.TravelCalculations exposing
     , safeJumpTimeFromShadow
     , secondsToDaysWatches
     , travelTime
+    , travelTimeHoursDays
     , travelTimeInSeconds
     )
 
@@ -93,6 +94,41 @@ travelTime kms mdrive useHours =
 
     else
         secondsToDaysWatches rawSeconds
+
+
+{-| Format travel time in seconds as hours (if under a day) or days+hours.
+-}
+travelTimeHoursDays : Float -> String
+travelTimeHoursDays secs =
+    if secs < 3600 then
+        let
+            minutes =
+                ceiling (secs / 60)
+        in
+        String.fromInt minutes ++ "m"
+
+    else if secs < 86400 then
+        let
+            rawHours =
+                secs / 3600
+
+            rounded =
+                toFloat (round (rawHours * 10)) / 10
+        in
+        String.fromFloat rounded ++ "h"
+
+    else
+        let
+            totalHours =
+                floor (secs / 3600)
+
+            days =
+                totalHours // 24
+
+            hours =
+                totalHours - days * 24
+        in
+        String.fromInt days ++ "d " ++ String.fromInt hours ++ "h"
 
 
 {-| Calculate 2D distance between two stellar points

@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf)
+module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -6,9 +6,88 @@ import Json.Encode as JsEncode
 import Traveller.Atmosphere as Atmosphere exposing (StellarAtmosphere)
 import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
-import Traveller.Population as Population exposing (StellarPopulation)
+import Traveller.Population as Population exposing (CultureTrait, StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
 import Traveller.TravelCalculations as TravelCalculations
+
+
+type alias CodeAndDesc =
+    { code : String
+    , description : String
+    }
+
+
+type alias IntCodeAndDesc =
+    { code : Int
+    , description : String
+    }
+
+
+type alias GovernmentStructure =
+    { judicial : Maybe CodeAndDesc
+    , executive : Maybe CodeAndDesc
+    , legislative : Maybe CodeAndDesc
+    }
+
+
+type alias GovernmentCharacteristics =
+    { authority : Maybe CodeAndDesc
+    , centralisation : Maybe CodeAndDesc
+    }
+
+
+type alias GovernmentDetailData =
+    { type_ : Maybe String
+    , description : Maybe String
+    , structure : Maybe GovernmentStructure
+    , characteristics : Maybe GovernmentCharacteristics
+    }
+
+
+type alias LawSubClassifications =
+    { weaponsAndArmour : Maybe IntCodeAndDesc
+    , criminalLaw : Maybe IntCodeAndDesc
+    , economicLaw : Maybe IntCodeAndDesc
+    , privateLaw : Maybe IntCodeAndDesc
+    , personalRights : Maybe IntCodeAndDesc
+    }
+
+
+type alias LawCharacteristics =
+    { uniformity : Maybe CodeAndDesc
+    , judicialSystem : Maybe CodeAndDesc
+    , deathPenalty : Maybe Bool
+    , presumedInnocence : Maybe Bool
+    , econometricInfractionsAdministrative : Maybe Bool
+    }
+
+
+type alias LawLevelDetailData =
+    { subClassifications : Maybe LawSubClassifications
+    , characteristics : Maybe LawCharacteristics
+    }
+
+
+type alias TechCapability =
+    { code : Int
+    , description : String
+    }
+
+
+type alias TechLevelDetailData =
+    { descriptor : Maybe String
+    , energy : Maybe TechCapability
+    , electronics : Maybe TechCapability
+    , manufacturing : Maybe TechCapability
+    , medical : Maybe TechCapability
+    , environmental : Maybe TechCapability
+    , land : Maybe TechCapability
+    , sea : Maybe TechCapability
+    , air : Maybe TechCapability
+    , space : Maybe TechCapability
+    , personalMilitary : Maybe TechCapability
+    , heavyMilitary : Maybe TechCapability
+    }
 
 
 type alias SharedPData =
@@ -49,6 +128,11 @@ type alias SharedPData =
     , orbitType : Int
     , au : Float
     , population : Maybe StellarPopulation
+    , rotation : Maybe Float
+    , governmentDetail : Maybe GovernmentDetailData
+    , lawLevelDetail : Maybe LawLevelDetailData
+    , techLevelDetail : Maybe TechLevelDetailData
+    , name : Maybe String
     }
 
 
@@ -110,6 +194,7 @@ type alias GasGiantData =
     , jumpShadow : Maybe Float
     , orbitType : Int
     , au : Float
+    , name : Maybe String
     }
 
 
@@ -133,6 +218,21 @@ type alias PlanetoidBeltData =
     , orbitType : Int
     , au : Float
     , retrograde : Bool
+    , name : Maybe String
+    , atmosphere : Maybe StellarAtmosphere
+    , hydrographics : Maybe Hydrographics
+    , population : Maybe StellarPopulation
+    , biomassRating : Int
+    , biocomplexityCode : Int
+    , biodiversityRating : Int
+    , compatibilityRating : Int
+    , habitabilityRating : Maybe Int
+    , nativeSophont : Bool
+    , extinctSophont : Bool
+    , governmentDetail : Maybe GovernmentDetailData
+    , lawLevelDetail : Maybe LawLevelDetailData
+    , techLevelDetail : Maybe TechLevelDetailData
+    , meanTemperature : Maybe Float
     }
 
 
@@ -332,7 +432,44 @@ getPlanetoidData stellarObject =
 
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
-    Codec.object PlanetoidBeltData
+    Codec.object
+        (\pos inc ecc hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp ->
+            { orbitPosition = pos
+            , inclination = inc
+            , eccentricity = ecc
+            , effectiveHZCODeviation = hzco
+            , orbit = orb
+            , mType = mt
+            , sType = st
+            , cType = ct
+            , oType = ot
+            , span = sp
+            , bulk = blk
+            , resourceRating = rr
+            , period = per
+            , orbitSequence = orbitSeq
+            , uwp = uwp_
+            , jumpShadow = js
+            , orbitType = ot_
+            , au = au
+            , retrograde = ret
+            , name = nm
+            , atmosphere = atm
+            , hydrographics = hydro
+            , population = pop
+            , biomassRating = Maybe.withDefault 0 bio
+            , biocomplexityCode = Maybe.withDefault 0 bioC
+            , biodiversityRating = Maybe.withDefault 0 bioDiv
+            , compatibilityRating = Maybe.withDefault 0 compat
+            , habitabilityRating = hab
+            , nativeSophont = Maybe.withDefault False natS
+            , extinctSophont = Maybe.withDefault False extS
+            , governmentDetail = govD
+            , lawLevelDetail = llD
+            , techLevelDetail = tlD
+            , meanTemperature = temp
+            }
+        )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
@@ -352,13 +489,38 @@ codecPlanetoidBeltData =
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.field "retrograde" .retrograde Codec.bool
+        |> Codec.optionalNullableField "name" .name Codec.string
+        |> Codec.optionalField "atmosphere" .atmosphere Atmosphere.codec
+        |> Codec.optionalField "hydrographics" .hydrographics codecHydrographics
+        |> Codec.optionalNullableField "population" .population
+            (Codec.oneOf Population.codec
+                [ Codec.succeed
+                    { code = 0
+                    , concentrationRating = Nothing
+                    , urbanizationPercentage = Nothing
+                    , majorCities = Nothing
+                    , cultureTrait = []
+                    }
+                ]
+            )
+        |> Codec.optionalField "biomass_rating" (\d -> Just d.biomassRating) Codec.int
+        |> Codec.optionalField "biocomplexity_rating" (\d -> Just d.biocomplexityCode) Codec.int
+        |> Codec.optionalField "biodiversity_rating" (\d -> Just d.biodiversityRating) Codec.int
+        |> Codec.optionalField "compatibility_rating" (\d -> Just d.compatibilityRating) Codec.int
+        |> Codec.optionalField "habitability_rating" .habitabilityRating Codec.int
+        |> Codec.optionalField "native_sophont" (\d -> Just d.nativeSophont) Codec.bool
+        |> Codec.optionalField "extinct_sophont" (\d -> Just d.extinctSophont) Codec.bool
+        |> Codec.optionalField "government" .governmentDetail codecGovernmentDetail
+        |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
+        |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail
+        |> Codec.optionalNullableField "temperature" .meanTemperature Codec.float
         |> Codec.buildObject
 
 
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au ->
+        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -376,6 +538,7 @@ codecGasGiantData =
             , jumpShadow = js
             , orbitType = ot
             , au = au
+            , name = nm
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -404,13 +567,124 @@ codecGasGiantData =
         |> Codec.field "jump_shadow" .jumpShadow (Codec.build (Codec.encoder (Codec.nullable Codec.float)) (JsDecode.nullable (JsDecode.field "distance_km" JsDecode.float)))
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
+        |> Codec.optionalNullableField "name" .name Codec.string
+        |> Codec.buildObject
+
+
+nullableString : Codec String
+nullableString =
+    Codec.build JsEncode.string
+        (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ])
+
+
+codecCodeAndDesc : Codec CodeAndDesc
+codecCodeAndDesc =
+    Codec.object CodeAndDesc
+        |> Codec.field "code" .code Codec.string
+        |> Codec.field "description" .description nullableString
+        |> Codec.buildObject
+
+
+codecIntCodeAndDesc : Codec IntCodeAndDesc
+codecIntCodeAndDesc =
+    Codec.object IntCodeAndDesc
+        |> Codec.field "code" .code Codec.int
+        |> Codec.field "description" .description nullableString
+        |> Codec.buildObject
+
+
+codecGovernmentStructure : Codec GovernmentStructure
+codecGovernmentStructure =
+    Codec.object GovernmentStructure
+        |> Codec.optionalField "judicial" .judicial codecCodeAndDesc
+        |> Codec.optionalField "executive" .executive codecCodeAndDesc
+        |> Codec.optionalField "legislative" .legislative codecCodeAndDesc
+        |> Codec.buildObject
+
+
+codecGovernmentCharacteristics : Codec GovernmentCharacteristics
+codecGovernmentCharacteristics =
+    Codec.object GovernmentCharacteristics
+        |> Codec.optionalField "authority" .authority codecCodeAndDesc
+        |> Codec.optionalField "centralisation" .centralisation codecCodeAndDesc
+        |> Codec.buildObject
+
+
+codecGovernmentDetail : Codec GovernmentDetailData
+codecGovernmentDetail =
+    Codec.object GovernmentDetailData
+        |> Codec.optionalNullableField "type" .type_ Codec.string
+        |> Codec.optionalNullableField "description" .description Codec.string
+        |> Codec.optionalField "structure" .structure codecGovernmentStructure
+        |> Codec.optionalField "characteristics" .characteristics codecGovernmentCharacteristics
+        |> Codec.buildObject
+
+
+codecLawSubClassifications : Codec LawSubClassifications
+codecLawSubClassifications =
+    Codec.object LawSubClassifications
+        |> Codec.optionalField "weapons_and_armour" .weaponsAndArmour codecIntCodeAndDesc
+        |> Codec.optionalField "criminal_law" .criminalLaw codecIntCodeAndDesc
+        |> Codec.optionalField "economic_law" .economicLaw codecIntCodeAndDesc
+        |> Codec.optionalField "private_law" .privateLaw codecIntCodeAndDesc
+        |> Codec.optionalField "personal_rights" .personalRights codecIntCodeAndDesc
+        |> Codec.buildObject
+
+
+valueBool : Codec Bool
+valueBool =
+    Codec.build JsEncode.bool (JsDecode.field "value" JsDecode.bool)
+
+
+codecLawCharacteristics : Codec LawCharacteristics
+codecLawCharacteristics =
+    Codec.object LawCharacteristics
+        |> Codec.optionalField "uniformity" .uniformity codecCodeAndDesc
+        |> Codec.optionalField "judicial_system" .judicialSystem codecCodeAndDesc
+        |> Codec.optionalField "death_penalty" .deathPenalty valueBool
+        |> Codec.optionalField "presumed_innocence" .presumedInnocence valueBool
+        |> Codec.optionalField "econometric_infractions_administrative" .econometricInfractionsAdministrative valueBool
+        |> Codec.buildObject
+
+
+codecLawLevelDetail : Codec LawLevelDetailData
+codecLawLevelDetail =
+    Codec.object LawLevelDetailData
+        |> Codec.optionalField "sub_classifications" .subClassifications codecLawSubClassifications
+        |> Codec.optionalField "characteristics" .characteristics codecLawCharacteristics
+        |> Codec.buildObject
+
+
+codecTechCapability : Codec TechCapability
+codecTechCapability =
+    Codec.object TechCapability
+        |> Codec.field "code" .code Codec.int
+        |> Codec.field "description" .description nullableString
+        |> Codec.buildObject
+
+
+codecTechLevelDetail : Codec TechLevelDetailData
+codecTechLevelDetail =
+    Codec.object TechLevelDetailData
+        |> Codec.optionalNullableField "descriptor" .descriptor Codec.string
+        |> Codec.optionalField "energy" .energy codecTechCapability
+        |> Codec.optionalField "electronics" .electronics codecTechCapability
+        |> Codec.optionalField "manufacturing" .manufacturing codecTechCapability
+        |> Codec.optionalField "medical" .medical codecTechCapability
+        |> Codec.optionalField "environmental" .environmental codecTechCapability
+        |> Codec.optionalField "land" .land codecTechCapability
+        |> Codec.optionalField "sea" .sea codecTechCapability
+        |> Codec.optionalField "air" .air codecTechCapability
+        |> Codec.optionalField "space" .space codecTechCapability
+        |> Codec.optionalField "personal_military" .personalMilitary codecTechCapability
+        |> Codec.optionalField "heavy_military" .heavyMilitary codecTechCapability
         |> Codec.buildObject
 
 
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop ->
+        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -448,6 +722,11 @@ codecSharedPData =
             , orbitType = ot
             , au = au
             , population = pop
+            , rotation = rot
+            , governmentDetail = govD
+            , lawLevelDetail = llD
+            , techLevelDetail = tlD
+            , name = nm
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -508,9 +787,15 @@ codecSharedPData =
                     , concentrationRating = Nothing
                     , urbanizationPercentage = Nothing
                     , majorCities = Nothing
+                    , cultureTrait = []
                     }
                 ]
             )
+        |> Codec.optionalNullableField "rotation" .rotation Codec.float
+        |> Codec.optionalField "government" .governmentDetail codecGovernmentDetail
+        |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
+        |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail
+        |> Codec.optionalNullableField "name" .name Codec.string
         |> Codec.buildObject
 
 
@@ -590,6 +875,7 @@ encodeStellarObject stellarObject =
 type alias Hydrographics =
     { code : Int
     , distribution : Maybe Int
+    , liquid : Maybe String
     }
 
 
@@ -598,6 +884,14 @@ codecHydrographics =
     Codec.object Hydrographics
         |> Codec.field "code" .code Codec.int
         |> Codec.field "distribution" .distribution codecDistribution
+        |> Codec.optionalField "liquid" .liquid
+            (Codec.build JsEncode.string
+                (JsDecode.oneOf
+                    [ JsDecode.string
+                    , JsDecode.field "value" JsDecode.string
+                    ]
+                )
+            )
         |> Codec.buildObject
 
 

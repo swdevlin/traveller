@@ -8,6 +8,15 @@ if mw
   json.main_world do
     json.name mw.name
     json.uwp  mw.uwp
+    json.gravity mw.gravity
+    json.temperature mw.temperature
+    json.native_sophont mw.native_sophont || false
+    json.extinct_sophont mw.extinct_sophont || false
+    json.survival_requirement atmosphere_survival_requirement(
+      mw.respond_to?(:atmosphere_code) ? mw.atmosphere_code : nil,
+      tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.dig('taint', 'code').present?
+    )
+    json.jump_shadow mw.effective_jump_shadow_km
   end
 else
   json.main_world nil

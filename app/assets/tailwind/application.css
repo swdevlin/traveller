@@ -1521,3 +1521,50 @@
   filter: brightness(0.92) drop-shadow(0 0 4px color-mix(in srgb, var(--color-highlight) 45%, transparent));
   cursor: pointer;
 }
+
+.travel-table {
+  border-collapse: collapse;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  width: 100%;
+}
+
+.travel-table-corner {
+  background: transparent;
+}
+
+.travel-table-header {
+  color: #1a4a6a;
+  font-weight: 600;
+  padding: 3px 4px;
+  text-align: center;
+  border-bottom: 1px solid rgba(26, 74, 106, 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 36px;
+}
+
+.travel-table-row-header {
+  color: #1a4a6a;
+  font-weight: 600;
+  padding: 3px 6px 3px 2px;
+  text-align: left;
+  white-space: nowrap;
+  border-right: 1px solid rgba(26, 74, 106, 0.2);
+}
+
+.travel-table-cell {
+  padding: 2px 4px;
+  text-align: center;
+  color: #2a6a8a;
+  border: 1px solid rgba(26, 74, 106, 0.08);
+}
+
+.travel-table-diagonal {
+  color: rgba(26, 74, 106, 0.3);
+}
+
+.travel-table tbody tr:nth-child(even) .travel-table-cell,
+.travel-table tbody tr:nth-child(even) .travel-table-row-header {
+  background-color: rgba(26, 74, 106, 0.04);
+}

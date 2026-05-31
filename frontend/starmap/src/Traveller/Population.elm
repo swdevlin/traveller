@@ -1,8 +1,33 @@
-module Traveller.Population exposing (Population(..), StellarPopulation, codec, concentration_rating_description, population, populationDescription)
+module Traveller.Population exposing (CultureTrait, Population(..), StellarPopulation, codec, concentration_rating_description, population, populationDescription)
 
 import Codec exposing (Codec)
+import Json.Decode as JsDecode
+import Json.Encode as JsEncode
 import Parser exposing ((|.), (|=), Parser)
 import Parser.Extras as Parser
+
+
+type alias CultureTrait =
+    { label : String
+    , code : String
+    , value : Int
+    , lowLabel : String
+    , highLabel : String
+    , min : Int
+    , max : Int
+    }
+
+
+decodeCultureTrait : JsDecode.Decoder CultureTrait
+decodeCultureTrait =
+    JsDecode.map7 CultureTrait
+        (JsDecode.field "label" JsDecode.string)
+        (JsDecode.field "code" JsDecode.string)
+        (JsDecode.field "value" JsDecode.int)
+        (JsDecode.field "low_label" JsDecode.string)
+        (JsDecode.field "high_label" JsDecode.string)
+        (JsDecode.field "min" JsDecode.int)
+        (JsDecode.field "max" JsDecode.int)
 
 
 type alias StellarPopulation =
@@ -10,17 +35,29 @@ type alias StellarPopulation =
     , concentrationRating : Maybe Int
     , urbanizationPercentage : Maybe Int
     , majorCities : Maybe Int
+    , cultureTrait : List CultureTrait
     }
+
+
+decodeStellarPopulation : JsDecode.Decoder StellarPopulation
+decodeStellarPopulation =
+    JsDecode.map5 StellarPopulation
+        (JsDecode.field "code" JsDecode.int)
+        (JsDecode.maybe (JsDecode.at [ "concentration_rating", "code" ] JsDecode.int))
+        (JsDecode.maybe (JsDecode.at [ "urbanization_percentage", "value" ] JsDecode.int))
+        (JsDecode.maybe (JsDecode.at [ "major_cities", "value" ] JsDecode.int))
+        (JsDecode.oneOf
+            [ JsDecode.at [ "culture", "traits" ] (JsDecode.list decodeCultureTrait)
+            , JsDecode.succeed []
+            ]
+        )
 
 
 codec : Codec StellarPopulation
 codec =
-    Codec.object StellarPopulation
-        |> Codec.field "code" .code Codec.int
-        |> Codec.optionalNullableField "concentrationRating" .concentrationRating Codec.int
-        |> Codec.optionalNullableField "urbanizationPercentage" .urbanizationPercentage Codec.int
-        |> Codec.optionalNullableField "majorCities" .majorCities Codec.int
-        |> Codec.buildObject
+    Codec.build
+        (\_ -> JsEncode.null)
+        decodeStellarPopulation
 
 
 concentration_rating_description : Int -> String

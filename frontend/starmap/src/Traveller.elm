@@ -92,6 +92,7 @@ import Traveller.Sidebar
         ( SidebarMsgs
         , viewSidebarColumn
         )
+import Traveller.TravelTable as TravelTable
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
 import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
 import Traveller.StarColour exposing (starColourName, starColourRGB)
@@ -569,7 +570,8 @@ type alias ModelData =
         { viewport : Browser.Dom.Viewport
         , hexmapViewport : Maybe HexMapViewport
         }
-    , selectedStellarObject : Maybe StellarObject
+    , showTravelTable : Bool
+    , travelTableMDrive : Int
     , hexRect : HexRect
     , panOffset : { x : Float, y : Float }
     , currentAddress : HexAddress
@@ -582,6 +584,7 @@ type alias ModelData =
     , isReferee : Bool
     , pendingCtrlNavigation : Bool
     , objectToBeAnalyzed : Maybe { stellarObject : StellarObject, data : AnalysisDetail }
+    , analysisTab : String
     , rogueDetailModal : Maybe (List RogueObjectDetail)
     , timeOpened : Time.Posix
     , campaignName : String
@@ -614,7 +617,8 @@ type Msg
     | GotViewport Browser.Dom.Viewport
     | GotHexMapViewport (Result Browser.Dom.Error Browser.Dom.Viewport)
     | GotResize Int Int
-    | FocusInSidebar StellarObject
+    | ToggleTravelTable
+    | SetTravelTableMDrive Int
     | MapMouseDown ( Float, Float )
     | MapMouseUp (Maybe HexAddress) ( Float, Float ) Bool
     | MapMouseMove ( Float, Float )
@@ -628,8 +632,8 @@ type Msg
     | ZoomToHex HexAddress Bool
     | JourneyMsg JourneyMsg
     | ViewObjectAnalysisDetail StellarObject
-    | OpenedObjectAnalysisTime Time.Posix
     | CloseObjectAnalysis
+    | SetAnalysisTab String
     | PanMap { deltaX : Int, deltaY : Int }
     | PanPixels { dx : Float, dy : Float }
     | HexMapWheelZoom Float
@@ -753,7 +757,7 @@ defaultHexRectSize =
 
 minHexSize : Float
 minHexSize =
-    10
+    20
 
 
 maxHexSize : Float
@@ -894,7 +898,8 @@ init viewport settings key hostConfig referee =
                 , hexmapViewport = Nothing
                 }
             , key = key
-            , selectedStellarObject = Nothing
+            , showTravelTable = False
+            , travelTableMDrive = settings.ship |> Maybe.andThen .mDrive |> Maybe.withDefault 2
             , hexRect = hexRect
             , panOffset = { x = 0, y = 0 }
             , hostConfig = hostConfig
@@ -907,6 +912,7 @@ init viewport settings key hostConfig referee =
             , isReferee = referee
             , pendingCtrlNavigation = False
             , objectToBeAnalyzed = Nothing
+            , analysisTab = "orbital"
             , rogueDetailModal = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
@@ -2981,9 +2987,9 @@ view ( time, model ) =
     let
         sidebarMsgs : SidebarMsgs Msg
         sidebarMsgs =
-            { focusInSidebar = FocusInSidebar
-            , viewDetail = ViewObjectAnalysisDetail
+            { viewDetail = ViewObjectAnalysisDetail
             , closeSidebar = CloseSidebar
+            , toggleTravelTable = ToggleTravelTable
             }
 
         solarSystemStatus =
@@ -3019,10 +3025,17 @@ view ( time, model ) =
             , sectors = model.sectors
             , regions = model.regions
             , selectedSystem = model.selectedSystem
-            , selectedStellarObject = model.selectedStellarObject
             , isReferee = model.isReferee
             , allSectorsMapUrl = model.allSectorsMapUrl
             , mDrive = model.ship |> Maybe.andThen .mDrive
+            , showTravelTable = model.showTravelTable
+            }
+
+        travelTableMsgs : TravelTable.Msgs Msg
+        travelTableMsgs =
+            { setMDrive = SetTravelTableMDrive
+            , close = ToggleTravelTable
+            , noOp = NoOpMsg
             }
 
         sidebarColumn =
@@ -3064,7 +3077,7 @@ view ( time, model ) =
         , Background.color (Element.rgb255 238 244 249)
         , case model.objectToBeAnalyzed of
             Just analysisDetail ->
-                Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg analysisDetail.data
+                Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg model.analysisTab SetAnalysisTab model.isReferee analysisDetail.data
 
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
@@ -3073,6 +3086,12 @@ view ( time, model ) =
                 Element.inFront <| viewRogueDetailModal CloseRogueDetail rogueObjects
 
             Nothing ->
+                Element.htmlAttribute <| HtmlAttrs.class ""
+        , case ( model.showTravelTable, model.selectedSystem ) of
+            ( True, Just solarSystem ) ->
+                Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
+
+            _ ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
         ]
         [ column [ width fill, Element.alignTop ]
@@ -4050,16 +4069,21 @@ update msg ( time, model ) =
             ( withTime
                 { model
                     | selectedHex = Just hexAddress
-                    , selectedStellarObject = Nothing
                     , selectedSystem = Nothing
+                    , showTravelTable = False
                     , newSolarSystemErrors = focusedErrors
                     , sidebarOpen = True
                 }
             , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
             )
 
-        FocusInSidebar stellarObject ->
-            ( withTime { model | selectedStellarObject = Just stellarObject }
+        ToggleTravelTable ->
+            ( withTime { model | showTravelTable = not model.showTravelTable }
+            , Cmd.none
+            )
+
+        SetTravelTableMDrive n ->
+            ( withTime { model | travelTableMDrive = n }
             , Cmd.none
             )
 
@@ -4225,8 +4249,8 @@ update msg ( time, model ) =
                                         { model
                                             | dragMode = NoDragging
                                             , selectedHex = Just hexAddress
-                                            , selectedStellarObject = Nothing
                                             , selectedSystem = Nothing
+                                            , showTravelTable = False
                                             , rogueDetailModal = rogueObjects
                                             , newSolarSystemErrors = focusedErrors
                                             , sidebarOpen = True
@@ -4415,18 +4439,59 @@ update msg ( time, model ) =
                 analysisDetail : AnalysisDetail
                 analysisDetail =
                     let
+                        showName =
+                            case model.selectedSystem of
+                                Just sys ->
+                                    model.isReferee || sys.surveyIndex >= 10
+
+                                Nothing ->
+                                    model.isReferee
+
                         header : AnalysisDetailHeader
                         header =
+                            let
+                                orbitSeq =
+                                    getStellarOrbit stellarObject |> .orbitSequence
+                            in
                             { header =
-                                (getStellarOrbit stellarObject |> .orbitSequence)
-                                    ++ " ["
-                                    ++ getProfileString stellarObject
-                                    ++ "]"
+                                case stellarObject of
+                                    TerrestrialPlanet pdata ->
+                                        if showName then
+                                            pdata.name |> Maybe.withDefault orbitSeq
+
+                                        else
+                                            orbitSeq
+
+                                    Planetoid pdata ->
+                                        if showName then
+                                            pdata.name |> Maybe.withDefault orbitSeq
+
+                                        else
+                                            orbitSeq
+
+                                    PlanetoidBelt pdata ->
+                                        if showName then
+                                            pdata.name |> Maybe.withDefault orbitSeq
+
+                                        else
+                                            orbitSeq
+
+                                    GasGiant ggdata ->
+                                        if showName then
+                                            ggdata.name |> Maybe.withDefault (orbitSeq ++ " [" ++ ggdata.code ++ "]")
+
+                                        else
+                                            orbitSeq ++ " [" ++ ggdata.code ++ "]"
+
+                                    Star _ ->
+                                        orbitSeq ++ " [" ++ getProfileString stellarObject ++ "]"
                             }
 
                         buildStringGasGiant : GasGiantData -> AnalyisDetailGasGiantData
                         buildStringGasGiant ggdata =
-                            { physical =
+                            { code = ggdata.code
+                            , jumpShadowKm = ggdata.jumpShadow
+                            , physical =
                                 { au = rnd 2 ggdata.au
                                 , period = rnd 2 (ggdata.period / 365.25)
                                 , inclination = rnd 0 ggdata.inclination ++ "°"
@@ -4449,22 +4514,262 @@ update msg ( time, model ) =
                             let
                                 rr =
                                     round pdata.resourceRating
-                            in
-                            { uwp = pdata.uwp
-                            , orbital =
-                                { orbit = rnd 2 pdata.orbit
-                                , au = rnd 2 pdata.au
-                                , period = rnd 2 (pdata.period / 365.25) ++ " yrs"
-                                , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
-                                , retrograde =
-                                    if pdata.retrograde then
-                                        "Yes"
 
-                                    else
-                                        "No"
-                                , inclination = rnd 0 pdata.inclination ++ "°"
-                                , eccentricity = rnd 2 pdata.eccentricity
-                                }
+                                parsedUwp =
+                                    Parser.run uwp pdata.uwp
+
+                                uwpField accessor describer =
+                                    case parsedUwp of
+                                        Ok u ->
+                                            describer (accessor u)
+
+                                        Err _ ->
+                                            "—"
+
+                                fmtCodeAndDesc maybeItem =
+                                    case maybeItem of
+                                        Just item ->
+                                            item.code ++ " – " ++ item.description
+
+                                        Nothing ->
+                                            ""
+
+                                fmtIntCodeAndDesc maybeItem =
+                                    case maybeItem of
+                                        Just item ->
+                                            toEHexChar item.code ++ " – " ++ item.description
+
+                                        Nothing ->
+                                            ""
+
+                                fmtBool maybeBool =
+                                    case maybeBool of
+                                        Just True ->
+                                            "Yes"
+
+                                        Just False ->
+                                            "No"
+
+                                        Nothing ->
+                                            ""
+
+                                fmtTechCap maybeCap =
+                                    case maybeCap of
+                                        Just cap ->
+                                            toEHexChar cap.code ++ " – " ++ cap.description
+
+                                        Nothing ->
+                                            ""
+
+                                govType =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .type_
+                                        |> Maybe.withDefault ""
+
+                                govDescription =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .description
+                                        |> Maybe.withDefault ""
+
+                                govStructure =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .structure
+
+                                govChars =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .characteristics
+
+                                lawSubs =
+                                    pdata.lawLevelDetail
+                                        |> Maybe.andThen .subClassifications
+
+                                lawChars =
+                                    pdata.lawLevelDetail
+                                        |> Maybe.andThen .characteristics
+
+                                tlDetail =
+                                    pdata.techLevelDetail
+
+                                uwpChar i =
+                                    String.slice i (i + 1) pdata.uwp
+
+                                withCode i accessor describer =
+                                    case parsedUwp of
+                                        Ok u ->
+                                            uwpChar i ++ " – " ++ describer (accessor u)
+
+                                        Err _ ->
+                                            "—"
+
+                                spCode =
+                                    String.slice 0 1 pdata.uwp
+
+                                atm =
+                                    pdata.atmosphere
+                                        |> Maybe.withDefault
+                                            { code = 0
+                                            , irritant = Nothing
+                                            , taint = { subtype = "", code = "", severity = 0, persistence = 0 }
+                                            , characteristic = Nothing
+                                            , bar = 0.0
+                                            , gasType = Nothing
+                                            , density = Nothing
+                                            , hazardCode = Nothing
+                                            }
+
+                                planet : AnalyisDetailPlanetoidData
+                                planet =
+                                    { uwp = pdata.uwp
+                                    , jumpShadowKm = pdata.jumpShadow
+                                    , physical =
+                                        { au = rnd 2 pdata.au
+                                        , period = rnd 2 (pdata.period / 365.25)
+                                        , inclination = rnd 0 pdata.inclination ++ "°"
+                                        , eccentricity = rnd 2 pdata.eccentricity
+                                        , mass = "—"
+                                        , density = "—"
+                                        , gravity = "—"
+                                        , diameter = "—"
+                                        , meanTemperature = fromKelvin pdata.meanTemperature
+                                        , albedo = "—"
+                                        , axialTilt = "—"
+                                        , greenhouse = "—"
+                                        , sizeCode = uwpChar 1
+                                        , rotation = "—"
+                                        }
+                                    , orbital =
+                                        { orbit = rnd 2 pdata.orbit
+                                        , retrograde =
+                                            if pdata.retrograde then
+                                                "Yes"
+
+                                            else
+                                                "No"
+                                        , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
+                                        }
+                                    , atmosphere =
+                                        { type_ = toEHexChar atm.code ++ " – " ++ atmosphereDescriptionEx atm.code
+                                        , hazardCode = atmosphereHazardDescription atm.hazardCode
+                                        , bar = rnd 1 atm.bar
+                                        , taint =
+                                            { subtype = taintSubtypeDescription atm.taint.code
+                                            , severity = taintSeverityDescription atm.taint.severity
+                                            , persistence = taintPersistenceDescription atm.taint.persistence
+                                            }
+                                        }
+                                    , hydrographics =
+                                        { percentage =
+                                            pdata.hydrographics
+                                                |> Maybe.map (.code >> hydrographicsPercentageDescription)
+                                                |> Maybe.withDefault "N/A"
+                                        , liquid =
+                                            pdata.hydrographics
+                                                |> Maybe.andThen .liquid
+                                                |> Maybe.withDefault ""
+                                        , surfaceDistribution =
+                                            pdata.hydrographics
+                                                |> Maybe.map (.distribution >> surfaceDistributionDescription)
+                                                |> Maybe.withDefault "N/A"
+                                        }
+                                    , life =
+                                        { biomass = biomassDescription pdata.biomassRating
+                                        , biocomplexity = biocomplexityDescription pdata.biocomplexityCode
+                                        , biodiversity = biodiversityDescription pdata.biodiversityRating
+                                        , compatibility = bioChemistryCompatibilityDescription pdata.compatibilityRating
+                                        , habitability = habitabilityDescription pdata.habitabilityRating
+                                        , sophonts =
+                                            if pdata.nativeSophont then
+                                                "Yes"
+
+                                            else
+                                                "No"
+                                        }
+                                    , social =
+                                        { population = withCode 4 .population populationDescription
+                                        , concentrationRating = pdata.population |> Maybe.andThen .concentrationRating
+                                        , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
+                                        , majorCities = pdata.population |> Maybe.andThen .majorCities
+                                        , government =
+                                            if uwpChar 4 == "0" then
+                                                "—"
+
+                                            else
+                                                withCode 5 .government Government.description
+                                        , lawLevel =
+                                            if uwpChar 4 == "0" then
+                                                "—"
+
+                                            else
+                                                withCode 6 .lawLevel LawLevel.description
+                                        , techLevel =
+                                            if uwpChar 4 == "0" then
+                                                "—"
+
+                                            else
+                                                withCode 8 .techLevel TechLevel.description
+                                        }
+                                    , cultureTrait =
+                                        pdata.population
+                                            |> Maybe.map .cultureTrait
+                                            |> Maybe.withDefault []
+                                            |> List.map
+                                                (\ct ->
+                                                    { label = ct.label
+                                                    , value = ct.value
+                                                    , min = ct.min
+                                                    , max = ct.max
+                                                    , lowLabel = ct.lowLabel
+                                                    , highLabel = ct.highLabel
+                                                    }
+                                                )
+                                    , government =
+                                        { type_ = govType
+                                        , description = govDescription
+                                        , judicial = govStructure |> Maybe.andThen .judicial |> fmtCodeAndDesc
+                                        , executive = govStructure |> Maybe.andThen .executive |> fmtCodeAndDesc
+                                        , legislative = govStructure |> Maybe.andThen .legislative |> fmtCodeAndDesc
+                                        , authority = govChars |> Maybe.andThen .authority |> fmtCodeAndDesc
+                                        , centralisation = govChars |> Maybe.andThen .centralisation |> fmtCodeAndDesc
+                                        }
+                                    , lawSubClassifications =
+                                        { weaponsAndArmour = lawSubs |> Maybe.andThen .weaponsAndArmour |> fmtIntCodeAndDesc
+                                        , criminalLaw = lawSubs |> Maybe.andThen .criminalLaw |> fmtIntCodeAndDesc
+                                        , economicLaw = lawSubs |> Maybe.andThen .economicLaw |> fmtIntCodeAndDesc
+                                        , privateLaw = lawSubs |> Maybe.andThen .privateLaw |> fmtIntCodeAndDesc
+                                        , personalRights = lawSubs |> Maybe.andThen .personalRights |> fmtIntCodeAndDesc
+                                        }
+                                    , lawCharacteristics =
+                                        { uniformity = lawChars |> Maybe.andThen .uniformity |> fmtCodeAndDesc
+                                        , judicialSystem = lawChars |> Maybe.andThen .judicialSystem |> fmtCodeAndDesc
+                                        , deathPenalty = lawChars |> Maybe.andThen .deathPenalty |> fmtBool
+                                        , presumedInnocence = lawChars |> Maybe.andThen .presumedInnocence |> fmtBool
+                                        , econometricInfractionsAdministrative = lawChars |> Maybe.andThen .econometricInfractionsAdministrative |> fmtBool
+                                        }
+                                    , techDetail =
+                                        { descriptor = tlDetail |> Maybe.andThen .descriptor |> Maybe.withDefault ""
+                                        , energy = tlDetail |> Maybe.andThen .energy |> fmtTechCap
+                                        , electronics = tlDetail |> Maybe.andThen .electronics |> fmtTechCap
+                                        , manufacturing = tlDetail |> Maybe.andThen .manufacturing |> fmtTechCap
+                                        , medical = tlDetail |> Maybe.andThen .medical |> fmtTechCap
+                                        , environmental = tlDetail |> Maybe.andThen .environmental |> fmtTechCap
+                                        , land = tlDetail |> Maybe.andThen .land |> fmtTechCap
+                                        , sea = tlDetail |> Maybe.andThen .sea |> fmtTechCap
+                                        , air = tlDetail |> Maybe.andThen .air |> fmtTechCap
+                                        , space = tlDetail |> Maybe.andThen .space |> fmtTechCap
+                                        , personalMilitary = tlDetail |> Maybe.andThen .personalMilitary |> fmtTechCap
+                                        , heavyMilitary = tlDetail |> Maybe.andThen .heavyMilitary |> fmtTechCap
+                                        }
+                                    , starport =
+                                        case spCode of
+                                            "A" -> { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair" }
+                                            "B" -> { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair" }
+                                            "C" -> { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair" }
+                                            "D" -> { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair" }
+                                            "E" -> { code = "E", quality = "Frontier", fuel = "None", facilities = "None" }
+                                            _ -> { code = "X", quality = "No Starport", fuel = "None", facilities = "None" }
+                                    }
+                            in
+                            { planet = planet
                             , composition =
                                 { mType = rnd 0 pdata.mType ++ "%"
                                 , sType = rnd 0 pdata.sType ++ "%"
@@ -4491,8 +4796,74 @@ update msg ( time, model ) =
 
                                         Err _ ->
                                             "—"
+
+                                fmtCodeAndDesc maybeItem =
+                                    case maybeItem of
+                                        Just item ->
+                                            item.code ++ " – " ++ item.description
+
+                                        Nothing ->
+                                            ""
+
+                                fmtIntCodeAndDesc maybeItem =
+                                    case maybeItem of
+                                        Just item ->
+                                            toEHexChar item.code ++ " – " ++ item.description
+
+                                        Nothing ->
+                                            ""
+
+                                fmtBool maybeBool =
+                                    case maybeBool of
+                                        Just True ->
+                                            "Yes"
+
+                                        Just False ->
+                                            "No"
+
+                                        Nothing ->
+                                            ""
+
+                                fmtTechCap maybeCap =
+                                    case maybeCap of
+                                        Just cap ->
+                                            toEHexChar cap.code ++ " – " ++ cap.description
+
+                                        Nothing ->
+                                            ""
+
+                                govType =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .type_
+                                        |> Maybe.withDefault ""
+
+                                govDescription =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .description
+                                        |> Maybe.withDefault ""
+
+                                govStructure =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .structure
+
+                                govChars =
+                                    pdata.governmentDetail
+                                        |> Maybe.andThen .characteristics
+
+                                lawSubs =
+                                    pdata.lawLevelDetail
+                                        |> Maybe.andThen .subClassifications
+
+                                lawChars =
+                                    pdata.lawLevelDetail
+                                        |> Maybe.andThen .characteristics
+
+                                tlDetail =
+                                    pdata.techLevelDetail
                             in
-                            { physical =
+                            { uwp = pdata.uwp
+                            , jumpShadowKm = pdata.jumpShadow
+                            , physical =
                                 { au = rnd 2 pdata.au
                                 , period = rnd 2 (pdata.period / 365.25)
                                 , inclination = rnd 0 pdata.inclination ++ "°"
@@ -4505,6 +4876,18 @@ update msg ( time, model ) =
                                 , albedo = rnd 2 pdata.albedo
                                 , axialTilt = rnd 2 pdata.axialTilt ++ "°"
                                 , greenhouse = rndm 2 0 pdata.greenhouse
+                                , sizeCode = pdata.size
+                                , rotation = pdata.rotation |> Maybe.map (\r -> rnd 2 r ++ " hours") |> Maybe.withDefault "—"
+                                }
+                            , orbital =
+                                { orbit = rnd 2 pdata.orbit
+                                , retrograde =
+                                    if pdata.retrograde then
+                                        "Yes"
+
+                                    else
+                                        "No"
+                                , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
                                 }
                             , atmosphere =
                                 { type_ = toEHexChar pdata.atmosphere.code ++ " – " ++ atmosphereDescriptionEx pdata.atmosphere.code
@@ -4519,17 +4902,15 @@ update msg ( time, model ) =
                             , hydrographics =
                                 { percentage =
                                     pdata.hydrographics
-                                        |> Maybe.map
-                                            (.code
-                                                >> hydrographicsPercentageDescription
-                                            )
+                                        |> Maybe.map (.code >> hydrographicsPercentageDescription)
                                         |> Maybe.withDefault "N/A"
+                                , liquid =
+                                    pdata.hydrographics
+                                        |> Maybe.andThen .liquid
+                                        |> Maybe.withDefault ""
                                 , surfaceDistribution =
                                     pdata.hydrographics
-                                        |> Maybe.map
-                                            (.distribution
-                                                >> surfaceDistributionDescription
-                                            )
+                                        |> Maybe.map (.distribution >> surfaceDistributionDescription)
                                         |> Maybe.withDefault "N/A"
                                 }
                             , life =
@@ -4581,6 +4962,69 @@ update msg ( time, model ) =
                                     else
                                         withCode 8 .techLevel TechLevel.description
                                 }
+                            , cultureTrait =
+                                pdata.population
+                                    |> Maybe.map .cultureTrait
+                                    |> Maybe.withDefault []
+                                    |> List.map
+                                        (\ct ->
+                                            { label = ct.label
+                                            , value = ct.value
+                                            , min = ct.min
+                                            , max = ct.max
+                                            , lowLabel = ct.lowLabel
+                                            , highLabel = ct.highLabel
+                                            }
+                                        )
+                            , government =
+                                { type_ = govType
+                                , description = govDescription
+                                , judicial = govStructure |> Maybe.andThen .judicial |> fmtCodeAndDesc
+                                , executive = govStructure |> Maybe.andThen .executive |> fmtCodeAndDesc
+                                , legislative = govStructure |> Maybe.andThen .legislative |> fmtCodeAndDesc
+                                , authority = govChars |> Maybe.andThen .authority |> fmtCodeAndDesc
+                                , centralisation = govChars |> Maybe.andThen .centralisation |> fmtCodeAndDesc
+                                }
+                            , lawSubClassifications =
+                                { weaponsAndArmour = lawSubs |> Maybe.andThen .weaponsAndArmour |> fmtIntCodeAndDesc
+                                , criminalLaw = lawSubs |> Maybe.andThen .criminalLaw |> fmtIntCodeAndDesc
+                                , economicLaw = lawSubs |> Maybe.andThen .economicLaw |> fmtIntCodeAndDesc
+                                , privateLaw = lawSubs |> Maybe.andThen .privateLaw |> fmtIntCodeAndDesc
+                                , personalRights = lawSubs |> Maybe.andThen .personalRights |> fmtIntCodeAndDesc
+                                }
+                            , lawCharacteristics =
+                                { uniformity = lawChars |> Maybe.andThen .uniformity |> fmtCodeAndDesc
+                                , judicialSystem = lawChars |> Maybe.andThen .judicialSystem |> fmtCodeAndDesc
+                                , deathPenalty = lawChars |> Maybe.andThen .deathPenalty |> fmtBool
+                                , presumedInnocence = lawChars |> Maybe.andThen .presumedInnocence |> fmtBool
+                                , econometricInfractionsAdministrative = lawChars |> Maybe.andThen .econometricInfractionsAdministrative |> fmtBool
+                                }
+                            , techDetail =
+                                { descriptor = tlDetail |> Maybe.andThen .descriptor |> Maybe.withDefault ""
+                                , energy = tlDetail |> Maybe.andThen .energy |> fmtTechCap
+                                , electronics = tlDetail |> Maybe.andThen .electronics |> fmtTechCap
+                                , manufacturing = tlDetail |> Maybe.andThen .manufacturing |> fmtTechCap
+                                , medical = tlDetail |> Maybe.andThen .medical |> fmtTechCap
+                                , environmental = tlDetail |> Maybe.andThen .environmental |> fmtTechCap
+                                , land = tlDetail |> Maybe.andThen .land |> fmtTechCap
+                                , sea = tlDetail |> Maybe.andThen .sea |> fmtTechCap
+                                , air = tlDetail |> Maybe.andThen .air |> fmtTechCap
+                                , space = tlDetail |> Maybe.andThen .space |> fmtTechCap
+                                , personalMilitary = tlDetail |> Maybe.andThen .personalMilitary |> fmtTechCap
+                                , heavyMilitary = tlDetail |> Maybe.andThen .heavyMilitary |> fmtTechCap
+                                }
+                            , starport =
+                                let
+                                    spCode =
+                                        String.slice 0 1 pdata.uwp
+                                in
+                                case spCode of
+                                    "A" -> { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair" }
+                                    "B" -> { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair" }
+                                    "C" -> { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair" }
+                                    "D" -> { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair" }
+                                    "E" -> { code = "E", quality = "Frontier", fuel = "None", facilities = "None" }
+                                    _ -> { code = "X", quality = "No Starport", fuel = "None", facilities = "None" }
                             }
                     in
                     case stellarObject of
@@ -4616,15 +5060,17 @@ update msg ( time, model ) =
                             in
                             AnalyisDetailStar header starDetailData
             in
-            ( withTime { model | objectToBeAnalyzed = Just { stellarObject = stellarObject, data = analysisDetail } }
-            , Task.perform OpenedObjectAnalysisTime Time.now
+            ( withTime { model | objectToBeAnalyzed = Just { stellarObject = stellarObject, data = analysisDetail }, timeOpened = time }
+            , Cmd.none
             )
 
-        OpenedObjectAnalysisTime openedTime ->
-            ( withTime { model | timeOpened = openedTime }, Cmd.none )
-
         CloseObjectAnalysis ->
-            ( withTime { model | objectToBeAnalyzed = Nothing }
+            ( withTime { model | objectToBeAnalyzed = Nothing, analysisTab = "orbital" }
+            , Cmd.none
+            )
+
+        SetAnalysisTab tab ->
+            ( withTime { model | analysisTab = tab, timeOpened = time }
             , Cmd.none
             )
 

@@ -25,26 +25,38 @@ import Element
         , text
         , width
         )
+import Element.Background as Background
+import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Lazy
 import Html
 import Html.Attributes as HtmlAttrs
+import Parser
+import Traveller.Atmosphere as Atmosphere
+import Traveller.TravelCalculations as TravelCalc
+import Traveller.Government as Government
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
+import Traveller.LawLevel as LawLevel
+import Traveller.Parser exposing (UWP, uwp)
+import Traveller.Population as Population
 import Traveller.Sector exposing (SectorDict)
-import Traveller.SolarSystem exposing (SolarSystem)
-import Traveller.StellarObject exposing (StellarObject(..))
+import Traveller.SolarSystem exposing (MainWorldProfile, SolarSystem)
+import Traveller.StellarObject exposing (StellarObject)
 import Traveller.StarSystemMap exposing (viewStarSystemMap)
 import Traveller.StellarObjectView
     exposing
         ( StellarObjectMsgs
         , convertColor
         )
+import Traveller.TechLevel as TechLevel
 import Traveller.UI
     exposing
         ( deepnightColor
+        , profileFieldDisplay
         , textColor
         , uiDeepnightColorFontColour
+        , zeroEach
         )
 
 
@@ -58,9 +70,9 @@ sidebarWidth =
 {-| Message constructors needed by sidebar view functions.
 -}
 type alias SidebarMsgs msg =
-    { focusInSidebar : StellarObject -> msg
-    , viewDetail : StellarObject -> msg
+    { viewDetail : StellarObject -> msg
     , closeSidebar : msg
+    , toggleTravelTable : msg
     }
 
 
@@ -91,18 +103,207 @@ universalHexLabel sectors hexAddress =
             sector.name ++ " " ++ HexAddress.hexLabel hexAddress
 
 
+{-| Renders the main world profile block above the star system map.
+-}
+viewMainWorldProfile : MainWorldProfile -> Element msg
+viewMainWorldProfile profile =
+    let
+        mParsed =
+            Parser.run uwp profile.uwp
+
+        uwpChar i =
+            String.slice i (i + 1) profile.uwp
+
+        withUwp i accessor describer =
+            case mParsed of
+                Ok parsed ->
+                    uwpChar i ++ " – " ++ describer (accessor parsed)
+
+                Err _ ->
+                    "—"
+
+        spCode =
+            uwpChar 0
+
+        spQuality =
+            case spCode of
+                "A" -> "Excellent"
+                "B" -> "Good"
+                "C" -> "Routine"
+                "D" -> "Poor"
+                "E" -> "Frontier"
+                _ -> "None"
+
+        gravityStr =
+            profile.gravity
+                |> Maybe.map (\g -> String.fromFloat (toFloat (round (g * 100)) / 100) ++ "g")
+                |> Maybe.withDefault "—"
+
+        tempStr =
+            profile.temperature
+                |> Maybe.map (\t -> String.fromInt (round (t - 273.15)) ++ "°C")
+                |> Maybe.withDefault "—"
+
+        sophontStr =
+            if profile.nativeSophont then
+                "Extant"
+
+            else if profile.extinctSophont then
+                "Extinct"
+
+            else
+                "None"
+
+        profileHeader title =
+            row
+                [ width fill
+                , Element.spacing 8
+                , Element.paddingEach { zeroEach | top = 8, bottom = 4 }
+                ]
+                [ el [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] (text (String.toUpper title))
+                , el
+                    [ width fill
+                    , height (Element.px 1)
+                    , Background.color (Element.rgba 0.17 0.42 0.55 0.3)
+                    , Element.centerY
+                    ]
+                    Element.none
+                ]
+    in
+    column
+        [ width fill
+        , Element.paddingXY 8 4
+        ]
+        [ profileHeader "Main World Profile"
+        , profileFieldDisplay "Starport" (spCode ++ " – " ++ spQuality)
+        , profileFieldDisplay "Gravity" gravityStr
+        , profileFieldDisplay "Temperature" tempStr
+        , profileFieldDisplay "Survival" profile.survivalRequirement
+        , profileFieldDisplay "Atmosphere" (withUwp 2 .atmosphere Atmosphere.atmosphereDescription)
+        , profileFieldDisplay "Population" (withUwp 4 .population Population.populationDescription)
+        , profileFieldDisplay "Government" (withUwp 5 .government Government.description)
+        , profileFieldDisplay "Law Level" (withUwp 6 .lawLevel LawLevel.description)
+        , profileFieldDisplay "Tech Level" (withUwp 8 .techLevel TechLevel.description)
+        , profileFieldDisplay "Sophonts" sophontStr
+        ]
+
+
+viewSidebarJumpTable : Maybe Float -> Element msg
+viewSidebarJumpTable maybeKm =
+    case maybeKm of
+        Nothing ->
+            Element.none
+
+        Just km ->
+            if km <= 0 then
+                Element.none
+
+            else
+                let
+                    mDrives =
+                        [ 1, 2, 3, 4, 5, 6 ]
+
+                    cell attrs child =
+                        el ([ width fill, Element.paddingXY 0 3, Element.centerX ] ++ attrs) child
+
+                    headerCell m =
+                        cell
+                            [ uiDeepnightColorFontColour
+                            , Font.size 10
+                            , Font.bold
+                            , Border.widthEach { zeroEach | bottom = 1 }
+                            , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                            ]
+                            (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
+
+                    timeCell m =
+                        let
+                            secs =
+                                TravelCalc.travelTimeInSeconds km m
+
+                            t =
+                                TravelCalc.travelTimeHoursDays secs
+                        in
+                        cell [ Font.size 11, Font.family [ Font.monospace ] ]
+                            (el [ Element.centerX ] (text t))
+
+                    sectionRow title =
+                        row
+                            [ width fill
+                            , Element.spacing 8
+                            , Element.paddingEach { zeroEach | top = 6, bottom = 2 }
+                            ]
+                            [ el [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] (text (String.toUpper title))
+                            , el
+                                [ width fill
+                                , height (Element.px 1)
+                                , Background.color (Element.rgba 0.17 0.42 0.55 0.3)
+                                , Element.centerY
+                                ]
+                                Element.none
+                            ]
+                in
+                column
+                    [ width fill
+                    , Element.paddingXY 8 4
+                    , Border.widthEach { zeroEach | bottom = 1 }
+                    , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                    ]
+                    [ sectionRow "Safe Jump Distance"
+                    , row [ width fill ] (List.map headerCell mDrives)
+                    , row [ width fill ] (List.map timeCell mDrives)
+                    ]
+
+
 {-| View the system details in the sidebar.
 -}
-viewSystemDetailsSidebar : SidebarMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
-viewSystemDetailsSidebar msgs solarSystem selectedStellarObject isReferee mDrive =
+viewSystemDetailsSidebar :
+    SidebarMsgs msg
+    -> SolarSystem
+    -> { isReferee : Bool, mDrive : Maybe Int, showTravelTable : Bool }
+    -> Element msg
+viewSystemDetailsSidebar msgs solarSystem opts =
     let
         stellarObjectMsgs : StellarObjectMsgs msg
         stellarObjectMsgs =
-            { onFocusInSidebar = msgs.focusInSidebar
-            , onViewDetail = msgs.viewDetail
+            { onViewDetail = msgs.viewDetail
             }
     in
-    viewStarSystemMap stellarObjectMsgs solarSystem selectedStellarObject isReferee mDrive
+    column [ Element.width Element.fill, Element.spacing 6 ]
+        [ if opts.isReferee || solarSystem.surveyIndex >= 10 then
+            case solarSystem.mainWorldProfile of
+                Just profile ->
+                    column [ width fill ]
+                        [ viewMainWorldProfile profile
+                        , viewSidebarJumpTable profile.jumpShadow
+                        ]
+
+                Nothing ->
+                    Element.none
+
+          else
+            Element.none
+        , viewStarSystemMap stellarObjectMsgs solarSystem opts.isReferee opts.mDrive
+        , el
+            [ Element.centerX
+            , Element.paddingXY 8 4
+            , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
+            , Font.size 13
+            , Font.color
+                (if opts.showTravelTable then
+                    Element.rgba 0.87 0.50 0.20 1.0
+
+                 else
+                    Element.rgba 0.17 0.42 0.55 0.55
+                )
+            , Events.onClick msgs.toggleTravelTable
+            ]
+            (row [ Element.spacing 5, Element.centerY ]
+                [ renderFAIcon "fa-solid fa-gauge-high" 13
+                , text "Travel Times"
+                ]
+            )
+        ]
 
 
 {-| View the main sidebar column.
@@ -122,13 +323,13 @@ viewSidebarColumn :
             , sectors : SectorDict
             , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Color }
             , selectedSystem : Maybe SolarSystem
-            , selectedStellarObject : Maybe StellarObject
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
             , mDrive : Maybe Int
+            , showTravelTable : Bool
         }
     -> Element msg
-viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, selectedStellarObject, isReferee, allSectorsMapUrl, mDrive } =
+viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ row [ Element.width Element.fill, Element.paddingXY 8 6 ]
             [ el
@@ -140,7 +341,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                 ]
                 (text "✕")
             ]
-        , column [ Element.width Element.fill ]
+        , column [ Element.width Element.fill, Element.height Element.fill, Element.scrollbarY ]
             [ case selectedHex of
                 Just viewingAddress ->
                     column [ centerY, Element.paddingXY 0 4, width fill, centerX ]
@@ -151,13 +352,21 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                             Nothing ->
                                 Element.none
                         , column [ centerX, Element.spacing 2 ]
-                            [ el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text <| universalHexLabel sectors viewingAddress)
+                            [ case selectedSystem |> Maybe.andThen (\sys -> if isReferee || sys.surveyIndex >= 10 then sys.name else Nothing) of
+                                Just sysName ->
+                                    column [ centerX, Element.spacing 2 ]
+                                        [ el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text sysName)
+                                        , el [ centerX, Font.size 12, Font.color (Element.rgba 0.17 0.42 0.55 0.7) ] (text <| universalHexLabel sectors viewingAddress)
+                                        ]
+
+                                Nothing ->
+                                    el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text <| universalHexLabel sectors viewingAddress)
                             , case selectedSystem of
                                 Just sys ->
-                                    if sys.surveyIndex >= 10 then
-                                        case sys.mainWorldUwp of
-                                            Just uwp ->
-                                                el [ centerX, Font.size 12, Font.color <| convertColor textColor ] (text uwp)
+                                    if isReferee || sys.surveyIndex >= 10 then
+                                        case sys.mainWorldProfile |> Maybe.map .uwp of
+                                            Just uwpStr ->
+                                                el [ centerX, Font.size 12, Font.color <| convertColor textColor ] (text uwpStr)
 
                                             Nothing ->
                                                 Element.none
@@ -189,12 +398,13 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         ]
             , case selectedSystem of
                 Just solarSystem ->
-                    Element.Lazy.lazy5 viewSystemDetailsSidebar
+                    Element.Lazy.lazy3 viewSystemDetailsSidebar
                         msgs
                         solarSystem
-                        selectedStellarObject
-                        isReferee
-                        mDrive
+                        { isReferee = isReferee
+                        , mDrive = mDrive
+                        , showTravelTable = showTravelTable
+                        }
 
                 Nothing ->
                     column [ centerX, centerY, Font.size 10, Element.moveDown 20 ]

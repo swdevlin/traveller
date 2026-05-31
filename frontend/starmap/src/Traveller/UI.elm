@@ -14,6 +14,7 @@ module Traveller.UI exposing
     , monospaceText
     , numberDisplay
     , orbitStyle
+    , profileFieldDisplay
     , safeJumpStyle
     , sequenceStyle
     , taintTextDisplay
@@ -235,6 +236,14 @@ textDisplayMedium lbl val =
 numberDisplay : String -> Int -> Element.Element msg
 numberDisplay lbl val =
     textDisplay lbl <| String.fromInt val
+
+
+profileFieldDisplay : String -> String -> Element.Element msg
+profileFieldDisplay lbl val =
+    row [ width fill, Element.paddingEach { zeroEach | top = 3 } ]
+        [ el [ width (Element.px 80), uiDeepnightColorFontColour, Font.size 11, Font.bold, Element.alignTop ] (text lbl)
+        , Element.paragraph [ width fill, Font.size 12, Element.alignTop ] [ text val ]
+        ]
 
 
 floatDisplay : String -> Float -> Element.Element msg

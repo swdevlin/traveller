@@ -1,9 +1,20 @@
-module Traveller.SolarSystem exposing (SolarSystem, codec)
+module Traveller.SolarSystem exposing (MainWorldProfile, SolarSystem, codec)
 
 import Codec
 import Dict
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StellarObject exposing (StarData, codecStarData, codecStellarObject)
+
+
+type alias MainWorldProfile =
+    { uwp : String
+    , gravity : Maybe Float
+    , temperature : Maybe Float
+    , nativeSophont : Bool
+    , extinctSophont : Bool
+    , survivalRequirement : String
+    , jumpShadow : Maybe Float
+    }
 
 
 type alias SolarSystem =
@@ -19,7 +30,7 @@ type alias SolarSystem =
     , allegiance : Maybe String
     , name : Maybe String
     , sectorName : String
-    , mainWorldUwp : Maybe String
+    , mainWorldProfile : Maybe MainWorldProfile
     }
 
 
@@ -39,7 +50,7 @@ type alias RawSolarSystem =
     , allegiance : Maybe String
     , name : Maybe String
     , sectorName : String
-    , mainWorldUwp : Maybe String
+    , mainWorldProfile : Maybe MainWorldProfile
     }
 
 
@@ -64,7 +75,7 @@ rawToFinal rawSolarSystem =
         , allegiance = rawSolarSystem.allegiance
         , name = rawSolarSystem.name
         , sectorName = rawSolarSystem.sectorName
-        , mainWorldUwp = rawSolarSystem.mainWorldUwp
+        , mainWorldProfile = rawSolarSystem.mainWorldProfile
         }
 
 
@@ -85,8 +96,21 @@ finalToRaw solarSystem =
     , allegiance = solarSystem.allegiance
     , name = solarSystem.name
     , sectorName = solarSystem.sectorName
-    , mainWorldUwp = solarSystem.mainWorldUwp
+    , mainWorldProfile = solarSystem.mainWorldProfile
     }
+
+
+mainWorldProfileCodec : Codec.Codec MainWorldProfile
+mainWorldProfileCodec =
+    Codec.object MainWorldProfile
+        |> Codec.field "uwp" .uwp Codec.string
+        |> Codec.field "gravity" .gravity (Codec.nullable Codec.float)
+        |> Codec.field "temperature" .temperature (Codec.nullable Codec.float)
+        |> Codec.field "native_sophont" .nativeSophont Codec.bool
+        |> Codec.field "extinct_sophont" .extinctSophont Codec.bool
+        |> Codec.field "survival_requirement" .survivalRequirement Codec.string
+        |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.buildObject
 
 
 rawCodec : Codec.Codec RawSolarSystem
@@ -107,5 +131,5 @@ rawCodec =
         |> Codec.field "allegiance" .allegiance (Codec.nullable Codec.string)
         |> Codec.field "name" .name (Codec.nullable Codec.string)
         |> Codec.field "sector_name" .sectorName Codec.string
-        |> Codec.optionalNullableField "main_world_uwp" .mainWorldUwp Codec.string
+        |> Codec.optionalNullableField "main_world" .mainWorldProfile mainWorldProfileCodec
         |> Codec.buildObject

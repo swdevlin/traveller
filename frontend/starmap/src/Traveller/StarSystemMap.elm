@@ -1,4 +1,4 @@
-module Traveller.StarSystemMap exposing (viewStarSystemMap)
+module Traveller.StarSystemMap exposing (MapNode, systemNodes, viewStarSystemMap)
 
 {-| Vertical subway-style SVG map of a star system.
 
@@ -8,8 +8,6 @@ indented sub-spine, mirroring the approach chosen for the visual design.
 -}
 
 import Element exposing (Element)
-import Html.Events
-import Json.Decode
 import Round
 import Svg exposing (Svg)
 import Svg.Attributes as SA
@@ -29,13 +27,7 @@ import Traveller.StellarObject
         , isBrownDwarf
         )
 import Traveller.StellarObjectView exposing (StellarObjectMsgs)
-import Traveller.TravelCalculations
-    exposing
-        ( auToKMs
-        , calcDistance2F
-        , secondsToDaysWatches
-        , travelTimeInSeconds
-        )
+import Traveller.TravelCalculations exposing (auToKMs)
 
 
 -- ── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -96,9 +88,6 @@ defaultRadius =
     5
 
 
-shipMDrive : Int
-shipMDrive =
-    4
 
 
 
@@ -289,11 +278,14 @@ terrestrialImageName pdata =
 -- ── ENTRY POINT ──────────────────────────────────────────────────────────────
 
 
-viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Maybe StellarObject -> Bool -> Maybe Int -> Element msg
-viewStarSystemMap msgs solarSystem selectedStellarObject _ mDrive =
+viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Bool -> Maybe Int -> Element msg
+viewStarSystemMap msgs solarSystem isReferee mDrive =
     let
+        showNames =
+            isReferee || solarSystem.surveyIndex >= 10
+
         layout =
-            computeLayout solarSystem
+            computeLayout showNames solarSystem
 
         w =
             String.fromFloat layout.svgWidth
@@ -315,7 +307,7 @@ viewStarSystemMap msgs solarSystem selectedStellarObject _ mDrive =
             , svgStyle
             , renderJumpShadows layout.jumpShadows
             , renderEdges layout.edges
-            , renderNodes msgs selectedStellarObject mDrive layout.nodes
+            , renderNodes msgs mDrive layout.nodes
             ]
 
 
@@ -323,8 +315,8 @@ viewStarSystemMap msgs solarSystem selectedStellarObject _ mDrive =
 -- ── LAYOUT ───────────────────────────────────────────────────────────────────
 
 
-computeLayout : SolarSystem -> MapLayout
-computeLayout solarSystem =
+computeLayout : Bool -> SolarSystem -> MapLayout
+computeLayout showNames solarSystem =
     let
         si =
             solarSystem.surveyIndex
@@ -347,7 +339,7 @@ computeLayout solarSystem =
                 |> List.filter isDisplayable
 
         spineAcc =
-            layoutSpine filteredBodies si 0 (topY + starToBodyGap) topY
+            layoutSpine showNames filteredBodies si 0 (topY + starToBodyGap) topY
 
         primaryShadow =
             computeVerticalShadow primary primaryX topY spineAcc.bodyAnchors
@@ -382,8 +374,8 @@ computeLayout solarSystem =
 Secondary stars (Star variants) get their own recursive sub-spine one
 nesting level deeper.
 -}
-layoutSpine : List StellarObject -> Int -> Int -> Float -> Float -> SpineAcc
-layoutSpine bodies si nestLevel startY prevY =
+layoutSpine : Bool -> List StellarObject -> Int -> Int -> Float -> Float -> SpineAcc
+layoutSpine showNames bodies si nestLevel startY prevY =
     let
         x =
             nestX nestLevel
@@ -406,7 +398,7 @@ layoutSpine bodies si nestLevel startY prevY =
                     MapEdge x acc.prevY x acc.currentY False (Just (formatAU au))
 
                 bodyNode =
-                    makeBodyNode body x acc.currentY
+                    makeBodyNode showNames body x acc.currentY
 
                 extra =
                     case body of
@@ -424,7 +416,7 @@ layoutSpine bodies si nestLevel startY prevY =
                                         |> List.filter isDisplayable
 
                                 subSpine =
-                                    layoutSpine secBodies si (nestLevel + 1) (acc.currentY + starToBodyGap) acc.currentY
+                                    layoutSpine showNames secBodies si (nestLevel + 1) (acc.currentY + starToBodyGap) acc.currentY
 
                                 secShadow =
                                     computeVerticalShadow secInner (nestX (nestLevel + 1)) acc.currentY subSpine.bodyAnchors
@@ -552,53 +544,95 @@ makeStarNode (StarDataWrap starData) x y =
     }
 
 
-makeBodyNode : StellarObject -> Float -> Float -> MapNode
-makeBodyNode body x y =
+nameLabel : Maybe String -> String -> ( String, Maybe String )
+nameLabel maybeName defaultLabel =
+    case maybeName of
+        Just n ->
+            ( n, Just defaultLabel )
+
+        Nothing ->
+            ( defaultLabel, Nothing )
+
+
+makeBodyNode : Bool -> StellarObject -> Float -> Float -> MapNode
+makeBodyNode showNames body x y =
     case body of
         GasGiant data ->
+            let
+                ( lbl, sub ) =
+                    if showNames then
+                        nameLabel data.name data.code
+
+                    else
+                        ( data.code, Nothing )
+            in
             { x = x
             , y = y
             , radius = gasGiantRadius
             , kind = GasGiantNodeKind
             , fillColour = "#8b5cf6"
-            , label = data.code
-            , sublabel = Nothing
+            , label = lbl
+            , sublabel = sub
             , stellarObject = body
             , image = gasGiantImageName data
             }
 
         TerrestrialPlanet data ->
+            let
+                ( lbl, sub ) =
+                    if showNames then
+                        nameLabel data.name data.uwp
+
+                    else
+                        ( data.uwp, Nothing )
+            in
             { x = x
             , y = y
             , radius = terrRadius
             , kind = TerrestrialNodeKind
             , fillColour = terrestrialColour data
-            , label = data.uwp
-            , sublabel = Nothing
+            , label = lbl
+            , sublabel = sub
             , stellarObject = body
             , image = terrestrialImageName data
             }
 
         PlanetoidBelt data ->
+            let
+                ( lbl, sub ) =
+                    if showNames then
+                        nameLabel data.name data.uwp
+
+                    else
+                        ( data.uwp, Nothing )
+            in
             { x = x
             , y = y
             , radius = beltRadius
             , kind = BeltNodeKind
             , fillColour = "#64748b"
-            , label = data.uwp
-            , sublabel = Nothing
+            , label = lbl
+            , sublabel = sub
             , stellarObject = body
             , image = Just "planetoid_belt"
             }
 
         Planetoid data ->
+            let
+                ( lbl, sub ) =
+                    if showNames then
+                        nameLabel data.name data.uwp
+
+                    else
+                        ( data.uwp, Nothing )
+            in
             { x = x
             , y = y
             , radius = terrRadius
             , kind = TerrestrialNodeKind
             , fillColour = terrestrialColour data
-            , label = data.uwp
-            , sublabel = Nothing
+            , label = lbl
+            , sublabel = sub
             , stellarObject = body
             , image = terrestrialImageName data
             }
@@ -743,10 +777,7 @@ svgStyle =
             .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
             .sm-star-label { font-family: "Tomorrow", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }
             .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
-            .sm-travel { font-family: ui-monospace, monospace; font-size: 10px; fill: #007A6A; }
-            .sm-travel-btn { font-size: 12px; fill: #4A7A9A; cursor: pointer; font-family: ui-monospace, monospace; }
-            .sm-travel-btn:hover { fill: #007A6A; }
-            .sm-travel-btn-active { font-size: 12px; fill: #007A6A; cursor: pointer; font-family: ui-monospace, monospace; }
+            .sm-body-sublabel { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
             .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
             .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
             .sm-node:hover circle, .sm-node:hover image { opacity: 0.75; }
@@ -856,17 +887,14 @@ renderJumpShadow shadow =
             [ lineEl ]
 
 
-renderNodes : StellarObjectMsgs msg -> Maybe StellarObject -> Maybe Int -> List MapNode -> Svg msg
-renderNodes msgs selectedStellarObject mDrive nodes =
-    Svg.g [] (List.map (renderNode msgs selectedStellarObject mDrive) nodes)
+renderNodes : StellarObjectMsgs msg -> Maybe Int -> List MapNode -> Svg msg
+renderNodes msgs mDrive nodes =
+    Svg.g [] (List.map (renderNode msgs mDrive) nodes)
 
 
-renderNode : StellarObjectMsgs msg -> Maybe StellarObject -> Maybe Int -> MapNode -> Svg msg
-renderNode msgs selectedStellarObject mDrive node =
+renderNode : StellarObjectMsgs msg -> Maybe Int -> MapNode -> Svg msg
+renderNode msgs mDrive node =
     let
-        isSelected =
-            selectedStellarObject == Just node.stellarObject
-
         strokeColour =
             "#1A4A6A"
 
@@ -924,41 +952,16 @@ renderNode msgs selectedStellarObject mDrive node =
         labelX =
             node.x + node.radius + 8
 
-        travelLabel =
-            case selectedStellarObject of
-                Nothing ->
-                    Nothing
-
-                Just so ->
-                    if so == node.stellarObject then
-                        Nothing
-
-                    else
-                        let
-                            dist =
-                                calcDistance2F
-                                    (getStellarOrbit so).orbitPosition
-                                    (getStellarOrbit node.stellarObject).orbitPosition
-
-                            secs =
-                                travelTimeInSeconds dist shipMDrive
-                        in
-                        Just (secondsToDaysWatches secs)
-
         labelY =
             node.y + 4
 
-        ( labelClass, charWidth ) =
+        labelClass =
             case node.kind of
                 StarNodeKind ->
-                    ( "sm-star-label", 8.5 )
+                    "sm-star-label"
 
                 _ ->
-                    ( "sm-body-label", 6.2 )
-
-        -- Estimate where the label text ends so the travel-time icon can follow
-        iconX =
-            labelX + toFloat (String.length node.label) * charWidth + 5
+                    "sm-body-label"
 
         leftX =
             String.fromFloat (node.x - node.radius - 4)
@@ -981,63 +984,33 @@ renderNode msgs selectedStellarObject mDrive node =
                 ]
                 [ Svg.text (getSafeJumpTime mDrive node.stellarObject) ]
 
-        -- ⊙ when not selected (click to set as travel reference), ⊛ when active
-        travelIconClass =
-            if isSelected then
-                "sm-travel-btn-active"
-
-            else
-                "sm-travel-btn"
-
-        travelIconChar =
-            if isSelected then
-                "⊛"
-
-            else
-                "⊙"
-
-        -- Wrap in a g with stopPropagation so clicking the icon does NOT
-        -- also trigger the outer onViewDetail handler
-        travelIconEl =
-            Svg.g
-                [ Html.Events.stopPropagationOn "click"
-                    (Json.Decode.succeed ( msgs.onFocusInSidebar node.stellarObject, True ))
+        labelEl =
+            Svg.text_
+                [ SA.x (String.fromFloat labelX)
+                , SA.y (String.fromFloat labelY)
+                , SA.class labelClass
                 ]
-                [ Svg.text_
-                    [ SA.x (String.fromFloat iconX)
-                    , SA.y (String.fromFloat labelY)
-                    , SA.class travelIconClass
-                    ]
-                    [ Svg.text travelIconChar ]
-                ]
+                [ Svg.text node.label ]
 
-        labelEls =
-            List.filterMap identity
-                [ Just
-                    (Svg.text_
+        sublabelEls =
+            case node.sublabel of
+                Nothing ->
+                    []
+
+                Just sub ->
+                    [ Svg.text_
                         [ SA.x (String.fromFloat labelX)
-                        , SA.y (String.fromFloat labelY)
-                        , SA.class labelClass
+                        , SA.y (String.fromFloat (labelY + 12))
+                        , SA.class "sm-body-sublabel"
                         ]
-                        [ Svg.text node.label ]
-                    )
-                , travelLabel
-                    |> Maybe.map
-                        (\tt ->
-                            Svg.text_
-                                [ SA.x (String.fromFloat labelX)
-                                , SA.y (String.fromFloat (labelY + 14))
-                                , SA.class "sm-travel"
-                                ]
-                                [ Svg.text tt ]
-                        )
-                ]
+                        [ Svg.text sub ]
+                    ]
     in
     Svg.g
         [ SE.onClick (msgs.onViewDetail node.stellarObject)
         , SA.class "sm-node"
         ]
-        (circleEl :: travelIconEl :: orbitSequenceEl :: jumpTimeEl :: labelEls)
+        ([ circleEl, orbitSequenceEl, jumpTimeEl, labelEl ] ++ sublabelEls)
 
 
 
@@ -1064,3 +1037,8 @@ maybeToList m =
 
         Nothing ->
             []
+
+
+systemNodes : Bool -> SolarSystem -> List MapNode
+systemNodes showNames solarSystem =
+    (computeLayout showNames solarSystem).nodes
