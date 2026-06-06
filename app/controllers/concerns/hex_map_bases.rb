@@ -11,6 +11,7 @@ module HexMapBases
     sys_ids = @systems_by_pos.values.map(&:id)
     @bases_by_pos = {}
     @facility_icons = {}
+    @facility_names = {}
     return if sys_ids.empty?
 
     raw = StarSystemFacility
@@ -41,5 +42,9 @@ module HexMapBases
       icon = icons[[p[:name], p[:style]]]
       @facility_icons[p[:code]] = icon if icon
     end
+
+    @facility_names = facilities
+      .select { |f| @facility_icons.key?(f.code) }
+      .each_with_object({}) { |f, h| h[f.code] = f.name }
   end
 end
