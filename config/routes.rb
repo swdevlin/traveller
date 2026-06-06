@@ -148,7 +148,6 @@ Rails.application.routes.draw do
       end
       member do
         post :clear
-        get  :populate, as: :populate
         post :generate,  as: :generate
         post :load_defaults
         get  :defaults_source

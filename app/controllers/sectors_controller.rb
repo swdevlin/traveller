@@ -19,18 +19,6 @@ class SectorsController < ApplicationController
     @chart_sectors = Sector.kept.order(:x, :y)
   end
 
-  def populate
-    @star_system_count =
-      StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
-
-    @rogue_count =
-      StellarObject
-        .joins(:parsec)
-        .where(parsecs: { sector_id: @sector.id })
-        .where(orbiting_id: nil)
-        .count
-  end
-
   def load_defaults
     source = params[:source].presence || 'traveller_map'
     count = 0
@@ -51,23 +39,21 @@ class SectorsController < ApplicationController
     label = source == 'deepnight' ? 'Deepnight defaults' : 'TravellerMap defaults'
 
     if count > 0
-      redirect_to populate_sector_path(@sector),
+      redirect_to sector_path(@sector),
                   notice: "#{label} loaded for #{count} #{'subsector'.pluralize(count)}."
     else
-      redirect_to populate_sector_path(@sector),
+      redirect_to sector_path(@sector),
                   alert: "No #{label.downcase} found for this sector."
     end
   end
 
   def generate
-    if @sector.subsectors.where(build: nil).exists?
-      redirect_to sector_path(@sector), notice: 'Not all subsectors have a build plan. No tasks were created'
-    else
-      @sector.subsectors.each do |subsector|
-        GenerateSubsectorJob.set(priority: job_priority(@sector, subsector)).perform_later(subsector.id, subsector.build)
-      end
-      redirect_to sector_path(@sector), notice: 'Subsector populate tasks created'
+    subsectors_with_build = @sector.subsectors.where.not(build: nil).where.not(build: '')
+    subsectors_with_build.each do |subsector|
+      GenerateSubsectorJob.set(priority: job_priority(@sector, subsector)).perform_later(subsector.id, subsector.build)
     end
+    count = subsectors_with_build.count
+    redirect_to sector_path(@sector), notice: "#{pluralize(count, 'subsector')} queued for generation."
   end
 
   # GET /sectors/1 or /sectors/1.json
