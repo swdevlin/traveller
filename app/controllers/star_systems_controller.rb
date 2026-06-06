@@ -42,9 +42,10 @@ class StarSystemsController < ApplicationController
     return if performed?
 
     respond_to do |format|
-      format.svg  { send_data cached_svg, type: 'image/svg+xml', disposition: 'inline' }
-      format.html { send_data cached_svg, type: 'image/svg+xml', disposition: 'inline' }
-      format.webp { send_data cached_webp, type: 'image/webp', disposition: 'inline' }
+      format.svg  { send_data cached_svg,  type: 'image/svg+xml', disposition: 'inline' }
+      format.html { send_data cached_svg,  type: 'image/svg+xml', disposition: 'inline' }
+      format.webp { send_data cached_webp, type: 'image/webp',    disposition: 'inline' }
+      format.png  { send_data cached_png,  type: 'image/png',     disposition: 'inline' }
     end
   end
 
@@ -281,8 +282,24 @@ class StarSystemsController < ApplicationController
 
   def cached_webp
     Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      image = Vips::Image.new_from_buffer(cached_svg, '')
+      image = Vips::Image.new_from_buffer(embed_svg_images(cached_svg), '')
       image.webpsave_buffer
+    end
+  end
+
+  def cached_png
+    Rails.cache.fetch("system_map_png/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
+      image = Vips::Image.new_from_buffer(embed_svg_images(cached_svg), '')
+      image.pngsave_buffer
+    end
+  end
+
+  def embed_svg_images(svg)
+    svg.gsub(/href="(\/stellar_objects\/[^"]+\.webp)"/) do
+      path = Rails.root.join('public', $1.delete_prefix('/'))
+      next "href=\"#{$1}\"" unless File.exist?(path)
+      data = Base64.strict_encode64(File.binread(path))
+      "href=\"data:image/webp;base64,#{data}\""
     end
   end
 
