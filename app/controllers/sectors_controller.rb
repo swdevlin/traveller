@@ -173,6 +173,12 @@ class SectorsController < ApplicationController
 
     @allegiances_on_poster = @sector.get_allegiances.order(:name)
 
+    @travel_zones_on_poster = TravelZone
+      .joins(star_systems: :parsec)
+      .where(parsecs: { sector_id: @sector.id })
+      .distinct
+      .ordered
+
     neighbours = @sector.neighbours
 
     coreward_sector = neighbours[[@sector.x,     @sector.y + 1]]

@@ -64,7 +64,7 @@
     .p-edge    { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 1.5mm; fill: #333333; }
     .p-name    { font-family: "Orbitron", system-ui, sans-serif; font-size: 7mm; fill: #222222; font-weight: bold; letter-spacing: 0.5mm; }
     .p-legend-title { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 1.4mm; fill: #333333; font-weight: bold; letter-spacing: 0.3mm; }
-    .p-legend  { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 1.25mm; fill: #444444; }
+    .p-legend  { font-family: "JetBrains Mono", ui-monospace, monospace; fill: #444444; }
     .p-disclaim { font-family: "Inter", system-ui, sans-serif; font-size: 1mm; fill: #888888; }
   </style>
 
@@ -145,139 +145,75 @@
         text-anchor="middle"><%= h(@sector.name.upcase) %> SECTOR</text>
 
   <!-- ── Legend (below map) ── -->
+  <text class="p-legend-title" font-size="1.4" x="<%= (legend_strip_x + 0.5).round(1) %>" y="<%= legend_strip_y %>">LEGEND</text>
+
   <%
-    legend_char_w   = 3.0    # mm per char — rsvg-convert treats CSS mm as px (~×3.78 upscale); ~2.8mm actual, 3.0 gives safe margin
-    legend_hex_r    = 4.0
-    legend_row_h    = 9.0
-    legend_max_rows = 3
-    legend_item_gap = 10.0
-    base_icon_size  = 5      # smaller than gas giant (7mm)
-    base_icon_half  = base_icon_size / 2.0
+    legend_hex_r   = PosterHelper::LEGEND_ICON_SIZE / 2.0
+    bases_items    = @facility_icons&.keys&.sort || []
 
-    # Gas/comet section: icon at x+55 (7mm wide), text from x+63
-    obj_max_chars = ['Gas giant', 'Comet'].map(&:length).max
-    obj_end_x = legend_strip_x + 63 + obj_max_chars * legend_char_w + legend_item_gap
-
-    # Bases section — between gas/comet and sophonts
-    bases_items = @facility_icons&.keys&.sort || []
-    bases_x = obj_end_x
-    if bases_items.any?
-      bases_max_chars = bases_items.filter_map { |c| @facility_names[c]&.length }.max.to_i
-      bases_entry_w = base_icon_size + 1 + bases_max_chars * legend_char_w + legend_item_gap
-      bases_n_cols = (bases_items.size.to_f / 2).ceil
-      soph_x = bases_x + bases_n_cols * bases_entry_w
-    else
-      soph_x = bases_x
-    end
-
-    # Sophonts section — polygon center and text offset
-    soph_center_x = soph_x + legend_hex_r
-    soph_max_chars = ['Native sophont', 'Extinct sophont'].map(&:length).max
-    alleg_x = soph_center_x + legend_hex_r + 1 + soph_max_chars * legend_char_w + legend_item_gap
-
-    if @allegiances_on_poster&.any?
-      alleg_max_chars = @allegiances_on_poster.map { |a| a.name.length }.max
-      alleg_entry_w = (2 * legend_hex_r + 2 + alleg_max_chars * legend_char_w + legend_item_gap).round(1)
-      alleg_n_cols  = (@allegiances_on_poster.size.to_f / legend_max_rows).ceil
-      routes_x = alleg_x + alleg_n_cols * alleg_entry_w + legend_item_gap
-    else
-      alleg_entry_w = 65.0
-      routes_x = alleg_x
-    end
-
-    if @jump_routes_on_poster&.any?
-      route_max_chars = @jump_routes_on_poster.map { |r| r.name.length }.max
-      route_entry_w = (2 * legend_hex_r + 2 + route_max_chars * legend_char_w + legend_item_gap).round(1)
-    else
-      route_entry_w = 55.0
-    end
+    legend_start_y = (legend_strip_y + 5).round(1)
+    legend_max_y   = (disclaim_y - PosterHelper::LEGEND_ITEM_H).round(1)
+    cursor = PosterHelper::LegendCursor.new(
+      (legend_strip_x + 0.5).round(1),
+      legend_start_y,
+      legend_max_y
+    )
   %>
 
-  <text class="p-legend-title" x="<%= (legend_strip_x + 0.5).round(1) %>" y="<%= legend_strip_y %>">LEGEND</text>
-
-  <!-- Amber travel zone -->
-  <path d="M <%= (legend_strip_x + 5).round(1) %>,<%= (legend_strip_y + 7).round(1) %> A 3.5,3.5 0 1 1 <%= (legend_strip_x + 12).round(1) %>,<%= (legend_strip_y + 7).round(1) %>"
-        fill="none" stroke="#f59e0b" stroke-width="1" stroke-linecap="round"/>
-  <text class="p-legend" x="<%= (legend_strip_x + 16).round(1) %>" y="<%= (legend_strip_y + 8).round(1) %>">Amber zone</text>
-
-  <!-- Red travel zone -->
-  <path d="M <%= (legend_strip_x + 5).round(1) %>,<%= (legend_strip_y + 16).round(1) %> A 3.5,3.5 0 1 1 <%= (legend_strip_x + 12).round(1) %>,<%= (legend_strip_y + 16).round(1) %>"
-        fill="none" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/>
-  <text class="p-legend" x="<%= (legend_strip_x + 16).round(1) %>" y="<%= (legend_strip_y + 17).round(1) %>">Red zone</text>
-
-  <!-- Gas giant -->
-  <use href="#poster-gas-giant-icon" x="<%= (legend_strip_x + 55).round(1) %>" y="<%= (legend_strip_y + 2).round(1) %>" width="7" height="7" style="fill:#222222"/>
-  <text class="p-legend" x="<%= (legend_strip_x + 63).round(1) %>" y="<%= (legend_strip_y + 7).round(1) %>">Gas giant</text>
-
-  <!-- Comet -->
-  <use href="#poster-comet-icon" x="<%= (legend_strip_x + 55).round(1) %>" y="<%= (legend_strip_y + 12).round(1) %>" width="7" height="7" style="fill:#222222"/>
-  <text class="p-legend" x="<%= (legend_strip_x + 63).round(1) %>" y="<%= (legend_strip_y + 17).round(1) %>">Comet</text>
-
-  <!-- Bases -->
-  <% bases_items.each_with_index do |code, idx| %>
+  <!-- Travel zones -->
+  <% @travel_zones_on_poster&.each do |zone| %>
     <%
-      row_idx   = idx % 2
-      col_idx   = idx / 2
-      bx        = bases_x + col_idx * bases_entry_w + base_icon_half
-      by        = legend_strip_y + 6.0 + row_idx * legend_row_h
-      base_name = @facility_names[code] || code
+      icon_svg = %(<path d="M 0,#{-legend_hex_r / 2.0} A #{legend_hex_r},#{legend_hex_r} 0 1 1 #{PosterHelper::LEGEND_ICON_SIZE},#{-legend_hex_r / 2.0}" fill="none" stroke="#{zone.colour}" stroke-width="1" stroke-linecap="round"/>)
     %>
-    <use href="#poster-facility-icon-<%= code %>"
-         x="<%= (bx - base_icon_half).round(1) %>" y="<%= (by - base_icon_half).round(1) %>"
-         width="<%= base_icon_size %>" height="<%= base_icon_size %>" style="fill:#333333"/>
-    <text class="p-legend"
-          x="<%= (bx + base_icon_half + 1).round(1) %>"
-          y="<%= (by + 1).round(1) %>"><%= h(base_name) %></text>
+    <%= add_legend_item(cursor, icon_svg, zone.name) %>
   <% end %>
 
-  <!-- Native sophont -->
-  <polygon points="<%= hex_polygon_points(soph_center_x, legend_strip_y + 5.5, legend_hex_r) %>" fill="<%= @native_sophont_colour %>" stroke="#999999" stroke-width="0.3"/>
-  <text class="p-legend" x="<%= (soph_center_x + legend_hex_r + 1).round(1) %>" y="<%= (legend_strip_y + 7).round(1) %>">Native sophont</text>
+  <!-- Gas giant, Comet -->
+  <%= add_legend_item(cursor,
+        '<use href="#poster-gas-giant-icon" x="0" y="-3.5" width="7" height="7" style="fill:#222222"/>',
+        'Gas giant') %>
+  <%= add_legend_item(cursor,
+        '<use href="#poster-comet-icon" x="0" y="-3.5" width="7" height="7" style="fill:#222222"/>',
+        'Comet') %>
 
-  <!-- Extinct sophont -->
-  <polygon points="<%= hex_polygon_points(soph_center_x, legend_strip_y + 14.5, legend_hex_r) %>" fill="<%= @extinct_sophont_colour %>" stroke="#999999" stroke-width="0.3"/>
-  <text class="p-legend" x="<%= (soph_center_x + legend_hex_r + 1).round(1) %>" y="<%= (legend_strip_y + 16).round(1) %>">Extinct sophont</text>
+  <!-- Bases -->
+  <% bases_items.each do |code| %>
+    <%
+      base_name = @facility_names[code] || code
+      icon_svg  = %(<use href="#poster-facility-icon-#{h(code)}" x="0" y="-3.5" width="7" height="7" style="fill:#333333"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, base_name) %>
+  <% end %>
+
+  <!-- Sophonts -->
+  <%
+    native_icon  = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@native_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
+    extinct_icon = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@extinct_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
+  %>
+  <%= add_legend_item(cursor, native_icon, 'Native sophont') %>
+  <%= add_legend_item(cursor, extinct_icon, 'Extinct sophont') %>
 
   <!-- Allegiances -->
-  <% if @allegiances_on_poster&.any? %>
-    <% @allegiances_on_poster.each_with_index do |alleg, idx| %>
-      <%
-        col_idx = idx / legend_max_rows
-        row_idx = idx % legend_max_rows
-        hx = alleg_x + legend_hex_r + col_idx * alleg_entry_w
-        hy = legend_strip_y + 5.5 + row_idx * legend_row_h
-        bg = alleg.background_colour.presence || '#ffffff'
-        bd = alleg.border_colour.presence || '#999999'
-      %>
-      <polygon points="<%= hex_polygon_points(hx, hy, legend_hex_r) %>"
-               fill="<%= bg %>" stroke="<%= bd %>" stroke-width="0.3"/>
-      <text class="p-legend"
-            x="<%= (hx + legend_hex_r + 2).round(1) %>"
-            y="<%= (hy + 1.5).round(1) %>"><%= h(alleg.name) %></text>
-    <% end %>
+  <% @allegiances_on_poster&.each do |alleg| %>
+    <%
+      bg = alleg.background_colour.presence || '#ffffff'
+      bd = alleg.border_colour.presence || '#999999'
+      icon_svg = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{bg}" stroke="#{bd}" stroke-width="0.3"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, alleg.name) %>
   <% end %>
 
   <!-- Jump Routes -->
-  <% if @jump_routes_on_poster&.any? %>
+  <% @jump_routes_on_poster&.each do |net| %>
     <%
-      net_legend_y = legend_strip_y + 2
-      @jump_routes_on_poster.each_with_index do |net, idx|
-        col_idx = idx / legend_max_rows
-        row_idx = idx % legend_max_rows
-        hx = routes_x + legend_hex_r + col_idx * route_entry_w
-        hy = net_legend_y + legend_hex_r + row_idx * legend_row_h
-        colour = net.colour.presence || '#888888'
-        lw     = (net.line_width * map_scale).round(2)
-        ldash  = net.stroke_dasharray&.split(',')&.map { |v| (v.to_f * map_scale).round(2) }&.join(',')
+      colour    = net.colour.presence || '#888888'
+      lw        = (net.line_width * map_scale).round(2)
+      ldash     = net.stroke_dasharray&.split(',')&.map { |v| (v.to_f * map_scale).round(2) }&.join(',')
+      dash_attr = ldash ? %( stroke-dasharray="#{ldash}") : ''
+      icon_svg  = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#ffffff" stroke="#999999" stroke-width="0.4"/>) +
+                  %(<line x1="0" y1="0" x2="7" y2="0" stroke="#{colour}" stroke-width="#{lw}" stroke-opacity="0.85" stroke-linecap="round"#{dash_attr}/>)
     %>
-      <polygon points="<%= hex_polygon_points(hx, hy, legend_hex_r) %>"
-               fill="#ffffff" stroke="#999999" stroke-width="0.4"/>
-      <line x1="<%= (hx - legend_hex_r).round(2) %>" y1="<%= hy.round(2) %>"
-            x2="<%= (hx + legend_hex_r).round(2) %>" y2="<%= hy.round(2) %>"
-            stroke="<%= colour %>" stroke-width="<%= lw %>" stroke-opacity="0.85" stroke-linecap="round"
-            <% if ldash %>stroke-dasharray="<%= ldash %>"<% end %>/>
-      <text class="p-legend" x="<%= (hx + legend_hex_r + 2).round(1) %>" y="<%= (hy + 1).round(1) %>"><%= h(net.name) %></text>
-    <% end %>
+    <%= add_legend_item(cursor, icon_svg, net.name) %>
   <% end %>
 
   <!-- ── Logo (branding, bottom right) ── -->
@@ -286,9 +222,9 @@
          width="<%= logo_size %>" height="<%= logo_size %>"/>
 
   <!-- ── Disclaimer (full width, bottom of poster) ── -->
-  <text class="p-disclaim" x="<%= map_x %>" y="<%= disclaim_y %>">Mongoose Publishing permits websites and fanzines for this game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission on 90-day notice.</text>
-  <text class="p-disclaim" x="<%= map_x %>" y="<%= disclaim_y + 5 %>">The contents are for personal, non-commercial use only. Any use of Mongoose Publishing's copyrighted material or trademarks should not be viewed as a challenge to those copyrights or trademarks.</text>
-  <text class="p-disclaim" x="<%= map_x %>" y="<%= disclaim_y + 10 %>">The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977&#8211;2026 Mongoose Publishing. Traveller is a registered trademark of Mongoose Publishing.</text>
-  <text class="p-disclaim" x="<%= (map_right - 3).round(1) %>" y="<%= disclaim_y + 10 %>" text-anchor="end">Astrographic chart generated by mytravelleruniverse.net</text>
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y %>">Mongoose Publishing permits websites and fanzines for this game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission on 90-day notice.</text>
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y + 5 %>">The contents are for personal, non-commercial use only. Any use of Mongoose Publishing's copyrighted material or trademarks should not be viewed as a challenge to those copyrights or trademarks.</text>
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y + 10 %>">The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977&#8211;2026 Mongoose Publishing. Traveller is a registered trademark of Mongoose Publishing.</text>
+  <text class="p-disclaim" font-size="1" x="<%= (map_right - 3).round(1) %>" y="<%= disclaim_y + 10 %>" text-anchor="end">Astrographic chart generated by mytravelleruniverse.net</text>
 
 </svg>
