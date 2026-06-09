@@ -67,7 +67,8 @@
       </div>
     <% end %>
 
-    <%= form_with url: toggle_lock_star_system_path(star_system), method: :patch, class: 'min-w-0' do %>
+    <%= form_with url: star_system_path(star_system), method: :patch, class: 'min-w-0' do %>
+      <%= hidden_field_tag 'star_system[locked]', !star_system.locked? %>
       <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Locked</div>
       <div class='mt-2 flex items-center gap-3'>
         <button type='submit'

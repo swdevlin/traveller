@@ -1,6 +1,7 @@
 class SubsectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
+  include HexMapRogueObjects
   optional_authentication only: [:map]
   before_action :set_subsector, except: :index
   before_action :set_counts, only: %i[show populate]
@@ -99,6 +100,10 @@ class SubsectorsController < ApplicationController
       .where(parsec: @subsector.parsecs, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
+    rogue_object_max_updated = StellarObject
+      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where.not(type: %w[GasGiant Comet Star])
+      .maximum(:updated_at)
     facility_max_updated = StarSystemFacility
       .where(star_system_id: star_system_subquery)
       .maximum(:updated_at)
@@ -111,6 +116,7 @@ class SubsectorsController < ApplicationController
       jump_max_updated.to_i,
       jump_route_link_max_updated.to_i,
       rogue_max_updated.to_i,
+      rogue_object_max_updated.to_i,
       facility_max_updated.to_i,
       current_campaign.updated_at.to_i,
       MAP_TEMPLATE_VERSION
@@ -136,6 +142,7 @@ class SubsectorsController < ApplicationController
       h[[col, row]] = sys
     end
     build_bases_data
+    build_rogue_objects_data
 
     subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
     subsector_parsec_subquery = @subsector.parsecs.select(:id)

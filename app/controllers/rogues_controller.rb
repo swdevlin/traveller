@@ -128,7 +128,7 @@ class RoguesController < ApplicationController
 
     data_keys = klass ? klass.allowed_data_keys : []
 
-    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, data: data_keys)
+    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, :known, data: data_keys)
   end
 
   def after_create_path

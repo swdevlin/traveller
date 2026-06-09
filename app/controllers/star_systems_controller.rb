@@ -71,11 +71,6 @@ class StarSystemsController < ApplicationController
   def replace
   end
 
-  def toggle_lock
-    @star_system.update!(locked: !@star_system.locked?)
-    redirect_to @star_system, status: :see_other
-  end
-
   def do_replace
     if @star_system.locked?
       flash.now[:alert] = 'This star system is locked and cannot be replaced.'

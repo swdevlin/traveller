@@ -19,6 +19,7 @@
         <th scope='col' class='w-20'>Hex</th>
         <th scope='col' class='w-40'>Type</th>
         <th scope='col'>Name</th>
+        <th scope='col' class='text-center w-16'>Known</th>
         <th scope='col' class='text-right w-16 whitespace-nowrap actions-cell'>Actions</th>
       </tr>
       </thead>
@@ -39,6 +40,10 @@
 
           <td>
             <%= rogue.name %>
+          </td>
+
+          <td class='text-center'>
+            <%= content_tag(:i, '', class: 'fa-regular fa-check') if rogue.known? %>
           </td>
 
           <td class='actions-cell'>

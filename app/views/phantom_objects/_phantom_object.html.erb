@@ -89,6 +89,7 @@
     </div>
   <% end %>
 
+  <%= render 'stellar_objects/known_toggle', stellar_object: phantom_object %>
   <%= render 'application/observation_block',
              notes: phantom_object.notes %>
 </div>

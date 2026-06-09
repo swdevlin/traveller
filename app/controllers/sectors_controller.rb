@@ -3,6 +3,7 @@ require 'open3'
 class SectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
+  include HexMapRogueObjects
   optional_authentication only: %i[map poster]
   before_action :set_sector, except: %i[index new new_from_traveller_map create]
 
@@ -120,6 +121,10 @@ class SectorsController < ApplicationController
       .where(parsec: @sector.parsecs, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
+    rogue_object_max_updated = StellarObject
+      .where(parsec: @sector.parsecs, orbiting_id: nil)
+      .where.not(type: %w[GasGiant Comet Star])
+      .maximum(:updated_at)
     facility_max_updated = StarSystemFacility
       .joins(star_system: :parsec)
       .where(parsecs: { sector_id: @sector.id })
@@ -134,7 +139,7 @@ class SectorsController < ApplicationController
       .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}/#{auth_variant}/#{sophont_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{sophont_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -318,6 +323,8 @@ class SectorsController < ApplicationController
         ordered << :comet     if types.include?('Comet')
         ordered
       end
+
+      build_rogue_objects_data
 
       star_system_subquery = @star_systems.select(:id)
       @jump_route_links_for_map = JumpRouteLink

@@ -26,5 +26,6 @@
              shadow_km: shadow_km,
              shadow_source: shadow_source %>
 
+  <%= render 'stellar_objects/known_toggle', stellar_object: planetoid %>
   <%= render 'application/observation_block', notes: planetoid.notes %>
 </div>

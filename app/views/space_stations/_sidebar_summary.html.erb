@@ -1,6 +1,6 @@
-<% government = stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil %>
-<% law_level = stellar_object.law_level_code.present? ? LawLevel.find_by(code: stellar_object.law_level_code) : nil %>
-<% tech_level_record = stellar_object.tech_level_code.present? ? TechLevel.find_by(code: stellar_object.tech_level_code) : nil %>
+<% government = stellar_object.respond_to?(:government_code) && stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil %>
+<% law_level = stellar_object.respond_to?(:law_level_code) && stellar_object.law_level_code.present? ? LawLevel.find_by(code: stellar_object.law_level_code) : nil %>
+<% tech_level_record = stellar_object.respond_to?(:tech_level_code) && stellar_object.tech_level_code.present? ? TechLevel.find_by(code: stellar_object.tech_level_code) : nil %>
 
 <%= render 'application/subsection', title: 'Station Profile' %>
 

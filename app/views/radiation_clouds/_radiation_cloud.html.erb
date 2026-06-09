@@ -89,6 +89,7 @@
     </div>
   <% end %>
 
+  <%= render 'stellar_objects/known_toggle', stellar_object: radiation_cloud %>
   <%= render 'application/observation_block',
              notes: radiation_cloud.notes %>
 </div>
