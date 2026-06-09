@@ -19,6 +19,8 @@ module Traveller
     # Please, add to the `ignore` list any other `lib` subdirectionaries that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
+    config.active_record.schema_format = :sql
+
     config.autoload_lib(ignore: %w[assets tasks])
 
     Rails.autoloaders.main.collapse(Rails.root.join('app/domain/word_generators'))
