@@ -2,7 +2,7 @@
 <% content_for :page_kicker, @star_system.parsec&.display_name %>
 <% content_for :page_title, 'Replace Star System' %>
 
-<% create_mode = params.dig(:star_system, :create_mode).presence || 'random' %>
+<% create_mode = params.dig(:star_system, :create_mode).presence || (@star_system.build_config.present? ? 'build_configuration' : 'random') %>
 
 <%= render 'application/page' do %>
   <%= form_with model: @star_system, url: @form_url, method: :post, class: 'space-y-8',
