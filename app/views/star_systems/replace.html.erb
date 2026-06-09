@@ -109,8 +109,7 @@
     </div>
 
     <div class='pt-4 flex gap-2'>
-      <%= f.submit @submit_label, class: 'btn btn-danger w-full sm:w-auto',
-                  data: { turbo_confirm: 'This will permanently replace all stars and worlds in this system. Are you sure?' } %>
+      <%= f.submit @submit_label, class: 'btn btn-danger w-full sm:w-auto' %>
       <%= link_to 'Cancel', @star_system, class: 'btn w-full sm:w-auto' %>
     </div>
   <% end %>

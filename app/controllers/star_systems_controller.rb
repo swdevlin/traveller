@@ -83,6 +83,7 @@ class StarSystemsController < ApplicationController
 
     if error
       flash.now[:alert] = error
+      @star_system.build = create_params['build']
       return render :replace, status: :unprocessable_entity
     end
 
