@@ -69,6 +69,7 @@ class StarSystemsController < ApplicationController
   end
 
   def replace
+    @star_system.build = @star_system.build_config
   end
 
   def do_replace
@@ -77,7 +78,8 @@ class StarSystemsController < ApplicationController
       return render :replace, status: :unprocessable_entity
     end
 
-    payload, error = generate_payload(new_star_system_params)
+    create_params = new_star_system_params
+    payload, error = generate_payload(create_params)
 
     if error
       flash.now[:alert] = error
@@ -85,6 +87,9 @@ class StarSystemsController < ApplicationController
     end
 
     StarSystemImporter.new.reimport!(@star_system, payload)
+    if create_params[:create_mode] == 'build_configuration'
+      @star_system.update_column(:build_config, create_params['build'])
+    end
     redirect_to @star_system, notice: 'Star system replaced.'
   rescue ActiveRecord::RecordInvalid => e
     flash.now[:alert] = e.message
@@ -348,13 +353,13 @@ class StarSystemsController < ApplicationController
   end
 
   def generate_build_configuration_star_system(params)
-    build_yaml = params['build_configuration']
+    build_yaml = params['build']
     validator = BuildConfigValidator.new(build_yaml)
 
     unless validator.valid_for_star_system?
       @build_errors = validator.errors
       return StarSystem.new(star_system_params).tap do |so|
-        so.errors.add(:build_configuration, 'Invalid build specification')
+        so.errors.add(:build, 'Invalid build specification')
       end
     end
 
@@ -436,13 +441,13 @@ class StarSystemsController < ApplicationController
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
     when 'build_configuration'
-      validator = BuildConfigValidator.new(create_params['build_configuration'])
+      validator = BuildConfigValidator.new(create_params['build'])
       unless validator.valid_for_star_system?
         @build_errors = validator.errors
         return [nil, 'Invalid build specification']
       end
       config = YAML.safe_load(
-        create_params['build_configuration'],
+        create_params['build'],
         permitted_classes: [Date, Time],
         aliases: false
       ) || {}
@@ -493,7 +498,7 @@ class StarSystemsController < ApplicationController
   end
 
   def new_star_system_params
-    params.expect(star_system: [:name, :parsec_id, :create_mode, :build_configuration, :primary_spectral_type, :primary_spectral_subtype, :primary_luminosity, :populated])
+    params.expect(star_system: [:name, :parsec_id, :create_mode, :build, :primary_spectral_type, :primary_spectral_subtype, :primary_luminosity, :populated])
   end
 
   def star_system_params
