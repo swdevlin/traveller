@@ -585,7 +585,7 @@ type alias ModelData =
     , pendingCtrlNavigation : Bool
     , objectToBeAnalyzed : Maybe { stellarObject : StellarObject, data : AnalysisDetail }
     , analysisTab : String
-    , rogueDetailModal : Maybe (List RogueObjectDetail)
+    , selectedRogueObjects : Maybe (List RogueObjectDetail)
     , timeOpened : Time.Posix
     , campaignName : String
     , allSectorsMapUrl : Maybe String
@@ -593,6 +593,7 @@ type alias ModelData =
     , extinctSophontColour : Maybe String
     , sidebarOpen : Bool
     , jumpRouteLinks : List JumpRouteLink
+    , rogueObjectPathData : Maybe String
     }
 
 
@@ -639,7 +640,7 @@ type Msg
     | HexMapWheelZoom Float
     | CloseSidebar
     | DownloadedRogues String (Result Http.Error (List RogueResponseItem))
-    | CloseRogueDetail
+    | ClearSelectedRogueObjects
 
 
 type JourneyMsg
@@ -747,6 +748,7 @@ type alias Flags =
     , viewMode : Maybe String
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
+    , rogueObjectPathData : Maybe String
     }
 
 
@@ -913,7 +915,7 @@ init viewport settings key hostConfig referee =
             , pendingCtrlNavigation = False
             , objectToBeAnalyzed = Nothing
             , analysisTab = "orbital"
-            , rogueDetailModal = Nothing
+            , selectedRogueObjects = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , ship = settings.ship
@@ -922,6 +924,7 @@ init viewport settings key hostConfig referee =
             , extinctSophontColour = settings.extinctSophontColour
             , sidebarOpen = False
             , jumpRouteLinks = []
+            , rogueObjectPathData = settings.rogueObjectPathData
             }
     in
     ( ( Time.millisToPosix 0
@@ -929,6 +932,7 @@ init viewport settings key hostConfig referee =
       )
     , Cmd.batch
         [ sendSolarSystemRequest ssReqEntry model.hostConfig
+        , sendRoguesRequest ssReqEntry model.hostConfig
         , sendSectorRequest secReqEntry model.hostConfig
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
@@ -1002,8 +1006,8 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
         ]
 
 
-viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> RogueHexData -> Svg Msg
-viewHexRogue hexAddress x y size hexColour isReferee { surveyIndex, objects } =
+viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> RogueHexData -> Svg Msg
+viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surveyIndex, playerVisible, objects } =
     let
         origin =
             ( toFloat x, toFloat y )
@@ -1032,11 +1036,38 @@ viewHexRogue hexAddress x y size hexColour isReferee { surveyIndex, objects } =
                 )
                 objects
 
+        hasOther =
+            List.any
+                (\o ->
+                    case o of
+                        RogueOtherDetail _ ->
+                            True
+
+                        _ ->
+                            False
+                )
+                objects
+
+        anyKnown =
+            List.any
+                (\o ->
+                    case o of
+                        RogueOtherDetail d ->
+                            d.known
+
+                        _ ->
+                            False
+                )
+                objects
+
         showComet =
             hasComet && (isReferee || surveyIndex >= cometSI)
 
         showGasGiant =
             hasGasGiant && (isReferee || surveyIndex >= gasGiantSI)
+
+        showOther =
+            hasOther && (isReferee || playerVisible || surveyIndex >= cometSI || anyKnown)
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
@@ -1050,6 +1081,7 @@ viewHexRogue hexAddress x y size hexColour isReferee { surveyIndex, objects } =
         , hexAddressLabel x y size hexAddress
         , if showComet && size > 15 then drawCometIcon (toFloat x) (toFloat y) size else Svg.text ""
         , if showGasGiant && size > 15 then drawRogueGasGiant (toFloat x) (toFloat y) size else Svg.text ""
+        , if showOther && size > 15 then drawRogueOther rogueObjectPathData (toFloat x) (toFloat y) size else Svg.text ""
         ]
 
 
@@ -1117,6 +1149,44 @@ drawRogueGasGiant cx cy size =
             ]
             []
         ]
+
+
+drawRogueOther : Maybe String -> Float -> Float -> Float -> Svg Msg
+drawRogueOther mPathData cx cy size =
+    case mPathData of
+        Nothing ->
+            Svg.text ""
+
+        Just pathData ->
+            let
+                iconSize =
+                    size * 0.5
+
+                scale =
+                    iconSize / 640
+
+                tx =
+                    cx - 320 * scale
+
+                ty =
+                    cy - 320 * scale
+            in
+            Svg.g
+                [ SvgAttrs.transform <|
+                    "translate("
+                        ++ String.fromFloat tx
+                        ++ ","
+                        ++ String.fromFloat ty
+                        ++ ") scale("
+                        ++ String.fromFloat scale
+                        ++ ")"
+                ]
+                [ Svg.path
+                    [ SvgAttrs.d pathData
+                    , SvgAttrs.fill "#222222"
+                    ]
+                    []
+                ]
 
 
 renderPolyline : String -> String -> Svg msg
@@ -1711,8 +1781,9 @@ viewHex :
     -> String
     -> List ( Float, Float )
     -> Bool
+    -> Maybe String
     -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
@@ -1758,7 +1829,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             )
 
         Just (LoadedRogueHex rogueData) ->
-            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueData
+            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData rogueData
             , Svg.text ""
             )
 
@@ -1776,11 +1847,12 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
 type RogueObjectDetail
     = RogueCometDetail { name : String, cometType : String }
     | RogueGasGiantDetail { name : String, code : String, diameter : Float, mass : Maybe Float }
-    | RogueOtherDetail { name : String, typeName : String }
+    | RogueOtherDetail { name : String, typeName : String, known : Bool }
 
 
 type alias RogueHexData =
     { surveyIndex : Int
+    , playerVisible : Bool
     , objects : List RogueObjectDetail
     }
 
@@ -1790,6 +1862,7 @@ type alias RogueResponseItem =
     , x : Int
     , y : Int
     , surveyIndex : Int
+    , playerVisible : Bool
     }
 
 
@@ -1814,19 +1887,21 @@ rogueObjectDetailDecoder =
                             (JsDecode.field "mass" (JsDecode.nullable JsDecode.float))
 
                     _ ->
-                        JsDecode.map
-                            (\n -> RogueOtherDetail { name = n, typeName = objType })
+                        JsDecode.map2
+                            (\n k -> RogueOtherDetail { name = n, typeName = objType, known = k })
                             (JsDecode.field "name" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "" ]))
+                            (JsDecode.field "known" (JsDecode.oneOf [ JsDecode.bool, JsDecode.null False ]))
             )
 
 
 rogueResponseItemDecoder : JsDecode.Decoder RogueResponseItem
 rogueResponseItemDecoder =
-    JsDecode.map4 RogueResponseItem
+    JsDecode.map5 RogueResponseItem
         rogueObjectDetailDecoder
         (JsDecode.field "x" JsDecode.int)
         (JsDecode.field "y" JsDecode.int)
         (JsDecode.field "survey_index" JsDecode.int)
+        (JsDecode.field "player_visible" (JsDecode.oneOf [ JsDecode.bool, JsDecode.null False ]))
 
 
 type RemoteSolarSystem
@@ -1967,8 +2042,9 @@ viewHexes :
     -> Maybe String
     -> { x : Float, y : Float }
     -> List JumpRouteLink
+    -> Maybe String
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2040,6 +2116,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 hexColour
                 rawHexaPoints
                 isReferee
+                rogueObjectPathData
             )
     in
     hexRange
@@ -2879,107 +2956,71 @@ viewHexMap model =
         model.extinctSophontColour
         model.panOffset
         model.jumpRouteLinks
+        model.rogueObjectPathData
         |> Element.html
 
 
-viewRogueDetailModal : Msg -> List RogueObjectDetail -> Element Msg
-viewRogueDetailModal closeMsg objects =
-    el
-        [ width fill
-        , height fill
-        , Events.onClick closeMsg
-        ]
-    <|
-        column
-            [ centerX
-            , centerY
-            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True )))
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
-            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
-            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
-            , width <| Element.px 400
-            , Element.padding 20
-            , Border.rounded 6
-            , Border.width 1
-            , Border.color <| Element.rgba 0.17 0.42 0.55 0.3
-            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
-            , Element.spacing 16
-            ]
-            (List.map (viewRogueObject closeMsg) objects)
+humanizeTypeName : String -> String
+humanizeTypeName name =
+    name
+        |> String.toList
+        |> List.foldl
+            (\c acc ->
+                if Char.isUpper c && not (String.isEmpty acc) then
+                    acc ++ " " ++ String.fromChar c
+
+                else
+                    acc ++ String.fromChar c
+            )
+            ""
 
 
-viewRogueObject : Msg -> RogueObjectDetail -> Element Msg
-viewRogueObject closeMsg detail =
+viewRogueContent : List RogueObjectDetail -> Element Msg
+viewRogueContent objects =
     let
-        ( header, fields ) =
-            case detail of
-                RogueCometDetail d ->
-                    ( "Comet"
-                    , [ ( "Name", d.name )
-                      , ( "Type", cometTypeDescription d.cometType )
-                      ]
-                    )
-
-                RogueGasGiantDetail d ->
-                    ( "Gas Giant"
-                    , [ ( "Name", d.name )
-                      , ( "Size", d.code )
-                      , ( "Diameter (km)", format { usLocale | decimals = Exact 0, thousandSeparator = " " } d.diameter )
-                      , ( "Mass (earths)", d.mass |> Maybe.map (Round.round 2) |> Maybe.withDefault "—" )
-                      ]
-                    )
-
-                RogueOtherDetail d ->
-                    ( d.typeName
-                    , [ ( "Name", d.name ) ]
-                    )
-    in
-    column [ Element.spacing 4 ]
-        (row
-            [ width fill
-            , Element.paddingEach { top = 0, right = 0, bottom = 8, left = 0 }
-            , Border.widthEach { top = 0, right = 0, bottom = 1, left = 0 }
-            , Border.color <| Element.rgba 0.17 0.42 0.55 0.15
-            ]
-            [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] (text header)
-            , el
-                [ Element.alignRight
-                , Element.pointer
-                , Element.mouseOver [ Font.color <| Element.rgb 0 0 0 ]
+        sectionHeader =
+            el
+                [ uiDeepnightColorFontColour
                 , Font.size 16
-                , Font.color <| Element.rgba 0.17 0.42 0.55 0.7
-                , Events.onClick closeMsg
+                , Font.bold
+                , Element.paddingEach { zeroEach | top = 8, bottom = 4 }
                 ]
-                (text "✕")
-            ]
-            :: List.map
-                (\( label, value ) ->
-                    row [ Element.spacing 8 ]
-                        [ el [ Font.size 12, Font.color <| Element.rgba 0.17 0.42 0.55 0.7, Element.width (Element.px 120) ] (text label)
-                        , el [ Font.size 12 ] (text value)
-                        ]
-                )
-                fields
-        )
+                (text "Rogue Objects")
 
+        headerRow =
+            row
+                [ width fill
+                , Element.paddingXY 0 4
+                , Border.widthEach { zeroEach | bottom = 1 }
+                , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
+                ]
+                [ el [ Font.size 11, Font.bold, uiDeepnightColorFontColour, Element.width (Element.px 120) ] (text "Type")
+                , el [ Font.size 11, Font.bold, uiDeepnightColorFontColour ] (text "Name")
+                ]
 
-cometTypeDescription : String -> String
-cometTypeDescription cometType =
-    case cometType of
-        "tiny" ->
-            "Tiny, ice-bearing suitable for one refuelling only"
+        objectRow detail =
+            let
+                ( typeName, name ) =
+                    case detail of
+                        RogueCometDetail d ->
+                            ( "Comet", d.name )
 
-        "medium" ->
-            "Ice-bearing suitable for multiple refuellings"
+                        RogueGasGiantDetail d ->
+                            ( "Gas Giant", d.name )
 
-        "large" ->
-            "Large"
-
-        "inhabited" ->
-            "Inhabited"
-
-        _ ->
-            cometType
+                        RogueOtherDetail d ->
+                            ( humanizeTypeName d.typeName, d.name )
+            in
+            row [ width fill, Element.paddingXY 0 2 ]
+                [ el [ Font.size 12, Element.width (Element.px 120) ] (text typeName)
+                , el [ Font.size 12 ] (text name)
+                ]
+    in
+    column [ width fill, Element.paddingXY 8 4 ]
+        [ sectionHeader
+        , headerRow
+        , column [ width fill, Element.spacing 2 ] (List.map objectRow objects)
+        ]
 
 
 view : Model -> Element.Element Msg
@@ -3029,6 +3070,7 @@ view ( time, model ) =
             , allSectorsMapUrl = model.allSectorsMapUrl
             , mDrive = model.ship |> Maybe.andThen .mDrive
             , showTravelTable = model.showTravelTable
+            , rogueContent = model.selectedRogueObjects |> Maybe.map viewRogueContent
             }
 
         travelTableMsgs : TravelTable.Msgs Msg
@@ -3081,12 +3123,7 @@ view ( time, model ) =
 
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
-        , case model.rogueDetailModal of
-            Just rogueObjects ->
-                Element.inFront <| viewRogueDetailModal CloseRogueDetail rogueObjects
-
-            Nothing ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
+        , Element.htmlAttribute <| HtmlAttrs.class ""
         , case ( model.showTravelTable, model.selectedSystem ) of
             ( True, Just solarSystem ) ->
                 Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
@@ -4251,7 +4288,7 @@ update msg ( time, model ) =
                                             , selectedHex = Just hexAddress
                                             , selectedSystem = Nothing
                                             , showTravelTable = False
-                                            , rogueDetailModal = rogueObjects
+                                            , selectedRogueObjects = rogueObjects
                                             , newSolarSystemErrors = focusedErrors
                                             , sidebarOpen = True
                                         }
@@ -5091,7 +5128,7 @@ update msg ( time, model ) =
                                             Just { data | objects = item.detail :: data.objects }
 
                                         Nothing ->
-                                            Just { surveyIndex = item.surveyIndex, objects = [ item.detail ] }
+                                            Just { surveyIndex = item.surveyIndex, playerVisible = item.playerVisible, objects = [ item.detail ] }
                                 )
                                 acc
                         )
@@ -5118,8 +5155,8 @@ update msg ( time, model ) =
         DownloadedRogues _ (Err _) ->
             ( withTime model, Cmd.none )
 
-        CloseRogueDetail ->
-            ( withTime { model | rogueDetailModal = Nothing }, Cmd.none )
+        ClearSelectedRogueObjects ->
+            ( withTime { model | selectedRogueObjects = Nothing }, Cmd.none )
 
 
 stripDataFromRemoteData : RemoteData err data -> RemoteData err ()

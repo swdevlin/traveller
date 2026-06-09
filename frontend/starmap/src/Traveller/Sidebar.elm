@@ -327,9 +327,10 @@ viewSidebarColumn :
             , allSectorsMapUrl : Maybe String
             , mDrive : Maybe Int
             , showTravelTable : Bool
+            , rogueContent : Maybe (Element msg)
         }
     -> Element msg
-viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable } =
+viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent } =
     column [ Element.spacing 4, Element.centerX, Element.height Element.fill ]
         [ row [ Element.width Element.fill, Element.paddingXY 8 6 ]
             [ el
@@ -407,9 +408,14 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         }
 
                 Nothing ->
-                    column [ centerX, Font.size 10 ]
-                        [ text "Click a hex to view system details."
-                        ]
+                    case rogueContent of
+                        Just content ->
+                            content
+
+                        Nothing ->
+                            column [ centerX, Font.size 10 ]
+                                [ text "Click a hex to view system details."
+                                ]
             ]
         , Element.Lazy.lazy viewSidebarFooter selectedHex
         ]

@@ -23,6 +23,7 @@ class StarmapsController < ApplicationController
       end
 
     ship = Ship.first
+    rogue_icon = FontAwesomeIcon.find_by(name: 'fa-rogue-object', style: 'solid')
     @starmap_flags = {
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
@@ -31,7 +32,8 @@ class StarmapsController < ApplicationController
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
       allSectorsMapUrl: all_sectors_map_url,
       nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
-      extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence
+      extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence,
+      rogueObjectPathData: rogue_icon&.path_data
     }
     if params[:cx].present? && params[:cy].present?
       @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]

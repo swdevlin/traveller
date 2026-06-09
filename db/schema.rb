@@ -230,7 +230,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_100843) do
     t.integer "x"
     t.integer "y"
     t.index ["discarded_at"], name: "index_sectors_on_discarded_at"
-    t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin
     t.index ["x", "y"], name: "index_sectors_on_x_and_y", unique: true
   end
 
@@ -300,7 +300,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_100843) do
     t.datetime "updated_at", null: false
     t.index ["allegiance_id"], name: "index_star_systems_on_allegiance_id"
     t.index ["main_world_id"], name: "index_star_systems_on_main_world_id"
-    t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin
     t.index ["parsec_id"], name: "index_star_systems_on_parsec_id"
     t.index ["travel_zone_id"], name: "index_star_systems_on_travel_zone_id"
   end
@@ -371,7 +371,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_100843) do
     t.datetime "updated_at", null: false
     t.integer "x", null: false
     t.integer "y", null: false
-    t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
+    t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin
     t.index ["sector_id", "x", "y"], name: "index_subsectors_on_sector_id_and_x_and_y", unique: true
     t.index ["sector_id"], name: "index_subsectors_on_sector_id"
   end
