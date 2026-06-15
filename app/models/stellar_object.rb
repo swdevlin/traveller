@@ -27,7 +27,7 @@ class StellarObject < ApplicationRecord
 
   attr_accessor :skip_import_callbacks
 
-  normalizes *(attribute_names - %w[data build_log characteristics]), with: -> { it.presence }
+  normalizes *(attribute_names - %w[data build_log characteristics known]), with: -> { it.presence }
   before_validation { self.data ||= {} }
 
   before_validation :normalize_size_code
@@ -87,7 +87,7 @@ class StellarObject < ApplicationRecord
   end
 
   def self.permitted_params
-    [:name, :notes, :language]
+    [:name, :notes, :language, :known]
   end
 
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }

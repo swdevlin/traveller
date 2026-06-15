@@ -18,5 +18,12 @@ namespace :db do
   end
 end
 
+Rake::Task['db:schema:dump'].enhance do
+  file = Rails.root.join('db/structure.sql')
+  content = file.read
+  content.gsub!(/^CREATE SCHEMA (\w+);/, 'CREATE SCHEMA IF NOT EXISTS \1;')
+  file.write(content)
+end
+
 Rake::Task['db:schema:load'].enhance(['db:ensure_shared_extensions_schema'])
 Rake::Task['db:test:load_schema'].enhance(['db:test:ensure_shared_extensions_schema'])

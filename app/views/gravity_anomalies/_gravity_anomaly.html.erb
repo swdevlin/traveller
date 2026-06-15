@@ -89,6 +89,7 @@
     </div>
   <% end %>
 
+  <%= render 'stellar_objects/known_toggle', stellar_object: gravity_anomaly %>
   <%= render 'application/observation_block',
              notes: gravity_anomaly.notes %>
 </div>

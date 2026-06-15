@@ -75,6 +75,7 @@ type alias Flags =
     , viewMode : Maybe String
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
+    , rogueObjectPathData : Maybe String
     }
 
 
@@ -194,6 +195,7 @@ update msg model =
                                 , viewMode = model.flags.viewMode
                                 , journeyState = model.flags.journeyState
                                 , centerOn = model.flags.centerOn
+                                , rogueObjectPathData = model.flags.rogueObjectPathData
                                 }
                                 model.key
                                 model.hostConfig

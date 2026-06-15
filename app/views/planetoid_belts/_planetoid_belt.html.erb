@@ -33,5 +33,6 @@
              physical_tab: 'planetoid_belts/physical_belt_tab',
              extra_tabs: extra_tabs %>
 
+  <%= render 'stellar_objects/known_toggle', stellar_object: planetoid_belt %>
   <%= render 'application/observation_block', notes: planetoid_belt.notes %>
 </div>

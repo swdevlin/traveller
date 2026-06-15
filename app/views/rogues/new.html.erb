@@ -67,6 +67,11 @@
         <%= render 'application/field_error', form: f, attribute: :notes %>
       </div>
 
+      <div class="flex items-center gap-2">
+        <%= f.check_box :known, class: 'checkbox' %>
+        <%= f.label :known, 'Known', class: 'edit-label cursor-pointer' %>
+      </div>
+
       <div class="pt-2 flex flex-col sm:flex-row gap-2">
         <%= f.submit 'Add rogue', class: 'w-full sm:w-auto btn btn-primary' %>
       </div>

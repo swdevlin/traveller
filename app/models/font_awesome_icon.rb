@@ -20,4 +20,8 @@ class FontAwesomeIcon < ApplicationRecord
       svg_content: attrs[:svg_content]
     )
   end
+
+  def path_data
+    svg_content[/d="([^"]+)"/m, 1]
+  end
 end

@@ -3,7 +3,7 @@
 module HexMapBases
   extend ActiveSupport::Concern
 
-  MAP_TEMPLATE_VERSION = 5
+  MAP_TEMPLATE_VERSION = 6
 
   private
 

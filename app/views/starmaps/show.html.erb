@@ -14,4 +14,4 @@
   data-starmap-flags='<%= json_escape(@starmap_flags.to_json) %>'>
 </div>
 
-<script src='/starmap.js'></script>
+<script src='/starmap.js?v=<%= File.mtime(Rails.root.join('public', 'starmap.js')).to_i rescue 0 %>'></script>

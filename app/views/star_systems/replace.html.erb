@@ -2,7 +2,7 @@
 <% content_for :page_kicker, @star_system.parsec&.display_name %>
 <% content_for :page_title, 'Replace Star System' %>
 
-<% create_mode = params.dig(:star_system, :create_mode).presence || 'random' %>
+<% create_mode = params.dig(:star_system, :create_mode).presence || (@star_system.build_config.present? ? 'build_configuration' : 'random') %>
 
 <%= render 'application/page' do %>
   <%= form_with model: @star_system, url: @form_url, method: :post, class: 'space-y-8',
@@ -72,7 +72,7 @@
 
         <div class="ml-7 space-y-2 <%= 'hidden' unless create_mode == 'build_configuration' %>"
              data-star-system-form-target='buildConfigSection'>
-          <%= f.label :build_configuration, class: 'block text-xs uppercase tracking-[0.22em] text-fg-muted' do %>
+          <%= f.label :build, class: 'block text-xs uppercase tracking-[0.22em] text-fg-muted' do %>
             Build configuration (<%= link_to 'YAML', help_page_path('star_system_build_specification'), class: 't-link' %>)
           <% end %>
 
@@ -99,7 +99,7 @@
             </div>
           <% end %>
 
-          <%= f.text_area :build_configuration,
+          <%= f.text_area :build,
                           rows: 12,
                           class: 'w-full edit-base font-mono',
                           disabled: create_mode != 'build_configuration',
@@ -109,8 +109,7 @@
     </div>
 
     <div class='pt-4 flex gap-2'>
-      <%= f.submit @submit_label, class: 'btn btn-danger w-full sm:w-auto',
-                  data: { turbo_confirm: 'This will permanently replace all stars and worlds in this system. Are you sure?' } %>
+      <%= f.submit @submit_label, class: 'btn btn-danger w-full sm:w-auto' %>
       <%= link_to 'Cancel', @star_system, class: 'btn w-full sm:w-auto' %>
     </div>
   <% end %>

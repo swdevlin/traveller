@@ -49,6 +49,11 @@
         <%= icon.svg_content.html_safe %>
       </symbol>
     <% end %>
+    <% if @rogue_object_icon %>
+      <symbol id="rogue-object-icon" viewBox="<%= @rogue_object_icon.view_box %>">
+        <%= @rogue_object_icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
     <clipPath id="map-viewport-clip">
       <rect x="<%= clip_rect[0] %>" y="<%= clip_rect[1] %>" width="<%= clip_rect[2] %>" height="<%= clip_rect[3] %>"/>
     </clipPath>
@@ -358,6 +363,27 @@
             <use href="#comet-icon" x="<%= (px - half).round(2) %>" y="<%= (py - half).round(2) %>" width="<%= icon_size %>" height="<%= icon_size %>" class="comet-icon"/>
           <% end %>
         <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 3d: Rogue object icons (starless parsecs only) %>
+  <% rogue_object_positions = @rogue_object_positions || Set.new %>
+  <% if rogue_object_positions.any? && @rogue_object_icon %>
+    <g>
+      <% rogue_object_positions.each do |col, row| %>
+        <% next if systems_by_pos[[col, row]] %>
+        <%
+          cx, cy = hex_center(col, row)
+          icon_size = 18
+          half = icon_size / 2.0
+        %>
+        <use href="#rogue-object-icon"
+             x="<%= (cx - half).round(2) %>"
+             y="<%= (cy - half).round(2) %>"
+             width="<%= icon_size %>"
+             height="<%= icon_size %>"
+             class="rogue-object-icon"/>
       <% end %>
     </g>
   <% end %>
