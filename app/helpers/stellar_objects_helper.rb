@@ -401,4 +401,75 @@ module StellarObjectsHelper
     else '±4'
     end
   end
+
+  def transit_matrix_for(star_system)
+    bodies = []
+
+    star_system.stars.includes(:orbiting).each do |star|
+      bodies << { body: star, au: au_from_primary_for(star), position: absolute_orbit_position_for(star) }
+    end
+
+    star_system.stellar_objects.includes(:orbiting).each do |obj|
+      next if obj.is_a?(Planetoid)
+      next if obj.is_a?(Moon)
+      bodies << { body: obj, au: au_from_primary_for(obj), position: absolute_orbit_position_for(obj) }
+    end
+
+    bodies.sort_by { |b| b[:au] }
+  end
+
+  def transit_bodies_for(stellar_object)
+    return [] unless stellar_object.star_system
+
+    system = stellar_object.star_system
+    current_pos = absolute_orbit_position_for(stellar_object)
+
+    bodies = []
+
+    system.stars.includes(:orbiting).each do |star|
+      star_pos = absolute_orbit_position_for(star)
+      star_au = au_from_primary_for(star)
+      distance_km = euclidean_distance_km(current_pos, star_pos)
+      bodies << { body: star, au: star_au, distance_km: distance_km }
+    end
+
+    system.stellar_objects.includes(:orbiting).each do |obj|
+      next if obj.id == stellar_object.id
+      next if obj.is_a?(Planetoid)
+      next if obj.is_a?(Moon)
+      obj_pos = absolute_orbit_position_for(obj)
+      obj_au = au_from_primary_for(obj)
+      distance_km = euclidean_distance_km(current_pos, obj_pos)
+      bodies << { body: obj, au: obj_au, distance_km: distance_km }
+    end
+
+    bodies.sort_by { |b| b[:au] }
+  end
+
+  private
+
+  def absolute_orbit_position_for(obj)
+    return [0.0, 0.0] if obj.is_a?(Star) && obj.orbiting.nil?
+
+    if obj.orbit_x.present? && obj.orbit_y.present?
+      parent_pos = absolute_orbit_position_for(obj.orbiting)
+      [parent_pos[0] + obj.orbit_x.to_f, parent_pos[1] + obj.orbit_y.to_f]
+    else
+      [au_from_primary_for(obj) * StellarConstants::AU_TO_KM, 0.0]
+    end
+  end
+
+  def euclidean_distance_km(pos_a, pos_b)
+    Math.sqrt((pos_a[0] - pos_b[0])**2 + (pos_a[1] - pos_b[1])**2)
+  end
+
+  def au_from_primary_for(obj)
+    if obj.is_a?(Star)
+      obj.distance_from_primary_km / StellarConstants::AU_TO_KM
+    elsif obj.orbiting.is_a?(Star)
+      obj.au.to_f + obj.orbiting.distance_from_primary_km / StellarConstants::AU_TO_KM
+    else
+      obj.orbiting.present? ? au_from_primary_for(obj.orbiting) : obj.au.to_f
+    end
+  end
 end

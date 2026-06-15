@@ -1,0 +1,68 @@
+<% bodies = transit_matrix_for(star_system) %>
+<% if bodies.size >= 2 %>
+  <div class='table-card' data-controller='transit-speed'>
+    <div class='table-banner'>
+      <p>Transit Times</p>
+      <div class='actions'>
+        <select data-transit-speed-target='selector'
+                data-action='change->transit-speed#update'
+                class='rounded border border-outline bg-panel px-1 py-0.5 text-xs normal-case tracking-normal font-normal cursor-pointer w-15'>
+          <% (1..10).each do |g| %>
+            <option value='<%= g %>'><%= g %>G</option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col'></th>
+            <% bodies.each do |col_entry| %>
+              <th scope='col' class='text-center whitespace-nowrap'>
+                <% if col_entry[:body].orbit_sequence.present? %>
+                  <span class='pill'><%= col_entry[:body].orbit_sequence %></span>
+                <% else %>
+                  &mdash;
+                <% end %>
+              </th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% bodies.each do |row_entry| %>
+            <%
+              row_body = row_entry[:body]
+              row_pos  = row_entry[:position]
+            %>
+            <tr>
+              <th scope='row' class='whitespace-nowrap text-left'>
+                <% if row_body.orbit_sequence.present? %>
+                  <span class='pill'><%= row_body.orbit_sequence %></span>
+                <% else %>
+                  &mdash;
+                <% end %>
+              </th>
+              <% bodies.each do |col_entry| %>
+                <% if row_body.id == col_entry[:body].id %>
+                  <td class='text-center'>&mdash;</td>
+                <% else %>
+                  <%
+                    distance_km = euclidean_distance_km(row_pos, col_entry[:position])
+                    times_json  = (1..10).to_h { |g|
+                      [g.to_s, format_travel_time(flip_burn_travel_time_hours(distance_km, g))]
+                    }.to_json
+                  %>
+                  <td class='text-center whitespace-nowrap'
+                      data-transit-speed-target='time'
+                      data-times='<%= times_json %>'>
+                  </td>
+                <% end %>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

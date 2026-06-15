@@ -37,7 +37,7 @@
 
   <td class='whitespace-nowrap'>
     <% if stellar_object.is_a?(GasGiant) %>
-      <span class='pill'><%= stellar_object.code %></span>
+      <%= "Gas Giant (#{GasGiant::SIZES[stellar_object.code]})" %>
     <% else %>
       <%= stellar_object.uwp %>
     <% end %>

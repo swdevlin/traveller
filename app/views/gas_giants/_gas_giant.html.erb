@@ -117,6 +117,11 @@
     </div>
   </div>
 
+  <div class="space-y-2">
+    <%= render 'application/subsection', title: 'Transit Times' %>
+    <%= render 'stellar_objects/transit_times_table', stellar_object: gas_giant %>
+  </div>
+
   <%= render 'application/observation_block',
              notes: gas_giant.notes %>
 
