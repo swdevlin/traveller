@@ -54,7 +54,7 @@ class SectorsController < ApplicationController
       GenerateSubsectorJob.set(priority: job_priority(@sector, subsector)).perform_later(subsector.id, subsector.build)
     end
     count = subsectors_with_build.count
-    redirect_to sector_path(@sector), notice: "#{pluralize(count, 'subsector')} queued for generation."
+    redirect_to sector_path(@sector), notice: "#{helpers.pluralize(count, 'subsector')} queued for generation."
   end
 
   # GET /sectors/1 or /sectors/1.json
