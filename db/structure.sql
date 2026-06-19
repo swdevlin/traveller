@@ -1122,7 +1122,8 @@ CREATE TABLE public.users (
     email_address character varying NOT NULL,
     password_digest character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    completed_tours jsonb DEFAULT '[]'::jsonb NOT NULL
 );
 
 
@@ -2290,9 +2291,10 @@ ALTER TABLE ONLY public.jump_routes
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO "public", "shared_extensions";
+SET search_path TO public, shared_extensions;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260619175832'),
 ('20260609150000'),
 ('20260609100843'),
 ('20260609100842'),

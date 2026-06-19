@@ -16,6 +16,17 @@ Turbo.StreamActions.select_new_ship = function() {
   select.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
+document.addEventListener('turbo-tour:complete', (event) => {
+  const journeyName = event.detail?.journey_name;
+  if (!journeyName) return;
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  fetch('/tour_completion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+    body: JSON.stringify({ journey_name: journeyName }),
+  });
+});
+
 // Preserve the Coloris picker across Turbo Drive navigations.
 // Coloris appends its picker to <body> on DOMContentLoaded; Turbo replaces <body>
 // on navigation, which destroys the picker. Transplanting it into the incoming

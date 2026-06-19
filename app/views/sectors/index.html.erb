@@ -2,7 +2,7 @@
 <% content_for :page_kicker, "IISS Sector Registry" %>
 <% content_for :page_title, "Sectors" %>
 <%= content_for :iiss_form, '0420A-ISSR' %>
-<%= turbo_tour "onboarding" %>
+<%= turbo_tour "onboarding" unless Current.user&.tour_completed?('onboarding') %>
 
 <%= render 'application/page' do %>
   <div data-controller="sectors-view"

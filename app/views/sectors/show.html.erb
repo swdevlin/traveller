@@ -4,7 +4,7 @@
   <%= @sector.name %><% if @sector.abbreviation.present? %><span class='text-fg-muted'>, <%= @sector.abbreviation %></span><% end %>
 <% end %>
 <% content_for :iiss_form, '0398D-0' %>
-<%= turbo_tour "sectors" %>
+<%= turbo_tour "sectors" unless Current.user&.tour_completed?('sectors') %>
 
 <% content_for :page_buttons do %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>

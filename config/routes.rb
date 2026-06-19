@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :registrations
   resources :passwords, param: :token
   resources :campaigns, only: %i[new create]
+  resource :tour_completion, only: [:create]
 
   get '/fairuse', to: 'marketing#fairuse'
   get '/deltas',  to: 'release_notes#index'

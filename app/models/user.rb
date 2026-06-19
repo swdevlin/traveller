@@ -16,4 +16,12 @@ class User < ApplicationRecord
   def password_reset_token_expires_in
     self.class::PASSWORD_RESET_EXPIRES_IN
   end
+
+  def tour_completed?(journey_name)
+    completed_tours.include?(journey_name.to_s)
+  end
+
+  def complete_tour!(journey_name)
+    update!(completed_tours: (completed_tours | [journey_name.to_s]))
+  end
 end
