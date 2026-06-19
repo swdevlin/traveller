@@ -1,9 +1,9 @@
 <% content_for :title, 'Social Characteristics' %>
 
 <%= render 'help/page', title: 'Social Characteristics' do %>
-  <div class='rounded-2xl bg-panel p-5 space-y-8 text-sm'>
+  <div class='space-y-8'>
 
-    <p class='text-fg-muted'>
+    <p class='text-fg'>
       The Social Characteristics function transmits the current star system configuration to
       the generator apparatus and instructs it to assign or reassign population, government,
       law level, tech level, and starport data for all inhabited worlds in the system.
@@ -56,7 +56,7 @@
     <div>
       <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Operational Notes</p>
 
-      <ul class='space-y-2 text-fg-muted list-disc list-inside'>
+      <ul class='space-y-2 text-fg list-disc list-inside'>
         <li>All seed parameters are optional. Any field left blank is assigned by the generator.</li>
         <li>Existing physical characteristics — size, atmosphere, hydrographics — are preserved.</li>
         <li>The UWP string for each inhabited world is recomputed following assignment.</li>

@@ -1,9 +1,9 @@
 <% content_for :title, 'Campaign Settings' %>
 
 <%= render 'help/page', title: 'Campaign Settings' do %>
-  <div class='rounded-2xl bg-panel p-5 space-y-8 text-sm'>
+  <div class='space-y-8'>
 
-    <p class='text-fg-muted'>
+    <p class='text-fg'>
       Campaign settings govern the fundamental operating parameters of a campaign — its designation,
       operational type, and data acquisition protocols. These parameters determine how sectors are
       populated and what capabilities are available to the crew.
@@ -25,31 +25,25 @@
           <dd class='mt-1 text-fg'>
             Determines the campaign's operational context and how sectors are initialised.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Charted Space</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                The standard operational mode. Sectors are imported from TravellerMap and the crew
-                explores the known reaches of Charted Space. Build configurations are assigned
-                manually or pulled from TravellerMap data.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Deepnight Revelation</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Configured for the Deepnight Revelation campaign. On creation, all Deepnight
-                Revelation sectors are pre-populated with build configurations derived from the
-                sourcebook. Survey index tracking is enabled by default.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Homebrew</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                The universe is constructed from scratch. No sectors are imported automatically.
-                All sectors, subsectors, and build configurations are defined by the referee.
-              </p>
-            </div>
-          </div>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>Charted Space</span>
+              — The standard operational mode. Sectors are imported from TravellerMap and the crew
+              explores the known reaches of Charted Space. Build configurations are assigned
+              manually or pulled from TravellerMap data.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Deepnight Revelation</span>
+              — Configured for the Deepnight Revelation campaign. On creation, all Deepnight
+              Revelation sectors are pre-populated with build configurations derived from the
+              sourcebook. Survey index tracking is enabled by default.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Homebrew</span>
+              — The universe is constructed from scratch. No sectors are imported automatically.
+              All sectors, subsectors, and build configurations are defined by the referee.
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -58,23 +52,19 @@
             Visible only for Deepnight Revelation campaigns. Controls where build configurations
             are sourced when populating sectors.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>TravellerMap</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Build configurations are imported from TravellerMap data. Use this when you want
-                sector data that reflects the published universe as catalogued by TravellerMap.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Deepnight Books</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Build configurations are sourced from the Deepnight Revelation sourcebook. Use
-                this for a faithful rendering of the sectors as described in the published
-                adventure materials.
-              </p>
-            </div>
-          </div>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>TravellerMap</span>
+              — Build configurations are imported from TravellerMap data. Use this when you want
+              sector data that reflects the published universe as catalogued by TravellerMap.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Deepnight Books</span>
+              — Build configurations are sourced from the Deepnight Revelation sourcebook. Use
+              this for a faithful rendering of the sectors as described in the published
+              adventure materials.
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -84,8 +74,8 @@
             field. On saving a jump log, the survey index value is written to the destination
             star system — or to the destination parsec directly if no system exists at that location.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3'>
-            <p class='text-xs text-fg'>
+          <div class='mt-3'>
+            <p class=' text-fg'>
               The default value when logging a jump is <span class='font-mono text-fg-bright'>10</span>.
               Valid range is <span class='font-mono text-fg-bright'>0–12</span>, corresponding to the
               survey index scale used in the Deepnight Revelation sourcebook. This setting is enabled
@@ -98,7 +88,7 @@
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>System Generation</p>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>System Generation</p>
 
       <dl class='space-y-6'>
 
@@ -107,34 +97,28 @@
           <dd class='mt-1 text-fg'>
             Controls the procedure used when determining whether a world has a native sophont species.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Standard</p>
-              <p class='text-xs text-fg-muted mt-0.5'>Default sophont check procedure.</p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Rare Earth Universe Variant</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Applies the Rare Earth variant (<span class='italic'>World Builder's Handbook</span>, p.130).
-                Applies a DM −2 to biocomplexity rolls. Significantly reduces the probability of complex life.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Very Rare Earth Variant</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                House rule — not a standard Traveller rule. Applies a DM −3 to biocomplexity rolls,
-                more severe than the Rare Earth variant (DM −2). Severely reduces the probability of
-                complex life.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>None</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Sophont check is skipped entirely. No sophont worlds will be generated. This is the
-                default for Charted Space campaigns.
-              </p>
-            </div>
-          </div>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>Standard</span>
+              — Default sophont check procedure.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Rare Earth Universe Variant</span>
+              — Applies the Rare Earth variant (<span class='italic'>World Builder's Handbook</span>, p.130).
+              Applies a DM −2 to biocomplexity rolls. Significantly reduces the probability of complex life.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Very Rare Earth Variant</span>
+              — House rule — not a standard Traveller rule. Applies a DM −3 to biocomplexity rolls,
+              more severe than the Rare Earth variant (DM −2). Severely reduces the probability of
+              complex life.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>None</span>
+              — Sophont check is skipped entirely. No sophont worlds will be generated. This is the
+              default for Charted Space campaigns.
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -145,8 +129,8 @@
             <span class='font-mono text-fg-bright'>16</span>, corresponding to the standard upper
             bound in Traveller. Valid range is <span class='font-mono text-fg-bright'>0–33</span>.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3'>
-            <p class='text-xs text-fg'>
+          <div class='mt-3'>
+            <p class='text-fg'>
               Individual build configurations may specify their own
               <span class='font-mono text-fg-bright'>maxTechLevel</span>, which takes precedence
               over this campaign setting for that subsector generation run.
@@ -160,20 +144,16 @@
             When enabled, the tech level of worlds with a native sophont population is determined
             using native sophont rules rather than the standard procedure.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Standard rules (default)</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Tech level is generated using the standard Traveller procedure.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Native sophont rules</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Tech level is rolled as <span class='font-mono text-fg-bright'>3D3 − 2 + DMs</span>,
-                where the DMs are determined as follows:
-              </p>
-              <table class='mt-2 w-full text-xs text-fg-muted border-collapse'>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>Standard rules (default)</span>
+              — Tech level is generated using the standard Traveller procedure.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Native sophont rules</span>
+              — Tech level is rolled as <span class='font-mono text-fg-bright'>3D3 − 2 + DMs</span>,
+              where the DMs are determined as follows:
+              <table class='mt-2 text-fg-muted border-collapse'>
                 <thead>
                   <tr class='text-left text-fg'>
                     <th class='pr-4 pb-1 font-semibold'>Condition</th>
@@ -188,8 +168,8 @@
                   <tr><td class='pr-4 py-0.5'>Population code &gt; 7</td><td>+1</td></tr>
                 </tbody>
               </table>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -200,13 +180,13 @@
             politically controlled by another system — in exploration campaigns this relationship
             should be a referee decision rather than a generated result.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-2'>
-            <p class='text-xs text-fg'>
+          <div class='mt-3 space-y-2'>
+            <p class=' text-fg'>
               Defaults to <span class='font-mono text-fg-bright'>disabled</span> for Deepnight
               Revelation campaigns and <span class='font-mono text-fg-bright'>enabled</span> for
               Charted Space and Homebrew campaigns.
             </p>
-            <p class='text-xs text-fg'>
+            <p class=' text-fg'>
               Individual build configurations may specify
               <span class='font-mono text-fg-bright'>allowCaptiveGovernment</span>, which takes
               precedence over this campaign setting for that subsector generation run.
@@ -218,7 +198,7 @@
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Display Preferences</p>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Display Preferences</p>
 
       <dl class='space-y-6'>
 
@@ -228,20 +208,16 @@
             Controls which distance measurement is shown in star system tables and orbital data
             sections throughout the interface.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>AU (default)</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Distance from the primary star is displayed in Astronomical Units.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Orbit #</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Distance is displayed as the Traveller orbit number (0–19 scale).
-              </p>
-            </div>
-          </div>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>AU (default)</span>
+              — Distance from the primary star is displayed in Astronomical Units.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Orbit #</span>
+              — Distance is displayed as the Traveller orbit number (0–19 scale).
+            </li>
+          </ul>
         </div>
 
         <div>
@@ -249,27 +225,23 @@
           <dd class='mt-1 text-fg'>
             Controls how Imperial dates are displayed throughout the interface.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-3'>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>Traveller Standard (default)</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Dates are displayed in day-year format, e.g. 001-1105.
-              </p>
-            </div>
-            <div>
-              <p class='text-xs font-semibold text-fg-bright'>ISO 8601</p>
-              <p class='text-xs text-fg-muted mt-0.5'>
-                Dates are displayed in year-day format, e.g. 1105-001.
-              </p>
-            </div>
-          </div>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>Traveller Standard (default)</span>
+              — Dates are displayed in day-year format, e.g. 001-1105.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>ISO 8601</span>
+              — Dates are displayed in year-day format, e.g. 1105-001.
+            </li>
+          </ul>
         </div>
 
       </dl>
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Map Colours</p>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Map Colours</p>
 
       <dl class='space-y-6'>
 
@@ -290,8 +262,8 @@
             server (subsector exports and the all-sectors map). When disabled, sophont worlds are
             not visually distinguished on those maps regardless of the configured colour.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3'>
-            <p class='text-xs text-fg'>
+          <div class='mt-3'>
+            <p class=' text-fg'>
               This setting does not affect the interactive starmap. In the starmap, sophont colours
               are always visible in referee mode and always hidden in player mode.
             </p>
@@ -302,7 +274,7 @@
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>API Access</p>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>API Access</p>
 
       <dl class='space-y-6'>
 
@@ -327,14 +299,14 @@
             Enter this value in the Foundry module's
             <span class='font-mono text-fg-bright'>MTU API Token</span> setting.
           </dd>
-          <div class='mt-3 rounded-xl bg-panel p-3 space-y-2'>
-            <p class='text-xs text-fg'>
+          <div class='mt-3 space-y-2'>
+            <p class=' text-fg'>
               The token is generated automatically when a campaign is created and is not
               transmitted or stored anywhere other than this page. Use the
               <span class='font-mono text-fg-bright'>Copy</span> button to transfer it to the
               Foundry module settings.
             </p>
-            <p class='text-xs text-fg'>
+            <p class=' text-fg'>
               Use <span class='font-mono text-fg-bright'>Regenerate</span> to issue a new token —
               for example if the token is compromised. The previous token is invalidated immediately.
               Any external tool using the old token will receive a
@@ -348,7 +320,7 @@
     </div>
 
     <div>
-      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-3'>Bulk Operations</p>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-3'>Bulk Operations</p>
       <dl class='space-y-4 text-sm'>
 
         <div>
@@ -372,7 +344,7 @@
       </dl>
     </div>
 
-    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+    <div class='pt-2 text-right uppercase font-mono  tracking-[0.22em] text-fg-muted'>
       REFERENCE 0417CS
     </div>
 

@@ -1,0 +1,139 @@
+<% content_for :title, 'Sector Survey' %>
+
+<%= render 'help/page', title: 'Sector Survey' do %>
+  <div class='space-y-6'>
+      <div class='space-y-3 text-sm text-fg'>
+        <p>
+          A sector survey record covers a 32&times;40-parsec region of space subdivided into
+          16 subsectors arranged in a 4&times;4 grid (A&ndash;P, left-to-right, top-to-bottom).
+          Each subsector contains an 8&times;10-parsec field of hexes.
+        </p>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Overview</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Coordinates</dt>
+            <dd class='mt-1 text-fg'>Imperial X/Y sector coordinates locating this sector on the galactic chart.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Star Chart</dt>
+            <dd class='mt-1 text-fg'>Link to the Traveller Map rendering of this sector. Shown as &ldquo;Undocumented&rdquo; if the sector has no Traveller Map entry.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Library Data</dt>
+            <dd class='mt-1 text-fg'>Link to the Traveller Wiki entry for this sector. Shown as &ldquo;Undocumented&rdquo; if no entry exists.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Star Systems</dt>
+            <dd class='mt-1 text-fg'>Total count of star systems across all subsectors in this sector.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Rogues</dt>
+            <dd class='mt-1 text-fg'>Count of stellar objects present in the sector that are not attached to any star system.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Observations</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Observations</dt>
+            <dd class='mt-1 text-fg'>Collapsible free-text field. Accepts CommonMark markdown. Toggle with the chevron button. Shows &ldquo;No findings reported&rdquo; when empty.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Subsector Panel</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Subsector Grid</dt>
+            <dd class='mt-1 text-fg'>4&times;4 grid of the 16 subsectors (A&ndash;P). Each cell links to that subsector&rsquo;s survey record. Unnamed subsectors are shown as &ldquo;?&rdquo;.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Subsector Icons</dt>
+            <dd class='mt-1 text-fg'>
+              Each subsector cell carries up to three action icons:
+              <ul class='mt-2 space-y-1 list-disc list-inside text-fg-muted'>
+                <li>Clipboard &mdash; copy a public link to the subsector&rsquo;s map.</li>
+                <li>Map &mdash; open the interactive star map for this subsector.</li>
+                <li>Rectangle &mdash; download a poster-format PDF of the subsector.</li>
+              </ul>
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Neighbouring Sectors</dt>
+            <dd class='mt-1 text-fg'>3&times;3 grid centred on this sector showing the eight adjacent sectors. Known neighbours are linked by name; unknown positions are left blank. The current sector is highlighted with a border.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Subsector Registry</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Name</dt>
+            <dd class='mt-1 text-fg'>Subsector letter designation (A&ndash;P) and assigned name, linked to the subsector record.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Systems</dt>
+            <dd class='mt-1 text-fg'>Number of star systems in that subsector.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Stars</dt>
+            <dd class='mt-1 text-fg'>Total number of stars across all systems in the subsector.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Populated</dt>
+            <dd class='mt-1 text-fg'>Count of star systems that contain at least one populated world. Shown only when the campaign setting is enabled.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Allegiances</dt>
+            <dd class='mt-1 text-fg'>Distinct allegiance codes present among systems in the subsector.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Build</dt>
+            <dd class='mt-1 text-fg'>
+              Generation configuration status for the subsector:
+              <ul class='mt-2 space-y-1 list-disc list-inside text-fg-muted'>
+                <li>TravellerMap &mdash; uses official Traveller Map data.</li>
+                <li>Deepnight Books &mdash; uses Deepnight Books source data.</li>
+                <li>Homebrew &mdash; uses a custom build specification.</li>
+                <li>Default &mdash; uses the campaign default build specification.</li>
+                <li>Not configured &mdash; no specification is set; generation is unavailable.</li>
+              </ul>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Page Actions</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Populate</dt>
+            <dd class='mt-1 text-fg'>Triggers generation of star systems across all subsectors using each subsector&rsquo;s build specification. Only empty parsecs receive new systems; existing content is preserved.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Clear</dt>
+            <dd class='mt-1 text-fg'>Removes all star systems and rogue stellar objects from every subsector in this sector. Requires confirmation. This action cannot be undone.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Edit</dt>
+            <dd class='mt-1 text-fg'>Opens the sector edit form to modify name, coordinates, build specification, and notes.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Delete</dt>
+            <dd class='mt-1 text-fg'>Soft-deletes the sector record. Requires confirmation.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0619SC
+      </div>
+  </div>
+<% end %>

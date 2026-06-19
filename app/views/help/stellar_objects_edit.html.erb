@@ -1,9 +1,8 @@
 <% content_for :title, 'Edit planetary body' %>
 
 <%= render 'help/page', title: 'Edit Planetary Body' do %>
-  <div class='max-w-2xl space-y-6'>
-    <div class='rounded-2xl bg-panel p-5 space-y-6'>
-      <div class='space-y-3 text-sm text-fg'>
+  <div class='space-y-6'>
+      <div class='space-y-3  text-fg'>
         <p>
           The edit form applies to terrestrial planets, planetoids, and moons.
           The Orbital section is only shown when the body orbits a star.
@@ -12,8 +11,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Name</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Name</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Name</dt>
             <dd class='mt-1 text-fg'>The body's designation or proper name.</dd>
@@ -22,8 +21,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Orbital</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Orbital</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Orbit</dt>
             <dd class='mt-1 text-fg'>Orbital radius as an orbit number. Must be at or beyond the parent star's minimum allowable orbit.</dd>
@@ -52,8 +51,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Starport</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Starport</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Starport</dt>
             <dd class='mt-1 text-fg'>Class of the primary port facility (A–E, X for none).</dd>
@@ -62,8 +61,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Physical</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Physical</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Size</dt>
             <dd class='mt-1 text-fg'>UWP size code. Changing size recalculates diameter, mass, and gravity.</dd>
@@ -100,8 +99,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Atmosphere</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Atmosphere</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Atmosphere</dt>
             <dd class='mt-1 text-fg'>Atmosphere type code (UWP digit).</dd>
@@ -122,8 +121,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Hydrographics</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Hydrographics</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Hydrographics</dt>
             <dd class='mt-1 text-fg'>Percentage of surface covered by liquid (UWP code).</dd>
@@ -140,8 +139,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Population</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Population</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Population</dt>
             <dd class='mt-1 text-fg'>Population code 0–12.</dd>
@@ -189,8 +188,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Government</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Government</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Government</dt>
             <dd class='mt-1 text-fg'>Government type code (0–F hex). See WBH p. 156.</dd>
@@ -218,8 +217,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Law Level</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Law Level</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Law Level</dt>
             <dd class='mt-1 text-fg'>
@@ -272,8 +271,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Tech Level</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Tech Level</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Tech Level</dt>
             <dd class='mt-1 text-fg'>Technological sophistication of the dominant culture (0–35). Sets the overall tech level recorded in the UWP.</dd>
@@ -322,8 +321,8 @@
       </div>
 
       <div>
-        <p class='text-sm font-semibold text-highlight mb-2'>Observations</p>
-        <dl class='space-y-5 text-sm'>
+        <p class=' font-semibold text-highlight mb-2'>Observations</p>
+        <dl class='space-y-5 '>
           <div>
             <dt class='font-semibold text-fg-bright'>Observations</dt>
             <dd class='mt-1 text-fg'>Free-text notes in CommonMark (Markdown) format.</dd>
@@ -334,6 +333,5 @@
       <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
         REFERENCE 0423PB
       </div>
-    </div>
   </div>
 <% end %>
