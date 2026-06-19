@@ -93,3 +93,5 @@ gem 'ros-apartment', require: 'apartment'
 gem 'ros-apartment-activejob', require: 'apartment-activejob'
 
 gem 'chunky_png'
+
+gem "turbo_tour"

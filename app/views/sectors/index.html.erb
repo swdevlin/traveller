@@ -2,13 +2,15 @@
 <% content_for :page_kicker, "IISS Sector Registry" %>
 <% content_for :page_title, "Sectors" %>
 <%= content_for :iiss_form, '0420A-ISSR' %>
+<%= turbo_tour "onboarding" %>
 
 <%= render 'application/page' do %>
   <div data-controller="sectors-view"
+       data-tour-step="sectors-view"
        data-sectors-view-campaign-slug-value="<%= current_campaign.schema_name %>">
 
     <div class="flex justify-end mb-3">
-      <div class="flex gap-1 rounded-lg border border-outline p-0.5">
+      <div class="flex gap-1 rounded-lg border border-outline p-0.5" data-tour-step="sectors-toggle">
         <button data-sectors-view-target="listBtn"
                 data-action="click->sectors-view#showList"
                 class="px-2.5 py-1.5 rounded-md text-sm transition"
@@ -24,7 +26,7 @@
       </div>
     </div>
 
-    <div data-sectors-view-target="listPanel">
+    <div data-sectors-view-target="listPanel" >
       <turbo-frame id="sectors">
         <%= render "list", sectors: @sectors, pagy: @pagy %>
       </turbo-frame>

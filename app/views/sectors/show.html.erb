@@ -4,6 +4,7 @@
   <%= @sector.name %><% if @sector.abbreviation.present? %><span class='text-fg-muted'>, <%= @sector.abbreviation %></span><% end %>
 <% end %>
 <% content_for :iiss_form, '0398D-0' %>
+<%= turbo_tour "sectors" %>
 
 <% content_for :page_buttons do %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
@@ -16,14 +17,14 @@
     <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
       <%= form.submit 'Populate',
                       class: 'w-full sm:w-auto btn cursor-pointer',
-                      data: { turbo_confirm: confirm_msg } %>
+                      data: { turbo_confirm: confirm_msg, tour_step: 'sector-populate' } %>
     <% end %>
 
     <%= button_to 'Clear',
                   clear_sector_path(@sector),
                   method: 'post',
                   class: 'w-full sm:w-auto btn',
-                  data: { turbo_confirm: confirm_msg } %>
+                  data: { turbo_confirm: confirm_msg, tour_step: 'sector-clear' } %>
 
     <%= render 'application/back_button',
                path: sectors_path(page: @page),
@@ -35,7 +36,7 @@
                   method: :delete,
                   form_class: 'w-full sm:w-auto',
                   class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
-                  data: { turbo_confirm: 'Are you sure?' } %>
+                  data: { turbo_confirm: 'Are you sure?', tour_step: 'sector-delete' } %>
   </div>
 <% end %>
 
@@ -46,6 +47,7 @@
       <button type='button'
               title='Copy public map link'
               class='text-fg-muted hover:text-fg-bright'
+              data-tour-step='public-map-link'
               data-controller='clipboard'
               data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
               data-action='click->clipboard#copy'>
@@ -55,11 +57,13 @@
                   target: '_blank',
                   rel: 'noopener',
                   title: 'Star Map',
+                  data: {'tour_step': 'sector-map'},
                   class: 'text-fg-muted hover:text-highlight transition-colors' do %>
         <i class="fa-regular fa-map"></i>
       <% end %>
       <%= link_to poster_sector_path(@sector),
                   title: 'Download poster PDF',
+                  data: {'tour_step': 'sector-poster'},
                   class: 'text-fg-muted hover:text-highlight transition-colors' do %>
         <i class="fa-regular fa-rectangle-vertical"></i>
       <% end %>
@@ -79,7 +83,8 @@
   <div class='space-y-6'>
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
       <%= render 'application/data_block',
-                 label: 'Imperial Coordinates',
+                 label: 'Sector Coordinates',
+                 tour_step: 'sector-coordinates',
                  value: tag.span("#{@sector.x}/#{@sector.y}", class: 'identifier') %>
 
       <%= render 'application/data_block',

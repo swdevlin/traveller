@@ -11,7 +11,7 @@
      end
 %>
 
-<div class='min-w-0'>
+<div class='min-w-0' <%= tag.attributes("data-tour-step": local_assigns[:tour_step]) if local_assigns[:tour_step] %>>
   <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
     <%= label %>
   </div>

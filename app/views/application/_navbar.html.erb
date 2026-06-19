@@ -9,7 +9,7 @@
       <% if current_campaign %>
         <div class='relative w-48 shrink-0'
              data-controller='global-search'
-             data-global-search-search-url-value='<%= search_path %>'>
+             data-global-search-search-url-value='<%= search_path %>' data-tour-step="nav-search">
           <input type='text'
                  placeholder='Search&hellip;'
                  autocomplete='off'
@@ -28,11 +28,11 @@
       <nav>
         <ul class='flex items-center gap-6 font-medium'>
           <% if current_campaign %>
-            <li><%= link_to 'Astrogation', sectors_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
-            <li><%= link_to 'Jumps', jump_logs_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+            <li data-tour-step="nav-astrogation"><%= link_to 'Astrogation', sectors_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+            <li data-tour-step="nav-jumps"><%= link_to 'Jumps', jump_logs_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
             <% starmap_params = @starmap_center ? { cx: @starmap_center[0], cy: @starmap_center[1] } : {} %>
-            <li><%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-highlight hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %></li>
-            <li>
+            <li data-tour-step="nav-starmap"><%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-highlight hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %></li>
+            <li data-tour-step="nav-route">
               <%= link_to new_route_plan_path(from_id: @route_from_system&.id),
                           data: { turbo_frame: 'modal' },
                           class: 'hover:text-highlight hover:underline hover:underline-offset-2 no-underline' do %>
@@ -41,9 +41,9 @@
             </li>
           <% end %>
 
-          <li><%= link_to 'Reference Manual', 'https://radiofreewaba.net/traveller/webindex.html', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
-          <li><%= link_to 'Encyclopedia', 'https://wiki.travellerrpg.com', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
-          <li><%= link_to 'Charted Space', 'https://travellermap.com', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+          <li data-tour-step="nav-reference"><%= link_to 'Reference Manual', 'https://radiofreewaba.net/traveller/webindex.html', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+          <li data-tour-step="nav-encyclopedia"><%= link_to 'Encyclopedia', 'https://wiki.travellerrpg.com', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+          <li data-tour-step="nav-charted-space"><%= link_to 'Charted Space', 'https://travellermap.com', target: '_blank', rel: 'noopener', class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
         </ul>
       </nav>
     </div>
@@ -64,7 +64,7 @@
 
     <% if authenticated? %>
       <% if current_campaign %>
-        <div class='relative' data-controller='dropdown'>
+        <div  data-tour-step="nav-campaign" class='relative' data-controller='dropdown'>
           <button data-action='dropdown#toggle'
                   class='inline-flex items-center gap-1 text-fg hover:text-highlight cursor-pointer bg-transparent border-0 p-0 font-medium'>
             Campaign
@@ -94,7 +94,7 @@
         </div>
       <% end %>
 
-      <div class='relative' data-controller='dropdown theme'>
+      <div  data-tour-step="nav-theme" class='relative' data-controller='dropdown theme'>
         <button type='button'
                 data-action='dropdown#toggle'
                 class='inline-flex items-center text-fg hover:text-highlight cursor-pointer bg-transparent border-0 p-0'
@@ -146,7 +146,8 @@
     <% end %>
 
     <%= link_to (content_for?(:help_path) ? yield(:help_path) : contextual_help_path),
-                class: 'text-fg no-underline hover:text-highlight hover:underline hover:underline-offset-2' do %>
+                class: 'text-fg no-underline hover:text-highlight hover:underline hover:underline-offset-2',
+                title: 'Open contextual help' do %>
       <i class='fa-regular fa-square-info'></i>
     <% end %>
   </div>

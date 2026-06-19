@@ -1568,3 +1568,79 @@
 .travel-table tbody tr:nth-child(even) .travel-table-row-header {
   background-color: rgba(26, 74, 106, 0.04);
 }
+
+[data-turbo-tour-active] {
+  outline: 2px solid var(--color-highlight);
+  outline-offset: 4px;
+  border-radius: 0.25rem;
+}
+
+.turbo-tour-tooltip {
+  position: fixed;
+  z-index: 9999;
+  width: 280px;
+  background: var(--color-panel);
+  border: 1px solid var(--color-outline);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: var(--color-fg);
+  font-size: 0.875rem;
+}
+
+.turbo-tour-tooltip__content {
+  padding: 1rem;
+}
+
+.turbo-tour-tooltip__progress {
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+  margin-bottom: 0.25rem;
+}
+
+.turbo-tour-tooltip__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-fg-bright);
+  margin-bottom: 0.5rem;
+}
+
+.turbo-tour-tooltip__body {
+  color: var(--color-fg);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.turbo-tour-tooltip__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.turbo-tour-tooltip__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.turbo-tour-tooltip__button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.turbo-tour-tooltip__button--primary {
+  background: var(--color-button-primary);
+  color: #fff;
+}
+
+.turbo-tour-tooltip__button--secondary {
+  background: var(--color-button);
+  border-color: var(--color-button-outline);
+  color: var(--color-fg);
+}
+
+.turbo-tour-tooltip__button--ghost {
+  background: transparent;
+  color: var(--color-fg-muted);
+}
