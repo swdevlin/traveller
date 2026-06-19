@@ -147,6 +147,34 @@ export default class extends Controller {
     this.chartBtnTarget.classList.toggle('text-fg-bright', !isList);
     this.chartBtnTarget.classList.toggle('text-fg-muted', isList);
     document.body.classList.toggle('sectors-chart-mode', !isList);
+    this.syncTourSteps(isList);
+  }
+
+  syncTourSteps(isList) {
+    ['new-sector-blank', 'new-sector-import'].forEach(step => {
+      const listEl = this.listPanelTarget.querySelector(`[data-tour-step="${step}"], [data-tour-step-inactive="${step}"]`);
+      const chartEl = this.chartPanelTarget.querySelector(`[data-tour-step="${step}"], [data-tour-step-inactive="${step}"]`);
+
+      if (listEl) {
+        if (isList) {
+          listEl.setAttribute('data-tour-step', step);
+          listEl.removeAttribute('data-tour-step-inactive');
+        } else {
+          listEl.removeAttribute('data-tour-step');
+          listEl.setAttribute('data-tour-step-inactive', step);
+        }
+      }
+
+      if (chartEl) {
+        if (!isList) {
+          chartEl.setAttribute('data-tour-step', step);
+          chartEl.removeAttribute('data-tour-step-inactive');
+        } else {
+          chartEl.removeAttribute('data-tour-step');
+          chartEl.setAttribute('data-tour-step-inactive', step);
+        }
+      }
+    });
   }
 
   maybeRestorePage() {

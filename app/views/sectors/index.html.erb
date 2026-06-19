@@ -45,6 +45,14 @@
             <option value="<%= s.name %>"></option>
           <% end %>
         </datalist>
+        <%= link_to new_sector_path, data: { tour_step: 'new-sector-blank', turbo_frame: '_top' }, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          <span>Blank</span>
+        <% end %>
+        <%= link_to new_from_traveller_map_sectors_path, data: { tour_step: 'new-sector-import', turbo_frame: '_top' }, class: 'btn-header' do %>
+          <i class='fa-regular fa-cloud-arrow-down'></i>
+          <span>Import</span>
+        <% end %>
       </div>
       <div data-sectors-view-target="chartWrapper" class="flex flex-col">
         <%= render 'chart', sectors: @chart_sectors %>
