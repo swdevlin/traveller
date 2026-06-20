@@ -523,7 +523,7 @@ DEPENDENCIES
   pagy
   pg
   propshaft
-  puma (>= 5.0)
+  puma (>= 8.0.2)
   rack-cors
   rails (~> 8.1.2)
   ros-apartment
