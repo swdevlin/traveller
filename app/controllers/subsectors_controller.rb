@@ -56,6 +56,14 @@ class SubsectorsController < ApplicationController
     end
   end
 
+  def derive_build
+    @derived_yaml = SubsectorBuildConfigExporter.new(@subsector).to_yaml
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to populate_subsector_path(@subsector) }
+    end
+  end
+
   def star_systems_table
     @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
     render layout: false

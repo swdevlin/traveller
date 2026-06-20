@@ -32,16 +32,19 @@
           <% end %>
         </ul>
       <% end %>
-      <%= form.text_area :build,
-                         rows: 16,
-                         aria: { label: 'Build plan YAML' },
-                         class: [
-                           'font-mono edit-base w-full resize-y mt-2',
-                           {
-                             'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
-                             'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
-                           }
-                         ] %>
+      <div id="<%= dom_id(subsector, :build_wrapper) %>">
+        <%= form.text_area :build,
+                           rows: 16,
+                           aria: { label: 'Build plan YAML' },
+                           class: [
+                             'font-mono edit-base w-full resize-y mt-2',
+                             {
+                               'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
+                               'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
+                             }
+                           ] %>
+      </div>
+      <%= render 'derive_build_button', subsector: subsector %>
     </div>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>

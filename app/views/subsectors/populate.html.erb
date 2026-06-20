@@ -92,17 +92,21 @@
             </div>
           <% end %>
 
-          <%= form.text_area :build,
-                             value: (@build_yaml.presence || @subsector.build),
-                             rows: 20,
-                             aria: { label: 'Build plan YAML' },
-                             class: [
-                               'font-mono edit-base w-full resize-y',
-                               {
-                                 'border-gray-400 focus:outline-blue-600': @subsector.errors[:build].none?,
-                                 'border-red-400 focus:outline-red-600': @subsector.errors[:build].any?
-                               }
-                             ] %>
+          <div id="<%= dom_id(@subsector, :build_wrapper) %>">
+            <%= form.text_area :build,
+                               value: (@build_yaml.presence || @subsector.build),
+                               rows: 20,
+                               aria: { label: 'Build plan YAML' },
+                               class: [
+                                 'font-mono edit-base w-full resize-y',
+                                 {
+                                   'border-gray-400 focus:outline-blue-600': @subsector.errors[:build].none?,
+                                   'border-red-400 focus:outline-red-600': @subsector.errors[:build].any?
+                                 }
+                               ] %>
+          </div>
+
+          <%= render 'derive_build_button', subsector: @subsector %>
 
           <div class='mt-2 flex flex-col sm:flex-row gap-2'>
             <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?" %>
@@ -117,6 +121,8 @@
           </div>
         </div>
       <% end %>
+
+
     </div>
 
     <div class='w-full md:w-[300px] shrink-0'>

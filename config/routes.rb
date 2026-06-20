@@ -104,6 +104,7 @@ Rails.application.routes.draw do
       member do
         get  :replace
         post :do_replace
+        post :derive_build
         get  :map
         get  :select_main_world
         patch :set_main_world
@@ -134,6 +135,7 @@ Rails.application.routes.draw do
         post :generate,  as: :generate
         get  :star_systems_table
         post :load_defaults
+        match :derive_build, via: %i[post patch]
         get  :map
       end
       resources :rogues, only: %i[new create index destroy]

@@ -1,0 +1,10 @@
+<%= turbo_stream.replace dom_id(@star_system, :build_wrapper) do %>
+  <div id="<%= dom_id(@star_system, :build_wrapper) %>">
+    <%= tag.textarea @derived_yaml,
+                     id: 'star_system_build',
+                     name: 'star_system[build]',
+                     rows: 12,
+                     class: 'w-full edit-base font-mono',
+                     data: { star_system_form_target: 'buildConfig' } %>
+  </div>
+<% end %>

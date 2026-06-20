@@ -37,6 +37,7 @@ allowCaptiveGovernment:
 exclude:
 required:
 systems:
+rogues:
 populated:</code></pre>
         </section>
 
@@ -117,6 +118,15 @@ populated:</code></pre>
                 <dt>systems</dt>
                 <dd>An list of hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates that have star systems. If <span class="yaml-tag">systems</span> is specified, then only
                   hexes in the list will have star systems. Each hex entry can include the <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %>. See examples below.</dd>
+              </div>
+
+              <div>
+                <dt>rogues</dt>
+                <dd>A list of rogue objects — objects in a hex without a star system, such as a drifting comet or a rogue planet.
+                  Each entry requires hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates and a <span class="yaml-tag">type</span>.
+                  A hex may contain more than one rogue object. Rogue objects can also be listed within individual
+                  <span class="yaml-tag">required</span> or <span class="yaml-tag">systems</span> entries, without coordinates.
+                  See rogue objects definition below.</dd>
               </div>
 
               <div>
@@ -235,6 +245,81 @@ populated:</code></pre>
       </div>
     </article>
 
+    <article>
+      <h3>Rogue objects definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>Rogue objects are placed after the star systems are generated. Hexes whose star system is locked are
+            left untouched.</p>
+          <pre><code>rogues:
+  - x:
+    y:
+    type:
+    name:
+    known:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>x, y <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd>Hex coordinates for the rogue object. Required at the subsector level; omitted when the entry is
+              inside a <span class="yaml-tag">required</span> or <span class="yaml-tag">systems</span> entry, where the
+              object is placed in that system's hex.</dd>
+          </div>
+
+          <div>
+            <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd class='space-y-2'>
+              <p>The kind of rogue object. <code class="text-fg">random</code> rolls on the rogue objects table
+                from page 76 of the <cite>World Builder's Handbook</cite>; a sensor glitch result creates a phantom object.
+                Planetoids, planetoid belts, gas giants, and terrestrial planets are generated in full; a bare
+                <code class="text-fg">comet</code> or <code class="text-fg">gas giant</code> has its variant chosen randomly.
+                type can be one of the following values:</p>
+              <div class='mt-2 grid gap-2 sm:grid-cols-3'>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">random</code></li>
+                  <li><code class="text-fg-bright">comet</code></li>
+                  <li><code class="text-fg-bright">tiny comet</code></li>
+                  <li><code class="text-fg-bright">medium comet</code></li>
+                  <li><code class="text-fg-bright">large comet</code></li>
+                  <li><code class="text-fg-bright">inhabited comet</code></li>
+                  <li><code class="text-fg-bright">gas giant</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">small gas giant</code></li>
+                  <li><code class="text-fg-bright">medium gas giant</code></li>
+                  <li><code class="text-fg-bright">large gas giant</code></li>
+                  <li><code class="text-fg-bright">planetoid</code></li>
+                  <li><code class="text-fg-bright">planetoid belt</code></li>
+                  <li><code class="text-fg-bright">terrestrial planet</code></li>
+                  <li><code class="text-fg-bright">gas cloud</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">gravity anomaly</code></li>
+                  <li><code class="text-fg-bright">interstellar wreck</code></li>
+                  <li><code class="text-fg-bright">phantom object</code></li>
+                  <li><code class="text-fg-bright">radiation cloud</code></li>
+                  <li><code class="text-fg-bright">relic</code></li>
+                  <li><code class="text-fg-bright">space station</code></li>
+                  <li><code class="text-fg-bright">unusual object</code></li>
+                </ul>
+              </div>
+            </dd>
+          </div>
+
+          <div>
+            <dt>name</dt>
+            <dd>An optional name for the rogue object.</dd>
+          </div>
+
+          <div>
+            <dt>known</dt>
+            <dd>If true, the object is already charted and visible on the map.</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
     <section>
       <h2>Sample specifications</h2>
 
@@ -322,6 +407,32 @@ required:
     y: 7
   - x: 6
     y: 5</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Rogue objects</h3>
+
+          <p class='text-fg-muted'>A standard subsector with a rogue gas giant in 0205, two random rogue objects in 0408,
+            and a named comet drifting in the hex of a required system at 0603.</p>
+
+          <pre><code>type: STANDARD
+rogues:
+  - x: 2
+    y: 5
+    type: large gas giant
+  - x: 4
+    y: 8
+    type: random
+  - x: 4
+    y: 8
+    type: random
+required:
+  - x: 6
+    y: 3
+    rogues:
+      - type: medium comet
+        name: Wanderer
+        known: true</code></pre>
         </article>
 
         <article class='spec-card'>

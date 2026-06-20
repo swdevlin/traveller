@@ -9,6 +9,7 @@ UWP_CODE = /\A[0-9A-Z][0-9A-F]{6}-[0-9A-H]\z/i
 UWP_LABELS = [
   'terrestrial',
   'small gas giant',
+  'medium gas giant',
   'gas giant',
   'planetoid belt',
   'large gas giant',
@@ -75,6 +76,14 @@ StarSchema = BaseStarSchema.merge(
   end
 )
 
+RogueSchema = Dry::Schema.Params do
+  required(:type).filled(:string, included_in?: RogueObjectBuilder::TYPES)
+  optional(:name).filled(:string)
+  optional(:known).filled(:bool)
+end
+
+SubsectorRogueSchema = CoordinateSchema.merge(RogueSchema)
+
 PopulatedRegionSchema = Dry::Schema.Params do
   optional(:allegiance).maybe(:string)
   optional(:minTechLevel).filled(:integer, gteq?: 0, lteq?: 100)
@@ -111,6 +120,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:allegiance).filled(:string)
   optional(:travelZone).maybe(:string)
   optional(:counts).hash(CountsSchema)
+  optional(:rogues).value(:array).each { hash(RogueSchema) }
 end
 
 SOPHONT_CHECK_VALUES = %w[standard rareEarth veryRareEarth none].freeze
@@ -128,6 +138,7 @@ SingleSystemSchema = Dry::Schema.Params do
   optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 33)
   optional(:nativeTechLevel).filled(:bool)
+  optional(:rogues).value(:array).each { hash(RogueSchema) }
 end
 
 BuildConfigSchema = Dry::Schema.Params do
@@ -143,6 +154,7 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:exclude).value(:array).each { hash(CoordinateSchema) }
   optional(:required).value(:array).each { hash(SystemSchema) }
   optional(:systems).value(:array).each { hash(SystemSchema) }
+  optional(:rogues).value(:array).each { hash(SubsectorRogueSchema) }
 
   optional(:populated).hash(PopulatedSchema)
   optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)

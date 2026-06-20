@@ -544,6 +544,20 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
+  test 'medium gas giant is a valid bodies uwp' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: medium gas giant
+          - uwp: terrestrial
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
   test 'bodies with two different orbit labels is invalid' do
     yaml = <<~YAML
       name: Test System
@@ -921,5 +935,116 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     YAML
     validator = BuildConfigValidator.new(yaml)
     refute validator.valid?
+  end
+
+  # rogues
+  test 'valid subsector rogues' do
+    yaml = <<~YAML
+      type: standard
+      rogues:
+        - x: 2
+          y: 5
+          type: large gas giant
+        - x: 4
+          y: 8
+          type: random
+          name: Wanderer
+          known: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'every rogue type is accepted' do
+    RogueObjectBuilder::TYPES.each do |type|
+      yaml = <<~YAML
+        type: standard
+        rogues:
+          - x: 1
+            y: 1
+            type: #{type}
+      YAML
+      validator = BuildConfigValidator.new(yaml)
+      assert validator.valid?, "Expected '#{type}' to be valid but got errors: #{validator.errors.inspect}"
+    end
+  end
+
+  test 'unknown rogue type is rejected' do
+    yaml = <<~YAML
+      type: standard
+      rogues:
+        - x: 1
+          y: 1
+          type: dyson sphere
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'rogues'
+  end
+
+  test 'subsector rogues require coordinates' do
+    yaml = <<~YAML
+      type: standard
+      rogues:
+        - type: comet
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+  end
+
+  test 'empty rogues list is tolerated' do
+    yaml = <<~YAML
+      type: standard
+      rogues:
+        -
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'rogues inside systems and required entries need no coordinates' do
+    yaml = <<~YAML
+      type: standard
+      required:
+        - x: 6
+          y: 3
+          rogues:
+            - type: medium comet
+              name: Wanderer
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 6
+          y: 3
+          rogues:
+            - type: space station
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'star system config accepts rogues' do
+    yaml = <<~YAML
+      name: Halvor
+      rogues:
+        - type: terrestrial planet
+          known: true
+        - type: random
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'star system config rejects unknown rogue type' do
+    yaml = <<~YAML
+      rogues:
+        - type: ringworld
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
   end
 end

@@ -1,6 +1,7 @@
 <% content_for :title, 'Replace star system' %>
 <% content_for :page_kicker, @star_system.parsec&.display_name %>
 <% content_for :page_title, 'Replace Star System' %>
+<% content_for :help_path, help_page_path('star_system_replace') %>
 
 <% create_mode = params.dig(:star_system, :create_mode).presence || (@star_system.build_config.present? ? 'build_configuration' : 'random') %>
 
@@ -99,11 +100,23 @@
             </div>
           <% end %>
 
-          <%= f.text_area :build,
-                          rows: 12,
-                          class: 'w-full edit-base font-mono',
-                          disabled: create_mode != 'build_configuration',
-                          data: { star_system_form_target: 'buildConfig' } %>
+          <div id="<%= dom_id(@star_system, :build_wrapper) %>">
+            <%= f.text_area :build,
+                            rows: 12,
+                            class: 'w-full edit-base font-mono',
+                            disabled: create_mode != 'build_configuration',
+                            data: { star_system_form_target: 'buildConfig' } %>
+          </div>
+          <div class='mt-2'>
+            <%= button_tag 'Derive Build from Survey',
+                           type: 'submit',
+                           formaction: derive_build_star_system_path(@star_system),
+                           class: 'btn text-xs',
+                           data: {
+                             controller: 'busy',
+                             action: 'click->busy#start turbo:submit-end@window->busy#stop'
+                           } %>
+          </div>
         </div>
       </div>
     </div>

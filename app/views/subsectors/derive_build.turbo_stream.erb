@@ -1,0 +1,10 @@
+<%= turbo_stream.replace dom_id(@subsector, :build_wrapper) do %>
+  <div id="<%= dom_id(@subsector, :build_wrapper) %>">
+    <%= tag.textarea @derived_yaml,
+                     id: 'subsector_build',
+                     name: 'subsector[build]',
+                     rows: 20,
+                     aria: { label: 'Build plan YAML' },
+                     class: 'font-mono edit-base w-full resize-y mt-2 border-gray-400 focus:outline-blue-600' %>
+  </div>
+<% end %>

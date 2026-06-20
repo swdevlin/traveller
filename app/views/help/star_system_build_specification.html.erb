@@ -45,7 +45,8 @@ populated:
   maxTechLevel:
   populationDM:
   minPopulationCode:
-  maxPopulationCode:</code></pre>
+  maxPopulationCode:
+rogues:</code></pre>
 
       </section>
 
@@ -130,6 +131,15 @@ populated:
             <dt>populated</dt>
             <dd>populated ensures the system is populated. Use this when a polity
               settles a region of space. See populated definition below.</dd>
+          </div>
+
+          <div>
+            <dt>rogues</dt>
+            <dd>A list of rogue objects to place in the system's hex — objects that do not orbit a star, such as a
+              drifting comet or a rogue planet. A hex may contain more than one rogue object. When replacing a star
+              system, a specification with a <span class="yaml-tag">rogues</span> entry (even an empty one) replaces
+              the hex's existing rogue objects; a specification without one leaves them alone.
+              See rogue objects definition below.</dd>
           </div>
         </dl>
       </article>
@@ -303,7 +313,7 @@ populated:
           <div>
             <dt>uwp <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
             <dd>UWP code such as <code>X674000-0</code> or one of <code>terrestrial</code>, <code>small gas giant</code>,
-              <code>gas giant</code>, <code>large gas giant</code>, <code>super earth</code>, or <code>empty</code>.
+              <code>gas giant</code>, <code>medium gas giant</code>, <code>large gas giant</code>, <code>super earth</code>, or <code>empty</code>.
               Use <code>super earth</code> to generate a very large terrestrial planet. Use <code>empty</code> to mark
               the orbit as empty.</dd>
           </div>
@@ -383,6 +393,72 @@ populated:
       </div>
     </article>
 
+    <article>
+      <h3>Rogue objects definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>Rogue objects share the hex with the star system but do not orbit any of its stars. They are placed after
+            the system is generated.</p>
+          <pre><code>rogues:
+  - type:
+    name:
+    known:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd class='space-y-2'>
+              <p>The kind of rogue object. <code class="text-fg">random</code> rolls on the rogue objects table
+                from page 76 of the <cite>World Builder's Handbook</cite>; a sensor glitch result creates a phantom object.
+                Planetoids, planetoid belts, gas giants, and terrestrial planets are generated in full; a bare
+                <code class="text-fg">comet</code> or <code class="text-fg">gas giant</code> has its variant chosen randomly.
+                type can be one of the following values:</p>
+              <div class='mt-2 grid gap-2 sm:grid-cols-3'>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">random</code></li>
+                  <li><code class="text-fg-bright">comet</code></li>
+                  <li><code class="text-fg-bright">tiny comet</code></li>
+                  <li><code class="text-fg-bright">medium comet</code></li>
+                  <li><code class="text-fg-bright">large comet</code></li>
+                  <li><code class="text-fg-bright">inhabited comet</code></li>
+                  <li><code class="text-fg-bright">gas giant</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">small gas giant</code></li>
+                  <li><code class="text-fg-bright">medium gas giant</code></li>
+                  <li><code class="text-fg-bright">large gas giant</code></li>
+                  <li><code class="text-fg-bright">planetoid</code></li>
+                  <li><code class="text-fg-bright">planetoid belt</code></li>
+                  <li><code class="text-fg-bright">terrestrial planet</code></li>
+                  <li><code class="text-fg-bright">gas cloud</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">gravity anomaly</code></li>
+                  <li><code class="text-fg-bright">interstellar wreck</code></li>
+                  <li><code class="text-fg-bright">phantom object</code></li>
+                  <li><code class="text-fg-bright">radiation cloud</code></li>
+                  <li><code class="text-fg-bright">relic</code></li>
+                  <li><code class="text-fg-bright">space station</code></li>
+                  <li><code class="text-fg-bright">unusual object</code></li>
+                </ul>
+              </div>
+            </dd>
+          </div>
+
+          <div>
+            <dt>name</dt>
+            <dd>An optional name for the rogue object.</dd>
+          </div>
+
+          <div>
+            <dt>known</dt>
+            <dd>If true, the object is displayed on player maps.</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
     <section>
       <h2>Sample specifications</h2>
 
@@ -391,6 +467,17 @@ populated:
           <h3>Minimal</h3>
           <p>The simplest valid specification, a blank entry. The system generator will handle everything.</p>
           <pre><code></code></pre>
+        </article>
+
+        <article class="spec-card">
+          <h3>Rogue objects</h3>
+          <p>A random system sharing its hex with a rogue planet and an uncharted drifting wreck.</p>
+          <pre><code>name: Halvor
+rogues:
+  - type: terrestrial planet
+    name: Cold Halvor
+    known: true
+  - type: interstellar wreck</code></pre>
         </article>
 
         <article class="spec-card">

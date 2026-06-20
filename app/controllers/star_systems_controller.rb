@@ -72,6 +72,14 @@ class StarSystemsController < ApplicationController
     @star_system.build = @star_system.build_config
   end
 
+  def derive_build
+    @derived_yaml = StarSystemBuildConfigExporter.new(@star_system).to_yaml
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to replace_star_system_path(@star_system) }
+    end
+  end
+
   def do_replace
     if @star_system.locked?
       flash.now[:alert] = 'This star system is locked and cannot be replaced.'
@@ -88,6 +96,7 @@ class StarSystemsController < ApplicationController
     end
 
     StarSystemImporter.new.reimport!(@star_system, payload)
+    create_rogues!(@star_system.parsec, @rogue_entries, replace: true)
     if create_params[:create_mode] == 'build_configuration'
       @star_system.update_column(:build_config, create_params['build'])
     end
@@ -371,6 +380,7 @@ class StarSystemsController < ApplicationController
         aliases: false
       ) || {}
 
+    rogue_entries = config.delete('rogues')
     config.reverse_merge!(sophont_check_options)
     config.reverse_merge!(max_tech_level_options)
     config.reverse_merge!(native_tech_level_options)
@@ -386,11 +396,32 @@ class StarSystemsController < ApplicationController
 
     importer = StarSystemImporter.new
     @parsec ||= Parsec.find(star_system_params[:parsec_id])
-    importer.import!(@parsec, payload)
+    star_system = importer.import!(@parsec, payload)
+    create_rogues!(@parsec, rogue_entries)
+    star_system
   rescue ActiveRecord::RecordInvalid => e
     e.record
 
     StarSystem.new.tap { |s| s.errors.add(:base, 'Build configuration mode is not yet implemented') }
+  end
+
+  # A config without a rogues key leaves existing rogues alone; a config with
+  # one (even an empty list) replaces them when replace: is set.
+  def create_rogues!(parsec, entries, replace: false)
+    return if entries.nil?
+
+    parsec.rogues.destroy_all if replace
+
+    builder = RogueObjectBuilder.new(generator_service: generator_service)
+    failures = []
+    Array(entries).compact.each do |entry|
+      builder.build!(parsec, entry)
+    rescue StandardError => e
+      Rails.logger.error "Error creating rogue #{entry['type']}: #{e.message}"
+      failures << (e.is_a?(RogueObjectBuilder::Error) ? e.message : "Could not create rogue '#{entry['type']}'")
+    end
+
+    flash[:alert] = "Some rogue objects could not be created: #{failures.to_sentence}" if failures.any?
   end
 
   def generate_random_star_system(params)
@@ -452,6 +483,7 @@ class StarSystemsController < ApplicationController
         permitted_classes: [Date, Time],
         aliases: false
       ) || {}
+      @rogue_entries = config.delete('rogues')
       config.reverse_merge!(sophont_check_options)
       config.reverse_merge!(max_tech_level_options)
       config.reverse_merge!(native_tech_level_options)

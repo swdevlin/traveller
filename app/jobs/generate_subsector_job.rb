@@ -17,7 +17,7 @@ class GenerateSubsectorJob < ApplicationJob
       ) || {}
 
     config = config.deep_symbolize_keys if config.respond_to?(:deep_symbolize_keys)
-    %i[exclude required systems].each do |key|
+    %i[exclude required systems rogues].each do |key|
       value = config[key]
 
       next unless value.is_a?(Array)
@@ -32,6 +32,15 @@ class GenerateSubsectorJob < ApplicationJob
     config[:nativeTechLevel] = campaign&.native_tech_level? || false if config[:nativeTechLevel].nil?
     config[:allowCaptiveGovernment] = campaign.allow_captive_government? if config[:allowCaptiveGovernment].nil? && campaign
     config[:realisticStarDistribution] = campaign.realistic_star_distribution? if config[:realisticStarDistribution].nil? && campaign
+
+    # The external generator knows nothing about rogues; pull them out of the
+    # payload and create them locally after the systems are imported.
+    rogue_entries = Array(config.delete(:rogues)).compact
+    ((config[:systems] || []) + (config[:required] || [])).each do |entry|
+      Array(entry.delete(:rogues)).compact.each do |rogue|
+        rogue_entries << rogue.merge(x: entry[:x], y: entry[:y])
+      end
+    end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
     Subsector.transaction do
@@ -122,6 +131,17 @@ class GenerateSubsectorJob < ApplicationJob
       rescue StandardError => e
         Rails.logger.error "#{uri} Error importing system #{s['name']}: #{e.message}"
       end
+    end
+
+    rogue_builder = RogueObjectBuilder.new(generator_service: GeneratorService.new(campaign_id: campaign_id))
+    rogue_entries.each do |entry|
+      parsec = Parsec.find_by(x: ul.x + entry[:x] - 1, y: ul.y - (entry[:y] - 1))
+      next if parsec.nil?
+      next if parsec.star_systems.locked.exists?
+
+      rogue_builder.build!(parsec, entry)
+    rescue StandardError => e
+      Rails.logger.error "Error creating rogue #{entry[:type]} at #{entry[:x]},#{entry[:y]}: #{e.message}"
     end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })

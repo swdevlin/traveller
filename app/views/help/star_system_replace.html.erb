@@ -1,0 +1,117 @@
+<% content_for :title, 'Replace star system' %>
+
+<%= render 'help/page', title: 'Replace Star System' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-fg'>
+      <p>
+        The replace operation destroys the existing star system — all stars, orbital bodies,
+        and rogue objects in the parsec — and constructs a new one in its place.
+        This action is irreversible. Systems marked as locked cannot be replaced.
+      </p>
+      <p>
+        Enter a name, select an initialisation mode, and press
+        <span class='font-semibold text-fg-bright'>Replace</span> to execute.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Initialisation modes</p>
+
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Empty</dt>
+          <dd class='mt-1 text-fg'>
+            Constructs a star system with no orbital bodies. When this mode is selected you
+            configure the primary star by choosing a spectral type, subtype, and luminosity class.
+            A primary star is required for a star system.
+          </dd>
+          <dd class='mt-2 text-fg'>
+            Use this when the replacement system has a known stellar configuration that must be
+            entered manually.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Random</dt>
+          <dd class='mt-1 text-fg'>
+            Generates a fully populated star system with stars, orbital bodies, and a main world.
+            Enable the <span class='font-semibold text-fg-bright'>Populated</span> option to ensure
+            the generated main world carries a population.
+          </dd>
+          <dd class='mt-2 text-fg'>
+            Use this when a complete replacement system is needed and its composition does not
+            require manual specification.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Build configuration</dt>
+          <dd class='mt-1 text-fg'>
+            Accepts a YAML directive packet that instructs the generator how to construct the
+            replacement system. Permits specification of the primary star and companions, orbital
+            body density, allegiance, bases, and individual bodies with specific UWP codes.
+          </dd>
+          <dd class='mt-2 text-fg'>
+            Use this when the replacement must conform to known parameters. See the
+            <%= link_to 'star system build specification',
+                        help_page_path('star_system_build_specification'),
+                        class: 'hover:underline underline-offset-4' %>
+            for the full YAML reference.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Derive Build from Survey</p>
+
+      <div class='space-y-3 text-fg'>
+        <p>
+          The <span class='font-semibold text-fg-bright'>Derive Build from Survey</span> button
+          reads the current system's stars and orbital bodies and produces a YAML build
+          configuration that approximates that composition. The derived configuration is written
+          into the build configuration field and may be edited before the replacement is executed.
+        </p>
+        <p>
+          This is useful when re-generating a system that has drifted from its original
+          specification, or when a hand-built system must be seeded back through the generator
+          to populate missing fields.
+        </p>
+      </div>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Primary star fields (Empty mode)</p>
+
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Type</dt>
+          <dd class='mt-1 text-fg'>
+            The spectral type of the star: O, B, A, F, G, K, or M. Special types
+            (Brown Dwarf, White Dwarf, Black Hole, Pulsar, Neutron Star) are also available.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Subtype</dt>
+          <dd class='mt-1 text-fg'>
+            A digit from 0 to 9 that refines the spectral type. Lower numbers are hotter
+            within the class. Not required for special types.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Luminosity class</dt>
+          <dd class='mt-1 text-fg'>
+            The size classification of the star, from Ia (luminous supergiant) through VI
+            (subdwarf). Main sequence stars are class V. Not required for special types.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0619RS
+    </div>
+  </div>
+<% end %>

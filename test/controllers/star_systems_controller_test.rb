@@ -136,4 +136,71 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
 
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
   end
+
+  test 'build configuration create adds rogues and strips them from the generator payload' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    posted = nil
+    stub_request(:post, "#{base}/star_system")
+      .with { |req| posted = JSON.parse(req.body) }
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      rogues:
+        - type: relic
+          name: The Monolith
+    YAML
+
+    assert_difference -> { @parsec.rogues.where(type: 'Relic').count } do
+      post subsector_star_systems_url(@subsector), params: {
+        star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+      }
+    end
+
+    assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+    assert_not posted.key?('rogues')
+    assert_equal 'The Monolith', @parsec.rogues.where(type: 'Relic').sole.name
+  end
+
+  test 'replace with a rogues entry replaces the existing rogues in the hex' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    existing = stellar_objects(:one)
+
+    build = <<~YAML
+      rogues:
+        - type: relic
+    YAML
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_not StellarObject.exists?(existing.id)
+    assert_equal %w[Relic], @parsec.rogues.pluck(:type)
+  end
+
+  test 'replace without a rogues entry leaves existing rogues alone' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    existing = stellar_objects(:one)
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert StellarObject.exists?(existing.id)
+  end
 end
