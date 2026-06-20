@@ -46,6 +46,7 @@
         <tr>
           <th scope='col'>Sector</th>
           <th scope='col' class='text-right'>Systems</th>
+          <th scope='col'>Allegiances</th>
           <th scope='col' class='text-center'>Charts</th>
           <th scope='col' class='text-center'>Reference</th>
         </tr>
@@ -67,6 +68,8 @@
 
               <td class='text-right'><%= sector.star_system_count %></td>
 
+              <td><%= render 'allegiances/inline_list', allegiances: (@allegiances_by_sector_id[sector.id] || []) %></td>
+
               <td class='text-center'>
                 <div class='flex items-center justify-center gap-3'>
                   <%= sector_chart_link(sector) %>
@@ -81,7 +84,7 @@
           <% end %>
         <% else %>
           <tr>
-            <td colspan='4'>No sectors recorded in this quadrant yet.</td>
+            <td colspan='5'>No sectors recorded in this quadrant yet.</td>
           </tr>
         <% end %>
         </tbody>

@@ -18,6 +18,15 @@ class SectorsController < ApplicationController
     scope = scope.where('LOWER(sectors.name) LIKE ?', "%#{@q.downcase}%") if params[:q].present?
     @pagy, @sectors = pagy(scope, limit: 10, params: request.query_parameters)
     @chart_sectors = Sector.kept.order(:x, :y)
+
+    sector_ids = @sectors.map(&:id)
+    @allegiances_by_sector_id = Allegiance
+      .joins(star_systems: :parsec)
+      .where(parsecs: { sector_id: sector_ids })
+      .select('allegiances.id, allegiances.code, allegiances.name, parsecs.sector_id AS sector_id')
+      .order('allegiances.code')
+      .distinct
+      .group_by(&:sector_id)
   end
 
   def load_defaults
