@@ -89,6 +89,10 @@ class Subsector < ApplicationRecord
     star_systems.count
   end
 
+  def number_of_rogues
+    rogues.count
+  end
+
   def number_of_populated_star_systems
     star_systems
       .where(

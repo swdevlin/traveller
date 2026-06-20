@@ -18,6 +18,7 @@
           <th scope='col' class='text-right'>Populated</th>
         <% end %>
         <th scope='col'>Allegiances</th>
+        <th scope='col' class='text-right'>Rogues</th>
         <th scope='col'>Build</th>
         <th scope='col'></th>
       </tr>
@@ -40,6 +41,8 @@
 
             <td><%= render 'allegiances/inline_list', allegiances: subsector.allegiances %></td>
 
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_rogues %></td>
+
             <td class='whitespace-nowrap'>
               <% if subsector.build.present? %>
                 <% label = { 'traveller_map' => 'TravellerMap', 'deepnight_books' => 'Deepnight Books',
@@ -59,7 +62,7 @@
         <% end %>
       <% else %>
         <tr>
-          <td colspan='<%= show_population_count? ? 7 : 6 %>'>No subsectors recorded yet.</td>
+          <td colspan='<%= show_population_count? ? 8 : 7 %>'>No subsectors recorded yet.</td>
         </tr>
       <% end %>
       </tbody>
