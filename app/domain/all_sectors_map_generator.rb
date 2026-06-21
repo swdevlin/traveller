@@ -117,7 +117,7 @@ class AllSectorsMapGenerator
   end
 
   def to_vips(chunky_image)
-    img = Vips::Image.new_from_buffer(chunky_image.to_blob, '').copy(interpretation: :srgb)
+    img = Vips::Image.new_from_buffer(chunky_image.to_blob, '').colourspace(:srgb)
     img.has_alpha? ? img.flatten(background: [0, 0, 0]) : img
   end
 
