@@ -121,7 +121,7 @@ class AllSectorsMapGenerator
   end
 
   def draw_labels(vips, sectors)
-    vips = vips.add_alpha
+    vips = vips.has_alpha? ? vips : vips.add_alpha
 
     sectors.each do |sector|
       next if sector.name.blank?
