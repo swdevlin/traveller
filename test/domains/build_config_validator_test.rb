@@ -1047,4 +1047,261 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid_for_star_system?
   end
+
+  # Top-level mainWorld
+
+  test 'top-level mainWorld with valid UWP code is valid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'top-level mainWorld with UWP code and name is valid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: A788699-E
+        name: Gaea
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'top-level mainWorld with UWP code and orbit label is valid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: B434558-8
+        orbit: hzco
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'top-level mainWorld with UWP code, name, and orbit is valid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: C765987-6
+        name: Harvest
+        orbit: warm
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'top-level mainWorld with named UWP label is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: terrestrial
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  test 'top-level mainWorld with malformed UWP is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X12345
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  test 'top-level mainWorld without uwp is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        name: Gaea
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  test 'top-level mainWorld with invalid orbit string is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        orbit: nearstar
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  test 'top-level mainWorld with integer orbit is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        orbit: 3
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  # mainWorld uniqueness — cross-form conflicts
+
+  test 'top-level mainWorld and counts mainWorld together is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+      counts:
+        density: 5
+        mainWorld:
+          uwp: terrestrial
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld may only be declared once'
+  end
+
+  test 'top-level mainWorld and bodies mainWorld flag together is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+      primary:
+        type: G2
+        class: V
+        bodies:
+          - uwp: terrestrial
+            mainWorld: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld may only be declared once'
+  end
+
+  test 'star-level mainWorld and counts mainWorld together is invalid' do
+    yaml = <<~YAML
+      counts:
+        density: 5
+        mainWorld:
+          uwp: terrestrial
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: X674000-0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld may only be declared once'
+  end
+
+  test 'star-level mainWorld and bodies mainWorld flag together is invalid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: X674000-0
+        bodies:
+          - uwp: terrestrial
+            mainWorld: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld may only be declared once'
+  end
+
+  test 'star-level mainWorld on two different stars is invalid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: X674000-0
+        far:
+          type: M4
+          class: V
+          mainWorld:
+            uwp: D433210-5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'mainWorld may only be declared once'
+  end
+
+  # Star-level mainWorld
+
+  test 'primary mainWorld with valid UWP code is valid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: X674000-0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'primary mainWorld with UWP, orbit, and name is valid' do
+    yaml = <<~YAML
+      primary:
+        type: K3
+        class: V
+        mainWorld:
+          uwp: B434558-8
+          orbit: habitable
+          name: Amber World
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'far star mainWorld with valid UWP code is valid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        far:
+          type: M4
+          class: V
+          mainWorld:
+            uwp: D433210-5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'primary mainWorld with named UWP label is invalid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: gas giant
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+  end
+
+  test 'primary mainWorld without uwp is invalid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          orbit: hzco
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+  end
+
+  test 'primary mainWorld with integer orbit is invalid' do
+    yaml = <<~YAML
+      primary:
+        type: G2
+        class: V
+        mainWorld:
+          uwp: X674000-0
+          orbit: 5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+  end
 end

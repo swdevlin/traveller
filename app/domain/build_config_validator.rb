@@ -148,6 +148,7 @@ class BuildConfigValidator
     systems.each_with_index do |sys, idx|
       validate_allegiance(sys)
       validate_counts(sys['counts'], "systems[#{idx}].counts")
+      validate_mainworld_uniqueness(sys, "systems[#{idx}]")
 
       (%w[primary] + STAR_LINK_KEYS).each do |key|
         star = sys[key]
@@ -168,6 +169,7 @@ class BuildConfigValidator
 
     validate_allegiance(config)
     validate_counts(config['counts'], config['counts'])
+    validate_mainworld_uniqueness(config, nil)
 
     (%w[primary] + STAR_LINK_KEYS).each do |key|
       star = config[key]
@@ -211,6 +213,38 @@ class BuildConfigValidator
       child = star[key]
       validate_star_tree(child, "#{path}.#{key}", max_depth: max_depth - 1) if child.is_a?(Hash)
     end
+  end
+
+  def validate_mainworld_uniqueness(sys, path_prefix)
+    count = 0
+    count += 1 if sys['mainWorld'].is_a?(Hash)
+
+    counts = sys['counts']
+    count += 1 if counts.is_a?(Hash) && counts['mainWorld'].is_a?(Hash)
+
+    (%w[primary] + STAR_LINK_KEYS).each do |key|
+      count += star_mainworld_count(sys[key])
+    end
+
+    return if count <= 1
+
+    prefix = path_prefix ? "#{path_prefix}: " : ''
+    @errors << "#{prefix}mainWorld may only be declared once per star system"
+  end
+
+  def star_mainworld_count(star, depth = 0)
+    return 0 if star.nil? || !star.is_a?(Hash) || depth > 10
+
+    count = star['mainWorld'].is_a?(Hash) ? 1 : 0
+
+    bodies = star['bodies']
+    count += bodies.count { |b| b.is_a?(Hash) && b['mainWorld'] == true } if bodies.is_a?(Array)
+
+    STAR_SCHEMA_CHILD_KEYS.each do |key|
+      count += star_mainworld_count(star[key], depth + 1)
+    end
+
+    count
   end
 
   def validate_body_orbits(bodies, path)

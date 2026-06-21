@@ -29,6 +29,12 @@ known:
 allegiance:
 bases:
 primary:
+  type:
+  class:
+  mainWorld:
+    uwp:
+    orbit:
+    name:
   close:
   near:
   far:
@@ -38,6 +44,10 @@ counts:
   planetoidBelts:
   gasGiants:
   mainWorld:
+mainWorld:
+  uwp:
+  orbit:
+  name:
 populated:
   type:
   allegiance:
@@ -128,6 +138,14 @@ rogues:</code></pre>
           </div>
 
           <div>
+            <dt>mainWorld</dt>
+            <dd>Optional. Pins the main world's UWP, orbit, and name directly on the star system without
+              requiring a <span class="yaml-tag">counts</span> entry. Can also be placed directly on any star
+              definition to associate the main world with a specific star.
+              See mainWorld definition below.</dd>
+          </div>
+
+          <div>
             <dt>populated</dt>
             <dd>populated ensures the system is populated. Use this when a polity
               settles a region of space. See populated definition below.</dd>
@@ -202,6 +220,13 @@ rogues:</code></pre>
             <div>
               <dt>bodies</dt>
               <dd>Optional list of orbital bodies for this star. If not specified, the generator will assign bodies.</dd>
+            </div>
+
+            <div>
+              <dt>mainWorld</dt>
+              <dd>Optional main world definition for this star. Pins the main world's UWP, orbit, and name.
+                Can only be declared once across the entire star system — if set here it must not also appear
+                at the top level or on any other star. See mainWorld definition below.</dd>
             </div>
           </dl>
         </div>
@@ -288,6 +313,54 @@ rogues:</code></pre>
                     gas giant. gasGiants must be at least one for moon to be true.</dd>
                 </div>
               </dl>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <article>
+      <h3>mainWorld definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>mainWorld pins the main world's UWP, orbit, and name. It can appear at the top level of the star
+            system spec or directly on any star definition.</p>
+          <p>mainWorld may only be declared <strong>once</strong> per star system, across all forms: the
+            top-level <span class="yaml-tag">mainWorld</span> key, a star-level
+            <span class="yaml-tag">mainWorld</span> key, <span class="yaml-tag">counts.mainWorld</span>, and
+            the <span class="yaml-tag">mainWorld: true</span> flag on a body in a bodies list all count as
+            a declaration. Using more than one is an error.</p>
+          <pre><code>mainWorld:
+  uwp: (required)
+  orbit:
+  name:</code></pre>
+        </div>
+
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>uwp <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd>The UWP for the main world. Must be an actual UWP code such as <code>X674000-0</code> or
+              <code>A788699-E</code>. Named types such as <code>terrestrial</code> or <code>gas giant</code>
+              are not accepted here.</dd>
+          </div>
+
+          <div>
+            <dt>orbit</dt>
+            <dd>The location of the main world relative to its star. Must be one of:
+              <ul class='mt-2 list-disc space-y-1 pl-6 text-fg-muted text-sm'>
+                <li><code class="text-fg">inner</code>: located in the hot zone around the star</li>
+                <li><code class="text-fg">warm</code>: located in the habitable zone, but closer to the star</li>
+                <li><code class="text-fg">habitable</code>: located anywhere in the habitable zone</li>
+                <li><code class="text-fg">hzco</code>: located at the sweet spot of the habitable zone</li>
+                <li><code class="text-fg">cold</code>: located in the habitable zone, but on the far side of the star</li>
+                <li><code class="text-fg">outer</code>: located away from the star, outside of the habitable zone</li>
+              </ul>
+            </dd>
+          </div>
+
+          <div>
+            <dt>name</dt>
+            <dd>Optional name for the main world.</dd>
           </div>
         </dl>
       </div>

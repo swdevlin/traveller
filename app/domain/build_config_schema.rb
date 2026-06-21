@@ -17,6 +17,12 @@ UWP_LABELS = [
   'empty'
 ].freeze
 
+MainWorldSchema = Dry::Schema.Params do
+  required(:uwp).value(:string, format?: UWP_CODE)
+  optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
+  optional(:name).filled(:string)
+end
+
 CoordinateSchema = Dry::Schema.Params do
   required(:x).filled(:integer, gteq?: 1, lteq?: 8)
   required(:y).filled(:integer, gteq?: 1, lteq?: 10)
@@ -48,6 +54,8 @@ BaseStarSchema = Dry::Schema.Params do
   optional(:class).filled(:string, included_in?: CLASS_TYPES)
 
   optional(:name).filled(:string)
+
+  optional(:mainWorld).hash(MainWorldSchema)
 
   optional(:bodies).array(:hash) do
     required(:uwp).value(:string) { included_in?(UWP_LABELS) | format?(UWP_CODE) }
@@ -135,6 +143,7 @@ SingleSystemSchema = Dry::Schema.Params do
   optional(:known).filled(:bool)
   optional(:allegiance).filled(:string)
   optional(:counts).hash(CountsSchema)
+  optional(:mainWorld).hash(MainWorldSchema)
   optional(:sophontCheck).filled(:string, included_in?: SOPHONT_CHECK_VALUES)
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 33)
   optional(:nativeTechLevel).filled(:bool)
