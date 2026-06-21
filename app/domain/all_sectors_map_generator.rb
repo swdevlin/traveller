@@ -117,11 +117,12 @@ class AllSectorsMapGenerator
   end
 
   def to_vips(chunky_image)
-    Vips::Image.new_from_buffer(chunky_image.to_blob, '').copy(interpretation: :srgb)
+    img = Vips::Image.new_from_buffer(chunky_image.to_blob, '').copy(interpretation: :srgb)
+    img.has_alpha? ? img.flatten(background: [0, 0, 0]) : img
   end
 
   def draw_labels(vips, sectors)
-    vips = vips.has_alpha? ? vips : vips.add_alpha
+    vips = vips.add_alpha
 
     sectors.each do |sector|
       next if sector.name.blank?
@@ -161,8 +162,10 @@ class AllSectorsMapGenerator
     text_mask = Vips::Image.text(balance_wrap(name), font: 'sans 10', dpi: 96, align: :centre)
     return nil if text_mask.width.zero? || text_mask.height.zero?
 
-    fg_rgb = text_mask.new_from_image(LABEL_RGB).copy(interpretation: :srgb)
-    fg_rgb.bandjoin(text_mask)
+    # Newer libvips may return RGBA from vips_text; extract just the alpha band
+    alpha = text_mask.bands == 1 ? text_mask : text_mask.extract_band(text_mask.bands - 1)
+    fg_rgb = alpha.new_from_image(LABEL_RGB).copy(interpretation: :srgb)
+    fg_rgb.bandjoin(alpha)
   rescue Vips::Error
     nil
   end
