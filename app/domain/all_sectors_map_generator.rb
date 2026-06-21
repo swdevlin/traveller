@@ -135,16 +135,7 @@ class AllSectorsMapGenerator
 
       x = lx - label.width  / 2
       y = ly - label.height / 2
-      begin
-        vips = vips.composite2(label, :over, x: x, y: y)
-      rescue Vips::Error => e
-        Rails.logger.error(
-          'AllSectorsMapGenerator composite2 failed ' \
-          "vips_bands=#{vips.bands} vips_format=#{vips.format} vips_interp=#{vips.interpretation} " \
-          "label_bands=#{label.bands} label_format=#{label.format} label_interp=#{label.interpretation} " \
-          "error=#{e.message}"
-        )
-      end
+      vips = vips.composite2(label, :over, x: x, y: y)
     end
 
     vips
