@@ -1,0 +1,69 @@
+<%# locals:
+    slides: [
+      {
+        image: '/images/example.png',
+        alt: 'Description',
+        title: 'Slide title',
+        description: 'Slide description',      # plain text
+        description_html: '<a href="...">link</a>'  # optional, rendered as HTML; takes precedence over description
+      }
+    ],
+    image_class: optional,
+    height_class: optional
+%>
+
+<% image_class ||= 'mx-auto max-w-full object-contain' %>
+<% height_class ||= 'max-h-[28rem]' %>
+
+<div data-controller='carousel'
+     class='rounded-xl border border-outline bg-panel p-2 shadow-xl shadow-black/30'>
+  <% slides.each_with_index do |slide, index| %>
+    <div data-carousel-target='slide'
+         class='<%= 'hidden' unless index.zero? %>'>
+      <div class='rounded-lg bg-bg overflow-hidden'>
+        <img src='<%= slide[:image] %>'
+             alt='<%= slide[:alt] %>'
+             class='<%= "#{image_class} #{height_class}" %>'>
+      </div>
+
+      <% if slide[:title].present? || slide[:description].present? || slide[:description_html].present? %>
+        <div class='mt-3 min-w-0'>
+          <% if slide[:title].present? %>
+            <div class='font-heading text-xs text-fg-bright tracking-wide uppercase'><%= slide[:title] %></div>
+          <% end %>
+          <% if slide[:description_html].present? %>
+            <p class='mt-1 text-xs text-fg-muted leading-relaxed'><%= raw slide[:description_html] %></p>
+          <% elsif slide[:description].present? %>
+            <p class='mt-1 text-xs text-fg-muted leading-relaxed'><%= slide[:description] %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if slides.length > 1 %>
+    <div class='mt-4 flex items-center justify-end gap-2'>
+      <button type='button'
+              data-action='carousel#previous'
+              class='inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline text-fg-muted hover:text-fg-bright hover:border-fg-muted transition-colors'
+              aria-label='Show previous image'>
+        <i class='fa-regular fa-chevron-left'></i>
+      </button>
+
+      <div class='flex items-center gap-1'
+           aria-hidden='true'>
+        <% slides.each_with_index do |_slide, index| %>
+          <span data-carousel-target='indicator'
+                class='h-1.5 w-6 rounded-full <%= index.zero? ? 'bg-button-primary' : 'bg-outline' %>'></span>
+        <% end %>
+      </div>
+
+      <button type='button'
+              data-action='carousel#next'
+              class='inline-flex h-8 w-8 items-center justify-center rounded-md border border-outline text-fg-muted hover:text-fg-bright hover:border-fg-muted transition-colors'
+              aria-label='Show next image'>
+        <i class='fa-regular fa-chevron-right'></i>
+      </button>
+    </div>
+  <% end %>
+</div>

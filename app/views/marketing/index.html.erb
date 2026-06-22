@@ -1,63 +1,358 @@
 <% content_for :title, 'My Traveller Universe' %>
-<% content_for :page_kicker, 'Operational Summary' %>
-<% content_for :page_title, 'My Traveller Universe' %>
 
-<%= render 'application/page' do %>
-  <div class='space-y-4 max-w-4xl text-fg leading-relaxed'>
-    <p>
-      My Traveller Universe is a campaign management and system generation tool for Traveller Referees.
-      It is designed for exploration campaigns such as
-      <%= link_to 'Deepnight Revelation',
-                  'https://www.mongoosepublishing.com/products/deepnight-revelation-core-set',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  class: 't-link' %>,
-      and for Referees charting an entirely original galaxy.
-    </p>
+<div class='w-full'>
 
-    <p>
-      At its centre is a comprehensive star system generator built on the rules from the
-      <%= link_to 'World Builder\'s Handbook',
-                  'https://www.mongoosepublishing.com/products/world-builders-handbook',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  class: 't-link' %>.
-      Referees may construct their setting one system at a time,
-      shaping each world individually,
-      or define subsector-level build specifications to generate coherent subsectors or entire sectors in a single operation.
-    </p>
+  <%# ── Hero ─────────────────────────────────────────────────────────────── %>
+  <section class='relative -mx-8 px-8 py-24 overflow-hidden bg-gradient-to-b from-panel-gradient-from via-panel-gradient-via to-panel-gradient-to border-b border-outline'>
+    <img src='/images/marketing-sector-map.png'
+         alt=''
+         aria-hidden='true'
+         class='absolute top-0 right-0 h-full w-2/3 sm:w-1/2 object-cover object-left opacity-20'>
 
-    <p>
-      For Deepnight campaigns, subsector build specifications can be imported from
-      <%= link_to 'travellermap.com',
-                  'https://travellermap.com',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  class: 't-link' %>
-      or from predefined systems based on the campaign books.
-      Generated systems can then be supplemented with referee-authored detail and campaign-specific content,
-      forming a structured survey record of the space your Travellers encounter.
-    </p>
+    <div class='absolute inset-0 pointer-events-none'
+         style='background: linear-gradient(to right, var(--color-panel-gradient-from) 40%, transparent 75%)'></div>
 
-    <p>
-      In addition to the World Builder's Referees will also find the
-      <%= link_to 'Traveller Core Rulebook',
-                  'https://www.mongoosepublishing.com/products/traveller-core-rulebook-update-2022',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  class: 't-link' %>
-      a handy reference.
-    </p>
+    <div class='relative z-10 max-w-4xl'>
+      <h1 class='font-heading text-2xl sm:text-4xl text-fg-bright leading-tight mb-6'>
+        System generation, charting, and campaign management for Traveller Referees.
+      </h1>
 
-    <% unless authenticated? %>
-      <div class='flex items-center gap-4 pt-2'>
-        <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
+      <p class='text-fg text-lg leading-relaxed mb-8 max-w-2xl'>
+        <span class='text-fg-bright'>My Traveller Universe</span> is for Traveller Referees running
+        homebrew campaigns, exploration campaigns, or campaigns set on the uncharted fringes of
+        <%= link_to 'Charted Space',
+                    'https://travellermap.com/',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 't-link' %>.
+
+        Generate star systems, map subsectors and sectors, maintain survey records, and export campaign data
+        for use in external applications like
+        <%= link_to 'Obsidian',
+                    'https://obsidian.md/',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 't-link' %>
+        and
+        <%= link_to 'Foundry Virtual Tabletop',
+                    'https://foundryvtt.com/',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 't-link' %>.
+      </p>
+
+      <div class='flex flex-col sm:flex-row sm:items-center gap-4'>
+        <% unless authenticated? %>
+          <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
+        <% end %>
       </div>
-    <% end %>
+    </div>
+  </section>
 
-    <p class='text-sm text-fg-muted'>
-      My Traveller Universe operates under Mongoose Publishing's
-      <%= link_to 'Fair Use Policy', fairuse_path, class: 't-link' %>.
-    </p>
-  </div>
-<% end %>
+  <%# ── Generate ─────────────────────────────────────────────────────────── %>
+  <section class='-mx-8 px-8 py-20 bg-bg border-b border-outline'>
+    <div class='mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
+      <div class='space-y-6'>
+        <div class='inline-flex items-center gap-2 text-button-primary text-sm font-heading tracking-wide uppercase'>
+          <i class='fa-regular fa-atom'></i>
+          Generate
+        </div>
+
+        <div class='space-y-4'>
+          <h2 class='font-heading text-2xl sm:text-2xl text-fg-bright'>
+            Generate systems from configurable rules.
+          </h2>
+
+          <p class='text-fg leading-relaxed'>
+            Create single systems or entire subsectors from a build configuration. You can create systems
+            by hand or leverage My Traveller Universe to generate systems using the rules in the
+
+            <%= link_to 'World Builder\'s Handbook',
+                        'https://www.mongoosepublishing.com/products/world-builders-handbook',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>
+            from
+            <%= link_to 'Mongoose Publishing',
+                        'https://www.mongoosepublishing.com',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>.
+          </p>
+        </div>
+
+        <ul class='space-y-3 text-sm text-fg-muted'>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>World Builder&rsquo;s Handbook based generation</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Build configurations for density, stars, worlds, and rogue objects</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Optionally derive a build from existing survey data</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Edit UWP, trade codes, populations, governments, tech levels, and Bases</span>
+          </li>
+        </ul>
+      </div>
+
+      <%= render 'shared/media_carousel',
+                 slides: [
+                   {
+                     image: '/images/marketing-generate.png',
+                     alt: 'Subsector generation view with build configuration options',
+                     title: 'Subsector generation',
+                     description: 'Start simple with the subsector density and who has settled it.'
+                   },
+                   {
+                     image: '/images/marketing-generate-detailed.png',
+                     alt: 'Detailed YAML build configuration for subsector generation',
+                     title: 'Detailed star system configuration',
+                     description: 'Full control over the stars and orbiting bodies in the system.'
+                   },
+                   {
+                     image: '/images/marketing-starport.png',
+                     alt: 'Detailed stellar object generation',
+                     title: 'Full details for stellar objects',
+                     description: 'Full breakdown of all UWP data.'
+                   },
+                   {
+                     image: '/images/marketing-pop.png',
+                     alt: 'Detailed stellar object generation',
+                     title: 'Full details for stellar objects',
+                     description: 'Full breakdown of all UWP data.'
+                   }
+                 ] %>
+    </div>
+
+  </section>
+
+  <%# ── Chart ────────────────────────────────────────────────────────────── %>
+  <section class='-mx-8 px-8 py-20 bg-panel border-b border-outline overflow-hidden'>
+    <div class='mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
+      <div class='order-2 lg:order-1'>
+        <%= render 'shared/media_carousel',
+                   slides: [
+                     {
+                       image: '/images/marketing-system-map.png',
+                       alt: 'Star system orbital map',
+                       title: 'Star system map',
+                       description: 'Subway style system map.'
+                     },
+                     {
+                       image: '/images/marketing-sector-poster.webp',
+                       alt: 'Sector Poster',
+                       title: 'Sector Poster',
+                       description_html: 'Generate sector poster PDFs suitable for printing. <a href="/sample-poster.pdf" target="_blank" rel="noopener noreferrer" class="t-link">View sample &rarr;</a>'
+                     }
+                   ] %>
+      </div>
+
+      <div class='space-y-6 order-1 lg:order-2'>
+        <div class='inline-flex items-center gap-2 text-button-primary text-sm font-heading tracking-wide uppercase'>
+          <i class='fa-regular fa-map'></i>
+          Chart
+        </div>
+
+        <div class='space-y-4'>
+          <h2 class='font-heading text-2xl sm:text-3xl text-fg-bright'>
+            Map systems, subsectors, and sectors.
+          </h2>
+
+          <p class='text-fg leading-relaxed'>
+            Maps are generated from the campaign data itself. A system map, subsector map, sector map,
+            and print-ready poster can all describe the same underlying survey records.
+          </p>
+        </div>
+
+        <ul class='space-y-3 text-sm text-fg-muted'>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>System, subsector, sector, and poster maps</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Jump routes, travel planning, regions, and route networks</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Allegiance territories, travel zones, system names, hex codes, and UWP strings</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Export maps as SVG, PNG, WebP, or PDF</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <%# ── Integrate ───────────────────────────────────────────────────────────── %>
+  <section class='-mx-8 px-8 py-20 bg-bg border-b border-outline'>
+    <div class='mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
+      <div class='order-2 lg:order-1 rounded-xl border border-outline bg-bg p-6 shadow-xl shadow-black/30'>
+        <%= render 'shared/media_carousel',
+                   slides: [
+                     {
+                       image: '/images/marketing-mtu-foundry.png',
+                       alt: 'Foundry star system',
+                       title: 'Foundry VTT Import',
+                       description: 'Imported star system, with both referee and player pages.'
+                     },
+                     {
+                       image: '/images/marketing-obsidian.png',
+                       alt: 'Obsidian page',
+                       title: 'Obsidian Import',
+                       description_html: 'Detailed breakdown of the star system.'
+                     }
+                   ] %>
+      </div>
+
+      <div class='space-y-6 order-1 lg:order-2'>
+        <div class='inline-flex items-center gap-2 text-button-primary text-sm font-heading tracking-wide uppercase'>
+          <i class='fa-regular fa-share-nodes'></i>
+          Integrate
+        </div>
+
+        <div class='space-y-4'>
+          <h2 class='font-heading text-2xl sm:text-3xl text-fg-bright'>
+            Use the data outside the web app.
+          </h2>
+
+          <p class='text-fg leading-relaxed'>
+            Campaign data can be exported as
+            <%= link_to 'Markdown',
+                        'https://www.markdownguide.org/',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>
+            for
+            <%= link_to 'Obsidian',
+                        'https://obsidian.md/',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>, or used in
+            <%= link_to 'Foundry VTT',
+                        'https://foundryvtt.com/',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>
+            through
+            the
+            <%= link_to 'My Travller Universe',
+                        'https://github.com/swdevlin/mtu-foundry',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>
+            Foundry module. The web app can remain the system of record while other tools receive
+            the records needed for prep and play.
+          </p>
+        </div>
+
+        <ul class='space-y-3 text-sm text-fg-muted'>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>
+              Markdown exports</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Foundry VTT integration through the MTU module</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Separate player and GM views</span>
+          </li>
+          <li class='flex gap-3'>
+            <i class='fa-regular fa-check text-button-primary mt-1'></i>
+            <span>Campaign data remains editable in one place</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <%# ── Deepnight Revelation ─────────────────────────────────────────────── %>
+  <section class='relative -mx-8 px-8 py-20 overflow-hidden bg-panel border-b border-outline'>
+    <img src='/images/marketing-sector-map.png'
+         alt=''
+         aria-hidden='true'
+         class='absolute inset-y-0 right-0 h-full w-2/3 object-cover object-left opacity-10'>
+
+    <div class='absolute inset-0 pointer-events-none'
+         style='background: linear-gradient(to right, var(--color-bg) 35%, transparent 80%)'></div>
+
+    <div class='relative z-10 mx-auto max-w-6xl'>
+      <div class='max-w-3xl space-y-6'>
+        <div class='inline-flex items-center gap-2 text-button-primary text-sm font-heading tracking-wide uppercase'>
+          <i class='fa-regular fa-rocket-launch'></i>
+          Deepnight Revelation
+        </div>
+
+        <div class='space-y-4'>
+          <h2 class='font-heading text-2xl sm:text-3xl text-fg-bright'>
+            Exploration campaigns.
+          </h2>
+
+          <p class='text-fg leading-relaxed'>
+            Subsector data can be imported directly from
+            <%= link_to 'travellermap.com',
+                        'https://travellermap.com',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>,
+            or generated from predefined build configurations based on the
+            <%= link_to 'Deepnight Revelation',
+                        'https://www.mongoosepublishing.com/products/deepnight-revelation-core-set',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 't-link' %>
+            campaign books. As the revelation travels, system details can be revealed to the players.
+          </p>
+        </div>
+
+        <%= link_to 'View sample campaign',
+                    'https://mytravelleruniverse.net/c/revelation/starmap',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 'btn btn-secondary' %>
+      </div>
+    </div>
+  </section>
+
+  <%# ── Bottom CTA ───────────────────────────────────────────────────────── %>
+  <section class='-mx-8 px-8 py-16 bg-panel text-center'>
+    <div class='mx-auto max-w-2xl'>
+      <div class='font-heading text-2xl text-fg-bright mb-3'>
+        Start with a campaign map.
+      </div>
+
+      <p class='text-fg-muted text-sm mb-8'>
+        Generate systems, review the maps, and keep the campaign record available as play develops.
+      </p>
+
+      <div class='flex flex-col sm:flex-row justify-center gap-4 mb-8'>
+        <% unless authenticated? %>
+          <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
+        <% end %>
+
+        <%= link_to 'View sample campaign',
+                    'https://mytravelleruniverse.net/c/revelation/starmap',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 'btn btn-secondary' %>
+      </div>
+
+      <p class='text-xs text-fg-muted'>
+        My Traveller Universe operates under Mongoose Publishing&rsquo;s
+        <%= link_to 'Fair Use Policy', fairuse_path, class: 't-link' %>.
+      </p>
+    </div>
+  </section>
+
+</div>
