@@ -279,7 +279,7 @@
 
   <%# ── Deepnight Revelation ─────────────────────────────────────────────── %>
   <section class='relative -mx-8 px-8 py-20 overflow-hidden bg-panel border-b border-outline'>
-    <img src='/images/marketing-sector-map.png'
+    <img src='/images/marketing-exploration.png'
          alt=''
          aria-hidden='true'
          class='absolute inset-y-0 right-0 h-full w-2/3 object-cover object-left opacity-10'>
@@ -316,42 +316,12 @@
           </p>
         </div>
 
-        <%= link_to 'View sample campaign',
+        <%= link_to 'View sample player console',
                     'https://mytravelleruniverse.net/c/revelation/starmap',
                     target: '_blank',
                     rel: 'noopener noreferrer',
                     class: 'btn btn-secondary' %>
       </div>
-    </div>
-  </section>
-
-  <%# ── Bottom CTA ───────────────────────────────────────────────────────── %>
-  <section class='-mx-8 px-8 py-16 bg-panel text-center'>
-    <div class='mx-auto max-w-2xl'>
-      <div class='font-heading text-2xl text-fg-bright mb-3'>
-        Start with a campaign map.
-      </div>
-
-      <p class='text-fg-muted text-sm mb-8'>
-        Generate systems, review the maps, and keep the campaign record available as play develops.
-      </p>
-
-      <div class='flex flex-col sm:flex-row justify-center gap-4 mb-8'>
-        <% unless authenticated? %>
-          <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
-        <% end %>
-
-        <%= link_to 'View sample campaign',
-                    'https://mytravelleruniverse.net/c/revelation/starmap',
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    class: 'btn btn-secondary' %>
-      </div>
-
-      <p class='text-xs text-fg-muted'>
-        My Traveller Universe operates under Mongoose Publishing&rsquo;s
-        <%= link_to 'Fair Use Policy', fairuse_path, class: 't-link' %>.
-      </p>
     </div>
   </section>
 
