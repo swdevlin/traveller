@@ -17,12 +17,13 @@ module LinkModalSetup
     max_jump = @max_jump = @selected_jump_route&.max_jump || 3
 
     ulx = parsec.x - max_jump
+    ulx -= 1 if ulx.odd?
     uly = parsec.y + max_jump
 
-    @cols = max_jump * 2 + 1
+    @cols = parsec.x + max_jump - ulx + 1
     @rows = max_jump * 2 + 1
     @ul = Coordinate.new(ulx, uly)
-    @highlight_pos = [max_jump + 1, max_jump + 1]
+    @highlight_pos = [parsec.x - ulx + 1, max_jump + 1]
     @jump_highlight_positions = Set.new
 
     viewport_parsecs = Parsec.includes(:sector)
