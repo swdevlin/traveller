@@ -76,6 +76,7 @@ type alias Flags =
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
+    , shipLocation : Maybe ( Int, Int )
     }
 
 
@@ -196,6 +197,7 @@ update msg model =
                                 , journeyState = model.flags.journeyState
                                 , centerOn = model.flags.centerOn
                                 , rogueObjectPathData = model.flags.rogueObjectPathData
+                                , shipLocation = model.flags.shipLocation
                                 }
                                 model.key
                                 model.hostConfig

@@ -749,6 +749,7 @@ type alias Flags =
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
+    , shipLocation : Maybe ( Int, Int )
     }
 
 
@@ -828,12 +829,17 @@ init viewport settings key hostConfig referee =
                                     HexAddress x y
 
                                 Nothing ->
-                                    toUniversalAddress
-                                        { sectorX = -10
-                                        , sectorY = -2
-                                        , x = 21
-                                        , y = 12
-                                        }
+                                    case settings.shipLocation of
+                                        Just ( sx, sy ) ->
+                                            HexAddress (sx - deltaX // 2) (sy + deltaY // 2)
+
+                                        Nothing ->
+                                            toUniversalAddress
+                                                { sectorX = -10
+                                                , sectorY = -2
+                                                , x = 21
+                                                , y = 12
+                                                }
 
                 lowerRightHex =
                     upperLeftHex

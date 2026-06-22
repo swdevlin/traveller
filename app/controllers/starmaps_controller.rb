@@ -23,6 +23,12 @@ class StarmapsController < ApplicationController
       end
 
     ship = Ship.first
+    last_parsec = ship &&
+      JumpLog.includes(:to_parsec)
+             .where(ship_id: ship.id)
+             .order(sequence: :desc, id: :desc)
+             .first
+             &.to_parsec
     rogue_icon = FontAwesomeIcon.find_by(name: 'fa-rogue-object', style: 'solid')
     @starmap_flags = {
       referee: Current.user.present?,
@@ -33,7 +39,8 @@ class StarmapsController < ApplicationController
       allSectorsMapUrl: all_sectors_map_url,
       nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
       extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence,
-      rogueObjectPathData: rogue_icon&.path_data
+      rogueObjectPathData: rogue_icon&.path_data,
+      shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil
     }
     if params[:cx].present? && params[:cy].present?
       @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]
