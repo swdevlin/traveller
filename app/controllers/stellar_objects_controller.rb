@@ -1,7 +1,7 @@
 class StellarObjectsController < ApplicationController
   ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
 
-  before_action :set_stellar_object, only: %i[ show edit update destroy ]
+  before_action :set_stellar_object, only: %i[ show edit update destroy regenerate_characteristics ]
 
   # GET /stellar_objects or /stellar_objects.json
   def index
@@ -83,6 +83,57 @@ class StellarObjectsController < ApplicationController
     end
   end
 
+  # POST /stellar_objects/1/regenerate_characteristics
+  def regenerate_characteristics
+    unless @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)
+      return redirect_to stellar_object_path(@stellar_object), alert: 'Characteristics can only be regenerated for terrestrial planets and planetoid belts.'
+    end
+
+    star = @stellar_object.orbiting
+    unless star.is_a?(Star)
+      return redirect_to stellar_object_path(@stellar_object), alert: 'Cannot regenerate characteristics for a rogue object without an orbiting star.'
+    end
+
+    result = generator_service.generate_from_uwp(
+      uwp: @stellar_object.uwp,
+      orbit: @stellar_object.orbit,
+      star: { hzco: star.hzco, age: star.age, mass: star.mass, spread: star.spread }
+    )
+
+    unless result.success?
+      return redirect_to stellar_object_path(@stellar_object), alert: result.errors.to_sentence
+    end
+
+    data = result.value
+
+    ActiveRecord::Base.transaction do
+      @stellar_object.assign_data_from_generator(data)
+      @stellar_object.stellar_object_trade_codes.delete_all
+      apply_stellar_object_trade_codes(@stellar_object, data['tradeCodes'])
+      if @stellar_object.is_a?(TerrestrialPlanet) && data['moons'].present?
+        @stellar_object.moons.destroy_all
+        @stellar_object.assign_moons(data['moons'])
+      end
+      if @stellar_object.is_a?(PlanetoidBelt) && data['significantBodies'].present?
+        @stellar_object.significant_bodies.destroy_all
+        data['significantBodies'].each do |planetoid_data|
+          planetoid = Planetoid.new
+          planetoid.skip_import_callbacks = true
+          planetoid.orbiting = @stellar_object.orbiting
+          planetoid.assign_data_from_generator(planetoid_data)
+          planetoid.planetoid_belt_id = @stellar_object.id
+          planetoid.save!
+        end
+      end
+      @stellar_object.save!
+    end
+
+    redirect_to stellar_object_path(@stellar_object), notice: 'Characteristics regenerated successfully.'
+  rescue StandardError => e
+    Rails.logger.error "regenerate_characteristics failed: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    redirect_to stellar_object_path(@stellar_object), alert: 'Could not regenerate characteristics at this time.'
+  end
+
   # DELETE /stellar_objects/1 or /stellar_objects/1.json
   def destroy
     type = @stellar_object.type.underscore.humanize
@@ -104,6 +155,20 @@ class StellarObjectsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_stellar_object
       @stellar_object = StellarObject.find(params.expect(:id))
+    end
+
+    def apply_stellar_object_trade_codes(stellar_object, codes)
+      return if codes.blank?
+
+      codes.uniq.each do |code|
+        trade_code = TradeCode.find_by(code: code)
+        next unless trade_code
+
+        StellarObjectTradeCode.find_or_create_by!(
+          stellar_object: stellar_object,
+          trade_code: trade_code
+        )
+      end
     end
 
     # Only allow a list of trusted parameters through.

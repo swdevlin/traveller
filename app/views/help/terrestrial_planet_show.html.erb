@@ -1,0 +1,115 @@
+<% content_for :title, 'Terrestrial Planet' %>
+
+<%= render 'help/page', title: 'Terrestrial Planet' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-fg'>
+      <p>
+        Displays the full survey record for a terrestrial planet. Data is organised into
+        tabs corresponding to each digit of the Universal World Profile, plus supplementary
+        tabs for orbital mechanics and the satellite inventory. Tabs for which no data has
+        been recorded are still accessible but will appear empty.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Controls</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Regenerate</dt>
+          <dd class='mt-1 text-fg'>
+            Submits the body's Universal World Profile and orbital parameters to the
+            generator data core, which recomputes and returns a complete characteristic
+            profile. All existing survey data for the body is superseded by the returned
+            values, including the satellite inventory — all previously recorded moons are
+            expunged and reconstructed from the generator's output. This operation is
+            irreversible. Available only when the body orbits a stellar primary.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Tabs</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbital</dt>
+          <dd class='mt-1 text-fg'>
+            Orbital radius (orbit number and/or AU), period, effective HZCO deviation,
+            retrograde flag, inclination, eccentricity, tidal lock target, sidereal day,
+            twilight zone status, and the location hierarchy through to sector. Jump shadow
+            extent is shown when it exceeds the body's own shadow.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Starport</dt>
+          <dd class='mt-1 text-fg'>
+            Starport classification (A–E, X), allegiance, and travel zone.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Physical</dt>
+          <dd class='mt-1 text-fg'>
+            Diameter (km), mass (Earth masses), surface gravity (g), density (Earth
+            relative), mean temperature (°C), rotation period (hours), axial tilt,
+            albedo, and greenhouse factor.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Atmo</dt>
+          <dd class='mt-1 text-fg'>
+            Atmosphere code and composition type. Tainted atmospheres include irritant
+            subtype, severity, and persistence ratings. Hazard code is shown where applicable.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hydro</dt>
+          <dd class='mt-1 text-fg'>
+            Hydrographics code, liquid type, and surface distribution pattern.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Pop</dt>
+          <dd class='mt-1 text-fg'>
+            Population code with approximate headcount range, concentration rating,
+            urbanisation percentage, major city count, and cultural indices
+            (cohesion, diversity, militancy, and related ratings).
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Gov</dt>
+          <dd class='mt-1 text-fg'>
+            Government type code and description, authority style, centralisation,
+            and the structure of judicial, executive, and legislative bodies.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Law</dt>
+          <dd class='mt-1 text-fg'>
+            Law level code with sub-ratings covering weapons and armour restrictions,
+            criminal and economic law, personal rights, uniformity, and judicial system.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Tech</dt>
+          <dd class='mt-1 text-fg'>
+            Overall technology level code with per-category ratings for electronics,
+            energy, manufacturing, medical, environmental, land, sea, air, and space
+            transport, and personal and heavy military equipment.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Moons</dt>
+          <dd class='mt-1 text-fg'>
+            Paginated list of satellites. The tab counter shows the total moon count.
+            Toggle <span class='font-semibold text-fg-bright'>Significant only</span>
+            to suppress sub-kilometre bodies.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0626TP
+    </div>
+  </div>
+<% end %>

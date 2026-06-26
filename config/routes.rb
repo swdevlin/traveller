@@ -79,7 +79,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :stellar_objects
+    resources :stellar_objects do
+      member do
+        post :regenerate_characteristics
+      end
+    end
 
     resources :social_characteristics_presets, only: %i[index create destroy]
 

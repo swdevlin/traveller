@@ -1,0 +1,87 @@
+<% content_for :title, 'Gas Giant' %>
+
+<%= render 'help/page', title: 'Gas Giant' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-fg'>
+      <p>
+        Displays the survey record for a gas giant. Data is presented in fixed sections
+        covering orbital mechanics, physical characteristics, transit times, and the
+        satellite inventory. Orbital Data is omitted for rogue gas giants not attached
+        to a stellar primary.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Orbital Data</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbit / AU</dt>
+          <dd class='mt-1 text-fg'>Orbital radius expressed as orbit number and/or astronomical units, per campaign display settings.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Period</dt>
+          <dd class='mt-1 text-fg'>Time to complete one orbit around the primary star.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Effective HZCO Deviation</dt>
+          <dd class='mt-1 text-fg'>Deviation from the habitable zone centre orbit.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Inclination / Eccentricity</dt>
+          <dd class='mt-1 text-fg'>Orbital plane inclination in degrees and orbital eccentricity (0 = circular).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Jump Shadow</dt>
+          <dd class='mt-1 text-fg'>
+            Effective jump shadow extent in km, shown when the shadow exceeds the body's
+            own contribution. The shadow source is identified where it originates from a
+            parent star rather than the giant itself.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Physical Data</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Diameter</dt>
+          <dd class='mt-1 text-fg'>Surface diameter in kilometres.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Mass</dt>
+          <dd class='mt-1 text-fg'>Planetary mass in Earth masses (☉).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Rotation</dt>
+          <dd class='mt-1 text-fg'>Sidereal rotation period in hours.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Size</dt>
+          <dd class='mt-1 text-fg'>Size classification code (Small, Medium, or Large).</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Transit Times</p>
+      <p class='text-fg'>
+        Standard transit durations to and from the body's jump shadow boundary,
+        based on 1g and 2g constant-acceleration profiles.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Moons</p>
+      <p class='text-fg'>
+        Paginated list of satellites in orbital order. Toggle
+        <span class='font-semibold text-fg-bright'>Significant only</span>
+        to suppress sub-kilometre bodies.
+      </p>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0626GG
+    </div>
+  </div>
+<% end %>

@@ -29,6 +29,10 @@ class GeneratorService
     get_service(klass.name.underscore, params)
   end
 
+  def generate_from_uwp(uwp:, orbit:, star:)
+    call_service('uwp', { uwp: uwp, orbit: orbit, star: star })
+  end
+
   def lookup_star(stellar_type:, stellar_subtype: nil, stellar_class: nil)
     query = { stellarType: stellar_type }
     query[:subtype] = stellar_subtype if stellar_subtype.present?

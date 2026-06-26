@@ -5,14 +5,24 @@
   subsector = parsec&.subsector
 %>
 
+<%
+  type_help = "#{@stellar_object.type.underscore}_show"
+  help_template = lookup_context.template_exists?("help/#{type_help}", [], false) ? type_help : 'stellar_objects_show'
+%>
+<% content_for :help_path, help_page_path(help_template) %>
 <%= content_for :title, @stellar_object.class.model_name.human %>
 <%= content_for :page_kicker, "IISS Class IV Survey" %>
 <%= content_for :page_title, @stellar_object.display_name %>
 <%= content_for :iiss_form, '0407F-IV PART P' %>
 <%= content_for :page_buttons do %>
   <div class='flex items-center justify-between'>
-    <div>
+    <div class='flex gap-2'>
       <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+      <% if (@stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)) && @stellar_object.orbiting.is_a?(Star) %>
+        <%= button_to 'Regenerate', regenerate_characteristics_stellar_object_path(@stellar_object),
+              method: :post, class: 'btn btn-secondary',
+              data: { turbo_confirm: 'Replace all characteristics from the current UWP? Existing moons will be replaced.' } %>
+      <% end %>
     </div>
     <button type='button'
             title='Copy as markdown'
