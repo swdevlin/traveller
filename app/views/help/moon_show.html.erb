@@ -1,0 +1,74 @@
+<% content_for :title, 'Moon' %>
+
+<%= render 'help/page', title: 'Moon' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-fg'>
+      <p>
+        Displays the survey record for a natural satellite. Data is organised into
+        tabs corresponding to each digit of the Universal World Profile, plus a
+        supplementary Orbital tab. Moons orbit a planetary body rather than a stellar
+        primary; orbital distances are expressed in planetary diameters.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Tabs</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbital</dt>
+          <dd class='mt-1 text-fg'>
+            Orbital radius in planetary diameters, period, effective HZCO deviation,
+            tidal lock status, sidereal day, twilight zone flag, and the location
+            hierarchy up through the parent planet, star system, and sector.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Starport</dt>
+          <dd class='mt-1 text-fg'>Starport classification (A–E, X), allegiance, and travel zone.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Physical</dt>
+          <dd class='mt-1 text-fg'>
+            Diameter (km), mass (Earth masses), surface gravity (g), density (Earth
+            relative), mean temperature (°C), rotation period (hours), axial tilt,
+            albedo, and greenhouse factor.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Atmo</dt>
+          <dd class='mt-1 text-fg'>
+            Atmosphere code and composition. Tainted atmospheres include irritant
+            subtype, severity, and persistence ratings.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hydro</dt>
+          <dd class='mt-1 text-fg'>Hydrographics code, liquid type, and surface distribution.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Pop</dt>
+          <dd class='mt-1 text-fg'>
+            Population code with headcount range, concentration rating, urbanisation
+            percentage, major city count, and cultural indices.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Gov</dt>
+          <dd class='mt-1 text-fg'>Government type, authority, centralisation, and governmental structure.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Law</dt>
+          <dd class='mt-1 text-fg'>Law level code with sub-ratings covering restrictions and judicial system.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Tech</dt>
+          <dd class='mt-1 text-fg'>Overall technology level code with per-category sub-ratings.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0626MN
+    </div>
+  </div>
+<% end %>

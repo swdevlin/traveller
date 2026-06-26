@@ -1,0 +1,101 @@
+<% content_for :title, 'Planetoid Belt' %>
+
+<%= render 'help/page', title: 'Planetoid Belt' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-fg'>
+      <p>
+        Displays the survey record for a planetoid belt. Data is organised into
+        tabs corresponding to each digit of the Universal World Profile, plus
+        supplementary tabs for orbital mechanics and the significant body catalogue.
+        The Physical tab presents belt-specific data in place of the standard
+        planetary physical fields.
+      </p>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Controls</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Regenerate</dt>
+          <dd class='mt-1 text-fg'>
+            Submits the belt's Universal World Profile and orbital parameters to the
+            generator data core, which recomputes and returns a complete characteristic
+            profile. All existing survey data for the belt is superseded by the returned
+            values, including the significant body catalogue — all previously recorded
+            planetoids are expunged and reconstructed from the generator's output.
+            This operation is irreversible. Available only when the belt orbits a stellar
+            primary.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='font-semibold text-highlight mb-2'>Tabs</p>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbital</dt>
+          <dd class='mt-1 text-fg'>
+            Orbital radius (orbit number and/or AU), period, effective HZCO deviation,
+            retrograde flag, inclination, eccentricity, and the location hierarchy
+            through to sector.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Starport</dt>
+          <dd class='mt-1 text-fg'>
+            Starport classification (A–E, X), allegiance, and travel zone.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Physical</dt>
+          <dd class='mt-1 text-fg'>
+            Belt-specific data: resource rating, bulk, and span. Belt composition is
+            expressed as percentage split across metallic (M), stony (S), carbonaceous
+            (C), and other (O) material types; these values must total 100%.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Atmo</dt>
+          <dd class='mt-1 text-fg'>Atmosphere code, relevant for belts with trace or exotic gas envelopes.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hydro</dt>
+          <dd class='mt-1 text-fg'>Hydrographics code, liquid type, and distribution.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Pop</dt>
+          <dd class='mt-1 text-fg'>
+            Population code with headcount range, concentration rating, urbanisation
+            percentage, major city count, and cultural indices.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Gov</dt>
+          <dd class='mt-1 text-fg'>Government type, authority, centralisation, and governmental structure.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Law</dt>
+          <dd class='mt-1 text-fg'>Law level code with sub-ratings covering restrictions and judicial system.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Tech</dt>
+          <dd class='mt-1 text-fg'>Overall technology level code with per-category sub-ratings.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Bodies</dt>
+          <dd class='mt-1 text-fg'>
+            Paginated list of significant bodies within the belt. The tab counter shows
+            the total body count. Toggle
+            <span class='font-semibold text-fg-bright'>Significant only</span>
+            to suppress sub-kilometre fragments.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0626PB
+    </div>
+  </div>
+<% end %>
