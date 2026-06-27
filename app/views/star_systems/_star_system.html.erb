@@ -11,8 +11,8 @@
      end
 %>
 
-<div id="<%= dom_id star_system %>" class="space-y-6">
-  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4">
+<div id="<%= dom_id star_system %>" class="space-y-4">
+  <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
     <%= render 'application/data_block',
                label: 'Subsector',
                value: link_to(star_system.parsec.subsector.name,
@@ -35,14 +35,14 @@
 
   </div>
 
-  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4">
+  <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
     <%= render 'main_world_uwp', star_system: star_system %>
     <%= render 'trade_codes', star_system: star_system %>
     <%= render 'bases', star_system: star_system %>
     <%= render 'application/data_block', label: 'PBG', value: content_tag(:span, star_system.pbg, class: 'tracking-[0.2em]') %>
   </div>
 
-  <div class="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-4">
+  <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
     <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
       <div class='min-w-0'>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Survey Index</div>
@@ -82,6 +82,8 @@
     <% end %>
   </div>
     <%= render 'application/observation_block', notes: star_system.notes %>
+
+    <%= render 'main_world_details', star_system: star_system %>
 
     <% map_path = map_star_system_path(star_system) %>
     <div class='flex justify-end mb-1'>

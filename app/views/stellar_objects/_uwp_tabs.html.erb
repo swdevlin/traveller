@@ -2,6 +2,7 @@
   uwp = stellar_object.uwp.presence || 'X000000-0'
   physical_partial = local_assigns.fetch(:physical_tab, 'stellar_objects/physical_tab')
   extra_tabs = local_assigns.fetch(:extra_tabs, [])
+  hide_orbital = local_assigns.fetch(:hide_orbital, false)
   storage_key = "uwp_tabs_#{dom_id(stellar_object)}"
 
   uwp_tab_defs = [
@@ -17,12 +18,15 @@
   ]
 %>
 
+<% visible_tab_defs = hide_orbital ? uwp_tab_defs.reject { |t| t[:id] == 'orbital' } : uwp_tab_defs %>
+<% default_tab = hide_orbital ? 'starport' : 'orbital' %>
+
 <div data-controller="tabs"
-     data-tabs-default-value="orbital"
+     data-tabs-default-value="<%= default_tab %>"
      data-tabs-storage-key-value="<%= storage_key %>">
 
   <div class="uwp-tab-bar">
-    <% uwp_tab_defs.each_with_index do |tab, i| %>
+    <% visible_tab_defs.each_with_index do |tab, i| %>
       <button class="uwp-tab-btn uwp-tab-inactive<%= ' uwp-tab-highlight' if tab[:highlight] %>"
               data-tabs-target="tab"
               data-tab="<%= tab[:id] %>"
@@ -30,7 +34,7 @@
         <span class="uwp-tab-code"><%= tab[:code] || '⊕' %></span>
         <span class="uwp-tab-label"><%= tab[:label] %></span>
       </button>
-      <% if i == 0 %>
+      <% if tab[:id] == 'orbital' %>
         <div class="uwp-tab-sep">
           <span class="uwp-tab-code">&nbsp;</span>
           <span class="uwp-tab-label">&nbsp;</span>
@@ -61,15 +65,17 @@
     <% end %>
   </div>
 
-  <div data-tabs-target="panel" data-tab="orbital" class="hidden">
-    <%= render 'stellar_objects/orbital_tab',
-               stellar_object: stellar_object,
-               parent: local_assigns[:parent],
-               parsec: local_assigns[:parsec],
-               allegiance: local_assigns[:allegiance],
-               shadow_km: local_assigns[:shadow_km],
-               shadow_source: local_assigns[:shadow_source] %>
-  </div>
+  <% unless hide_orbital %>
+    <div data-tabs-target="panel" data-tab="orbital" class="hidden">
+      <%= render 'stellar_objects/orbital_tab',
+                 stellar_object: stellar_object,
+                 parent: local_assigns[:parent],
+                 parsec: local_assigns[:parsec],
+                 allegiance: local_assigns[:allegiance],
+                 shadow_km: local_assigns[:shadow_km],
+                 shadow_source: local_assigns[:shadow_source] %>
+    </div>
+  <% end %>
 
   <div data-tabs-target="panel" data-tab="starport" class="hidden">
     <%= render 'stellar_objects/starport_tab', stellar_object: stellar_object %>

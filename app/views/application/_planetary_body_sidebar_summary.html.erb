@@ -8,7 +8,7 @@
 <% tech_level_record = stellar_object.tech_level_code.present? ? TechLevel.find_by(code: stellar_object.tech_level_code) : nil %>
 <% sophont_status = if stellar_object.extinct_sophont then 'Extinct' elsif stellar_object.native_sophont then 'Extant' else 'None' end %>
 
-<%= render 'application/subsection', title: 'Planetary Profile' %>
+<%= render 'application/subsection', title: local_assigns.fetch(:title, 'Planetary Profile') %>
 
 <div class="grid grid-cols-2 gap-3">
   <%= render 'application/data_block', label: 'UWP', value: stellar_object.uwp, value_style: :mono %>
@@ -68,4 +68,6 @@
   <%= render 'application/data_block', label: 'Native Sophont', value: sophont_status %>
 </div>
 
-<%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>
+<% unless local_assigns.fetch(:hide_transit_times, false) %>
+  <%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>
+<% end %>

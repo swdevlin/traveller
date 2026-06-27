@@ -37,6 +37,15 @@
 <% end %>
 
 <%= content_for :page_side do %>
+  <% if @star_system.main_world&.respond_to?(:uwp) %>
+    <div class='mb-6'>
+      <%= render 'application/planetary_body_sidebar_summary',
+                 stellar_object: @star_system.main_world,
+                 title: 'Main World Planetary Profile',
+                 hide_transit_times: true %>
+    </div>
+  <% end %>
+
   <% if subsector %>
     <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
   <% end %>
