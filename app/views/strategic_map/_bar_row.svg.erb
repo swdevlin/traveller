@@ -1,0 +1,9 @@
+<g transform="translate(<%= x %>,<%= y %>)" class="strat-row">
+  <title><%= title_text %></title>
+  <text x="14" y="3" class="strat-label"><%= label %></text>
+  <% 5.times do |i| %>
+    <% bx = 17 + i * 8 %>
+    <polygon points="<%= bx + 2 %>,0 <%= bx + 7 %>,0 <%= bx + 5 %>,5 <%= bx %>,5"
+             class="<%= i < tier ? 'strat-seg-filled' : 'strat-seg-empty' %>"/>
+  <% end %>
+</g>

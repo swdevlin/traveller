@@ -141,6 +141,9 @@ Rails.application.routes.draw do
         post :load_defaults
         match :derive_build, via: %i[post patch]
         get :map
+        get :strategic_map
+        get :resource_map
+        get :heat_map
       end
       resources :rogues, only: %i[new create index destroy]
       resources :star_systems, only: %i[new create index destroy]
