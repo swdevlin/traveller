@@ -233,7 +233,7 @@ class StarSystemMapLayout
 
   def terrestrial_image(body)
     atmo_code = body.atmosphere&.code || 0
-    hydro_code = body.hydrographics&.dig('code') || 0
+    hydro_code = body.hydrographics&.code || 0
     return :unusual if atmo_code == 10
     return :corrosive if atmo_code == 11
     return :insidious if atmo_code == 12
@@ -261,7 +261,7 @@ class StarSystemMapLayout
 
   def terrestrial_colour(body)
     atmo_code = body.atmosphere&.code || 0
-    hydro_code = body.hydrographics&.dig('code') || 0
+    hydro_code = body.hydrographics&.code || 0
 
     # Exotic/hostile atmospheres
     return '#16a34a' if atmo_code == 10 # exotic — green

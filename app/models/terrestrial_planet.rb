@@ -60,7 +60,7 @@ class TerrestrialPlanet < StellarObject
 
   def set_default_data
     self.atmosphere ||= Atmosphere.new
-    self.hydrographics ||= { 'code' => nil, 'distribution' => nil, 'liquid' => nil }
+    self.hydrographics ||= Hydrographics.new
     self.population ||= { 'code' => nil, 'concentrationRating' => nil, 'urbanizationPercentage' => nil, 'majorCities' => nil }
   end
 end

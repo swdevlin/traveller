@@ -12,8 +12,20 @@ module HasUwp
     end
   end
 
+  module HydrographicsAccessors
+    def hydrographics
+      Hydrographics.from_hash(data&.dig('hydrographics'))
+    end
+
+    def hydrographics=(value)
+      self.data ||= {}
+      self.data = data.merge('hydrographics' => value.is_a?(Hydrographics) ? value.to_h : value)
+    end
+  end
+
   included do
     prepend AtmosphereAccessors
+    prepend HydrographicsAccessors
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
@@ -62,28 +74,26 @@ module HasUwp
     self.atmosphere = atm
   end
 
-  def hydrographics_code
-    hydrographics&.dig('code')
-  end
+  def hydrographics_code          = hydrographics&.code
+  def hydrographics_liquid        = hydrographics&.liquid
+  def hydrographics_distribution  = hydrographics&.distribution
 
   def hydrographics_code=(val)
-    self.hydrographics = (hydrographics || {}).merge('code' => val.present? ? val.to_i : nil)
-  end
-
-  def hydrographics_liquid
-    hydrographics&.dig('liquid')
+    hyd = hydrographics || Hydrographics.new
+    hyd.code = val.present? ? val.to_i : nil
+    self.hydrographics = hyd
   end
 
   def hydrographics_liquid=(val)
-    self.hydrographics = (hydrographics || {}).merge('liquid' => val.presence)
-  end
-
-  def hydrographics_distribution
-    hydrographics&.dig('distribution')
+    hyd = hydrographics || Hydrographics.new
+    hyd.liquid = val.presence
+    self.hydrographics = hyd
   end
 
   def hydrographics_distribution=(val)
-    self.hydrographics = (hydrographics || {}).merge('distribution' => val.present? ? val.to_i : nil)
+    hyd = hydrographics || Hydrographics.new
+    hyd.distribution = val.present? ? val.to_i : nil
+    self.hydrographics = hyd
   end
 
   def population_code

@@ -206,12 +206,10 @@ class MarkdownPresenterBase
     hyd = @obj.hydrographics
     return [] if hyd.blank?
 
-    code = hyd['code']
-    distribution = hyd['distribution']
-    rows = [['Hydrographics', "#{code} — #{HYDROGRAPHICS_DESCRIPTIONS[code]}"]]
-    rows << ['Liquid', hyd['liquid']] if hyd['liquid'].present?
-    if distribution
-      rows << ['Distribution', "#{distribution} — #{HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS[distribution]}"]
+    rows = [['Hydrographics', "#{hyd.code} — #{HYDROGRAPHICS_DESCRIPTIONS[hyd.code]}"]]
+    rows << ['Liquid', hyd.liquid] if hyd.liquid.present?
+    if hyd.distribution
+      rows << ['Distribution', "#{hyd.distribution} — #{HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS[hyd.distribution]}"]
     end
     table_section('Hydrographics', rows)
   end
