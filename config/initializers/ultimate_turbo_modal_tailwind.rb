@@ -11,7 +11,7 @@ module UltimateTurboModal::Flavors
       'group',
       'fixed inset-0 p-0 m-0 border-none bg-transparent',
       'max-w-[100vw] max-h-dvh w-full h-full overflow-y-auto',
-      'data-[overlay=true]:backdrop:bg-slate-950/80 data-[overlay=true]:backdrop:backdrop-blur-sm',
+      'data-[overlay=true]:backdrop:bg-(--color-bg)/80 data-[overlay=true]:backdrop:backdrop-blur-sm',
       'backdrop:opacity-0 backdrop:transition-all backdrop:duration-300 backdrop:ease-out',
       'data-[entered]:data-[overlay=true]:backdrop:opacity-100',
       'data-[overlay=false]:backdrop:bg-transparent',
@@ -28,30 +28,30 @@ module UltimateTurboModal::Flavors
 
     MODAL_CONTENT_CLASSES =
       'relative max-h-screen overflow-hidden rounded-2xl ' \
-        'bg-gradient-to-b from-slate-950/95 to-slate-950/80 ' \
-        'text-left text-slate-100 shadow-2xl sm:my-8 sm:max-w-5xl ' \
-        'border border-slate-700/60 ' \
-        'ring-1 ring-deepnight-orange/10'
+        'bg-gradient-to-b from-(--color-panel) to-(--color-panel-muted) ' \
+        'text-left text-(--color-fg) shadow-2xl sm:my-8 sm:max-w-5xl ' \
+        'border border-(--color-outline) ' \
+        'ring-1 ring-(--color-highlight)/10'
 
     MODAL_MAIN_CLASSES =
       'group-data-[padding=true]:p-5 group-data-[padding=true]:pt-3 ' \
         'overflow-y-auto max-h-[75vh] ' \
-        'text-slate-200'
+        'text-(--color-fg)'
 
     MODAL_HEADER_CLASSES =
       'flex justify-between items-center w-full py-4 rounded-t ' \
-        'border-slate-700/60 ' \
+        'border-(--color-outline) ' \
         'group-data-[header-divider=true]:border-b ' \
         'group-data-[header=false]:absolute group-data-[header=false]:inset-x-0 group-data-[header=false]:top-0'
 
     MODAL_TITLE_CLASSES = 'pl-5'
 
     MODAL_TITLE_H_CLASSES =
-      'group-data-[title=false]:hidden text-lg font-semibold tracking-wide text-deepnight-orange'
+      'group-data-[title=false]:hidden text-lg font-semibold tracking-wide text-(--color-highlight)'
 
     MODAL_FOOTER_CLASSES =
-      'flex p-4 rounded-b border-slate-700/60 ' \
-        'bg-slate-950/40 ' \
+      'flex p-4 rounded-b border-(--color-outline) ' \
+        'bg-(--color-bg)/40 ' \
         'group-data-[footer-divider=true]:border-t'
 
     MODAL_CLOSE_CLASSES = 'mr-4 group-data-[close-button=false]:hidden'
@@ -59,9 +59,9 @@ module UltimateTurboModal::Flavors
     MODAL_CLOSE_SR_CLASSES = 'sr-only'
 
     MODAL_CLOSE_BUTTON_CLASSES =
-      'text-slate-400 bg-slate-950/30 border border-slate-700/60 ' \
-        'hover:bg-slate-950/60 hover:text-slate-100 hover:border-deepnight-orange/40 ' \
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-deepnight-orange/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ' \
+      'text-(--color-fg-muted) bg-(--color-bg)/30 border border-(--color-outline) ' \
+        'hover:bg-(--color-bg)/60 hover:text-(--color-fg-bright) hover:border-(--color-highlight)/40 ' \
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-highlight)/50 focus-visible:ring-offset-2 focus-visible:ring-offset-(--color-bg) ' \
         'rounded-xl text-sm p-2 ml-auto inline-flex items-center transition'
 
     MODAL_CLOSE_ICON_CLASSES = 'w-5 h-5'
@@ -72,7 +72,7 @@ module UltimateTurboModal::Flavors
       'group',
       'fixed inset-0 p-0 m-0 border-none bg-transparent',
       'max-w-[100vw] max-h-dvh w-full h-full overflow-y-auto',
-      'data-[overlay=true]:backdrop:bg-slate-950/80 data-[overlay=true]:backdrop:backdrop-blur-sm',
+      'data-[overlay=true]:backdrop:bg-(--color-bg)/80 data-[overlay=true]:backdrop:backdrop-blur-sm',
       'backdrop:opacity-0 backdrop:transition-all backdrop:duration-300 backdrop:ease-out',
       'data-[entered]:data-[overlay=true]:backdrop:opacity-100',
       'data-[overlay=false]:backdrop:bg-transparent',
@@ -105,34 +105,34 @@ module UltimateTurboModal::Flavors
 
     DRAWER_CONTENT_CLASSES =
       'relative flex h-full w-full flex-col ' \
-        'bg-slate-950 border-l border-slate-700/60 ' \
-        'group-data-[padding=true]:pt-6 shadow-xl text-slate-100'
+        'bg-(--color-bg) border-l border-(--color-outline) ' \
+        'group-data-[padding=true]:pt-6 shadow-xl text-(--color-fg)'
 
     DRAWER_HEADER_CLASSES =
       'flex items-start justify-between w-full px-4 sm:px-6 ' \
         'group-data-[header-divider=true]:pb-4 group-data-[header-divider=true]:border-b ' \
-        'group-data-[header-divider=true]:border-slate-700/60 group-data-[header=false]:hidden'
+        'group-data-[header-divider=true]:border-(--color-outline) group-data-[header=false]:hidden'
 
     DRAWER_TITLE_CLASSES = ''
 
     DRAWER_TITLE_H_CLASSES =
-      'group-data-[title=false]:hidden text-base font-semibold tracking-wide text-deepnight-orange'
+      'group-data-[title=false]:hidden text-base font-semibold tracking-wide text-(--color-highlight)'
 
     DRAWER_MAIN_CLASSES =
       'relative group-data-[padding=true]:mt-6 flex-1 overflow-y-auto ' \
         'group-data-[padding=true]:px-4 group-data-[padding=true]:sm:px-6 group-data-[padding=true]:pb-6 ' \
-        'text-slate-200'
+        'text-(--color-fg)'
 
     DRAWER_FOOTER_CLASSES =
       'flex shrink-0 px-4 py-4 sm:px-6 ' \
-        'group-data-[footer-divider=true]:border-t group-data-[footer-divider=true]:border-slate-700/60'
+        'group-data-[footer-divider=true]:border-t group-data-[footer-divider=true]:border-(--color-outline)'
 
     DRAWER_CLOSE_CLASSES = 'ml-3 flex h-7 items-center group-data-[close-button=false]:hidden'
 
     DRAWER_CLOSE_BUTTON_CLASSES =
-      'relative rounded-xl text-slate-400 ' \
-        'hover:text-slate-100 hover:bg-slate-900 ' \
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-deepnight-orange'
+      'relative rounded-xl text-(--color-fg-muted) ' \
+        'hover:text-(--color-fg-bright) hover:bg-(--color-panel-muted) ' \
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-highlight)'
 
     DRAWER_CLOSE_SR_CLASSES = MODAL_CLOSE_SR_CLASSES
 

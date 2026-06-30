@@ -12,6 +12,13 @@
     <%= render 'application/data_block', label: 'Facilities', value: starport[:facilities] %>
   </div>
 
+  <% if stellar_object.importance.present? %>
+    <%= link_to 'Generate Daily Traffic',
+                daily_traffic_stellar_object_path(stellar_object),
+                class: 'btn btn-secondary btn-sm',
+                data: { turbo_frame: 'modal' } %>
+  <% end %>
+
   <% if stellar_object.world_trade_number.present? || stellar_object.total_gwp.present? %>
     <%= render 'application/subsection', title: 'Economics' %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -65,4 +72,5 @@
       </div>
     <% end %>
   <% end %>
+
 </div>

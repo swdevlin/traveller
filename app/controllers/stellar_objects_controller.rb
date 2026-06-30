@@ -1,7 +1,7 @@
 class StellarObjectsController < ApplicationController
   ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
 
-  before_action :set_stellar_object, only: %i[ show edit update destroy regenerate_characteristics ]
+  before_action :set_stellar_object, except: %i[index new create]
 
   # GET /stellar_objects or /stellar_objects.json
   def index
@@ -81,6 +81,27 @@ class StellarObjectsController < ApplicationController
         format.json { render json: @stellar_object.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # GET /stellar_objects/1/daily_traffic
+  def daily_traffic
+    @frontier = false
+    @traffic = DailyTrafficCalculator.new(
+      importance: @stellar_object.importance,
+      wtn:        @stellar_object.world_trade_number,
+      frontier:   @frontier
+    ).calculate
+  end
+
+  # POST /stellar_objects/1/generate_daily_traffic
+  def generate_daily_traffic
+    @frontier = params[:frontier] == '1'
+    @traffic = DailyTrafficCalculator.new(
+      importance: @stellar_object.importance,
+      wtn:        @stellar_object.world_trade_number,
+      frontier:   @frontier
+    ).calculate
+    render :daily_traffic
   end
 
   # POST /stellar_objects/1/regenerate_characteristics
