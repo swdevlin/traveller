@@ -1,4 +1,4 @@
-<% gov = stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil %>
+<% gov = stellar_object.government ? Government.find_by(code: stellar_object.government.code) : nil %>
 
 <% if gov %>
   <div class="space-y-4">

@@ -256,12 +256,13 @@ class MarkdownPresenterBase
   end
 
   def government_section
-    return [] unless @obj.government_code.present?
+    governance = @obj.government
+    return [] unless governance
 
-    gov = Government.find_by(code: @obj.government_code)
+    gov = Government.find_by(code: governance.code)
     return [] unless gov
 
-    rows = [['Government', "#{HexDigit.hex_digit(@obj.government_code)} — #{gov.government_type}"]]
+    rows = [['Government', "#{HexDigit.hex_digit(governance.code)} — #{gov.government_type}"]]
     rows << ['Description', gov.description] if gov.description.present?
     [
       [:government_judicial,    'Judicial Structure'],

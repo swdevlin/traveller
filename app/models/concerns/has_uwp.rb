@@ -23,9 +23,21 @@ module HasUwp
     end
   end
 
+  module GovernanceAccessors
+    def government
+      Governance.from_hash(data&.dig('government'))
+    end
+
+    def government=(value)
+      self.data ||= {}
+      self.data = data.merge('government' => value.is_a?(Governance) ? value.to_h : value)
+    end
+  end
+
   included do
     prepend AtmosphereAccessors
     prepend HydrographicsAccessors
+    prepend GovernanceAccessors
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
@@ -139,40 +151,49 @@ module HasUwp
   def population_major_city_population = population&.dig('majorCityPopulation')
 
   def government_code
-    government&.dig('code')
+    government&.code
   end
 
   def government_code=(val)
-    self.government = (government || {}).merge('code' => val.present? ? val.to_i : nil)
+    gov = government || Governance.new
+    gov.code = val.present? ? val.to_i : nil
+    self.government = gov
   end
 
-  def government_authority      = government&.dig('authority')
-  def government_centralisation = government&.dig('centralisation')
-  def government_judicial       = government&.dig('structure', 'judicial')
-  def government_executive      = government&.dig('structure', 'executive')
-  def government_legislative    = government&.dig('structure', 'legislative')
+  def government_authority      = government&.authority
+  def government_centralisation = government&.centralisation
+  def government_judicial       = government&.judicial
+  def government_executive      = government&.executive
+  def government_legislative    = government&.legislative
 
   def government_authority=(val)
-    self.government = (government || {}).merge('authority' => val.presence)
+    gov = government || Governance.new
+    gov.authority = val.presence
+    self.government = gov
   end
 
   def government_centralisation=(val)
-    self.government = (government || {}).merge('centralisation' => val.presence)
+    gov = government || Governance.new
+    gov.centralisation = val.presence
+    self.government = gov
   end
 
   def government_judicial=(val)
-    structure = (government&.dig('structure') || {})
-    self.government = (government || {}).merge('structure' => structure.merge('judicial' => val.presence))
+    gov = government || Governance.new
+    gov.judicial = val.presence
+    self.government = gov
   end
 
   def government_executive=(val)
-    structure = (government&.dig('structure') || {})
-    self.government = (government || {}).merge('structure' => structure.merge('executive' => val.presence))
+    gov = government || Governance.new
+    gov.executive = val.presence
+    self.government = gov
   end
 
   def government_legislative=(val)
-    structure = (government&.dig('structure') || {})
-    self.government = (government || {}).merge('structure' => structure.merge('legislative' => val.presence))
+    gov = government || Governance.new
+    gov.legislative = val.presence
+    self.government = gov
   end
 
   def law_level_code
