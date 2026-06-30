@@ -9,43 +9,8 @@
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
 
-    <div>
-      <div class='flex items-end justify-between gap-3'>
-        <div>
-          <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
-            Build plan
-          </div>
-          <div class='mt-1 text-lg font-semibold text-fg-muted'>
-            YAML input
-          </div>
-        </div>
-
-        <%= link_to 'Build spec reference',
-                    help_page_path('subsector_build_specification'),
-                    class: 'link-traveller text-xs' %>
-      </div>
-
-      <% if subsector.errors[:build].any? %>
-        <ul class='mt-2 space-y-1 text-sm text-danger'>
-          <% subsector.errors[:build].each do |message| %>
-            <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
-          <% end %>
-        </ul>
-      <% end %>
-      <div id="<%= dom_id(subsector, :build_wrapper) %>">
-        <%= form.text_area :build,
-                           rows: 16,
-                           aria: { label: 'Build plan YAML' },
-                           class: [
-                             'font-mono edit-base w-full resize-y mt-2',
-                             {
-                               'border-gray-400 focus:outline-blue-600': subsector.errors[:build].none?,
-                               'border-red-400 focus:outline-red-600': subsector.errors[:build].any?
-                             }
-                           ] %>
-      </div>
-      <%= render 'derive_build_button', subsector: subsector %>
-    </div>
+    <%= render 'application/build_config', form: form, attribute: :build %>
+    <%= render 'derive_build_button', subsector: subsector %>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>

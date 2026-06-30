@@ -20,7 +20,7 @@ class WordGenerator
   end
 
   def generate
-    generator.generate
+    generator.generate.split.map(&:capitalize).join(' ')
   end
 
   def log

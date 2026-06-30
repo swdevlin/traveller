@@ -14,31 +14,61 @@
       </div>
     <% end %>
 
-    <%= render 'application/name_generator_field', form: form %>
+    <div data-tour-step='sector-name'>
+      <%= render 'application/name_generator_field', form: form %>
+    </div>
 
-    <%= render 'application/edit_field', form: form, attribute: :abbreviation do %>
-      <%= form.text_field :abbreviation, class: 'edit-base w-24' %>
+    <div data-tour-step='sector-abbreviation'>
+      <%= render 'application/edit_field', form: form, attribute: :abbreviation do %>
+        <%= form.text_field :abbreviation, class: 'edit-base w-24' %>
+      <% end %>
+    </div>
+
+    <div data-tour-step='sector-coordinates'>
+      <span class='edit-label'>Imperial Coordinates</span>
+
+      <%= render 'application/edit_field', form: form, attribute: :x, field_label: 'X', required: true do %>
+        <%= form.number_field :x, class: 'coord-input edit-base' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :y, field_label: 'Y', required: true do %>
+        <%= form.number_field :y, class: 'coord-input edit-base' %>
+      <% end %>
+    </div>
+
+    <% if sector.new_record? %>
+      <% settled = sector.default_build_spec.to_s.include?('populated') %>
+      <div data-controller='settled-build'
+           data-settled-build-settled-yaml-value="<%= SectorsController::SETTLED_BUILD_SPEC %>"
+           data-settled-build-basic-yaml-value="<%= SectorsController::BASIC_BUILD_SPEC %>"
+           >
+        <label class='flex items-center gap-2 cursor-pointer' data-tour-step='sector-settled'>
+          <input type='checkbox'
+                 data-settled-build-target='checkbox'
+                 data-action='change->settled-build#toggle'
+                 class='rounded'
+                 <%= 'checked' if settled %> />
+          <span class='edit-label'>Settled space</span>
+        </label>
+
+        <div class='mt-4' data-tour-step='sector-build-plan'>
+          <%= render 'application/build_config',
+                     form: form,
+                     attribute: :default_build_spec,
+                     textarea_data: { 'settled-build-target': 'textarea' } %>
+        </div>
+      </div>
     <% end %>
 
-    <span class='edit-label'>Imperial Coordinates</span>
-
-    <%= render 'application/edit_field', form: form, attribute: :x, field_label: 'X', required: true do %>
-      <%= form.number_field :x, class: 'coord-input edit-base' %>
-    <% end %>
-
-    <%= render 'application/edit_field', form: form, attribute: :y, field_label: 'Y', required: true do %>
-      <%= form.number_field :y, class: 'coord-input edit-base' %>
-    <% end %>
-
-    <div class='edit-row-notes'>
+    <div class='edit-row-notes' data-tour-step='sector-observations'>
       <div class='edit-label'>Observations</div>
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
       <%= render 'application/field_error', form: form, attribute: :notes %>
     </div>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit sector.persisted? ? 'Update core' : 'Commit Core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', sector.persisted? ? sector : sectors_path, class: 'w-full sm:w-auto btn' %>
+    <div class='pt-2 flex flex-row gap-2'>
+      <%= form.submit sector.persisted? ? 'Update core' : 'Commit Core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', sector.persisted? ? sector : sectors_path, class: 'btn' %>
     </div>
   </div>
 <% end %>

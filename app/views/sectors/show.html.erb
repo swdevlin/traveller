@@ -69,7 +69,12 @@
       <% end %>
     </div>
   </div>
-  <%= render 'subsector_grid', sector: @sector %>
+  <turbo-frame id='sector-subsector-grid'
+               data-controller='ui-updates'
+               data-ui-updates-sector-id-value='<%= @sector.id %>'
+               data-ui-updates-src-value='<%= sector_path(@sector) %>'>
+    <%= render 'subsector_grid', sector: @sector %>
+  </turbo-frame>
 
   <div class='mt-6'>
     <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>
@@ -117,6 +122,11 @@
 
     <%= render 'application/observation_block', notes: @sector.notes %>
 
-    <%= render 'subsectors/table', subsectors: @sector.subsectors.order(:name) %>
+    <turbo-frame id='sector-subsectors-table'
+                 data-controller='ui-updates'
+                 data-ui-updates-sector-id-value='<%= @sector.id %>'
+                 data-ui-updates-src-value='<%= sector_path(@sector) %>'>
+      <%= render 'subsectors/table', subsectors: @sector.subsectors.order(:name) %>
+    </turbo-frame>
   </div>
 <% end %>

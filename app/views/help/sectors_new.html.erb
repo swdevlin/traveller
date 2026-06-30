@@ -1,0 +1,67 @@
+<% content_for :title, 'New Sector' %>
+
+<%= render 'help/page', title: 'New Sector' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-sm text-fg'>
+      <p>Register a new sector. Once committed, the sector&rsquo;s 16 subsectors are created automatically in the background.</p>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Core details</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>The sector&rsquo;s designation. Use <i class="fa-regular fa-dice"></i> to generate a random name. Use <i class="fa-solid fa-language"></i> to choose the language used for name generation.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Abbreviation</dt>
+          <dd class='mt-1 text-fg'>A short code used on maps and in references. Typically two to four characters.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Imperial Coordinates</dt>
+          <dd class='mt-1 text-fg'>The sector&rsquo;s position in the Imperial grid. X increases coreward; Y increases spinward. Each sector occupies a unique X/Y position.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Observations</dt>
+          <dd class='mt-1 text-fg'>Free-text notes in CommonMark (Markdown) format. Displayed on the sector survey record.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Default subsector build</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Settled space</dt>
+          <dd class='mt-1 text-fg'>
+            <div class='space-y-2'>
+              <p>When enabled, each of the 16 subsectors is pre-configured with a populated build plan so that generated star systems will have populations, governments, and tech levels. The survey index is set to 10.</p>
+              <p>When disabled, subsectors are seeded with a minimal build plan and a survey index of 3. Use this for exploration or frontier sectors where population data should be sparse or absent.</p>
+              <p>Defaults to <span class='font-semibold text-fg-bright'>on</span> for Charted Space and Homebrew campaigns, and <span class='font-semibold text-fg-bright'>off</span> for Deepnight Revelation campaigns.</p>
+            </div>
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Survey index</dt>
+          <dd class='mt-1 text-fg'>
+            <div class='space-y-2'>
+              <p>The survey index (<code>surveyIndex</code>) controls what data is visible on player-facing maps. Systems with a survey index below the map&rsquo;s threshold are hidden or shown with reduced detail.</p>
+              <p>A value of <span class='font-semibold text-fg-bright'>10</span> marks a system as fully surveyed and visible on all maps. A value of <span class='font-semibold text-fg-bright'>3</span> marks it as lightly surveyed — it will appear on the starmap but without detailed world data, reflecting an exploration-era record.</p>
+            </div>
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Build plan</dt>
+          <dd class='mt-1 text-fg'>
+            YAML configuration applied to every subsector when the sector is created. You can customise it here before committing.
+            See the <%= link_to 'build specification reference', help_page_path('subsector_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for the full schema.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0629SC
+    </div>
+  </div>
+<% end %>

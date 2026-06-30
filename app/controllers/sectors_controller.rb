@@ -223,9 +223,24 @@ class SectorsController < ApplicationController
               filename: "#{@sector.name.parameterize}-sector-poster.pdf"
   end
 
+  SETTLED_BUILD_SPEC = <<~YAML.freeze
+    type: STANDARD
+    surveyIndex: 10
+    populated:
+      type: full
+      minTechLevel: 0
+      maxTechLevel: 15
+  YAML
+
+  BASIC_BUILD_SPEC = <<~YAML.freeze
+    type: STANDARD
+    surveyIndex: 3
+  YAML
+
   # GET /sectors/new
   def new
     @sector = Sector.new
+    @sector.default_build_spec = current_campaign.deepnight_revelation? ? BASIC_BUILD_SPEC : SETTLED_BUILD_SPEC
   end
 
   def clear
@@ -348,7 +363,7 @@ class SectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def sector_params
-      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language])
+      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language, :default_build_spec])
     end
 
     def job_priority(sector, subsector)

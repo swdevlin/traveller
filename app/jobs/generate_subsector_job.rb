@@ -145,5 +145,9 @@ class GenerateSubsectorJob < ApplicationJob
     end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
+    ActionCable.server.broadcast(
+      'ui_updates',
+      { event: 'subsector_populated', sector_id: subsector.sector_id, subsector_id: subsector.id }
+    )
   end
 end

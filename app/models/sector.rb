@@ -6,7 +6,7 @@ class Sector < ApplicationRecord
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
-  attr_accessor :skip_subsector_creation
+  attr_accessor :skip_subsector_creation, :default_build_spec
   after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
@@ -100,8 +100,8 @@ class Sector < ApplicationRecord
     ('A'..'P').each_with_index do |letter, index|
       sx = (index % 4) + 1
       sy = (index / 4) + 1
-      subsector_name = subsector_names&.dig(letter, 'Name') || letter
-      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name)
+      subsector_name = subsector_names&.dig(letter, 'Name')
+      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name, default_build_spec)
     end
   end
 

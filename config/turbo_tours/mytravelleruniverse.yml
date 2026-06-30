@@ -70,6 +70,27 @@ journeys:
       title: "Theme"
       body: "Choose your UI theme. Maybe the most important setting of all."
 
+  sector_new:
+    - name: sector_name
+      target: sector-name
+      title: "Sector designation"
+      body: "Use the dice button to generate a random name. Use the language button to choose the language used for name generation."
+
+    - name: sector_coordinates
+      target: sector-coordinates
+      title: "Imperial coordinates"
+      body: "The sector's position in the Imperial grid. X increases coreward, Y increases spinward. Each sector occupies a unique position."
+
+    - name: sector_settled
+      target: sector-settled
+      title: "Settled space"
+      body: "Enable this for a sector in known space. The build specification will include a populated section to indicate that the sebsectors are settled and the survey index will be 10 so the players will have access to the data. For exploration regions, you can set this to false and the survey index will be 3 and the default is not populated."
+
+    - name: sector_build_plan
+      target: sector-build-plan
+      title: "Default build plan"
+      body: "The build specification applied to every subsector when the sector is created. Toggling settled space updates this automatically, but you can edit it directly. See the build specification reference for the full schema."
+
   sectors:
     - name: sector_coordinates
       target: sector-coordinates

@@ -3,14 +3,23 @@
 class CreateSubsectorJob < ApplicationJob
   queue_as :default
 
-  def perform(sector_id, letter, x, y, subsector_name = nil)
+  def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil)
     sector = Sector.find(sector_id)
+    campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
+
+    name = if subsector_name.present?
+      subsector_name
+    elsif sector.source == 'manual' && (effective_lang = sector.effective_language(campaign)).present?
+      WordGenerator.new(language: effective_lang.to_sym).generate
+    else
+      letter
+    end
 
     subsector = sector.subsectors.create!(
       x: x,
       y: y,
       abbreviation: letter,
-      name: subsector_name || letter
+      name: name
     )
 
     create_parsecs(sector, subsector)
@@ -20,6 +29,8 @@ class CreateSubsectorJob < ApplicationJob
     elsif sector.source == 'deepnight'
       subsector.load_deepnight_defaults!
       subsector.save!
+    elsif default_build_spec.present?
+      subsector.update!(build: default_build_spec, build_source: 'default')
     end
 
     ActionCable.server.broadcast(

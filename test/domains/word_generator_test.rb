@@ -3,18 +3,18 @@
 require 'test_helper'
 
 class WordGeneratorTest < ActiveSupport::TestCase
-  ASLAN_CHARS    = /\A[aefhiklorstuw y]+\z/
-  SOLOMANI_CHARS = /\A[a-z]+\z/
-  FRENCH_CHARS   = /\A[a-zéèêâîôû]+\z/
-  JAPANESE_CHARS = /\A[a-z]+\z/
-  KOREAN_CHARS   = /\A[a-z]+\z/
-  HINDI_CHARS    = /\A[a-z]+\z/
-  NORDIC_CHARS   = /\A[a-zåäöæø]+\z/
-  OYNPRITH_CHARS  = /\A[a-z]+\z/
-  ARRGHOUN_CHARS  = /\A[a-z]+\z/
+  ASLAN_CHARS    = /\A[aefhiklorstuw y]+\z/i
+  SOLOMANI_CHARS = /\A[a-z]+\z/i
+  FRENCH_CHARS   = /\A[a-zéèêâîôûÉÈÊÂÎÔÛ]+\z/i
+  JAPANESE_CHARS = /\A[a-z]+\z/i
+  KOREAN_CHARS   = /\A[a-z]+\z/i
+  HINDI_CHARS    = /\A[a-z]+\z/i
+  NORDIC_CHARS   = /\A[a-zåäöæøÅÄÖÆØ]+\z/i
+  OYNPRITH_CHARS  = /\A[a-z]+\z/i
+  ARRGHOUN_CHARS  = /\A[a-z]+\z/i
   GURVIN_CHARS    = /\A[a-z0-9'\-æ ]+\z/i
-  XENGRI_CHARS    = /\A[a-z'!]+\z/
-  ZDETL_CHARS     = /\A[a-z']+\z/
+  XENGRI_CHARS    = /\A[a-z'!]+\z/i
+  ZDETL_CHARS     = /\A[a-z']+\z/i
 
   test 'raises ArgumentError for unknown language' do
     assert_raises(ArgumentError) do
@@ -55,9 +55,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'aslan: snapshot seed 42 produces raosoltia' do
+  test 'aslan: snapshot seed 42 produces Raosoltia' do
     word = WordGenerator.new(language: :aslan, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'raosoltia', word
+    assert_equal 'Raosoltia', word
   end
 
   # --- Solomani ---
@@ -81,9 +81,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'solomani: snapshot seed 42 produces towdipo' do
+  test 'solomani: snapshot seed 42 produces Towdipo' do
     word = WordGenerator.new(language: :solomani, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'towdipo', word
+    assert_equal 'Towdipo', word
   end
 
   # --- French ---
@@ -107,9 +107,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'french: snapshot seed 42 produces mêrsôrnir' do
+  test 'french: snapshot seed 42 produces Mêrsôrnir' do
     word = WordGenerator.new(language: :french, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'mêrsôrnir', word
+    assert_equal 'Mêrsôrnir', word
   end
 
   # --- Japanese ---
@@ -133,9 +133,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'japanese: snapshot seed 42 produces shogitasan' do
+  test 'japanese: snapshot seed 42 produces Shogitasan' do
     word = WordGenerator.new(language: :japanese, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'shogitasan', word
+    assert_equal 'Shogitasan', word
   end
 
   # --- Nordic ---
@@ -159,9 +159,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'nordic: snapshot seed 42 produces tåntsneirmvelt' do
+  test 'nordic: snapshot seed 42 produces Tåntsneirmvelt' do
     word = WordGenerator.new(language: :nordic, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'tåntsneirmvelt', word
+    assert_equal 'Tåntsneirmvelt', word
   end
 
   # --- Korean ---
@@ -185,9 +185,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'korean: snapshot seed 42 produces juiltteoge' do
+  test 'korean: snapshot seed 42 produces Juiltteoge' do
     word = WordGenerator.new(language: :korean, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'juiltteoge', word
+    assert_equal 'Juiltteoge', word
   end
 
   # --- Hindi ---
@@ -211,9 +211,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'hindi: snapshot seed 42 produces ruunkhauja' do
+  test 'hindi: snapshot seed 42 produces Ruunkhauja' do
     word = WordGenerator.new(language: :hindi, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'ruunkhauja', word
+    assert_equal 'Ruunkhauja', word
   end
 
   # --- Oynprith (Droyne) ---
@@ -237,9 +237,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'oynprith: snapshot seed 42 produces keubpraytsank' do
+  test 'oynprith: snapshot seed 42 produces Keubpraytsank' do
     word = WordGenerator.new(language: :oynprith, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'keubpraytsank', word
+    assert_equal 'Keubpraytsank', word
   end
 
   # --- Arrghoun (Vargr) ---
@@ -263,9 +263,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test 'arrghoun: snapshot seed 42 produces kanllaegzzog' do
+  test 'arrghoun: snapshot seed 42 produces Kanllaegzzog' do
     word = WordGenerator.new(language: :arrghoun, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal 'kanllaegzzog', word
+    assert_equal 'Kanllaegzzog', word
   end
 
   # --- Gurvin (Hiver) ---
@@ -315,9 +315,9 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test "xengri: snapshot seed 42 produces ktal'gr" do
+  test "xengri: snapshot seed 42 produces Ktal'gr" do
     word = WordGenerator.new(language: :xengri, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal "ktal'gr", word
+    assert_equal "Ktal'gr", word
   end
 
   # --- Zdetl (Zhodani) ---
@@ -341,8 +341,8 @@ class WordGeneratorTest < ActiveSupport::TestCase
     assert_equal word_a, word_b
   end
 
-  test "zdetl: snapshot seed 42 produces chelpi'jdonch" do
+  test "zdetl: snapshot seed 42 produces Chelpi'jdonch" do
     word = WordGenerator.new(language: :zdetl, dice_roller: DiceRoller.new(seed: 42)).generate
-    assert_equal "chelpi'jdonch", word
+    assert_equal "Chelpi'jdonch", word
   end
 end
