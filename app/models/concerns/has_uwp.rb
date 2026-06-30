@@ -45,11 +45,23 @@ module HasUwp
     end
   end
 
+  module TechLevelAccessors
+    def tech_level
+      Technology.from_hash(data&.dig('tech_level'))
+    end
+
+    def tech_level=(value)
+      self.data ||= {}
+      self.data = data.merge('tech_level' => value.is_a?(Technology) ? value.to_h : value)
+    end
+  end
+
   included do
     prepend AtmosphereAccessors
     prepend HydrographicsAccessors
     prepend LegalSystemAccessors
     prepend GovernanceAccessors
+    prepend TechLevelAccessors
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
@@ -297,28 +309,90 @@ module HasUwp
     self.data = (data || {}).merge('starport_code' => val.presence)
   end
 
-  def tech_level_code
-    data&.dig('tech_level', 'code')
+  def tech_level_code = tech_level&.code
+
+  def tech_level_code=(val)
+    tl = tech_level || Technology.new
+    tl.code = val.present? ? val.to_i : nil
+    self.tech_level = tl
   end
 
-  def tech_level_code=(value)
-    self.data ||= {}
-    self.data['tech_level'] ||= {}
-    self.data['tech_level']['code'] = value.presence ? value.to_i : nil
+  def tech_level_energy           = tech_level&.energy
+  def tech_level_electronics      = tech_level&.electronics
+  def tech_level_manufacturing    = tech_level&.manufacturing
+  def tech_level_medical          = tech_level&.medical
+  def tech_level_environmental    = tech_level&.environmental
+  def tech_level_land             = tech_level&.land
+  def tech_level_sea              = tech_level&.sea
+  def tech_level_air              = tech_level&.air
+  def tech_level_space            = tech_level&.space
+  def tech_level_personal_military = tech_level&.personal_military
+  def tech_level_heavy_military   = tech_level&.heavy_military
+
+  def tech_level_energy=(val)
+    tl = tech_level || Technology.new
+    tl.energy = val.present? ? val.to_i : nil
+    self.tech_level = tl
   end
 
-  TECH_LEVEL_CATEGORIES = %w[electronics energy land sea air space personal_military heavy_military manufacturing environmental medical].freeze
+  def tech_level_electronics=(val)
+    tl = tech_level || Technology.new
+    tl.electronics = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
 
-  TECH_LEVEL_CATEGORIES.each do |cat|
-    define_method(:"tech_level_#{cat}") do
-      data&.dig('tech_level', cat)
-    end
+  def tech_level_manufacturing=(val)
+    tl = tech_level || Technology.new
+    tl.manufacturing = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
 
-    define_method(:"tech_level_#{cat}=") do |val|
-      self.data ||= {}
-      self.data['tech_level'] ||= {}
-      self.data['tech_level'][cat] = val.present? ? val.to_i : nil
-    end
+  def tech_level_medical=(val)
+    tl = tech_level || Technology.new
+    tl.medical = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_environmental=(val)
+    tl = tech_level || Technology.new
+    tl.environmental = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_land=(val)
+    tl = tech_level || Technology.new
+    tl.land = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_sea=(val)
+    tl = tech_level || Technology.new
+    tl.sea = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_air=(val)
+    tl = tech_level || Technology.new
+    tl.air = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_space=(val)
+    tl = tech_level || Technology.new
+    tl.space = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_personal_military=(val)
+    tl = tech_level || Technology.new
+    tl.personal_military = val.present? ? val.to_i : nil
+    self.tech_level = tl
+  end
+
+  def tech_level_heavy_military=(val)
+    tl = tech_level || Technology.new
+    tl.heavy_military = val.present? ? val.to_i : nil
+    self.tech_level = tl
   end
 
   module ClassMethods

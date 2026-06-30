@@ -51,7 +51,7 @@
 <% end %>
 
 <%= render 'application/edit_field', form: form, attribute: :tech_level_environmental, field_label: 'Environmental' do %>
-  <%= form.number_field :tech_level_medical,
+  <%= form.number_field :tech_level_environmental,
                         value: stellar_object.tech_level_environmental,
                         class: 'edit-base sm:w-28 w-24',
                         step: 1,
