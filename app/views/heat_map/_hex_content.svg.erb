@@ -1,0 +1,41 @@
+<%
+  hex_size = effective_hex_size
+  bar_x    = (cx - 28).round(2)
+  bar1_y   = (cy - hex_size * 0.20).round(2)
+  bar_step = 8
+  uwp_y    = (cy + hex_size * 0.46).round(2)
+  name_y   = (cy + hex_size * 0.78).round(2)
+
+  uwp = system.main_world_uwp
+  pop_code = uwp&.[](4)
+  name_display = system.name.present? ?
+    ((pop_code && pop_code >= '9') ? system.name.upcase : system.name) :
+    nil
+
+  ix_val   = analysis.importance
+  ix_sign  = ix_val.nil? ? '' : (ix_val >= 0 ? '+' : '')
+  ix_label = ix_val.nil? ? 'n/a' : "#{ix_sign}#{ix_val}"
+%>
+<g>
+  <%= render 'strategic_map/bar_row',
+        label: 'Ix',
+        tier: analysis.importance_tier,
+        x: bar_x,
+        y: bar1_y,
+        title_text: "Importance: #{ix_label} → tier #{analysis.importance_tier} of 5" %>
+
+  <%= render 'strategic_map/bar_row',
+        label: 'RU',
+        tier: analysis.resource_units_tier,
+        x: bar_x,
+        y: (bar1_y + bar_step).round(2),
+        title_text: "Economy: #{analysis.resource_units_score} resource units → tier #{analysis.resource_units_tier} of 5" %>
+
+  <% if uwp.present? %>
+    <text class="uwp" x="<%= cx.round(2) %>" y="<%= uwp_y %>" text-anchor="middle"><%= uwp %></text>
+  <% end %>
+
+  <% if name_display.present? %>
+    <text class="system-name" x="<%= cx.round(2) %>" y="<%= name_y %>" text-anchor="middle"><%= name_display %></text>
+  <% end %>
+</g>

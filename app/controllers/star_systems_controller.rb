@@ -605,6 +605,7 @@ class StarSystemsController < ApplicationController
     return nil if missing.size == 3 # All blank is OK for optional stars
 
     spectral_type = sp[type_key]
+
     luminosity = sp[luminosity_key]
     subtype = sp[subtype_key].to_i
 

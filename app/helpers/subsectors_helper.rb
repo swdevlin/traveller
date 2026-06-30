@@ -32,23 +32,34 @@ module SubsectorsHelper
     hex_map_svg_dimensions(8, 10)
   end
 
+  def effective_hex_size
+    @hex_size || HEX_SIZE
+  end
+
   def hex_map_svg_dimensions(cols, rows)
-    width  = SVG_PADDING * 2 + cols * HEX_WIDTH * 0.75 + HEX_WIDTH * 0.25
-    height = SVG_PADDING * 2 + rows * HEX_HEIGHT + HEX_HEIGHT * 0.5
+    hs = effective_hex_size
+    hh = hs * Math.sqrt(3)
+    hw = hs * 2
+    width  = SVG_PADDING * 2 + cols * hw * 0.75 + hw * 0.25
+    height = SVG_PADDING * 2 + rows * hh + hh * 0.5
     [width.round, height.round]
   end
 
   def hex_center(col, row)
+    hs = effective_hex_size
+    hh = hs * Math.sqrt(3)
+    hw = hs * 2
     c = col - 1
     r = row - 1
-    y_offset = col.even? ? HEX_HEIGHT * 0.5 : 0
+    y_offset = col.even? ? hh * 0.5 : 0
 
-    cx = SVG_PADDING + c * HEX_WIDTH * 0.75 + HEX_WIDTH / 2
-    cy = SVG_PADDING + r * HEX_HEIGHT + y_offset + HEX_HEIGHT / 2
+    cx = SVG_PADDING + c * hw * 0.75 + hw / 2
+    cy = SVG_PADDING + r * hh + y_offset + hh / 2
     [cx, cy]
   end
 
-  def hex_polygon_points(cx, cy, size = HEX_SIZE)
+  def hex_polygon_points(cx, cy, size = nil)
+    size ||= effective_hex_size
     (0..5).map do |i|
       angle = Math::PI / 180 * (60 * i)
       x = cx + size * Math.cos(angle)
@@ -68,10 +79,11 @@ module SubsectorsHelper
 
   # Returns [[x1,y1],[x2,y2]] pairs for each outer edge of this hex not shared with the border set
   def border_outer_edges(col, row, ux, uy, border_set)
+    hs = effective_hex_size
     cx, cy = hex_center(col, row)
     verts = (0..5).map do |i|
       angle = Math::PI / 180 * (60 * i)
-      [cx + HEX_SIZE * Math.cos(angle), cy + HEX_SIZE * Math.sin(angle)]
+      [cx + hs * Math.cos(angle), cy + hs * Math.sin(angle)]
     end
     hex_edge_neighbours(ux, uy).each_with_index.filter_map do |neighbour, i|
       next if border_set.include?(neighbour)

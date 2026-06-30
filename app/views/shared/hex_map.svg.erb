@@ -2,7 +2,8 @@
   cols = @cols
   rows = @rows
   svg_width, svg_height = hex_map_svg_dimensions(cols, rows)
-  hex_size = SubsectorsHelper::HEX_SIZE
+  hex_size   = effective_hex_size
+  hex_height = hex_size * Math.sqrt(3)
 
   parsecs_by_pos           = @parsecs_by_pos           || {}
   systems_by_pos           = @systems_by_pos           || {}
@@ -21,10 +22,10 @@
     min_cy = all_centers.map(&:last).min
     max_cy = all_centers.map(&:last).max
     pad = SubsectorsHelper::SVG_PADDING
-    vb_x = (min_cx - SubsectorsHelper::HEX_SIZE - pad).floor
-    vb_y = (min_cy - SubsectorsHelper::HEX_HEIGHT / 2.0 - pad).floor
-    vb_w = (max_cx - min_cx + SubsectorsHelper::HEX_WIDTH + pad * 2).ceil
-    vb_h = (max_cy - min_cy + SubsectorsHelper::HEX_HEIGHT + pad * 2).ceil
+    vb_x = (min_cx - hex_size - pad).floor
+    vb_y = (min_cy - hex_height / 2.0 - pad).floor
+    vb_w = (max_cx - min_cx + hex_size * 2 + pad * 2).ceil
+    vb_h = (max_cy - min_cy + hex_height + pad * 2).ceil
     svg_width  = vb_w
     svg_height = vb_h
     view_box   = "#{vb_x} #{vb_y} #{vb_w} #{vb_h}"
@@ -85,6 +86,22 @@
     <% end %>
     .region-fill { pointer-events: none; }
     .region-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    <% if @map_mode == :strategic || @map_mode == :resource || @map_mode == :heat %>
+    .strat-system-name { font-family: "Inter", system-ui, sans-serif; font-size: 8px; fill: #333333; font-weight: bold; text-anchor: middle; }
+    .strat-uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 7px; fill: #777777; text-anchor: middle; }
+    .strat-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 7px; fill: #555555; text-anchor: end; dominant-baseline: central; }
+    .strat-seg-filled { fill: #1e3a5f; }
+    .strat-seg-empty  { fill: #dde3ec; }
+    .strat-role-badge { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+    .strat-role-market    { fill: #065f46; }
+    .strat-role-supplier  { fill: #92400e; }
+    .strat-role-extractor { fill: #78350f; }
+    .strat-role-deficit   { fill: #7c3aed; }
+    .strat-modifier { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 6px; dominant-baseline: middle; }
+    .strat-mod-positive { fill: #065f46; }
+    .strat-mod-negative { fill: #991b1b; }
+    .strat-mod-neutral  { fill: #374151; }
+    <% end %>
   </style>
 
   <rect width="100%" height="100%" fill="<%= @poster_mode ? '#ffffff' : 'rgba(15, 23, 42, 0.7)' %>"/>
@@ -99,7 +116,9 @@
           cx, cy = hex_center(col, row)
           sys = systems_by_pos[[col, row]]
           bg = sys&.allegiance&.background_colour
-          if bg.blank? && sys
+          if (@map_mode == :heat || @show_heat_overlay) && (analysis = @strategic_by_pos&.[]([col, row]))
+            bg = analysis.heat_colour
+          elsif bg.blank? && sys && @map_mode != :strategic && @map_mode != :heat && !@show_heat_overlay
             if sys.native_sophont && @native_sophont_colour
               bg = @native_sophont_colour
             elsif sys.extinct_sophont && @extinct_sophont_colour
@@ -113,6 +132,10 @@
         <% if empty && parsec_id && @show_map_links && @hex_click_map.nil? %>
           <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
             <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
+          </a>
+        <% elsif !empty && @show_map_links && (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat) && @hex_click_map.nil? %>
+          <a href="<%= star_system_path(sys) %>" target="_top" class="clickable">
+            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
           </a>
         <% else %>
           <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
@@ -255,6 +278,7 @@
           next if valid_positions && !valid_positions.include?([col, row])
           cx, cy = hex_center(col, row)
           star_system = systems_by_pos[[col, row]]
+          next if (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat) && star_system
         %>
         <% if star_system %>
           <%
@@ -398,8 +422,8 @@
           line_x = ((cx_left + cx_right) / 2.0).round(2)
           _, cy_top    = hex_center(1, 1)
           _, cy_bottom = hex_center(1, rows)
-          y_top    = (cy_top    - SubsectorsHelper::HEX_HEIGHT * 0.75).round(2)
-          y_bottom = (cy_bottom + SubsectorsHelper::HEX_HEIGHT * 0.75).round(2)
+          y_top    = (cy_top    - hex_height * 0.75).round(2)
+          y_bottom = (cy_bottom + hex_height * 0.75).round(2)
         %>
         <line class="subsector-boundary" x1="<%= line_x %>" y1="<%= y_top %>" x2="<%= line_x %>" y2="<%= y_bottom %>"/>
       <% end %>
@@ -410,8 +434,8 @@
           line_y = ((cy_above + cy_below) / 2.0).round(2)
           cx_left,  _ = hex_center(1,    1)
           cx_right, _ = hex_center(cols, 1)
-          x_left  = (cx_left  - SubsectorsHelper::HEX_WIDTH * 0.5).round(2)
-          x_right = (cx_right + SubsectorsHelper::HEX_WIDTH * 0.5).round(2)
+          x_left  = (cx_left  - hex_size).round(2)
+          x_right = (cx_right + hex_size).round(2)
         %>
         <line class="subsector-boundary" x1="<%= x_left %>" y1="<%= line_y %>" x2="<%= x_right %>" y2="<%= line_y %>"/>
       <% end %>
@@ -448,23 +472,31 @@
           <%= hex_code %>
         </text>
         <% if star_system %>
-          <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
-            <%= star_system.main_world_uwp&.first || '?' %>
-          </text>
-          <% unless @compact %>
-            <% if (uwp = star_system.main_world_uwp) %>
-              <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
-                <%= uwp %>
-              </text>
-            <% end %>
-            <% if star_system.name.present? %>
-              <%
-                pop_code = uwp&.[](4)
-                name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
-              %>
-              <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
-                <%= name_display %>
-              </text>
+          <% if @map_mode == :strategic && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'strategic_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system, col: col, row: row %>
+          <% elsif @map_mode == :resource && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'resource_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
+          <% elsif @map_mode == :heat && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'heat_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
+          <% else %>
+            <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
+              <%= star_system.main_world_uwp&.first || '?' %>
+            </text>
+            <% unless @compact %>
+              <% if (uwp = star_system.main_world_uwp) %>
+                <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
+                  <%= uwp %>
+                </text>
+              <% end %>
+              <% if star_system.name.present? %>
+                <%
+                  pop_code = uwp&.[](4)
+                  name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+                %>
+                <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+                  <%= name_display %>
+                </text>
+              <% end %>
             <% end %>
           <% end %>
         <% end %>
