@@ -1,6 +1,6 @@
-<% if stellar_object.law_level_code.present? %>
+<% if stellar_object.law_level %>
   <% law_by_code = LawLevel.all.index_by(&:code) %>
-  <% overall_law = law_by_code[stellar_object.law_level_code] %>
+  <% overall_law = law_by_code[stellar_object.law_level.code] %>
 
   <div class="space-y-4">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

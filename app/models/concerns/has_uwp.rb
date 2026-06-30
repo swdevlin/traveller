@@ -23,6 +23,17 @@ module HasUwp
     end
   end
 
+  module LegalSystemAccessors
+    def law_level
+      LegalSystem.from_hash(data&.dig('law_level'))
+    end
+
+    def law_level=(value)
+      self.data ||= {}
+      self.data = data.merge('law_level' => value.is_a?(LegalSystem) ? value.to_h : value)
+    end
+  end
+
   module GovernanceAccessors
     def government
       Governance.from_hash(data&.dig('government'))
@@ -37,6 +48,7 @@ module HasUwp
   included do
     prepend AtmosphereAccessors
     prepend HydrographicsAccessors
+    prepend LegalSystemAccessors
     prepend GovernanceAccessors
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
@@ -197,62 +209,84 @@ module HasUwp
   end
 
   def law_level_code
-    law_level&.dig('code')
+    law_level&.code
   end
 
   def law_level_code=(val)
-    self.law_level = (law_level || {}).merge('code' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.code = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
-  def law_level_private_law        = law_level&.dig('privateLaw')
-  def law_level_criminal_law       = law_level&.dig('criminalLaw')
-  def law_level_economic_law       = law_level&.dig('economicLaw')
-  def law_level_personal_rights    = law_level&.dig('personalRights')
-  def law_level_weapons_and_armour = law_level&.dig('weaponsAndArmour')
-  def law_level_uniformity         = law_level&.dig('uniformity')
-  def law_level_judicial_system    = law_level&.dig('judicialSystem')
-  def law_level_death_penalty      = law_level&.dig('deathPenalty')
-  def law_level_presumed_innocence = law_level&.dig('presumedInnocence')
-  def law_level_econometric_infractions_administrative = law_level&.dig('econometricInfractionsAdministrative')
+  def law_level_private_law        = law_level&.private_law
+  def law_level_criminal_law       = law_level&.criminal_law
+  def law_level_economic_law       = law_level&.economic_law
+  def law_level_personal_rights    = law_level&.personal_rights
+  def law_level_weapons_and_armour = law_level&.weapons_and_armour
+  def law_level_uniformity         = law_level&.uniformity
+  def law_level_judicial_system    = law_level&.judicial_system
+  def law_level_death_penalty      = law_level&.death_penalty
+  def law_level_presumed_innocence = law_level&.presumed_innocence
+  def law_level_econometric_infractions_administrative = law_level&.econometric_infractions_administrative
 
   def law_level_weapons_and_armour=(val)
-    self.law_level = (law_level || {}).merge('weaponsAndArmour' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.weapons_and_armour = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
   def law_level_criminal_law=(val)
-    self.law_level = (law_level || {}).merge('criminalLaw' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.criminal_law = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
   def law_level_economic_law=(val)
-    self.law_level = (law_level || {}).merge('economicLaw' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.economic_law = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
   def law_level_private_law=(val)
-    self.law_level = (law_level || {}).merge('privateLaw' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.private_law = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
   def law_level_personal_rights=(val)
-    self.law_level = (law_level || {}).merge('personalRights' => val.present? ? val.to_i : nil)
+    ll = law_level || LegalSystem.new
+    ll.personal_rights = val.present? ? val.to_i : nil
+    self.law_level = ll
   end
 
   def law_level_uniformity=(val)
-    self.law_level = (law_level || {}).merge('uniformity' => val.presence)
+    ll = law_level || LegalSystem.new
+    ll.uniformity = val.presence
+    self.law_level = ll
   end
 
   def law_level_judicial_system=(val)
-    self.law_level = (law_level || {}).merge('judicialSystem' => val.presence)
+    ll = law_level || LegalSystem.new
+    ll.judicial_system = val.presence
+    self.law_level = ll
   end
 
   def law_level_death_penalty=(val)
-    self.law_level = (law_level || {}).merge('deathPenalty' => ActiveModel::Type::Boolean.new.cast(val))
+    ll = law_level || LegalSystem.new
+    ll.death_penalty = val
+    self.law_level = ll
   end
 
   def law_level_presumed_innocence=(val)
-    self.law_level = (law_level || {}).merge('presumedInnocence' => ActiveModel::Type::Boolean.new.cast(val))
+    ll = law_level || LegalSystem.new
+    ll.presumed_innocence = val
+    self.law_level = ll
   end
 
   def law_level_econometric_infractions_administrative=(val)
-    self.law_level = (law_level || {}).merge('econometricInfractionsAdministrative' => ActiveModel::Type::Boolean.new.cast(val))
+    ll = law_level || LegalSystem.new
+    ll.econometric_infractions_administrative = val
+    self.law_level = ll
   end
 
   def starport_code

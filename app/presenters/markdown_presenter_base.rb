@@ -282,10 +282,10 @@ class MarkdownPresenterBase
   end
 
   def law_level_section
-    return [] unless @obj.law_level_code.present?
+    return [] unless @obj.law_level
 
     law_by_code = LawLevel.all.index_by(&:code)
-    rows = [['Law Level', HexDigit.hex_digit(@obj.law_level_code)]]
+    rows = [['Law Level', HexDigit.hex_digit(@obj.law_level.code)]]
     [
       ['Weapons & Armour', @obj.law_level_weapons_and_armour, :weapons],
       ['Criminal Law',     @obj.law_level_criminal_law,       :criminal_law],
