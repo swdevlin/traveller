@@ -232,7 +232,7 @@ class StarSystemMapLayout
   end
 
   def terrestrial_image(body)
-    atmo_code = body.atmosphere&.dig('code') || 0
+    atmo_code = body.atmosphere&.code || 0
     hydro_code = body.hydrographics&.dig('code') || 0
     return :unusual if atmo_code == 10
     return :corrosive if atmo_code == 11
@@ -242,10 +242,10 @@ class StarSystemMapLayout
     return :unusual if atmo_code == 15
     return :helium if atmo_code == 16
     return :hydrogen if atmo_code == 17
-    return :biological if body.atmosphere&.dig('taint', 'code').to_s.upcase == 'B'
+    return :biological if body.atmosphere&.taint_code.to_s.upcase == 'B'
     if hydro_code == 0
       return :hot_rockball if body.temperature.present? && body.temperature.to_f > HOT_ROCKBALL_THRESHOLD_K
-      density = body.atmosphere&.dig('density').to_s
+      density = body.atmosphere&.density.to_s
       return :trace if SPARSE_ATMOSPHERE_DENSITIES.any? { |d| density.start_with?(d) }
       return :desert
     end
@@ -260,7 +260,7 @@ class StarSystemMapLayout
   end
 
   def terrestrial_colour(body)
-    atmo_code = body.atmosphere&.dig('code') || 0
+    atmo_code = body.atmosphere&.code || 0
     hydro_code = body.hydrographics&.dig('code') || 0
 
     # Exotic/hostile atmospheres

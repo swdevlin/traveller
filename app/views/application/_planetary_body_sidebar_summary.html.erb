@@ -1,6 +1,6 @@
 <% atmosphere = stellar_object.atmosphere %>
-<% atmosphere_code = atmosphere&.dig('code') %>
-<% atmosphere_tainted = atmosphere&.dig('taint', 'code').present? %>
+<% atmosphere_code = atmosphere&.code %>
+<% atmosphere_tainted = atmosphere&.tainted? %>
 <% population = stellar_object.population %>
 <% population_code = population&.dig('code') %>
 <% government = stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil %>

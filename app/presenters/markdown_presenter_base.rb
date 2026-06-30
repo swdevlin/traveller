@@ -192,17 +192,13 @@ class MarkdownPresenterBase
     atm = @obj.atmosphere
     return [] if atm.blank?
 
-    code = atm['code']
-    taint = atm['taint']
-    taint_code = taint&.dig('code')
-
-    rows = [['Atmosphere', "#{code} — #{ATMOSPHERE_DESCRIPTIONS[code]}"]]
-    if taint_code.present?
-      rows << ['Irritant', "#{taint_code} — #{TAINT_DESCRIPTIONS[taint_code]}"]
-      rows << ['Severity', "#{taint['severity']} — #{TAINT_SEVERITY_DESCRIPTIONS[taint['severity']]}"]
-      rows << ['Persistence', "#{taint['persistence']} — #{TAINT_PERSISTENCE_DESCRIPTIONS[taint['persistence']]}"]
+    rows = [['Atmosphere', "#{atm.code} — #{ATMOSPHERE_DESCRIPTIONS[atm.code]}"]]
+    if atm.taint_code.present?
+      rows << ['Irritant', "#{atm.taint_code} — #{TAINT_DESCRIPTIONS[atm.taint_code]}"]
+      rows << ['Severity', "#{atm.taint_severity} — #{TAINT_SEVERITY_DESCRIPTIONS[atm.taint_severity]}"]
+      rows << ['Persistence', "#{atm.taint_persistence} — #{TAINT_PERSISTENCE_DESCRIPTIONS[atm.taint_persistence]}"]
     end
-    rows << ['Composition', atm['composition']] if atm['composition'].present?
+    rows << ['Composition', atm.composition] if atm.composition.present?
     table_section('Atmosphere', rows)
   end
 

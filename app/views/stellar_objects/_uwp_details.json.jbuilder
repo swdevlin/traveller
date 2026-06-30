@@ -22,12 +22,11 @@ json.size_detail do
   json.description StellarObjectsHelper::SIZE_DESCRIPTIONS[stellar_object.size_code]
 end
 
-atm_raw  = stellar_object.atmosphere || {}
+atm      = stellar_object.atmosphere
 atm_code = stellar_object.atmosphere_code
 json.atmosphere do
-  # Raw fields preserved for the Elm map codec
-  json.merge! atm_raw.slice('bar', 'code', 'gases', 'taint', 'density', 'gasType',
-                             'subtype', 'irritant', 'hazardCode', 'composition', 'characteristic')
+  json.merge! (atm&.to_h || {}).slice('bar', 'code', 'gases', 'taint', 'density', 'gasType',
+                                       'subtype', 'irritant', 'hazardCode', 'composition', 'characteristic')
 
   # Enriched fields for API consumers (Foundry plugin, etc.)
   json.label       'Atmosphere'

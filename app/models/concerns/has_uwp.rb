@@ -1,56 +1,65 @@
 module HasUwp
   extend ActiveSupport::Concern
 
+  module AtmosphereAccessors
+    def atmosphere
+      Atmosphere.from_hash(data&.dig('atmosphere'))
+    end
+
+    def atmosphere=(value)
+      self.data ||= {}
+      self.data = data.merge('atmosphere' => value.is_a?(Atmosphere) ? value.to_h : value)
+    end
+  end
+
   included do
+    prepend AtmosphereAccessors
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
 
-  def atmosphere_code
-    atmosphere&.dig('code')
-  end
+  def atmosphere_code          = atmosphere&.code
+  def atmosphere_composition   = atmosphere&.composition
+  def atmosphere_taint_code    = atmosphere&.taint_code.presence
+  def atmosphere_taint_severity  = atmosphere&.taint_severity.presence
+  def atmosphere_taint_persistence = atmosphere&.taint_persistence.presence
+  def atmosphere_hazard_code   = atmosphere&.hazard_code.presence
 
   def atmosphere_code=(val)
-    self.atmosphere = (atmosphere || {}).merge('code' => val.present? ? val.to_i : nil)
-  end
-
-  def atmosphere_composition
-    atmosphere&.dig('composition')
+    atm = atmosphere || Atmosphere.new
+    atm.code = val.present? ? val.to_i : nil
+    self.atmosphere = atm
   end
 
   def atmosphere_composition=(val)
-    self.atmosphere = (atmosphere || {}).merge('composition' => val.presence)
+    atm = atmosphere || Atmosphere.new
+    atm.composition = val.presence
+    self.atmosphere = atm
   end
 
-  def atmosphere_taint_code      = atmosphere&.dig('taint', 'code').presence
-  def atmosphere_taint_severity  = atmosphere&.dig('taint', 'severity').presence
-  def atmosphere_taint_persistence = atmosphere&.dig('taint', 'persistence').presence
-  def atmosphere_hazard_code     = atmosphere&.dig('hazardCode').presence
-
-  TAINT_SUBTYPE_LABELS = {
-    'L' => 'Low Oxygen', 'R' => 'Radioactivity', 'B' => 'Biological',
-    'G' => 'Gas Mix', 'P' => 'Particulates', 'S' => 'Sulphur Compounds', 'H' => 'High Oxygen'
-  }.freeze
-
   def atmosphere_taint_code=(val)
-    taint = (atmosphere&.dig('taint') || {})
-    self.atmosphere = (atmosphere || {}).merge(
-      'taint' => taint.merge('code' => val.presence || '', 'subtype' => TAINT_SUBTYPE_LABELS[val] || '')
-    )
+    atm = atmosphere || Atmosphere.new
+    atm.taint_code = val.presence || ''
+    atm.taint_subtype = Atmosphere::TAINT_SUBTYPES[val] || ''
+    self.atmosphere = atm
   end
 
   def atmosphere_taint_severity=(val)
-    taint = (atmosphere&.dig('taint') || {})
-    self.atmosphere = (atmosphere || {}).merge('taint' => taint.merge('severity' => val.present? ? val.to_i : 0))
+    atm = atmosphere || Atmosphere.new
+    atm.taint_severity = val.present? ? val.to_i : 0
+    self.atmosphere = atm
   end
 
   def atmosphere_taint_persistence=(val)
-    taint = (atmosphere&.dig('taint') || {})
-    self.atmosphere = (atmosphere || {}).merge('taint' => taint.merge('persistence' => val.present? ? val.to_i : 0))
+    atm = atmosphere || Atmosphere.new
+    atm.taint_persistence = val.present? ? val.to_i : 0
+    self.atmosphere = atm
   end
 
   def atmosphere_hazard_code=(val)
-    self.atmosphere = (atmosphere || {}).merge('hazardCode' => val.presence)
+    atm = atmosphere || Atmosphere.new
+    atm.hazard_code = val.presence
+    self.atmosphere = atm
   end
 
   def hydrographics_code

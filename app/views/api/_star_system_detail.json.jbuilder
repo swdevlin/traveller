@@ -14,7 +14,7 @@ if mw
     json.extinct_sophont mw.extinct_sophont || false
     json.survival_requirement atmosphere_survival_requirement(
       mw.respond_to?(:atmosphere_code) ? mw.atmosphere_code : nil,
-      tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.dig('taint', 'code').present?
+      tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.tainted?
     )
     json.jump_shadow mw.effective_jump_shadow_km
   end

@@ -33,8 +33,8 @@ class TerrestrialPlanetMarkdownPresenter < MarkdownPresenterBase
 
   def planetary_profile_summary
     atmosphere = @obj.atmosphere
-    atmosphere_code = atmosphere&.dig('code')
-    atmosphere_tainted = atmosphere&.dig('taint', 'code').present?
+    atmosphere_code = atmosphere&.code
+    atmosphere_tainted = atmosphere&.tainted?
     population = @obj.population
     population_code = population&.dig('code')
     government = @obj.government_code.present? ? Government.find_by(code: @obj.government_code) : nil

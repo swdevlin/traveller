@@ -1,14 +1,12 @@
 <% atmosphere = stellar_object.atmosphere %>
-<% atm_code = atmosphere.present? ? atmosphere['code'] : nil %>
+<% atm_code = atmosphere&.code %>
 <%
-  # Fall back to the UWP character if no JSONB atmosphere data
   if atm_code.nil? && stellar_object.uwp.present?
     char = stellar_object.uwp[2]
     atm_code = HexDigit::HEX_DIGITS.index(char)
   end
 %>
-<% taint = atmosphere&.dig('taint') %>
-<% taint_code = taint&.dig('code') %>
+<% taint_code = atmosphere&.taint_code.presence %>
 
 <div class="space-y-4">
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -24,15 +22,13 @@
     <% end %>
 
     <% if taint_code.present? %>
-      <% severity = taint['severity'] %>
-      <% persistence = taint['persistence'] %>
       <%= render 'application/data_block', label: 'Irritant', value: safe_join([tag.span(taint_code, class: 'identifier-sm'), taint_description(taint_code)], ' ') %>
-      <%= render 'application/data_block', label: 'Severity', value: safe_join([tag.span(severity, class: 'identifier-sm'), taint_severity_description(severity)], ' ') %>
-      <%= render 'application/data_block', label: 'Persistence', value: safe_join([tag.span(persistence, class: 'identifier-sm'), taint_persistence_description(persistence)], ' ') %>
+      <%= render 'application/data_block', label: 'Severity', value: safe_join([tag.span(atmosphere.taint_severity, class: 'identifier-sm'), taint_severity_description(atmosphere.taint_severity)], ' ') %>
+      <%= render 'application/data_block', label: 'Persistence', value: safe_join([tag.span(atmosphere.taint_persistence, class: 'identifier-sm'), taint_persistence_description(atmosphere.taint_persistence)], ' ') %>
     <% end %>
 
-    <% if atmosphere&.dig('composition').present? %>
-      <%= render 'application/data_block', label: 'Composition', value: atmosphere['composition'] %>
+    <% if atmosphere&.composition.present? %>
+      <%= render 'application/data_block', label: 'Composition', value: atmosphere.composition %>
     <% end %>
   </div>
 </div>
