@@ -4694,14 +4694,55 @@ update msg ( time, model ) =
                 vh =
                     verticalHexes model.viewport.hexmapViewport newSize + extraPaddingHexes
 
-                lr =
-                    HexAddress.shiftAddressBy
-                        { deltaX = hh, deltaY = vh }
-                        model.hexRect.upperLeftHex
+                ratio =
+                    newSize / model.hexScale
+
+                ( svgW, svgH ) =
+                    case model.viewport.hexmapViewport of
+                        Just (Ok vp) ->
+                            ( vp.viewport.width, vp.viewport.height )
+
+                        _ ->
+                            ( model.viewport.viewport.viewport.width
+                            , model.viewport.viewport.viewport.height - consoleTitleHeight
+                            )
+
+                ( ulPX, ulPY ) =
+                    calcVisualOrigin model.hexScale
+                        { col = model.hexRect.upperLeftHex.x
+                        , row = model.hexRect.upperLeftHex.y
+                        }
+
+                oldVBX =
+                    toFloat ulPX + model.panOffset.x
+
+                oldVBY =
+                    toFloat ulPY + model.panOffset.y
+
+                newVBX =
+                    ratio * (oldVBX + svgW / 2) - svgW / 2
+
+                newVBY =
+                    ratio * (oldVBY + svgH / 2) - svgH / 2
+
+                newULX =
+                    floor ((newVBX - newSize) / hexWidth newSize)
+
+                sin60 =
+                    sin hexSizeFactor
+
+                newULY =
+                    floor ((-newVBY / newSize - 1 - hexColOffset newULX * sin60) / (2 * sin60))
+
+                newUpperLeft =
+                    { x = newULX, y = newULY }
+
+                ( newULPX, newULPY ) =
+                    calcVisualOrigin newSize { col = newULX, row = newULY }
 
                 newHexRect =
-                    { upperLeftHex = model.hexRect.upperLeftHex
-                    , lowerRightHex = lr
+                    { upperLeftHex = newUpperLeft
+                    , lowerRightHex = HexAddress.shiftAddressBy { deltaX = hh, deltaY = vh } newUpperLeft
                     }
 
                 ( newModel, newCmds ) =
@@ -4712,6 +4753,10 @@ update msg ( time, model ) =
                                 , rawHexaPoints = rawHexagonPoints newSize
                                 , hexRect = newHexRect
                                 , viewMode = HexMap
+                                , panOffset =
+                                    { x = newVBX - toFloat newULPX
+                                    , y = newVBY - toFloat newULPY
+                                    }
                               }
                             , saveHexSize newSize
                             )
