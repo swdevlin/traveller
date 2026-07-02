@@ -391,7 +391,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                                             Nothing ->
                                                                 code
                                                 in
-                                                el [ centerX, Font.size 12, Font.color (Element.rgba 0.17 0.42 0.55 0.7) ] (text label)
+                                                el [ centerX, Font.size 12, Font.color (Element.rgba 0 0 0 1) ] (text label)
 
                                             Nothing ->
                                                 Element.none
@@ -401,11 +401,21 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
 
                                 Nothing ->
                                     Element.none
-                            , regions
+                            , let
+                                allegianceName =
+                                    selectedSystem |> Maybe.andThen .allegianceName
+                              in
+                              regions
                                 |> Dict.values
                                 |> List.filterMap
                                     (\region ->
-                                        if List.member viewingAddress region.hexes then
+                                        let
+                                            isAllegianceRegion =
+                                                case allegianceName of
+                                                    Just aName -> region.name == aName
+                                                    Nothing -> False
+                                        in
+                                        if List.member viewingAddress region.hexes && not isAllegianceRegion then
                                             text region.name
                                                 |> el [ Font.size 12, Font.color <| convertColor region.colour, centerX ]
                                                 |> Just
