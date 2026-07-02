@@ -94,7 +94,7 @@ import Traveller.Sidebar
         )
 import Traveller.TravelTable as TravelTable
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
-import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
+import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
 import Traveller.StarColour exposing (starColourName, starColourRGB)
 import Traveller.Starport as Starport
 import Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf)
@@ -542,6 +542,8 @@ type DisplayMode
     | ShowGWP
     | ShowTradeCodes
     | ShowImportance
+    | ShowStrategic
+    | ShowResource
 
 
 type RegionDisplay
@@ -925,6 +927,12 @@ init viewport settings key hostConfig referee =
 
                 Just "Importance" ->
                     ShowImportance
+
+                Just "Strategic" ->
+                    ShowStrategic
+
+                Just "Resource" ->
+                    ShowResource
 
                 _ ->
                     ShowStars
@@ -1598,6 +1606,111 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
         [ Svg.Lazy.lazy2 renderPolygon hexapointsStr hexColour ]
 
 
+viewBarRow : Float -> Float -> Float -> String -> Int -> Svg Msg
+viewBarRow size cx rowY label tier =
+    let
+        segW =
+            size * 0.15
+
+        segH =
+            size * 0.10
+
+        segGap =
+            size * 0.045
+
+        skew =
+            segH * 0.6
+
+        numSegs =
+            5
+
+        totalBarW =
+            toFloat numSegs * segW + toFloat (numSegs - 1) * segGap
+
+        barStartX =
+            cx - (totalBarW + skew) / 2
+
+        rhomboidPoints sx =
+            let
+                x0 = sx
+                x1 = sx + segW
+                y0 = rowY + segH / 2
+                y1 = rowY - segH / 2
+            in
+            String.join " "
+                [ String.fromFloat x0 ++ "," ++ String.fromFloat y0
+                , String.fromFloat x1 ++ "," ++ String.fromFloat y0
+                , String.fromFloat (x1 + skew) ++ "," ++ String.fromFloat y1
+                , String.fromFloat (x0 + skew) ++ "," ++ String.fromFloat y1
+                ]
+
+        segment i =
+            let
+                sx =
+                    barStartX + toFloat i * (segW + segGap)
+
+                fillColour =
+                    if i < tier then
+                        "#1e3a5f"
+
+                    else
+                        "#dde3ec"
+            in
+            Svg.polygon
+                [ SvgAttrs.points (rhomboidPoints sx)
+                , SvgAttrs.fill fillColour
+                ]
+                []
+    in
+    Svg.g []
+        (Svg.text_
+            [ SvgAttrs.x (String.fromFloat (barStartX - size * 0.05))
+            , SvgAttrs.y (String.fromFloat rowY)
+            , SvgAttrs.textAnchor "end"
+            , SvgAttrs.dominantBaseline "middle"
+            , SvgAttrs.fill "#1e3a5f"
+            , SvgAttrs.fontSize (String.fromFloat (size * 0.20))
+            , SvgAttrs.fontFamily "Oxanium, sans-serif"
+            , SvgAttrs.fontWeight "600"
+            ]
+            [ Svg.text label ]
+            :: List.map segment (List.range 0 (numSegs - 1))
+        )
+
+
+viewRoleBadge : Float -> Float -> Float -> String -> Svg Msg
+viewRoleBadge size cx rowY role =
+    let
+        textColour =
+            case role of
+                "market" ->
+                    "#1e5a8a"
+
+                "supplier" ->
+                    "#1e6b3f"
+
+                "extractor" ->
+                    "#7a4010"
+
+                "deficit" ->
+                    "#7a1010"
+
+                _ ->
+                    "#3a3a3a"
+    in
+    Svg.text_
+        [ SvgAttrs.x (String.fromFloat cx)
+        , SvgAttrs.y (String.fromFloat rowY)
+        , SvgAttrs.textAnchor "middle"
+        , SvgAttrs.dominantBaseline "middle"
+        , SvgAttrs.fill textColour
+        , SvgAttrs.fontSize (String.fromFloat (size * 0.22))
+        , SvgAttrs.fontFamily "Oxanium, sans-serif"
+        , SvgAttrs.fontWeight "700"
+        ]
+        [ Svg.text (String.toUpper role) ]
+
+
 renderHexContent : HexRenderOpts -> Svg Msg
 renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, displayMode } =
     let
@@ -1773,6 +1886,46 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
                         Svg.text ""
                 , travelZoneRing
                 ]
+
+        ShowStrategic ->
+            case starSystem.strategic of
+                Just strat ->
+                    if size >= 30 then
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier
+                            , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier
+                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.10) "Rs" strat.resourceTier
+                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier
+                            , travelZoneRing
+                            ]
+
+                    else
+                        Svg.text ""
+
+                Nothing ->
+                    Svg.text ""
+
+        ShowResource ->
+            case starSystem.strategic of
+                Just strat ->
+                    if size >= 30 then
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case strat.routeRole of
+                                Just role ->
+                                    viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role
+
+                                Nothing ->
+                                    Svg.text ""
+                            , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier
+                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier
+                            , travelZoneRing
+                            ]
+
+                    else
+                        Svg.text ""
+
+                Nothing ->
+                    Svg.text ""
 
         ShowStars ->
             Svg.g
@@ -3015,6 +3168,12 @@ viewStatusRow model =
                 ShowImportance ->
                     "Importance"
 
+                ShowStrategic ->
+                    "Strategic"
+
+                ShowResource ->
+                    "Resource"
+
         extras =
             case model.viewMode of
                 HexMap ->
@@ -3303,6 +3462,8 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
                         [ modeOption ShowWTN "WTN" "World Trade Number"
                         , modeOption ShowGWP "GWP" "Gross World Product"
                         , modeOption ShowImportance "Importance" "Economic importance rating"
+                        , modeOption ShowStrategic "Strategic" "Tiered bars: Importance, Resource Units, Resource Factor, Trade Ease"
+                        , modeOption ShowResource "Resource" "Tiered bars: Importance, Trade Ease, plus route role badge"
                         ]
 
                     else
@@ -4169,6 +4330,7 @@ update msg ( time, model ) =
                                             , gwp = fallibleSystem.gwp
                                             , importance = fallibleSystem.importance
                                             , tradeCodes = fallibleSystem.tradeCodes
+                                            , strategic = fallibleSystem.strategic
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -4957,6 +5119,12 @@ update msg ( time, model ) =
 
                         ShowImportance ->
                             "Importance"
+
+                        ShowStrategic ->
+                            "Strategic"
+
+                        ShowResource ->
+                            "Resource"
             in
             ( withTime { model | displayMode = mode }
             , storeDisplayMode modeString

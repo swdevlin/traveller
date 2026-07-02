@@ -1,10 +1,29 @@
-module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, TravelZone, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
+module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, TravelZone, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
 
 import Codec exposing (Codec)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (custom, optional, required)
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
+
+
+type alias StrategicData =
+    { importanceTier : Int
+    , resourceUnitsTier : Int
+    , resourceTier : Int
+    , tradeEaseTier : Int
+    , routeRole : Maybe String
+    }
+
+
+strategicDataDecoder : Decoder StrategicData
+strategicDataDecoder =
+    Decode.succeed StrategicData
+        |> required "importance_tier" Decode.int
+        |> required "resource_units_tier" Decode.int
+        |> required "resource_tier" Decode.int
+        |> required "trade_ease_tier" Decode.int
+        |> optional "route_role" (Decode.nullable Decode.string) Nothing
 
 
 type alias TravelZone =
@@ -83,6 +102,7 @@ type alias StarSystem =
     , gwp : Maybe Int
     , importance : Maybe Int
     , tradeCodes : List String
+    , strategic : Maybe StrategicData
     }
 
 
@@ -109,6 +129,7 @@ type alias FallibleStarSystem =
     , gwp : Maybe Int
     , importance : Maybe Int
     , tradeCodes : List String
+    , strategic : Maybe StrategicData
     }
 
 
@@ -141,6 +162,18 @@ starSystemCodec =
         |> Codec.field "gwp" .gwp (Codec.nullable Codec.int)
         |> Codec.field "importance" .importance (Codec.nullable Codec.int)
         |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
+        |> Codec.field "strategic" .strategic (Codec.nullable strategicDataCodec)
+        |> Codec.buildObject
+
+
+strategicDataCodec : Codec StrategicData
+strategicDataCodec =
+    Codec.object StrategicData
+        |> Codec.field "importance_tier" .importanceTier Codec.int
+        |> Codec.field "resource_units_tier" .resourceUnitsTier Codec.int
+        |> Codec.field "resource_tier" .resourceTier Codec.int
+        |> Codec.field "trade_ease_tier" .tradeEaseTier Codec.int
+        |> Codec.field "route_role" .routeRole (Codec.nullable Codec.string)
         |> Codec.buildObject
 
 
@@ -186,3 +219,4 @@ fallibleStarSystemDecoder =
         |> optional "gwp" (Decode.nullable Decode.int) Nothing
         |> optional "importance" (Decode.nullable Decode.int) Nothing
         |> optional "trade_codes" (Decode.list Decode.string) []
+        |> optional "strategic" (Decode.nullable strategicDataDecoder) Nothing

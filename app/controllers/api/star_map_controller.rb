@@ -8,7 +8,7 @@ class Api::StarMapController < Api::BaseController
 
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: :sector }, :allegiance, :travel_zone)
+      .includes({ parsec: :sector }, :allegiance, :travel_zone, :main_world, :trade_codes)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?
@@ -52,13 +52,6 @@ class Api::StarMapController < Api::BaseController
       .reject { |row| companion_ids.include?(row[0]) }
       .group_by { |row| row[1] }
 
-    # Trade code abbreviations per system
-    codes_by_system = StarSystemTradeCode
-      .where(star_system_id: ids)
-      .joins(:trade_code)
-      .pluck(:star_system_id, 'trade_codes.code')
-      .each_with_object(Hash.new { |h, k| h[k] = [] }) { |(sid, code), h| h[sid] << code }
-
     # Main world data via JSONB extraction — avoids loading full data column
     world_rows = StellarObject
       .where(id: main_world_ids)
@@ -90,7 +83,7 @@ class Api::StarMapController < Api::BaseController
       wtn         = player_visible ? wd&.at(2) : nil
       gwp         = player_visible ? wd&.at(3)&.round : nil
       importance  = player_visible ? wd&.at(4) : nil
-      trade_codes = player_visible ? (codes_by_system[ss.id] || []) : []
+      trade_codes = player_visible ? ss.trade_codes.map(&:code) : []
       image       = player_visible ? compute_image_name(wd&.at(5), wd&.at(6), wd&.at(7), wd&.at(8), wd&.at(9)) : nil
       main_world_name = player_visible ? world_name : nil
 
@@ -122,6 +115,7 @@ class Api::StarMapController < Api::BaseController
         gwp:               gwp,
         importance:        importance,
         trade_codes:       trade_codes,
+        strategic:         player_visible ? build_strategic_hash(ss) : nil,
         travel_zone:       ss.travel_zone ? { code: ss.travel_zone.code, colour: ss.travel_zone.colour } : nil,
         stars:             (stars_by_system[ss.id] || []).map do |row|
           _, _, d, au, diameter, companion_id = row
@@ -170,6 +164,17 @@ class Api::StarMapController < Api::BaseController
     end
 
     nil
+  end
+
+  def build_strategic_hash(star_system)
+    a = StrategicAnalysis.new(star_system)
+    {
+      importance_tier:     a.importance_tier,
+      resource_units_tier: a.resource_units_tier,
+      resource_tier:       a.resource_tier,
+      trade_ease_tier:     a.trade_ease_tier,
+      route_role:          a.route_role&.to_s
+    }
   end
 
   def build_star_hash(d, au, diameter, companion)
