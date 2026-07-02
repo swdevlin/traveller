@@ -63,7 +63,9 @@ class StrategicAnalysis
   # --- Resources ---
 
   def resource_score
-    main_world&.resource_factor.to_f
+    return 0.0 unless main_world&.respond_to?(:resource_factor)
+
+    main_world.resource_factor.to_f
   end
 
   def resource_tier
