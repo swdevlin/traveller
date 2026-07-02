@@ -11,10 +11,14 @@ document.addEventListener('turbo:load', () => {
   const hexSizeKey = `hexSize_${slug}`
   const viewModeKey = `viewMode_${slug}`
   const journeyStateKey = `journeyState_${slug}`
+  const displayModeKey = `displayMode_${slug}`
+  const regionDisplayKey = `regionDisplay_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
   const viewMode = localStorage.getItem(viewModeKey) ?? null
   const journeyState = localStorage.getItem(journeyStateKey) ?? null
+  const displayMode = localStorage.getItem(displayModeKey) ?? null
+  const regionDisplay = localStorage.getItem(regionDisplayKey) ?? null
 
   const elm = window.Elm.Main.init({
     node,
@@ -23,6 +27,8 @@ document.addEventListener('turbo:load', () => {
       hexSize,
       viewMode,
       journeyState,
+      displayMode,
+      regionDisplay,
       centerOn: null,
       ...serverFlags
     }
@@ -49,6 +55,18 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeJourneyState) {
     elm.ports.storeJourneyState.subscribe(value => {
       localStorage.setItem(journeyStateKey, value)
+    })
+  }
+
+  if (elm.ports.storeDisplayMode) {
+    elm.ports.storeDisplayMode.subscribe(value => {
+      localStorage.setItem(displayModeKey, value)
+    })
+  }
+
+  if (elm.ports.storeRegionDisplay) {
+    elm.ports.storeRegionDisplay.subscribe(value => {
+      localStorage.setItem(regionDisplayKey, value)
     })
   }
 

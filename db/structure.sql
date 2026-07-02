@@ -847,7 +847,8 @@ CREATE TABLE public.star_systems (
     extinct_sophont boolean DEFAULT false NOT NULL,
     travel_zone_id bigint,
     language character varying,
-    build_config text
+    build_config text,
+    known boolean DEFAULT false NOT NULL
 );
 
 
@@ -2291,9 +2292,10 @@ ALTER TABLE ONLY public.jump_routes
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO public, shared_extensions;
+SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260701100000'),
 ('20260619175832'),
 ('20260609150000'),
 ('20260609100843'),

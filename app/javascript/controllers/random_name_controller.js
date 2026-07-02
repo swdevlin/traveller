@@ -80,7 +80,7 @@ export default class extends Controller {
       if (!response.ok) return;
       const data = await response.json();
       if (data.word) {
-        this.nameFieldTarget.value = data.word;
+        this.nameFieldTarget.value = data.word.replace(/\b\w/g, c => c.toUpperCase());
       }
     } catch (_e) {
       // ignore network errors silently

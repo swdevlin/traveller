@@ -46,6 +46,12 @@
     </div>
   <% end %>
 
+  <% if Current.user %>
+    <div class='mb-6'>
+      <%= render 'star_systems/known_toggle', star_system: @star_system %>
+    </div>
+  <% end %>
+
   <% if subsector %>
     <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
   <% end %>

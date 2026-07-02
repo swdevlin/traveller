@@ -1,7 +1,7 @@
 class StarSystem < ApplicationRecord
   attr_accessor :build
 
-  normalizes *(attribute_names - %w[native_sophont extinct_sophont]), with: -> { it.presence }
+  normalizes *(attribute_names - %w[native_sophont extinct_sophont known]), with: -> { it.presence }
 
   belongs_to :parsec
   belongs_to :main_world, class_name: 'StellarObject', optional: true

@@ -76,6 +76,13 @@ type alias StarSystem =
     , stars : List StarType
     , mainWorldUwp : Maybe String
     , travelZone : Maybe TravelZone
+    , known : Bool
+    , mainWorldName : Maybe String
+    , mainWorldImage : Maybe String
+    , wtn : Maybe Float
+    , gwp : Maybe Int
+    , importance : Maybe Int
+    , tradeCodes : List String
     }
 
 
@@ -95,6 +102,13 @@ type alias FallibleStarSystem =
     , stars : List (Result Decode.Error StarType)
     , mainWorldUwp : Maybe String
     , travelZone : Maybe TravelZone
+    , known : Bool
+    , mainWorldName : Maybe String
+    , mainWorldImage : Maybe String
+    , wtn : Maybe Float
+    , gwp : Maybe Int
+    , importance : Maybe Int
+    , tradeCodes : List String
     }
 
 
@@ -120,6 +134,13 @@ starSystemCodec =
         |> Codec.field "stars" .stars (Codec.list starTypeCodec)
         |> Codec.field "main_world_uwp" .mainWorldUwp (Codec.nullable Codec.string)
         |> Codec.field "travel_zone" .travelZone (Codec.nullable travelZoneCodec)
+        |> Codec.field "known" .known Codec.bool
+        |> Codec.field "main_world_name" .mainWorldName (Codec.nullable Codec.string)
+        |> Codec.field "main_world_image" .mainWorldImage (Codec.nullable Codec.string)
+        |> Codec.field "wtn" .wtn (Codec.nullable Codec.float)
+        |> Codec.field "gwp" .gwp (Codec.nullable Codec.int)
+        |> Codec.field "importance" .importance (Codec.nullable Codec.int)
+        |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
         |> Codec.buildObject
 
 
@@ -158,3 +179,10 @@ fallibleStarSystemDecoder =
             )
         |> optional "main_world_uwp" (Decode.nullable Decode.string) Nothing
         |> optional "travel_zone" (Decode.nullable (Codec.decoder travelZoneCodec)) Nothing
+        |> optional "known" Decode.bool False
+        |> optional "main_world_name" (Decode.nullable Decode.string) Nothing
+        |> optional "main_world_image" (Decode.nullable Decode.string) Nothing
+        |> optional "wtn" (Decode.nullable Decode.float) Nothing
+        |> optional "gwp" (Decode.nullable Decode.int) Nothing
+        |> optional "importance" (Decode.nullable Decode.int) Nothing
+        |> optional "trade_codes" (Decode.list Decode.string) []

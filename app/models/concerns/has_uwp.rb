@@ -485,6 +485,45 @@ module HasUwp
     ].join
   end
 
+  def image_name
+    return nil unless data.is_a?(Hash)
+
+    atmo_data  = data['atmosphere'] || {}
+    atmo       = atmo_data['code'].to_i
+    hydro      = (data.dig('hydrographics', 'code') || 0).to_i
+    temp       = data['temperature']&.to_f
+    density    = atmo_data['density'].to_s
+    taint_code = atmo_data.dig('taint', 'code').to_s.upcase
+
+    is_sparse = density.start_with?('Trace', 'Thin', 'Very Thin')
+
+    return 'unusual'    if atmo == 10
+    return 'corrosive'  if atmo == 11
+    return 'insidious'  if atmo == 12
+    return 'dense'      if atmo == 13
+    return 'low'        if atmo == 14
+    return 'unusual'    if atmo == 15
+    return 'helium'     if atmo == 16
+    return 'hydrogen'   if atmo == 17
+    return 'biological' if taint_code == 'B'
+
+    if hydro == 0
+      return 'hot_rockball' if temp && temp > 473.15
+      return 'trace'        if is_sparse
+      return 'desert'
+    end
+
+    return 'molten' if temp && temp >= 673.15
+    return 'ice'    if temp && temp < 263.15
+
+    if atmo >= 2 && atmo <= 9
+      return 'waterworld'       if hydro == 10
+      return "tp_#{hydro * 10}" if hydro >= 1 && hydro <= 9
+    end
+
+    nil
+  end
+
   def normalize_uwp_attributes
     self.law_level_code = law_level_code.to_i if law_level_code.present?
   end

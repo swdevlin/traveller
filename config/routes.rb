@@ -38,6 +38,7 @@ Rails.application.routes.draw do
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
+      get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
     end
 
     resources :jump_logs

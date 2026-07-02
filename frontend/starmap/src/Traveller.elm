@@ -535,6 +535,22 @@ type ViewMode
     | FullJourney
 
 
+type DisplayMode
+    = ShowStars
+    | ShowMainWorld
+    | ShowWTN
+    | ShowGWP
+    | ShowTradeCodes
+    | ShowImportance
+
+
+type RegionDisplay
+    = HideRegions
+    | ShowRegionsFill
+    | ShowRegionsBorder
+    | ShowRegionsBoth
+
+
 type alias JourneyModel =
     { zoomScale : Float
     , zoomOffset : ( Float, Float )
@@ -594,6 +610,9 @@ type alias ModelData =
     , sidebarOpen : Bool
     , jumpRouteLinks : List JumpRouteLink
     , rogueObjectPathData : Maybe String
+    , displayMode : DisplayMode
+    , regionDisplay : RegionDisplay
+    , showDisplaySettings : Bool
     }
 
 
@@ -641,6 +660,9 @@ type Msg
     | CloseSidebar
     | DownloadedRogues String (Result Http.Error (List RogueResponseItem))
     | ClearSelectedRogueObjects
+    | SetDisplayMode DisplayMode
+    | SetRegionDisplay RegionDisplay
+    | ToggleDisplaySettings
 
 
 type JourneyMsg
@@ -750,6 +772,8 @@ type alias Flags =
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
     , shipLocation : Maybe ( Int, Int )
+    , displayMode : Maybe String
+    , regionDisplay : Maybe String
     }
 
 
@@ -885,6 +909,43 @@ init viewport settings key hostConfig referee =
                 _ ->
                     HexMap
 
+        initialDisplayMode =
+            case settings.displayMode of
+                Just "MainWorld" ->
+                    ShowMainWorld
+
+                Just "WTN" ->
+                    ShowWTN
+
+                Just "GWP" ->
+                    ShowGWP
+
+                Just "TradeCodes" ->
+                    ShowTradeCodes
+
+                Just "Importance" ->
+                    ShowImportance
+
+                _ ->
+                    ShowStars
+
+        initialRegionDisplay =
+            case settings.regionDisplay of
+                Just "Fill" ->
+                    ShowRegionsFill
+
+                Just "Border" ->
+                    ShowRegionsBorder
+
+                Just "Both" ->
+                    ShowRegionsBoth
+
+                Just "Hide" ->
+                    HideRegions
+
+                _ ->
+                    ShowRegionsBoth
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
@@ -928,6 +989,9 @@ init viewport settings key hostConfig referee =
             , allSectorsMapUrl = settings.allSectorsMapUrl
             , nativeSophontColour = settings.nativeSophontColour
             , extinctSophontColour = settings.extinctSophontColour
+            , displayMode = initialDisplayMode
+            , regionDisplay = initialRegionDisplay
+            , showDisplaySettings = False
             , sidebarOpen = False
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
@@ -1513,6 +1577,7 @@ type alias HexRenderOpts =
     , size : Float
     , hexapointsStr : String
     , isReferee : Bool
+    , displayMode : DisplayMode
     }
 
 
@@ -1534,7 +1599,7 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
 
 
 renderHexContent : HexRenderOpts -> Svg Msg
-renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee } =
+renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, displayMode } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -1542,8 +1607,37 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee } =
         si =
             starSystem.surveyIndex
 
+        worldVisible =
+            starSystem.known || si >= 10
+
+        effectiveMode =
+            case displayMode of
+                ShowStars ->
+                    ShowStars
+
+                ShowMainWorld ->
+                    if isReferee || worldVisible then
+                        ShowMainWorld
+
+                    else
+                        ShowStars
+
+                ShowTradeCodes ->
+                    if isReferee || worldVisible then
+                        ShowTradeCodes
+
+                    else
+                        ShowStars
+
+                _ ->
+                    if isReferee then
+                        displayMode
+
+                    else
+                        ShowStars
+
         showStar =
-            starSystem.surveyIndex > 0
+            si > 0
 
         showGasGiant =
             (isReferee || si >= gasGiantSI) && starSystem.gasGiantCount > 0
@@ -1559,98 +1653,210 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee } =
 
         showTravelZone =
             (isReferee || si >= uwpSI) && starSystem.travelZone /= Nothing
+
+        travelZoneRing =
+            if showTravelZone && size > 15 then
+                case starSystem.travelZone of
+                    Just tz ->
+                        drawTravelZoneRing (toFloat vox) (toFloat voy) size tz.colour
+
+                    Nothing ->
+                        Svg.text ""
+
+            else
+                Svg.text ""
+
+        hexCentreText : String -> Svg Msg
+        hexCentreText txt =
+            Svg.text_
+                [ SvgAttrs.x (String.fromInt vox)
+                , SvgAttrs.y (String.fromInt voy)
+                , SvgAttrs.textAnchor "middle"
+                , SvgAttrs.dominantBaseline "middle"
+                , SvgAttrs.fill "#0f2d42"
+                , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
+                , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                , SvgAttrs.fontWeight "600"
+                , SvgAttrs.pointerEvents "none"
+                ]
+                [ Svg.text txt ]
+
+        gwpCompact : Int -> String
+        gwpCompact v =
+            if v >= 1000000000000 then
+                String.fromFloat (toFloat v / 1.0e12 |> roundTo1) ++ "T"
+
+            else if v >= 1000000000 then
+                String.fromFloat (toFloat v / 1.0e9 |> roundTo1) ++ "B"
+
+            else if v >= 1000000 then
+                String.fromFloat (toFloat v / 1.0e6 |> roundTo1) ++ "M"
+
+            else
+                String.fromInt v
+
+        roundTo1 : Float -> Float
+        roundTo1 f =
+            toFloat (round (f * 10)) / 10
     in
-    Svg.g
-        [ SvgAttrs.pointerEvents "none" ]
-        [ -- center star
-          if showStar then
-            let
-                primaryPos =
-                    ( toFloat vox, toFloat voy )
+    case effectiveMode of
+        ShowMainWorld ->
+            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                [ case starSystem.mainWorldImage of
+                    Just imgName ->
+                        let
+                            d =
+                                size * 0.55
 
-                isKnown : StarType -> Bool
-                isKnown theStar =
-                    if theStar |> (getStarTypeData >> isBrownDwarfType) then
-                        starSystem.surveyIndex >= 4
+                            ix =
+                                toFloat vox - d / 2
 
-                    else
-                        starSystem.surveyIndex >= 1
+                            iy =
+                                toFloat voy - d / 2
+                        in
+                        Svg.image
+                            [ HtmlAttrs.attribute "href" ("/stellar_objects/" ++ imgName ++ ".webp")
+                            , SvgAttrs.x (String.fromFloat ix)
+                            , SvgAttrs.y (String.fromFloat iy)
+                            , SvgAttrs.width (String.fromFloat d)
+                            , SvgAttrs.height (String.fromFloat d)
+                            , SvgAttrs.clipPath "url(#planet-hex-clip)"
+                            , SvgAttrs.preserveAspectRatio "xMidYMid slice"
+                            ]
+                            []
 
-                generateStar : Int -> StarType -> Svg Msg
-                generateStar idx starType =
-                    let
-                        starData =
-                            getStarTypeData starType
+                    Nothing ->
+                        Svg.text ""
+                , travelZoneRing
+                ]
 
-                        ( sx, sy ) =
-                            if idx == 0 then
-                                ( toFloat vox, toFloat voy )
+        ShowWTN ->
+            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                [ case starSystem.wtn of
+                    Just wtn ->
+                        hexCentreText (String.fromFloat (toFloat (round (wtn * 10)) / 10))
 
-                            else
-                                rotatePoint size (idx + 2) primaryPos 60 20
-                    in
-                    case starData.companion of
-                        Just companion ->
-                            let
-                                ( cx, cy ) =
-                                    ( sx - 5, sy )
+                    Nothing ->
+                        Svg.text ""
+                , travelZoneRing
+                ]
 
-                                compStarData =
-                                    getStarTypeData companion
-                            in
-                            Svg.g []
-                                [ Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-                                , Svg.Lazy.lazy5 drawStar cx cy 3 size <| starColourRGB compStarData.colour
-                                ]
+        ShowGWP ->
+            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                [ case starSystem.gwp of
+                    Just gwp ->
+                        hexCentreText (gwpCompact gwp)
 
-                        Nothing ->
-                            Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-            in
-            Svg.g
-                []
-                (starSystem.stars
-                    |> List.filter isKnown
-                    |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
-                )
+                    Nothing ->
+                        Svg.text ""
+                , travelZoneRing
+                ]
 
-          else
-            hexAddressLabel vox voy size hexAddress
-        , if showStar then
-            hexAddressLabel vox voy size hexAddress
-
-          else
-            Svg.text ""
-        , if showGasGiant && size > 15 then
-            drawGasGiant vox voy size
-
-          else
-            Svg.text ""
-        , if showPlanetoidBelt && size > 15 then
-            drawPlanetoidBelt vox voy size
-
-          else
-            Svg.text ""
-        , if showUnknownGasGiant && size > 15 then
-            drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
-
-          else
-            Svg.text ""
-        , if showUnknownPlanetoidBelt && size > 15 then
-            drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
-
-          else
-            Svg.text ""
-        , if showTravelZone && size > 15 then
-            case starSystem.travelZone of
-                Just tz ->
-                    drawTravelZoneRing (toFloat vox) (toFloat voy) size tz.colour
-
-                Nothing ->
+        ShowTradeCodes ->
+            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                [ if List.isEmpty starSystem.tradeCodes then
                     Svg.text ""
 
-          else
-            Svg.text ""
-        ]
+                  else
+                    hexCentreText (String.join " " starSystem.tradeCodes)
+                , travelZoneRing
+                ]
+
+        ShowImportance ->
+            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                [ case starSystem.importance of
+                    Just imp ->
+                        hexCentreText
+                            ("{" ++ (if imp >= 0 then "+" else "") ++ String.fromInt imp ++ "}")
+
+                    Nothing ->
+                        Svg.text ""
+                , travelZoneRing
+                ]
+
+        ShowStars ->
+            Svg.g
+                [ SvgAttrs.pointerEvents "none" ]
+                [ -- center star
+                  if showStar then
+                    let
+                        primaryPos =
+                            ( toFloat vox, toFloat voy )
+
+                        isKnown : StarType -> Bool
+                        isKnown theStar =
+                            if theStar |> (getStarTypeData >> isBrownDwarfType) then
+                                starSystem.surveyIndex >= 4
+
+                            else
+                                starSystem.surveyIndex >= 1
+
+                        generateStar : Int -> StarType -> Svg Msg
+                        generateStar idx starType =
+                            let
+                                starData =
+                                    getStarTypeData starType
+
+                                ( sx, sy ) =
+                                    if idx == 0 then
+                                        ( toFloat vox, toFloat voy )
+
+                                    else
+                                        rotatePoint size (idx + 2) primaryPos 60 20
+                            in
+                            case starData.companion of
+                                Just companion ->
+                                    let
+                                        ( cx, cy ) =
+                                            ( sx - 5, sy )
+
+                                        compStarData =
+                                            getStarTypeData companion
+                                    in
+                                    Svg.g []
+                                        [ Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
+                                        , Svg.Lazy.lazy5 drawStar cx cy 3 size <| starColourRGB compStarData.colour
+                                        ]
+
+                                Nothing ->
+                                    Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
+                    in
+                    Svg.g
+                        []
+                        (starSystem.stars
+                            |> List.filter isKnown
+                            |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
+                        )
+
+                  else
+                    hexAddressLabel vox voy size hexAddress
+                , if showStar then
+                    hexAddressLabel vox voy size hexAddress
+
+                  else
+                    Svg.text ""
+                , if showGasGiant && size > 15 then
+                    drawGasGiant vox voy size
+
+                  else
+                    Svg.text ""
+                , if showPlanetoidBelt && size > 15 then
+                    drawPlanetoidBelt vox voy size
+
+                  else
+                    Svg.text ""
+                , if showUnknownGasGiant && size > 15 then
+                    drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
+
+                  else
+                    Svg.text ""
+                , if showUnknownPlanetoidBelt && size > 15 then
+                    drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
+
+                  else
+                    Svg.text ""
+                , travelZoneRing
+                ]
 
 
 renderHexSystemLabels : HexRenderOpts -> Svg Msg
@@ -1788,8 +1994,9 @@ viewHex :
     -> List ( Float, Float )
     -> Bool
     -> Maybe String
+    -> DisplayMode
     -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData displayMode =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
@@ -1813,6 +2020,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
                     , size = hexSize
                     , hexapointsStr = hexapointsStr
                     , isReferee = isReferee
+                    , displayMode = displayMode
                     }
             in
             ( Svg.Lazy.lazy renderHexBg opts
@@ -2039,7 +2247,7 @@ hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSo
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -2049,8 +2257,9 @@ viewHexes :
     -> { x : Float, y : Float }
     -> List JumpRouteLink
     -> Maybe String
+    -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2096,7 +2305,19 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                         routeHexBg
 
                     else
-                        case Dict.get hexKey hexColours of
+                        let
+                            regionFill =
+                                case regionDisplay of
+                                    ShowRegionsFill ->
+                                        Dict.get hexKey hexColours
+
+                                    ShowRegionsBoth ->
+                                        Dict.get hexKey hexColours
+
+                                    _ ->
+                                        Nothing
+                        in
+                        case regionFill of
                             Just color ->
                                 Color.Convert.colorToHex color
 
@@ -2123,6 +2344,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 rawHexaPoints
                 isReferee
                 rogueObjectPathData
+                displayMode
             )
     in
     hexRange
@@ -2135,16 +2357,21 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
 
                     renderRegionLabel : HexAddress -> Maybe (Svg.Svg msg)
                     renderRegionLabel hexAddress =
-                        regionLabels
-                            |> Dict.get (HexAddress.toKey hexAddress)
-                            |> Maybe.map
-                                (\name ->
-                                    let
-                                        ( x, y ) =
-                                            labelPos hexAddress
-                                    in
-                                    Html.Lazy.lazy3 regionLabel x y name
-                                )
+                        case regionDisplay of
+                            HideRegions ->
+                                Nothing
+
+                            _ ->
+                                regionLabels
+                                    |> Dict.get (HexAddress.toKey hexAddress)
+                                    |> Maybe.map
+                                        (\name ->
+                                            let
+                                                ( x, y ) =
+                                                    labelPos hexAddress
+                                            in
+                                            Html.Lazy.lazy3 regionLabel x y name
+                                        )
 
                     labels =
                         hexRange
@@ -2171,6 +2398,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     , size = hexSize
                                     , hexapointsStr = ""
                                     , isReferee = isReferee
+                                    , displayMode = displayMode
                                     }
 
                             _ ->
@@ -2331,7 +2559,15 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     )
 
                     regionBorderLines =
-                        regions |> Dict.values |> List.filterMap renderBorderRegion
+                        case regionDisplay of
+                            HideRegions ->
+                                []
+
+                            ShowRegionsFill ->
+                                []
+
+                            _ ->
+                                regions |> Dict.values |> List.filterMap renderBorderRegion
                 in
                 let
                     visibleLinks =
@@ -2371,7 +2607,15 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                             )
                             visibleLinks
                 in
-                [ keyedHexBackgrounds ]
+                [ Svg.defs []
+                    [ Svg.node "clipPath"
+                        [ SvgAttrs.id "planet-hex-clip"
+                        , HtmlAttrs.attribute "clipPathUnits" "objectBoundingBox"
+                        ]
+                        [ Svg.circle [ SvgAttrs.cx "0.5", SvgAttrs.cy "0.5", SvgAttrs.r "0.5" ] [] ]
+                    ]
+                ]
+                    ++ [ keyedHexBackgrounds ]
                     ++ [ keyedHexBorders ]
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
@@ -2751,6 +2995,26 @@ conditionalAttribute condition attribute =
 viewStatusRow : ModelData -> Element.Element Msg
 viewStatusRow model =
     let
+        displayModeLabel =
+            case model.displayMode of
+                ShowStars ->
+                    ""
+
+                ShowMainWorld ->
+                    "Main World"
+
+                ShowWTN ->
+                    "WTN"
+
+                ShowGWP ->
+                    "GWP"
+
+                ShowTradeCodes ->
+                    "Trade Codes"
+
+                ShowImportance ->
+                    "Importance"
+
         extras =
             case model.viewMode of
                 HexMap ->
@@ -2795,6 +3059,11 @@ viewStatusRow model =
                         ]
                       <|
                         renderFAIcon "fa-regular fa-refresh" 14
+                    , if displayModeLabel /= "" then
+                        el [ uiDeepnightColorFontColour, Font.size 12, Element.alignBottom ] (text displayModeLabel)
+
+                      else
+                        Element.none
                     , el
                         [ uiDeepnightColorFontColour
                         , Font.family [ Font.monospace ]
@@ -2906,13 +3175,200 @@ viewStatusRow model =
                 ]
             <|
                 renderFAIcon (iconStyle ++ " " ++ iconName) 16
+        displaySettingsGear =
+            if model.viewMode == HexMap then
+                [ el
+                    [ uiDeepnightColorFontColour
+                    , Element.pointer
+                    , Events.onClick ToggleDisplaySettings
+                    , Element.alignBottom
+                    , Element.htmlAttribute (HtmlAttrs.title "Map display settings")
+                    , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
+                    ]
+                    (renderFAIcon "fa-regular fa-gear" 14)
+                ]
+
+            else
+                []
     in
     Element.wrappedRow [ Element.spacing 8, Element.width Element.fill, Element.paddingEach { zeroEach | bottom = 8 } ] <|
         [ el [ Font.size 20, uiDeepnightColorFontColour ] <| text model.campaignName
         , viewModeIcon HexMap "fa-hexagon"
         , viewModeIcon FullJourney "fa-map"
         ]
+            ++ displaySettingsGear
             ++ extras
+
+
+viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Element Msg
+viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
+    let
+        radioButton : Bool -> Element Msg
+        radioButton isActive =
+            el
+                [ width (Element.px 16)
+                , height (Element.px 16)
+                , Border.width 2
+                , Border.rounded 8
+                , Border.color
+                    (if isActive then
+                        Element.rgba 0.17 0.42 0.55 0.9
+
+                     else
+                        Element.rgba 0.17 0.42 0.55 0.35
+                    )
+                , Element.centerY
+                ]
+            <|
+                if isActive then
+                    el
+                        [ width (Element.px 8)
+                        , height (Element.px 8)
+                        , Border.rounded 4
+                        , Background.color (Element.rgba 0.17 0.42 0.55 0.9)
+                        , Element.centerX
+                        , Element.centerY
+                        ]
+                        Element.none
+
+                else
+                    Element.none
+
+        modeOption : DisplayMode -> String -> String -> Element Msg
+        modeOption mode label description =
+            let
+                isActive =
+                    currentMode == mode
+            in
+            el
+                [ width fill
+                , Element.pointer
+                , Events.onClick (SetDisplayMode mode)
+                , Element.paddingXY 6 8
+                , Border.rounded 4
+                , Background.color
+                    (if isActive then
+                        Element.rgba 0.17 0.42 0.55 0.1
+
+                     else
+                        Element.rgba 0 0 0 0
+                    )
+                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                ]
+            <|
+                row [ Element.spacing 10, width fill ]
+                    [ radioButton isActive
+                    , column [ Element.spacing 2 ]
+                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
+                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        ]
+                    ]
+
+        regionOption : RegionDisplay -> String -> String -> Element Msg
+        regionOption mode label description =
+            let
+                isActive =
+                    currentRegionDisplay == mode
+            in
+            el
+                [ width fill
+                , Element.pointer
+                , Events.onClick (SetRegionDisplay mode)
+                , Element.paddingXY 6 8
+                , Border.rounded 4
+                , Background.color
+                    (if isActive then
+                        Element.rgba 0.17 0.42 0.55 0.1
+
+                     else
+                        Element.rgba 0 0 0 0
+                    )
+                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                ]
+            <|
+                row [ Element.spacing 10, width fill ]
+                    [ radioButton isActive
+                    , column [ Element.spacing 2 ]
+                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
+                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        ]
+                    ]
+
+        options =
+            [ modeOption ShowStars "Stars" "Primary stars in each system"
+            , modeOption ShowMainWorld "Main World" "Planet image for the main world"
+            , modeOption ShowTradeCodes "Trade Codes" "Abbreviated trade classification codes"
+            ]
+                ++ (if isReferee then
+                        [ modeOption ShowWTN "WTN" "World Trade Number"
+                        , modeOption ShowGWP "GWP" "Gross World Product"
+                        , modeOption ShowImportance "Importance" "Economic importance rating"
+                        ]
+
+                    else
+                        []
+                   )
+
+        regionOptions =
+            [ regionOption HideRegions "Hidden" "Regions not shown"
+            , regionOption ShowRegionsFill "Fill" "Hex colour fill only"
+            , regionOption ShowRegionsBorder "Border" "Region border lines only"
+            , regionOption ShowRegionsBoth "Fill & Border" "Hex colour fill with border lines"
+            ]
+
+        sectionDivider =
+            row
+                [ width fill
+                , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
+                , Border.widthEach { zeroEach | bottom = 1 }
+                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                ]
+                [ el [ Font.size 12, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text "REGIONS") ]
+    in
+    el
+        [ width fill
+        , height fill
+        , Events.onClick ToggleDisplaySettings
+        , Background.color (Element.rgba 0 0 0 0.3)
+        ]
+    <|
+        el
+            [ Element.centerX
+            , Element.centerY
+            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True )))
+            , Background.color (Element.rgba 0.95 0.97 1.0 0.95)
+            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , Element.padding 20
+            , Border.rounded 6
+            , Border.width 1
+            , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
+            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
+            , width (Element.px 320)
+            ]
+        <|
+            column [ width fill, Element.spacing 8 ]
+                [ row
+                    [ width fill
+                    , Element.paddingEach { zeroEach | bottom = 12 }
+                    , Border.widthEach { zeroEach | bottom = 1 }
+                    , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                    ]
+                    [ el [ Font.size 14, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text "Map Display")
+                    , el
+                        [ Element.alignRight
+                        , Events.onClick ToggleDisplaySettings
+                        , Element.pointer
+                        , Font.size 14
+                        , Font.color (Element.rgba 0.17 0.42 0.55 0.6)
+                        , Element.mouseOver [ Font.color (Element.rgba 0.17 0.42 0.55 0.9) ]
+                        ]
+                        (text "✕")
+                    ]
+                , column [ width fill, Element.spacing 6 ] options
+                , sectionDivider
+                , column [ width fill, Element.spacing 6 ] regionOptions
+                ]
 
 
 viewHexMap : ModelData -> Element Msg
@@ -2953,7 +3409,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -2963,6 +3419,7 @@ viewHexMap model =
         model.panOffset
         model.jumpRouteLinks
         model.rogueObjectPathData
+        model.displayMode
         |> Element.html
 
 
@@ -3136,6 +3593,11 @@ view ( time, model ) =
 
             _ ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
+        , if model.showDisplaySettings then
+            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee
+
+          else
+            Element.htmlAttribute <| HtmlAttrs.class ""
         ]
         [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
@@ -3167,7 +3629,7 @@ sendSolarSystemRequest requestEntry hostConfig =
         url =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "stars" ])
+                (urlHostPath ++ [ "star_map" ])
                 [ Url.Builder.int "ulx" requestEntry.upperLeftHex.x
                 , Url.Builder.int "uly" requestEntry.upperLeftHex.y
                 , Url.Builder.int "lrx" requestEntry.lowerRightHex.x
@@ -3299,6 +3761,12 @@ saveHexSize size =
 
 
 port storeHexSize : Float -> Cmd msg
+
+
+port storeDisplayMode : String -> Cmd msg
+
+
+port storeRegionDisplay : String -> Cmd msg
 
 
 port navigateToUrl : String -> Cmd msg
@@ -3694,6 +4162,13 @@ update msg ( time, model ) =
                                                 List.map Result.toMaybe fallibleSystem.stars |> List.filterMap identity
                                             , mainWorldUwp = fallibleSystem.mainWorldUwp
                                             , travelZone = fallibleSystem.travelZone
+                                            , known = fallibleSystem.known
+                                            , mainWorldName = fallibleSystem.mainWorldName
+                                            , mainWorldImage = fallibleSystem.mainWorldImage
+                                            , wtn = fallibleSystem.wtn
+                                            , gwp = fallibleSystem.gwp
+                                            , importance = fallibleSystem.importance
+                                            , tradeCodes = fallibleSystem.tradeCodes
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -4460,6 +4935,57 @@ update msg ( time, model ) =
                             ( withTime { model | viewMode = targetMode }, Cmd.none )
             in
             ( updatedModel, Cmd.batch [ storeViewMode viewModeString, downloadCmds ] )
+
+        SetDisplayMode mode ->
+            let
+                modeString =
+                    case mode of
+                        ShowStars ->
+                            "Stars"
+
+                        ShowMainWorld ->
+                            "MainWorld"
+
+                        ShowWTN ->
+                            "WTN"
+
+                        ShowGWP ->
+                            "GWP"
+
+                        ShowTradeCodes ->
+                            "TradeCodes"
+
+                        ShowImportance ->
+                            "Importance"
+            in
+            ( withTime { model | displayMode = mode }
+            , storeDisplayMode modeString
+            )
+
+        SetRegionDisplay mode ->
+            let
+                modeString =
+                    case mode of
+                        HideRegions ->
+                            "Hide"
+
+                        ShowRegionsFill ->
+                            "Fill"
+
+                        ShowRegionsBorder ->
+                            "Border"
+
+                        ShowRegionsBoth ->
+                            "Both"
+            in
+            ( withTime { model | regionDisplay = mode }
+            , storeRegionDisplay modeString
+            )
+
+        ToggleDisplaySettings ->
+            ( withTime { model | showDisplaySettings = not model.showDisplaySettings }
+            , Cmd.none
+            )
 
         ToggleHexmap ->
             update (SetViewMode (if model.viewMode == HexMap then FullJourney else HexMap)) ( time, model )

@@ -77,6 +77,8 @@ type alias Flags =
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
     , shipLocation : Maybe ( Int, Int )
+    , displayMode : Maybe String
+    , regionDisplay : Maybe String
     }
 
 
@@ -198,6 +200,8 @@ update msg model =
                                 , centerOn = model.flags.centerOn
                                 , rogueObjectPathData = model.flags.rogueObjectPathData
                                 , shipLocation = model.flags.shipLocation
+                                , displayMode = model.flags.displayMode
+                                , regionDisplay = model.flags.regionDisplay
                                 }
                                 model.key
                                 model.hostConfig
