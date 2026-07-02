@@ -195,7 +195,7 @@ cometSI =
 
 
 consoleTitleHeight =
-    46
+    62
 
 
 toEHexChar : Int -> String
@@ -282,6 +282,60 @@ journeyDimensions viewport =
 
 type alias HexMapViewport =
     Result Browser.Dom.Error Browser.Dom.Viewport
+
+
+type alias SearchResult =
+    { resultType : String
+    , displayType : String
+    , name : String
+    , meta : String
+    , x : Maybe Int
+    , y : Maybe Int
+    , sectorX : Maybe Int
+    , sectorY : Maybe Int
+    , subsectorX : Maybe Int
+    , subsectorY : Maybe Int
+    }
+
+
+type alias SearchState =
+    { query : String
+    , results : RemoteData Http.Error (List SearchResult)
+    , dropdownOpen : Bool
+    }
+
+
+searchResultDecoder : JsDecode.Decoder SearchResult
+searchResultDecoder =
+    JsDecode.map8
+        (\rt dt name meta x y sx sy ->
+            { resultType = rt
+            , displayType = dt
+            , name = name
+            , meta = meta
+            , x = x
+            , y = y
+            , sectorX = sx
+            , sectorY = sy
+            , subsectorX = Nothing
+            , subsectorY = Nothing
+            }
+        )
+        (JsDecode.field "type" JsDecode.string)
+        (JsDecode.field "display_type" JsDecode.string)
+        (JsDecode.field "name" JsDecode.string)
+        (JsDecode.field "meta" JsDecode.string)
+        (JsDecode.field "x" (JsDecode.nullable JsDecode.int))
+        (JsDecode.field "y" (JsDecode.nullable JsDecode.int))
+        (JsDecode.field "sector_x" (JsDecode.nullable JsDecode.int))
+        (JsDecode.field "sector_y" (JsDecode.nullable JsDecode.int))
+        |> JsDecode.andThen
+            (\partial ->
+                JsDecode.map2
+                    (\subX subY -> { partial | subsectorX = subX, subsectorY = subY })
+                    (JsDecode.field "subsector_x" (JsDecode.nullable JsDecode.int))
+                    (JsDecode.field "subsector_y" (JsDecode.nullable JsDecode.int))
+            )
 
 
 type DragMode
@@ -615,6 +669,9 @@ type alias ModelData =
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
+    , showSectorLines : Bool
+    , showSubsectorLines : Bool
+    , searchState : SearchState
     }
 
 
@@ -665,6 +722,13 @@ type Msg
     | SetDisplayMode DisplayMode
     | SetRegionDisplay RegionDisplay
     | ToggleDisplaySettings
+    | ToggleSectorLines
+    | ToggleSubsectorLines
+    | SearchInput String
+    | GotSearchResults (Result Http.Error (List SearchResult))
+    | SelectSearchResult SearchResult
+    | FocusSearch
+    | CloseSearchDropdown
 
 
 type JourneyMsg
@@ -702,11 +766,17 @@ toKey model key ctrl =
             CloseObjectAnalysis
 
         ( Nothing, _, "Escape" ) ->
-            if model.sidebarOpen then
+            if model.searchState.dropdownOpen then
+                CloseSearchDropdown
+
+            else if model.sidebarOpen then
                 CloseSidebar
 
             else
                 NoOpMsg
+
+        ( Nothing, _, "/" ) ->
+            FocusSearch
 
         ( Nothing, HexMap, "ArrowRight" ) ->
             if ctrl then
@@ -776,6 +846,8 @@ type alias Flags =
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
+    , showSectorLines : Maybe Bool
+    , showSubsectorLines : Maybe Bool
     }
 
 
@@ -954,6 +1026,12 @@ init viewport settings key hostConfig referee =
                 _ ->
                     ShowRegionsBoth
 
+        initialShowSectorLines =
+            settings.showSectorLines |> Maybe.withDefault True
+
+        initialShowSubsectorLines =
+            settings.showSubsectorLines |> Maybe.withDefault True
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
@@ -1000,9 +1078,12 @@ init viewport settings key hostConfig referee =
             , displayMode = initialDisplayMode
             , regionDisplay = initialRegionDisplay
             , showDisplaySettings = False
+            , showSectorLines = initialShowSectorLines
+            , showSubsectorLines = initialShowSubsectorLines
             , sidebarOpen = False
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
+            , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             }
     in
     ( ( Time.millisToPosix 0
@@ -1292,6 +1373,8 @@ renderPolygon points_ fill =
     Svg.polygon
         [ points points_
         , SvgAttrs.fill hexColour
+        , SvgAttrs.stroke "#cccccc"
+        , SvgAttrs.strokeWidth "0.5"
         , SvgAttrs.pointerEvents "visiblePainted"
         , SvgAttrs.class "hex-hover"
         ]
@@ -2026,7 +2109,7 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
 
     else
         Svg.g []
-            [ if isReferee || si >= uwpSI then
+            [ if (isReferee || si >= uwpSI) && size >= 60 then
                 case starSystem.mainWorldUwp of
                     Just uwpStr ->
                         Svg.text_
@@ -2063,7 +2146,7 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
 
 
 defaultHexBg =
-    "#F5F9FC"
+    "#FFFFFF"
 
 
 selectedHexBg =
@@ -2346,6 +2429,100 @@ renderSectorOutline hexSize hex =
         []
 
 
+renderSubsectorLines : Float -> SectorHexAddress -> List (Svg Msg)
+renderSubsectorLines hexSize hex =
+    let
+        hWidth =
+            hexWidth hexSize |> floor
+
+        hHeight =
+            hexHeight hexSize |> floor
+
+        toUniversal localX localY =
+            { hex | x = localX, y = localY } |> HexAddress.toUniversalAddress
+
+        visualOf localX localY =
+            let
+                ua =
+                    toUniversal localX localY
+            in
+            calcVisualOrigin hexSize { row = ua.y, col = ua.x }
+
+        ( rawLeftX, rawTopY ) =
+            visualOf 0 0
+
+        sectorLeftX =
+            rawLeftX - hWidth // 2
+
+        sectorTopY =
+            rawTopY - hHeight // 2
+
+        ( _, rawBotY ) =
+            visualOf 0 40
+
+        sectorBotY =
+            rawBotY - hHeight // 2
+
+        ( rawRightX, _ ) =
+            visualOf 32 0
+
+        sectorRightX =
+            rawRightX - hWidth // 2
+
+        sharedAttrs =
+            [ SvgAttrs.stroke "#888888"
+            , SvgAttrs.strokeWidth "1.5"
+            , SvgAttrs.strokeDasharray "5,3"
+            , SvgAttrs.fill "none"
+            , SvgAttrs.pointerEvents "none"
+            ]
+
+        verticalLine bc =
+            let
+                ( xLeft, _ ) =
+                    visualOf bc 0
+
+                ( xRight, _ ) =
+                    visualOf (bc + 1) 0
+
+                lineX =
+                    (xLeft + xRight) // 2
+            in
+            Svg.line
+                (sharedAttrs
+                    ++ [ SvgAttrs.x1 (String.fromInt lineX)
+                       , SvgAttrs.y1 (String.fromInt sectorTopY)
+                       , SvgAttrs.x2 (String.fromInt lineX)
+                       , SvgAttrs.y2 (String.fromInt sectorBotY)
+                       ]
+                )
+                []
+
+        horizontalLine br =
+            let
+                ( _, yAbove ) =
+                    visualOf 1 br
+
+                ( _, yBelow ) =
+                    visualOf 1 (br + 1)
+
+                lineY =
+                    (yAbove + yBelow) // 2
+            in
+            Svg.line
+                (sharedAttrs
+                    ++ [ SvgAttrs.x1 (String.fromInt sectorLeftX)
+                       , SvgAttrs.y1 (String.fromInt lineY)
+                       , SvgAttrs.x2 (String.fromInt sectorRightX)
+                       , SvgAttrs.y2 (String.fromInt lineY)
+                       ]
+                )
+                []
+    in
+    List.map verticalLine [ 7, 15, 23 ]
+        ++ List.map horizontalLine [ 9, 19, 29 ]
+
+
 regionLabel : Int -> Int -> String -> Svg msg
 regionLabel x y name =
     Svg.text_
@@ -2400,7 +2577,7 @@ hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSo
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -2412,7 +2589,7 @@ viewHexes :
     -> Maybe String
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2611,15 +2788,34 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                         HexAddress.toSectorAddress lowerRightHex
 
                     sectorOutlines =
-                        List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
-                            |> List.concatMap
-                                (\sx ->
-                                    List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
-                                        |> List.map
-                                            (\sy ->
-                                                renderSectorOutline hexSize { ulSector | sectorX = sx, sectorY = sy }
-                                            )
-                                )
+                        if showSectorLines then
+                            List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
+                                |> List.concatMap
+                                    (\sx ->
+                                        List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
+                                            |> List.map
+                                                (\sy ->
+                                                    renderSectorOutline hexSize { ulSector | sectorX = sx, sectorY = sy }
+                                                )
+                                    )
+
+                        else
+                            []
+
+                    subsectorLinesList =
+                        if showSubsectorLines then
+                            List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
+                                |> List.concatMap
+                                    (\sx ->
+                                        List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
+                                            |> List.concatMap
+                                                (\sy ->
+                                                    renderSubsectorLines hexSize { ulSector | sectorX = sx, sectorY = sy }
+                                                )
+                                    )
+
+                        else
+                            []
                 in
                 let
                     hexEdgeNeighbours : HexAddress -> List HexAddress
@@ -2773,6 +2969,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
                     ++ [ keyedHexForegrounds ]
+                    ++ subsectorLinesList
                     ++ sectorOutlines
                     ++ regionBorderLines
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
@@ -3145,6 +3342,178 @@ conditionalAttribute condition attribute =
         noopAttribute
 
 
+fitHexScaleForGrid : Maybe HexMapViewport -> Int -> Int -> Float
+fitHexScaleForGrid hexmapViewport gridW gridH =
+    case hexmapViewport of
+        Just (Ok vp) ->
+            clamp minHexSize
+                maxHexSize
+                (min
+                    (vp.viewport.width / (toFloat gridW * hexWidth 1.0))
+                    (vp.viewport.height / (toFloat gridH * hexHeight 1.0))
+                )
+
+        _ ->
+            defaultHexSize
+
+
+searchNavigation : SearchResult -> ModelData -> Maybe ( HexAddress, Maybe Float )
+searchNavigation result model =
+    case result.resultType of
+        "StarSystem" ->
+            Maybe.map2 (\x y -> ( { x = x, y = y }, Nothing )) result.x result.y
+
+        "Sector" ->
+            Maybe.map2
+                (\sx sy ->
+                    ( { x = sx * 32 + 16, y = sy * 40 - 20 }
+                    , Just (fitHexScaleForGrid model.viewport.hexmapViewport 32 40)
+                    )
+                )
+                result.sectorX
+                result.sectorY
+
+        "Subsector" ->
+            Maybe.map4
+                (\sx sy subX subY ->
+                    let
+                        ulX =
+                            sx * 32 + (subX - 1) * 8
+
+                        ulY =
+                            sy * 40 - (subY - 1) * 10
+                    in
+                    ( { x = ulX + 4, y = ulY - 5 }
+                    , Just (fitHexScaleForGrid model.viewport.hexmapViewport 8 10)
+                    )
+                )
+                result.sectorX
+                result.sectorY
+                result.subsectorX
+                result.subsectorY
+
+        _ ->
+            Maybe.map2 (\x y -> ( { x = x, y = y }, Nothing )) result.x result.y
+
+
+viewSearchField : ModelData -> List (Element.Element Msg)
+viewSearchField model =
+    if model.viewMode /= HexMap then
+        []
+
+    else
+        [ el
+            [ Element.below
+                (if model.searchState.dropdownOpen then
+                    viewSearchDropdown model.searchState
+
+                 else
+                    Element.none
+                )
+            ]
+            (Input.text
+                [ Element.width (Element.px 220)
+                , Font.size 13
+                , Font.color (Element.rgb 0.1 0.1 0.1)
+                , Background.color (Element.rgb 1 1 1)
+                , Border.color (Element.rgb 0.4 0.4 0.4)
+                , Border.width 1
+                , Border.rounded 4
+                , Element.padding 6
+                , Element.htmlAttribute (HtmlAttrs.id "starmap-search")
+                , Element.htmlAttribute
+                    (Html.Events.stopPropagationOn "keydown"
+                        (JsDecode.field "key" JsDecode.string
+                            |> JsDecode.map
+                                (\k ->
+                                    if k == "Escape" then
+                                        ( CloseSearchDropdown, True )
+
+                                    else
+                                        ( NoOpMsg, True )
+                                )
+                        )
+                    )
+                ]
+                { onChange = SearchInput
+                , text = model.searchState.query
+                , placeholder =
+                    Just
+                        (Input.placeholder
+                            [ Font.color (Element.rgba 0.4 0.4 0.4 0.8)
+                            , Font.size 12
+                            ]
+                            (text "Search… [/]")
+                        )
+                , label = Input.labelHidden "Search starmap"
+                }
+            )
+        ]
+
+
+viewSearchDropdown : SearchState -> Element.Element Msg
+viewSearchDropdown searchState =
+    el
+        [ Background.color (Element.rgba 0.05 0.05 0.1 0.95)
+        , Border.color (Element.rgba 0.17 0.42 0.55 0.5)
+        , Border.width 1
+        , Border.rounded 4
+        , Element.width (Element.px 340)
+        , Element.padding 4
+        , Element.htmlAttribute (HtmlAttrs.style "z-index" "100")
+        ]
+        (case searchState.results of
+            RemoteData.Loading ->
+                el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.45), Element.padding 8 ]
+                    (text "Searching…")
+
+            RemoteData.Success [] ->
+                el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.45), Element.padding 8 ]
+                    (text "No matches")
+
+            RemoteData.Success results ->
+                column [ Element.width Element.fill, Element.spacing 2 ]
+                    (List.map viewSearchResultRow results)
+
+            RemoteData.Failure _ ->
+                el [ Font.size 12, Font.color (Element.rgba 1 0.3 0.3 0.8), Element.padding 8 ]
+                    (text "Search failed")
+
+            RemoteData.NotAsked ->
+                Element.none
+        )
+
+
+viewSearchResultRow : SearchResult -> Element.Element Msg
+viewSearchResultRow result =
+    column
+        [ Element.width Element.fill
+        , Element.padding 8
+        , Element.spacing 3
+        , Element.pointer
+        , Element.htmlAttribute (Html.Events.onMouseDown (SelectSearchResult result))
+        , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.3) ]
+        , Border.rounded 3
+        ]
+        [ row [ Element.width Element.fill, Element.spacing 8 ]
+            [ el
+                [ Font.size 14
+                , Font.color (Element.rgb 0.9 0.9 0.9)
+                , Element.width Element.fill
+                ]
+                (text result.name)
+            , el
+                [ Font.size 10
+                , Font.color (Element.rgba 1 1 1 0.45)
+                , Element.alignRight
+                ]
+                (text (String.toUpper result.displayType))
+            ]
+        , el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.5) ]
+            (text result.meta)
+        ]
+
+
 viewStatusRow : ModelData -> Element.Element Msg
 viewStatusRow model =
     let
@@ -3182,7 +3551,7 @@ viewStatusRow model =
                         , Font.size 14
                         , Element.pointer
                         , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)))
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
@@ -3195,7 +3564,7 @@ viewStatusRow model =
                         , Font.size 14
                         , Element.pointer
                         , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)))
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
@@ -3210,7 +3579,7 @@ viewStatusRow model =
                         , Element.spacing 5
                         , Element.pointer
                         , Events.onClick RefreshMap
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Refresh map"
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
@@ -3219,7 +3588,7 @@ viewStatusRow model =
                       <|
                         renderFAIcon "fa-regular fa-refresh" 14
                     , if displayModeLabel /= "" then
-                        el [ uiDeepnightColorFontColour, Font.size 12, Element.alignBottom ] (text displayModeLabel)
+                        el [ uiDeepnightColorFontColour, Font.size 12, Element.centerY ] (text displayModeLabel)
 
                       else
                         Element.none
@@ -3227,18 +3596,34 @@ viewStatusRow model =
                         [ uiDeepnightColorFontColour
                         , Font.family [ Font.monospace ]
                         , Font.size 14
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.width <| Element.minimum 10 Element.shrink
                         ]
                       <|
                         case model.hoveringHex of
                             Just hoveringHex ->
-                                text <| universalHexLabel model.sectors hoveringHex
+                                let
+                                    hexLabel =
+                                        universalHexLabel model.sectors hoveringHex
+
+                                    displayText =
+                                        case Dict.get (HexAddress.toKey hoveringHex) model.solarSystems of
+                                            Just (LoadedSolarSystem system) ->
+                                                if system.name /= "" then
+                                                    system.name ++ " (" ++ hexLabel ++ ")"
+
+                                                else
+                                                    hexLabel
+
+                                            _ ->
+                                                hexLabel
+                                in
+                                text displayText
 
                             Nothing ->
                                 Element.none
                     , -- hex rect display
-                      el [ Element.alignBottom, Font.size 14, uiDeepnightColorFontColour, Element.centerX ] <|
+                      el [ Element.centerY, Font.size 14, uiDeepnightColorFontColour, Element.centerX ] <|
                         text <|
                             let
                                 first =
@@ -3261,7 +3646,7 @@ viewStatusRow model =
                         , Element.spacing 5
                         , Element.pointer
                         , Events.onClick JumpToShip
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
                             ]
@@ -3281,7 +3666,7 @@ viewStatusRow model =
                         , Font.size 14
                         , Element.pointer
                         , Events.onClick (JourneyMsg (Zoom ZoomIn))
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
@@ -3294,7 +3679,7 @@ viewStatusRow model =
                         , Font.size 14
                         , Element.pointer
                         , Events.onClick (JourneyMsg (Zoom ZoomOut))
-                        , Element.alignBottom
+                        , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
                         , Element.mouseOver
                             [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
@@ -3330,7 +3715,7 @@ viewStatusRow model =
                 , Element.pointer
                 , Events.onClick (SetViewMode targetMode)
                 , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
-                , Element.alignBottom
+                , Element.centerY
                 ]
             <|
                 renderFAIcon (iconStyle ++ " " ++ iconName) 16
@@ -3340,7 +3725,7 @@ viewStatusRow model =
                     [ uiDeepnightColorFontColour
                     , Element.pointer
                     , Events.onClick ToggleDisplaySettings
-                    , Element.alignBottom
+                    , Element.centerY
                     , Element.htmlAttribute (HtmlAttrs.title "Map display settings")
                     , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
                     ]
@@ -3350,17 +3735,23 @@ viewStatusRow model =
             else
                 []
     in
-    Element.wrappedRow [ Element.spacing 8, Element.width Element.fill, Element.paddingEach { zeroEach | bottom = 8 } ] <|
-        [ el [ Font.size 20, uiDeepnightColorFontColour ] <| text model.campaignName
-        , viewModeIcon HexMap "fa-hexagon"
-        , viewModeIcon FullJourney "fa-map"
+    Element.row
+        [ Element.spacing 8
+        , Element.width Element.fill
+        , Element.paddingEach { zeroEach | bottom = 10, top = 10, right = 8 }
         ]
+        ([ el [ Font.size 20, uiDeepnightColorFontColour, Element.paddingEach { zeroEach | left = 8 } ] <| text model.campaignName
+         , viewModeIcon HexMap "fa-hexagon"
+         , viewModeIcon FullJourney "fa-map"
+         ]
             ++ displaySettingsGear
+            ++ viewSearchField model
             ++ extras
+        )
 
 
-viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Element Msg
-viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
+viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Element Msg
+viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLines_ showSubsectorLines_ =
     let
         radioButton : Bool -> Element Msg
         radioButton isActive =
@@ -3417,9 +3808,9 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
             <|
                 row [ Element.spacing 10, width fill ]
                     [ radioButton isActive
-                    , column [ Element.spacing 2 ]
+                    , column [ Element.spacing 2, width fill ]
                         [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
-                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        , Element.paragraph [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] [ text description ]
                         ]
                     ]
 
@@ -3485,6 +3876,77 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
                 , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
                 ]
                 [ el [ Font.size 12, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text "REGIONS") ]
+
+        overlayDivider =
+            row
+                [ width fill
+                , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
+                , Border.widthEach { zeroEach | bottom = 1 }
+                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                ]
+                [ el [ Font.size 12, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text "OVERLAY LINES") ]
+
+        checkboxButton : Bool -> Element Msg
+        checkboxButton isActive =
+            el
+                [ width (Element.px 16)
+                , height (Element.px 16)
+                , Border.width 2
+                , Border.rounded 3
+                , Border.color
+                    (if isActive then
+                        Element.rgba 0.17 0.42 0.55 0.9
+
+                     else
+                        Element.rgba 0.17 0.42 0.55 0.35
+                    )
+                , Element.centerY
+                ]
+            <|
+                if isActive then
+                    el
+                        [ width (Element.px 8)
+                        , height (Element.px 8)
+                        , Border.rounded 1
+                        , Background.color (Element.rgba 0.17 0.42 0.55 0.9)
+                        , Element.centerX
+                        , Element.centerY
+                        ]
+                        Element.none
+
+                else
+                    Element.none
+
+        toggleOption : Bool -> String -> String -> Msg -> Element Msg
+        toggleOption isActive label description msg =
+            el
+                [ width fill
+                , Element.pointer
+                , Events.onClick msg
+                , Element.paddingXY 6 8
+                , Border.rounded 4
+                , Background.color
+                    (if isActive then
+                        Element.rgba 0.17 0.42 0.55 0.1
+
+                     else
+                        Element.rgba 0 0 0 0
+                    )
+                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                ]
+            <|
+                row [ Element.spacing 10, width fill ]
+                    [ checkboxButton isActive
+                    , column [ Element.spacing 2 ]
+                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
+                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        ]
+                    ]
+
+        overlayOptions =
+            [ toggleOption showSectorLines_ "Sector Lines" "Sector boundary outlines" ToggleSectorLines
+            , toggleOption showSubsectorLines_ "Subsector Lines" "Subsector grid within each sector" ToggleSubsectorLines
+            ]
     in
     el
         [ width fill
@@ -3505,7 +3967,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
             , Border.width 1
             , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
             , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
-            , width (Element.px 320)
+            , width (Element.px 480)
             ]
         <|
             column [ width fill, Element.spacing 8 ]
@@ -3526,9 +3988,18 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee =
                         ]
                         (text "✕")
                     ]
-                , column [ width fill, Element.spacing 6 ] options
+                , let
+                    half =
+                        (List.length options + 1) // 2
+                  in
+                  row [ width fill, Element.spacing 6 ]
+                    [ column [ width (Element.fillPortion 1), Element.spacing 6 ] (List.take half options)
+                    , column [ width (Element.fillPortion 1), Element.spacing 6 ] (List.drop half options)
+                    ]
                 , sectionDivider
                 , column [ width fill, Element.spacing 6 ] regionOptions
+                , overlayDivider
+                , column [ width fill, Element.spacing 6 ] overlayOptions
                 ]
 
 
@@ -3570,7 +4041,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -3755,7 +4226,7 @@ view ( time, model ) =
             _ ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
         , if model.showDisplaySettings then
-            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee
+            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines
 
           else
             Element.htmlAttribute <| HtmlAttrs.class ""
@@ -3902,6 +4373,17 @@ fetchSingleSolarSystemRequest hostConfig hex =
     requestCmd
 
 
+sendSearchRequest : String -> HostConfig.HostConfig -> Cmd Msg
+sendSearchRequest query ( urlRoot, urlPath ) =
+    Http.get
+        { url =
+            Url.Builder.crossOrigin urlRoot
+                (urlPath ++ [ "search" ])
+                [ Url.Builder.string "q" query ]
+        , expect = Http.expectJson GotSearchResults (JsDecode.list searchResultDecoder)
+        }
+
+
 saveMapCoords : HexAddress -> Cmd Msg
 saveMapCoords upperLeft =
     storeInLocalStorage ( upperLeft.x, upperLeft.y )
@@ -3928,6 +4410,12 @@ port storeDisplayMode : String -> Cmd msg
 
 
 port storeRegionDisplay : String -> Cmd msg
+
+
+port storeSectorLines : Bool -> Cmd msg
+
+
+port storeSubsectorLines : Bool -> Cmd msg
 
 
 port navigateToUrl : String -> Cmd msg
@@ -5152,6 +5640,131 @@ update msg ( time, model ) =
 
         ToggleDisplaySettings ->
             ( withTime { model | showDisplaySettings = not model.showDisplaySettings }
+            , Cmd.none
+            )
+
+        ToggleSectorLines ->
+            ( withTime { model | showSectorLines = not model.showSectorLines }
+            , storeSectorLines (not model.showSectorLines)
+            )
+
+        ToggleSubsectorLines ->
+            ( withTime { model | showSubsectorLines = not model.showSubsectorLines }
+            , storeSubsectorLines (not model.showSubsectorLines)
+            )
+
+        SearchInput query ->
+            let
+                ss =
+                    model.searchState
+
+                newState =
+                    { ss
+                        | query = query
+                        , dropdownOpen = String.length query >= 3
+                        , results =
+                            if String.length query >= 3 then
+                                RemoteData.Loading
+
+                            else
+                                RemoteData.NotAsked
+                    }
+            in
+            ( withTime { model | searchState = newState }
+            , if String.length query >= 3 then
+                sendSearchRequest query model.hostConfig
+
+              else
+                Cmd.none
+            )
+
+        GotSearchResults (Ok results) ->
+            let
+                ss =
+                    model.searchState
+
+                stillValid =
+                    String.length ss.query >= 3
+
+                newState =
+                    { ss
+                        | results =
+                            if stillValid then
+                                RemoteData.Success results
+
+                            else
+                                RemoteData.NotAsked
+                        , dropdownOpen = stillValid && not (List.isEmpty results)
+                    }
+            in
+            ( withTime { model | searchState = newState }
+            , Cmd.none
+            )
+
+        GotSearchResults (Err err) ->
+            let
+                ss =
+                    model.searchState
+
+                newState =
+                    { ss | results = RemoteData.Failure err, dropdownOpen = False }
+            in
+            ( withTime { model | searchState = newState }
+            , Cmd.none
+            )
+
+        SelectSearchResult result ->
+            let
+                ss =
+                    model.searchState
+
+                clearedSS =
+                    { ss | dropdownOpen = False, query = "", results = RemoteData.NotAsked }
+
+                clearedModel =
+                    { model | searchState = clearedSS, viewMode = HexMap }
+            in
+            case searchNavigation result clearedModel of
+                Nothing ->
+                    ( withTime clearedModel, Cmd.none )
+
+                Just ( targetHex, Nothing ) ->
+                    let
+                        ( scaledModel, scaleCmds ) =
+                            update (SetHexSize 60) (withTime clearedModel)
+
+                        ( zoomedModel, zoomCmds ) =
+                            update (ZoomToHex targetHex True) scaledModel
+
+                        ( finalModel, viewCmds ) =
+                            update (ViewingHex targetHex) zoomedModel
+                    in
+                    ( finalModel, Cmd.batch [ scaleCmds, zoomCmds, viewCmds ] )
+
+                Just ( targetHex, Just newScale ) ->
+                    let
+                        ( scaledModel, scaleCmds ) =
+                            update (SetHexSize newScale) (withTime clearedModel)
+
+                        ( finalModel, zoomCmds ) =
+                            update (ZoomToHex targetHex True) scaledModel
+                    in
+                    ( finalModel, Cmd.batch [ scaleCmds, zoomCmds ] )
+
+        FocusSearch ->
+            ( withTime model
+            , Task.attempt (\_ -> NoOpMsg) (Browser.Dom.focus "starmap-search")
+            )
+
+        CloseSearchDropdown ->
+            let
+                ss =
+                    model.searchState
+
+                clearedSS =
+                    { ss | dropdownOpen = False, query = "", results = RemoteData.NotAsked }
+            in
+            ( withTime { model | searchState = clearedSS }
             , Cmd.none
             )
 

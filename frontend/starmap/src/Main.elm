@@ -79,6 +79,8 @@ type alias Flags =
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
+    , showSectorLines : Maybe Bool
+    , showSubsectorLines : Maybe Bool
     }
 
 
@@ -202,6 +204,8 @@ update msg model =
                                 , shipLocation = model.flags.shipLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay
+                                , showSectorLines = model.flags.showSectorLines
+                                , showSubsectorLines = model.flags.showSubsectorLines
                                 }
                                 model.key
                                 model.hostConfig

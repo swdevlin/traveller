@@ -13,12 +13,16 @@ document.addEventListener('turbo:load', () => {
   const journeyStateKey = `journeyState_${slug}`
   const displayModeKey = `displayMode_${slug}`
   const regionDisplayKey = `regionDisplay_${slug}`
+  const sectorLinesKey = `showSectorLines_${slug}`
+  const subsectorLinesKey = `showSubsectorLines_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
   const viewMode = localStorage.getItem(viewModeKey) ?? null
   const journeyState = localStorage.getItem(journeyStateKey) ?? null
   const displayMode = localStorage.getItem(displayModeKey) ?? null
   const regionDisplay = localStorage.getItem(regionDisplayKey) ?? null
+  const showSectorLines = JSON.parse(localStorage.getItem(sectorLinesKey) ?? 'null')
+  const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
 
   const elm = window.Elm.Main.init({
     node,
@@ -29,6 +33,8 @@ document.addEventListener('turbo:load', () => {
       journeyState,
       displayMode,
       regionDisplay,
+      showSectorLines,
+      showSubsectorLines,
       centerOn: null,
       ...serverFlags
     }
@@ -70,6 +76,18 @@ document.addEventListener('turbo:load', () => {
     })
   }
 
+  if (elm.ports.storeSectorLines) {
+    elm.ports.storeSectorLines.subscribe(value => {
+      localStorage.setItem(sectorLinesKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeSubsectorLines) {
+    elm.ports.storeSubsectorLines.subscribe(value => {
+      localStorage.setItem(subsectorLinesKey, JSON.stringify(value))
+    })
+  }
+
   if (elm.ports.navigateToUrl) {
     elm.ports.navigateToUrl.subscribe(url => {
       window.open(url, '_blank');
@@ -92,4 +110,14 @@ document.addEventListener('turbo:load', () => {
       }
     })
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== '/') return;
+    const tag = document.activeElement.tagName.toUpperCase();
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) return;
+    e.preventDefault();
+    const wrapper = document.getElementById('starmap-search');
+    const input = (wrapper && wrapper.querySelector('input')) || node.querySelector('input[type="text"]');
+    if (input) input.focus();
+  });
 })

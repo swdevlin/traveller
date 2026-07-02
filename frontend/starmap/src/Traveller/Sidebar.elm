@@ -421,16 +421,6 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
         ]
 
 
-{-| View the sidebar footer.
--}
 viewSidebarFooter : Maybe HexAddress -> Element msg
 viewSidebarFooter _ =
-    Element.el
-        [ Element.padding 10
-        , Element.alignBottom
-        , centerX
-        , Font.size 10
-        , uiDeepnightColorFontColour
-        ]
-    <|
-        text "Deepnight Corporation LLC"
+    Element.none
