@@ -377,6 +377,30 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
 
                                 Nothing ->
                                     Element.none
+                            , case selectedSystem of
+                                Just sys ->
+                                    if isReferee || sys.surveyIndex >= 10 then
+                                        case sys.allegiance of
+                                            Just code ->
+                                                let
+                                                    label =
+                                                        case sys.allegianceName of
+                                                            Just aName ->
+                                                                aName ++ " (" ++ code ++ ")"
+
+                                                            Nothing ->
+                                                                code
+                                                in
+                                                el [ centerX, Font.size 12, Font.color (Element.rgba 0.17 0.42 0.55 0.7) ] (text label)
+
+                                            Nothing ->
+                                                Element.none
+
+                                    else
+                                        Element.none
+
+                                Nothing ->
+                                    Element.none
                             , regions
                                 |> Dict.values
                                 |> List.filterMap

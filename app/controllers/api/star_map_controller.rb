@@ -104,6 +104,7 @@ class Api::StarMapController < Api::BaseController
         origin_y:          parsec.y,
         scan_points:       0,
         allegiance:        ss.allegiance&.code,
+        allegiance_name:   ss.allegiance&.name,
         native_sophont:    native_ids.include?(ss.id),
         extinct_sophont:   extinct_ids.include?(ss.id),
         star_count:        (stars_by_system[ss.id] || []).size,

@@ -28,6 +28,7 @@ type alias SolarSystem =
     , nativeSophont : Bool
     , extinctSophont : Bool
     , allegiance : Maybe String
+    , allegianceName : Maybe String
     , name : Maybe String
     , sectorName : String
     , mainWorldProfile : Maybe MainWorldProfile
@@ -48,6 +49,7 @@ type alias RawSolarSystem =
     , sectorX : Int
     , sectorY : Int
     , allegiance : Maybe String
+    , allegianceName : Maybe String
     , name : Maybe String
     , sectorName : String
     , mainWorldProfile : Maybe MainWorldProfile
@@ -73,6 +75,7 @@ rawToFinal rawSolarSystem =
         , nativeSophont = rawSolarSystem.nativeSophont
         , extinctSophont = rawSolarSystem.extinctSophont
         , allegiance = rawSolarSystem.allegiance
+        , allegianceName = rawSolarSystem.allegianceName
         , name = rawSolarSystem.name
         , sectorName = rawSolarSystem.sectorName
         , mainWorldProfile = rawSolarSystem.mainWorldProfile
@@ -94,6 +97,7 @@ finalToRaw solarSystem =
     , sectorX = 9999999999
     , sectorY = 9999999999
     , allegiance = solarSystem.allegiance
+    , allegianceName = solarSystem.allegianceName
     , name = solarSystem.name
     , sectorName = solarSystem.sectorName
     , mainWorldProfile = solarSystem.mainWorldProfile
@@ -129,6 +133,7 @@ rawCodec =
         |> Codec.field "sector_x" .sectorX Codec.int
         |> Codec.field "sector_y" .sectorY Codec.int
         |> Codec.field "allegiance" .allegiance (Codec.nullable Codec.string)
+        |> Codec.optionalNullableField "allegiance_name" .allegianceName Codec.string
         |> Codec.field "name" .name (Codec.nullable Codec.string)
         |> Codec.field "sector_name" .sectorName Codec.string
         |> Codec.optionalNullableField "main_world" .mainWorldProfile mainWorldProfileCodec

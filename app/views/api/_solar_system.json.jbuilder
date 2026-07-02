@@ -18,7 +18,8 @@ json.y           sector.y * 40 - parsec.y + 1
 json.origin_x    parsec.x
 json.origin_y    parsec.y
 json.scan_points 0
-json.allegiance  star_system.allegiance&.code
+json.allegiance      star_system.allegiance&.code
+json.allegiance_name star_system.allegiance&.name
 json.native_sophont  star_system.native_sophont
 json.extinct_sophont star_system.extinct_sophont
 json.star_count  star_system.stars.size
