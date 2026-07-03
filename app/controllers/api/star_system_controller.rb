@@ -19,6 +19,9 @@ class Api::StarSystemController < Api::BaseController
       return render json: { error: 'solar system not found' }, status: :not_found
     end
 
+    authenticated_by_session?
+    @is_referee = Current.user.present?
+
     @star_system = parsec.star_systems
                          .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, :trade_codes, :facilities,
                    stars: [{ stellar_objects: :moons }, :companion,

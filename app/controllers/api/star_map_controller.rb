@@ -8,7 +8,7 @@ class Api::StarMapController < Api::BaseController
 
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: :sector }, :allegiance, :travel_zone, :main_world, :trade_codes)
+      .includes({ parsec: :sector }, :allegiance, :travel_zone, :main_world, :trade_codes, :facilities)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?
@@ -116,6 +116,7 @@ class Api::StarMapController < Api::BaseController
         gwp:               gwp,
         importance:        importance,
         trade_codes:       trade_codes,
+        bases:             player_visible ? ss.facilities.to_a.sort_by(&:code).map(&:code) : [],
         strategic:         player_visible ? build_strategic_hash(ss) : nil,
         travel_zone:       ss.travel_zone ? { code: ss.travel_zone.code, colour: ss.travel_zone.colour } : nil,
         stars:             (stars_by_system[ss.id] || []).map do |row|

@@ -76,6 +76,7 @@ type alias Flags =
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
+    , facilityIcons : List Traveller.FacilityIcon
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -202,6 +203,7 @@ update msg model =
                                 , journeyState = model.flags.journeyState
                                 , centerOn = model.flags.centerOn
                                 , rogueObjectPathData = model.flags.rogueObjectPathData
+                                , facilityIcons = model.flags.facilityIcons
                                 , shipLocation = model.flags.shipLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay

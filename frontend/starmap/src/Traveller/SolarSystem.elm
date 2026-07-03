@@ -1,9 +1,16 @@
-module Traveller.SolarSystem exposing (MainWorldProfile, SolarSystem, codec)
+module Traveller.SolarSystem exposing (BaseFacility, MainWorldProfile, SolarSystem, codec)
 
 import Codec
 import Dict
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StellarObject exposing (StarData, codecStarData, codecStellarObject)
+
+
+type alias BaseFacility =
+    { code : String
+    , name : String
+    , iconClass : Maybe String
+    }
 
 
 type alias MainWorldProfile =
@@ -32,6 +39,9 @@ type alias SolarSystem =
     , name : Maybe String
     , sectorName : String
     , mainWorldProfile : Maybe MainWorldProfile
+    , known : Bool
+    , bases : List BaseFacility
+    , tradeCodes : List String
     }
 
 
@@ -53,6 +63,9 @@ type alias RawSolarSystem =
     , name : Maybe String
     , sectorName : String
     , mainWorldProfile : Maybe MainWorldProfile
+    , known : Bool
+    , bases : List BaseFacility
+    , tradeCodes : List String
     }
 
 
@@ -79,6 +92,9 @@ rawToFinal rawSolarSystem =
         , name = rawSolarSystem.name
         , sectorName = rawSolarSystem.sectorName
         , mainWorldProfile = rawSolarSystem.mainWorldProfile
+        , known = rawSolarSystem.known
+        , bases = rawSolarSystem.bases
+        , tradeCodes = rawSolarSystem.tradeCodes
         }
 
 
@@ -101,6 +117,9 @@ finalToRaw solarSystem =
     , name = solarSystem.name
     , sectorName = solarSystem.sectorName
     , mainWorldProfile = solarSystem.mainWorldProfile
+    , known = solarSystem.known
+    , bases = solarSystem.bases
+    , tradeCodes = solarSystem.tradeCodes
     }
 
 
@@ -114,6 +133,15 @@ mainWorldProfileCodec =
         |> Codec.field "extinct_sophont" .extinctSophont Codec.bool
         |> Codec.field "survival_requirement" .survivalRequirement Codec.string
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.buildObject
+
+
+baseFacilityCodec : Codec.Codec BaseFacility
+baseFacilityCodec =
+    Codec.object BaseFacility
+        |> Codec.field "code" .code Codec.string
+        |> Codec.field "name" .name Codec.string
+        |> Codec.optionalNullableField "icon_class" .iconClass Codec.string
         |> Codec.buildObject
 
 
@@ -137,4 +165,7 @@ rawCodec =
         |> Codec.field "name" .name (Codec.nullable Codec.string)
         |> Codec.field "sector_name" .sectorName Codec.string
         |> Codec.optionalNullableField "main_world" .mainWorldProfile mainWorldProfileCodec
+        |> Codec.field "known" .known Codec.bool
+        |> Codec.field "bases" .bases (Codec.list baseFacilityCodec)
+        |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
         |> Codec.buildObject

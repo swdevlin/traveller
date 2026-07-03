@@ -1,6 +1,16 @@
 json.partial! 'api/solar_system', star_system: star_system
 json.map_url signed_map_url(map_star_system_path(star_system))
 
+player_visible = @is_referee || star_system.known? || star_system.survey_index >= 10
+
+json.known star_system.known?
+json.bases(player_visible ? star_system.facilities.to_a.sort_by(&:code) : []) do |facility|
+  json.code facility.code
+  json.name facility.name
+  json.icon_class facility.icon_class.presence
+end
+json.trade_codes player_visible ? star_system.trade_codes.to_a.sort_by(&:code).map(&:code) : []
+
 primary = star_system.primary_star
 mw = star_system.main_world
 

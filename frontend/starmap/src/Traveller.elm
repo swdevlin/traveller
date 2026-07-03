@@ -1,4 +1,4 @@
-port module Traveller exposing (Model, ModelData, Msg(..), init, subscriptions, update, view)
+port module Traveller exposing (FacilityIcon, Model, ModelData, Msg(..), init, subscriptions, update, view)
 
 import Browser.Dom
 import Browser.Events
@@ -74,6 +74,7 @@ import Traveller.HexGeometry
         , hexWidth
         , hexagonPoints
         , hexapointsBuilder
+        , iconScale
         , rawHexagonPoint
         , rawHexagonPoints
         , rotatePoint
@@ -670,6 +671,7 @@ type alias ModelData =
     , sidebarOpen : Bool
     , jumpRouteLinks : List JumpRouteLink
     , rogueObjectPathData : Maybe String
+    , facilityIcons : Dict.Dict String FacilityIcon
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
@@ -842,6 +844,14 @@ subscriptions time model =
         ]
 
 
+type alias FacilityIcon =
+    { code : String
+    , name : String
+    , viewBox : String
+    , pathData : String
+    }
+
+
 type alias Flags =
     { upperLeft : Maybe ( Int, Int )
     , hexSize : Float
@@ -854,6 +864,7 @@ type alias Flags =
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
+    , facilityIcons : List FacilityIcon
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -1111,6 +1122,7 @@ init viewport settings key hostConfig referee =
             , sidebarOpen = False
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
+            , facilityIcons = settings.facilityIcons |> List.map (\icon -> ( icon.code, icon )) |> Dict.fromList
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             }
     in
@@ -1145,10 +1157,19 @@ hexAddressLabel x y size hexAddress =
         Svg.text ""
 
     else
+        let
+            fontSize =
+                max 9 (size * 0.15)
+
+            -- distance from hex centre to the top edge, minus the glyph's
+            -- own ascent (plus a small margin) so the text never crosses it
+            yOffset =
+                size * sin hexSizeFactor - fontSize * 0.8 - 2
+        in
         Svg.text_
             [ SvgAttrs.x <| String.fromInt x
-            , SvgAttrs.y <| String.fromInt <| y - (floor <| size * 0.65) + (if size > 30 then 1 else 2)
-            , SvgAttrs.fontSize "9"
+            , SvgAttrs.y <| String.fromInt <| y - round yOffset
+            , SvgAttrs.fontSize (String.fromFloat fontSize)
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.fontFamily "Tomorrow"
             , SvgAttrs.fontWeight "400"
@@ -1530,23 +1551,38 @@ journeyMouseUpDecoder onUpMsg =
         |> JsDecode.map (.offsetPos >> onUpMsg)
 
 
+{-| Shrink factor for star circles so they read a bit less oversized at max hex size.
+-}
+starScale : Float
+starScale =
+    0.8
+
+
 drawStar : Float -> Float -> Int -> Float -> String -> Svg Msg
 drawStar starX starY radius size starColor =
     Svg.circle
         [ SvgAttrs.cx <| String.fromFloat <| starX
         , SvgAttrs.cy <| String.fromFloat <| starY
-        , SvgAttrs.r <| String.fromFloat <| scaleAttr size radius
+        , SvgAttrs.r <| String.fromFloat <| toFloat radius * iconScale size * starScale
         , SvgAttrs.fill starColor
         , SvgAttrs.style "filter: drop-shadow(0 0 3px rgba(0,0,0,0.55))"
         ]
         []
 
 
+{-| Shared shrink factor for the corner glyphs (bases, gas giant, planetoid belt,
+and their "unknown" stand-ins) so they read a bit less oversized at max hex size.
+-}
+cornerGlyphScale : Float
+cornerGlyphScale =
+    0.8
+
+
 drawUnknownSlot : Float -> Float -> Float -> Svg Msg
 drawUnknownSlot iconX iconY size =
     let
         r =
-            scaleAttr size 5
+            5 * iconScale size * cornerGlyphScale
     in
     Svg.g []
         [ Svg.circle
@@ -1560,7 +1596,7 @@ drawUnknownSlot iconX iconY size =
         , Svg.text_
             [ SvgAttrs.x <| String.fromFloat iconX
             , SvgAttrs.y <| String.fromFloat iconY
-            , SvgAttrs.fontSize "9"
+            , SvgAttrs.fontSize (String.fromFloat (9 * iconScale size * cornerGlyphScale))
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.dominantBaseline "central"
             , SvgAttrs.fontFamily "Tomorrow"
@@ -1571,17 +1607,11 @@ drawUnknownSlot iconX iconY size =
         ]
 
 
-drawPlanetoidBelt : Int -> Int -> Float -> Svg Msg
-drawPlanetoidBelt cx cy size =
+drawPlanetoidBelt : Float -> Float -> Float -> Svg Msg
+drawPlanetoidBelt iconX iconY size =
     let
-        iconX =
-            toFloat cx - size * 0.38
-
-        iconY =
-            toFloat cy - size * 0.45
-
         scale =
-            scaleAttr size 7 / 16
+            7 * iconScale size / 16 * cornerGlyphScale
     in
     Svg.g
         [ SvgAttrs.transform <|
@@ -1599,6 +1629,51 @@ drawPlanetoidBelt cx cy size =
         , Svg.polygon [ SvgAttrs.points "2,1 8,-1 11,5 7,8 3,6", SvgAttrs.fill "#475569" ] []
         , Svg.polygon [ SvgAttrs.points "-1,9 4,11 1,14 -3,12", SvgAttrs.fill "#64748b" ] []
         ]
+
+
+drawBases : Dict.Dict String FacilityIcon -> List String -> Int -> Int -> Float -> Svg Msg
+drawBases facilityIcons codes cx cy size =
+    let
+        renderable =
+            codes
+                |> List.filterMap (\code -> Dict.get code facilityIcons)
+                |> List.take 3
+
+        anchorX =
+            toFloat cx - size * 0.38
+
+        anchorY =
+            toFloat cy - size * 0.45
+
+        iconSize =
+            8 * iconScale size * cornerGlyphScale
+
+        offsets =
+            case List.length renderable of
+                1 ->
+                    [ ( 0, 0 ) ]
+
+                2 ->
+                    [ ( -iconSize * 0.6, 0 ), ( iconSize * 0.6, 0 ) ]
+
+                _ ->
+                    [ ( -iconSize * 0.5, -iconSize * 0.5 ), ( iconSize * 0.6, -iconSize * 0.2 ), ( 0, iconSize * 0.6 ) ]
+
+        renderIcon idx icon =
+            let
+                ( ox, oy ) =
+                    offsets |> List.drop idx |> List.head |> Maybe.withDefault ( 0, 0 )
+            in
+            Svg.svg
+                [ SvgAttrs.x (String.fromFloat (anchorX + ox - iconSize / 2))
+                , SvgAttrs.y (String.fromFloat (anchorY + oy - iconSize / 2))
+                , SvgAttrs.width (String.fromFloat iconSize)
+                , SvgAttrs.height (String.fromFloat iconSize)
+                , SvgAttrs.viewBox icon.viewBox
+                ]
+                [ Svg.path [ SvgAttrs.d icon.pathData, SvgAttrs.fill "#222222" ] [] ]
+    in
+    Svg.g [] (List.indexedMap renderIcon renderable)
 
 
 drawTravelZoneRing : Float -> Float -> Float -> String -> Svg Msg
@@ -1647,17 +1722,11 @@ drawTravelZoneRing cx cy size colour =
         []
 
 
-drawGasGiant : Int -> Int -> Float -> Svg Msg
-drawGasGiant cx cy size =
+drawGasGiant : Float -> Float -> Float -> Svg Msg
+drawGasGiant iconX iconY size =
     let
-        iconX =
-            toFloat cx + size * 0.38
-
-        iconY =
-            toFloat cy - size * 0.45
-
         r =
-            scaleAttr size 5
+            5 * iconScale size * cornerGlyphScale
     in
     Svg.g []
         [ Svg.circle
@@ -1696,6 +1765,7 @@ type alias HexRenderOpts =
     , size : Float
     , hexapointsStr : String
     , isReferee : Bool
+    , facilityIcons : Dict.Dict String FacilityIcon
     , displayMode : DisplayMode
     }
 
@@ -1823,7 +1893,7 @@ viewRoleBadge size cx rowY role =
 
 
 renderHexContent : HexRenderOpts -> Svg Msg
-renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, displayMode } =
+renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -1869,11 +1939,46 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
         showPlanetoidBelt =
             (isReferee || si >= planetoidSI) && starSystem.planetoidBeltCount > 0
 
+        showBases =
+            not (List.isEmpty starSystem.baseCodes)
+
         showUnknownGasGiant =
             showStar && not isReferee && si < gasGiantSI
 
         showUnknownPlanetoidBelt =
             showStar && not isReferee && si < planetoidSI
+
+        gasGiantSlotActive =
+            showGasGiant || showUnknownGasGiant
+
+        beltSlotActive =
+            showPlanetoidBelt || showUnknownPlanetoidBelt
+
+        topRightAnchorX =
+            toFloat vox + size * 0.38
+
+        topRightAnchorY =
+            toFloat voy - size * 0.45
+
+        topRightSpread =
+            size * 0.16
+
+        gasGiantX =
+            if gasGiantSlotActive && beltSlotActive then
+                topRightAnchorX - topRightSpread
+
+            else
+                topRightAnchorX
+
+        beltX =
+            if gasGiantSlotActive && beltSlotActive then
+                topRightAnchorX + topRightSpread
+
+            else
+                topRightAnchorX
+
+        beltY =
+            topRightAnchorY + size * 0.12
 
         showTravelZone =
             (isReferee || si >= uwpSI) && starSystem.travelZone /= Nothing
@@ -1954,7 +2059,7 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
                         Nothing ->
                             Svg.text ""
                     , if showGasGiant && size > 15 then
-                        drawGasGiant vox voy size
+                        drawGasGiant topRightAnchorX topRightAnchorY size
 
                       else
                         Svg.text ""
@@ -1991,7 +2096,7 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
                       else
                         hexCentreText (String.join " " starSystem.tradeCodes)
                     , if showGasGiant && size > 15 then
-                        drawGasGiant vox voy size
+                        drawGasGiant topRightAnchorX topRightAnchorY size
 
                       else
                         Svg.text ""
@@ -2078,20 +2183,28 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
                                             ( toFloat vox, toFloat voy )
 
                                         else
-                                            rotatePoint size (idx + 2) primaryPos 60 20
+                                            rotatePoint size (idx + 2) primaryPos 60 (round (20 * starScale))
                                 in
                                 case starData.companion of
                                     Just companion ->
                                         let
+                                            primaryRadius =
+                                                7
+
+                                            companionRadius =
+                                                3
+
+                                            -- nestle the companion against the primary's inner edge,
+                                            -- scaling with zoom so it doesn't get swallowed at high size
                                             ( cx, cy ) =
-                                                ( sx - 5, sy )
+                                                ( sx - toFloat (primaryRadius - companionRadius) * iconScale size * starScale, sy )
 
                                             compStarData =
                                                 getStarTypeData companion
                                         in
                                         Svg.g []
-                                            [ Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-                                            , Svg.Lazy.lazy5 drawStar cx cy 3 size <| starColourRGB compStarData.colour
+                                            [ Svg.Lazy.lazy5 drawStar sx sy primaryRadius size <| starColourRGB starData.colour
+                                            , Svg.Lazy.lazy5 drawStar cx cy companionRadius size <| starColourRGB compStarData.colour
                                             ]
 
                                     Nothing ->
@@ -2107,27 +2220,32 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
                       else
                         Svg.text ""
                     , if showGasGiant && size > 15 then
-                        drawGasGiant vox voy size
+                        drawGasGiant gasGiantX topRightAnchorY size
 
                       else
                         Svg.text ""
                     , if showPlanetoidBelt && size > 15 then
-                        drawPlanetoidBelt vox voy size
+                        drawPlanetoidBelt beltX beltY size
 
                       else
                         Svg.text ""
                     , if showUnknownGasGiant && size > 15 then
-                        drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
+                        drawUnknownSlot gasGiantX topRightAnchorY size
 
                       else
                         Svg.text ""
                     , if showUnknownPlanetoidBelt && size > 15 then
-                        drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
+                        drawUnknownSlot beltX beltY size
 
                       else
                         Svg.text ""
                     , travelZoneRing
                     ]
+        , if showBases && size > 15 then
+            drawBases facilityIcons starSystem.baseCodes vox voy size
+
+          else
+            Svg.text ""
         ]
 
 
@@ -2266,9 +2384,10 @@ viewHex :
     -> List ( Float, Float )
     -> Bool
     -> Maybe String
+    -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData displayMode =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
@@ -2292,6 +2411,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
                     , size = hexSize
                     , hexapointsStr = hexapointsStr
                     , isReferee = isReferee
+                    , facilityIcons = facilityIcons
                     , displayMode = displayMode
                     }
             in
@@ -2695,9 +2815,10 @@ viewHexes :
     -> { x : Float, y : Float }
     -> List JumpRouteLink
     -> Maybe String
+    -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2782,6 +2903,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 rawHexaPoints
                 isReferee
                 rogueObjectPathData
+                facilityIcons
                 displayMode
             )
     in
@@ -2836,6 +2958,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     , size = hexSize
                                     , hexapointsStr = ""
                                     , isReferee = isReferee
+                                    , facilityIcons = facilityIcons
                                     , displayMode = displayMode
                                     }
 
@@ -4246,6 +4369,7 @@ viewHexMap model =
         model.panOffset
         model.jumpRouteLinks
         model.rogueObjectPathData
+        model.facilityIcons
         model.displayMode
         |> Element.html
 
@@ -5110,6 +5234,7 @@ update msg ( time, model ) =
                                             , importance = fallibleSystem.importance
                                             , tradeCodes = fallibleSystem.tradeCodes
                                             , strategic = fallibleSystem.strategic
+                                            , baseCodes = fallibleSystem.baseCodes
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address

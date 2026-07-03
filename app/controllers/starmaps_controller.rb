@@ -30,6 +30,13 @@ class StarmapsController < ApplicationController
              .first
              &.to_parsec
     rogue_icon = FontAwesomeIcon.find_by(name: 'fa-rogue-object', style: 'solid')
+    facility_icons = Facility.where.not(icon_class: [nil, '']).filter_map do |f|
+      parts = f.icon_class.split(' ')
+      icon = FontAwesomeIcon.find_by(name: parts[1], style: parts[0].delete_prefix('fa-'))
+      next unless icon
+
+      { code: f.code, name: f.name, viewBox: icon.view_box, pathData: icon.path_data }
+    end
     @starmap_flags = {
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
@@ -40,7 +47,8 @@ class StarmapsController < ApplicationController
       nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
       extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence,
       rogueObjectPathData: rogue_icon&.path_data,
-      shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil
+      shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
+      facilityIcons: facility_icons
     }
     if params[:cx].present? && params[:cy].present?
       @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]

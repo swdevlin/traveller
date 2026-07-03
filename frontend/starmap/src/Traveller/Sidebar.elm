@@ -41,7 +41,7 @@ import Traveller.LawLevel as LawLevel
 import Traveller.Parser exposing (UWP, uwp)
 import Traveller.Population as Population
 import Traveller.Sector exposing (SectorDict)
-import Traveller.SolarSystem exposing (MainWorldProfile, SolarSystem)
+import Traveller.SolarSystem exposing (BaseFacility, MainWorldProfile, SolarSystem)
 import Traveller.StellarObject exposing (StellarObject)
 import Traveller.StarSystemMap exposing (viewStarSystemMap)
 import Traveller.StellarObjectView
@@ -302,6 +302,33 @@ viewSidebarJumpTable maybeKm =
                     ]
 
 
+{-| Render the list of bases present in a system, each with its facility icon (if configured) and name.
+-}
+viewBasesList : List BaseFacility -> Element msg
+viewBasesList bases =
+    if List.isEmpty bases then
+        Element.none
+
+    else
+        column [ width fill, Element.paddingXY 8 4, Element.spacing 4 ]
+            (row [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] [ text "BASES" ]
+                :: List.map viewBaseRow bases
+            )
+
+
+viewBaseRow : BaseFacility -> Element msg
+viewBaseRow base =
+    row [ width fill, Element.spacing 6, Font.size 12 ]
+        [ case base.iconClass of
+            Just iconClass ->
+                renderFAIcon iconClass 12
+
+            Nothing ->
+                Element.none
+        , text base.name
+        ]
+
+
 {-| View the system details in the sidebar.
 -}
 viewSystemDetailsSidebar :
@@ -317,16 +344,25 @@ viewSystemDetailsSidebar msgs solarSystem opts =
             }
     in
     column [ Element.width Element.fill, Element.spacing 6 ]
-        [ if opts.isReferee || solarSystem.surveyIndex >= 10 then
-            case solarSystem.mainWorldProfile of
-                Just profile ->
-                    column [ width fill ]
-                        [ viewMainWorldProfile profile
-                        , viewSidebarJumpTable profile.jumpShadow
-                        ]
+        [ if opts.isReferee || solarSystem.known || solarSystem.surveyIndex >= 10 then
+            column [ width fill ]
+                [ viewBasesList solarSystem.bases
+                , case solarSystem.mainWorldProfile of
+                    Just profile ->
+                        column [ width fill ]
+                            [ viewMainWorldProfile profile
+                            , if List.isEmpty solarSystem.tradeCodes then
+                                Element.none
 
-                Nothing ->
-                    Element.none
+                              else
+                                column [ width fill, Element.paddingXY 8 4 ]
+                                    [ profileFieldDisplay "Trade Codes" (String.join " " solarSystem.tradeCodes) ]
+                            , viewSidebarJumpTable profile.jumpShadow
+                            ]
+
+                    Nothing ->
+                        Element.none
+                ]
 
           else
             Element.none

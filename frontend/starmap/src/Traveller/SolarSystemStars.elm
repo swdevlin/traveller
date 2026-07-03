@@ -103,6 +103,7 @@ type alias StarSystem =
     , importance : Maybe Int
     , tradeCodes : List String
     , strategic : Maybe StrategicData
+    , baseCodes : List String
     }
 
 
@@ -130,6 +131,7 @@ type alias FallibleStarSystem =
     , importance : Maybe Int
     , tradeCodes : List String
     , strategic : Maybe StrategicData
+    , baseCodes : List String
     }
 
 
@@ -163,6 +165,7 @@ starSystemCodec =
         |> Codec.field "importance" .importance (Codec.nullable Codec.int)
         |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
         |> Codec.field "strategic" .strategic (Codec.nullable strategicDataCodec)
+        |> Codec.field "bases" .baseCodes (Codec.list Codec.string)
         |> Codec.buildObject
 
 
@@ -220,3 +223,4 @@ fallibleStarSystemDecoder =
         |> optional "importance" (Decode.nullable Decode.int) Nothing
         |> optional "trade_codes" (Decode.list Decode.string) []
         |> optional "strategic" (Decode.nullable strategicDataDecoder) Nothing
+        |> optional "bases" (Decode.list Decode.string) []

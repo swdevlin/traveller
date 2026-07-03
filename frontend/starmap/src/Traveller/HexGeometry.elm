@@ -9,6 +9,7 @@ module Traveller.HexGeometry exposing
     , hexWidth
     , hexagonPoints
     , hexapointsBuilder
+    , iconScale
     , rawHexagonPoint
     , rawHexagonPoints
     , rotatePoint
@@ -96,11 +97,25 @@ convertRawHexagonPoints ( xOrigin, yOrigin ) points =
         |> String.join " "
 
 
-{-| Scale an attribute value based on hex size
+{-| Scale an attribute value based on hex size, capped at the value's size
+at the default hex size. Used where growing past the default zoom would
+look oversized (e.g. hex border widths).
 -}
 scaleAttr : Float -> Int -> Float
 scaleAttr hexSize default =
     toFloat default * min 1 (hexSize / defaultHexSize)
+
+
+{-| Uncapped linear scale factor for icon-related dimensions (radii,
+offsets, distances) relative to the default hex size. `1` at the default
+size; grows or shrinks proportionally with `hexSize` beyond that, unlike
+`scaleAttr` which flatlines past the default size. Multiply this by a
+value's size-at-default-zoom to keep it visually proportional to the hex
+at any zoom level.
+-}
+iconScale : Float -> Float
+iconScale hexSize =
+    hexSize / defaultHexSize
 
 
 {-| Rotate a point around a center by a given angle and distance
@@ -119,9 +134,12 @@ rotatePoint hexSize idx ( x_, y_ ) degrees_ distance =
 
         sinTheta =
             sin rads
+
+        scaledDistance =
+            toFloat distance * iconScale hexSize
     in
-    ( x_ + (scaleAttr hexSize distance * cosTheta) - (0 * sinTheta)
-    , y_ + (scaleAttr hexSize distance * sinTheta) + (0 * cosTheta)
+    ( x_ + (scaledDistance * cosTheta) - (0 * sinTheta)
+    , y_ + (scaledDistance * sinTheta) + (0 * cosTheta)
     )
 
 
