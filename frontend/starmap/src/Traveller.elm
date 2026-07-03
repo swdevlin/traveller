@@ -93,6 +93,7 @@ import Traveller.Sidebar
         , viewSidebarColumn
         )
 import Traveller.TravelTable as TravelTable
+import Traveller.ShipTraffic as ShipTraffic
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
 import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
 import Traveller.StarColour exposing (starColourName, starColourRGB)
@@ -644,6 +645,9 @@ type alias ModelData =
         }
     , showTravelTable : Bool
     , travelTableMDrive : Int
+    , showShipTraffic : Bool
+    , shipTraffic : RemoteData Http.Error ShipTraffic.ShipTraffic
+    , shipTrafficFrontier : Bool
     , hexRect : HexRect
     , panOffset : { x : Float, y : Float }
     , currentAddress : HexAddress
@@ -699,6 +703,11 @@ type Msg
     | GotResize Int Int
     | ToggleTravelTable
     | SetTravelTableMDrive Int
+    | OpenShipTraffic
+    | CloseShipTraffic
+    | RerollShipTraffic
+    | ToggleShipTrafficFrontier
+    | FetchedShipTraffic (Result Http.Error ShipTraffic.ShipTraffic)
     | MapMouseDown ( Float, Float )
     | MapMouseUp (Maybe HexAddress) ( Float, Float ) Bool
     | MapMouseMove ( Float, Float )
@@ -1070,6 +1079,9 @@ init viewport settings key hostConfig referee =
             , key = key
             , showTravelTable = False
             , travelTableMDrive = settings.ship |> Maybe.andThen .mDrive |> Maybe.withDefault 2
+            , showShipTraffic = False
+            , shipTraffic = RemoteData.NotAsked
+            , shipTrafficFrontier = False
             , hexRect = hexRect
             , panOffset = { x = 0, y = 0 }
             , hostConfig = hostConfig
@@ -4299,6 +4311,7 @@ view ( time, model ) =
             { viewDetail = ViewObjectAnalysisDetail
             , closeSidebar = CloseSidebar
             , toggleTravelTable = ToggleTravelTable
+            , openShipTraffic = OpenShipTraffic
             }
 
         solarSystemStatus =
@@ -4346,6 +4359,14 @@ view ( time, model ) =
             { setMDrive = SetTravelTableMDrive
             , close = ToggleTravelTable
             , noOp = NoOpMsg
+            }
+
+        shipTrafficMsgs : ShipTraffic.Msgs Msg
+        shipTrafficMsgs =
+            { close = CloseShipTraffic
+            , noOp = NoOpMsg
+            , reroll = RerollShipTraffic
+            , toggleFrontier = ToggleShipTrafficFrontier
             }
 
         sidebarColumn =
@@ -4398,6 +4419,11 @@ view ( time, model ) =
 
             _ ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
+        , if model.showShipTraffic then
+            Element.inFront <| ShipTraffic.viewModal shipTrafficMsgs model.shipTraffic model.shipTrafficFrontier
+
+          else
+            Element.htmlAttribute <| HtmlAttrs.class ""
         , if model.showDisplaySettings then
             Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines model.showBackgroundNames
 
@@ -4544,6 +4570,40 @@ fetchSingleSolarSystemRequest hostConfig hex =
                 }
     in
     requestCmd
+
+
+sendShipTrafficRequest : HostConfig -> Int -> Bool -> Cmd Msg
+sendShipTrafficRequest hostConfig starSystemId frontier =
+    let
+        shipTrafficDecoder : JsDecode.Decoder ShipTraffic.ShipTraffic
+        shipTrafficDecoder =
+            ShipTraffic.codec |> Codec.decoder
+
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "star_systems", String.fromInt starSystemId, "ship_traffic" ])
+                [ Url.Builder.string "frontier"
+                    (if frontier then
+                        "1"
+
+                     else
+                        "0"
+                    )
+                ]
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson FetchedShipTraffic shipTrafficDecoder
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
 
 
 sendSearchRequest : String -> HostConfig.HostConfig -> Cmd Msg
@@ -5460,6 +5520,7 @@ update msg ( time, model ) =
                     | selectedHex = Just hexAddress
                     , selectedSystem = Nothing
                     , showTravelTable = False
+                    , showShipTraffic = False
                     , newSolarSystemErrors = focusedErrors
                     , sidebarOpen = True
                 }
@@ -5473,6 +5534,55 @@ update msg ( time, model ) =
 
         SetTravelTableMDrive n ->
             ( withTime { model | travelTableMDrive = n }
+            , Cmd.none
+            )
+
+        OpenShipTraffic ->
+            case model.selectedSystem of
+                Just solarSystem ->
+                    ( withTime
+                        { model
+                            | showShipTraffic = True
+                            , shipTraffic = RemoteData.Loading
+                            , shipTrafficFrontier = False
+                        }
+                    , sendShipTrafficRequest model.hostConfig solarSystem.id False
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        CloseShipTraffic ->
+            ( withTime { model | showShipTraffic = False }
+            , Cmd.none
+            )
+
+        RerollShipTraffic ->
+            case model.selectedSystem of
+                Just solarSystem ->
+                    ( withTime model
+                    , sendShipTrafficRequest model.hostConfig solarSystem.id model.shipTrafficFrontier
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        ToggleShipTrafficFrontier ->
+            let
+                newFrontier =
+                    not model.shipTrafficFrontier
+            in
+            case model.selectedSystem of
+                Just solarSystem ->
+                    ( withTime { model | shipTrafficFrontier = newFrontier }
+                    , sendShipTrafficRequest model.hostConfig solarSystem.id newFrontier
+                    )
+
+                Nothing ->
+                    ( withTime { model | shipTrafficFrontier = newFrontier }, Cmd.none )
+
+        FetchedShipTraffic result ->
+            ( withTime { model | shipTraffic = RemoteData.fromResult result }
             , Cmd.none
             )
 
@@ -5640,6 +5750,7 @@ update msg ( time, model ) =
                                             , selectedHex = Just hexAddress
                                             , selectedSystem = Nothing
                                             , showTravelTable = False
+                                            , showShipTraffic = False
                                             , selectedRogueObjects = rogueObjects
                                             , newSolarSystemErrors = focusedErrors
                                             , sidebarOpen = True

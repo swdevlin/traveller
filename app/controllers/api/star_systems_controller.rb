@@ -18,4 +18,23 @@ class Api::StarSystemsController < Api::BaseController
                    .find_by(id: params[:id])
     render json: { error: 'star system not found' }, status: :not_found unless @star_system
   end
+
+  def ship_traffic
+    star_system = StarSystem.find_by(id: params[:id])
+    return render json: { error: 'star system not found' }, status: :not_found unless star_system
+    return render json: { error: 'no main world' }, status: :unprocessable_entity unless star_system.main_world
+
+    traffic = DailyTrafficCalculator.new(
+      importance: star_system.main_world_importance,
+      wtn: star_system.main_world_wtn,
+      frontier: params[:frontier] == '1'
+    ).calculate
+
+    render json: {
+      result: traffic.result,
+      effective_importance: traffic.effective_importance,
+      tier_label: traffic.tier_label,
+      modifiers: traffic.modifiers
+    }
+  end
 end

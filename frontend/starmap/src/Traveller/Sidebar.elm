@@ -73,6 +73,7 @@ type alias SidebarMsgs msg =
     { viewDetail : StellarObject -> msg
     , closeSidebar : msg
     , toggleTravelTable : msg
+    , openShipTraffic : msg
     }
 
 
@@ -89,6 +90,52 @@ renderFAIcon icon size =
             Html.i
                 [ HtmlAttrs.style "font-size" (String.fromInt size ++ "px"), HtmlAttrs.class icon ]
                 []
+
+
+{-| A pill-shaped call-to-action button used in the sidebar (e.g. Travel Times, Ship Traffic).
+-}
+viewSidebarButton : { active : Bool, icon : String, label : String, onClick : msg } -> Element msg
+viewSidebarButton { active, icon, label, onClick } =
+    el
+        [ Element.paddingXY 12 6
+        , Border.rounded 6
+        , Border.width 1
+        , Border.color
+            (if active then
+                Element.rgba 0.87 0.50 0.20 0.9
+
+             else
+                Element.rgba 0.17 0.42 0.55 0.35
+            )
+        , Background.color
+            (if active then
+                Element.rgba 0.87 0.50 0.20 0.9
+
+             else
+                Element.rgba 0.17 0.42 0.55 0.1
+            )
+        , Element.mouseOver
+            [ Background.color (Element.rgba 0.87 0.50 0.20 0.9)
+            , Border.color (Element.rgba 0.87 0.50 0.20 0.9)
+            , Font.color (Element.rgb 1 1 1)
+            ]
+        , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
+        , Element.htmlAttribute <| HtmlAttrs.style "transition" "background-color 0.15s ease, border-color 0.15s ease"
+        , Font.size 13
+        , Font.color
+            (if active then
+                Element.rgb 1 1 1
+
+             else
+                Element.rgba 0.17 0.42 0.55 0.85
+            )
+        , Events.onClick onClick
+        ]
+        (row [ Element.spacing 6, Element.centerY ]
+            [ renderFAIcon icon 13
+            , text label
+            ]
+        )
 
 
 {-| Get the universal hex label from sectors dictionary.
@@ -284,24 +331,13 @@ viewSystemDetailsSidebar msgs solarSystem opts =
           else
             Element.none
         , viewStarSystemMap stellarObjectMsgs solarSystem opts.isReferee opts.mDrive
-        , el
-            [ Element.centerX
-            , Element.paddingXY 8 4
-            , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
-            , Font.size 13
-            , Font.color
-                (if opts.showTravelTable then
-                    Element.rgba 0.87 0.50 0.20 1.0
-
-                 else
-                    Element.rgba 0.17 0.42 0.55 0.55
-                )
-            , Events.onClick msgs.toggleTravelTable
-            ]
-            (row [ Element.spacing 5, Element.centerY ]
-                [ renderFAIcon "fa-solid fa-gauge-high" 13
-                , text "Travel Times"
-                ]
+        , el [ centerX, Element.paddingXY 0 4 ]
+            (viewSidebarButton
+                { active = opts.showTravelTable
+                , icon = "fa-solid fa-gauge-high"
+                , label = "Travel Times"
+                , onClick = msgs.toggleTravelTable
+                }
             )
         ]
 
@@ -395,6 +431,26 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
 
                                             Nothing ->
                                                 Element.none
+
+                                    else
+                                        Element.none
+
+                                Nothing ->
+                                    Element.none
+                            , case selectedSystem of
+                                Just sys ->
+                                    if isReferee && sys.mainWorldProfile /= Nothing then
+                                        el
+                                            [ centerX
+                                            , Element.paddingEach { zeroEach | top = 8 }
+                                            ]
+                                            (viewSidebarButton
+                                                { active = False
+                                                , icon = "fa-solid fa-rocket"
+                                                , label = "Ship Traffic"
+                                                , onClick = msgs.openShipTraffic
+                                                }
+                                            )
 
                                     else
                                         Element.none
