@@ -76,6 +76,8 @@ type TechLevel
     | ThirtyOnePocketUniverseAge
 
 
+{-| Tech level is encoded in the UWP as a single EHex digit (0-9, then A, B, C, ... skipping I and O), not a decimal number.
+-}
 parser : Parser TechLevel
 parser =
     Parser.oneOf
@@ -89,28 +91,28 @@ parser =
         , Parser.succeed SevenSpaceAge |. Parser.symbol "7"
         , Parser.succeed EightInformationAge |. Parser.symbol "8"
         , Parser.succeed NineGraviticsAge |. Parser.symbol "9"
-        , Parser.succeed TenBasicFusionAge |. Parser.symbol "10"
-        , Parser.succeed ElevenFusionPlusAge |. Parser.symbol "11"
-        , Parser.succeed TwelvePositronicsAge |. Parser.symbol "12"
-        , Parser.succeed ThirteenCloningAge |. Parser.symbol "13"
-        , Parser.succeed FourteenGeneeringAge |. Parser.symbol "14"
-        , Parser.succeed FifteenAnagathicsAge |. Parser.symbol "15"
-        , Parser.succeed SixteenArtificialPersonsAge |. Parser.symbol "16"
-        , Parser.succeed SeventeenPersonalityTransferAge |. Parser.symbol "17"
-        , Parser.succeed EighteenExoticsAge |. Parser.symbol "18"
-        , Parser.succeed NineteenAntimatterAge |. Parser.symbol "19"
-        , Parser.succeed TwentySkipDriveAge |. Parser.symbol "20"
-        , Parser.succeed TwentyOneStasisAge |. Parser.symbol "21"
-        , Parser.succeed TwentyTwoPlanetScrubberAge |. Parser.symbol "22"
-        , Parser.succeed TwentyThreePsychohistoryAge |. Parser.symbol "23"
-        , Parser.succeed TwentyFourRosetteAge |. Parser.symbol "24"
-        , Parser.succeed TwentyFivePsionicEngineeringAge |. Parser.symbol "25"
-        , Parser.succeed TwentySixStarEnergyAge |. Parser.symbol "26"
-        , Parser.succeed TwentySevenRingworldAge |. Parser.symbol "27"
-        , Parser.succeed TwentyEightRealityEngineeringAge |. Parser.symbol "28"
-        , Parser.succeed TwentyNineDysonSphereAge |. Parser.symbol "29"
-        , Parser.succeed ThirtyRemoteTechnologyAge |. Parser.symbol "30"
-        , Parser.succeed ThirtyOnePocketUniverseAge |. Parser.symbol "31"
+        , Parser.succeed TenBasicFusionAge |. Parser.symbol "A"
+        , Parser.succeed ElevenFusionPlusAge |. Parser.symbol "B"
+        , Parser.succeed TwelvePositronicsAge |. Parser.symbol "C"
+        , Parser.succeed ThirteenCloningAge |. Parser.symbol "D"
+        , Parser.succeed FourteenGeneeringAge |. Parser.symbol "E"
+        , Parser.succeed FifteenAnagathicsAge |. Parser.symbol "F"
+        , Parser.succeed SixteenArtificialPersonsAge |. Parser.symbol "G"
+        , Parser.succeed SeventeenPersonalityTransferAge |. Parser.symbol "H"
+        , Parser.succeed EighteenExoticsAge |. Parser.symbol "J"
+        , Parser.succeed NineteenAntimatterAge |. Parser.symbol "K"
+        , Parser.succeed TwentySkipDriveAge |. Parser.symbol "L"
+        , Parser.succeed TwentyOneStasisAge |. Parser.symbol "M"
+        , Parser.succeed TwentyTwoPlanetScrubberAge |. Parser.symbol "N"
+        , Parser.succeed TwentyThreePsychohistoryAge |. Parser.symbol "P"
+        , Parser.succeed TwentyFourRosetteAge |. Parser.symbol "Q"
+        , Parser.succeed TwentyFivePsionicEngineeringAge |. Parser.symbol "R"
+        , Parser.succeed TwentySixStarEnergyAge |. Parser.symbol "S"
+        , Parser.succeed TwentySevenRingworldAge |. Parser.symbol "T"
+        , Parser.succeed TwentyEightRealityEngineeringAge |. Parser.symbol "U"
+        , Parser.succeed TwentyNineDysonSphereAge |. Parser.symbol "V"
+        , Parser.succeed ThirtyRemoteTechnologyAge |. Parser.symbol "W"
+        , Parser.succeed ThirtyOnePocketUniverseAge |. Parser.symbol "X"
         ]
 
 
