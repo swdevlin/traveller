@@ -1953,6 +1953,11 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
 
                         Nothing ->
                             Svg.text ""
+                    , if showGasGiant && size > 15 then
+                        drawGasGiant vox voy size
+
+                      else
+                        Svg.text ""
                     , travelZoneRing
                     ]
 
@@ -1985,6 +1990,11 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
 
                       else
                         hexCentreText (String.join " " starSystem.tradeCodes)
+                    , if showGasGiant && size > 15 then
+                        drawGasGiant vox voy size
+
+                      else
+                        Svg.text ""
                     , travelZoneRing
                     ]
 
