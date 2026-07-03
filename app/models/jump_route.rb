@@ -9,6 +9,7 @@ class JumpRoute < ApplicationRecord
   validates :line_style, inclusion: { in: LINE_STYLES }
   validates :line_width, numericality: { only_integer: true, greater_than: 0 }
   validates :route_type, inclusion: { in: ROUTE_TYPES }
+  validates :travellermap_allegiance_code, uniqueness: true, allow_nil: true
 
   has_many :jump_route_links, dependent: :destroy
   belongs_to :from_star_system, class_name: 'StarSystem', optional: true

@@ -428,7 +428,8 @@ CREATE TABLE public.jump_routes (
     refueling character varying,
     excluded_travel_zone_ids integer[] DEFAULT '{}'::integer[],
     from_star_system_id bigint,
-    to_star_system_id bigint
+    to_star_system_id bigint,
+    travellermap_allegiance_code character varying
 );
 
 
@@ -1746,6 +1747,13 @@ CREATE INDEX index_jump_routes_on_to_star_system_id ON public.jump_routes USING 
 
 
 --
+-- Name: index_jump_routes_on_travellermap_allegiance_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_jump_routes_on_travellermap_allegiance_code ON public.jump_routes USING btree (travellermap_allegiance_code);
+
+
+--
 -- Name: index_law_levels_on_code; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2295,6 +2303,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260703181955'),
 ('20260701100000'),
 ('20260619175832'),
 ('20260609150000'),

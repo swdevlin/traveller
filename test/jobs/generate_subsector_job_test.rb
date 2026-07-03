@@ -102,4 +102,45 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
 
     assert_instance_of Relic, rogue_parsec.rogues.sole
   end
+
+  test 'imports jump routes for the sector after generating' do
+    sectors(:one).update_column(:source, 'traveller_map')
+    create_parsec(2, 2)
+    system_a = JSON.parse(file_fixture('star_system_import_minimal.json').read).merge('x' => 1, 'y' => 1)
+    system_b = JSON.parse(file_fixture('star_system_import_minimal.json').read).merge('x' => 2, 'y' => 2)
+    stub_subsector_generator([system_a, system_b])
+    stub_request(:get, 'https://travellermap.com/api/metadata?sx=1&sy=-1')
+      .to_return(status: 200, body: { 'Routes' => [{ 'Start' => '0101', 'End' => '0202' }] }.to_json)
+
+    definition = <<~YAML
+      type: STANDARD
+    YAML
+
+    # subsector.clear (run at the start of the job) destroys subsector 1,1's
+    # existing star systems, which cascades and destroys the fixture jump_route_link
+    # tying star_systems(:in_one) to star_systems(:in_two) - so overall JumpRouteLink
+    # count is not a reliable delta here; assert on the specific new record instead.
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'Im')
+    assert jump_route
+    link = jump_route.jump_route_links.sole
+    hex_a_system = Parsec.find_by(sector: sectors(:one), x: @ul.x, y: @ul.y).star_systems.sole
+    hex_b_system = Parsec.find_by(sector: sectors(:one), x: @ul.x + 1, y: @ul.y - 1).star_systems.sole
+    assert_equal [hex_a_system.id, hex_b_system.id].sort, [link.from_star_system_id, link.to_star_system_id]
+  end
+
+  test 'a jump route metadata failure does not prevent the job from completing' do
+    sectors(:one).update_column(:source, 'traveller_map')
+    stub_subsector_generator([])
+    stub_request(:get, 'https://travellermap.com/api/metadata?sx=1&sy=-1').to_timeout
+
+    definition = <<~YAML
+      type: STANDARD
+    YAML
+
+    assert_nothing_raised do
+      GenerateSubsectorJob.perform_now(@subsector.id, definition)
+    end
+  end
 end

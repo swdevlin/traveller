@@ -86,16 +86,20 @@ class Sector < ApplicationRecord
   end
 
   def traveller_map_accessible
-    @traveller_map_metadata = fetch_subsector_names_from_traveller_map
-  rescue Net::OpenTimeout, Net::ReadTimeout, SocketError => e
+    @traveller_map_subsectors = fetch_subsector_names_from_traveller_map
+  rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, JSON::ParserError => e
     Rails.logger.warn "TravellerMap unreachable for #{x}/#{y}: #{e.message}"
     errors.add(:base, 'Traveller Map is currently unreachable. Please try again later.')
   end
 
   def create_subsectors_and_parsecs
+    if source == 'traveller_map' && @traveller_map_sector_metadata.present?
+      SectorRouteImporter.new(self, @traveller_map_sector_metadata).call
+    end
+
     return if Rails.env.test?
 
-    subsector_names = instance_variable_defined?(:@traveller_map_metadata) ? @traveller_map_metadata : fetch_subsector_names_from_traveller_map if source == 'traveller_map'
+    subsector_names = instance_variable_defined?(:@traveller_map_subsectors) ? @traveller_map_subsectors : fetch_subsector_names_from_traveller_map if source == 'traveller_map'
 
     ('A'..'P').each_with_index do |letter, index|
       sx = (index % 4) + 1
@@ -107,10 +111,13 @@ class Sector < ApplicationRecord
 
   def fetch_subsector_names_from_traveller_map
     traveller_map = TravellerMap.new
-    metadata = traveller_map.fetch("metadata?sx=#{x}&sy=#{-y}")
-    return nil if metadata.nil?
+    @traveller_map_sector_metadata = traveller_map.fetch_sector_metadata(x, y)
 
-    data = JSON.parse(metadata)
-    (data['Subsectors'] || []).index_by { |s| s['Index'] }
+    if @traveller_map_sector_metadata.blank?
+      errors.add(:base, 'Traveller Map is currently unreachable. Please try again later.')
+      return nil
+    end
+
+    (@traveller_map_sector_metadata['Subsectors'] || []).index_by { |s| s['Index'] }
   end
 end

@@ -164,6 +164,7 @@ Rails.application.routes.draw do
         post :clear
         post :generate,  as: :generate
         post :load_defaults
+        post :import_jump_routes
         get  :defaults_source
         get  :map
         get  :poster

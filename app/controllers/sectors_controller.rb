@@ -66,6 +66,21 @@ class SectorsController < ApplicationController
     redirect_to sector_path(@sector), notice: "#{helpers.pluralize(count, 'subsector')} queued for generation."
   end
 
+  def import_jump_routes
+    metadata = TravellerMap.new.fetch_sector_metadata(@sector.x, @sector.y)
+
+    if metadata.blank?
+      redirect_to sector_path(@sector), alert: 'Traveller Map is currently unreachable. Please try again later.'
+      return
+    end
+
+    stats = SectorRouteImporter.new(@sector, metadata).call
+    redirect_to sector_path(@sector),
+                notice: "Jump routes imported: #{stats[:links_created]} new link(s), " \
+                         "#{stats[:links_skipped_existing]} already existed, " \
+                         "#{stats[:entries_skipped_unresolved]} not yet resolvable."
+  end
+
   # GET /sectors/1 or /sectors/1.json
   def show
     @star_system_count =

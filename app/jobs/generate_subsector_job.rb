@@ -144,10 +144,25 @@ class GenerateSubsectorJob < ApplicationJob
       Rails.logger.error "Error creating rogue #{entry[:type]} at #{entry[:x]},#{entry[:y]}: #{e.message}"
     end
 
+    import_jump_routes(subsector.sector) if subsector.sector.source == 'traveller_map'
+
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
     ActionCable.server.broadcast(
       'ui_updates',
       { event: 'subsector_populated', sector_id: subsector.sector_id, subsector_id: subsector.id }
     )
+  end
+
+  private
+
+  def import_jump_routes(sector)
+    metadata = Rails.cache.fetch(['travellermap_sector_metadata', sector.x, sector.y], expires_in: 15.minutes) do
+      TravellerMap.new.fetch_sector_metadata(sector.x, sector.y)
+    end
+    return if metadata.blank?
+
+    SectorRouteImporter.new(sector, metadata).call
+  rescue StandardError => e
+    Rails.logger.error "Jump route import failed for sector #{sector.id}: #{e.message}"
   end
 end

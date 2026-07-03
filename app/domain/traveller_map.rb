@@ -42,6 +42,12 @@ class TravellerMap
     parse_tab_delimited(body)
   end
 
+  def fetch_sector_metadata(sector_x, sector_y)
+    body = fetch("metadata?sx=#{sector_x}&sy=#{-sector_y}")
+    return {} if body.nil?
+    JSON.parse(body)
+  end
+
   def fetch(path)
     uri = URI("#{@url}/#{path}")
 
