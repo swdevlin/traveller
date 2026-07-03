@@ -1911,204 +1911,202 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, di
         roundTo1 f =
             toFloat (round (f * 10)) / 10
     in
-    case effectiveMode of
-        ShowMainWorld ->
-            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                [ case starSystem.mainWorldImage of
-                    Just imgName ->
-                        let
-                            d =
-                                size * 0.55
-
-                            ix =
-                                toFloat vox - d / 2
-
-                            iy =
-                                toFloat voy - d / 2
-                        in
-                        Svg.image
-                            [ HtmlAttrs.attribute "href" ("/stellar_objects/" ++ imgName ++ ".webp")
-                            , SvgAttrs.x (String.fromFloat ix)
-                            , SvgAttrs.y (String.fromFloat iy)
-                            , SvgAttrs.width (String.fromFloat d)
-                            , SvgAttrs.height (String.fromFloat d)
-                            , SvgAttrs.clipPath "url(#planet-hex-clip)"
-                            , SvgAttrs.preserveAspectRatio "xMidYMid slice"
-                            ]
-                            []
-
-                    Nothing ->
-                        Svg.text ""
-                , travelZoneRing
-                ]
-
-        ShowWTN ->
-            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                [ case starSystem.wtn of
-                    Just wtn ->
-                        hexCentreText (String.fromFloat (toFloat (round (wtn * 10)) / 10))
-
-                    Nothing ->
-                        Svg.text ""
-                , travelZoneRing
-                ]
-
-        ShowGWP ->
-            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                [ case starSystem.gwp of
-                    Just gwp ->
-                        hexCentreText (gwpCompact gwp)
-
-                    Nothing ->
-                        Svg.text ""
-                , travelZoneRing
-                ]
-
-        ShowTradeCodes ->
-            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                [ if List.isEmpty starSystem.tradeCodes then
-                    Svg.text ""
-
-                  else
-                    hexCentreText (String.join " " starSystem.tradeCodes)
-                , travelZoneRing
-                ]
-
-        ShowImportance ->
-            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                [ case starSystem.importance of
-                    Just imp ->
-                        hexCentreText
-                            ("{" ++ (if imp >= 0 then "+" else "") ++ String.fromInt imp ++ "}")
-
-                    Nothing ->
-                        Svg.text ""
-                , travelZoneRing
-                ]
-
-        ShowStrategic ->
-            case starSystem.strategic of
-                Just strat ->
-                    if size >= 30 then
-                        Svg.g [ SvgAttrs.pointerEvents "none" ]
-                            [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier
-                            , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier
-                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.10) "Rs" strat.resourceTier
-                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier
-                            , travelZoneRing
-                            ]
-
-                    else
-                        Svg.text ""
-
-                Nothing ->
-                    Svg.text ""
-
-        ShowResource ->
-            case starSystem.strategic of
-                Just strat ->
-                    if size >= 30 then
-                        Svg.g [ SvgAttrs.pointerEvents "none" ]
-                            [ case strat.routeRole of
-                                Just role ->
-                                    viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role
-
-                                Nothing ->
-                                    Svg.text ""
-                            , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier
-                            , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier
-                            , travelZoneRing
-                            ]
-
-                    else
-                        Svg.text ""
-
-                Nothing ->
-                    Svg.text ""
-
-        ShowStars ->
-            Svg.g
-                [ SvgAttrs.pointerEvents "none" ]
-                [ -- center star
-                  if showStar then
-                    let
-                        primaryPos =
-                            ( toFloat vox, toFloat voy )
-
-                        isKnown : StarType -> Bool
-                        isKnown theStar =
-                            if theStar |> (getStarTypeData >> isBrownDwarfType) then
-                                starSystem.surveyIndex >= 4
-
-                            else
-                                starSystem.surveyIndex >= 1
-
-                        generateStar : Int -> StarType -> Svg Msg
-                        generateStar idx starType =
+    Svg.g []
+        [ hexAddressLabel vox voy size hexAddress
+        , case effectiveMode of
+            ShowMainWorld ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.mainWorldImage of
+                        Just imgName ->
                             let
-                                starData =
-                                    getStarTypeData starType
+                                d =
+                                    size * 0.55
 
-                                ( sx, sy ) =
-                                    if idx == 0 then
-                                        ( toFloat vox, toFloat voy )
+                                ix =
+                                    toFloat vox - d / 2
 
-                                    else
-                                        rotatePoint size (idx + 2) primaryPos 60 20
+                                iy =
+                                    toFloat voy - d / 2
                             in
-                            case starData.companion of
-                                Just companion ->
-                                    let
-                                        ( cx, cy ) =
-                                            ( sx - 5, sy )
+                            Svg.image
+                                [ HtmlAttrs.attribute "href" ("/stellar_objects/" ++ imgName ++ ".webp")
+                                , SvgAttrs.x (String.fromFloat ix)
+                                , SvgAttrs.y (String.fromFloat iy)
+                                , SvgAttrs.width (String.fromFloat d)
+                                , SvgAttrs.height (String.fromFloat d)
+                                , SvgAttrs.clipPath "url(#planet-hex-clip)"
+                                , SvgAttrs.preserveAspectRatio "xMidYMid slice"
+                                ]
+                                []
 
-                                        compStarData =
-                                            getStarTypeData companion
-                                    in
-                                    Svg.g []
-                                        [ Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-                                        , Svg.Lazy.lazy5 drawStar cx cy 3 size <| starColourRGB compStarData.colour
-                                        ]
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
 
-                                Nothing ->
-                                    Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-                    in
-                    Svg.g
-                        []
-                        (starSystem.stars
-                            |> List.filter isKnown
-                            |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
-                        )
+            ShowWTN ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.wtn of
+                        Just wtn ->
+                            hexCentreText (String.fromFloat (toFloat (round (wtn * 10)) / 10))
 
-                  else
-                    hexAddressLabel vox voy size hexAddress
-                , if showStar then
-                    hexAddressLabel vox voy size hexAddress
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
 
-                  else
-                    Svg.text ""
-                , if showGasGiant && size > 15 then
-                    drawGasGiant vox voy size
+            ShowGWP ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.gwp of
+                        Just gwp ->
+                            hexCentreText (gwpCompact gwp)
 
-                  else
-                    Svg.text ""
-                , if showPlanetoidBelt && size > 15 then
-                    drawPlanetoidBelt vox voy size
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
 
-                  else
-                    Svg.text ""
-                , if showUnknownGasGiant && size > 15 then
-                    drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
+            ShowTradeCodes ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ if List.isEmpty starSystem.tradeCodes then
+                        Svg.text ""
 
-                  else
-                    Svg.text ""
-                , if showUnknownPlanetoidBelt && size > 15 then
-                    drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
+                      else
+                        hexCentreText (String.join " " starSystem.tradeCodes)
+                    , travelZoneRing
+                    ]
 
-                  else
-                    Svg.text ""
-                , travelZoneRing
-                ]
+            ShowImportance ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.importance of
+                        Just imp ->
+                            hexCentreText
+                                ("{" ++ (if imp >= 0 then "+" else "") ++ String.fromInt imp ++ "}")
+
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
+
+            ShowStrategic ->
+                case starSystem.strategic of
+                    Just strat ->
+                        if size >= 30 then
+                            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                                [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.10) "Rs" strat.resourceTier
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier
+                                , travelZoneRing
+                                ]
+
+                        else
+                            Svg.text ""
+
+                    Nothing ->
+                        Svg.text ""
+
+            ShowResource ->
+                case starSystem.strategic of
+                    Just strat ->
+                        if size >= 30 then
+                            Svg.g [ SvgAttrs.pointerEvents "none" ]
+                                [ case strat.routeRole of
+                                    Just role ->
+                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role
+
+                                    Nothing ->
+                                        Svg.text ""
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier
+                                , travelZoneRing
+                                ]
+
+                        else
+                            Svg.text ""
+
+                    Nothing ->
+                        Svg.text ""
+
+            ShowStars ->
+                Svg.g
+                    [ SvgAttrs.pointerEvents "none" ]
+                    [ -- center star
+                      if showStar then
+                        let
+                            primaryPos =
+                                ( toFloat vox, toFloat voy )
+
+                            isKnown : StarType -> Bool
+                            isKnown theStar =
+                                if theStar |> (getStarTypeData >> isBrownDwarfType) then
+                                    starSystem.surveyIndex >= 4
+
+                                else
+                                    starSystem.surveyIndex >= 1
+
+                            generateStar : Int -> StarType -> Svg Msg
+                            generateStar idx starType =
+                                let
+                                    starData =
+                                        getStarTypeData starType
+
+                                    ( sx, sy ) =
+                                        if idx == 0 then
+                                            ( toFloat vox, toFloat voy )
+
+                                        else
+                                            rotatePoint size (idx + 2) primaryPos 60 20
+                                in
+                                case starData.companion of
+                                    Just companion ->
+                                        let
+                                            ( cx, cy ) =
+                                                ( sx - 5, sy )
+
+                                            compStarData =
+                                                getStarTypeData companion
+                                        in
+                                        Svg.g []
+                                            [ Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
+                                            , Svg.Lazy.lazy5 drawStar cx cy 3 size <| starColourRGB compStarData.colour
+                                            ]
+
+                                    Nothing ->
+                                        Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
+                        in
+                        Svg.g
+                            []
+                            (starSystem.stars
+                                |> List.filter isKnown
+                                |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
+                            )
+
+                      else
+                        Svg.text ""
+                    , if showGasGiant && size > 15 then
+                        drawGasGiant vox voy size
+
+                      else
+                        Svg.text ""
+                    , if showPlanetoidBelt && size > 15 then
+                        drawPlanetoidBelt vox voy size
+
+                      else
+                        Svg.text ""
+                    , if showUnknownGasGiant && size > 15 then
+                        drawUnknownSlot (toFloat vox + size * 0.38) (toFloat voy - size * 0.45) size
+
+                      else
+                        Svg.text ""
+                    , if showUnknownPlanetoidBelt && size > 15 then
+                        drawUnknownSlot (toFloat vox - size * 0.38) (toFloat voy - size * 0.45) size
+
+                      else
+                        Svg.text ""
+                    , travelZoneRing
+                    ]
+        ]
 
 
 renderHexSystemLabels : HexRenderOpts -> Svg Msg

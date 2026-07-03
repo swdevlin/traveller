@@ -8,7 +8,7 @@ type alias Sector =
     { x : Int
     , y : Int
     , name : String
-    , abbreviation : String
+    , abbreviation : Maybe String
     , subsectors : List Subsector
     }
 
@@ -33,7 +33,7 @@ codec =
         |> Codec.field "x" .x Codec.int
         |> Codec.field "y" .y Codec.int
         |> Codec.field "name" .name Codec.string
-        |> Codec.field "abbreviation" .abbreviation Codec.string
+        |> Codec.field "abbreviation" .abbreviation (Codec.maybe Codec.string)
         |> Codec.field "subsectors" .subsectors (Codec.list subsectorCodec)
         |> Codec.buildObject
 
