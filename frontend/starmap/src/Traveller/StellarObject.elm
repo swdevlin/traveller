@@ -98,7 +98,7 @@ type alias SharedPData =
     , effectiveHZCODeviation : Float
     , size : String
     , orbit : Float
-    , period : Float
+    , period : Maybe Float
     , composition : Maybe String
     , retrograde : Bool
     , trojanOffset : Maybe Float
@@ -742,7 +742,7 @@ codecSharedPData =
                 ]
             )
         |> Codec.field "orbit" .orbit Codec.float
-        |> Codec.field "period" .period Codec.float
+        |> Codec.optionalNullableField "period" .period Codec.float
         |> Codec.optionalField "composition" .composition Codec.string
         |> Codec.field "retrograde" .retrograde Codec.bool
         |> Codec.optionalNullableField "trojan_offset" .trojanOffset Codec.float

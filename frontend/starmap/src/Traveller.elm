@@ -6687,7 +6687,13 @@ update msg ( time, model ) =
                             , jumpShadowKm = pdata.jumpShadow
                             , physical =
                                 { au = rnd 2 pdata.au
-                                , period = rnd 2 (pdata.period / 365.25)
+                                , period =
+                                    case pdata.period of
+                                        Just p ->
+                                            rnd 2 (p / 365.25)
+
+                                        Nothing ->
+                                            "—"
                                 , inclination = rnd 0 pdata.inclination ++ "°"
                                 , eccentricity = rnd 2 pdata.eccentricity
                                 , mass = rndm 2 0 pdata.mass
