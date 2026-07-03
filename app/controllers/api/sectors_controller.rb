@@ -1,5 +1,5 @@
 class Api::SectorsController < Api::BaseController
   def index
-    @sectors = Sector.all
+    @sectors = Sector.kept.includes(:subsectors)
   end
 end

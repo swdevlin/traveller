@@ -1,4 +1,4 @@
-module Traveller.Sector exposing (Sector, SectorDict, codec, sectorKey)
+module Traveller.Sector exposing (Sector, SectorDict, Subsector, codec, sectorKey, subsectorCodec)
 
 import Codec exposing (Codec)
 import Dict
@@ -9,6 +9,14 @@ type alias Sector =
     , y : Int
     , name : String
     , abbreviation : String
+    , subsectors : List Subsector
+    }
+
+
+type alias Subsector =
+    { x : Int
+    , y : Int
+    , name : Maybe String
     }
 
 
@@ -25,7 +33,17 @@ codec =
         |> Codec.field "x" .x Codec.int
         |> Codec.field "y" .y Codec.int
         |> Codec.field "name" .name Codec.string
-        |> Codec.field "name" .abbreviation Codec.string
+        |> Codec.field "abbreviation" .abbreviation Codec.string
+        |> Codec.field "subsectors" .subsectors (Codec.list subsectorCodec)
+        |> Codec.buildObject
+
+
+subsectorCodec : Codec Subsector
+subsectorCodec =
+    Codec.object Subsector
+        |> Codec.field "x" .x Codec.int
+        |> Codec.field "y" .y Codec.int
+        |> Codec.field "name" .name (Codec.maybe Codec.string)
         |> Codec.buildObject
 
 

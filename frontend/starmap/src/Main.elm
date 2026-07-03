@@ -81,6 +81,7 @@ type alias Flags =
     , regionDisplay : Maybe String
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
+    , showBackgroundNames : Maybe Bool
     }
 
 
@@ -206,6 +207,7 @@ update msg model =
                                 , regionDisplay = model.flags.regionDisplay
                                 , showSectorLines = model.flags.showSectorLines
                                 , showSubsectorLines = model.flags.showSubsectorLines
+                                , showBackgroundNames = model.flags.showBackgroundNames
                                 }
                                 model.key
                                 model.hostConfig

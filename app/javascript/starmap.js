@@ -15,6 +15,7 @@ document.addEventListener('turbo:load', () => {
   const regionDisplayKey = `regionDisplay_${slug}`
   const sectorLinesKey = `showSectorLines_${slug}`
   const subsectorLinesKey = `showSubsectorLines_${slug}`
+  const backgroundNamesKey = `showBackgroundNames_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
   const viewMode = localStorage.getItem(viewModeKey) ?? null
@@ -23,6 +24,7 @@ document.addEventListener('turbo:load', () => {
   const regionDisplay = localStorage.getItem(regionDisplayKey) ?? null
   const showSectorLines = JSON.parse(localStorage.getItem(sectorLinesKey) ?? 'null')
   const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
+  const showBackgroundNames = JSON.parse(localStorage.getItem(backgroundNamesKey) ?? 'null')
 
   const elm = window.Elm.Main.init({
     node,
@@ -35,6 +37,7 @@ document.addEventListener('turbo:load', () => {
       regionDisplay,
       showSectorLines,
       showSubsectorLines,
+      showBackgroundNames,
       centerOn: null,
       ...serverFlags
     }
@@ -85,6 +88,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeSubsectorLines) {
     elm.ports.storeSubsectorLines.subscribe(value => {
       localStorage.setItem(subsectorLinesKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeBackgroundNames) {
+    elm.ports.storeBackgroundNames.subscribe(value => {
+      localStorage.setItem(backgroundNamesKey, JSON.stringify(value))
     })
   }
 

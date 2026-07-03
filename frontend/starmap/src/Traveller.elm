@@ -671,6 +671,7 @@ type alias ModelData =
     , showDisplaySettings : Bool
     , showSectorLines : Bool
     , showSubsectorLines : Bool
+    , showBackgroundNames : Bool
     , searchState : SearchState
     }
 
@@ -724,6 +725,7 @@ type Msg
     | ToggleDisplaySettings
     | ToggleSectorLines
     | ToggleSubsectorLines
+    | ToggleBackgroundNames
     | SearchInput String
     | GotSearchResults (Result Http.Error (List SearchResult))
     | SelectSearchResult SearchResult
@@ -848,6 +850,7 @@ type alias Flags =
     , regionDisplay : Maybe String
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
+    , showBackgroundNames : Maybe Bool
     }
 
 
@@ -864,6 +867,15 @@ minHexSize =
 maxHexSize : Float
 maxHexSize =
     120
+
+
+{-| Hex size above which the background name watermark is hidden entirely.
+Past this zoom level the view is focused on individual system detail, so the
+sector/subsector watermark would just be clutter.
+-}
+maxHexSizeForBackgroundNames : Float
+maxHexSizeForBackgroundNames =
+    70
 
 
 defaultHorizontalHexes : Int
@@ -1032,6 +1044,9 @@ init viewport settings key hostConfig referee =
         initialShowSubsectorLines =
             settings.showSubsectorLines |> Maybe.withDefault True
 
+        initialShowBackgroundNames =
+            settings.showBackgroundNames |> Maybe.withDefault False
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
@@ -1080,6 +1095,7 @@ init viewport settings key hostConfig referee =
             , showDisplaySettings = False
             , showSectorLines = initialShowSectorLines
             , showSubsectorLines = initialShowSubsectorLines
+            , showBackgroundNames = initialShowBackgroundNames
             , sidebarOpen = False
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
@@ -2523,6 +2539,78 @@ renderSubsectorLines hexSize hex =
         ++ List.map horizontalLine [ 9, 19, 29 ]
 
 
+{-| Pixel center of a rectangular local-coordinate cell within a sector (used for
+both whole-sector and single-subsector background name labels).
+-}
+sectorCellCenterPixel : Float -> SectorHexAddress -> { x : Int, y : Int } -> { x : Int, y : Int } -> ( Int, Int )
+sectorCellCenterPixel hexSize hex topLeftLocal botRightLocal =
+    let
+        hWidth =
+            hexWidth hexSize |> floor
+
+        hHeight =
+            hexHeight hexSize |> floor
+
+        pixelOf local =
+            { hex | x = local.x, y = local.y }
+                |> HexAddress.toUniversalAddress
+                |> (\ua -> calcVisualOrigin hexSize { row = ua.y, col = ua.x })
+                |> (\( x, y ) -> ( x - hWidth // 2, y - hHeight // 2 ))
+
+        ( tlx, tly ) =
+            pixelOf topLeftLocal
+
+        ( brx, bry ) =
+            pixelOf botRightLocal
+    in
+    ( (tlx + brx) // 2, (tly + bry) // 2 )
+
+
+{-| A faint, rotated, background watermark of a sector or subsector name. Each word
+of the name is stacked on its own line, and the whole stack is rotated 45 degrees
+around its center point.
+-}
+backgroundNameLabel : Int -> Int -> Int -> String -> Svg msg
+backgroundNameLabel fontSize cx cy name =
+    let
+        words =
+            String.words name
+
+        lineHeightEm =
+            1.15
+
+        wordCount =
+            List.length words
+
+        firstDy =
+            -(toFloat (wordCount - 1) * lineHeightEm / 2)
+
+        tspans =
+            List.indexedMap
+                (\i word ->
+                    Svg.tspan
+                        [ SvgAttrs.x (String.fromInt cx)
+                        , SvgAttrs.dy (String.fromFloat (if i == 0 then firstDy else lineHeightEm) ++ "em")
+                        ]
+                        [ Svg.text word ]
+                )
+                words
+    in
+    Svg.text_
+        [ SvgAttrs.x (String.fromInt cx)
+        , SvgAttrs.y (String.fromInt cy)
+        , SvgAttrs.textAnchor "middle"
+        , SvgAttrs.dominantBaseline "middle"
+        , SvgAttrs.fontFamily "Tomorrow"
+        , SvgAttrs.fontWeight "500"
+        , SvgAttrs.fontSize (String.fromInt fontSize)
+        , SvgAttrs.fill "#D3D3D3"
+        , SvgAttrs.style "pointer-events: none; user-select: none;"
+        , SvgAttrs.transform ("rotate(-45 " ++ String.fromInt cx ++ " " ++ String.fromInt cy ++ ")")
+        ]
+        tspans
+
+
 regionLabel : Int -> Int -> String -> Svg msg
 regionLabel x y name =
     Svg.text_
@@ -2577,7 +2665,7 @@ hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSo
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -2589,7 +2677,7 @@ viewHexes :
     -> Maybe String
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2816,6 +2904,91 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
 
                         else
                             []
+
+                    backgroundNameLabels =
+                        if not showBackgroundNames || hexSize > maxHexSizeForBackgroundNames then
+                            []
+
+                        else
+                            let
+                                nonBlank str =
+                                    if String.trim str == "" then
+                                        Nothing
+
+                                    else
+                                        Just str
+
+                                -- A subsector still has its default generated name if it's
+                                -- blank or just its grid letter (A, B, C, ... P) - not a name
+                                -- a referee has actually given it.
+                                isNamedSubsector sub =
+                                    case sub.name |> Maybe.andThen nonBlank of
+                                        Nothing ->
+                                            False
+
+                                        Just name ->
+                                            String.length (String.trim name) > 1
+
+                                subsectorFontSize =
+                                    round (hexSize * 2.2)
+
+                                sectorFontSize =
+                                    round (toFloat subsectorFontSize * 2.5)
+
+                                labelsForSector sx sy =
+                                    let
+                                        hex =
+                                            { ulSector | sectorX = sx, sectorY = sy }
+                                    in
+                                    case Dict.get (HexAddress.toSectorKey hex) sectors of
+                                        Nothing ->
+                                            []
+
+                                        Just sector ->
+                                            if not (List.any isNamedSubsector sector.subsectors) then
+                                                case nonBlank sector.name of
+                                                    Nothing ->
+                                                        []
+
+                                                    Just name ->
+                                                        let
+                                                            ( cx, cy ) =
+                                                                sectorCellCenterPixel hexSize hex { x = 0, y = 0 } { x = 32, y = 40 }
+                                                        in
+                                                        [ backgroundNameLabel sectorFontSize cx cy name ]
+
+                                            else
+                                                List.range 1 4
+                                                    |> List.concatMap
+                                                        (\subCol ->
+                                                            List.range 1 4
+                                                                |> List.filterMap
+                                                                    (\subRow ->
+                                                                        sector.subsectors
+                                                                            |> List.filter (\s -> s.x == subCol && s.y == subRow && isNamedSubsector s)
+                                                                            |> List.head
+                                                                            |> Maybe.andThen .name
+                                                                            |> Maybe.andThen nonBlank
+                                                                            |> Maybe.map
+                                                                                (\name ->
+                                                                                    let
+                                                                                        ( cx, cy ) =
+                                                                                            sectorCellCenterPixel hexSize
+                                                                                                hex
+                                                                                                { x = (subCol - 1) * 8, y = (subRow - 1) * 10 }
+                                                                                                { x = subCol * 8, y = subRow * 10 }
+                                                                                    in
+                                                                                    backgroundNameLabel subsectorFontSize cx cy name
+                                                                                )
+                                                                    )
+                                                        )
+                            in
+                            List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
+                                |> List.concatMap
+                                    (\sx ->
+                                        List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
+                                            |> List.concatMap (\sy -> labelsForSector sx sy)
+                                    )
                 in
                 let
                     hexEdgeNeighbours : HexAddress -> List HexAddress
@@ -2965,6 +3138,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     ]
                 ]
                     ++ [ keyedHexBackgrounds ]
+                    ++ backgroundNameLabels
                     ++ [ keyedHexBorders ]
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
@@ -3750,8 +3924,8 @@ viewStatusRow model =
         )
 
 
-viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Element Msg
-viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLines_ showSubsectorLines_ =
+viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Bool -> Element Msg
+viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLines_ showSubsectorLines_ showBackgroundNames_ =
     let
         radioButton : Bool -> Element Msg
         radioButton isActive =
@@ -3946,6 +4120,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
         overlayOptions =
             [ toggleOption showSectorLines_ "Sector Lines" "Sector boundary outlines" ToggleSectorLines
             , toggleOption showSubsectorLines_ "Subsector Lines" "Subsector grid within each sector" ToggleSubsectorLines
+            , toggleOption showBackgroundNames_ "Sector / Subsector Names" "Faint background watermark of the sector or subsector name" ToggleBackgroundNames
             ]
     in
     el
@@ -4041,7 +4216,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -4226,7 +4401,7 @@ view ( time, model ) =
             _ ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
         , if model.showDisplaySettings then
-            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines
+            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines model.showBackgroundNames
 
           else
             Element.htmlAttribute <| HtmlAttrs.class ""
@@ -4416,6 +4591,9 @@ port storeSectorLines : Bool -> Cmd msg
 
 
 port storeSubsectorLines : Bool -> Cmd msg
+
+
+port storeBackgroundNames : Bool -> Cmd msg
 
 
 port navigateToUrl : String -> Cmd msg
@@ -5696,6 +5874,11 @@ update msg ( time, model ) =
         ToggleSubsectorLines ->
             ( withTime { model | showSubsectorLines = not model.showSubsectorLines }
             , storeSubsectorLines (not model.showSubsectorLines)
+            )
+
+        ToggleBackgroundNames ->
+            ( withTime { model | showBackgroundNames = not model.showBackgroundNames }
+            , storeBackgroundNames (not model.showBackgroundNames)
             )
 
         SearchInput query ->
