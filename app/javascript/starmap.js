@@ -1,3 +1,5 @@
+import { applyTheme } from 'theme'
+
 document.addEventListener('turbo:load', () => {
   const node = document.getElementById('root')
 
@@ -100,6 +102,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.navigateToUrl) {
     elm.ports.navigateToUrl.subscribe(url => {
       window.open(url, '_blank');
+    })
+  }
+
+  if (elm.ports.setTheme) {
+    elm.ports.setTheme.subscribe(theme => {
+      applyTheme(theme)
     })
   }
 

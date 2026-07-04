@@ -105,28 +105,12 @@
 
         <div data-dropdown-target='menu'
              class='hidden absolute right-0 mt-2 w-44 rounded-lg border border-outline bg-dropdown shadow-xl z-50'>
-          <% {
-               'dark' => 'Dark',
-               'light' => 'Light',
-               'aslan' => 'Aslan',
-               'bwap' => 'Bwap',
-               'darrian' => 'Darrian',
-               'deepnight' => 'Deepnight',
-               'droyne' => 'Droyne',
-               'hiver' => 'Hiver',
-               'imperium' => 'Imperium',
-               'kkree' => "K'Kree",
-               'solomani' => 'Solomani',
-               'swordworlds' => 'Sword Worlds',
-               'vargr' => 'Vargr',
-               'vegan' => 'Vegan',
-               'zhodani' => 'Zhodani'
-             }.each_with_index do |(theme, label), index| %>
+          <% ApplicationHelper::THEMES.each_with_index do |(theme, info), index| %>
             <button type='button'
                     data-action='theme#set'
                     data-theme-value='<%= theme %>'
                     class='w-full flex items-center justify-between px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if theme == 'kkree' %>'>
-              <span><%= label %></span>
+              <span><%= info[:label] %></span>
               <% if current_theme == theme %>
                 <i class='fa-regular fa-check text-xs text-highlight'></i>
               <% end %>

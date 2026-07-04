@@ -12,7 +12,6 @@ import Element
         , text
         , width
         )
-import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
@@ -23,7 +22,8 @@ import Json.Decode
 import RemoteData exposing (RemoteData(..))
 import Traveller.UI
     exposing
-        ( uiDeepnightColorFontColour
+        ( fontVar
+        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -69,20 +69,16 @@ viewModal msgs remoteTraffic frontier =
             , Element.centerY
             , Element.width (Element.px 340)
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( msgs.noOp, True )))
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.92)")
-            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
-            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
             , Element.padding 20
             , Border.rounded 6
-            , Border.width 1
-            , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
             , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
             ]
             [ row
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                 ]
                 [ el [ Font.size 16, uiDeepnightColorFontColour, Font.bold ] (text "Ship Traffic")
                 , el
@@ -90,7 +86,8 @@ viewModal msgs remoteTraffic frontier =
                     , Events.onClick msgs.close
                     , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
                     , Font.size 14
-                    , Font.color (Element.rgba 0.17 0.42 0.55 0.6)
+                    , fontVar "--color-fg-muted"
+                    , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
                     ]
                     (text "✕")
                 ]
@@ -109,14 +106,14 @@ viewBody : RemoteData Http.Error ShipTraffic -> Element msg
 viewBody remoteTraffic =
     case remoteTraffic of
         NotAsked ->
-            el [ Font.size 13, Font.color (Element.rgba 0.17 0.42 0.55 0.6) ] (text "—")
+            el [ Font.size 13, fontVar "--color-fg-muted" ] (text "—")
 
         Loading ->
             el
                 [ Element.centerX
                 , Element.paddingXY 0 24
                 , Font.size 13
-                , Font.color (Element.rgba 0.17 0.42 0.55 0.6)
+                , fontVar "--color-fg-muted"
                 ]
                 (text "Rolling…")
 
@@ -125,7 +122,7 @@ viewBody remoteTraffic =
                 [ Element.centerX
                 , Element.paddingXY 0 24
                 , Font.size 13
-                , Font.color (Element.rgb 0.75 0.2 0.2)
+                , Element.htmlAttribute (HtmlAttrs.style "color" "var(--color-danger)")
                 ]
                 (text "Failed to compute ship traffic.")
 
@@ -133,7 +130,7 @@ viewBody remoteTraffic =
             column [ width fill, Element.spacing 10 ]
                 [ el [ Element.centerX, Font.size 40, Font.bold, uiDeepnightColorFontColour ]
                     (text (String.fromInt traffic.result))
-                , el [ Element.centerX, Font.size 11, Font.color (Element.rgba 0.17 0.42 0.55 0.6) ]
+                , el [ Element.centerX, Font.size 11, fontVar "--color-fg-muted" ]
                     (text "ships / day")
                 , row [ width fill, Element.spacing 12 ]
                     [ viewDataField "Effective Importance" (String.fromInt traffic.effectiveImportance)
@@ -145,7 +142,7 @@ viewBody remoteTraffic =
                   else
                     column [ Element.spacing 2 ]
                         (List.map
-                            (\m -> el [ Font.size 11, Font.color (Element.rgba 0.17 0.42 0.55 0.6) ] (text ("• " ++ m)))
+                            (\m -> el [ Font.size 11, fontVar "--color-fg-muted" ] (text ("• " ++ m)))
                             traffic.modifiers
                         )
                 ]
@@ -165,19 +162,21 @@ viewFrontierToggle msgs frontier =
         [ width fill
         , Element.paddingEach { zeroEach | top = 8 }
         , Border.widthEach { zeroEach | top = 1 }
-        , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+        , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
         , Element.spacing 10
         ]
         [ el
             [ Events.onClick msgs.toggleFrontier
             , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
             , Font.size 12
-            , Font.color
-                (if frontier then
-                    Element.rgba 0.87 0.50 0.20 1.0
+            , Element.htmlAttribute
+                (HtmlAttrs.style "color"
+                    (if frontier then
+                        "var(--color-button-primary)"
 
-                 else
-                    Element.rgba 0.17 0.42 0.55 0.7
+                     else
+                        "var(--color-fg-muted)"
+                    )
                 )
             ]
             (row [ Element.spacing 6 ]
@@ -186,13 +185,15 @@ viewFrontierToggle msgs frontier =
                     , Element.height (Element.px 14)
                     , Border.width 1
                     , Border.rounded 3
-                    , Border.color (Element.rgba 0.17 0.42 0.55 0.5)
-                    , Background.color
-                        (if frontier then
-                            Element.rgba 0.87 0.50 0.20 0.85
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 50%, transparent)")
+                    , Element.htmlAttribute
+                        (HtmlAttrs.style "background-color"
+                            (if frontier then
+                                "var(--color-button-primary)"
 
-                         else
-                            Element.rgba 0 0 0 0
+                             else
+                                "transparent"
+                            )
                         )
                     ]
                     Element.none
@@ -205,9 +206,9 @@ viewFrontierToggle msgs frontier =
             , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
             , Element.padding 6
             , Border.rounded 4
-            , Background.color (Element.rgba 0.17 0.42 0.55 0.12)
+            , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 12%, transparent)")
             , Font.size 12
-            , Font.color (Element.rgba 0.17 0.42 0.55 0.8)
+            , fontVar "--color-fg"
             ]
             (text "Roll Again")
         ]

@@ -11,7 +11,6 @@ import Element
         , text
         , width
         )
-import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
@@ -25,7 +24,8 @@ import Traveller.StellarObject exposing (getStellarOrbit)
 import Traveller.TravelCalculations exposing (calcDistance2F, travelTimeHoursDays, travelTimeInSeconds)
 import Traveller.UI
     exposing
-        ( uiDeepnightColorFontColour
+        ( fontVar
+        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -54,20 +54,16 @@ viewModal msgs mDrive solarSystem =
             [ Element.centerX
             , Element.centerY
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( msgs.noOp, True )))
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.92)")
-            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
-            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
             , Element.padding 20
             , Border.rounded 6
-            , Border.width 1
-            , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
             , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
             ]
             [ row
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                 ]
                 [ el [ Font.size 16, uiDeepnightColorFontColour, Font.bold ] (text "Travel Times")
                 , el
@@ -75,7 +71,8 @@ viewModal msgs mDrive solarSystem =
                     , Events.onClick msgs.close
                     , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
                     , Font.size 14
-                    , Font.color (Element.rgba 0.17 0.42 0.55 0.6)
+                    , fontVar "--color-fg-muted"
+                    , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
                     ]
                     (text "✕")
                 ]
@@ -99,25 +96,25 @@ viewMDriveSelector msgs currentMDrive =
 
                 bgColour =
                     if isActive then
-                        Element.rgba 0.87 0.50 0.20 0.85
+                        "var(--color-button-primary)"
 
                     else
-                        Element.rgba 0.17 0.42 0.55 0.12
+                        "color-mix(in srgb, var(--color-outline) 12%, transparent)"
 
                 fontColour =
                     if isActive then
-                        Element.rgb 1 1 1
+                        "#fff"
 
                     else
-                        Element.rgba 0.17 0.42 0.55 0.8
+                        "var(--color-fg)"
             in
             el
                 [ Element.padding 4
                 , Element.width (Element.px 24)
-                , Background.color bgColour
+                , Element.htmlAttribute (HtmlAttrs.style "background-color" bgColour)
                 , Border.rounded 3
                 , Font.size 13
-                , Font.color fontColour
+                , Element.htmlAttribute (HtmlAttrs.style "color" fontColour)
                 , Font.center
                 , Events.onClick (msgs.setMDrive n)
                 , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
@@ -125,7 +122,7 @@ viewMDriveSelector msgs currentMDrive =
                 (text (String.fromInt n))
     in
     row [ Element.spacing 6, Element.centerY ]
-        (el [ Font.size 13, Font.color (Element.rgba 0.17 0.42 0.55 0.7) ] (text "M-Drive")
+        (el [ Font.size 13, fontVar "--color-fg-muted" ] (text "M-Drive")
             :: List.map driveButton (List.range 1 10)
         )
 

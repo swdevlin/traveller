@@ -10,7 +10,6 @@ module Traveller.Sidebar exposing
 -}
 
 import Color exposing (Color)
-import Color.Manipulate
 import Dict
 import Element
     exposing
@@ -25,7 +24,6 @@ import Element
         , text
         , width
         )
-import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
@@ -52,9 +50,8 @@ import Traveller.StellarObjectView
 import Traveller.TechLevel as TechLevel
 import Traveller.UI
     exposing
-        ( deepnightColor
+        ( fontVar
         , profileFieldDisplay
-        , textColor
         , uiDeepnightColorFontColour
         , zeroEach
         )
@@ -100,34 +97,36 @@ viewSidebarButton { active, icon, label, onClick } =
         [ Element.paddingXY 12 6
         , Border.rounded 6
         , Border.width 1
-        , Border.color
-            (if active then
-                Element.rgba 0.87 0.50 0.20 0.9
+        , Element.htmlAttribute
+            (HtmlAttrs.style "border-color"
+                (if active then
+                    "var(--color-button-primary)"
 
-             else
-                Element.rgba 0.17 0.42 0.55 0.35
+                 else
+                    "color-mix(in srgb, var(--color-outline) 35%, transparent)"
+                )
             )
-        , Background.color
-            (if active then
-                Element.rgba 0.87 0.50 0.20 0.9
+        , Element.htmlAttribute
+            (HtmlAttrs.style "background-color"
+                (if active then
+                    "var(--color-button-primary)"
 
-             else
-                Element.rgba 0.17 0.42 0.55 0.1
+                 else
+                    "color-mix(in srgb, var(--color-outline) 10%, transparent)"
+                )
             )
-        , Element.mouseOver
-            [ Background.color (Element.rgba 0.87 0.50 0.20 0.9)
-            , Border.color (Element.rgba 0.87 0.50 0.20 0.9)
-            , Font.color (Element.rgb 1 1 1)
-            ]
+        , Element.htmlAttribute (HtmlAttrs.class "starmap-sidebar-btn")
         , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
         , Element.htmlAttribute <| HtmlAttrs.style "transition" "background-color 0.15s ease, border-color 0.15s ease"
         , Font.size 13
-        , Font.color
-            (if active then
-                Element.rgb 1 1 1
+        , Element.htmlAttribute
+            (HtmlAttrs.style "color"
+                (if active then
+                    "#fff"
 
-             else
-                Element.rgba 0.17 0.42 0.55 0.85
+                 else
+                    "var(--color-fg-muted)"
+                )
             )
         , Events.onClick onClick
         ]
@@ -211,7 +210,7 @@ viewMainWorldProfile profile =
                 , el
                     [ width fill
                     , height (Element.px 1)
-                    , Background.color (Element.rgba 0.17 0.42 0.55 0.3)
+                    , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
                     , Element.centerY
                     ]
                     Element.none
@@ -259,7 +258,7 @@ viewSidebarJumpTable maybeKm =
                             , Font.size 10
                             , Font.bold
                             , Border.widthEach { zeroEach | bottom = 1 }
-                            , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                             ]
                             (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
 
@@ -284,7 +283,7 @@ viewSidebarJumpTable maybeKm =
                             , el
                                 [ width fill
                                 , height (Element.px 1)
-                                , Background.color (Element.rgba 0.17 0.42 0.55 0.3)
+                                , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
                                 , Element.centerY
                                 ]
                                 Element.none
@@ -294,7 +293,7 @@ viewSidebarJumpTable maybeKm =
                     [ width fill
                     , Element.paddingXY 8 4
                     , Border.widthEach { zeroEach | bottom = 1 }
-                    , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                     ]
                     [ sectionRow "Safe Jump Distance"
                     , row [ width fill ] (List.map headerCell mDrives)
@@ -410,7 +409,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                 , Events.onClick msgs.closeSidebar
                 , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
                 , Font.size 14
-                , Font.color (Element.rgba 0.17 0.42 0.55 0.8)
+                , fontVar "--color-fg-muted"
                 ]
                 (text "✕")
             ]
@@ -429,7 +428,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                 Just sysName ->
                                     column [ centerX, Element.spacing 2 ]
                                         [ el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text sysName)
-                                        , el [ centerX, Font.size 12, Font.color (Element.rgba 0.17 0.42 0.55 0.7) ] (text <| universalHexLabel sectors viewingAddress)
+                                        , el [ centerX, Font.size 12, fontVar "--color-fg-muted" ] (text <| universalHexLabel sectors viewingAddress)
                                         ]
 
                                 Nothing ->
@@ -439,7 +438,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                     if isReferee || sys.surveyIndex >= 10 then
                                         case sys.mainWorldProfile |> Maybe.map .uwp of
                                             Just uwpStr ->
-                                                el [ centerX, Font.size 12, Font.color <| convertColor textColor ] (text uwpStr)
+                                                el [ centerX, Font.size 12, fontVar "--color-fg" ] (text uwpStr)
 
                                             Nothing ->
                                                 Element.none
@@ -463,7 +462,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                                             Nothing ->
                                                                 code
                                                 in
-                                                el [ centerX, Font.size 12, Font.color (Element.rgba 0 0 0 1) ] (text label)
+                                                el [ centerX, Font.size 12, fontVar "--color-fg-bright" ] (text label)
 
                                             Nothing ->
                                                 Element.none

@@ -48,7 +48,10 @@ class StarmapsController < ApplicationController
       extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence,
       rogueObjectPathData: rogue_icon&.path_data,
       shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
-      facilityIcons: facility_icons
+      facilityIcons: facility_icons,
+      theme: helpers.current_theme,
+      themeIsLight: helpers.current_theme_light?,
+      themeOptions: ApplicationHelper::THEMES.map { |key, info| { key: key, label: info[:label], light: info[:light] } }
     }
     if params[:cx].present? && params[:cy].present?
       @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]

@@ -1,12 +1,10 @@
 module Traveller.UI exposing
-    ( colorToElementColor
-    , deepnightColor
-    , deepnightGray
-    , deepnightLightGray
+    ( bgVar
+    , borderVar
+    , cssColor
     , descriptionStyle
     , floatDisplay
-    , fontDarkTextColor
-    , fontTextColor
+    , fontVar
     , groupAttrs
     , headerAttrs
     , imageStyle
@@ -18,7 +16,6 @@ module Traveller.UI exposing
     , safeJumpStyle
     , sequenceStyle
     , taintTextDisplay
-    , textColor
     , textDisplay
     , textDisplayMedium
     , textDisplayNarrow
@@ -40,6 +37,31 @@ import Element
         , width
         )
 import Element.Font as Font
+import Html.Attributes
+
+
+{-| A CSS custom-property-backed Element attribute, e.g. `cssColor "background-color" "--color-panel"`.
+Used instead of elm-ui's native Background.color/Font.color/Border.color so the value can react to the
+Rails `data-theme` attribute at runtime via `var(...)` rather than being baked in at compile time.
+-}
+cssColor : String -> String -> Element.Attribute msg
+cssColor prop varName =
+    Element.htmlAttribute (Html.Attributes.style prop ("var(" ++ varName ++ ")"))
+
+
+bgVar : String -> Element.Attribute msg
+bgVar =
+    cssColor "background-color"
+
+
+fontVar : String -> Element.Attribute msg
+fontVar =
+    cssColor "color"
+
+
+borderVar : String -> Element.Attribute msg
+borderVar =
+    cssColor "border-color"
 
 
 {-| Convert a Color.Color to an Element.Color
@@ -62,36 +84,8 @@ textColor =
     Color.rgb255 26 74 106
 
 
-deepnightColor : Color.Color
-deepnightColor =
-    Color.rgb255 223 127 51
-
-
-deepnightLightGray : Color.Color
-deepnightLightGray =
-    Color.rgb255 167 180 183
-
-
-deepnightGray : Color.Color
-deepnightGray =
-    Color.rgb255 121 137 144
-
-
 
 -- Element Colors
-
-
-fontTextColor : Element.Color
-fontTextColor =
-    textColor |> colorToElementColor
-
-
-fontDarkTextColor : Element.Color
-fontDarkTextColor =
-    textColor
-        |> Color.Manipulate.desaturate 0.85
-        |> Color.Manipulate.darken 0.25
-        |> colorToElementColor
 
 
 jumpShadowTextColor : Element.Color
@@ -109,7 +103,7 @@ travellerRed =
 
 uiDeepnightColorFontColour : Element.Attribute msg
 uiDeepnightColorFontColour =
-    Font.color <| colorToElementColor <| deepnightColor
+    fontVar "--color-button-primary"
 
 
 

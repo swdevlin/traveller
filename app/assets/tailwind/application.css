@@ -1522,6 +1522,40 @@
   cursor: pointer;
 }
 
+.starmap-glass-panel {
+  background-color: color-mix(in srgb, var(--color-panel) 92%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-outline);
+}
+
+.starmap-search-result:hover,
+.starmap-display-option:hover {
+  background-color: color-mix(in srgb, var(--color-outline) 10%, transparent);
+}
+
+.starmap-icon-hover:hover {
+  color: var(--color-button-primary-outline);
+}
+
+.starmap-sidebar-btn:hover {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-button-primary);
+  color: var(--color-fg-bright);
+}
+
+.starmap-error-link:hover {
+  color: var(--color-notice);
+}
+
+.starmap-error-btn:hover {
+  background-color: var(--color-button-outline);
+}
+
+.starmap-modal-close:hover {
+  color: var(--color-fg-bright);
+}
+
 .travel-table {
   border-collapse: collapse;
   font-family: ui-monospace, monospace;
@@ -1534,39 +1568,39 @@
 }
 
 .travel-table-header {
-  color: #1a4a6a;
+  color: var(--color-fg);
   font-weight: 600;
   padding: 3px 4px;
   text-align: center;
-  border-bottom: 1px solid rgba(26, 74, 106, 0.2);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-outline) 20%, transparent);
   white-space: nowrap;
   overflow: hidden;
   max-width: 36px;
 }
 
 .travel-table-row-header {
-  color: #1a4a6a;
+  color: var(--color-fg);
   font-weight: 600;
   padding: 3px 6px 3px 2px;
   text-align: left;
   white-space: nowrap;
-  border-right: 1px solid rgba(26, 74, 106, 0.2);
+  border-right: 1px solid color-mix(in srgb, var(--color-outline) 20%, transparent);
 }
 
 .travel-table-cell {
   padding: 2px 4px;
   text-align: center;
-  color: #2a6a8a;
-  border: 1px solid rgba(26, 74, 106, 0.08);
+  color: var(--color-fg-muted);
+  border: 1px solid color-mix(in srgb, var(--color-outline) 8%, transparent);
 }
 
 .travel-table-diagonal {
-  color: rgba(26, 74, 106, 0.3);
+  color: color-mix(in srgb, var(--color-fg-muted) 30%, transparent);
 }
 
 .travel-table tbody tr:nth-child(even) .travel-table-cell,
 .travel-table tbody tr:nth-child(even) .travel-table-row-header {
-  background-color: rgba(26, 74, 106, 0.04);
+  background-color: color-mix(in srgb, var(--color-outline) 4%, transparent);
 }
 
 [data-turbo-tour-active] {

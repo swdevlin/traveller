@@ -1,4 +1,4 @@
-port module Traveller exposing (FacilityIcon, Model, ModelData, Msg(..), init, subscriptions, update, view)
+port module Traveller exposing (FacilityIcon, Model, ModelData, Msg(..), ThemeOption, init, subscriptions, update, view)
 
 import Browser.Dom
 import Browser.Events
@@ -6,7 +6,6 @@ import Browser.Navigation
 import Codec
 import Color exposing (Color)
 import Color.Convert
-import Color.Manipulate
 import Dict
 import Set
 import Element
@@ -105,17 +104,15 @@ import Traveller.StellarObjectView
         ( JumpShadowChecker
         , JumpShadowCheckers
         , StellarObjectMsgs
-        , convertColor
         )
 import Traveller.Ship exposing (Ship)
 import Traveller.StellarTaint exposing (taintPersistenceDescription, taintSeverityDescription, taintSubtypeDescription)
 import Traveller.TechLevel as TechLevel
 import Traveller.UI
     exposing
-        ( colorToElementColor
-        , deepnightColor
-        , deepnightGray
-        , fontTextColor
+        ( bgVar
+        , borderVar
+        , fontVar
         , monospaceText
         , uiDeepnightColorFontColour
         , zeroEach
@@ -679,6 +676,17 @@ type alias ModelData =
     , showSubsectorLines : Bool
     , showBackgroundNames : Bool
     , searchState : SearchState
+    , theme : String
+    , themeIsLight : Bool
+    , themeOptions : List ThemeOption
+    , showThemeMenu : Bool
+    }
+
+
+type alias ThemeOption =
+    { key : String
+    , label : String
+    , light : Bool
     }
 
 
@@ -742,6 +750,8 @@ type Msg
     | SelectSearchResult SearchResult
     | FocusSearch
     | CloseSearchDropdown
+    | SelectTheme String
+    | ToggleThemeMenu
 
 
 type JourneyMsg
@@ -871,6 +881,9 @@ type alias Flags =
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
     , showBackgroundNames : Maybe Bool
+    , theme : String
+    , themeIsLight : Bool
+    , themeOptions : List ThemeOption
     }
 
 
@@ -1124,6 +1137,10 @@ init viewport settings key hostConfig referee =
             , rogueObjectPathData = settings.rogueObjectPathData
             , facilityIcons = settings.facilityIcons |> List.map (\icon -> ( icon.code, icon )) |> Dict.fromList
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
+            , theme = settings.theme
+            , themeIsLight = settings.themeIsLight
+            , themeOptions = settings.themeOptions
+            , showThemeMenu = False
             }
     in
     ( ( Time.millisToPosix 0
@@ -1151,8 +1168,8 @@ isOnRoute route address =
     List.any (\a -> a.address == address) route
 
 
-hexAddressLabel : Int -> Int -> Float -> HexAddress -> Svg msg
-hexAddressLabel x y size hexAddress =
+hexAddressLabel : Int -> Int -> Float -> HexAddress -> String -> Svg msg
+hexAddressLabel x y size hexAddress hexColour =
     if size <= 15 then
         Svg.text ""
 
@@ -1173,7 +1190,7 @@ hexAddressLabel x y size hexAddress =
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.fontFamily "Tomorrow"
             , SvgAttrs.fontWeight "400"
-            , SvgAttrs.fill "#2A6A8A"
+            , SvgAttrs.fill (hexTextColour hexColour)
             ]
             [ HexAddress.hexLabel hexAddress |> Svg.text ]
 
@@ -1193,7 +1210,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
                 , SvgAttrs.y <| String.fromInt y
                 , SvgAttrs.fontSize "10"
                 , SvgAttrs.textAnchor "middle"
-                , SvgAttrs.fill "#2A6A8A"
+                , SvgAttrs.fill (hexTextColour hexColour)
                 , SvgAttrs.class "hex-scan"
                 ]
                 [ Svg.text childSvgTxt ]
@@ -1209,7 +1226,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
         ]
         [ -- background hex
           Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
-        , hexAddressLabel x y size hexAddress
+        , hexAddressLabel x y size hexAddress hexColour
         , childSvg
         ]
 
@@ -1286,7 +1303,7 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surve
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
         [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
-        , hexAddressLabel x y size hexAddress
+        , hexAddressLabel x y size hexAddress hexColour
         , if showComet && size > 15 then drawCometIcon (toFloat x) (toFloat y) size else Svg.text ""
         , if showGasGiant && size > 15 then drawRogueGasGiant (toFloat x) (toFloat y) size else Svg.text ""
         , if showOther && size > 15 then drawRogueOther rogueObjectPathData (toFloat x) (toFloat y) size else Svg.text ""
@@ -1418,16 +1435,35 @@ renderPolygon points_ fill =
 
             else
                 fill
+
+        strokeColour =
+            if hexColour == "#000000" then
+                "#3a3a3a"
+
+            else
+                "#e5e5e5"
     in
     Svg.polygon
         [ points points_
         , SvgAttrs.fill hexColour
-        , SvgAttrs.stroke "#cccccc"
+        , SvgAttrs.stroke strokeColour
         , SvgAttrs.strokeWidth "0.5"
         , SvgAttrs.pointerEvents "visiblePainted"
         , SvgAttrs.class "hex-hover"
         ]
         []
+
+
+{-| The default hex label/icon text colour for a given hex background —
+light text on a black (dark-theme) hex, the original dark teal otherwise.
+-}
+hexTextColour : String -> String
+hexTextColour hexColour =
+    if hexColour == "#000000" then
+        "#f1f5f9"
+
+    else
+        "#1a1a1a"
 
 
 renderHexBorderStroke : String -> Svg msg
@@ -1787,8 +1823,8 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
         [ Svg.Lazy.lazy2 renderPolygon hexapointsStr hexColour ]
 
 
-viewBarRow : Float -> Float -> Float -> String -> Int -> Svg Msg
-viewBarRow size cx rowY label tier =
+viewBarRow : Float -> Float -> Float -> String -> Int -> String -> Svg Msg
+viewBarRow size cx rowY label tier hexColour =
     let
         segW =
             size * 0.15
@@ -1849,7 +1885,7 @@ viewBarRow size cx rowY label tier =
             , SvgAttrs.y (String.fromFloat rowY)
             , SvgAttrs.textAnchor "end"
             , SvgAttrs.dominantBaseline "middle"
-            , SvgAttrs.fill "#1e3a5f"
+            , SvgAttrs.fill (hexTextColour hexColour)
             , SvgAttrs.fontSize (String.fromFloat (size * 0.20))
             , SvgAttrs.fontFamily "Oxanium, sans-serif"
             , SvgAttrs.fontWeight "600"
@@ -1859,25 +1895,44 @@ viewBarRow size cx rowY label tier =
         )
 
 
-viewRoleBadge : Float -> Float -> Float -> String -> Svg Msg
-viewRoleBadge size cx rowY role =
+viewRoleBadge : Float -> Float -> Float -> String -> String -> Svg Msg
+viewRoleBadge size cx rowY role hexColour =
     let
+        isDarkHex =
+            hexColour == "#000000"
+
         textColour =
             case role of
                 "market" ->
-                    "#1e5a8a"
+                    if isDarkHex then
+                        "#7fb8e6"
+
+                    else
+                        "#1e5a8a"
 
                 "supplier" ->
-                    "#1e6b3f"
+                    if isDarkHex then
+                        "#7fd9a3"
+
+                    else
+                        "#1e6b3f"
 
                 "extractor" ->
-                    "#7a4010"
+                    if isDarkHex then
+                        "#f0b070"
+
+                    else
+                        "#7a4010"
 
                 "deficit" ->
-                    "#7a1010"
+                    if isDarkHex then
+                        "#f08080"
+
+                    else
+                        "#7a1010"
 
                 _ ->
-                    "#3a3a3a"
+                    hexTextColour hexColour
     in
     Svg.text_
         [ SvgAttrs.x (String.fromFloat cx)
@@ -1893,7 +1948,7 @@ viewRoleBadge size cx rowY role =
 
 
 renderHexContent : HexRenderOpts -> Svg Msg
-renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode } =
+renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -2002,7 +2057,7 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, fa
                 , SvgAttrs.y (String.fromInt voy)
                 , SvgAttrs.textAnchor "middle"
                 , SvgAttrs.dominantBaseline "middle"
-                , SvgAttrs.fill "#0f2d42"
+                , SvgAttrs.fill (hexTextColour hexColour)
                 , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
                 , SvgAttrs.fontFamily "Oxanium, sans-serif"
                 , SvgAttrs.fontWeight "600"
@@ -2029,7 +2084,7 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, fa
             toFloat (round (f * 10)) / 10
     in
     Svg.g []
-        [ hexAddressLabel vox voy size hexAddress
+        [ hexAddressLabel vox voy size hexAddress hexColour
         , case effectiveMode of
             ShowMainWorld ->
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
@@ -2120,10 +2175,10 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, fa
                     Just strat ->
                         if size >= 30 then
                             Svg.g [ SvgAttrs.pointerEvents "none" ]
-                                [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.10) "Rs" strat.resourceTier
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier
+                                [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.10) "Rs" strat.resourceTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour
                                 , travelZoneRing
                                 ]
 
@@ -2140,12 +2195,12 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, fa
                             Svg.g [ SvgAttrs.pointerEvents "none" ]
                                 [ case strat.routeRole of
                                     Just role ->
-                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role
+                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role hexColour
 
                                     Nothing ->
                                         Svg.text ""
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier hexColour
                                 , travelZoneRing
                                 ]
 
@@ -2250,7 +2305,7 @@ renderHexContent { starSystem, hexAddrX, hexAddrY, vox, voy, size, isReferee, fa
 
 
 renderHexSystemLabels : HexRenderOpts -> Svg Msg
-renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
+renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee } =
     let
         si =
             starSystem.surveyIndex
@@ -2273,7 +2328,7 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
                             , SvgAttrs.textAnchor "middle"
                             , SvgAttrs.fontFamily "Oxanium"
                             , SvgAttrs.fontWeight "400"
-                            , SvgAttrs.fill "#333333"
+                            , SvgAttrs.fill (hexTextColour hexColour)
                             ]
                             [ Svg.text uwpStr ]
 
@@ -2290,17 +2345,13 @@ renderHexSystemLabels { starSystem, vox, voy, size, isReferee } =
                     , SvgAttrs.textAnchor "middle"
                     , SvgAttrs.fontFamily "Oxanium"
                     , SvgAttrs.fontWeight "600"
-                    , SvgAttrs.fill "#333333"
+                    , SvgAttrs.fill (hexTextColour hexColour)
                     ]
                     [ Svg.text starSystem.name ]
 
               else
                 Svg.text ""
             ]
-
-
-defaultHexBg =
-    "#FFFFFF"
 
 
 selectedHexBg =
@@ -2352,7 +2403,7 @@ viewHexLoading hx hy x y size hexColour =
                 [ SvgAttrs.x (String.fromFloat (toFloat x + offset))
                 , SvgAttrs.y dotY
                 , SvgAttrs.textAnchor "middle"
-                , SvgAttrs.fill "#2A6A8A"
+                , SvgAttrs.fill "var(--color-highlight)"
                 , SvgAttrs.fontSize "14"
                 , SvgAttrs.class cls
                 ]
@@ -2367,7 +2418,7 @@ viewHexLoading hx hy x y size hexColour =
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
         [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
-        , hexAddressLabel x y size hexAddress
+        , hexAddressLabel x y size hexAddress hexColour
         , dot "hex-dot hex-dot-1" -spacing
         , dot "hex-dot hex-dot-2" 0
         , dot "hex-dot hex-dot-3" spacing
@@ -2766,8 +2817,16 @@ regionLabel x y name =
         [ Svg.text name ]
 
 
-hexBackgroundColour : Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
-hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
+hexBackgroundColour : Bool -> Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
+hexBackgroundColour themeIsLight referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
+    let
+        defaultBg =
+            if themeIsLight then
+                "#FFFFFF"
+
+            else
+                "#000000"
+    in
     if referee then
         case Dict.get hexKey solarSystemDict of
             Just rss ->
@@ -2780,32 +2839,32 @@ hexBackgroundColour referee hexKey solarSystemDict nativeSophontColour extinctSo
                                         color
 
                                     Nothing ->
-                                        defaultHexBg
+                                        defaultBg
 
                             Nothing ->
                                 if system.nativeSophont then
-                                    nativeSophontColour |> Maybe.withDefault defaultHexBg
+                                    nativeSophontColour |> Maybe.withDefault defaultBg
 
                                 else if system.extinctSophont then
-                                    extinctSophontColour |> Maybe.withDefault defaultHexBg
+                                    extinctSophontColour |> Maybe.withDefault defaultBg
 
                                 else
-                                    defaultHexBg
+                                    defaultBg
 
                     _ ->
-                        defaultHexBg
+                        defaultBg
 
             Nothing ->
-                defaultHexBg
+                defaultBg
 
     else
-        defaultHexBg
+        defaultBg
 
 
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -2818,7 +2877,7 @@ viewHexes :
     -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -2847,6 +2906,43 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 lowerRightHex
                 { maxAcross = maxAcross, maxTall = maxTall }
 
+        computeHexColour : HexAddress -> String -> String
+        computeHexColour hexAddr hexKey =
+            if hexAddr == currentAddress then
+                currentAddressHexBg
+
+            else if isOnRoute route hexAddr then
+                routeHexBg
+
+            else
+                let
+                    regionFill =
+                        case regionDisplay of
+                            ShowRegionsFill ->
+                                Dict.get hexKey hexColours
+
+                            ShowRegionsBoth ->
+                                Dict.get hexKey hexColours
+
+                            _ ->
+                                Nothing
+                in
+                case regionFill of
+                    Just color ->
+                        Color.Convert.colorToHex color
+
+                    Nothing ->
+                        case maybeSelectedHex of
+                            Just selectedHex ->
+                                if selectedHex == hexAddr then
+                                    selectedHexBg
+
+                                else
+                                    hexBackgroundColour themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+
+                            Nothing ->
+                                hexBackgroundColour themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+
         viewSingleHex hexAddr =
             let
                 hexKey =
@@ -2857,40 +2953,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                         { row = hexAddr.y, col = hexAddr.x }
 
                 hexColour =
-                    if hexAddr == currentAddress then
-                        currentAddressHexBg
-
-                    else if isOnRoute route hexAddr then
-                        routeHexBg
-
-                    else
-                        let
-                            regionFill =
-                                case regionDisplay of
-                                    ShowRegionsFill ->
-                                        Dict.get hexKey hexColours
-
-                                    ShowRegionsBoth ->
-                                        Dict.get hexKey hexColours
-
-                                    _ ->
-                                        Nothing
-                        in
-                        case regionFill of
-                            Just color ->
-                                Color.Convert.colorToHex color
-
-                            Nothing ->
-                                case maybeSelectedHex of
-                                    Just selectedHex ->
-                                        if selectedHex == hexAddr then
-                                            selectedHexBg
-
-                                        else
-                                            hexBackgroundColour isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
-
-                                    Nothing ->
-                                        hexBackgroundColour isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+                    computeHexColour hexAddr hexKey
             in
             ( hexAddr
             , viewHex
@@ -2950,7 +3013,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                             Just (LoadedSolarSystem loadedSystem) ->
                                 renderHexSystemLabels
                                     { starSystem = loadedSystem
-                                    , hexColour = ""
+                                    , hexColour = computeHexColour hexAddr hexKey
                                     , hexAddrX = hexAddr.x
                                     , hexAddrY = hexAddr.y
                                     , vox = vox
@@ -3348,15 +3411,15 @@ uwpExplainer uwpString =
     case parsedUWP of
         Ok theUWP ->
             column
-                [ Background.color <| colorToElementColor deepnightGray
+                [ bgVar "--color-panel-muted"
                 , Element.width <| Element.px 300
                 , Element.moveDown 20
                 , Element.padding 1
                 , Border.rounded 3
                 , Border.widthEach { zeroEach | top = 2 }
-                , Border.color <| colorToElementColor deepnightColor
+                , borderVar "--color-button-primary"
                 , Border.glow (Element.rgba255 0 0 0 100) 6
-                , Font.color <| Element.rgb 1 1 1
+                , fontVar "--color-fg-bright"
                 , Font.shadow
                     { offset = ( 1, 1 )
                     , blur = 1
@@ -3409,7 +3472,7 @@ errorDialog httpErrors =
                 , Border.width 2
                 , Border.rounded 10
                 , Element.padding 10
-                , Element.mouseOver [ Background.color <| Element.rgb 0.5 0.5 0.5 ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-error-btn")
                 ]
                 { onPress = onPress, label = el [ centerX ] <| text label }
 
@@ -3427,9 +3490,9 @@ errorDialog httpErrors =
                     { url = url
                     , label =
                         el
-                            [ Element.mouseOver [ Font.color <| colorToElementColor Color.green ]
+                            [ Element.htmlAttribute (HtmlAttrs.class "starmap-error-link")
                             , Font.italic
-                            , Font.color <| colorToElementColor Color.grey
+                            , fontVar "--color-fg-muted"
                             ]
                         <|
                             monospaceText url
@@ -3464,7 +3527,7 @@ errorDialog httpErrors =
             column
                 [ Element.height <| Element.minimum 500 <| Element.fill
                 , Element.width <| Element.minimum 500 <| Element.fill
-                , Font.color <| Element.rgb 1 1 1
+                , fontVar "--color-fg-bright"
                 , Element.scrollbars
                 , Element.spacing 10
                 ]
@@ -3731,9 +3794,9 @@ viewSearchField model =
             (Input.text
                 [ Element.width (Element.px 220)
                 , Font.size 13
-                , Font.color (Element.rgb 0.1 0.1 0.1)
-                , Background.color (Element.rgb 1 1 1)
-                , Border.color (Element.rgb 0.4 0.4 0.4)
+                , fontVar "--color-fg-bright"
+                , bgVar "--color-panel"
+                , borderVar "--color-outline"
                 , Border.width 1
                 , Border.rounded 4
                 , Element.padding 6
@@ -3757,7 +3820,7 @@ viewSearchField model =
                 , placeholder =
                     Just
                         (Input.placeholder
-                            [ Font.color (Element.rgba 0.4 0.4 0.4 0.8)
+                            [ fontVar "--color-fg-muted"
                             , Font.size 12
                             ]
                             (text "Search… [/]")
@@ -3771,9 +3834,7 @@ viewSearchField model =
 viewSearchDropdown : SearchState -> Element.Element Msg
 viewSearchDropdown searchState =
     el
-        [ Background.color (Element.rgba 0.05 0.05 0.1 0.95)
-        , Border.color (Element.rgba 0.17 0.42 0.55 0.5)
-        , Border.width 1
+        [ Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
         , Border.rounded 4
         , Element.width (Element.px 340)
         , Element.padding 4
@@ -3781,11 +3842,11 @@ viewSearchDropdown searchState =
         ]
         (case searchState.results of
             RemoteData.Loading ->
-                el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.45), Element.padding 8 ]
+                el [ Font.size 12, fontVar "--color-fg-muted", Element.padding 8 ]
                     (text "Searching…")
 
             RemoteData.Success [] ->
-                el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.45), Element.padding 8 ]
+                el [ Font.size 12, fontVar "--color-fg-muted", Element.padding 8 ]
                     (text "No matches")
 
             RemoteData.Success results ->
@@ -3793,7 +3854,7 @@ viewSearchDropdown searchState =
                     (List.map viewSearchResultRow results)
 
             RemoteData.Failure _ ->
-                el [ Font.size 12, Font.color (Element.rgba 1 0.3 0.3 0.8), Element.padding 8 ]
+                el [ Font.size 12, Element.htmlAttribute (HtmlAttrs.style "color" "var(--color-danger)"), Element.padding 8 ]
                     (text "Search failed")
 
             RemoteData.NotAsked ->
@@ -3809,24 +3870,24 @@ viewSearchResultRow result =
         , Element.spacing 3
         , Element.pointer
         , Element.htmlAttribute (Html.Events.onMouseDown (SelectSearchResult result))
-        , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.3) ]
+        , Element.htmlAttribute (HtmlAttrs.class "starmap-search-result")
         , Border.rounded 3
         ]
         [ row [ Element.width Element.fill, Element.spacing 8 ]
             [ el
                 [ Font.size 14
-                , Font.color (Element.rgb 0.9 0.9 0.9)
+                , fontVar "--color-fg-bright"
                 , Element.width Element.fill
                 ]
                 (text result.name)
             , el
                 [ Font.size 10
-                , Font.color (Element.rgba 1 1 1 0.45)
+                , fontVar "--color-fg-muted"
                 , Element.alignRight
                 ]
                 (text (String.toUpper result.displayType))
             ]
-        , el [ Font.size 12, Font.color (Element.rgba 1 1 1 0.5) ]
+        , el [ Font.size 12, fontVar "--color-fg-muted" ]
             (text result.meta)
         ]
 
@@ -3870,9 +3931,7 @@ viewStatusRow model =
                         , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)))
                         , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                         ]
                       <|
                         renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
@@ -3883,9 +3942,7 @@ viewStatusRow model =
                         , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)))
                         , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                         ]
                       <|
                         renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
@@ -3898,9 +3955,7 @@ viewStatusRow model =
                         , Events.onClick RefreshMap
                         , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Refresh map"
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                         ]
                       <|
                         renderFAIcon "fa-regular fa-refresh" 14
@@ -3939,42 +3994,6 @@ viewStatusRow model =
 
                             Nothing ->
                                 Element.none
-                    , -- hex rect display
-                      el [ Element.centerY, Font.size 14, uiDeepnightColorFontColour, Element.centerX ] <|
-                        text <|
-                            let
-                                first =
-                                    shiftAddressBy { deltaX = 1, deltaY = 1 } model.hexRect.upperLeftHex
-
-                                last =
-                                    shiftAddressBy { deltaX = -3, deltaY = -1 } model.hexRect.lowerRightHex
-                            in
-                            (universalHexLabelMaybe model.sectors first
-                                |> Maybe.withDefault "???"
-                            )
-                                ++ " – "
-                                ++ (universalHexLabelMaybe model.sectors last
-                                        |> Maybe.withDefault "???"
-                                   )
-                    , -- player location display
-                      row
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.spacing 5
-                        , Element.pointer
-                        , Events.onClick JumpToShip
-                        , Element.centerY
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
-                        ]
-                        [ text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
-                        , renderFAIcon "fa-regular fa-crosshairs-simple" 14
-                        , text <|
-                            (universalHexLabelMaybe model.sectors model.currentAddress
-                                |> Maybe.withDefault "???"
-                            )
-                        ]
                     ]
 
                 FullJourney ->
@@ -3985,9 +4004,7 @@ viewStatusRow model =
                         , Events.onClick (JourneyMsg (Zoom ZoomIn))
                         , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                         ]
                       <|
                         renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
@@ -3998,9 +4015,7 @@ viewStatusRow model =
                         , Events.onClick (JourneyMsg (Zoom ZoomOut))
                         , Element.centerY
                         , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
-                        , Element.mouseOver
-                            [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor)
-                            ]
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                         ]
                       <|
                         renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
@@ -4025,13 +4040,13 @@ viewStatusRow model =
                         uiDeepnightColorFontColour
 
                     else
-                        Font.color <| convertColor (Color.Manipulate.darken 0.2 deepnightColor)
+                        Element.htmlAttribute (HtmlAttrs.style "color" "color-mix(in srgb, var(--color-button-primary) 55%, var(--color-fg-muted))")
             in
             el
                 [ colour
                 , Element.pointer
                 , Events.onClick (SetViewMode targetMode)
-                , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                 , Element.centerY
                 ]
             <|
@@ -4044,13 +4059,75 @@ viewStatusRow model =
                     , Events.onClick ToggleDisplaySettings
                     , Element.centerY
                     , Element.htmlAttribute (HtmlAttrs.title "Map display settings")
-                    , Element.mouseOver [ Font.color <| convertColor (Color.Manipulate.lighten 0.25 deepnightColor) ]
+                    , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                     ]
                     (renderFAIcon "fa-regular fa-gear" 14)
                 ]
 
             else
                 []
+
+        themeSwatchIcon =
+            [ el
+                [ uiDeepnightColorFontColour
+                , Element.pointer
+                , Events.onClick ToggleThemeMenu
+                , Element.centerY
+                , Element.htmlAttribute (HtmlAttrs.title "Change theme")
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                , Element.below (viewThemeMenu model.themeOptions model.theme model.showThemeMenu)
+                ]
+                (renderFAIcon "fa-regular fa-swatchbook" 14)
+            ]
+
+        mapAreaText =
+            case model.viewMode of
+                HexMap ->
+                    el [ width fill ]
+                        (el [ Element.centerX, Element.centerY, Font.size 14, uiDeepnightColorFontColour ] <|
+                            text <|
+                                let
+                                    first =
+                                        shiftAddressBy { deltaX = 1, deltaY = 1 } model.hexRect.upperLeftHex
+
+                                    last =
+                                        shiftAddressBy { deltaX = -3, deltaY = -1 } model.hexRect.lowerRightHex
+                                in
+                                (universalHexLabelMaybe model.sectors first
+                                    |> Maybe.withDefault "???"
+                                )
+                                    ++ " – "
+                                    ++ (universalHexLabelMaybe model.sectors last
+                                            |> Maybe.withDefault "???"
+                                       )
+                        )
+
+                FullJourney ->
+                    el [ width fill ] Element.none
+
+        shipLocationDisplay =
+            case model.viewMode of
+                HexMap ->
+                    [ row
+                        [ uiDeepnightColorFontColour
+                        , Font.size 14
+                        , Element.spacing 5
+                        , Element.pointer
+                        , Events.onClick JumpToShip
+                        , Element.centerY
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                        ]
+                        [ text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
+                        , renderFAIcon "fa-regular fa-crosshairs-simple" 14
+                        , text <|
+                            (universalHexLabelMaybe model.sectors model.currentAddress
+                                |> Maybe.withDefault "???"
+                            )
+                        ]
+                    ]
+
+                FullJourney ->
+                    []
     in
     Element.row
         [ Element.spacing 8
@@ -4061,10 +4138,53 @@ viewStatusRow model =
          , viewModeIcon HexMap "fa-hexagon"
          , viewModeIcon FullJourney "fa-map"
          ]
-            ++ displaySettingsGear
             ++ viewSearchField model
             ++ extras
+            ++ [ mapAreaText ]
+            ++ shipLocationDisplay
+            ++ themeSwatchIcon
+            ++ displaySettingsGear
         )
+
+
+viewThemeMenu : List ThemeOption -> String -> Bool -> Element Msg
+viewThemeMenu options currentTheme isOpen =
+    if not isOpen then
+        Element.none
+
+    else
+        column
+            [ Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
+            , Border.rounded 6
+            , Element.paddingXY 0 4
+            , Element.spacing 0
+            , width (Element.px 176)
+            , Element.moveDown 4
+            , Element.alignRight
+            ]
+            (options
+                |> List.map
+                    (\option ->
+                        el
+                            [ width fill
+                            , Element.paddingXY 16 8
+                            , Element.pointer
+                            , Font.size 13
+                            , fontVar "--color-fg"
+                            , Events.onClick (SelectTheme option.key)
+                            , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
+                            ]
+                            (row [ width fill, Element.spacing 8 ]
+                                [ el [ width fill ] (text option.label)
+                                , if option.key == currentTheme then
+                                    el [ uiDeepnightColorFontColour, Font.size 12 ] (renderFAIcon "fa-regular fa-check" 12)
+
+                                  else
+                                    Element.none
+                                ]
+                            )
+                    )
+            )
 
 
 viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Bool -> Element Msg
@@ -4077,12 +4197,14 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 , height (Element.px 16)
                 , Border.width 2
                 , Border.rounded 8
-                , Border.color
-                    (if isActive then
-                        Element.rgba 0.17 0.42 0.55 0.9
+                , Element.htmlAttribute
+                    (HtmlAttrs.style "border-color"
+                        (if isActive then
+                            "var(--color-outline)"
 
-                     else
-                        Element.rgba 0.17 0.42 0.55 0.35
+                         else
+                            "color-mix(in srgb, var(--color-outline) 35%, transparent)"
+                        )
                     )
                 , Element.centerY
                 ]
@@ -4092,7 +4214,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                         [ width (Element.px 8)
                         , height (Element.px 8)
                         , Border.rounded 4
-                        , Background.color (Element.rgba 0.17 0.42 0.55 0.9)
+                        , bgVar "--color-outline"
                         , Element.centerX
                         , Element.centerY
                         ]
@@ -4113,21 +4235,23 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 , Events.onClick (SetDisplayMode mode)
                 , Element.paddingXY 6 8
                 , Border.rounded 4
-                , Background.color
-                    (if isActive then
-                        Element.rgba 0.17 0.42 0.55 0.1
+                , Element.htmlAttribute
+                    (HtmlAttrs.style "background-color"
+                        (if isActive then
+                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                     else
-                        Element.rgba 0 0 0 0
+                         else
+                            "transparent"
+                        )
                     )
-                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
                 ]
             <|
                 row [ Element.spacing 10, width fill ]
                     [ radioButton isActive
                     , column [ Element.spacing 2, width fill ]
-                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
-                        , Element.paragraph [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] [ text description ]
+                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
+                        , Element.paragraph [ Font.size 11, fontVar "--color-fg-muted" ] [ text description ]
                         ]
                     ]
 
@@ -4143,21 +4267,23 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 , Events.onClick (SetRegionDisplay mode)
                 , Element.paddingXY 6 8
                 , Border.rounded 4
-                , Background.color
-                    (if isActive then
-                        Element.rgba 0.17 0.42 0.55 0.1
+                , Element.htmlAttribute
+                    (HtmlAttrs.style "background-color"
+                        (if isActive then
+                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                     else
-                        Element.rgba 0 0 0 0
+                         else
+                            "transparent"
+                        )
                     )
-                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
                 ]
             <|
                 row [ Element.spacing 10, width fill ]
                     [ radioButton isActive
                     , column [ Element.spacing 2 ]
-                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
-                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
+                        , el [ Font.size 11, fontVar "--color-fg-muted" ] (text description)
                         ]
                     ]
 
@@ -4190,18 +4316,18 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 [ width fill
                 , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                 ]
-                [ el [ Font.size 12, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text "REGIONS") ]
+                [ el [ Font.size 12, Font.bold, fontVar "--color-fg-muted" ] (text "REGIONS") ]
 
         overlayDivider =
             row
                 [ width fill
                 , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                 ]
-                [ el [ Font.size 12, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text "OVERLAY LINES") ]
+                [ el [ Font.size 12, Font.bold, fontVar "--color-fg-muted" ] (text "OVERLAY LINES") ]
 
         checkboxButton : Bool -> Element Msg
         checkboxButton isActive =
@@ -4210,12 +4336,14 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 , height (Element.px 16)
                 , Border.width 2
                 , Border.rounded 3
-                , Border.color
-                    (if isActive then
-                        Element.rgba 0.17 0.42 0.55 0.9
+                , Element.htmlAttribute
+                    (HtmlAttrs.style "border-color"
+                        (if isActive then
+                            "var(--color-outline)"
 
-                     else
-                        Element.rgba 0.17 0.42 0.55 0.35
+                         else
+                            "color-mix(in srgb, var(--color-outline) 35%, transparent)"
+                        )
                     )
                 , Element.centerY
                 ]
@@ -4225,7 +4353,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                         [ width (Element.px 8)
                         , height (Element.px 8)
                         , Border.rounded 1
-                        , Background.color (Element.rgba 0.17 0.42 0.55 0.9)
+                        , bgVar "--color-outline"
                         , Element.centerX
                         , Element.centerY
                         ]
@@ -4242,21 +4370,23 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                 , Events.onClick msg
                 , Element.paddingXY 6 8
                 , Border.rounded 4
-                , Background.color
-                    (if isActive then
-                        Element.rgba 0.17 0.42 0.55 0.1
+                , Element.htmlAttribute
+                    (HtmlAttrs.style "background-color"
+                        (if isActive then
+                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                     else
-                        Element.rgba 0 0 0 0
+                         else
+                            "transparent"
+                        )
                     )
-                , Element.mouseOver [ Background.color (Element.rgba 0.17 0.42 0.55 0.06) ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
                 ]
             <|
                 row [ Element.spacing 10, width fill ]
                     [ checkboxButton isActive
                     , column [ Element.spacing 2 ]
-                        [ el [ Font.size 13, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text label)
-                        , el [ Font.size 11, Font.color (Element.rgba 0.1 0.25 0.4 0.55) ] (text description)
+                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
+                        , el [ Font.size 11, fontVar "--color-fg-muted" ] (text description)
                         ]
                     ]
 
@@ -4270,20 +4400,16 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
         [ width fill
         , height fill
         , Events.onClick ToggleDisplaySettings
-        , Background.color (Element.rgba 0 0 0 0.3)
+        , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-bg) 30%, transparent)")
         ]
     <|
         el
             [ Element.centerX
             , Element.centerY
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True )))
-            , Background.color (Element.rgba 0.95 0.97 1.0 0.95)
-            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
-            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
             , Element.padding 20
             , Border.rounded 6
-            , Border.width 1
-            , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
             , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
             , width (Element.px 480)
             ]
@@ -4293,16 +4419,16 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                     [ width fill
                     , Element.paddingEach { zeroEach | bottom = 12 }
                     , Border.widthEach { zeroEach | bottom = 1 }
-                    , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                     ]
-                    [ el [ Font.size 14, Font.bold, Font.color (Element.rgba 0.1 0.25 0.4 0.9) ] (text "Map Display")
+                    [ el [ Font.size 14, Font.bold, fontVar "--color-fg" ] (text "Map Display")
                     , el
                         [ Element.alignRight
                         , Events.onClick ToggleDisplaySettings
                         , Element.pointer
                         , Font.size 14
-                        , Font.color (Element.rgba 0.17 0.42 0.55 0.6)
-                        , Element.mouseOver [ Font.color (Element.rgba 0.17 0.42 0.55 0.9) ]
+                        , fontVar "--color-fg-muted"
+                        , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
                         ]
                         (text "✕")
                     ]
@@ -4359,7 +4485,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -4406,7 +4532,7 @@ viewRogueContent objects =
                 [ width fill
                 , Element.paddingXY 0 4
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.3)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
                 ]
                 [ el [ Font.size 11, Font.bold, uiDeepnightColorFontColour, Element.width (Element.px 120) ] (text "Type")
                 , el [ Font.size 11, Font.bold, uiDeepnightColorFontColour ] (text "Name")
@@ -4512,11 +4638,11 @@ view ( time, model ) =
                 , Element.width (Element.px 320)
                 , Element.alignLeft
                 , Font.size 14
-                , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
+                , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-panel) 92%, transparent)")
                 , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
                 , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
                 , Border.widthEach { zeroEach | right = 1 }
-                , Border.color (Element.rgba 0.17 0.42 0.55 0.4)
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 40%, transparent)")
                 , Element.scrollbarY
                 , Element.htmlAttribute (HtmlAttrs.class "sidebar-panel")
                 ]
@@ -4538,8 +4664,8 @@ view ( time, model ) =
         [ width fill
         , height fill
         , Font.size 20
-        , Font.color <| fontTextColor
-        , Background.color (Element.rgb255 238 244 249)
+        , fontVar "--color-fg"
+        , bgVar "--color-bg"
         , case model.objectToBeAnalyzed of
             Just analysisDetail ->
                 Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg model.analysisTab SetAnalysisTab model.isReferee analysisDetail.data
@@ -4789,6 +4915,9 @@ port storeBackgroundNames : Bool -> Cmd msg
 
 
 port navigateToUrl : String -> Cmd msg
+
+
+port setTheme : String -> Cmd msg
 
 
 encodeJourneyState : Float -> ( Float, Float ) -> String
@@ -6237,6 +6366,24 @@ update msg ( time, model ) =
                     { ss | dropdownOpen = False, query = "", results = RemoteData.NotAsked }
             in
             ( withTime { model | searchState = clearedSS }
+            , Cmd.none
+            )
+
+        SelectTheme key ->
+            let
+                newIsLight =
+                    model.themeOptions
+                        |> List.filter (\option -> option.key == key)
+                        |> List.head
+                        |> Maybe.map .light
+                        |> Maybe.withDefault model.themeIsLight
+            in
+            ( withTime { model | theme = key, themeIsLight = newIsLight, showThemeMenu = False }
+            , setTheme key
+            )
+
+        ToggleThemeMenu ->
+            ( withTime { model | showThemeMenu = not model.showThemeMenu }
             , Cmd.none
             )
 

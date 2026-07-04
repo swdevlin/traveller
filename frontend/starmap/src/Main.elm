@@ -8,7 +8,6 @@ import Element
 import HostConfig
 import Html exposing (Html, a, div, text)
 import Html.Attributes exposing (class, href)
-import Json.Encode
 import Task
 import Traveller
 import Traveller.Ship exposing (Ship)
@@ -21,7 +20,6 @@ type alias Model =
     , url : Url.Url
     , route : Maybe Route
     , dialogBody : Html Msg
-    , isDarkMode : Bool
     , travellerModel : Maybe Traveller.Model
     , flags : Flags
     , referee : Bool
@@ -42,16 +40,7 @@ type Route
     = TravellerPage
 
 
-port writeToLocalStorage : ( String, String ) -> Cmd msg
-
-
-port listenToLocalStorage : (Json.Encode.Value -> msg) -> Sub msg
-
-
 port toggleDialog : String -> Cmd msg
-
-
-port toggleDarkMode : Bool -> Cmd msg
 
 
 routeParser : Parser (Route -> a) a
@@ -83,6 +72,9 @@ type alias Flags =
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
     , showBackgroundNames : Maybe Bool
+    , theme : String
+    , themeIsLight : Bool
+    , themeOptions : List Traveller.ThemeOption
     }
 
 
@@ -98,7 +90,6 @@ init flags url key =
             { key = key
             , url = url
             , route = Url.Parser.parse routeParser url
-            , isDarkMode = False
             , dialogBody = text "Error dialog"
             , flags = flags
             , hostConfig = hostConfig
@@ -210,6 +201,9 @@ update msg model =
                                 , showSectorLines = model.flags.showSectorLines
                                 , showSubsectorLines = model.flags.showSubsectorLines
                                 , showBackgroundNames = model.flags.showBackgroundNames
+                                , theme = model.flags.theme
+                                , themeIsLight = model.flags.themeIsLight
+                                , themeOptions = model.flags.themeOptions
                                 }
                                 model.key
                                 model.hostConfig

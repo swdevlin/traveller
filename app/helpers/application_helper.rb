@@ -1,6 +1,28 @@
 module ApplicationHelper
+  THEMES = {
+    'dark' => { label: 'Dark', light: false },
+    'light' => { label: 'Light', light: true },
+    'aslan' => { label: 'Aslan', light: false },
+    'bwap' => { label: 'Bwap', light: true },
+    'darrian' => { label: 'Darrian', light: true },
+    'deepnight' => { label: 'Deepnight', light: false },
+    'droyne' => { label: 'Droyne', light: false },
+    'hiver' => { label: 'Hiver', light: false },
+    'imperium' => { label: 'Imperium', light: false },
+    'kkree' => { label: "K'Kree", light: true },
+    'solomani' => { label: 'Solomani', light: false },
+    'swordworlds' => { label: 'Sword Worlds', light: false },
+    'vargr' => { label: 'Vargr', light: false },
+    'vegan' => { label: 'Vegan', light: false },
+    'zhodani' => { label: 'Zhodani', light: true }
+  }.freeze
+
   def current_theme
     cookies[:theme].presence || 'dark'
+  end
+
+  def current_theme_light?
+    THEMES.fetch(current_theme, THEMES['dark'])[:light]
   end
 
   def show_au?

@@ -147,7 +147,7 @@ renderSODescription onClick description orbitSequence =
                 , height fill
                 , Element.paddingEach { zeroEach | left = 4, top = 2 }
                 , Element.pointer
-                , Element.mouseOver [ Font.color <| Element.rgb 1 1 1 ]
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
                 , Events.onClick <| onClick
                 ]
               <|
@@ -414,7 +414,7 @@ displayStarDetails msgs surveyIndex (StarDataWrap starData) nestingLevel jumpSha
             nestingLevel + 1
     in
     column
-        [ Background.color (Element.rgba 0.85 0.92 0.97 0.5)
+        [ Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
         , Element.width Element.fill
         , Element.moveRight <| toFloat <| nestingLevel * 5
         , Border.rounded 10

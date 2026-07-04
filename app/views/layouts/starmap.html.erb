@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme='<%= current_theme %>'>
 <head>
   <title><%= content_for(:title) || 'Traveller Star Map' %></title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
@@ -32,7 +32,7 @@
   </script>
 </head>
 
-<body class='h-screen overflow-hidden bg-black text-fg-bright'>
+<body class='h-screen overflow-hidden bg-bg text-fg-bright'>
 <%= yield %>
 </body>
 </html>

@@ -25,7 +25,6 @@ import Element
         , text
         , width
         )
-import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
@@ -37,7 +36,8 @@ import List.Extra
 import Traveller.TravelCalculations as TravelCalc
 import Traveller.UI
     exposing
-        ( groupAttrs
+        ( fontVar
+        , groupAttrs
         , profileFieldDisplay
         , taintTextDisplay
         , textDisplay
@@ -223,14 +223,14 @@ type alias AnalyisDetailPlanetoidData =
     }
 
 
-activeTabColour : Element.Color
+activeTabColour : String
 activeTabColour =
-    Element.rgba 0.87 0.50 0.20 1.0
+    "var(--color-button-primary)"
 
 
-mutedTabColour : Element.Color
+mutedTabColour : String
 mutedTabColour =
-    Element.rgba 0.17 0.42 0.55 0.55
+    "var(--color-fg-muted)"
 
 
 viewTabBar : String -> (String -> msg) -> List { id : String, label : String, code : String } -> Element.Element msg
@@ -238,7 +238,7 @@ viewTabBar activeTab setTab tabs =
     row
         [ width fill
         , Border.widthEach { zeroEach | bottom = 1 }
-        , Border.color <| Element.rgba 0.17 0.42 0.55 0.15
+        , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
         ]
         (List.map (viewOneTab activeTab setTab) tabs)
 
@@ -248,7 +248,7 @@ viewOneTab activeTab setTab tab =
     if tab.id == "-" then
         el
             [ Element.paddingEach { top = 8, left = 2, right = 2, bottom = 8 }
-            , Font.color mutedTabColour
+            , Element.htmlAttribute (HtmlAttrs.style "color" mutedTabColour)
             ]
             (column [ Element.spacing 1, Element.centerX ]
                 [ el [ Font.size 15, Font.bold, Font.center, Element.centerX ] (text "–")
@@ -271,14 +271,16 @@ viewOneTab activeTab setTab tab =
         el
             [ Element.paddingEach { top = 8, left = 12, right = 12, bottom = 8 }
             , Border.widthEach { zeroEach | bottom = 2 }
-            , Border.color
-                (if isActive then
-                    activeTabColour
+            , Element.htmlAttribute
+                (HtmlAttrs.style "border-color"
+                    (if isActive then
+                        activeTabColour
 
-                 else
-                    Element.rgba 0 0 0 0
+                     else
+                        "transparent"
+                    )
                 )
-            , Font.color colour
+            , Element.htmlAttribute (HtmlAttrs.style "color" colour)
             , Events.onClick (setTab tab.id)
             , Element.pointer
             ]
@@ -300,7 +302,7 @@ viewSectionHeader title =
         , el
             [ width fill
             , height (Element.px 1)
-            , Background.color (Element.rgba 0.17 0.42 0.55 0.3)
+            , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
             , Element.centerY
             ]
             Element.none
@@ -400,7 +402,7 @@ viewJumpShadowTable maybeKm =
                             , Font.size 11
                             , uiDeepnightColorFontColour
                             , Border.widthEach { zeroEach | bottom = 1 }
-                            , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                             ]
                             (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
 
@@ -572,7 +574,7 @@ viewCultureGauge trait =
                             , HtmlAttrs.style "left" "0"
                             , HtmlAttrs.style "right" "0"
                             , HtmlAttrs.style "height" "1px"
-                            , HtmlAttrs.style "background-color" "rgba(44, 107, 140, 0.4)"
+                            , HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 40%, transparent)"
                             , HtmlAttrs.style "transform" "translateY(-50%)"
                             ]
                             []
@@ -582,7 +584,7 @@ viewCultureGauge trait =
                             , HtmlAttrs.style "left" caretLeft
                             , HtmlAttrs.style "transform" "translateX(-50%) translateY(-50%)"
                             , HtmlAttrs.style "font-size" "10px"
-                            , HtmlAttrs.style "color" "rgb(223, 127, 51)"
+                            , HtmlAttrs.style "color" "var(--color-button-primary)"
                             ]
                             [ Html.text "▲" ]
                         ]
@@ -590,13 +592,13 @@ viewCultureGauge trait =
                         [ HtmlAttrs.style "display" "flex"
                         , HtmlAttrs.style "justify-content" "space-between"
                         , HtmlAttrs.style "font-size" "11px"
-                        , HtmlAttrs.style "color" "rgba(26, 74, 106, 0.7)"
+                        , HtmlAttrs.style "color" "var(--color-fg-muted)"
                         , HtmlAttrs.style "margin-top" "2px"
                         ]
                         [ Html.span [] [ Html.text trait.lowLabel ]
                         , Html.span
                             [ HtmlAttrs.style "font-family" "monospace"
-                            , HtmlAttrs.style "color" "rgb(26, 74, 106)"
+                            , HtmlAttrs.style "color" "var(--color-fg)"
                             ]
                             [ Html.text hexVal
                             , if dm /= "±0" then
@@ -621,7 +623,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
                 [ column
                     [ width (Element.px 220)
                     , Border.widthEach { zeroEach | right = 1 }
-                    , Border.color (Element.rgba 0.17 0.42 0.55 0.15)
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                     , Element.alignTop
                     ]
                     [ profile ]
@@ -668,32 +670,28 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
             [ Element.centerX
             , Element.centerY
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True )))
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "rgba(245, 250, 255, 0.45)")
-            , Element.htmlAttribute (HtmlAttrs.style "backdrop-filter" "blur(16px)")
-            , Element.htmlAttribute (HtmlAttrs.style "-webkit-backdrop-filter" "blur(16px)")
+            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
             , Element.htmlAttribute (HtmlAttrs.style "max-height" "92vh")
             , Element.htmlAttribute (HtmlAttrs.style "overflow-y" "auto")
             , width <| Element.px modalWidth
             , Element.padding 20
             , Border.rounded 6
-            , Border.width 1
-            , Border.color <| Element.rgba 0.17 0.42 0.55 0.3
             , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
             ]
             [ row
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 16 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Border.color <| Element.rgba 0.17 0.42 0.55 0.15
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
                 ]
                 [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] <|
                     text header
                 , el
                     [ Element.paddingEach { top = 0, left = 10, right = 0, bottom = 0 }
                     , Element.pointer
-                    , Element.mouseOver [ Font.color <| Element.rgb 0 0 0 ]
+                    , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
                     , Font.size 16
-                    , Font.color <| Element.rgba 0.17 0.42 0.55 0.7
+                    , fontVar "--color-fg-muted"
                     , Element.alignRight
                     , Element.alignTop
                     , Events.onClick closeMsg

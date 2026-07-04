@@ -884,7 +884,7 @@ codecHydrographics =
     Codec.object Hydrographics
         |> Codec.field "code" .code Codec.int
         |> Codec.field "distribution" .distribution codecDistribution
-        |> Codec.optionalField "liquid" .liquid
+        |> Codec.optionalNullableField "liquid" .liquid
             (Codec.build JsEncode.string
                 (JsDecode.oneOf
                     [ JsDecode.string
