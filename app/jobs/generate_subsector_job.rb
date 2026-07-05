@@ -144,7 +144,7 @@ class GenerateSubsectorJob < ApplicationJob
       Rails.logger.error "Error creating rogue #{entry[:type]} at #{entry[:x]},#{entry[:y]}: #{e.message}"
     end
 
-    import_jump_routes(subsector.sector) if subsector.sector.source == 'traveller_map'
+    import_jump_routes_with_neighbours(subsector.sector) if subsector.sector.source == 'traveller_map'
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
     ActionCable.server.broadcast(
@@ -154,6 +154,21 @@ class GenerateSubsectorJob < ApplicationJob
   end
 
   private
+
+  # TravellerMap only records a cross-border route once, in the metadata of the sector on
+  # one side of the border. When that sector is populated first, the far system may not exist
+  # yet and the route is skipped as unresolved. Re-running the import against every already
+  # charted neighbour gives those routes another chance now that this subsector's systems exist.
+  def import_jump_routes_with_neighbours(sector)
+    import_jump_routes(sector)
+
+    sector.neighbours.each_value do |neighbour|
+      next if neighbour.id == sector.id
+      next unless neighbour.kept? && neighbour.source == 'traveller_map'
+
+      import_jump_routes(neighbour)
+    end
+  end
 
   def import_jump_routes(sector)
     metadata = Rails.cache.fetch(['travellermap_sector_metadata', sector.x, sector.y], expires_in: 15.minutes) do

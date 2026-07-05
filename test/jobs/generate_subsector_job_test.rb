@@ -130,6 +130,41 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert_equal [hex_a_system.id, hex_b_system.id].sort, [link.from_star_system_id, link.to_star_system_id]
   end
 
+  test 'reimports jump routes for a neighbouring sector, catching routes that could not resolve earlier' do
+    sectors(:one).update_column(:source, 'traveller_map')
+    sectors(:two).update_column(:source, 'traveller_map')
+    create_parsec(2, 2)
+    system = JSON.parse(file_fixture('star_system_import_minimal.json').read).merge('x' => 2, 'y' => 2)
+    stub_subsector_generator([system])
+
+    # Simulate sector two (the northern neighbour, y: 2) having been populated earlier, with
+    # a route into sector one that could not resolve at the time because sector one's system
+    # did not exist yet.
+    ul_two = sectors(:two).upper_left
+    q = ul_two.x
+    r = -ul_two.y - ((ul_two.x - (ul_two.x & 1)) / 2)
+    other_parsec = Parsec.create!(sector: sectors(:two), x: ul_two.x, y: ul_two.y, q: q, r: r, s: -q - r)
+    StarSystem.create!(parsec: other_parsec)
+
+    stub_request(:get, 'https://travellermap.com/api/metadata?sx=1&sy=-1')
+      .to_return(status: 200, body: { 'Routes' => [] }.to_json)
+    stub_request(:get, 'https://travellermap.com/api/metadata?sx=1&sy=-2')
+      .to_return(status: 200, body: { 'Routes' => [{ 'Start' => '0101', 'End' => '0202', 'EndOffsetY' => 1 }] }.to_json)
+
+    definition = <<~YAML
+      type: STANDARD
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'Im')
+    assert jump_route
+    link = jump_route.jump_route_links.sole
+    hex_a_system = Parsec.find_by(sector: sectors(:one), x: @ul.x + 1, y: @ul.y - 1).star_systems.sole
+    assert_includes [link.from_star_system_id, link.to_star_system_id], hex_a_system.id
+    assert_includes [link.from_star_system_id, link.to_star_system_id], other_parsec.star_systems.sole.id
+  end
+
   test 'a jump route metadata failure does not prevent the job from completing' do
     sectors(:one).update_column(:source, 'traveller_map')
     stub_subsector_generator([])
