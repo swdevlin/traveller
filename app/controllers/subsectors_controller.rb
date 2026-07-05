@@ -3,7 +3,7 @@ class SubsectorsController < ApplicationController
   include HexMapBases
   include HexMapRogueObjects
   include StrategicMapData
-  optional_authentication only: %i[map strategic_map resource_map heat_map]
+  optional_authentication only: %i[map strategic_map resource_map heat_map tech_level_map]
   before_action :set_subsector, except: :index
   before_action :set_counts, only: %i[show populate]
   # GET /subsectors or /subsectors.json
@@ -207,9 +207,10 @@ class SubsectorsController < ApplicationController
     end
   end
 
-  STRATEGIC_MAP_TEMPLATE_VERSION = 20
-  RESOURCE_MAP_TEMPLATE_VERSION  = 17
-  HEAT_MAP_TEMPLATE_VERSION      = 17
+  STRATEGIC_MAP_TEMPLATE_VERSION  = 20
+  RESOURCE_MAP_TEMPLATE_VERSION   = 17
+  HEAT_MAP_TEMPLATE_VERSION       = 17
+  TECH_LEVEL_MAP_TEMPLATE_VERSION = 1
 
   def strategic_map
     @map_mode          = :strategic
@@ -503,6 +504,114 @@ class SubsectorsController < ApplicationController
     build_bases_data
     build_rogue_objects_data
     build_strategic_data
+
+    parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
+
+    @jump_route_links_for_map = JumpRouteLink
+      .where(from_star_system_id: star_system_subquery)
+      .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
+      .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
+
+    _, @region_labels, @region_borders = helpers.regions_for_map(
+      subsector_parsecs,
+      sub_ul,
+      visible_col: 1..8,
+      visible_row: 1..10,
+      authenticated: authenticated?
+    )
+    @region_fills_by_pos = {}
+
+    rogue_data = StellarObject
+      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(type: %w[GasGiant Comet])
+      .pluck(:parsec_id, :type)
+    @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
+      pos = parsec_id_to_pos[pid]
+      next unless pos
+      h[pos] ||= Set.new
+      h[pos] << t
+    end.transform_values do |types|
+      ordered = []
+      ordered << :gas_giant if types.include?('GasGiant')
+      ordered << :comet     if types.include?('Comet')
+      ordered
+    end
+
+    respond_to do |format|
+      format.svg do
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+      format.html do
+        svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
+        send_data svg, type: 'image/svg+xml', disposition: 'inline'
+      end
+    end
+  end
+
+  def tech_level_map
+    @map_mode = :tech_level
+    @hex_size = 50
+    @show_map_links = authenticated?
+    @star_systems = @subsector.star_systems.includes(
+      :parsec, :allegiance, :travel_zone, :main_world, stars: []
+    )
+
+    @cols = 8
+    @rows = 10
+
+    sector_ul = @subsector.sector.upper_left
+    sub_ul, _sub_lr = sector_ul.subsector_corners(@subsector)
+    @ul = sub_ul
+
+    max_updated            = @star_systems.maximum(:updated_at)
+    max_parsec_updated     = @subsector.parsecs.maximum(:updated_at)
+    subsector_parsecs      = @subsector.parsecs
+    region_parsec_max      = RegionParsec.where(parsec_id: subsector_parsecs).maximum(:updated_at)
+    region_record_max      = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: subsector_parsecs }).maximum(:updated_at)
+    region_max_updated     = [region_parsec_max, region_record_max].compact.max
+    star_system_subquery   = @subsector.star_systems_scope.select(:id)
+    jump_route_link_max    = JumpRouteLink
+      .where(from_star_system_id: star_system_subquery)
+      .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
+      .maximum(:updated_at)
+    stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
+    auth_variant           = authenticated? ? 'auth' : 'public'
+
+    version = Digest::SHA256.hexdigest([
+      @subsector.updated_at.to_i,
+      max_updated.to_i,
+      max_parsec_updated.to_i,
+      region_max_updated.to_i,
+      jump_route_link_max.to_i,
+      stellar_object_max.to_i,
+      current_campaign.updated_at.to_i,
+      TECH_LEVEL_MAP_TEMPLATE_VERSION
+    ].join('-'))
+
+    cache_key = "tech_level_map/#{current_campaign.id}/#{@subsector.id}/#{version}/#{auth_variant}"
+
+    fresh_when etag: cache_key,
+               last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
+    return if performed?
+
+    sector_ul_coord = @subsector.sector.upper_left
+
+    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
+      col      = px - sub_ul.x + 1
+      row      = sub_ul.y - py + 1
+      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
+      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
+    end
+
+    @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
+      col = sys.parsec.x - sub_ul.x + 1
+      row = sub_ul.y - sys.parsec.y + 1
+      h[[col, row]] = sys
+    end
+
+    build_bases_data
+    build_rogue_objects_data
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
 

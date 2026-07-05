@@ -75,6 +75,7 @@
     .parsec-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
     .allegiance { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_ALLEGIANCE %>px; fill: #666666; }
     .uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
+    .tech-level { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
     .base-icon { fill: #333333; }
     .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
@@ -478,6 +479,8 @@
             <%= render 'resource_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
           <% elsif @map_mode == :heat && (analysis = @strategic_by_pos&.[]([col, row])) %>
             <%= render 'heat_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
+          <% elsif @map_mode == :tech_level %>
+            <%= render 'tech_level_map/hex_content', cx: cx, cy: cy, system: star_system %>
           <% else %>
             <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
               <%= star_system.main_world_uwp&.first || '?' %>

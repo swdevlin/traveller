@@ -597,6 +597,7 @@ type DisplayMode
     | ShowImportance
     | ShowStrategic
     | ShowResource
+    | ShowTechLevel
 
 
 type RegionDisplay
@@ -752,6 +753,8 @@ type Msg
     | CloseSearchDropdown
     | SelectTheme String
     | ToggleThemeMenu
+    | GoToRailsApp
+    | GotSubsectorLookupUrl (Result Http.Error String)
 
 
 type JourneyMsg
@@ -851,6 +854,45 @@ subscriptions time model =
         [ Browser.Events.onResize GotResize
         , Browser.Events.onKeyDown (keyDecoder model)
         , Time.every ((1 / 30) * 1000) Tick
+        , if model.showThemeMenu then
+            Browser.Events.onClick themeMenuOutsideClickDecoder
+
+          else
+            Sub.none
+        ]
+
+
+{-| Fires `ToggleThemeMenu` when a click lands outside the theme swatch
+button or its dropdown, by walking up the clicked element's `parentNode`
+chain looking for either id.
+-}
+themeMenuOutsideClickDecoder : JsDecode.Decoder Msg
+themeMenuOutsideClickDecoder =
+    JsDecode.field "target" (isOutsideIds [ "starmap-theme-toggle", "starmap-theme-menu" ])
+        |> JsDecode.andThen
+            (\isOutside ->
+                if isOutside then
+                    JsDecode.succeed ToggleThemeMenu
+
+                else
+                    JsDecode.fail "click was inside the theme menu"
+            )
+
+
+isOutsideIds : List String -> JsDecode.Decoder Bool
+isOutsideIds insideIds =
+    JsDecode.oneOf
+        [ JsDecode.field "id" JsDecode.string
+            |> JsDecode.andThen
+                (\id ->
+                    if List.member id insideIds then
+                        JsDecode.succeed False
+
+                    else
+                        JsDecode.fail "check parent"
+                )
+        , JsDecode.lazy (\_ -> JsDecode.field "parentNode" (isOutsideIds insideIds))
+        , JsDecode.succeed True
         ]
 
 
@@ -1050,6 +1092,9 @@ init viewport settings key hostConfig referee =
 
                 Just "Resource" ->
                     ShowResource
+
+                Just "TechLevel" ->
+                    ShowTechLevel
 
                 _ ->
                     ShowStars
@@ -1978,6 +2023,13 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     else
                         ShowStars
 
+                ShowTechLevel ->
+                    if isReferee || worldVisible then
+                        ShowTechLevel
+
+                    else
+                        ShowStars
+
                 _ ->
                     if isReferee then
                         displayMode
@@ -2209,6 +2261,17 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
 
                     Nothing ->
                         Svg.text ""
+
+            ShowTechLevel ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.techLevel of
+                        Just tl ->
+                            hexCentreText (String.fromInt tl)
+
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
 
             ShowStars ->
                 Svg.g
@@ -3921,6 +3984,9 @@ viewStatusRow model =
                 ShowResource ->
                     "Resource"
 
+                ShowTechLevel ->
+                    "Tech Level"
+
         extras =
             case model.viewMode of
                 HexMap ->
@@ -4051,6 +4117,22 @@ viewStatusRow model =
                 ]
             <|
                 renderFAIcon (iconStyle ++ " " ++ iconName) 16
+        backToRailsButton =
+            if model.isReferee then
+                [ el
+                    [ uiDeepnightColorFontColour
+                    , Element.pointer
+                    , Events.onClick GoToRailsApp
+                    , Element.centerY
+                    , Element.htmlAttribute (HtmlAttrs.title "Return to Rails app")
+                    , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                    ]
+                    (renderFAIcon "fa-regular fa-house" 14)
+                ]
+
+            else
+                []
+
         displaySettingsGear =
             if model.viewMode == HexMap then
                 [ el
@@ -4075,6 +4157,7 @@ viewStatusRow model =
                 , Element.centerY
                 , Element.htmlAttribute (HtmlAttrs.title "Change theme")
                 , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                , Element.htmlAttribute (HtmlAttrs.id "starmap-theme-toggle")
                 , Element.below (viewThemeMenu model.themeOptions model.theme model.showThemeMenu)
                 ]
                 (renderFAIcon "fa-regular fa-swatchbook" 14)
@@ -4138,6 +4221,7 @@ viewStatusRow model =
          , viewModeIcon HexMap "fa-hexagon"
          , viewModeIcon FullJourney "fa-map"
          ]
+            ++ backToRailsButton
             ++ viewSearchField model
             ++ extras
             ++ [ mapAreaText ]
@@ -4155,6 +4239,7 @@ viewThemeMenu options currentTheme isOpen =
     else
         column
             [ Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
+            , Element.htmlAttribute (HtmlAttrs.id "starmap-theme-menu")
             , Border.rounded 6
             , Element.paddingXY 0 4
             , Element.spacing 0
@@ -4291,6 +4376,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
             [ modeOption ShowStars "Stars" "Primary stars in each system"
             , modeOption ShowMainWorld "Main World" "Planet image for the main world"
             , modeOption ShowTradeCodes "Trade Codes" "Abbreviated trade classification codes"
+            , modeOption ShowTechLevel "Tech Level" "Tech level rating"
             ]
                 ++ (if isReferee then
                         [ modeOption ShowWTN "WTN" "World Trade Number"
@@ -4764,6 +4850,31 @@ sendRoguesRequest requestEntry hostConfig =
         , timeout = Just 15000
         , tracker = Nothing
         }
+
+
+sendSubsectorLookupRequest : HostConfig -> Int -> Int -> Cmd Msg
+sendSubsectorLookupRequest hostConfig x y =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "subsector_at" ])
+                [ Url.Builder.int "x" x
+                , Url.Builder.int "y" y
+                ]
+    in
+    Http.get
+        { url = url
+        , expect = Http.expectJson GotSubsectorLookupUrl (JsDecode.field "url" JsDecode.string)
+        }
+
+
+fallbackSectorsUrl : HostConfig -> String
+fallbackSectorsUrl ( root, pathSegments ) =
+    Url.Builder.crossOrigin root (List.take (List.length pathSegments - 1) pathSegments ++ [ "sectors" ]) []
 
 
 sendRouteRequest : RequestEntry -> HostConfig -> Cmd Msg
@@ -6209,6 +6320,9 @@ update msg ( time, model ) =
 
                         ShowResource ->
                             "Resource"
+
+                        ShowTechLevel ->
+                            "TechLevel"
             in
             ( withTime { model | displayMode = mode }
             , storeDisplayMode modeString
@@ -6386,6 +6500,24 @@ update msg ( time, model ) =
             ( withTime { model | showThemeMenu = not model.showThemeMenu }
             , Cmd.none
             )
+
+        GoToRailsApp ->
+            let
+                centreX =
+                    (model.hexRect.upperLeftHex.x + model.hexRect.lowerRightHex.x) // 2
+
+                centreY =
+                    (model.hexRect.upperLeftHex.y + model.hexRect.lowerRightHex.y) // 2
+            in
+            ( withTime model, sendSubsectorLookupRequest model.hostConfig centreX centreY )
+
+        GotSubsectorLookupUrl result ->
+            case result of
+                Ok url ->
+                    ( withTime model, Browser.Navigation.load url )
+
+                Err _ ->
+                    ( withTime model, Browser.Navigation.load (fallbackSectorsUrl model.hostConfig) )
 
         ToggleHexmap ->
             update (SetViewMode (if model.viewMode == HexMap then FullJourney else HexMap)) ( time, model )

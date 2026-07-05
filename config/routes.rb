@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
       get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
       get 'search',        to: 'search#query',        defaults: { format: :json }
+      get 'subsector_at',  to: 'subsector_lookup#show', defaults: { format: :json }
     end
 
     resources :jump_logs
@@ -149,6 +150,7 @@ Rails.application.routes.draw do
         get :strategic_map
         get :resource_map
         get :heat_map
+        get :tech_level_map
       end
       resources :rogues, only: %i[new create index destroy]
       resources :star_systems, only: %i[new create index destroy]
