@@ -52,6 +52,7 @@ routeParser =
 
 type alias Flags =
     { upperLeft : Maybe ( Int, Int )
+    , panOffset : Maybe ( Float, Float )
     , hexSize : Float
     , referee : Bool
     , campaignSlug : String
@@ -184,6 +185,7 @@ update msg model =
                             Traveller.init
                                 viewport
                                 { upperLeft = model.flags.upperLeft
+                                , panOffset = model.flags.panOffset
                                 , hexSize = model.flags.hexSize
                                 , campaignName = model.flags.campaignName
                                 , ship = model.flags.ship

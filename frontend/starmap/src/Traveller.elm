@@ -907,6 +907,7 @@ type alias FacilityIcon =
 
 type alias Flags =
     { upperLeft : Maybe ( Int, Int )
+    , panOffset : Maybe ( Float, Float )
     , hexSize : Float
     , campaignName : Maybe String
     , ship : Maybe Ship
@@ -1036,6 +1037,21 @@ init viewport settings key hostConfig referee =
             in
             { upperLeftHex = upperLeftHex, lowerRightHex = lowerRightHex }
 
+        initialPanOffset =
+            case settings.centerOn of
+                Just _ ->
+                    { x = 0, y = 0 }
+
+                Nothing ->
+                    case settings.upperLeft of
+                        Just _ ->
+                            settings.panOffset
+                                |> Maybe.map (\( px, py ) -> { x = px, y = py })
+                                |> Maybe.withDefault { x = 0, y = 0 }
+
+                        Nothing ->
+                            { x = 0, y = 0 }
+
         journeyModel : JourneyModel
         journeyModel =
             let
@@ -1156,7 +1172,7 @@ init viewport settings key hostConfig referee =
             , shipTraffic = RemoteData.NotAsked
             , shipTrafficFrontier = False
             , hexRect = hexRect
-            , panOffset = { x = 0, y = 0 }
+            , panOffset = initialPanOffset
             , hostConfig = hostConfig
             , sectors = Dict.empty
             , route = []
@@ -5019,6 +5035,14 @@ saveMapCoords upperLeft =
 port storeInLocalStorage : ( Int, Int ) -> Cmd msg
 
 
+savePanOffset : { x : Float, y : Float } -> Cmd Msg
+savePanOffset offset =
+    storePanOffset ( offset.x, offset.y )
+
+
+port storePanOffset : ( Float, Float ) -> Cmd msg
+
+
 port storeViewMode : String -> Cmd msg
 
 
@@ -5275,11 +5299,11 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                                 ( updatedModel, downloadCmds ) =
                                     update DownloadSolarSystems ( time, newModel )
                             in
-                            ( updatedModel, Cmd.batch [ storeViewMode "HexMap", saveMapCoords newHexRect.upperLeftHex, downloadCmds ] )
+                            ( updatedModel, Cmd.batch [ storeViewMode "HexMap", saveMapCoords newHexRect.upperLeftHex, savePanOffset { x = 0, y = 0 }, downloadCmds ] )
                     in
                     if dist > 2 then
                         ( setJourneyModel { journeyModel | dragMode = NoDragging }
-                        , Cmd.none
+                        , storeJourneyState (encodeJourneyState journeyModel.zoomScale journeyModel.zoomOffset)
                         )
 
                     else
@@ -6008,12 +6032,15 @@ update msg ( time, model ) =
                         * model.hexScale
                         * sin hexSizeFactor
 
+                newPanOffset =
+                    { x = 0, y = model.panOffset.y + yCompensation }
+
                 ( newModel, downloadCmds ) =
                     update DownloadSolarSystems
-                        (withTime { model | hexRect = newHexRect, panOffset = { x = 0, y = model.panOffset.y + yCompensation } })
+                        (withTime { model | hexRect = newHexRect, panOffset = newPanOffset })
             in
             ( newModel
-            , Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, downloadCmds ]
+            , Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, savePanOffset newPanOffset, downloadCmds ]
             )
 
         PanPixels { dx, dy } ->
@@ -6055,18 +6082,21 @@ update msg ( time, model ) =
                         * model.hexScale
                         * sin hexSizeFactor
 
+                newPanOffset =
+                    { x = remainderX, y = remainderY + yCompensation }
+
                 newModel =
-                    withTime { model | hexRect = newHexRect, panOffset = { x = remainderX, y = remainderY + yCompensation } }
+                    withTime { model | hexRect = newHexRect, panOffset = newPanOffset }
             in
             if hexDeltaX /= 0 || hexDeltaY /= 0 then
                 let
                     ( updatedModel, downloadCmds ) =
                         update DownloadSolarSystems newModel
                 in
-                ( updatedModel, Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, downloadCmds ] )
+                ( updatedModel, Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, savePanOffset newPanOffset, downloadCmds ] )
 
             else
-                ( newModel, Cmd.none )
+                ( newModel, savePanOffset newPanOffset )
 
         MapMouseUp maybeHexAddress ( upX, upY ) ctrlKey ->
             case model.dragMode of
@@ -6092,7 +6122,7 @@ update msg ( time, model ) =
                                 , requestHistory = newRequestHistory
                                 , solarSystems = newSolarSystemDict
                             }
-                        , cmds
+                        , Cmd.batch [ savePanOffset model.panOffset, cmds ]
                         )
 
                     else
@@ -6293,6 +6323,7 @@ update msg ( time, model ) =
                 }
             , Cmd.batch
                 [ saveMapCoords newHexRect.upperLeftHex
+                , savePanOffset { x = 0, y = 0 }
                 , cmds
                 ]
             )

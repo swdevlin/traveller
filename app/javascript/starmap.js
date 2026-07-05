@@ -10,6 +10,7 @@ document.addEventListener('turbo:load', () => {
   const serverFlags = JSON.parse(node.dataset.starmapFlags || '{}')
   const slug = serverFlags.campaignSlug || 'default'
   const upperLeftKey = `upperLeftHex_${slug}`
+  const panOffsetKey = `panOffset_${slug}`
   const hexSizeKey = `hexSize_${slug}`
   const viewModeKey = `viewMode_${slug}`
   const journeyStateKey = `journeyState_${slug}`
@@ -19,6 +20,7 @@ document.addEventListener('turbo:load', () => {
   const subsectorLinesKey = `showSubsectorLines_${slug}`
   const backgroundNamesKey = `showBackgroundNames_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
+  const panOffset = JSON.parse(localStorage.getItem(panOffsetKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
   const viewMode = localStorage.getItem(viewModeKey) ?? null
   const journeyState = localStorage.getItem(journeyStateKey) ?? null
@@ -32,6 +34,7 @@ document.addEventListener('turbo:load', () => {
     node,
     flags: {
       upperLeft,
+      panOffset,
       hexSize,
       viewMode,
       journeyState,
@@ -48,6 +51,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeInLocalStorage) {
     elm.ports.storeInLocalStorage.subscribe(value => {
       localStorage.setItem(upperLeftKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storePanOffset) {
+    elm.ports.storePanOffset.subscribe(value => {
+      localStorage.setItem(panOffsetKey, JSON.stringify(value))
     })
   }
 
