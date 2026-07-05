@@ -16,6 +16,7 @@
             </div>
           <% else %>
             <%= link_to subsector_path(subsector),
+                        data: { turbo_frame: '_top' },
                         class: "aspect-[4/5] group flex flex-col items-center no-underline justify-center rounded-md border border-outline/70 bg-panel text-xs hover:border-highlight hover:bg-panel transition" do %>
               <div class="font-semibold text-fg-bright group-hover:text-highlight-foreground text-center px-1">
                 <%= subsector.name.presence || "?" %>
