@@ -92,6 +92,33 @@ module StellarObjectsHelper
     HABITABILITY_RATING_DESCRIPTIONS[rating]
   end
 
+  # Kept in sync by hand with frontend/starmap/src/Traveller/Lifeforms.elm's
+  # habitabilityColour, since Rails and Elm render habitability maps independently.
+  HABITABILITY_COLOURS_LIGHT = {
+    0 => '#deb6af',
+    1 => '#debfaf', 2 => '#debfaf',
+    3 => '#ded0af', 4 => '#ded0af', 5 => '#ded0af',
+    6 => '#cfdeaf', 7 => '#cfdeaf',
+    8 => '#afdeb1', 9 => '#afdeb1',
+    10 => '#afdecd'
+  }.freeze
+
+  HABITABILITY_COLOURS_DARK = {
+    0 => '#61352e',
+    1 => '#613f2e', 2 => '#613f2e',
+    3 => '#61522e', 4 => '#61522e', 5 => '#61522e',
+    6 => '#50612e', 7 => '#50612e',
+    8 => '#2e612f', 9 => '#2e612f',
+    10 => '#2e614e'
+  }.freeze
+
+  def self.habitability_colour(rating, light:)
+    return nil if rating.nil?
+
+    palette = light ? HABITABILITY_COLOURS_LIGHT : HABITABILITY_COLOURS_DARK
+    palette[rating.to_i.clamp(0, 10)]
+  end
+
   RESOURCE_RATING_DESCRIPTIONS = {
     2 => 'No economically extractable resources',
     3 => 'Marginal at best',

@@ -81,7 +81,7 @@ import Traveller.HexGeometry
         )
 import Traveller.Hydrographics exposing (hydrographicsPercentageDescription, surfaceDistributionDescription)
 import Traveller.LawLevel as LawLevel
-import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityDescription)
+import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
 import Traveller.Parser exposing (UWP, hydrosphereDescription, sizeDescription, uwp)
 import Traveller.Population exposing (concentration_rating_description, populationDescription)
 import Traveller.Region as Region exposing (Region, RegionDict)
@@ -598,6 +598,7 @@ type DisplayMode
     | ShowStrategic
     | ShowResource
     | ShowTechLevel
+    | ShowHabitability
 
 
 type RegionDisplay
@@ -1095,6 +1096,9 @@ init viewport settings key hostConfig referee =
 
                 Just "TechLevel" ->
                     ShowTechLevel
+
+                Just "Habitability" ->
+                    ShowHabitability
 
                 _ ->
                     ShowStars
@@ -2273,6 +2277,17 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     , travelZoneRing
                     ]
 
+            ShowHabitability ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case starSystem.habitabilityRating of
+                        Just rating ->
+                            hexCentreText (String.fromInt rating)
+
+                        Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
+
             ShowStars ->
                 Svg.g
                     [ SvgAttrs.pointerEvents "none" ]
@@ -2880,8 +2895,8 @@ regionLabel x y name =
         [ Svg.text name ]
 
 
-hexBackgroundColour : Bool -> Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
-hexBackgroundColour themeIsLight referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
+hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
+hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
     let
         defaultBg =
             if themeIsLight then
@@ -2895,24 +2910,28 @@ hexBackgroundColour themeIsLight referee hexKey solarSystemDict nativeSophontCol
             Just rss ->
                 case rss of
                     LoadedSolarSystem system ->
-                        case system.allegiance of
-                            Just allegiance ->
-                                case Dict.get allegiance allegianceColours of
-                                    Just color ->
-                                        color
+                        if displayMode == ShowHabitability then
+                            habitabilityColour themeIsLight system.habitabilityRating
 
-                                    Nothing ->
+                        else
+                            case system.allegiance of
+                                Just allegiance ->
+                                    case Dict.get allegiance allegianceColours of
+                                        Just color ->
+                                            color
+
+                                        Nothing ->
+                                            defaultBg
+
+                                Nothing ->
+                                    if system.nativeSophont then
+                                        nativeSophontColour |> Maybe.withDefault defaultBg
+
+                                    else if system.extinctSophont then
+                                        extinctSophontColour |> Maybe.withDefault defaultBg
+
+                                    else
                                         defaultBg
-
-                            Nothing ->
-                                if system.nativeSophont then
-                                    nativeSophontColour |> Maybe.withDefault defaultBg
-
-                                else if system.extinctSophont then
-                                    extinctSophontColour |> Maybe.withDefault defaultBg
-
-                                else
-                                    defaultBg
 
                     _ ->
                         defaultBg
@@ -3001,10 +3020,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     selectedHexBg
 
                                 else
-                                    hexBackgroundColour themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+                                    hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
 
                             Nothing ->
-                                hexBackgroundColour themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+                                hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
 
         viewSingleHex hexAddr =
             let
@@ -3987,6 +4006,9 @@ viewStatusRow model =
                 ShowTechLevel ->
                     "Tech Level"
 
+                ShowHabitability ->
+                    "Habitability"
+
         extras =
             case model.viewMode of
                 HexMap ->
@@ -4384,6 +4406,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
                         , modeOption ShowImportance "Importance" "Economic importance rating"
                         , modeOption ShowStrategic "Strategic" "Tiered bars: Importance, Resource Units, Resource Factor, Trade Ease"
                         , modeOption ShowResource "Resource" "Tiered bars: Importance, Trade Ease, plus route role badge"
+                        , modeOption ShowHabitability "Habitability" "Main world habitability rating"
                         ]
 
                     else
@@ -5475,6 +5498,7 @@ update msg ( time, model ) =
                                             , tradeCodes = fallibleSystem.tradeCodes
                                             , strategic = fallibleSystem.strategic
                                             , baseCodes = fallibleSystem.baseCodes
+                                            , habitabilityRating = fallibleSystem.habitabilityRating
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -6323,6 +6347,9 @@ update msg ( time, model ) =
 
                         ShowTechLevel ->
                             "TechLevel"
+
+                        ShowHabitability ->
+                            "Habitability"
             in
             ( withTime { model | displayMode = mode }
             , storeDisplayMode modeString

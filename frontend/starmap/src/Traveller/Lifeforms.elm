@@ -1,4 +1,4 @@
-module Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityDescription)
+module Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
 
 
 biomassDescription : Int -> String
@@ -172,3 +172,93 @@ habitabilityDescription maybeRating =
     maybeRating
         |> Maybe.map ratingToString
         |> Maybe.withDefault "N/A"
+
+
+{-| Kept in sync by hand with app/helpers/stellar_objects_helper.rb's
+HABITABILITY_COLOURS\_{LIGHT,DARK}, since Rails and Elm render habitability
+maps independently.
+-}
+habitabilityColour : Bool -> Maybe Int -> String
+habitabilityColour themeIsLight maybeRating =
+    let
+        defaultBg =
+            if themeIsLight then
+                "#FFFFFF"
+
+            else
+                "#000000"
+    in
+    case maybeRating of
+        Nothing ->
+            defaultBg
+
+        Just rating ->
+            if themeIsLight then
+                case rating of
+                    0 ->
+                        "#deb6af"
+
+                    1 ->
+                        "#debfaf"
+
+                    2 ->
+                        "#debfaf"
+
+                    3 ->
+                        "#ded0af"
+
+                    4 ->
+                        "#ded0af"
+
+                    5 ->
+                        "#ded0af"
+
+                    6 ->
+                        "#cfdeaf"
+
+                    7 ->
+                        "#cfdeaf"
+
+                    8 ->
+                        "#afdeb1"
+
+                    9 ->
+                        "#afdeb1"
+
+                    _ ->
+                        "#afdecd"
+
+            else
+                case rating of
+                    0 ->
+                        "#61352e"
+
+                    1 ->
+                        "#613f2e"
+
+                    2 ->
+                        "#613f2e"
+
+                    3 ->
+                        "#61522e"
+
+                    4 ->
+                        "#61522e"
+
+                    5 ->
+                        "#61522e"
+
+                    6 ->
+                        "#50612e"
+
+                    7 ->
+                        "#50612e"
+
+                    8 ->
+                        "#2e612f"
+
+                    9 ->
+                        "#2e612f"
+
+                    _ ->
+                        "#2e614e"

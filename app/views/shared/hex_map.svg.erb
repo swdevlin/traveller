@@ -119,6 +119,8 @@
           bg = sys&.allegiance&.background_colour
           if (@map_mode == :heat || @show_heat_overlay) && (analysis = @strategic_by_pos&.[]([col, row]))
             bg = analysis.heat_colour
+          elsif @map_mode == :habitability
+            bg = @habitability_colour_by_pos&.[]([col, row]) || @habitability_default_bg
           elsif bg.blank? && sys && @map_mode != :strategic && @map_mode != :heat && !@show_heat_overlay
             if sys.native_sophont && @native_sophont_colour
               bg = @native_sophont_colour
@@ -134,7 +136,7 @@
           <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
             <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
           </a>
-        <% elsif !empty && @show_map_links && (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat) && @hex_click_map.nil? %>
+        <% elsif !empty && @show_map_links && (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat || @map_mode == :habitability) && @hex_click_map.nil? %>
           <a href="<%= star_system_path(sys) %>" target="_top" class="clickable">
             <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
           </a>
@@ -481,6 +483,8 @@
             <%= render 'heat_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
           <% elsif @map_mode == :tech_level %>
             <%= render 'tech_level_map/hex_content', cx: cx, cy: cy, system: star_system %>
+          <% elsif @map_mode == :habitability %>
+            <%= render 'habitability_map/hex_content', cx: cx, cy: cy, system: star_system %>
           <% else %>
             <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
               <%= star_system.main_world_uwp&.first || '?' %>

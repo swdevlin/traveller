@@ -65,7 +65,8 @@ class Api::StarMapController < Api::BaseController
         Arel.sql("(data -> 'hydrographics' ->> 'code')::int"),
         Arel.sql("data ->> 'temperature'"),
         Arel.sql("data -> 'atmosphere' ->> 'density'"),
-        Arel.sql("data -> 'atmosphere' -> 'taint' ->> 'code'")
+        Arel.sql("data -> 'atmosphere' -> 'taint' ->> 'code'"),
+        Arel.sql("(data ->> 'habitability_rating')::int")
       )
 
     world_data = world_rows.index_by(&:first)
@@ -86,6 +87,8 @@ class Api::StarMapController < Api::BaseController
       trade_codes = player_visible ? ss.trade_codes.map(&:code) : []
       image       = player_visible ? compute_image_name(wd&.at(5), wd&.at(6), wd&.at(7), wd&.at(8), wd&.at(9)) : nil
       main_world_name = player_visible ? world_name : nil
+      # Referee-only: unlike wtn/gwp/importance, habitability stays hidden even once known?/surveyed.
+      habitability_rating = is_referee ? wd&.at(10) : nil
 
       {
         id:                ss.id,
@@ -109,6 +112,7 @@ class Api::StarMapController < Api::BaseController
         extinct_sophont:   extinct_ids.include?(ss.id),
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
+        habitability_rating: habitability_rating,
         main_world_uwp:    uwp,
         main_world_name:   main_world_name,
         main_world_image:  image,

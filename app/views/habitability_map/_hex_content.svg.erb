@@ -1,0 +1,29 @@
+<%
+  hex_size = effective_hex_size
+  hab_y    = (cy - hex_size * 0.10).round(2)
+  uwp_y    = (cy + hex_size * 0.46).round(2)
+  name_y   = (cy + hex_size * 0.78).round(2)
+
+  uwp = system.main_world_uwp
+  rating = system.main_world_habitability_rating
+  rating_label = rating&.to_s
+  pop_code = uwp&.[](4)
+  name_display = system.name.present? ?
+    ((pop_code && pop_code >= '9') ? system.name.upcase : system.name) :
+    nil
+%>
+<g>
+  <% if rating_label.present? %>
+    <text class="tech-level" x="<%= cx.round(2) %>" y="<%= hab_y %>" text-anchor="middle">
+      Hab <%= rating_label %>
+    </text>
+  <% end %>
+
+  <% if uwp.present? %>
+    <text class="uwp" x="<%= cx.round(2) %>" y="<%= uwp_y %>" text-anchor="middle"><%= uwp %></text>
+  <% end %>
+
+  <% if name_display.present? %>
+    <text class="system-name" x="<%= cx.round(2) %>" y="<%= name_y %>" text-anchor="middle"><%= name_display %></text>
+  <% end %>
+</g>
