@@ -3464,7 +3464,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 [ SvgAttrs.width <| widthString
                 , SvgAttrs.height <| heightString
                 , SvgAttrs.id "hexmap"
-                , SvgEvents.onMouseOut MapMouseLeave
+                , SvgEvents.on "mouseleave" (JsDecode.succeed MapMouseLeave)
                 , Html.Events.preventDefaultOn "wheel"
                     (JsDecode.map (\dy -> ( HexMapWheelZoom dy, True )) (JsDecode.field "deltaY" JsDecode.float))
                 , viewBox <|
@@ -6267,7 +6267,7 @@ update msg ( time, model ) =
                     ( withTime model, Cmd.none )
 
         MapMouseLeave ->
-            ( withTime { model | hoveringHex = Nothing }, Cmd.none )
+            ( withTime { model | hoveringHex = Nothing, dragMode = NoDragging }, Cmd.none )
 
         ClearAllErrors ->
             ( withTime { model | newSolarSystemErrors = [], oldSolarSystemErrors = model.newSolarSystemErrors ++ model.oldSolarSystemErrors }, Cmd.none )
