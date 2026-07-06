@@ -16,8 +16,7 @@ Turbo.StreamActions.select_new_ship = function() {
   select.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
-document.addEventListener('turbo-tour:complete', (event) => {
-  const journeyName = event.detail?.journey_name;
+function markTourCompleted(journeyName) {
   if (!journeyName) return;
   const token = document.querySelector('meta[name="csrf-token"]')?.content;
   fetch('/tour_completion', {
@@ -25,6 +24,14 @@ document.addEventListener('turbo-tour:complete', (event) => {
     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
     body: JSON.stringify({ journey_name: journeyName }),
   });
+}
+
+document.addEventListener('turbo-tour:complete', (event) => {
+  markTourCompleted(event.detail?.journey_name);
+});
+
+document.addEventListener('turbo-tour:skip-tour', (event) => {
+  markTourCompleted(event.detail?.journey_name);
 });
 
 // Preserve the Coloris picker across Turbo Drive navigations.
