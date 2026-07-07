@@ -1,0 +1,32 @@
+<%
+  hex_size   = effective_hex_size
+  code_y     = (cy - hex_size * 0.10).round(2)
+  gov_name_y = (cy + hex_size * 0.46).round(2)
+  name_y     = (cy + hex_size * 0.78).round(2)
+
+  visible = referee_view || system.known? || system.survey_index >= 10
+
+  code = visible ? system.main_world_government_code : nil
+  gov  = code ? governments_by_code[code] : nil
+
+  pop_code = system.main_world_uwp&.[](4)
+  name_display = system.name.present? ?
+    ((pop_code && pop_code >= '9') ? system.name.upcase : system.name) :
+    nil
+  captive_class = code == 6 ? ' government-captive' : ''
+%>
+<g>
+  <% if code.present? %>
+    <text class="government-code<%= captive_class %>" x="<%= cx.round(2) %>" y="<%= code_y %>" text-anchor="middle">
+      <%= code %>
+    </text>
+  <% end %>
+
+  <% if gov %>
+    <text class="government-name<%= captive_class %>" x="<%= cx.round(2) %>" y="<%= gov_name_y %>" text-anchor="middle"><%= gov.government_type %></text>
+  <% end %>
+
+  <% if name_display.present? %>
+    <text class="system-name" x="<%= cx.round(2) %>" y="<%= name_y %>" text-anchor="middle"><%= name_display %></text>
+  <% end %>
+</g>
