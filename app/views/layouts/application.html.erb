@@ -42,25 +42,40 @@
   </div>
 <% end %>
 
-<% flash.each do |key, message| %>
-  <% next if message.blank? %>
+<% if flash.any? %>
+  <div class='fixed right-4 top-[3.75rem] z-50 flex w-full max-w-sm flex-col gap-3 px-2 sm:px-0'>
+    <% flash.each do |key, message| %>
+      <% next if message.blank? %>
 
-  <% classes =
-       case key.to_sym
-         when :notice
-           'border-notice-outline bg-notice-bg text-notice-fg'
-         when :alert, :error
-           'border-danger-outline bg-danger-bg text-danger-fg'
-         else
-           'border-outline bg-panel text-fg-bright'
-       end %>
+      <% classes =
+           case key.to_sym
+           when :notice
+             'border-notice-outline bg-notice-bg text-notice-fg'
+           when :alert, :error
+             'border-danger-outline bg-danger-bg text-danger-fg'
+           else
+             'border-outline bg-panel text-fg-bright'
+           end %>
 
-  <p class='mb-4 inline-flex w-full items-center justify-between rounded-lg border px-4 py-2 text-sm font-medium shadow-sm <%= classes %>'
-     role='status'>
-    <span><%= message %></span>
-  </p>
+      <div class='rounded-lg border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur <%= classes %>'
+           role='status'
+           data-controller='notification'>
+        <div class='flex items-start justify-between gap-3'>
+          <div class='leading-5'>
+            <%= message %>
+          </div>
+
+          <button type='button'
+                  class='-mr-1 rounded px-1 text-lg leading-none opacity-70 transition hover:opacity-100'
+                  aria-label='Close notification'
+                  data-action='notification#close'>
+            &times;
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
 <% end %>
-
 <main class='w-full mt-2 px-8 flex pb-8'>
   <%= yield %>
 </main>
