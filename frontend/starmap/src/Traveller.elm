@@ -599,6 +599,7 @@ type DisplayMode
     | ShowResource
     | ShowTechLevel
     | ShowHabitability
+    | ShowGovernment
 
 
 type RegionDisplay
@@ -1116,6 +1117,9 @@ init viewport settings key hostConfig referee =
                 Just "Habitability" ->
                     ShowHabitability
 
+                Just "Government" ->
+                    ShowGovernment
+
                 _ ->
                     ShowStars
 
@@ -1529,6 +1533,15 @@ hexTextColour hexColour =
 
     else
         "#1a1a1a"
+
+
+captiveGovernmentColour : String -> String
+captiveGovernmentColour hexColour =
+    if hexColour == "#000000" then
+        "#facc15"
+
+    else
+        "#b45309"
 
 
 renderHexBorderStroke : String -> Svg msg
@@ -2050,6 +2063,13 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     else
                         ShowStars
 
+                ShowGovernment ->
+                    if isReferee || worldVisible then
+                        ShowGovernment
+
+                    else
+                        ShowStars
+
                 _ ->
                     if isReferee then
                         displayMode
@@ -2122,20 +2142,24 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
             else
                 Svg.text ""
 
-        hexCentreText : String -> Svg Msg
-        hexCentreText txt =
+        hexCentreTextColoured : String -> String -> Svg Msg
+        hexCentreTextColoured colour txt =
             Svg.text_
                 [ SvgAttrs.x (String.fromInt vox)
                 , SvgAttrs.y (String.fromInt voy)
                 , SvgAttrs.textAnchor "middle"
                 , SvgAttrs.dominantBaseline "middle"
-                , SvgAttrs.fill (hexTextColour hexColour)
+                , SvgAttrs.fill colour
                 , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
                 , SvgAttrs.fontFamily "Oxanium, sans-serif"
                 , SvgAttrs.fontWeight "600"
                 , SvgAttrs.pointerEvents "none"
                 ]
                 [ Svg.text txt ]
+
+        hexCentreText : String -> Svg Msg
+        hexCentreText txt =
+            hexCentreTextColoured (hexTextColour hexColour) txt
 
         gwpCompact : Int -> String
         gwpCompact v =
@@ -2300,6 +2324,50 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                             hexCentreText (String.fromInt rating)
 
                         Nothing ->
+                            Svg.text ""
+                    , travelZoneRing
+                    ]
+
+            ShowGovernment ->
+                Svg.g [ SvgAttrs.pointerEvents "none" ]
+                    [ case ( starSystem.governmentCode, starSystem.governmentName ) of
+                        ( Just code, Just name ) ->
+                            let
+                                colour =
+                                    if code == 6 then
+                                        captiveGovernmentColour hexColour
+
+                                    else
+                                        hexTextColour hexColour
+                            in
+                            Svg.g []
+                                [ Svg.text_
+                                    [ SvgAttrs.x (String.fromInt vox)
+                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.32))
+                                    , SvgAttrs.textAnchor "middle"
+                                    , SvgAttrs.dominantBaseline "middle"
+                                    , SvgAttrs.fill colour
+                                    , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
+                                    , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                                    , SvgAttrs.fontWeight "700"
+                                    , SvgAttrs.pointerEvents "none"
+                                    ]
+                                    [ Svg.text (String.fromInt code) ]
+                                , Svg.text_
+                                    [ SvgAttrs.x (String.fromInt vox)
+                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.02))
+                                    , SvgAttrs.textAnchor "middle"
+                                    , SvgAttrs.dominantBaseline "middle"
+                                    , SvgAttrs.fill colour
+                                    , SvgAttrs.fontSize (String.fromFloat (size * 0.20))
+                                    , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                                    , SvgAttrs.fontWeight "700"
+                                    , SvgAttrs.pointerEvents "none"
+                                    ]
+                                    [ Svg.text name ]
+                                ]
+
+                        _ ->
                             Svg.text ""
                     , travelZoneRing
                     ]
@@ -2855,8 +2923,8 @@ sectorCellCenterPixel hexSize hex topLeftLocal botRightLocal =
 of the name is stacked on its own line, and the whole stack is rotated 45 degrees
 around its center point.
 -}
-backgroundNameLabel : Int -> Int -> Int -> String -> Svg msg
-backgroundNameLabel fontSize cx cy name =
+backgroundNameLabel : Bool -> Int -> Int -> Int -> String -> Svg msg
+backgroundNameLabel themeIsLight fontSize cx cy name =
     let
         words =
             String.words name
@@ -2880,6 +2948,13 @@ backgroundNameLabel fontSize cx cy name =
                         [ Svg.text word ]
                 )
                 words
+
+        colour =
+            if themeIsLight then
+                "#D3D3D3"
+
+            else
+                "#2a2a2a"
     in
     Svg.text_
         [ SvgAttrs.x (String.fromInt cx)
@@ -2889,7 +2964,7 @@ backgroundNameLabel fontSize cx cy name =
         , SvgAttrs.fontFamily "Tomorrow"
         , SvgAttrs.fontWeight "500"
         , SvgAttrs.fontSize (String.fromInt fontSize)
-        , SvgAttrs.fill "#D3D3D3"
+        , SvgAttrs.fill colour
         , SvgAttrs.style "pointer-events: none; user-select: none;"
         , SvgAttrs.transform ("rotate(-45 " ++ String.fromInt cx ++ " " ++ String.fromInt cy ++ ")")
         ]
@@ -3259,7 +3334,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                                             ( cx, cy ) =
                                                                 sectorCellCenterPixel hexSize hex { x = 0, y = 0 } { x = 32, y = 40 }
                                                         in
-                                                        [ backgroundNameLabel sectorFontSize cx cy name ]
+                                                        [ backgroundNameLabel themeIsLight sectorFontSize cx cy name ]
 
                                             else
                                                 List.range 1 4
@@ -3282,7 +3357,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                                                                                 { x = (subCol - 1) * 8, y = (subRow - 1) * 10 }
                                                                                                 { x = subCol * 8, y = subRow * 10 }
                                                                                     in
-                                                                                    backgroundNameLabel subsectorFontSize cx cy name
+                                                                                    backgroundNameLabel themeIsLight subsectorFontSize cx cy name
                                                                                 )
                                                                     )
                                                         )
@@ -4025,6 +4100,9 @@ viewStatusRow model =
                 ShowHabitability ->
                     "Habitability"
 
+                ShowGovernment ->
+                    "Government"
+
         extras =
             case model.viewMode of
                 HexMap ->
@@ -4415,6 +4493,7 @@ viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLi
             , modeOption ShowMainWorld "Main World" "Planet image for the main world"
             , modeOption ShowTradeCodes "Trade Codes" "Abbreviated trade classification codes"
             , modeOption ShowTechLevel "Tech Level" "Tech level rating"
+            , modeOption ShowGovernment "Government" "Government type and code per hex"
             ]
                 ++ (if isReferee then
                         [ modeOption ShowWTN "WTN" "World Trade Number"
@@ -5523,6 +5602,8 @@ update msg ( time, model ) =
                                             , strategic = fallibleSystem.strategic
                                             , baseCodes = fallibleSystem.baseCodes
                                             , habitabilityRating = fallibleSystem.habitabilityRating
+                                            , governmentCode = fallibleSystem.governmentCode
+                                            , governmentName = fallibleSystem.governmentName
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -6381,6 +6462,9 @@ update msg ( time, model ) =
 
                         ShowHabitability ->
                             "Habitability"
+
+                        ShowGovernment ->
+                            "Government"
             in
             ( withTime { model | displayMode = mode }
             , storeDisplayMode modeString

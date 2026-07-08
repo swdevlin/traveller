@@ -66,10 +66,12 @@ class Api::StarMapController < Api::BaseController
         Arel.sql("data ->> 'temperature'"),
         Arel.sql("data -> 'atmosphere' ->> 'density'"),
         Arel.sql("data -> 'atmosphere' -> 'taint' ->> 'code'"),
-        Arel.sql("(data ->> 'habitability_rating')::int")
+        Arel.sql("(data ->> 'habitability_rating')::int"),
+        Arel.sql("(data -> 'government' ->> 'code')::int")
       )
 
     world_data = world_rows.index_by(&:first)
+    governments_by_code = Government.all.pluck(:code, :government_type).to_h
 
     result = systems.map do |ss|
       parsec = ss.parsec
@@ -89,6 +91,8 @@ class Api::StarMapController < Api::BaseController
       main_world_name = player_visible ? world_name : nil
       # Referee-only: unlike wtn/gwp/importance, habitability stays hidden even once known?/surveyed.
       habitability_rating = is_referee ? wd&.at(10) : nil
+      government_code = player_visible ? wd&.at(11) : nil
+      government_name = government_code ? governments_by_code[government_code] : nil
 
       {
         id:                ss.id,
@@ -113,6 +117,8 @@ class Api::StarMapController < Api::BaseController
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
         habitability_rating: habitability_rating,
+        government_code:   government_code,
+        government_name:   government_name,
         main_world_uwp:    uwp,
         main_world_name:   main_world_name,
         main_world_image:  image,

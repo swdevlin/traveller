@@ -91,4 +91,7 @@ Rails.application.configure do
 
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Log to STDOUT so request logs show up in the bin/dev / foreman window.
+  config.logger = ActiveSupport::TaggedLogging.logger(STDOUT) if ENV['RAILS_LOG_TO_STDOUT'].present?
 end

@@ -152,6 +152,7 @@ Rails.application.routes.draw do
         get :heat_map
         get :tech_level_map
         get :habitability_map
+        get :government_map
       end
       resources :rogues, only: %i[new create index destroy]
       resources :star_systems, only: %i[new create index destroy]

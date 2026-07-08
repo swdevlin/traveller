@@ -76,6 +76,9 @@
     .allegiance { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_ALLEGIANCE %>px; fill: #666666; }
     .uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
     .tech-level { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
+    .government-code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
+    .government-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #555555; font-weight: bold; text-anchor: middle; }
+    .government-captive { fill: #b45309; }
     .base-icon { fill: #333333; }
     .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
@@ -485,6 +488,8 @@
             <%= render 'tech_level_map/hex_content', cx: cx, cy: cy, system: star_system %>
           <% elsif @map_mode == :habitability %>
             <%= render 'habitability_map/hex_content', cx: cx, cy: cy, system: star_system %>
+          <% elsif @map_mode == :government %>
+            <%= render 'government_map/hex_content', cx: cx, cy: cy, system: star_system, referee_view: @show_map_links, governments_by_code: @governments_by_code %>
           <% else %>
             <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
               <%= star_system.main_world_uwp&.first || '?' %>

@@ -129,6 +129,10 @@ class StarSystem < ApplicationRecord
     main_world.respond_to?(:habitability_rating) ? main_world.habitability_rating : nil
   end
 
+  def main_world_government_code
+    main_world.respond_to?(:government_code) ? main_world.government_code : nil
+  end
+
   def pbg
     "#{HexDigit.hex_digit(terrestrial_count)}#{HexDigit.hex_digit(belt_count)}#{HexDigit.hex_digit(gas_giant_count)}"
   end
