@@ -87,7 +87,7 @@ class StarSystemsController < ApplicationController
     end
 
     create_params = new_star_system_params
-    payload, error = generate_payload(create_params)
+    payload, error, config_bases = generate_payload(create_params)
 
     if error
       flash.now[:alert] = error
@@ -95,7 +95,7 @@ class StarSystemsController < ApplicationController
       return render :replace, status: :unprocessable_entity
     end
 
-    StarSystemImporter.new.reimport!(@star_system, payload)
+    StarSystemImporter.new.reimport!(@star_system, payload, config_bases: config_bases)
     create_rogues!(@star_system.parsec, @rogue_entries, replace: true)
     if create_params[:create_mode] == 'build_configuration'
       @star_system.update_column(:build_config, create_params['build'])
@@ -381,6 +381,7 @@ class StarSystemsController < ApplicationController
       ) || {}
 
     rogue_entries = config.delete('rogues')
+    config_bases  = config['bases']
     config.reverse_merge!(sophont_check_options)
     config.reverse_merge!(max_tech_level_options)
     config.reverse_merge!(native_tech_level_options)
@@ -396,7 +397,7 @@ class StarSystemsController < ApplicationController
 
     importer = StarSystemImporter.new
     @parsec ||= Parsec.find(star_system_params[:parsec_id])
-    star_system = importer.import!(@parsec, payload)
+    star_system = importer.import!(@parsec, payload, config_bases: config_bases)
     create_rogues!(@parsec, rogue_entries)
     star_system
   rescue ActiveRecord::RecordInvalid => e
@@ -484,12 +485,13 @@ class StarSystemsController < ApplicationController
         aliases: false
       ) || {}
       @rogue_entries = config.delete('rogues')
+      config_bases   = config['bases']
       config.reverse_merge!(sophont_check_options)
       config.reverse_merge!(max_tech_level_options)
       config.reverse_merge!(native_tech_level_options)
       config.reverse_merge!(realistic_star_distribution_options)
       result = generator_service.generate_star_system(config)
-      result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
+      result.success? ? [result.value, nil, config_bases] : [nil, result.errors.to_sentence, config_bases]
 
     else
       [nil, 'Invalid create mode']

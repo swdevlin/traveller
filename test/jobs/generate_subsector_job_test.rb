@@ -61,6 +61,46 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert posted['systems'].none? { |s| s.key?('rogues') }
   end
 
+  test 'config bases take precedence over generator response bases' do
+    system_parsec = create_parsec(5, 2)
+    system = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('x' => 5, 'y' => 2, 'bases' => [facilities(:one).code])
+    stub_subsector_generator([system])
+
+    definition = <<~YAML
+      type: STANDARD
+      systems:
+        - x: 5
+          y: 2
+          bases:
+            - #{facilities(:two).code}
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    star_system = system_parsec.star_systems.sole
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'falls back to generator response bases when config specifies none' do
+    system_parsec = create_parsec(5, 2)
+    system = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('x' => 5, 'y' => 2, 'bases' => [facilities(:one).code])
+    stub_subsector_generator([system])
+
+    definition = <<~YAML
+      type: STANDARD
+      systems:
+        - x: 5
+          y: 2
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    star_system = system_parsec.star_systems.sole
+    assert_equal [facilities(:one).code], star_system.facilities.pluck(:code)
+  end
+
   test 'skips rogues in hexes whose star system is locked' do
     star_systems(:in_one).update_column(:locked, true)
 

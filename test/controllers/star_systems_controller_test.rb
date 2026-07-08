@@ -164,6 +164,46 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_equal 'The Monolith', @parsec.rogues.where(type: 'Relic').sole.name
   end
 
+  test 'build configuration create uses config bases over generator response bases' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      bases:
+        - #{facilities(:two).code}
+    YAML
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+    }
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'build configuration create falls back to generator response bases when config has none' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+    assert_equal [facilities(:one).code], star_system.facilities.pluck(:code)
+  end
+
   test 'replace with a rogues entry replaces the existing rogues in the hex' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
@@ -202,5 +242,45 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
 
     assert_redirected_to star_system_url(@star_system)
     assert StellarObject.exists?(existing.id)
+  end
+
+  test 'replace with config bases replaces existing facilities' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    StarSystemFacility.create!(star_system: @star_system, facility: facilities(:one))
+
+    build = <<~YAML
+      name: Halvor
+      bases:
+        - #{facilities(:two).code}
+    YAML
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal [facilities(:two).code], @star_system.reload.facilities.pluck(:code)
+  end
+
+  test 'replace without config bases falls back to generator response bases' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal [facilities(:one).code], @star_system.reload.facilities.pluck(:code)
   end
 end

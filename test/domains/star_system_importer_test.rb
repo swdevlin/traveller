@@ -87,6 +87,59 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 'B100477-C', star_system.main_world.uwp
   end
 
+  test 'facilities assigned from generator response bases when config_bases is not given' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    data['bases'] = [facilities(:one).code]
+    star_system = @importer.import!(@parsec, data)
+
+    assert_equal [facilities(:one).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'config_bases takes precedence over generator response bases' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    data['bases'] = [facilities(:one).code]
+    star_system = @importer.import!(@parsec, data, config_bases: [facilities(:two).code])
+
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'unknown facility codes are silently skipped' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    star_system = @importer.import!(@parsec, data, config_bases: %w[NOT-A-CODE])
+
+    assert_empty star_system.facilities
+  end
+
+  test 'stale empty string bases from generator yields no facilities without error' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    data['bases'] = ''
+    star_system = @importer.import!(@parsec, data)
+
+    assert_empty star_system.facilities
+  end
+
+  test 'reimport recreates facilities from config_bases after deleting existing ones' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    star_system = @importer.import!(@parsec, data)
+    StarSystemFacility.create!(star_system: star_system, facility: facilities(:one))
+
+    reimport_data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    @importer.reimport!(star_system, reimport_data, config_bases: [facilities(:two).code])
+
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'reimport falls back to generator response bases when config_bases is nil' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    reimport_data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    reimport_data['bases'] = [facilities(:two).code]
+    @importer.reimport!(star_system, reimport_data)
+
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
   test 'planetoids are linked to their belt via planetoid_belt_id' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_planetoid.json')))
     star_system = @importer.import!(@parsec, data)

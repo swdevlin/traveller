@@ -114,19 +114,13 @@ class GenerateSubsectorJob < ApplicationJob
           subsector_language: subsector_language,
           system_language: language_by_xy[[s['x'], s['y']]],
           main_world_language: main_world_language_by_xy[[s['x'], s['y']]],
-          system_name: name_by_xy[[s['x'], s['y']]]
+          system_name: name_by_xy[[s['x'], s['y']]],
+          config_bases: bases_by_xy[[s['x'], s['y']]]
         )
 
         zone_code = zone_by_xy[[s['x'], s['y']]]
         if zone_code && (tz = TravelZone.find_by(code: zone_code))
           star_system.update_column(:travel_zone_id, tz.id)
-        end
-
-        base_codes = bases_by_xy[[s['x'], s['y']]]
-        if base_codes
-          Facility.where(code: base_codes).each do |facility|
-            StarSystemFacility.find_or_create_by!(star_system: star_system, facility: facility)
-          end
         end
       rescue StandardError => e
         Rails.logger.error "#{uri} Error importing system #{s['name']}: #{e.message}"

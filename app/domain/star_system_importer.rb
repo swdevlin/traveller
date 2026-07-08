@@ -16,7 +16,7 @@ IMPORT_ORBIT_TYPES = {
 IMPORT_STAR_ORBIT_TYPES = IMPORT_ORBIT_TYPES.select { |_name, value| value < 10 }.values.to_set.freeze
 
 class StarSystemImporter
-  def reimport!(star_system, data)
+  def reimport!(star_system, data, config_bases: nil)
     @parsec      = star_system.parsec
     @star_system = star_system
 
@@ -37,6 +37,7 @@ class StarSystemImporter
       @star_system.save!
 
       set_star_system_trade_codes(data['mainWorld']['tradeCodes']) unless data['mainWorld'].nil?
+      set_star_system_facilities(data, config_bases)
 
       @deferred_belt_assignments = []
       @deferred_tidal_lock_assignments = []
@@ -71,7 +72,7 @@ class StarSystemImporter
   end
 
   def import!(parsec, data, campaign: nil, subsector_language: nil,
-              system_language: nil, main_world_language: nil, system_name: nil)
+              system_language: nil, main_world_language: nil, system_name: nil, config_bases: nil)
     @parsec = parsec
     @campaign = campaign
     @subsector_language = subsector_language
@@ -94,6 +95,7 @@ class StarSystemImporter
       unless data['mainWorld'].nil?
         set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
       end
+      set_star_system_facilities(data, config_bases)
 
       @deferred_belt_assignments = []
       @deferred_tidal_lock_assignments = []
@@ -190,6 +192,20 @@ class StarSystemImporter
         trade_code: trade_code
       )
     end
+  end
+
+  def set_star_system_facilities(data, config_bases)
+    codes = resolve_base_codes(data, config_bases)
+    return if codes.blank?
+
+    Facility.where(code: codes).find_each do |facility|
+      StarSystemFacility.find_or_create_by!(star_system: @star_system, facility: facility)
+    end
+  end
+
+  def resolve_base_codes(data, config_bases)
+    Array(config_bases).reject(&:blank?).presence ||
+      Array(data['bases']).reject(&:blank?).presence
   end
 
   def set_stellar_object_trade_codes(stellar_object, codes)
