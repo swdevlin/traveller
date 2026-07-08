@@ -103,6 +103,14 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
   end
 
+  test 'empty config_bases overrides generator response bases with no facilities' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    data['bases'] = [facilities(:one).code]
+    star_system = @importer.import!(@parsec, data, config_bases: [])
+
+    assert_empty star_system.facilities
+  end
+
   test 'unknown facility codes are silently skipped' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
     star_system = @importer.import!(@parsec, data, config_bases: %w[NOT-A-CODE])

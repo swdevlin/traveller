@@ -33,6 +33,17 @@
                label: 'Allegiance',
                value: allegiance_value %>
 
+    <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
+      <div class='min-w-0'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Travel Zone</div>
+        <div class='mt-2 text-fg-bright'>
+          <%= f.select :travel_zone_id,
+                       TravelZone.ordered.map { |tz| [tz.name, tz.id] },
+                       { include_blank: 'None', selected: star_system.travel_zone_id },
+                       { onchange: 'this.form.requestSubmit()', class: 'edit-base w-36' } %>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
@@ -55,16 +66,8 @@
       </div>
     <% end %>
 
-    <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
-      <div class='min-w-0'>
-        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Travel Zone</div>
-        <div class='mt-2 text-fg-bright'>
-          <%= f.select :travel_zone_id,
-                       TravelZone.ordered.map { |tz| [tz.name, tz.id] },
-                       { include_blank: 'None', selected: star_system.travel_zone_id },
-                       { onchange: 'this.form.requestSubmit()', class: 'edit-base w-36' } %>
-        </div>
-      </div>
+    <% if Current.user %>
+      <%= render 'known_toggle', star_system: star_system %>
     <% end %>
 
     <%= form_with url: star_system_path(star_system), method: :patch, class: 'min-w-0' do %>

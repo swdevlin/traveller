@@ -204,8 +204,9 @@ class StarSystemImporter
   end
 
   def resolve_base_codes(data, config_bases)
-    Array(config_bases).reject(&:blank?).presence ||
-      Array(data['bases']).reject(&:blank?).presence
+    return Array(config_bases).reject(&:blank?) unless config_bases.nil?
+
+    Array(data['bases']).reject(&:blank?).presence
   end
 
   def set_stellar_object_trade_codes(stellar_object, codes)

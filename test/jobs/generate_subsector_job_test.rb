@@ -82,6 +82,26 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
   end
 
+  test 'empty config bases overrides generator response bases with no facilities' do
+    system_parsec = create_parsec(5, 2)
+    system = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('x' => 5, 'y' => 2, 'bases' => [facilities(:one).code])
+    stub_subsector_generator([system])
+
+    definition = <<~YAML
+      type: STANDARD
+      systems:
+        - x: 5
+          y: 2
+          bases: []
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    star_system = system_parsec.star_systems.sole
+    assert_empty star_system.facilities
+  end
+
   test 'falls back to generator response bases when config specifies none' do
     system_parsec = create_parsec(5, 2)
     system = JSON.parse(file_fixture('star_system_import_minimal.json').read)

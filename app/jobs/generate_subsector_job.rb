@@ -80,8 +80,9 @@ class GenerateSubsectorJob < ApplicationJob
       h[[entry[:x], entry[:y]]] = code if code
     end
     bases_by_xy = all_input_systems.each_with_object({}) do |entry, h|
-      codes = entry[:bases].presence
-      h[[entry[:x], entry[:y]]] = codes if codes
+      next unless entry.key?(:bases)
+
+      h[[entry[:x], entry[:y]]] = entry[:bases]
     end
     subsector_language = config[:language].presence || subsector.effective_language(campaign)
     name_by_xy = all_input_systems.each_with_object({}) do |entry, h|
