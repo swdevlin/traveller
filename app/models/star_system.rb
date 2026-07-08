@@ -10,6 +10,7 @@ class StarSystem < ApplicationRecord
 
   validates :parsec_id, presence: { message: 'You must select a hex' }
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
+  validates :survey_index, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 12 }, allow_nil: true
 
   has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
   has_many :jump_route_links_as_from, class_name: 'JumpRouteLink', foreign_key: :from_star_system_id, dependent: :destroy

@@ -35,4 +35,55 @@ class Api::SolarSystemsControllerTest < AuthenticatedIntegrationTest
     get api_starsystems_url, as: :json
     assert_response :bad_request
   end
+
+  test 'update with active session sets known and survey_index' do
+    patch "/c/#{campaigns(:one).slug}/api/star_systems/#{@star_system.id}",
+          params: { known: true, survey_index: 8 },
+          as: :json
+
+    assert_response :success
+    assert_equal({ 'known' => true, 'survey_index' => 8 }, response.parsed_body)
+    @star_system.reload
+    assert @star_system.known?
+    assert_equal 8, @star_system.survey_index
+  end
+
+  test 'update with valid bearer token sets known and survey_index' do
+    sign_out
+    patch "/c/#{campaigns(:one).slug}/api/star_systems/#{@star_system.id}",
+          params: { known: true, survey_index: 5 },
+          headers: { 'Authorization' => "Bearer #{campaigns(:one).api_token}" },
+          as: :json
+
+    assert_response :success
+    @star_system.reload
+    assert @star_system.known?
+    assert_equal 5, @star_system.survey_index
+  end
+
+  test 'update without credentials returns unauthorised' do
+    sign_out
+    patch "/c/#{campaigns(:one).slug}/api/star_systems/#{@star_system.id}",
+          params: { known: true },
+          as: :json
+
+    assert_response :unauthorized
+  end
+
+  test 'update with survey_index out of range returns unprocessable entity' do
+    patch "/c/#{campaigns(:one).slug}/api/star_systems/#{@star_system.id}",
+          params: { survey_index: 13 },
+          as: :json
+
+    assert_response :unprocessable_entity
+    assert response.parsed_body.key?('errors')
+  end
+
+  test 'update for unknown star system returns not found' do
+    patch "/c/#{campaigns(:one).slug}/api/star_systems/0",
+          params: { known: true },
+          as: :json
+
+    assert_response :not_found
+  end
 end

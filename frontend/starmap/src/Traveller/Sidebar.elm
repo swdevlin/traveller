@@ -30,6 +30,7 @@ import Element.Font as Font
 import Element.Lazy
 import Html
 import Html.Attributes as HtmlAttrs
+import Html.Events
 import Parser
 import Traveller.Atmosphere as Atmosphere
 import Traveller.TravelCalculations as TravelCalc
@@ -71,6 +72,8 @@ type alias SidebarMsgs msg =
     , closeSidebar : msg
     , toggleTravelTable : msg
     , openShipTraffic : msg
+    , setKnown : Bool -> msg
+    , setSurveyIndex : Int -> msg
     }
 
 
@@ -301,6 +304,86 @@ viewSidebarJumpTable maybeKm =
                     ]
 
 
+{-| Referee-editable known/survey-index controls, or a read-only survey index for players.
+
+Rendered unconditionally (unlike the rest of the system details) so players can see survey
+progress even on systems that aren't otherwise visible yet. Built as a single raw `Html` tree
+(rather than separate `Element.html` islands inside an elm-ui `row`) so it matches the Rails
+"Survey Index"/"Known" fields pixel-for-pixel (`app/views/star_systems/_star_system.html.erb`,
+`app/views/star_systems/_known_toggle.html.erb`) instead of being stretched/resized by elm-ui's
+own layout engine.
+
+-}
+viewSurveyControls : SidebarMsgs msg -> Bool -> SolarSystem -> Element msg
+viewSurveyControls msgs isReferee solarSystem =
+    if isReferee then
+        Element.html <|
+            Html.div [ HtmlAttrs.class "flex items-start gap-6 px-2 py-1" ]
+                [ Html.div [ HtmlAttrs.class "min-w-0" ]
+                    [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Survey Index" ]
+                    , Html.div [ HtmlAttrs.class "mt-2 text-fg-bright" ]
+                        [ Html.select
+                            [ HtmlAttrs.class "edit-base w-20 text-xs py-1 leading-normal"
+                            , Html.Events.onInput
+                                (\str -> msgs.setSurveyIndex (String.toInt str |> Maybe.withDefault solarSystem.actualSurveyIndex))
+                            ]
+                            (List.range 0 12
+                                |> List.map
+                                    (\i ->
+                                        Html.option
+                                            [ HtmlAttrs.value (String.fromInt i)
+                                            , HtmlAttrs.selected (i == solarSystem.actualSurveyIndex)
+                                            ]
+                                            [ Html.text (String.fromInt i) ]
+                                    )
+                            )
+                        ]
+                    ]
+                , Html.div [ HtmlAttrs.class "min-w-0" ]
+                    [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Known" ]
+                    , Html.div [ HtmlAttrs.class "mt-2 flex items-center gap-3" ]
+                        [ Html.button
+                            [ HtmlAttrs.type_ "button"
+                            , HtmlAttrs.attribute "role" "switch"
+                            , HtmlAttrs.attribute "aria-checked"
+                                (if solarSystem.known then
+                                    "true"
+
+                                 else
+                                    "false"
+                                )
+                            , HtmlAttrs.class
+                                ("relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none "
+                                    ++ (if solarSystem.known then
+                                            "bg-toggle-on"
+
+                                        else
+                                            "bg-toggle-off"
+                                       )
+                                )
+                            , Html.Events.onClick (msgs.setKnown (not solarSystem.known))
+                            ]
+                            [ Html.span
+                                [ HtmlAttrs.class
+                                    ("pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out "
+                                        ++ (if solarSystem.known then
+                                                "translate-x-5 bg-toggle-knob-on"
+
+                                            else
+                                                "translate-x-0 bg-toggle-knob-off"
+                                           )
+                                    )
+                                ]
+                                []
+                            ]
+                        ]
+                    ]
+                ]
+
+    else
+        el [ width fill, Element.paddingXY 8 4 ] (profileFieldDisplay "Survey Index" (String.fromInt solarSystem.actualSurveyIndex))
+
+
 {-| Render the list of bases present in a system, each with its facility icon (if configured) and name.
 -}
 viewBasesList : List BaseFacility -> Element msg
@@ -343,7 +426,8 @@ viewSystemDetailsSidebar msgs solarSystem opts =
             }
     in
     column [ Element.width Element.fill, Element.spacing 6 ]
-        [ if opts.isReferee || solarSystem.known || solarSystem.surveyIndex >= 10 then
+        [ viewSurveyControls msgs opts.isReferee solarSystem
+        , if opts.isReferee || solarSystem.known || solarSystem.surveyIndex >= 10 then
             column [ width fill ]
                 [ viewBasesList solarSystem.bases
                 , case solarSystem.mainWorldProfile of

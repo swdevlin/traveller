@@ -37,6 +37,7 @@ import Html.Events.Extra.Mouse
 import Html.Lazy
 import Http
 import Json.Decode as JsDecode
+import Json.Encode as Encode
 import Parser
 import RemoteData exposing (RemoteData(..))
 import Result.Extra as Result
@@ -721,6 +722,10 @@ type Msg
     | RerollShipTraffic
     | ToggleShipTrafficFrontier
     | FetchedShipTraffic (Result Http.Error ShipTraffic.ShipTraffic)
+    | SetKnown Bool
+    | SetSurveyIndex Int
+    | KnownSaved (Result Http.Error ())
+    | SurveyIndexSaved (Result Http.Error ())
     | MapMouseDown ( Float, Float )
     | MapMouseUp (Maybe HexAddress) ( Float, Float ) Bool
     | MapMouseMove ( Float, Float )
@@ -4776,6 +4781,8 @@ view ( time, model ) =
             , closeSidebar = CloseSidebar
             , toggleTravelTable = ToggleTravelTable
             , openShipTraffic = OpenShipTraffic
+            , setKnown = SetKnown
+            , setSurveyIndex = SetSurveyIndex
             }
 
         solarSystemStatus =
@@ -5090,6 +5097,52 @@ sendShipTrafficRequest hostConfig starSystemId frontier =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson FetchedShipTraffic shipTrafficDecoder
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+updateStarSystemKnown : HostConfig -> Int -> Bool -> Cmd Msg
+updateStarSystemKnown hostConfig starSystemId known =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "star_systems", String.fromInt starSystemId ])
+                []
+    in
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = url
+        , body = Http.jsonBody (Encode.object [ ( "known", Encode.bool known ) ])
+        , expect = Http.expectWhatever KnownSaved
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+updateStarSystemSurveyIndex : HostConfig -> Int -> Int -> Cmd Msg
+updateStarSystemSurveyIndex hostConfig starSystemId surveyIndex =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "star_systems", String.fromInt starSystemId ])
+                []
+    in
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = url
+        , body = Http.jsonBody (Encode.object [ ( "survey_index", Encode.int surveyIndex ) ])
+        , expect = Http.expectWhatever SurveyIndexSaved
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -5874,6 +5927,38 @@ update msg ( time, model ) =
 
         FetchedSolarSystem (Err err) ->
             ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
+
+        SetKnown known ->
+            case model.selectedSystem of
+                Just solarSystem ->
+                    ( withTime { model | selectedSystem = Just { solarSystem | known = known } }
+                    , updateStarSystemKnown model.hostConfig solarSystem.id known
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        SetSurveyIndex surveyIndex ->
+            case model.selectedSystem of
+                Just solarSystem ->
+                    ( withTime { model | selectedSystem = Just { solarSystem | actualSurveyIndex = surveyIndex } }
+                    , updateStarSystemSurveyIndex model.hostConfig solarSystem.id surveyIndex
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        KnownSaved (Err err) ->
+            ( withTime { model | newSolarSystemErrors = ( err, "known" ) :: model.newSolarSystemErrors }, Cmd.none )
+
+        KnownSaved (Ok ()) ->
+            ( withTime model, Cmd.none )
+
+        SurveyIndexSaved (Err err) ->
+            ( withTime { model | newSolarSystemErrors = ( err, "survey_index" ) :: model.newSolarSystemErrors }, Cmd.none )
+
+        SurveyIndexSaved (Ok ()) ->
+            ( withTime model, Cmd.none )
 
         DownloadedSolarSystems ( requestEntry, url ) (Err err) ->
             let

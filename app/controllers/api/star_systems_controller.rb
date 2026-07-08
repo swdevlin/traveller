@@ -2,6 +2,8 @@ class Api::StarSystemsController < Api::BaseController
   helper ApplicationHelper
   helper StellarObjectsHelper
 
+  before_action :authenticate_user_or_token!, only: %i[update]
+
   def index
     @star_systems = star_systems_in_region
     if @star_systems.nil?
@@ -17,6 +19,17 @@ class Api::StarSystemsController < Api::BaseController
                                       { stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion] }])
                    .find_by(id: params[:id])
     render json: { error: 'star system not found' }, status: :not_found unless @star_system
+  end
+
+  def update
+    star_system = StarSystem.find_by(id: params[:id])
+    return render json: { error: 'star system not found' }, status: :not_found unless star_system
+
+    if star_system.update(star_system_params)
+      render json: { known: star_system.known?, survey_index: star_system.survey_index }
+    else
+      render json: { errors: star_system.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def ship_traffic
@@ -36,5 +49,11 @@ class Api::StarSystemsController < Api::BaseController
       tier_label: traffic.tier_label,
       modifiers: traffic.modifiers
     }
+  end
+
+  private
+
+  def star_system_params
+    params.permit(:known, :survey_index)
   end
 end

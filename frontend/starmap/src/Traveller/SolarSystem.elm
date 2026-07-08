@@ -32,6 +32,7 @@ type alias SolarSystem =
     , planetoidBelts : Int
     , terrestrialPlanets : Int
     , surveyIndex : Int
+    , actualSurveyIndex : Int
     , nativeSophont : Bool
     , extinctSophont : Bool
     , allegiance : Maybe String
@@ -85,6 +86,7 @@ rawToFinal rawSolarSystem =
         , planetoidBelts = rawSolarSystem.planetoidBelts
         , terrestrialPlanets = rawSolarSystem.terrestrialPlanets
         , surveyIndex = rawSolarSystem.surveyIndex
+        , actualSurveyIndex = rawSolarSystem.surveyIndex
         , nativeSophont = rawSolarSystem.nativeSophont
         , extinctSophont = rawSolarSystem.extinctSophont
         , allegiance = rawSolarSystem.allegiance
