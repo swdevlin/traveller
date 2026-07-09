@@ -4531,8 +4531,12 @@ viewHighlightRulesMenuHtml rules pendingDeleteRuleId =
             [ Html.div
                 [ HtmlAttrs.class "text-xs text-fg-muted"
                 , HtmlAttrs.style "padding" "4px 16px 8px"
+                , HtmlAttrs.style "box-sizing" "border-box"
+                , HtmlAttrs.style "width" "100%"
+                , HtmlAttrs.style "white-space" "normal"
+                , HtmlAttrs.style "overflow-wrap" "break-word"
                 ]
-                [ Html.text "Earlier rules take precedence when more than one matches." ]
+                [ Html.text "Earlier overlays take precedence when more than one matches." ]
             ]
 
           else
