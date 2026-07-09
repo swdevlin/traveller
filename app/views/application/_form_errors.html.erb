@@ -1,0 +1,13 @@
+<%# locals: errors %>
+<% if errors.any? %>
+  <div class='rounded-2xl border border-danger-outline bg-danger-bg p-4'>
+    <ul class='space-y-1 text-sm text-danger-fg'>
+      <% errors.each do |error| %>
+        <li class='flex gap-2'>
+          <span class='select-none text-danger-muted'>&bull;</span>
+          <span class='font-mono break-words'><%= error.full_message %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

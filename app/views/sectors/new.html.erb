@@ -1,9 +1,15 @@
-<% content_for :title, "New sector" %>
+<% content_for :title, 'New sector' %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">New sector</h1>
+<%= turbo_tour 'sector_new' unless Current.user&.tour_completed?('sector_new') %>
 
-  <%= render "form", sector: @sector %>
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <div class='flex items-center justify-between'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>IISS Registry</div>
+      <%= link_to 'Field guide', help_page_path('sectors_new'), class: 'link-traveller text-xs' %>
+    </div>
+    <h1 class='text-2xl font-header text-highlight'>New sector</h1>
 
-  <%= link_to "Back to sectors", sectors_path, class: "w-full sm:w-auto btn" %>
-</div>
+    <%= render 'form', sector: @sector %>
+  </div>
+<% end %>

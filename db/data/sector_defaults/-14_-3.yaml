@@ -1,0 +1,55 @@
+name: Unnamed 3
+abbreviation: Un3
+X: -14
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Un3 A
+    type: SPARSE
+    index: A
+  - name: Un3 B
+    type: MINIMAL
+    index: B
+  - name: Un3 C
+    type: MINIMAL
+    index: C
+  - name: Un3 D
+    type: MINIMAL
+    index: D
+  - name: Un3 E
+    type: MINIMAL
+    index: E
+  - name: Un3 F
+    type: RIFT_FADE
+    index: F
+  - name: Un3 G
+    type: RIFT_FADE
+    index: G
+  - name: Un3 H
+    type: RIFT_FADE
+    index: H
+  - name: Un3 I
+    type: DEEP_RIFT
+    index: I
+  - name: Un3 J
+    type: DEEP_RIFT
+    index: J
+  - name: Un3 K
+    type: DEEP_RIFT
+    index: K
+  - name: Un3 L
+    type: DEEP_RIFT
+    index: L
+  - name: Un3 M
+    type: DEEP_RIFT
+    index: M
+  - name: Un3 N
+    type: DEEP_RIFT
+    index: N
+  - name: Un3 O
+    type: EMPTY
+    index: O
+  - name: Un3 P
+    type: EMPTY
+    index: P

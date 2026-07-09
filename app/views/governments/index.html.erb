@@ -1,0 +1,61 @@
+<%= content_for :title, "Governments" %>
+<%= content_for :page_kicker, "Reference Manual" %>
+<%= content_for :page_title, "Governments" %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Government registry</p>
+
+      <div class='actions'>
+        <%= link_to new_government_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Code</th>
+          <th scope='col'>Type</th>
+          <th scope='col' class='text-right actions-cell'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @governments.each do |government| %>
+          <tr>
+            <td class='whitespace-nowrap'>
+              <%= link_to government_path(government), class: 't-link' do %>
+                <span class='pill'><%= traveller_hex(government.code) %></span>
+              <% end %>
+            </td>
+
+            <td>
+              <%= government.government_type %>
+            </td>
+
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_government_path(government), class: 'action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to government,
+                              method: :delete,
+                              class: 'action danger',
+                              data: { turbo_confirm: 'Delete this government?' } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

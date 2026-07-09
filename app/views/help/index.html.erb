@@ -1,0 +1,15 @@
+<% content_for :title, "Operations Manual" %>
+<% content_for :page_kicker, "Operations Manual" %>
+<% content_for :page_title, "Reference Codex" %>
+
+<%= render 'application/page' do %>
+  <ul class="space-y-2">
+    <% @entries.each do |entry| %>
+      <li>
+        <%= link_to entry.titleize,
+                    help_page_path(entry),
+                    class: 'text-fg-bright hover:text-highlight hover:underline hover:underline-offset-4' %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

@@ -1,0 +1,55 @@
+name: Crossing Spinward
+abbreviation: CrossS
+X: -20
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CrossS A
+    type: RIFT_FADE
+    index: A
+  - name: CrossS B
+    type: RIFT_FADE
+    index: B
+  - name: CrossS C
+    type: RIFT_FADE
+    index: C
+  - name: CrossS D
+    type: RIFT_FADE
+    index: D
+  - name: CrossS E
+    type: DEEP_RIFT
+    index: E
+  - name: CrossS F
+    type: DEEP_RIFT
+    index: F
+  - name: CrossS G
+    type: DEEP_RIFT
+    index: G
+  - name: CrossS H
+    type: RIFT_FADE
+    index: H
+  - name: CrossS I
+    type: DEEP_RIFT
+    index: I
+  - name: CrossS J
+    type: DEEP_RIFT
+    index: J
+  - name: CrossS K
+    type: DEEP_RIFT
+    index: K
+  - name: CrossS L
+    type: RIFT_FADE
+    index: L
+  - name: CrossS M
+    type: DEEP_RIFT
+    index: M
+  - name: CrossS N
+    type: DEEP_RIFT
+    index: N
+  - name: CrossS O
+    type: DEEP_RIFT
+    index: O
+  - name: CrossS P
+    type: RIFT_FADE
+    index: P

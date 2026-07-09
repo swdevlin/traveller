@@ -1,0 +1,20 @@
+<%= content_for :title, 'New jump log' %>
+<%= content_for :page_kicker, 'Ship Records' %>
+<%= content_for :page_title, 'New Jump Log' %>
+
+<% content_for :page_side do %>
+  <div class='mt-2'>
+    <div class='aspect-[540/767] w-full overflow-hidden rounded-2xl bg-panel'>
+      <object type='image/svg+xml'
+              data='<%= @map_url.to_s %>'
+              data-role='jump-map'
+              class='block h-full w-full<%= ' hidden' unless @map_url %>'>
+        Star chart
+      </object>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <%= render 'form', jump_log: @jump_log %>
+<% end %>

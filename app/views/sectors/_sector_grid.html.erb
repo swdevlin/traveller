@@ -2,7 +2,7 @@
 
 <% neighbours = sector.neighbours %>
 
-<div class="rounded-xl border border-slate-700/60 bg-slate-900/70 p-3">
+<div class="rounded-xl border border-outline/60 bg-panel p-3">
   <div class="grid grid-cols-3 gap-1 text-xs">
     <% (sector.y + 1).downto(sector.y - 1) do |y| %>
       <% (sector.x - 1).upto(sector.x + 1) do |x| %>
@@ -10,30 +10,30 @@
 
         <% if neighbour %>
           <% if neighbour == sector %>
-            <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border-2 border-traveller-red bg-traveller-red/10 px-1 py-1 text-center">
-              <div class="font-semibold text-[0.7rem] text-traveller-red-foreground truncate w-full text-center">
+            <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border-2 border-highlight bg-highlight/10 px-1 py-1 text-center">
+              <div class="font-semibold text-[0.7rem] text-highlight-foreground truncate w-full text-center">
                 <%= neighbour.name %>
               </div>
-              <div class="text-[0.6rem] text-slate-300 italic">
+              <div class="text-[0.6rem] text-fg italic">
                 <%= x %>/<%= y %>
               </div>
             </div>
           <% else %>
             <%= link_to sector_path(neighbour),
-                        class: "aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-slate-700/70 bg-slate-950/70 px-1 py-1 text-centre hover:border-traveller-red hover:bg-slate-900/80 transition" do %>
-              <div class="font-semibold text-[0.7rem] text-slate-50 truncate w-full text-center">
+                        class: "aspect-[4/5] flex flex-col no-underline items-center justify-center rounded-md border border-outline/70 bg-panel px-1 py-1 text-centre hover:border-highlight hover:bg-panel transition" do %>
+              <div class="font-semibold text-[0.7rem] text-fg-bright truncate w-full text-center">
                 <%= neighbour.name %>
               </div>
-              <div class="text-[0.6rem] text-slate-400 italic">
+              <div class="text-[0.6rem] text-fg-muted italic">
                 <%= x %>/<%= y %>
               </div>
             <% end %>
           <% end %>
         <% else %>
           <!-- Empty space in this 3x3 window -->
-          <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-slate-800/70 bg-slate-950/40 px-1 py-1 text-[0.6rem] text-slate-600 text-center">
+          <div class="aspect-[4/5] flex flex-col items-center justify-center rounded-md border border-outline bg-panel px-1 py-1 text-[0.6rem] text-fg-muted text-center">
             Unknown
-            <div class="text-[0.55rem] text-slate-500 italic">
+            <div class="text-[0.55rem] text-fg-muted italic">
               <%= x %>/<%= y %>
             </div>
           </div>

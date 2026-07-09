@@ -1,84 +1,74 @@
 <%= form_with(model: sector, class: "contents") do |form| %>
-  <% if sector.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(sector.errors.count, "error") %> prohibited this sector from being saved:</h2>
-
-      <ul class="list-disc ml-6">
-        <% sector.errors.each do |error| %>
-          <li><%= error.full_message.html_safe %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name,
-                        class: [
-                          "w-full rounded-lg bg-slate-950 border-slate-700 px-3 py-2",
-                          {
-                            "border-gray-400 focus:outline-blue-600": sector.errors[:name].none?,
-                            "border-red-400 focus:outline-red-600": sector.errors[:name].any?
-                          }
-                        ] %>
-  </div>
-
-  <div class="my-5">
-    <%= form.label :abbreviation %>
-    <%= form.text_field :abbreviation,
-                        class: [
-                          "edit-base mt-2 w-24",
-                          {
-                            "border-gray-400 focus:outline-blue-600": sector.errors[:abbreviation].none?,
-                            "border-red-400 focus:outline-red-600": sector.errors[:abbreviation].any?
-                          }
-                        ] %>
-  </div>
-
-  <div class="my-5">
-    <span class="block font-medium">Imperial Coordinates</span>
-
-    <div class="mt-2 flex flex-wrap gap-6">
-      <div>
-        <%= form.label :x, "X", class: "block text-sm font-medium mb-1" %>
-        <%= form.number_field :x,
-                              class: [
-                                "coord-input edit-base",
-                                {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:x].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:x].any?
-                                }
-                              ] %>
+  <div class='space-y-6 pb-10'>
+    <% base_errors = sector.errors.where(:base) %>
+    <% if base_errors.any? %>
+      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+        <ul class="space-y-1 text-sm text-red-100">
+          <% base_errors.each do |error| %>
+            <li class="flex gap-2">
+              <span class="select-none text-red-300">&bull;</span>
+              <span class="font-mono break-words"><%= error.full_message.html_safe %></span>
+            </li>
+          <% end %>
+        </ul>
       </div>
+    <% end %>
 
-      <div>
-        <%= form.label :y, "Y", class: "block text-sm font-medium mb-1" %>
-        <%= form.number_field :y,
-                              class: [
-                                "coord-input edit-base",
-                                {
-                                  "border-gray-400 focus:outline-blue-600": sector.errors[:y].none?,
-                                  "border-red-400 focus:outline-red-600": sector.errors[:y].any?
-                                }
-                              ] %>
-      </div>
+    <div data-tour-step='sector-name'>
+      <%= render 'application/name_generator_field', form: form %>
     </div>
-  </div>
 
-  <div class="my-5">
-    <%= form.label :notes, "Notes" %>
-    <%= form.text_area :notes,
-                       rows: 6,
-                       class: [
-                         "mt-2 w-full edit-base resize-y",
-                         {
-                           "border-gray-400 focus:outline-blue-600": sector.errors[:notes].none?,
-                           "border-red-400 focus:outline-red-600": sector.errors[:notes].any?
-                         }
-                       ] %>
-  </div>
+    <div data-tour-step='sector-abbreviation'>
+      <%= render 'application/edit_field', form: form, attribute: :abbreviation do %>
+        <%= form.text_field :abbreviation, class: 'edit-base w-24' %>
+      <% end %>
+    </div>
 
-  <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto btn btn-primary" %>
+    <div data-tour-step='sector-coordinates'>
+      <span class='edit-label'>Imperial Coordinates</span>
+
+      <%= render 'application/edit_field', form: form, attribute: :x, field_label: 'X', required: true do %>
+        <%= form.number_field :x, class: 'coord-input edit-base' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :y, field_label: 'Y', required: true do %>
+        <%= form.number_field :y, class: 'coord-input edit-base' %>
+      <% end %>
+    </div>
+
+    <% if sector.new_record? %>
+      <% settled = sector.default_build_spec.to_s.include?('populated') %>
+      <div data-controller='settled-build'
+           data-settled-build-settled-yaml-value="<%= SectorsController::SETTLED_BUILD_SPEC %>"
+           data-settled-build-basic-yaml-value="<%= SectorsController::BASIC_BUILD_SPEC %>"
+           >
+        <label class='flex items-center gap-2 cursor-pointer' data-tour-step='sector-settled'>
+          <input type='checkbox'
+                 data-settled-build-target='checkbox'
+                 data-action='change->settled-build#toggle'
+                 class='rounded'
+                 <%= 'checked' if settled %> />
+          <span class='edit-label'>Settled space</span>
+        </label>
+
+        <div class='mt-4' data-tour-step='sector-build-plan'>
+          <%= render 'application/build_config',
+                     form: form,
+                     attribute: :default_build_spec,
+                     textarea_data: { 'settled-build-target': 'textarea' } %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class='edit-row-notes' data-tour-step='sector-observations'>
+      <div class='edit-label'>Observations</div>
+      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
+      <%= render 'application/field_error', form: form, attribute: :notes %>
+    </div>
+
+    <div class='pt-2 flex flex-row gap-2'>
+      <%= form.submit sector.persisted? ? 'Update core' : 'Commit Core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', sector.persisted? ? sector : sectors_path, class: 'btn' %>
+    </div>
   </div>
 <% end %>

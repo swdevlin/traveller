@@ -1,0 +1,5 @@
+<% if @moons&.any? %>
+  <%= render 'moons/moons_table', moons: @moons, pagy: @pagy %>
+<% else %>
+  <div class="text-fg-muted text-sm">No moons recorded.</div>
+<% end %>

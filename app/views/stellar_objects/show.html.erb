@@ -1,15 +1,55 @@
-<% content_for :title, "Showing stellar object" %>
+<%
+  star = @stellar_object.orbiting
+  star_system = StarSystem.find_by(id: @stellar_object.star_system_id)
+  parsec = @stellar_object.parsec || star_system&.parsec
+  subsector = parsec&.subsector
+%>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+<%
+  type_help = "#{@stellar_object.type.underscore}_show"
+  help_template = lookup_context.template_exists?("help/#{type_help}", [], false) ? type_help : 'stellar_objects_show'
+%>
+<% content_for :help_path, help_page_path(help_template) %>
+<%= content_for :title, @stellar_object.class.model_name.human %>
+<%= content_for :page_kicker, "IISS Class IV Survey" %>
+<%= content_for :page_title, @stellar_object.display_name %>
+<%= content_for :iiss_form, '0407F-IV PART P' %>
+<%= content_for :page_buttons do %>
+  <div class='flex items-center justify-between'>
+    <div class='flex gap-2'>
+      <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+      <% if (@stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)) && @stellar_object.orbiting.is_a?(Star) %>
+        <%= button_to 'Regenerate', regenerate_characteristics_stellar_object_path(@stellar_object),
+              method: :post, class: 'btn btn-secondary',
+              data: { turbo_confirm: 'Replace all characteristics from the current UWP? Existing moons will be replaced.' } %>
+      <% end %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-fg-muted hover:text-fg-bright'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= stellar_object_path(@stellar_object, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
+<% end %>
 
-  <h1 class="font-bold text-4xl">Showing stellar object</h1>
+<%= content_for :page_side do %>
+  <div class="space-y-4">
+    <% summary_partial = "#{@stellar_object.class.name.underscore.pluralize}/sidebar_summary" %>
+    <% if lookup_context.template_exists?('sidebar_summary', [@stellar_object.class.name.underscore.pluralize], true) %>
+      <%= render summary_partial, stellar_object: @stellar_object %>
+    <% end %>
+    <% if subsector %>
+      <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
+    <% end %>
+    <% if star_system %>
+      <%= render 'star_systems/jump_survey', star_system: star_system %>
+    <% end %>
+  </div>
+<% end %>
 
+<%= render 'application/two_column_page' do %>
   <%= render @stellar_object %>
-
-  <%= link_to "Edit this stellar object", edit_stellar_object_path(@stellar_object), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to stellar objects", stellar_objects_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this stellar object", @stellar_object, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-</div>
+<% end %>

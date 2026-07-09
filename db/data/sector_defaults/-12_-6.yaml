@@ -1,0 +1,55 @@
+name: Few Stars Rimward 3
+abbreviation: FewSR3
+X: -12
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FewSR3 A
+    type: MODERATE
+    index: A
+  - name: FewSR3 B
+    type: MODERATE
+    index: B
+  - name: FewSR3 C
+    type: MODERATE
+    index: C
+  - name: FewSR3 D
+    type: SPARSE
+    index: D
+  - name: FewSR3 E
+    type: MODERATE
+    index: E
+  - name: FewSR3 F
+    type: MODERATE
+    index: F
+  - name: FewSR3 G
+    type: MODERATE
+    index: G
+  - name: FewSR3 H
+    type: STANDARD
+    index: H
+  - name: FewSR3 I
+    type: MODERATE
+    index: I
+  - name: FewSR3 J
+    type: STANDARD
+    index: J
+  - name: FewSR3 K
+    type: STANDARD
+    index: K
+  - name: FewSR3 L
+    type: MODERATE
+    index: L
+  - name: FewSR3 M
+    type: MODERATE
+    index: M
+  - name: FewSR3 N
+    type: STANDARD
+    index: N
+  - name: FewSR3 O
+    type: STANDARD
+    index: O
+  - name: FewSR3 P
+    type: STANDARD
+    index: P

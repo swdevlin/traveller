@@ -1,0 +1,55 @@
+name: Hades Spinward 2
+abbreviation: HadesS2
+X: -23
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: HadesS2 A
+    type: RIFT
+    index: A
+  - name: HadesS2 B
+    type: RIFT
+    index: B
+  - name: HadesS2 C
+    type: RIFT
+    index: C
+  - name: HadesS2 D
+    type: RIFT
+    index: D
+  - name: HadesS2 E
+    type: RIFT
+    index: E
+  - name: HadesS2 F
+    type: MINIMAL
+    index: F
+  - name: HadesS2 G
+    type: RIFT
+    index: G
+  - name: HadesS2 H
+    type: RIFT
+    index: H
+  - name: HadesS2 I
+    type: MINIMAL
+    index: I
+  - name: HadesS2 J
+    type: SPARSE
+    index: J
+  - name: HadesS2 K
+    type: MINIMAL
+    index: K
+  - name: HadesS2 L
+    type: RIFT
+    index: L
+  - name: HadesS2 M
+    type: SPARSE
+    index: M
+  - name: HadesS2 N
+    type: MINIMAL
+    index: N
+  - name: HadesS2 O
+    type: RIFT
+    index: O
+  - name: HadesS2 P
+    type: RIFT
+    index: P

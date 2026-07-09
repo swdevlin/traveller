@@ -1,0 +1,51 @@
+<% if stellar_object.law_level %>
+  <% law_by_code = LawLevel.all.index_by(&:code) %>
+  <% overall_law = law_by_code[stellar_object.law_level.code] %>
+
+  <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'application/data_block',
+                 label: 'Law Level',
+                 value: overall_law ? tag.span(HexDigit.hex_digit(overall_law.code), class: 'identifier-sm') : nil,
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    </div>
+
+    <%= render 'application/subsection', title: 'Sub-Classifications' %>
+    <div class="grid grid-cols-1 gap-4">
+      <% [
+           ['Weapons & Armour', stellar_object.law_level_weapons_and_armour, :weapons],
+           ['Criminal Law',     stellar_object.law_level_criminal_law,       :criminal_law],
+           ['Economic Law',     stellar_object.law_level_economic_law,       :economic_law],
+           ['Private Law',      stellar_object.law_level_private_law,        :private_law],
+           ['Personal Rights',  stellar_object.law_level_personal_rights,    :personal_law]
+         ].each do |label, sub_code, col| %>
+        <% sub = law_by_code[sub_code] %>
+        <%= render 'application/data_block',
+                   label: label,
+                   value: sub ? safe_join([tag.span(HexDigit.hex_digit(sub.code), class: 'identifier-sm'), sub.public_send(col)].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+    </div>
+
+    <%= render 'application/subsection', title: 'Characteristics' %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% unif = stellar_object.law_level_uniformity %>
+      <%= render 'application/data_block',
+                 label: 'Law Uniformity',
+                 value: unif ? safe_join([tag.span(unif, class: 'identifier-sm'), StellarObjectsHelper::LAW_UNIFORMITY_DESCRIPTIONS[unif]].compact, ' ') : nil,
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+
+      <% jud = stellar_object.law_level_judicial_system %>
+      <%= render 'application/data_block',
+                 label: 'Judicial System',
+                 value: jud ? safe_join([tag.span(jud, class: 'identifier-sm'), StellarObjectsHelper::LAW_JUDICIAL_SYSTEM_DESCRIPTIONS[jud]].compact, ' ') : nil,
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+
+      <%= render 'application/data_block', label: 'Death Penalty', value: stellar_object.law_level_death_penalty ? 'Yes' : 'No' %>
+      <%= render 'application/data_block', label: 'Presumed Innocence', value: stellar_object.law_level_presumed_innocence ? 'Yes' : 'No' %>
+      <%= render 'application/data_block', label: 'Econometric Infractions Administrative', value: stellar_object.law_level_econometric_infractions_administrative ? 'Yes' : 'No' %>
+    </div>
+  </div>
+<% else %>
+  <div class="text-fg-muted text-sm">No law level data recorded.</div>
+<% end %>

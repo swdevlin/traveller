@@ -1,0 +1,21 @@
+<tr id="<%= dom_id link %>">
+  <td>
+    <% other = link.other_system(StarSystem.new(id: star_system_id)) %>
+    <%= link_to other.display_name, star_system_path(other), class: 'no-underline hover:underline hover:underline-offset-2' %>
+  </td>
+  <td>
+    <span class='identifier ml-1'><%= other.parsec.hex_code %></span>
+  </td>
+  <td class='actions-cell'>
+    <div class='action-group'>
+      <%= button_to jump_route_link_path(link),
+                    method: :delete,
+                    class: 'action danger',
+                    params: { star_system_id: star_system_id },
+                    data: { turbo_confirm: 'Remove this link?' } do %>
+        <i class='fa-regular fa-trash'></i>
+      <% end %>
+
+    </div>
+  </td>
+</tr>

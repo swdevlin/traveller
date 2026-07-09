@@ -1,0 +1,61 @@
+<%= content_for :title, "Tech levels" %>
+<%= content_for :page_kicker, "Reference Manual" %>
+<%= content_for :page_title, "Tech levels" %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Tech level registry</p>
+
+      <div class='actions'>
+        <%= link_to new_tech_level_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Code</th>
+          <th scope='col'>Descriptor</th>
+          <th scope='col'>Short Description</th>
+          <th scope='col' class='text-right actions-cell'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @tech_levels.each do |tech_level| %>
+          <tr>
+            <td class='whitespace-nowrap'>
+              <%= link_to tech_level_path(tech_level), class: 't-link' do %>
+                <span class='pill'><%= traveller_hex(tech_level.code) %></span>
+              <% end %>
+            </td>
+
+            <td><%= tech_level.descriptor %></td>
+            <td><%= tech_level.short_description %></td>
+
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_tech_level_path(tech_level), class: 'action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to tech_level,
+                              method: :delete,
+                              class: 'action danger',
+                              data: { turbo_confirm: 'Delete this tech level?' } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

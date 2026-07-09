@@ -1,0 +1,55 @@
+name: Gudala
+abbreviation: Gudala
+X: -12
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Gudala A
+    type: STANDARD
+    index: A
+  - name: Gudala B
+    type: STANDARD
+    index: B
+  - name: Gudala C
+    type: STANDARD
+    index: C
+  - name: Gudala D
+    type: STANDARD
+    index: D
+  - name: Gudala E
+    type: STANDARD
+    index: E
+  - name: Gudala F
+    type: STANDARD
+    index: F
+  - name: Gudala G
+    type: STANDARD
+    index: G
+  - name: Gudala H
+    type: STANDARD
+    index: H
+  - name: Gudala I
+    type: STANDARD
+    index: I
+  - name: Gudala J
+    type: STANDARD
+    index: J
+  - name: Gudala K
+    type: STANDARD
+    index: K
+  - name: Gudala L
+    type: STANDARD
+    index: L
+  - name: Gudala M
+    type: STANDARD
+    index: M
+  - name: Gudala N
+    type: STANDARD
+    index: N
+  - name: Gudala O
+    type: LOW
+    index: O
+  - name: Gudala P
+    type: MODERATE
+    index: P

@@ -1,0 +1,55 @@
+name: Crossing
+abbreviation: Cross
+X: -19
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Cross A
+    type: RIFT
+    index: A
+  - name: Cross B
+    type: RIFT
+    index: B
+  - name: Cross C
+    type: RIFT
+    index: C
+  - name: Cross D
+    type: RIFT_FADE
+    index: D
+  - name: Cross E
+    type: RIFT_FADE
+    index: E
+  - name: Cross F
+    type: DEEP_RIFT
+    index: F
+  - name: Cross G
+    type: DEEP_RIFT
+    index: G
+  - name: Cross H
+    type: RIFT
+    index: H
+  - name: Cross I
+    type: DEEP_RIFT
+    index: I
+  - name: Cross J
+    type: DEEP_RIFT
+    index: J
+  - name: Cross K
+    type: DEEP_RIFT
+    index: K
+  - name: Cross L
+    type: RIFT
+    index: L
+  - name: Cross M
+    type: RIFT_FADE
+    index: M
+  - name: Cross N
+    type: RIFT_FADE
+    index: N
+  - name: Cross O
+    type: DEEP_RIFT
+    index: O
+  - name: Cross P
+    type: RIFT_FADE
+    index: P

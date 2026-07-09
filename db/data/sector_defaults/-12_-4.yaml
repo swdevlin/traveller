@@ -1,0 +1,55 @@
+name: Few Stars Rimward
+abbreviation: FewSR1
+X: -12
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FewSR1 A
+    type: RIFT_FADE
+    index: A
+  - name: FewSR1 B
+    type: RIFT_FADE
+    index: B
+  - name: FewSR1 C
+    type: RIFT_FADE
+    index: C
+  - name: FewSR1 D
+    type: RIFT_FADE
+    index: D
+  - name: FewSR1 E
+    type: RIFT
+    index: E
+  - name: FewSR1 F
+    type: RIFT
+    index: F
+  - name: FewSR1 G
+    type: RIFT
+    index: G
+  - name: FewSR1 H
+    type: RIFT
+    index: H
+  - name: FewSR1 I
+    type: MINIMAL
+    index: I
+  - name: FewSR1 J
+    type: MINIMAL
+    index: J
+  - name: FewSR1 K
+    type: SPARSE
+    index: K
+  - name: FewSR1 L
+    type: MINIMAL
+    index: L
+  - name: FewSR1 M
+    type: SPARSE
+    index: M
+  - name: FewSR1 N
+    type: LOW
+    index: N
+  - name: FewSR1 O
+    type: LOW
+    index: O
+  - name: FewSR1 P
+    type: MODERATE
+    index: P

@@ -1,0 +1,131 @@
+<% allegiance = gas_giant.allegiance %>
+<% star = gas_giant.orbiting %>
+<% star_system = star&.star_system %>
+<% parsec = gas_giant.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+
+<% allegiance_value =
+     if allegiance
+       safe_join([
+                   allegiance.name,
+                   content_tag(:span, allegiance.code, class: "identifier")
+                 ])
+     else
+       "None"
+     end
+%>
+
+<div id="<%= dom_id gas_giant %>" class="space-y-4">
+  <% if star %>
+    <div class="space-y-2">
+      <%= render 'application/subsection', title: 'Orbital Data' %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+        <% if show_orbit_number? %>
+          <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(gas_giant.orbit, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <% if show_au? %>
+          <%= render 'application/data_block', label: 'AU', value: number_with_precision(gas_giant.au, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Period', value: format_period(gas_giant.period) %>
+        <%= render 'application/data_block', label: 'Effective HZCO Deviation', value: number_with_precision(gas_giant.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+        <%= render 'application/data_block', label: 'Inclination', value: number_with_precision(gas_giant.inclination, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
+        <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(gas_giant.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+        <% if gas_giant.tidal_lock_target %>
+          <% target = gas_giant.tidal_lock_target %>
+          <% target_path = target.is_a?(Star) ? star_path(target) : stellar_object_path(target) %>
+          <%= render 'application/data_block',
+                     label: 'Tidally Locked',
+                     value: link_to(target.display_name, target_path, class: 'no-underline hover:underline hover:underline-offset-2') %>
+        <% end %>
+        <% if gas_giant.sidereal_day.present? %>
+          <%= render 'application/data_block', label: 'Sidereal Day', value: number_with_precision(gas_giant.sidereal_day, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+        <% end %>
+        <% if gas_giant.twilight_zone %>
+          <%= render 'application/data_block', label: 'Twilight Zone', value: 'Yes' %>
+        <% end %>
+        <%= render 'application/data_block',
+                   label: 'Orbiting',
+                   value: link_to(star.display_name, star_path(star), class: 'no-underline hover:underline') %>
+        <% if star_system %>
+          <%= render 'application/data_block',
+                     label: 'Star System',
+                     value: link_to(star_system.display_name, star_system_path(star_system), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if subsector %>
+          <%= render 'application/data_block',
+                     label: 'Subsector',
+                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+        <% end %>
+        <% if sector %>
+          <%= render 'application/data_block',
+                     label: 'Sector',
+                     value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                     value_wrap_class: 'flex flex-wrap items-center gap-2',
+                     suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+      </div>
+
+      <% shadow_km = gas_giant.effective_jump_shadow_km %>
+      <% if shadow_km&.positive? %>
+        <% shadow_source = gas_giant.effective_jump_shadow_source %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+          <%= render 'application/data_block',
+                     label: 'Jump Shadow',
+                     value: number_with_delimiter(number_with_precision(shadow_km, precision: 0)),
+                     suffix: 'km' %>
+          <% if shadow_source %>
+            <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+            <%= render 'application/data_block',
+                       label: 'Shadow Source',
+                       value: link_to(shadow_source.display_name, source_path, class: 'no-underline hover:underline') %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-5">
+      <% if subsector %>
+        <%= render 'application/data_block',
+                   label: 'Subsector',
+                   value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+      <% end %>
+      <% if sector %>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline'),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2',
+                   suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+      <% end %>
+      <%= render 'application/data_block', label: 'Allegiance', value: allegiance_value %>
+    </div>
+  <% end %>
+
+  <div class="space-y-2">
+    <%= render 'application/subsection', title: 'Physical Data' %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+      <%= render 'application/data_block', label: 'Diameter', value: number_with_delimiter(gas_giant.diameter), suffix: 'km' %>
+      <%= render 'application/data_block', label: 'Mass', value: number_with_precision(gas_giant.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+      <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(gas_giant.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
+      <%= render 'application/data_block',
+                 label: 'Size',
+                 value: safe_join([tag.span(gas_giant.code, class: 'identifier-sm'), gas_giant_size_description(gas_giant.code)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <%= render 'application/subsection', title: 'Transit Times' %>
+    <%= render 'stellar_objects/transit_times_table', stellar_object: gas_giant %>
+  </div>
+
+  <%= render 'application/observation_block',
+             notes: gas_giant.notes %>
+
+  <% if @moons %>
+    <%= render 'moons/moons_table', moons: @moons, pagy: @pagy, star_system: star_system %>
+  <% end %>
+</div>

@@ -1,0 +1,15 @@
+one:
+  slug: camp-one
+  name: Campaign One
+  referee: one
+  api_token: test-token-one-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  settings:
+    token_secret: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+two:
+  slug: camp-two
+  name: Campaign Two
+  referee: two
+  api_token: test-token-two-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  settings:
+    token_secret: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

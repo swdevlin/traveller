@@ -1,76 +1,140 @@
-<% content_for :title, "Showing sector" %>
+<% content_for :title, "Sector #{@sector.name}" %>
+<% content_for :page_kicker, 'IISS Class 0 Sector Survey' %>
+<% content_for :page_title do %>
+  <%= @sector.name %><% if @sector.abbreviation.present? %><span class='text-fg-muted'>, <%= @sector.abbreviation %></span><% end %>
+<% end %>
+<% content_for :iiss_form, '0398D-0' %>
+<%= turbo_tour "sectors" unless Current.user&.tour_completed?('sectors') %>
 
-<div class="w-full">
-  <h1 class="font-bold text-4xl mb-4"><%= @sector.name %> <span class="text-base">(<%= @sector.abbreviation %>)</span></h1>
-  <div class="flex flex-col md:flex-row md:items-start gap-6">
-    <div class="flex-1 min-w-0">
-      <p class="mb-4">Imperial Coordinates: <%= @sector.x %>/<%= @sector.y %></p>
+<% content_for :page_buttons do %>
+  <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to 'Edit',
+                edit_sector_path(@sector),
+                class: 'w-full sm:w-auto btn btn-primary' %>
 
-      <div>
-        <p>
-          <strong>Library data:</strong>
-          <% if (u = safe_external_url(@sector.wiki_link)) %>
-            <%= link_to "Traveller Wiki", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
-          <% else %>
-            <span>Undocumented</span>
-          <% end %>
-        </p>
-      </div>
+    <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?" %>
+    <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
+      <%= form.submit 'Populate',
+                      class: 'w-full sm:w-auto btn cursor-pointer',
+                      data: { turbo_confirm: confirm_msg, tour_step: 'sector-populate' } %>
+    <% end %>
 
-      <div>
-        <p>
-          <strong>Imperial star chart:</strong>
-          <% if (u = safe_external_url(@sector.traveller_map_url)) %>
-            <%= link_to "Traveller Map", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
-          <% else %>
-            <span>Undocumented</span>
-          <% end %>
-        </p>
-      </div>
+    <%= button_to 'Clear',
+                  clear_sector_path(@sector),
+                  method: 'post',
+                  class: 'w-full sm:w-auto btn',
+                  data: { turbo_confirm: confirm_msg, tour_step: 'sector-clear' } %>
 
-      <% if @sector.notes.present? %>
-        <div class="mb-4">
-          <strong class="block text-sm font-semibold mb-1">Deepnight Log</strong>
-          <p class="text-sm whitespace-pre-line">
-            <%= @sector.notes %>
-          </p>
-        </div>
+    <% if @sector.source == 'traveller_map' %>
+      <%= button_to 'Refresh Jump Routes',
+                    import_jump_routes_sector_path(@sector),
+                    method: 'post',
+                    class: 'w-full sm:w-auto btn',
+                    data: { tour_step: 'sector-import-jump-routes' } %>
+    <% end %>
+
+    <%= render 'application/back_button',
+               path: sectors_path(page: @page),
+               label: 'Sectors',
+               class: 'w-full sm:w-auto' %>
+
+    <%= button_to 'Delete',
+                  @sector,
+                  method: :delete,
+                  form_class: 'w-full sm:w-auto',
+                  class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                  data: { turbo_confirm: 'Are you sure?', tour_step: 'sector-delete' } %>
+  </div>
+<% end %>
+
+<% content_for :page_side do %>
+  <div class='flex items-center justify-between mb-2'>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Subsectors</div>
+    <div class='flex items-center gap-3'>
+      <button type='button'
+              title='Copy public map link'
+              class='text-fg-muted hover:text-fg-bright'
+              data-tour-step='public-map-link'
+              data-controller='clipboard'
+              data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
+              data-action='click->clipboard#copy'>
+        <i class='fa-regular fa-link'></i>
+      </button>
+      <%= link_to map_sector_path(@sector),
+                  target: '_blank',
+                  rel: 'noopener',
+                  title: 'Star Map',
+                  data: {'tour_step': 'sector-map'},
+                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
+        <i class="fa-regular fa-map"></i>
       <% end %>
-
-      <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the sector. Are you sure you wish to clear the sector?" %>
-
-      <div class="mb-4 mt-4 flex flex-col sm:flex-row gap-2">
-        <%= link_to "Edit this sector",
-                    edit_sector_path(@sector),
-                    class: "w-full sm:w-auto btn btn-primary" %>
-
-        <%= link_to "Add rogue",
-                    new_sector_rogue_path(@sector),
-                    class: "w-full sm:w-auto btn" %>
-
-        <%= button_to "Clear",
-                      clear_sector_path(@sector),
-                      method: "post",
-                      class: "w-full sm:w-auto btn",
-                      data: {turbo_confirm: confirm_msg}
-        %>
-
-        <%= link_to "Back to sectors",
-                    sectors_path,
-                    class: "w-full sm:w-auto btn" %>
-
-        <%= button_to "Delete",
-                      @sector,
-                      method: :delete,
-                      form_class: "w-full sm:w-auto",
-                      class: "w-full sm:w-auto btn btn-danger cursor-pointer",
-                      data: { turbo_confirm: "Are you sure?" } %>
-      </div>
-    </div>
-    <div class="w-full md:w-[300px] shrink-0">
-      <%= render "subsector_grid", sector: @sector %>
-      <p class="mt-4">Sectors</p>
-      <%= render "sector_grid", sector: @sector %>
+      <%= link_to poster_sector_path(@sector),
+                  title: 'Download poster PDF',
+                  data: {'tour_step': 'sector-poster'},
+                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
+        <i class="fa-regular fa-rectangle-vertical"></i>
+      <% end %>
     </div>
   </div>
-</div>
+  <turbo-frame id='sector-subsector-grid'
+               data-controller='ui-updates'
+               data-ui-updates-sector-id-value='<%= @sector.id %>'
+               data-ui-updates-src-value='<%= sector_path(@sector) %>'>
+    <%= render 'subsector_grid', sector: @sector %>
+  </turbo-frame>
+
+  <div class='mt-6'>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>
+      Neighbouring sectors
+    </div>
+    <%= render 'sector_grid', sector: @sector %>
+  </div>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <div class='space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Sector Coordinates',
+                 tour_step: 'sector-coordinates',
+                 value: tag.span("#{@sector.x}/#{@sector.y}", class: 'identifier') %>
+
+      <%= render 'application/data_block',
+                 label: 'Star chart',
+                 value: (
+                   if (u = safe_external_url(@sector.traveller_map_url))
+                     link_to('Traveller Map', u, target: '_blank', rel: 'noopener',
+                             class: 'hover:underline underline-offset-4')
+                   else
+                     tag.span('Undocumented', class: 'text-fg-muted')
+                   end
+                 ) %>
+
+      <%= render 'application/data_block',
+                 label: 'Library data',
+                 value: (
+                   if (u = safe_external_url(@sector.wiki_link))
+                     link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
+                             class: 'hover:underline underline-offset-4')
+                   else
+                     tag.span('Undocumented', class: 'text-fg-muted')
+                   end
+                 ) %>
+    </div>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
+      <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
+    </div>
+
+    <%= render 'application/observation_block', notes: @sector.notes %>
+
+    <turbo-frame id='sector-subsectors-table'
+                 data-controller='ui-updates'
+                 data-ui-updates-sector-id-value='<%= @sector.id %>'
+                 data-ui-updates-src-value='<%= sector_path(@sector) %>'>
+      <%= render 'subsectors/table', subsectors: @sector.subsectors.order(:name) %>
+    </turbo-frame>
+  </div>
+<% end %>

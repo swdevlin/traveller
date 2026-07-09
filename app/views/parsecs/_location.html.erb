@@ -1,0 +1,9 @@
+<% star_system = parsec.star_systems.first %>
+<%= link_to (star_system ? star_system_path(star_system) : parsec_path(parsec)), class: 'no-underline hover:underline hover:underline-offset-2' do %>
+  <% if star_system&.name.present? %>
+    <span class='block'><%= star_system.name %></span>
+    <span class='block text-xs text-fg-muted'><%= parsec.sector.name %> · <%= parsec.hex_code %></span>
+  <% else %>
+    <span class='block'><%= parsec.sector.name %> · <%= parsec.hex_code %></span>
+  <% end %>
+<% end %>

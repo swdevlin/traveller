@@ -1,0 +1,19 @@
+<%= content_for :title, "law Level #{traveller_hex(@law_level.code)}" %>
+<%= content_for :page_kicker, "Law level" %>
+<%= content_for :page_title, "law Level #{traveller_hex(@law_level.code)}" %>
+
+<%= render 'application/page' do %>
+  <%= render @law_level %>
+
+  <%= link_to "Edit", edit_law_level_path(@law_level), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: law_levels_path,
+             label: 'Law levels',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @law_level,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

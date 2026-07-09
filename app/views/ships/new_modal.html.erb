@@ -1,0 +1,33 @@
+<%= modal(title: 'New Ship', padding: true, advance: false, overlay: false) do %>
+  <%= form_with model: @ship do |f| %>
+    <div class='space-y-6'>
+      <% if @ship.errors.any? %>
+        <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+          <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
+          <div class='mt-1 text-sm font-semibold text-fg-bright'>
+            <%= pluralize(@ship.errors.count, 'error') %> prevented this ship from being saved
+          </div>
+          <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
+            <% @ship.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :name, class: 'edit-label' %>
+        <%= f.text_field :name, class: 'w-full edit-base mt-2' %>
+      </div>
+
+      <div>
+        <%= f.label :jump_drive, class: 'edit-label' %>
+        <%= f.number_field :jump_drive, min: 1, max: 6, class: 'edit-base mt-2 w-24' %>
+      </div>
+
+      <div class='pt-2'>
+        <%= f.submit 'Create ship', class: 'w-full btn btn-primary' %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

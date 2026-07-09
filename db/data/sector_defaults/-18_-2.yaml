@@ -1,0 +1,55 @@
+name: Sisyphus Ulterior
+abbreviation: SisUlt
+X: -18
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: SisUlt A
+    type: SPARSE
+    index: A
+  - name: SisUlt B
+    type: MODERATE
+    index: B
+  - name: SisUlt C
+    type: MODERATE
+    index: C
+  - name: SisUlt D
+    type: STANDARD
+    index: D
+  - name: SisUlt E
+    type: LOW
+    index: E
+  - name: SisUlt F
+    type: LOW
+    index: F
+  - name: SisUlt G
+    type: MODERATE
+    index: G
+  - name: SisUlt H
+    type: MODERATE
+    index: H
+  - name: SisUlt I
+    type: LOW
+    index: I
+  - name: SisUlt J
+    type: LOW
+    index: J
+  - name: SisUlt K
+    type: LOW
+    index: K
+  - name: SisUlt L
+    type: LOW
+    index: L
+  - name: SisUlt M
+    type: LOW
+    index: M
+  - name: SisUlt N
+    type: LOW
+    index: N
+  - name: SisUlt O
+    type: LOW
+    index: O
+  - name: SisUlt P
+    type: MODERATE
+    index: P

@@ -1,0 +1,120 @@
+name: Valhol
+abbreviation: Valhol
+X: -18
+Y: -8
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Valhol A
+    type: STANDARD
+    index: A
+  - name: Valhol B
+    type: MODERATE
+    index: B
+  - name: Valhol C
+    type: STANDARD
+    index: C
+  - name: Valhol D
+    type: MODERATE
+    index: D
+  - name: Valhol E
+    type: MODERATE
+    index: E
+  - name: Valhol F
+    type: MODERATE
+    index: F
+  - name: Valhol G
+    type: STANDARD
+    index: G
+    populated:
+      type: split-horizontal
+      demarcation: 8
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Valhol H
+    type: STANDARD
+    index: H
+  - name: Valhol I
+    type: MODERATE
+    index: I
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Valhol J
+    type: STANDARD
+    index: J
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Valhol K
+    type: STANDARD
+    index: K
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Valhol L
+    type: MODERATE
+    index: L
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Valhol M
+    type: STANDARD
+    index: M
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Valhol N
+    type: LOW
+    index: N
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Valhol O
+    type: MODERATE
+    index: O
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Valhol P
+    type: STANDARD
+    index: P
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR

@@ -1,0 +1,531 @@
+<%
+  cols = @cols
+  rows = @rows
+  svg_width, svg_height = hex_map_svg_dimensions(cols, rows)
+  hex_size   = effective_hex_size
+  hex_height = hex_size * Math.sqrt(3)
+
+  parsecs_by_pos           = @parsecs_by_pos           || {}
+  systems_by_pos           = @systems_by_pos           || {}
+  rogues_by_pos            = @rogues_by_pos            || {}
+  region_fills_by_pos      = @region_fills_by_pos      || {}
+  jump_highlight_positions = @jump_highlight_positions  || Set.new
+  highlight_pos            = @highlight_pos
+  ul                       = @ul
+  valid_positions          = @valid_positions
+
+  if valid_positions&.any?
+    all_centers = valid_positions.map { |c, r| hex_center(c, r) }
+    all_centers << hex_center(*highlight_pos) if highlight_pos
+    min_cx = all_centers.map(&:first).min
+    max_cx = all_centers.map(&:first).max
+    min_cy = all_centers.map(&:last).min
+    max_cy = all_centers.map(&:last).max
+    pad = SubsectorsHelper::SVG_PADDING
+    vb_x = (min_cx - hex_size - pad).floor
+    vb_y = (min_cy - hex_height / 2.0 - pad).floor
+    vb_w = (max_cx - min_cx + hex_size * 2 + pad * 2).ceil
+    vb_h = (max_cy - min_cy + hex_height + pad * 2).ceil
+    svg_width  = vb_w
+    svg_height = vb_h
+    view_box   = "#{vb_x} #{vb_y} #{vb_w} #{vb_h}"
+  else
+    view_box = "0 0 #{svg_width} #{svg_height}"
+  end
+  clip_rect = if valid_positions&.any?
+    [vb_x, vb_y, vb_w, vb_h]
+  else
+    [0, 0, svg_width, svg_height]
+  end
+-%><svg xmlns="http://www.w3.org/2000/svg"
+     width="<%= svg_width %>"
+     height="<%= svg_height %>"
+     preserveAspectRatio="xMidYMid meet"
+     viewBox="<%= view_box %>">
+
+  <defs>
+    <%= render 'shared/svg_icon_symbols', prefix: '' %>
+    <% @facility_icons&.each do |code, icon| %>
+      <symbol id="facility-icon-<%= code %>" viewBox="<%= icon.view_box %>">
+        <%= icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
+    <% if @rogue_object_icon %>
+      <symbol id="rogue-object-icon" viewBox="<%= @rogue_object_icon.view_box %>">
+        <%= @rogue_object_icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
+    <clipPath id="map-viewport-clip">
+      <rect x="<%= clip_rect[0] %>" y="<%= clip_rect[1] %>" width="<%= clip_rect[2] %>" height="<%= clip_rect[3] %>"/>
+    </clipPath>
+  </defs>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700');
+    .hex { fill: #ffffff; }
+    .hex-border { fill: none; stroke: #cccccc; stroke-width: 1; }
+    .hex-highlight { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; }
+    .hex-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #666666; }
+    .hex-label-empty { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_HEX_LABEL %>px; fill: #dddddd; pointer-events: none; }
+    .starport { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_STARPORT %>px; fill: #333333; font-weight: bold; }
+    .star-circle { stroke: #333; stroke-width: 0.5; }
+    .gas-giant-icon { fill: #222222; }
+    .comet-icon { fill: #222222; }
+    .parsec-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .allegiance { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_ALLEGIANCE %>px; fill: #666666; }
+    .uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
+    .tech-level { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
+    .government-code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
+    .government-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #555555; font-weight: bold; text-anchor: middle; }
+    .government-captive { fill: #b45309; }
+    .base-icon { fill: #333333; }
+    .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
+    .clickable { cursor: pointer; }
+    .clickable:hover { opacity: 0.7; }
+    <% if @subsector_overlays %>
+    .subsector-boundary { fill: none; stroke: #888888; stroke-width: 1.5; stroke-dasharray: 5,3; }
+    .subsector-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 18px; fill: rgba(200,200,200,0.25);
+                       text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    <% end %>
+    .region-fill { pointer-events: none; }
+    .region-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_REGION_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    <% if @map_mode == :strategic || @map_mode == :resource || @map_mode == :heat %>
+    .strat-system-name { font-family: "Inter", system-ui, sans-serif; font-size: 8px; fill: #333333; font-weight: bold; text-anchor: middle; }
+    .strat-uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 7px; fill: #777777; text-anchor: middle; }
+    .strat-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 7px; fill: #555555; text-anchor: end; dominant-baseline: central; }
+    .strat-seg-filled { fill: #1e3a5f; }
+    .strat-seg-empty  { fill: #dde3ec; }
+    .strat-role-badge { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+    .strat-role-market    { fill: #065f46; }
+    .strat-role-supplier  { fill: #92400e; }
+    .strat-role-extractor { fill: #78350f; }
+    .strat-role-deficit   { fill: #7c3aed; }
+    .strat-modifier { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 6px; dominant-baseline: middle; }
+    .strat-mod-positive { fill: #065f46; }
+    .strat-mod-negative { fill: #991b1b; }
+    .strat-mod-neutral  { fill: #374151; }
+    <% end %>
+  </style>
+
+  <rect width="100%" height="100%" fill="<%= @poster_mode ? '#ffffff' : 'rgba(15, 23, 42, 0.7)' %>"/>
+
+  <%# Layer 1a: Hex fills — all backgrounds drawn first so no fill covers a neighbour's border %>
+  <g>
+    <% (1..cols).each do |col| %>
+      <% (1..rows).each do |row| %>
+        <%
+          next if valid_positions && !valid_positions.include?([col, row])
+          next if highlight_pos == [col, row]
+          cx, cy = hex_center(col, row)
+          sys = systems_by_pos[[col, row]]
+          bg = sys&.allegiance&.background_colour
+          if (@map_mode == :heat || @show_heat_overlay) && (analysis = @strategic_by_pos&.[]([col, row]))
+            bg = analysis.heat_colour
+          elsif @map_mode == :habitability
+            bg = @habitability_colour_by_pos&.[]([col, row]) || @habitability_default_bg
+          elsif bg.blank? && sys && @map_mode != :strategic && @map_mode != :heat && !@show_heat_overlay
+            if sys.native_sophont && @native_sophont_colour
+              bg = @native_sophont_colour
+            elsif sys.extinct_sophont && @extinct_sophont_colour
+              bg = @extinct_sophont_colour
+            end
+          end
+          parsec_data = parsecs_by_pos[[col, row]]
+          parsec_id = parsec_data&.fetch(:id)
+          empty = sys.nil?
+        %>
+        <% if empty && parsec_id && @show_map_links && @hex_click_map.nil? %>
+          <a href="<%= parsec_path(parsec_id) %>" target="_top" class="clickable">
+            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
+          </a>
+        <% elsif !empty && @show_map_links && (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat || @map_mode == :habitability) && @hex_click_map.nil? %>
+          <a href="<%= star_system_path(sys) %>" target="_top" class="clickable">
+            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+          </a>
+        <% else %>
+          <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+        <% end %>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 1b: Region fills %>
+  <% if region_fills_by_pos.any? %>
+    <g opacity="0.35">
+      <% region_fills_by_pos.each do |(col, row), entries| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon class="region-fill" points="<%= hex_polygon_points(cx, cy) %>" style="fill:<%= entries.first[:colour] %>"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1c: Jump highlights %>
+  <% if jump_highlight_positions.any? %>
+    <g>
+      <% jump_highlight_positions.each do |col, row| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1d: Hex borders — drawn after all fills so right/bottom edges are never covered %>
+  <g>
+    <% (1..cols).each do |col| %>
+      <% (1..rows).each do |row| %>
+        <%
+          next if valid_positions && !valid_positions.include?([col, row])
+          next if highlight_pos == [col, row]
+          cx, cy = hex_center(col, row)
+          bd = systems_by_pos[[col, row]]&.allegiance&.border_colour
+        %>
+        <polygon class="hex-border" points="<%= hex_polygon_points(cx, cy) %>"<% if bd.present? %> style="stroke:<%= bd %>;stroke-width:2"<% end %>/>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 1e: Region border lines %>
+  <% if ul %>
+    <% (@region_borders || []).each do |rb| %>
+      <% next if rb[:colour].blank? %>
+      <g stroke="<%= rb[:colour] %>" stroke-width="2.5" stroke-linecap="round" fill="none" pointer-events="none">
+        <% rb[:parsecs].each do |ux, uy| %>
+          <%
+            col = ux - ul.x + 1
+            row = ul.y - uy + 1
+            next unless (1..cols).cover?(col) && (1..rows).cover?(row)
+            edges = border_outer_edges(col, row, ux, uy, rb[:region_set])
+          %>
+          <% edges.each do |(x1, y1), (x2, y2)| %>
+            <line x1="<%= x1.round(2) %>" y1="<%= y1.round(2) %>" x2="<%= x2.round(2) %>" y2="<%= y2.round(2) %>"/>
+          <% end %>
+        <% end %>
+      </g>
+    <% end %>
+  <% end %>
+
+  <%# Layer 2: Highlighted hex %>
+  <% if highlight_pos %>
+    <% h_cx, h_cy = hex_center(*highlight_pos) %>
+    <polygon class="hex-highlight" points="<%= hex_polygon_points(h_cx, h_cy) %>"/>
+  <% end %>
+
+  <%# Layer 2b: Linked positions (e.g. already-linked systems in network link modal) %>
+  <% if @linked_positions&.any? %>
+    <g>
+      <% @linked_positions.each do |col, row| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>"
+                 style="fill:#14532d;stroke:#22c55e;stroke-width:1.5;pointer-events:none" opacity="0.7"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 1f: Travel zone rings %>
+  <g>
+    <% (1..cols).each do |col| %>
+      <% (1..rows).each do |row| %>
+        <%
+          next if valid_positions && !valid_positions.include?([col, row])
+          sys = systems_by_pos[[col, row]]
+          next unless sys&.travel_zone
+            cx, cy = hex_center(col, row)
+            r  = (hex_size * 0.78).round(2)
+            sx = (cx - r * 0.7071).round(2)
+            sy = (cy + r * 0.7071).round(2)
+            ex = (cx + r * 0.7071).round(2)
+            ey = sy
+          %>
+          <path d="M <%= sx %>,<%= sy %> A <%= r %>,<%= r %> 0 1 1 <%= ex %>,<%= ey %>"
+                fill="none"
+                stroke="<%= sys.travel_zone.colour %>"
+                stroke-width="2"
+                stroke-linecap="round"
+                pointer-events="none"/>
+        <% end %>
+      <% end %>
+    </g>
+
+  <%# Layer 1g: Jump route link lines %>
+  <g clip-path="url(#map-viewport-clip)">
+  <% (@jump_route_links_for_map || []).each do |link| %>
+    <%
+      route    = link.jump_route
+      colour   = route.colour.presence || '#888888'
+      from_p   = link.from_star_system.parsec
+      to_p     = link.to_star_system.parsec
+
+      from_col = from_p.x - ul.x + 1
+      from_row = ul.y - from_p.y + 1
+      to_col   = to_p.x - ul.x + 1
+      to_row   = ul.y - to_p.y + 1
+
+      from_cx, from_cy = hex_center(from_col, from_row)
+      to_cx,   to_cy   = hex_center(to_col, to_row)
+      dasharray = route.stroke_dasharray
+    %>
+    <line x1="<%= from_cx.round(2) %>" y1="<%= from_cy.round(2) %>"
+          x2="<%= to_cx.round(2) %>"   y2="<%= to_cy.round(2) %>"
+          stroke="<%= colour %>"
+          stroke-width="<%= route.line_width %>"
+          stroke-opacity="0.7"
+          stroke-linecap="round"
+          <% if dasharray %>stroke-dasharray="<%= dasharray %>"<% end %>
+          pointer-events="none"/>
+  <% end %>
+  </g>
+
+  <%# Layer 3: Star circles (drawn under text) %>
+  <g>
+    <% (1..cols).each do |col| %>
+      <% (1..rows).each do |row| %>
+        <%
+          next if valid_positions && !valid_positions.include?([col, row])
+          cx, cy = hex_center(col, row)
+          star_system = systems_by_pos[[col, row]]
+          next if (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat) && star_system
+        %>
+        <% if star_system %>
+          <%
+            primary = star_system.primary_star
+            orbiting_stars = if primary && star_system.stars.loaded?
+              star_system.stars.select { |s| s.orbiting_id == primary.id && s.id != primary.companion_id }
+            else
+              primary&.secondary_stars&.to_a || []
+            end
+            star_cy = cy
+            primary_r = hex_size * 0.18
+            orbiting_r = hex_size * 0.10
+            orbit_distance = hex_size * 0.38
+            orbit_positions = [
+              [cx + orbit_distance, star_cy],
+              [cx, star_cy + orbit_distance],
+              [cx - orbit_distance, star_cy]
+            ]
+          %>
+          <%
+            click_url = @hex_click_map&.fetch([col, row], nil)
+          %>
+          <% if click_url %>
+            <a href="<%= click_url %>" data-turbo-stream class="clickable">
+          <% elsif @show_map_links %>
+            <a href="<%= star_system_path(star_system) %>" target="_top" class="clickable">
+          <% end %>
+            <circle class="star-circle" cx="<%= cx.round(2) %>" cy="<%= star_cy.round(2) %>"
+                    r="<%= primary_r.round(2) %>" fill="<%= star_fill_colour(primary&.colour || 'Yellow') %>"/>
+          <% if click_url || @show_map_links %></a><% end %>
+          <% if primary&.companion %>
+            <% comp_offset = primary_r * 0.45 %>
+            <circle cx="<%= (cx - comp_offset).round(2) %>" cy="<%= (star_cy + comp_offset).round(2) %>"
+                    r="<%= (primary_r * 0.4).round(2) %>" fill="<%= star_fill_colour(primary.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
+          <% end %>
+          <% orbiting_stars.take(3).each_with_index do |orb_star, idx| %>
+            <% orb_cx, orb_cy = orbit_positions[idx] %>
+            <circle class="star-circle" cx="<%= orb_cx.round(2) %>" cy="<%= orb_cy.round(2) %>"
+                    r="<%= orbiting_r.round(2) %>" fill="<%= star_fill_colour(orb_star.colour || 'Yellow') %>"/>
+            <% if orb_star.companion %>
+              <% orb_comp_offset = orbiting_r * 0.45 %>
+              <circle cx="<%= (orb_cx - orb_comp_offset).round(2) %>" cy="<%= (orb_cy + orb_comp_offset).round(2) %>"
+                      r="<%= (orbiting_r * 0.4).round(2) %>" fill="<%= star_fill_colour(orb_star.companion.colour || 'Yellow') %>" stroke="#333" stroke-width="0.5"/>
+            <% end %>
+          <% end %>
+          <% if star_system.has_gas_giant? %>
+            <use href="#gas-giant-icon" x="<%= (cx + hex_size * 0.38).round(2) %>" y="<%= (cy - hex_size * 0.45).round(2) %>" width="12" height="12" class="gas-giant-icon"/>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 3c: Base icons (9–12 o'clock region, upper-left of hex) %>
+  <% if @bases_by_pos&.any? && @facility_icons&.any? %>
+    <g>
+      <% @bases_by_pos.each do |(col, row), codes| %>
+        <%
+          renderable = codes.first(3).select { |c| @facility_icons.key?(c) }
+          next if renderable.empty?
+          cx, cy   = hex_center(col, row)
+          center_y = cy - hex_size * 0.38
+          anchor   = cx - hex_size * 0.35
+          icon_hw  = 4
+          offsets  = case renderable.length
+                     when 1 then [[0, 0]]
+                     when 2 then [[-6, 0], [6, 0]]
+                     else        [[-4, -6], [-10, 6], [2, 6]]
+                     end
+        %>
+        <% renderable.each_with_index do |code, idx| %>
+          <% ox, oy = offsets[idx] %>
+          <use href="#facility-icon-<%= code %>"
+               x="<%= (anchor + ox - icon_hw).round(2) %>"
+               y="<%= (center_y + oy - icon_hw).round(2) %>"
+               width="8"
+               height="8"
+               class="base-icon"/>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 3b: Rogue object icons (comets and gas giants in starless parsecs) %>
+  <% if rogues_by_pos.any? %>
+    <g>
+      <% rogues_by_pos.each do |(col, row), rogue_types| %>
+        <% next if systems_by_pos[[col, row]] %>
+        <%
+          cx, cy = hex_center(col, row)
+          orbit_distance = hex_size * 0.38
+          rogue_positions = [
+            [cx, cy],
+            [cx + orbit_distance, cy],
+            [cx, cy + orbit_distance],
+            [cx - orbit_distance, cy]
+          ]
+          icon_size = 18
+          half = icon_size / 2.0
+        %>
+        <% rogue_types.first(4).each_with_index do |type, idx| %>
+          <% px, py = rogue_positions[idx] %>
+          <% if type == :gas_giant %>
+            <use href="#gas-giant-icon" x="<%= (px - half).round(2) %>" y="<%= (py - half).round(2) %>" width="<%= icon_size %>" height="<%= icon_size %>" class="gas-giant-icon"/>
+          <% elsif type == :comet %>
+            <use href="#comet-icon" x="<%= (px - half).round(2) %>" y="<%= (py - half).round(2) %>" width="<%= icon_size %>" height="<%= icon_size %>" class="comet-icon"/>
+          <% end %>
+        <% end %>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 3d: Rogue object icons (starless parsecs only) %>
+  <% rogue_object_positions = @rogue_object_positions || Set.new %>
+  <% if rogue_object_positions.any? && @rogue_object_icon %>
+    <g>
+      <% rogue_object_positions.each do |col, row| %>
+        <% next if systems_by_pos[[col, row]] %>
+        <%
+          cx, cy = hex_center(col, row)
+          icon_size = 18
+          half = icon_size / 2.0
+        %>
+        <use href="#rogue-object-icon"
+             x="<%= (cx - half).round(2) %>"
+             y="<%= (cy - half).round(2) %>"
+             width="<%= icon_size %>"
+             height="<%= icon_size %>"
+             class="rogue-object-icon"/>
+      <% end %>
+    </g>
+  <% end %>
+
+  <%# Layer 4: Subsector boundary lines and letter labels (sector map only) %>
+  <% if @subsector_overlays %>
+    <g>
+      <% [8, 16, 24].each do |boundary_col| %>
+        <%
+          cx_left,  _ = hex_center(boundary_col, 1)
+          cx_right, _ = hex_center(boundary_col + 1, 1)
+          line_x = ((cx_left + cx_right) / 2.0).round(2)
+          _, cy_top    = hex_center(1, 1)
+          _, cy_bottom = hex_center(1, rows)
+          y_top    = (cy_top    - hex_height * 0.75).round(2)
+          y_bottom = (cy_bottom + hex_height * 0.75).round(2)
+        %>
+        <line class="subsector-boundary" x1="<%= line_x %>" y1="<%= y_top %>" x2="<%= line_x %>" y2="<%= y_bottom %>"/>
+      <% end %>
+      <% [10, 20, 30].each do |boundary_row| %>
+        <%
+          _, cy_above = hex_center(1, boundary_row)
+          _, cy_below = hex_center(1, boundary_row + 1)
+          line_y = ((cy_above + cy_below) / 2.0).round(2)
+          cx_left,  _ = hex_center(1,    1)
+          cx_right, _ = hex_center(cols, 1)
+          x_left  = (cx_left  - hex_size).round(2)
+          x_right = (cx_right + hex_size).round(2)
+        %>
+        <line class="subsector-boundary" x1="<%= x_left %>" y1="<%= line_y %>" x2="<%= x_right %>" y2="<%= line_y %>"/>
+      <% end %>
+    </g>
+    <% ('A'..'P').each_with_index do |letter, idx| %>
+      <%
+        sx = idx % 4 + 1
+        sy = idx / 4 + 1
+        mid_col = (sx - 1) * 8 + 4
+        mid_row = (sy - 1) * 10 + 5
+        cx1, _ = hex_center(mid_col,     mid_row)
+        cx2, _ = hex_center(mid_col + 1, mid_row)
+        label_cx = ((cx1 + cx2) / 2.0).round(2)
+        _, cy1 = hex_center(mid_col, mid_row)
+        _, cy2 = hex_center(mid_col, mid_row + 1)
+        label_cy = ((cy1 + cy2) / 2.0).round(2)
+      %>
+      <text class="subsector-label" x="<%= label_cx %>" y="<%= label_cy %>"><%= letter %></text>
+    <% end %>
+  <% end %>
+
+  <%# Layer 5: Text labels (drawn on top of stars) %>
+  <g>
+    <% (1..cols).each do |col| %>
+      <% (1..rows).each do |row| %>
+        <%
+          next if valid_positions && !valid_positions.include?([col, row])
+          cx, cy = hex_center(col, row)
+          parsec_data = parsecs_by_pos[[col, row]]
+          star_system = systems_by_pos[[col, row]]
+          hex_code = parsec_data ? parsec_data[:hex_code] : format('%02d%02d', col, row)
+        %>
+        <text class="<%= star_system ? 'hex-label' : 'hex-label-empty' %>" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.62).round(2) %>" text-anchor="middle">
+          <%= hex_code %>
+        </text>
+        <% if star_system %>
+          <% if @map_mode == :strategic && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'strategic_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system, col: col, row: row %>
+          <% elsif @map_mode == :resource && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'resource_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
+          <% elsif @map_mode == :heat && (analysis = @strategic_by_pos&.[]([col, row])) %>
+            <%= render 'heat_map/hex_content', cx: cx, cy: cy, analysis: analysis, system: star_system %>
+          <% elsif @map_mode == :tech_level %>
+            <%= render 'tech_level_map/hex_content', cx: cx, cy: cy, system: star_system %>
+          <% elsif @map_mode == :habitability %>
+            <%= render 'habitability_map/hex_content', cx: cx, cy: cy, system: star_system %>
+          <% elsif @map_mode == :government %>
+            <%= render 'government_map/hex_content', cx: cx, cy: cy, system: star_system, referee_view: @show_map_links, governments_by_code: @governments_by_code %>
+          <% else %>
+            <text class="starport" x="<%= cx.round(2) %>" y="<%= (cy - hex_size * 0.30).round(2) %>" text-anchor="middle">
+              <%= star_system.main_world_uwp&.first || '?' %>
+            </text>
+            <% unless @compact %>
+              <% if (uwp = star_system.main_world_uwp) %>
+                <text class="uwp" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.46).round(2) %>" text-anchor="middle">
+                  <%= uwp %>
+                </text>
+              <% end %>
+              <% if star_system.name.present? %>
+                <%
+                  pop_code = uwp&.[](4)
+                  name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+                %>
+                <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+                  <%= name_display %>
+                </text>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+        <% if parsec_data&.fetch(:label).present? %>
+          <text class="parsec-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>"<% if parsec_data[:label_colour].present? %> style="fill:<%= parsec_data[:label_colour] %>"<% end %>>
+            <%= parsec_data[:label] %>
+          </text>
+        <% end %>
+      <% end %>
+    <% end %>
+  </g>
+
+  <%# Layer 6: Region labels %>
+  <% (@region_labels ||= []).each do |entry| %>
+    <% cx, cy = hex_center(entry[:col], entry[:row]) %>
+    <text class="region-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>" style="fill:<%= entry[:colour] %>">
+      <%= entry[:text] %>
+    </text>
+  <% end %>
+</svg>

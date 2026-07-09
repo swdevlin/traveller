@@ -101,7 +101,7 @@
           "concentrationRating": null
         },
         "governmentCode": 0,
-        "lawLevelCode": 0,
+        "lawLevel": { "code": 0 },
         "starPort": "X",
         "techLevel": 0,
         "tradeCodes": [],
@@ -204,7 +204,7 @@
               "concentrationRating": null
             },
             "governmentCode": 0,
-            "lawLevelCode": 0,
+            "lawLevel": { "code": 0 },
             "starPort": "X",
             "techLevel": 0,
             "tradeCodes": [],
@@ -319,7 +319,7 @@
       "concentrationRating": null
     },
     "governmentCode": 0,
-    "lawLevelCode": 0,
+    "lawLevel": { "code": 0 },
     "starPort": "X",
     "techLevel": 0,
     "tradeCodes": [],

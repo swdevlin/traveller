@@ -1,0 +1,7 @@
+<%= content_for :title, "New government" %>
+<%= content_for :page_kicker, "Government Data Core" %>
+<%= content_for :page_title, "New Government" %>
+
+<%= render 'application/page' do %>
+  <%= render "form", government: @government %>
+<% end %>

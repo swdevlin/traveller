@@ -1,0 +1,55 @@
+name: Acheron Spinward 2
+abbreviation: AchS2
+X: -24
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AchS2 A
+    type: SPARSE
+    index: A
+  - name: AchS2 B
+    type: MINIMAL
+    index: B
+  - name: AchS2 C
+    type: RIFT
+    index: C
+  - name: AchS2 D
+    type: RIFT_FADE
+    index: D
+  - name: AchS2 E
+    type: SPARSE
+    index: E
+  - name: AchS2 F
+    type: MINIMAL
+    index: F
+  - name: AchS2 G
+    type: RIFT
+    index: G
+  - name: AchS2 H
+    type: RIFT
+    index: H
+  - name: AchS2 I
+    type: MINIMAL
+    index: I
+  - name: AchS2 J
+    type: RIFT_FADE
+    index: J
+  - name: AchS2 K
+    type: RIFT_FADE
+    index: K
+  - name: AchS2 L
+    type: RIFT_FADE
+    index: L
+  - name: AchS2 M
+    type: MINIMAL
+    index: M
+  - name: AchS2 N
+    type: MINIMAL
+    index: N
+  - name: AchS2 O
+    type: RIFT
+    index: O
+  - name: AchS2 P
+    type: RIFT_FADE
+    index: P

@@ -1,0 +1,55 @@
+name: Unnamed 1
+abbreviation: Un1
+X: -14
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Un1 A
+    type: STANDARD
+    index: A
+  - name: Un1 B
+    type: STANDARD
+    index: B
+  - name: Un1 C
+    type: MODERATE
+    index: C
+  - name: Un1 D
+    type: STANDARD
+    index: D
+  - name: Un1 E
+    type: LOW
+    index: E
+  - name: Un1 F
+    type: STANDARD
+    index: F
+  - name: Un1 G
+    type: STANDARD
+    index: G
+  - name: Un1 H
+    type: MODERATE
+    index: H
+  - name: Un1 I
+    type: LOW
+    index: I
+  - name: Un1 J
+    type: MODERATE
+    index: J
+  - name: Un1 K
+    type: MODERATE
+    index: K
+  - name: Un1 L
+    type: STANDARD
+    index: L
+  - name: Un1 M
+    type: STANDARD
+    index: M
+  - name: Un1 N
+    type: MODERATE
+    index: N
+  - name: Un1 O
+    type: MODERATE
+    index: O
+  - name: Un1 P
+    type: MODERATE
+    index: P

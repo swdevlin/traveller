@@ -1,0 +1,111 @@
+name: Hvergelmir
+abbreviation: Hver
+X: -17
+Y: -8
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Hver A
+    type: STANDARD
+    index: A
+  - name: Hver B
+    type: STANDARD
+    index: B
+  - name: Hver C
+    type: MODERATE
+    index: C
+  - name: Hver D
+    type: MODERATE
+    index: D
+  - name: Hver E
+    type: STANDARD
+    index: E
+  - name: Hver F
+    type: LOW
+    index: F
+  - name: Hver G
+    type: MODERATE
+    index: G
+  - name: Hver H
+    type: STANDARD
+    index: H
+  - name: Hver I
+    type: MODERATE
+    index: I
+    populated:
+      type: split-horizontal
+      demarcation: 7
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Hver J
+    type: STANDARD
+    index: J
+    populated:
+      type: split-horizontal
+      demarcation: 8
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Hver K
+    type: STANDARD
+    index: K
+    populated:
+      type: split-horizontal
+      demarcation: 8
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Hver L
+    type: MODERATE
+    index: L
+    populated:
+      type: split-horizontal
+      demarcation: 8
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+  - name: Hver M
+    type: STANDARD
+    index: M
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Hver N
+    type: STANDARD
+    index: N
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Hver O
+    type: MODERATE
+    index: O
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Hver P
+    type: STANDARD
+    index: P
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR

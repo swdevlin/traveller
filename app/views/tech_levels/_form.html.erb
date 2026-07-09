@@ -1,0 +1,73 @@
+<%= form_with(model: tech_level, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: tech_level.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :code, required: true do %>
+      <%= form.number_field :code, class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :descriptor do %>
+      <%= form.text_field :descriptor, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Short Description</div>
+      <%= form.text_area :short_description, rows: 2, class: 'edit-base mt-2 w-full resize-y' %>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :energy do %>
+      <%= form.text_field :energy, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :electronics do %>
+      <%= form.text_field :electronics, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :manufacturing do %>
+      <%= form.text_field :manufacturing, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :medical do %>
+      <%= form.text_field :medical, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :environmental do %>
+      <%= form.text_field :environmental, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :land do %>
+      <%= form.text_field :land, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :sea do %>
+      <%= form.text_field :sea, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :air do %>
+      <%= form.text_field :air, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :space do %>
+      <%= form.text_field :space, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :personal_military do %>
+      <%= form.text_field :personal_military, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :heavy_military do %>
+      <%= form.text_field :heavy_military, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Notes</div>
+      <%= form.text_area :notes, rows: 4, class: 'edit-base mt-2 w-full resize-y' %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', tech_level.persisted? ? tech_level : tech_levels_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

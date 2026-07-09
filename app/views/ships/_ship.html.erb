@@ -1,0 +1,20 @@
+<div id="<%= dom_id ship %>" class='space-y-6 mb-4'>
+  <%= render 'application/data_block',
+             label: 'Name',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: ship.name
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Jump drive',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: ship.jump_drive
+  %>
+
+  <%= render 'application/data_block',
+             label: 'M-Drive',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: ship.m_drive
+  %>
+
+</div>

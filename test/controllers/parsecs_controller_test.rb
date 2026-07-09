@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ParsecsControllerTest < ActionDispatch::IntegrationTest
+class ParsecsControllerTest < AuthenticatedIntegrationTest
   setup do
     @sector = sectors(:one)
     @parsec = parsecs(:two)

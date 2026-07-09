@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script>
+  function renderHexGrid() {
+    const hexSize = 35;
+    const numRows = 10;
+    const numCols = 8;
+    const halfWidth = hexSize * Math.sqrt(3);
+    const halfHeight = hexSize * 3/2;
+
+    let svgGrid = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">';
+
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        const xPos = col * (hexSize * 1.5);
+        const yPos = row * (hexSize * Math.sqrt(3)) + (col % 2) * (hexSize * Math.sqrt(3) / 2);
+
+        const points = [
+          [xPos + hexSize, yPos],
+          [xPos + hexSize * 1.5, yPos + hexSize * Math.sqrt(3) / 2],
+          [xPos + hexSize * 1.5, yPos + hexSize * Math.sqrt(3) * 1.5],
+          [xPos + hexSize, yPos + hexSize * Math.sqrt(3) * 2],
+          [xPos, yPos + hexSize * Math.sqrt(3) * 1.5],
+          [xPos, yPos + hexSize * Math.sqrt(3) / 2]
+        ];
+
+        let hexPoints = '';
+        for (const [px, py] of points) {
+          hexPoints += `${px},${py} `;
+        }
+
+        svgGrid += `<polygon points="${hexPoints}" stroke="black" stroke-width="1" fill="none" />`;
+      }
+    }
+
+    svgGrid += '</svg>';
+    return svgGrid;
+  }
+
+  // Example usage:
+  const svgContainer = document.createElement('div');
+  svgContainer.innerHTML = renderHexGrid();
+  document.body.appendChild(svgContainer);
+
+</script>
+
+</body>
+</html>

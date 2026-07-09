@@ -1,0 +1,101 @@
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Orbiting bodies</p>
+
+    <div class='actions'>
+      <%# buttons/links can go here later %>
+    </div>
+  </div>
+
+  <div class='table-scroll'>
+    <table>
+      <thead>
+      <tr>
+        <th scope='col'>Name</th>
+        <th scope='col'>Type</th>
+        <% if show_orbit_number? %>
+          <th scope='col'>Orbit</th>
+        <% end %>
+        <% if show_au? %>
+          <th scope='col'>AU</th>
+        <% end %>
+        <th scope='col'>UWP</th>
+        <th scope='col' class='text-right actions-cell'>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% bodies.each do |body| %>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= body.is_a?(Star) ? star_path(body) : stellar_object_path(body) %>'
+            data-action='click->row-link#navigate'>
+          <td class='whitespace-nowrap'>
+            <%= body.display_name %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if body.is_a?(Star) %>
+              <%= body.spectral_classification %>
+            <% else %>
+              <%= body.type_title %>
+            <% end %>
+          </td>
+
+          <% if show_orbit_number? %>
+            <td class='whitespace-nowrap'>
+              <%= number_with_precision(body.orbit, precision: 2, strip_insignificant_zeros: true) %>
+            </td>
+          <% end %>
+
+          <% if show_au? %>
+            <td class='whitespace-nowrap'>
+              <%= number_with_precision(body.au, precision: 2, strip_insignificant_zeros: true) %>
+            </td>
+          <% end %>
+
+          <td class='whitespace-nowrap'>
+            <% unless body.is_a?(Star) %>
+              <% if body.is_a?(GasGiant) %>
+                <span class='pill'><%= body.code %></span>
+              <% else %>
+                <span class='pill'><%= body.uwp %></span>
+              <% end %>
+            <% end %>
+          </td>
+
+          <td class='actions-cell'>
+            <div class='action-group'>
+              <% if body.is_a?(Star) %>
+                <%= link_to edit_star_path(body), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to star_path(body),
+                              method: :delete,
+                              class: 'action danger',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete #{body.spectral_classification}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              <% else %>
+                <%= link_to edit_stellar_object_path(body), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to stellar_object_path(body),
+                              method: :delete,
+                              class: 'action danger',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete this #{body.type_title.downcase}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

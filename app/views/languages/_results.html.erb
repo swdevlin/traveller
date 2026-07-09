@@ -1,0 +1,20 @@
+<% if words.any? %>
+  <div class='table-card' data-controller='clipboard'>
+    <div class='table-banner'>
+      <p><%= language.to_s.capitalize %></p>
+      <div class='actions'>
+        <span class='text-xs text-fg-muted'><%= words.size %> words</span>
+        <button type='button' class='icon-btn' title='Copy word list'
+                data-clipboard-target='copyBtn'
+                data-action='click->clipboard#copySource'>
+          <i class='fa-regular fa-copy'></i>
+        </button>
+      </div>
+    </div>
+    <div class='divide-y divide-outline' data-clipboard-target='source'>
+      <% words.each do |word| %>
+        <div class='px-4 py-2 font-mono text-sm text-fg-bright'><%= word %></div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,11 +1,65 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Star fixtures — loaded into stellar_objects table (Star is an STI subclass of StellarObject)
+# Accessed via stars(:name) in tests, or stellar_objects(:name) if defined here.
+# star_one and star_two are basic stars used by gas_giants.yml and other fixtures.
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the "{}" from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-#one: {}
-# column: value
-#
-#two: {}
-# column: value
+star_one:
+  type: Star
+  name: Primary Star One
+  orbit: 1.5
+  orbit_x: 1.5
+  orbit_y: 1.5
+  inclination: 1.5
+  eccentricity: 1.5
+  mass: 1.5
+  diameter: 1.5
+  au: 1.5
+  survey_index: 1
+  orbit_sequence: A
+  star_system: in_one
+  data:
+    stellar_class: G
+    stellar_type: V
+    stellar_subtype: 2
+    is_protostar: false
+    temperature: 5800
+    age: 4.5
+    colour: Yellow
+    period: 1.5
+    baseline: 1.5
+    spread: 1.5
+    minimum_orbit: 1.5
+    luminosity: 1.5
+    hzco: 1.5
+    jump_shadow: 1.5
+    scan_points: 1
+
+star_two:
+  type: Star
+  name: Primary Star Two
+  orbit: 1.5
+  orbit_x: 1.5
+  orbit_y: 1.5
+  inclination: 1.5
+  eccentricity: 1.5
+  mass: 0.8
+  diameter: 0.9
+  au: 1.0
+  survey_index: 1
+  orbit_sequence: A
+  star_system: in_two
+  data:
+    stellar_class: K
+    stellar_type: V
+    stellar_subtype: 5
+    is_protostar: false
+    temperature: 4500
+    age: 6.0
+    colour: Orange
+    period: 1.5
+    baseline: 1.5
+    spread: 1.5
+    minimum_orbit: 1.5
+    luminosity: 0.5
+    hzco: 0.7
+    jump_shadow: 1.0
+    scan_points: 1

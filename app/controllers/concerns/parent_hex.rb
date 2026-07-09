@@ -27,7 +27,7 @@ module ParentHex
   def load_parent!
     @parsec = Parsec.find(params[:parsec_id]) if params[:parsec_id].present?
     @subsector = Subsector.find(params[:subsector_id]) if params[:subsector_id].present?
-    @sector = Sector.find(params[:sector_id]) if params[:sector_id].present?
+    @sector = Sector.kept.find(params[:sector_id]) if params[:sector_id].present?
 
     @sector ||= @parsec&.sector
     @sector ||= @subsector&.sector

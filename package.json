@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "ultimate_turbo_modal": "3.0.4"
   }
 }

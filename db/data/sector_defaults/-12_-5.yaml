@@ -1,0 +1,55 @@
+name: Few Stars Rimward 2
+abbreviation: FewSR2
+X: -12
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FewSR2 A
+    type: MODERATE
+    index: A
+  - name: FewSR2 B
+    type: MODERATE
+    index: B
+  - name: FewSR2 C
+    type: MODERATE
+    index: C
+  - name: FewSR2 D
+    type: SPARSE
+    index: D
+  - name: FewSR2 E
+    type: MODERATE
+    index: E
+  - name: FewSR2 F
+    type: MODERATE
+    index: F
+  - name: FewSR2 G
+    type: MODERATE
+    index: G
+  - name: FewSR2 H
+    type: STANDARD
+    index: H
+  - name: FewSR2 I
+    type: MODERATE
+    index: I
+  - name: FewSR2 J
+    type: STANDARD
+    index: J
+  - name: FewSR2 K
+    type: STANDARD
+    index: K
+  - name: FewSR2 L
+    type: MODERATE
+    index: L
+  - name: FewSR2 M
+    type: MODERATE
+    index: M
+  - name: FewSR2 N
+    type: STANDARD
+    index: N
+  - name: FewSR2 O
+    type: STANDARD
+    index: O
+  - name: FewSR2 P
+    type: STANDARD
+    index: P

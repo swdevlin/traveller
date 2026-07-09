@@ -1,0 +1,30 @@
+<% allegiance = moon.allegiance %>
+<% parent = moon.orbiting %>
+<% star_system = StarSystem.find_by(id: moon.star_system_id) %>
+<% parsec = moon.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+<% shadow_km = moon.effective_jump_shadow_km %>
+<% shadow_source = shadow_km&.positive? ? moon.effective_jump_shadow_source : nil %>
+
+<%
+  hierarchy = []
+  hierarchy << [sector.name, sector_path(sector)] if sector
+  hierarchy << [subsector.name, subsector_path(subsector)] if subsector
+  hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
+  hierarchy << [parent.display_name, stellar_object_path(parent)] if parent
+%>
+
+<div id="<%= dom_id moon %>" class="space-y-4">
+  <%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
+  <%= render 'stellar_objects/uwp_tabs',
+             stellar_object: moon,
+             parent: parent,
+             parsec: parsec,
+             allegiance: allegiance,
+             shadow_km: shadow_km,
+             shadow_source: shadow_source %>
+
+  <%= render 'application/observation_block', notes: moon.notes %>
+</div>

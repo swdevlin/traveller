@@ -1,30 +1,184 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  parsec: one
   orbit_x: 1
   orbit_y: 1
   name: In parsec 1
-  parsec: one
-  star_system: in_one
   inclination: 1.5
   eccentricity: 1.5
   orbit: 1.5
   effective_hzco_deviation: 1.5
   type: 'Comet'
+  data: {}
 
 two:
+  parsec: two
   orbit_x: 1
   orbit_y: 1
   name: In parsec 2
-  parsec: two
-  star_system: in_two
   inclination: 1.5
   eccentricity: 1.5
   orbit: 1.5
   effective_hzco_deviation: 1.5
   type: 'TerrestrialPlanet'
+  data: {}
 
 rogue:
   parsec: two
   name: Rogue object
   type: 'GasCloud'
+  data: {}
+
+# Star hierarchy — Star is an STI subclass of StellarObject loaded into this table
+
+primary_for_hierarchy:
+  type: Star
+  name: Primary (Sol-like)
+  mass: 1.0
+  diameter: 1392700
+  au: 0
+  star_system: hierarchy_system
+  data:
+    stellar_class: G
+    stellar_type: V
+    stellar_subtype: 2
+    is_protostar: false
+    temperature: 5800
+    age: 4.5
+    colour: Yellow
+    jump_shadow: 139270000
+
+secondary_star:
+  type: Star
+  name: Secondary (orbits primary at 10 AU)
+  mass: 0.2
+  diameter: 278540
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 5
+    is_protostar: false
+    temperature: 3200
+    age: 5.0
+    colour: Red
+    jump_shadow: 27854000
+
+tertiary_star:
+  type: Star
+  name: Tertiary (orbits secondary at 0.5 AU)
+  mass: 0.1
+  diameter: 139270
+  au: 0.5
+  orbiting: secondary_star
+  star_system: hierarchy_system
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 8
+    is_protostar: false
+    temperature: 2800
+    age: 5.0
+    colour: Red
+    jump_shadow: 13927000
+
+companion_no_system:
+  type: Star
+  name: Companion (no direct star_system)
+  mass: 0.2
+  diameter: 278540
+  au: 10.0
+  orbiting: primary_for_hierarchy
+  data:
+    stellar_class: M
+    stellar_type: V
+    stellar_subtype: 5
+    is_protostar: false
+    temperature: 3200
+    age: 5.0
+    colour: Red
+    jump_shadow: 27854000
+
+# Stellar objects for jump shadow tests
+
+# Planet orbiting primary star at 1 AU (inside primary's shadow)
+planet_near_primary:
+  name: Inner Planet
+  type: 'TerrestrialPlanet'
+  orbiting: primary_for_hierarchy
+  au: 1.0
+  diameter: 12742
+  data: {}
+
+# Planet orbiting primary star at 2 AU (outside primary's shadow)
+planet_far_from_primary:
+  name: Outer Planet
+  type: 'GasGiant'
+  orbiting: primary_for_hierarchy
+  au: 2.0
+  diameter: 139820
+  data: {}
+
+# Planet orbiting secondary star at 0.1 AU
+planet_orbiting_secondary:
+  name: Planet Around Secondary
+  type: 'TerrestrialPlanet'
+  orbiting: secondary_star
+  au: 0.1
+  diameter: 6371
+  data: {}
+
+# Planet orbiting tertiary star at 0.05 AU
+planet_orbiting_tertiary:
+  name: Planet Around Tertiary
+  type: 'TerrestrialPlanet'
+  orbiting: tertiary_star
+  au: 0.05
+  diameter: 4879
+  data: {}
+
+# Moon fixtures for Moon#effective_jump_shadow_km / effective_jump_shadow_source tests
+
+# orbit=10 diameters of planet_near_primary (diameter=12742)
+# moon_to_planet_km = 10 * 12742 = 127,420 km
+# planet shadow remaining = 1,274,200 - 127,420 = 1,146,780 km  (dominates)
+# cumulative to primary = 127,420 + 1 AU = 149,725,291 km > primary shadow (139,270,000) → 0
+# moon own shadow = 1737 * 100 = 173,700 km
+moon_inside_planet_shadow:
+  name: Moon Inside Planet Shadow
+  type: 'Moon'
+  orbiting: planet_near_primary
+  orbit: 10
+  diameter: 1737
+  size_code: '2'
+  data: {}
+
+# orbit=200 diameters — beyond planet shadow (200 * 12742 = 2,548,400 > 1,274,200)
+# planet shadow remaining = negative → 0
+# cumulative to primary > primary shadow → 0
+# moon own shadow = 1000 * 100 = 100,000 km  (dominates)
+moon_outside_all_shadows:
+  name: Moon Outside All Shadows
+  type: 'Moon'
+  orbiting: planet_near_primary
+  orbit: 200
+  diameter: 1000
+  size_code: '1'
+  data: {}
+
+# orbit=5 diameters of planet_orbiting_secondary (diameter=6371, au=0.1)
+# moon_to_planet_km = 5 * 6371 = 31,855 km
+# planet shadow remaining = 637,100 - 31,855 = 605,245 km
+# cumulative to secondary = 31,855 + 0.1 * AU_TO_KM ≈ 14,991,642 km
+# secondary shadow remaining = 27,854,000 - 14,991,642 ≈ 12,862,358 km  (dominates)
+moon_orbiting_secondary_planet:
+  name: Moon Around Secondary Planet
+  type: 'Moon'
+  orbiting: planet_orbiting_secondary
+  orbit: 5
+  diameter: 500
+  size_code: '1'
+  data: {}

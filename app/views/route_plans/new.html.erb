@@ -1,0 +1,134 @@
+<%= modal(title: 'Plot Route', padding: true, advance: false, overlay: false) do %>
+  <% if flash[:alert] %>
+    <div class='mb-4 rounded-lg border border-red-500/40 bg-red-950/30 px-4 py-2 text-sm text-red-300'>
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <%= form_with url: new_route_plan_path, method: :get,
+                data: { controller: 'route-plan', action: 'turbo:submit-end->route-plan#preventModalClose' },
+                class: 'space-y-6' do |f| %>
+
+    <%# From system %>
+    <div data-controller='system-search'
+         data-system-search-search-url-value='<%= search_star_systems_path %>'>
+      <label class='edit-label'>From</label>
+      <input type='text'
+             placeholder='Search for a system…'
+             autocomplete='off'
+             data-system-search-target='input'
+             data-action='input->system-search#search'
+             value='<%= @from_system ? (@from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}") : "" %>'
+             class='w-full edit-base mt-2'>
+      <input type='hidden'
+             name='from_id'
+             value='<%= @from_system&.id %>'
+             data-system-search-target='idField'>
+      <div data-system-search-target='dropdown'
+           class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+        <ul data-system-search-target='list'></ul>
+      </div>
+    </div>
+
+    <%# To system %>
+    <div data-controller='system-search'
+         data-system-search-search-url-value='<%= search_star_systems_path %>'>
+      <label class='edit-label'>To</label>
+      <input type='text'
+             placeholder='Search for a system…'
+             autocomplete='off'
+             data-system-search-target='input'
+             data-action='input->system-search#search'
+             class='w-full edit-base mt-2'>
+      <input type='hidden'
+             name='to_id'
+             data-system-search-target='idField'>
+      <div data-system-search-target='dropdown'
+           class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+        <ul data-system-search-target='list'></ul>
+      </div>
+    </div>
+
+    <%# Ship + Jump range %>
+    <div class='grid grid-cols-2 gap-4'>
+      <div>
+        <label class='edit-label'>Ship</label>
+        <select name='ship_id'
+                data-route-plan-target='ship'
+                data-action='change->route-plan#shipChanged'
+                class='w-full edit-base mt-2'>
+          <option value=''>— select a ship —</option>
+          <% @ships.each do |ship| %>
+            <option value='<%= ship.id %>'
+                    data-jump-drive='<%= ship.jump_drive %>'>
+              <%= ship.name %> (J-<%= ship.jump_drive %>)
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <div>
+        <label class='edit-label'>Jump range</label>
+        <select name='jump_range'
+                data-route-plan-target='jumpRange'
+                data-action='change->route-plan#jumpRangeChanged'
+                class='w-full edit-base mt-2'>
+          <% (1..6).each do |n| %>
+            <option value='<%= n %>' <%= 'selected' if @jump_range == n %>><%= n %></option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+
+    <%# Refueling %>
+    <div>
+      <label class='edit-label'>Refuelling</label>
+      <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+        <label class='flex items-center gap-2 cursor-pointer'>
+          <%= f.radio_button :refueling, 'any', checked: @refueling == 'any', class: 'accent-highlight' %>
+          Any
+        </label>
+        <label class='flex items-center gap-2 cursor-pointer'>
+          <%= f.radio_button :refueling, 'commercial', checked: @refueling == 'commercial', class: 'accent-highlight' %>
+          No wilderness (D+ starport)
+        </label>
+        <label class='flex items-center gap-2 cursor-pointer'>
+          <%= f.radio_button :refueling, 'wilderness', checked: @refueling == 'wilderness', class: 'accent-highlight' %>
+          Wilderness only (gas giant)
+        </label>
+        <label class='flex items-center gap-2 cursor-pointer'>
+          <%= f.radio_button :refueling, 'refined', checked: @refueling == 'refined', class: 'accent-highlight' %>
+          Refined fuel only (A/B starport)
+        </label>
+      </div>
+    </div>
+
+    <%# Travel zone exclusions %>
+    <% if @travel_zones.any? %>
+      <div>
+        <label class='edit-label'>Exclude Travel Zones</label>
+        <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+          <% @travel_zones.each do |tz| %>
+            <label class='flex items-center gap-2 cursor-pointer'>
+              <input type='checkbox'
+                     name='excluded_travel_zone_ids[]'
+                     value='<%= tz.id %>'
+                     class='accent-highlight'
+                     <%= 'checked' if @excluded_travel_zone_ids.include?(tz.id) %>>
+              <span class='inline-flex items-center gap-1'>
+                <svg width='12' height='12' viewBox='0 0 12 12'>
+                  <circle cx='6' cy='6' r='5' fill='<%= tz.colour %>'/>
+                </svg>
+                <%= tz.name %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.submit 'Plot route', class: 'w-full btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>

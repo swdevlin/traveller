@@ -1,0 +1,55 @@
+name: First Prospect R2
+abbreviation: FirstR2
+X: -13
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FirstR2 A
+    type: LOW
+    index: A
+  - name: FirstR2 B
+    type: MODERATE
+    index: B
+  - name: FirstR2 C
+    type: LOW
+    index: C
+  - name: FirstR2 D
+    type: LOW
+    index: D
+  - name: FirstR2 E
+    type: MODERATE
+    index: E
+  - name: FirstR2 F
+    type: MODERATE
+    index: F
+  - name: FirstR2 G
+    type: MODERATE
+    index: G
+  - name: FirstR2 H
+    type: MODERATE
+    index: H
+  - name: FirstR2 I
+    type: MODERATE
+    index: I
+  - name: FirstR2 J
+    type: MODERATE
+    index: J
+  - name: FirstR2 K
+    type: STANDARD
+    index: K
+  - name: FirstR2 L
+    type: MODERATE
+    index: L
+  - name: FirstR2 M
+    type: MODERATE
+    index: M
+  - name: FirstR2 N
+    type: MODERATE
+    index: N
+  - name: FirstR2 O
+    type: MODERATE
+    index: O
+  - name: FirstR2 P
+    type: MODERATE
+    index: P

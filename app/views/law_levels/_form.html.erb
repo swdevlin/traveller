@@ -1,0 +1,53 @@
+<%= form_with(model: law_level, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to %>
+  <div class='space-y-2 pb-10'>
+
+    <%= render 'application/form_errors', errors: law_level.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :code do %>
+      <%= form.text_field :code, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :armour do %>
+      <%= form.text_field :armour, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :weapons do %>
+      <%= form.text_field :weapons, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :economic_law do %>
+      <%= form.text_field :economic_law, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :criminal_law do %>
+      <%= form.text_field :criminal_law, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :private_law do %>
+      <%= form.text_field :private_law, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :personal_law do %>
+      <%= form.text_field :personal_law, class: 'edit-base w-full sm:w-1/2' %>
+    <% end %>
+
+    <div>
+      <%= form.label :notes, class: 'text-xs uppercase tracking-[0.18em] text-fg-muted' %>
+      <%= form.text_area :notes,
+                          rows: 4,
+                          class: [
+                            'w-full edit-base mt-2 resize-y',
+                            {
+                              'border-gray-400 focus:outline-blue-600': law_level.errors[:notes].none?,
+                              'border-red-400 focus:outline-red-600': law_level.errors[:notes].any?
+                            }
+                          ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', law_level.persisted? ? law_level : law_levels_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

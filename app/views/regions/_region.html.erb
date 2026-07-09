@@ -1,0 +1,56 @@
+<div id="<%= dom_id region %>" class='space-y-6 mb-4'>
+  <%= render 'application/data_block',
+             label: 'Name',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.name
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Label',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.label
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Source',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.source
+  %>
+
+  <%= render 'application/data_block',
+             label: 'External source',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.external_source
+  %>
+
+  <%= render 'application/data_block',
+             label: 'External key',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.external_key
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Data',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.data
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Allegiance',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.allegiance_id
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Customized',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.customized
+  %>
+
+  <%= render 'application/data_block',
+             label: 'Notes',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: region.notes
+  %>
+
+</div>

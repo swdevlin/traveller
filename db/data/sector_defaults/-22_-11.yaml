@@ -1,0 +1,55 @@
+name: Riftsedge Bridge
+abbreviation: ReBr
+X: -22
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ReBr A
+    type: MODERATE
+    index: A
+  - name: ReBr B
+    type: MODERATE
+    index: B
+  - name: ReBr C
+    type: MODERATE
+    index: C
+  - name: ReBr D
+    type: MODERATE
+    index: D
+  - name: ReBr E
+    type: MODERATE
+    index: E
+  - name: ReBr F
+    type: MODERATE
+    index: F
+  - name: ReBr G
+    type: MODERATE
+    index: G
+  - name: ReBr H
+    type: MODERATE
+    index: H
+  - name: ReBr I
+    type: MODERATE
+    index: I
+  - name: ReBr J
+    type: MODERATE
+    index: J
+  - name: ReBr K
+    type: MODERATE
+    index: K
+  - name: ReBr L
+    type: MODERATE
+    index: L
+  - name: ReBr M
+    type: MODERATE
+    index: M
+  - name: ReBr N
+    type: MODERATE
+    index: N
+  - name: ReBr O
+    type: MODERATE
+    index: O
+  - name: ReBr P
+    type: MODERATE
+    index: P

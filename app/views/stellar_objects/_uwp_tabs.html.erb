@@ -1,0 +1,118 @@
+<%
+  uwp = stellar_object.uwp.presence || 'X000000-0'
+  physical_partial = local_assigns.fetch(:physical_tab, 'stellar_objects/physical_tab')
+  extra_tabs = local_assigns.fetch(:extra_tabs, [])
+  hide_orbital = local_assigns.fetch(:hide_orbital, false)
+  storage_key = "uwp_tabs_#{dom_id(stellar_object)}"
+
+  uwp_tab_defs = [
+    { id: 'orbital',       code: nil,      label: 'Orbital',   highlight: false },
+    { id: 'starport',      code: uwp[0],   label: 'Starport',  highlight: true },
+    { id: 'physical',      code: uwp[1],   label: 'Physical',  highlight: true },
+    { id: 'atmosphere',    code: uwp[2],   label: 'Atmo',       highlight: true },
+    { id: 'hydrographics', code: uwp[3],   label: 'Hydro',     highlight: true },
+    { id: 'population',    code: uwp[4],   label: 'Pop',       highlight: true },
+    { id: 'government',    code: uwp[5],   label: 'Gov',       highlight: true },
+    { id: 'law_level',     code: uwp[6],   label: 'Law',       highlight: true },
+    { id: 'tech_level',    code: uwp[8],   label: 'Tech',      highlight: true }
+  ]
+%>
+
+<% visible_tab_defs = hide_orbital ? uwp_tab_defs.reject { |t| t[:id] == 'orbital' } : uwp_tab_defs %>
+<% default_tab = hide_orbital ? 'starport' : 'orbital' %>
+
+<div data-controller="tabs"
+     data-tabs-default-value="<%= default_tab %>"
+     data-tabs-storage-key-value="<%= storage_key %>">
+
+  <div class="uwp-tab-bar">
+    <% visible_tab_defs.each_with_index do |tab, i| %>
+      <button class="uwp-tab-btn uwp-tab-inactive<%= ' uwp-tab-highlight' if tab[:highlight] %>"
+              data-tabs-target="tab"
+              data-tab="<%= tab[:id] %>"
+              data-action="click->tabs#switch">
+        <span class="uwp-tab-code"><%= tab[:code] || '⊕' %></span>
+        <span class="uwp-tab-label"><%= tab[:label] %></span>
+      </button>
+      <% if tab[:id] == 'orbital' %>
+        <div class="uwp-tab-sep">
+          <span class="uwp-tab-code">&nbsp;</span>
+          <span class="uwp-tab-label">&nbsp;</span>
+        </div>
+      <% end %>
+      <% if tab[:id] == 'law_level' %>
+        <div class="uwp-tab-sep">
+          <span class="uwp-tab-code text-fg-muted">-</span>
+          <span class="uwp-tab-label">&nbsp;</span>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% if extra_tabs.any? %>
+      <div class="uwp-tab-sep">
+        <span class="uwp-tab-code text-fg-muted">|</span>
+        <span class="uwp-tab-label">&nbsp;</span>
+      </div>
+      <% extra_tabs.each do |tab| %>
+        <button class="uwp-tab-btn uwp-tab-inactive"
+                data-tabs-target="tab"
+                data-tab="<%= tab[:id] %>"
+                data-action="click->tabs#switch">
+          <span class="uwp-tab-code"><%= tab[:code] %></span>
+          <span class="uwp-tab-label"><%= tab[:label] %></span>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% unless hide_orbital %>
+    <div data-tabs-target="panel" data-tab="orbital" class="hidden">
+      <%= render 'stellar_objects/orbital_tab',
+                 stellar_object: stellar_object,
+                 parent: local_assigns[:parent],
+                 parsec: local_assigns[:parsec],
+                 allegiance: local_assigns[:allegiance],
+                 shadow_km: local_assigns[:shadow_km],
+                 shadow_source: local_assigns[:shadow_source] %>
+    </div>
+  <% end %>
+
+  <div data-tabs-target="panel" data-tab="starport" class="hidden">
+    <%= render 'stellar_objects/starport_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="physical" class="hidden">
+    <%= render physical_partial, stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="atmosphere" class="hidden">
+    <%= render 'stellar_objects/atmosphere_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="hydrographics" class="hidden">
+    <%= render 'stellar_objects/hydrographics_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="population" class="hidden">
+    <%= render 'stellar_objects/population_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="government" class="hidden">
+    <%= render 'stellar_objects/government_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="law_level" class="hidden">
+    <%= render 'stellar_objects/law_level_tab', stellar_object: stellar_object %>
+  </div>
+
+  <div data-tabs-target="panel" data-tab="tech_level" class="hidden">
+    <%= render 'stellar_objects/tech_level_tab', stellar_object: stellar_object %>
+  </div>
+
+  <% extra_tabs.each do |tab| %>
+    <div data-tabs-target="panel" data-tab="<%= tab[:id] %>" class="hidden">
+      <%= render tab[:partial], **(tab[:locals] || {}) %>
+    </div>
+  <% end %>
+
+</div>

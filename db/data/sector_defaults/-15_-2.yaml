@@ -1,0 +1,55 @@
+name: Kaalin Ulterior
+abbreviation: KaaUlt
+X: -15
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: KaaUlt A
+    type: MODERATE
+    index: A
+  - name: KaaUlt B
+    type: MODERATE
+    index: B
+  - name: KaaUlt C
+    type: MODERATE
+    index: C
+  - name: KaaUlt D
+    type: MODERATE
+    index: D
+  - name: KaaUlt E
+    type: MODERATE
+    index: E
+  - name: KaaUlt F
+    type: MODERATE
+    index: F
+  - name: KaaUlt G
+    type: MODERATE
+    index: G
+  - name: KaaUlt H
+    type: MODERATE
+    index: H
+  - name: KaaUlt I
+    type: MODERATE
+    index: I
+  - name: KaaUlt J
+    type: MODERATE
+    index: J
+  - name: KaaUlt K
+    type: LOW
+    index: K
+  - name: KaaUlt L
+    type: SPARSE
+    index: L
+  - name: KaaUlt M
+    type: SPARSE
+    index: M
+  - name: KaaUlt N
+    type: SPARSE
+    index: N
+  - name: KaaUlt O
+    type: SPARSE
+    index: O
+  - name: KaaUlt P
+    type: SPARSE
+    index: P

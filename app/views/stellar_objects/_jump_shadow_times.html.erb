@@ -1,0 +1,31 @@
+<% effective_shadow = local_assigns[:stellar_object]&.effective_jump_shadow_km || 0 %>
+<% shadow_source = local_assigns[:stellar_object]&.effective_jump_shadow_source %>
+<% times_only = local_assigns.fetch(:times_only, false) %>
+
+<% if effective_shadow > 0 %>
+  <div class="flex items-center gap-2">
+    <div class="text-xs uppercase tracking-[0.22em] text-highlight">
+      Jump Shadow
+    </div>
+    <div class="h-px flex-1 bg-panel"></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-8 lg:grid-cols-8 gap-2">
+    <% unless times_only %>
+      <%= render 'application/data_block',
+                 label: 'Distance',
+                 value: number_with_delimiter(number_with_precision(effective_shadow, precision: 0)),
+                 suffix: 'km' %>
+      <% if shadow_source %>
+        <% source_path = shadow_source.is_a?(Star) ? star_path(shadow_source) : stellar_object_path(shadow_source) %>
+        <%= render 'application/data_block',
+                   label: 'Source',
+                   value: link_to(shadow_source.display_name, source_path,
+                                  class: 'no-underline hover:underline hover:underline-offset-2') %>
+      <% end %>
+    <% end %>
+    <% jump_shadow_travel_times(effective_shadow).each do |g, time| %>
+      <%= render 'application/data_block', label: "#{g}G", value: time %>
+    <% end %>
+  </div>
+<% end %>

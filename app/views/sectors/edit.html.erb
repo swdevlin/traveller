@@ -1,10 +1,14 @@
-<% content_for :title, "Editing sector" %>
+<% content_for :title, "Editing #{@sector.name}" %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing sector</h1>
+<div class="w-full">
+  <div class='mt-4'>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
+      Sector Data Core
+    </div>
+    <div class='mt-1 text-2xl font-header text-highlight caps-small'>
+      <%= @sector.name %>
+    </div>
+  </div>
 
   <%= render "form", sector: @sector %>
-
-  <%= link_to "Show this sector", @sector, class: "w-full sm:w-auto btn" %>
-  <%= link_to "Back to sectors", sectors_path, class: "w-full sm:w-auto btn" %>
 </div>

@@ -1,105 +1,39 @@
 # My Traveller Universe
 
-## To Do
+A site to manage a Traveller Universe. Initial version is for Deepnight campaigns and for referees building their
+own charted space. It is intended to eventually support Drinax campaigns and charted space.
 
-* Add a rogue stellar object
-  * Brown dwarf
-    * can edit
-  * [x] Comet
-    * can edit
-  * [x] Gas cloud
-    * can edit
-  * [x] Gas giant
-    * can edit
-  * [x] Gravity anomaly
-    * can edit
-  * [x] Interstellar wreck
-    * can edit
-  * Planetoid belt
-    * can edit
-  * [x] Radiation cloud
-    * can edit
-  * [x] Relic
-    * can edit
-  * Terrestrial planet
-    * can edit
-  * [x] Unusual Object
-    * can edit
-  * can delete rogue object
-* On-line help
-* Add a star system to a hex
-  * [x] random
-  * [x] Specific class, subtype, and luminosity
-  * Support generating by system density
-* Hex display for a subsector
-* Links to the Deepnight navigation console for Travellers
-* Populate a subsector
-  * [x] Basic populate
-  * Add populated option
-    * per hex 
-  * Add star definition
-  * Add system definition
-    * hot, habital, goldilocks, cold zones
-* Populate a sector
-  *  verify each subsector has a build plan
-  *  create a job for each subsector
-* Log in
-  * Multi-tenancy
-  * Start at sectors list if the user is logged in
-* Export sector file that can be used by Traveller Map
-* Export subsector file that can be used by Traveller Map
-* In star system editing
-  *  Add option to change main world 
-* Enter configuration for parsec
-* Enter configuration for subsector
-* Enter configuration for sector
-* Import default data for sector
-* Import default data for subsector
-* Import default data for parsec
+## To Do
+* Add Button to create all deepnight sectors
+  * create with configuration for each sector
+  * Option to generate blank?
+* Display error messages from background jobs
+* Verify social UWP characteristic calculations for other worlds
+* Import default configuration for parsec
+* Quickly set survey index for a subsector
+* import communication network from travellermap
+
+### Map to do
+
+* [ ] making HexAddress fail on invalid addresses
+* [ ] render neutron star
+
 
 ### To do?
 
-* Themes
-* Routes
-* Support generation by The Deep Space Exploration Handbook
+* custom properties for objects
+  * Drinax properties
 * System generation from Deepnight book
-* Communication routes
+  * Barycenter support
+* Support generation by CRB
+* Support generation by The Deep Space Exploration Handbook
 * Name generation
-* Make generic for any custom Traveller universe
+* Trade generation
+  * publish test module
+  * user can change DMs and prices
 
 #### To do??
 
-* Import Traveller Map sector specification file
-* Complete edit of a stellar object
-* Import of Charted Space data
-  * load from github? 
-
-## Development Notes
-
-The site is built using Rails 8.1.1 and Ruby 3.5.7.
-
-SQLite is used for the database.
-
-Multi-tenacy will be handled via schemas.
-
-# Dev Notes
-
-This for trying to figure out why a get was returning a 404
-
-
-test "should get edit" do
-path = edit_parsec_path(@parsec)
-puts "PATH: #{path}"
-
-    begin
-      p Rails.application.routes.recognize_path(path, method: :get)
-    rescue => e
-      puts "recognize_path error: #{e.class}: #{e.message}"
-    end
-
-    get path
-    puts "status=#{response.status}"
-    puts response.body
-    assert_response :success
-end
-
+* T5
+* Cepheus Engine
+* Clement Sector

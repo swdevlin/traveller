@@ -1,0 +1,42 @@
+<%= content_for :title, 'Languages' %>
+<%= content_for :page_kicker, 'Data Cores' %>
+<%= content_for :page_title, 'Languages' %>
+
+<%= render 'application/page' do %>
+  <%= form_with url: generate_languages_path, method: :post, data: { controller: 'language-picker' } do |f| %>
+    <div class='flex gap-6'>
+      <div class='w-48 shrink-0'>
+        <div class='table-card'>
+          <div class='table-banner'>
+            <p>Language</p>
+          </div>
+          <div class='divide-y divide-outline'>
+            <% @languages.each do |lang| %>
+              <label class='flex cursor-pointer'>
+                <%= radio_button_tag :language, lang, @selected == lang, class: 'peer sr-only',
+                                  data: { action: 'change->language-picker#clear' } %>
+                <div class='w-full px-4 py-2.5 text-sm text-fg transition
+                            hover:bg-panel hover:text-fg-bright
+                            peer-checked:bg-panel peer-checked:font-semibold peer-checked:text-highlight'>
+                  <%= lang.to_s.capitalize %>
+                </div>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class='flex-1 space-y-4'>
+        <div class='flex items-center gap-4'>
+          <label class='text-sm font-medium text-fg-bright' for='count'>Words</label>
+          <%= number_field_tag :count, @count || 10, min: 1, max: 100, class: 'input w-20' %>
+          <%= f.submit 'Generate', class: 'btn btn-primary' %>
+        </div>
+
+        <div id='word_results' data-language-picker-target='results'>
+          <%= render 'results', words: @words || [], language: @selected %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

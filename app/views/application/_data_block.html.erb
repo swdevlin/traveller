@@ -1,0 +1,25 @@
+<% value_style = local_assigns[:value_style] || :default %>
+
+<% value_classes =
+     case value_style
+       when :mono
+         'mt-2 font-mono text-lg text-fg-bright'
+       when :muted
+         'mt-2 text-fg'
+       else
+         'mt-2 text-fg-bright'
+     end
+%>
+
+<div class='min-w-0' <%= tag.attributes("data-tour-step": local_assigns[:tour_step]) if local_assigns[:tour_step] %>>
+  <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
+    <%= label %>
+  </div>
+
+  <div class='<%= [value_classes, local_assigns[:value_wrap_class]].compact.join(' ') %>'>
+    <%= value %>
+    <% if local_assigns[:suffix].present? %>
+      <%= suffix %>
+    <% end %>
+  </div>
+</div>

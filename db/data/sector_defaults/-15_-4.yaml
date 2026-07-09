@@ -1,0 +1,55 @@
+name: Just Empty
+abbreviation: JE
+X: -15
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: JE A
+    type: RIFT_FADE
+    index: A
+  - name: JE B
+    type: RIFT_FADE
+    index: B
+  - name: JE C
+    type: RIFT_FADE
+    index: C
+  - name: JE D
+    type: RIFT_FADE
+    index: D
+  - name: JE E
+    type: DEEP_RIFT
+    index: E
+  - name: JE F
+    type: RIFT_FADE
+    index: F
+  - name: JE G
+    type: EMPTY
+    index: G
+  - name: JE H
+    type: DEEP_RIFT
+    index: H
+  - name: JE I
+    type: DEEP_RIFT
+    index: I
+  - name: JE J
+    type: EMPTY
+    index: J
+  - name: JE K
+    type: RIFT
+    index: K
+  - name: JE L
+    type: DEEP_RIFT
+    index: L
+  - name: JE M
+    type: DEEP_RIFT
+    index: M
+  - name: JE N
+    type: DEEP_RIFT
+    index: N
+  - name: JE O
+    type: DEEP_RIFT
+    index: O
+  - name: JE P
+    type: DEEP_RIFT
+    index: P

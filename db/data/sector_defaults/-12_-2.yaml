@@ -1,0 +1,311 @@
+name: Deepnight
+abbreviation: Deepn
+X: -12
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Deepn A
+    type: LOW
+    index: A
+  - name: Deepn B
+    type: LOW
+    index: B
+  - name: Deepn C
+    type: LOW
+    index: C
+  - name: Deepn D
+    type: LOW
+    index: D
+  - name: Deepn E
+    type: SPARSE
+    index: E
+    exclude:
+      - x: 3
+        y: 4
+      - x: 3
+        y: 8
+      - x: 4
+        y: 4
+      - x: 4
+        y: 5
+      - x: 4
+        y: 8
+      - x: 5
+        y: 4
+      - x: 5
+        y: 6
+      - x: 5
+        y: 7
+      - x: 5
+        y: 8
+      - x: 6
+        y: 3
+      - x: 6
+        y: 4
+      - x: 6
+        y: 5
+      - x: 6
+        y: 7
+      - x: 6
+        y: 8
+      - x: 7
+        y: 4
+      - x: 7
+        y: 5
+      - x: 7
+        y: 7
+      - x: 7
+        y: 8
+      - x: 8
+        y: 4
+      - x: 8
+        y: 5
+      - x: 8
+        y: 6
+      - x: 8
+        y: 7
+      - x: 8
+        y: 8
+    required:
+      - x: 3
+        y: 5
+        name: DNS-AQ-305
+        known: false
+      - x: 3
+        y: 6
+        name: DNS-AQ-306
+        known: false
+      - x: 3
+        y: 7
+        name: DNS-AQ-307
+        known: false
+      - x: 4
+        y: 6
+        name: DNS-AQ-406
+        known: false
+        primary:
+          type: K7
+          bodies:
+            - uwp: Large Gas Giant
+            - uwp: X113000-0
+            - uwp: X530000-0
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+          near:
+            type: M3
+            bodies:
+              - uwp: X665000-0
+              - uwp: Small Gas Giant
+              - uwp: X9A9000-0
+              - uwp: X000000-0
+              - uwp: Small Gas Giant
+          far:
+            type: M6
+            bodies:
+              - uwp: X000000-0
+              - uwp: X520000-0
+              - uwp: X9A1000-0
+              - uwp: X710000-0
+      - x: 4
+        y: 7
+        name: DNS-AQ-407
+        known: false
+      - x: 5
+        y: 5
+        name: DNS-AQ-505
+        known: false
+      - x: 6
+        y: 6
+        name: DNS-AQ-606
+        known: false
+      - x: 7
+        y: 6
+        name: DNS-AQ-706
+        known: false
+  - name: Deepn F
+    type: LOW
+    index: F
+  - name: Deepn G
+    type: LOW
+    index: G
+  - name: Deepn H
+    type: MINIMAL
+    index: H
+    required:
+      - x: 3
+        y: 6
+        name: HNI-A
+        surveyIndex: 0
+        known: false
+        primary:
+          type: G7
+          bodies:
+            - empty
+            - uwp: X200000-0
+            - uwp: Small Gas Giant
+              orbit: cold
+      - x: 4
+        y: 8
+        name: HNI-B
+        surveyIndex: 0
+        known: false
+        primary:
+          type: M3
+          companion:
+            type: M3
+          bodies:
+            - uwp: XEAA000-0
+              orbit: habitable
+            - uwp: X210000-0
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+      - x: 6
+        y: 3
+        name: HNP-A
+        known: false
+        primary:
+          type: K5
+          class: giant
+          bodies:
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - empty
+            - uwp: X000000-0
+            - uwp: X521000-0
+              orbit: cold
+            - uwp: Small Gas Giant
+      - x: 6
+        y: 5
+        name: HNI-C
+        surveyIndex: 0
+        known: false
+        primary:
+          type: M2
+          bodies:
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+            - uwp: Large Gas Giant
+            - uwp: X200000-0
+            - uwp: X224000-0
+            - uwp: X8A1000-0
+      - x: 7
+        y: 9
+        name: HNP-B
+        known: false
+        primary:
+          type: K5
+        near:
+          type: K5
+          bodies:
+            - uwp: X56A000-0
+            - uwp: Large Gas Giant
+            - uwp: X000000-0
+            - uwp: X000000-0
+  - name: Deepn I
+    type: SPARSE
+    index: I
+  - name: Deepn J
+    type: MINIMAL
+    index: J
+  - name: Deepn K
+    type: MINIMAL
+    index: K
+  - name: Deepn L
+    type: MINIMAL
+    index: L
+  - name: Deepn M
+    type: MINIMAL
+    index: M
+  - name: Deepn N
+    type: MINIMAL
+    index: N
+  - name: Deepn O
+    type: MINIMAL
+    index: O
+  - name: Deepn P
+    type: MINIMAL
+    index: P
+regions:
+  - Color: DarkBlue
+    HexColour: FFAA5F
+    LabelPosition: 2916
+    Label: Hennlix Nebula
+    parsecs:
+      - 2614
+      - 2715
+      - 2814
+      - 2915
+      - 3014
+      - 3114
+      - 3214
+      - 3215
+      - 3216
+      - 3116
+      - 3016
+      - 2917
+      - 2816
+      - 2716
+      - 2616
+      - 2615
+      - 2614
+    hexes:
+      - 2614
+      - 2615
+      - 2616
+      - 2715
+      - 2716
+      - 2717
+      - 2718
+      - 2814
+      - 2815
+      - 2816
+      - 2817
+      - 2915
+      - 2916
+      - 2917
+      - 3014
+      - 3015
+      - 3016
+      - 3114
+      - 3115
+      - 3116
+  - Color: DarkGreen
+    HexColour: E0FFFF
+    LabelPosition: 0516
+    Label: Point Grainger
+    parsecs:
+      - 0315
+      - 0414
+      - 0515
+      - 0615
+      - 0716
+      - 0616
+      - 0517
+      - 0417
+      - 0317
+      - 0316
+      - 0315
+    hexes:
+      - 0315
+      - 0316
+      - 0317
+      - 0318
+      - 0414
+      - 0415
+      - 0416
+      - 0417
+      - 0515
+      - 0516
+      - 0517
+      - 0518
+      - 0614
+      - 0615
+      - 0616
+      - 0617
+      - 0715
+      - 0716
+      - 0717

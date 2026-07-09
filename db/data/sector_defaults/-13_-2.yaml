@@ -1,0 +1,504 @@
+name: Near Side of Yonder
+abbreviation: NSoY
+X: -13
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NSoY A
+    type: LOW
+    index: A
+  - name: NSoY B
+    type: LOW
+    index: B
+  - name: NSoY C
+    type: LOW
+    index: C
+  - name: NSoY D
+    type: LOW
+    index: D
+  - name: NSoY E
+    type: SPARSE
+    index: E
+  - name: NSoY F
+    type: SPARSE
+    index: F
+  - name: NSoY G
+    type: SPARSE
+    index: G
+  - name: NSoY H
+    type: SPARSE
+    index: H
+    systems:
+      - x: 1
+        y: 6
+      - x: 1
+        y: 7
+      - x: 2
+        y: 2
+        name: Gehalka
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M4
+          bodies:
+            - empty
+            - empty
+            - empty
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+      - x: 2
+        y: 8
+      - x: 3
+        y: 4
+        name: Irn-Alaz
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M5
+          companion:
+            type: K5
+          bodies:
+            - uwp: terrestrial
+            - uwp: X674000-0
+              orbit: habitable
+            - uwp: Small Gas Giant
+            - uwp: terrestrial
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+      - x: 3
+        y: 6
+        name: Hirnz
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M2
+          bodies:
+            - uwp: X221000-0
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+      - x: 3
+        y: 7
+        name: Ohral
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M4
+          companion:
+            type: A9
+          bodies:
+            - uwp: Large Gas Giant
+            - uwp: Super-Earth
+            - uwp: X9B9000-0
+            - uwp: X6A5000-0
+            - uwp: X5A3000-0
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+      - x: 4
+        y: 2
+        name: Onkonani
+        known: false
+        allegiance: AlMs
+        primary:
+          type: G5
+          bodies:
+            - empty
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+      - x: 4
+        y: 4
+        name: Kahhe
+        known: false
+        bases: R
+        allegiance: AlMs
+        primary:
+          type: G6
+          bodies:
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+          far:
+            type: BD
+            bodies:
+              - uwp: Large Gas Giant
+              - uwp: Small Gas Giant
+              - uwp: X000000-0
+      - x: 4
+        y: 6
+        name: Okh-Kahl
+        known: false
+        allegiance: AlMs
+        primary:
+          type: B3
+          bodies:
+            - uwp: Large Gas Giant
+            - uwp: X530000-0
+            - uwp: X8A0000-0
+            - uwp: X320000-0
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X430000-0
+            - uwp: Large Gas Giant
+          far:
+            type: M9
+            bodies:
+              - uwp: X000000-0
+
+      - x: 5
+        y: 2
+        name: Ikadni
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M3
+          bodies:
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: XAB7000-0
+            - uwp: X520000-0
+            - uwp: Small Gas Giant
+      - x: 5
+        y: 4
+        name: Ghoudek
+        known: false
+        allegiance: AlMs
+        primary:
+          type: K5
+          companion:
+            type: K5
+          bodies:
+            - uwp: X200000-0
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: D6A2346-9
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+          far:
+            type: M6
+      - x: 5
+        y: 5
+        name: Alikherrnz
+        known: false
+        allegiance: AlMs
+        primary:
+          type: K6
+          bodies:
+            - uwp: D000546-9
+              orbit: warm
+            - uwp: Super-Earth
+            - uwp: D767946-9
+            - uwp: D000546-9
+            - uwp: Small Gas Giant
+          far:
+            type: M8
+      - x: 5
+        y: 6
+        name: E-Ehkri
+        known: false
+        counts:
+          terrestrialPlanets: 4
+          planetoidBelts: 0
+          gasGiants: 0
+        primary:
+          type: BD
+      - x: 5
+        y: 7
+        name: Abonek
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M6
+          bodies:
+            - uwp: X667000-0
+            - uwp: X78A000-0
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X4A1000-0
+            - uwp: X720000-0
+            - uwp: X221000-0
+            - uwp: Small Gas Giant
+            - uwp: X210000-0
+      - x: 5
+        y: 8
+        name: Insk
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M5
+          companion:
+            type: M5
+          bodies:
+            - uwp: X610000-0
+            - uwp: X000000-0
+            - uwp: X100000-0
+            - uwp: Small Gas Giant
+            - uwp: X9A1000-0
+      - x: 6
+        y: 2
+        name: Airgi
+        known: false
+        allegiance: AlMs
+        primary:
+          type: M5
+          bodies:
+            - uwp: X210000-0
+            - uwp: X843000-0
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+      - x: 6
+        y: 3
+        name: Tinzal
+        known: false
+        allegiance: AlMs
+        primary:
+          type: G2
+          bodies:
+            - uwp: X000000-0
+            - uwp: X341000-0
+            - uwp: D756546-9
+            - uwp: Small Gas Giant
+            - uwp: X000000-0
+            - uwp: Small Gas Giant
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X311000-0
+          far:
+            type: M8
+            bodies:
+              - uwp: X422000-0
+              - uwp: X688246-9
+              - uwp: Small Gas Giant
+      - x: 6
+        y: 5
+        name: Kgni
+        known: false
+        allegiance: AlMs
+        primary:
+          type: K5
+          bodies:
+            - uwp: X320000-0
+            - uwp: X000000-0
+            - uwp: Large Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: X200000-0
+          far:
+            type: K7
+      - x: 6
+        y: 7
+        name: Danh-In
+        known: false
+        allegiance: AlMs
+        primary:
+          type: K6
+          bodies:
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: Small Gas Giant
+            - uwp: Large Gas Giant
+            - uwp: Large Gas Giant
+            - uwp: X000000-0
+      - x: 7
+        y: 9
+      - x: 8
+        y: 3
+      - x: 8
+        y: 4
+      - x: 8
+        y: 7
+  - name: NSoY I
+    type: SPARSE
+    index: I
+  - name: NSoY J
+    type: SPARSE
+    index: J
+  - name: NSoY K
+    type: SPARSE
+    index: K
+  - name: NSoY L
+    type: SPARSE
+    index: L
+  - name: NSoY M
+    type: SPARSE
+    index: M
+    systems:
+      - x: 1
+        y: 6
+        name: NSY-X TMMm
+        primary:
+          type: M4
+          close:
+            type: M4
+          far:
+            type: M7
+      - x: 2
+        y: 1
+        name: NSY-X Sigma
+        primary:
+          type: D
+        counts:
+          gasGiants: 0
+          planetoidBelts: 0
+          terrestrialPlanets: 0
+      - x: 2
+        y: 6
+        name: NSY-X TGkk
+        primary:
+          type: G1
+          far:
+            type: K3
+            companion:
+              type: K3
+        counts:
+          gasGiants: 1
+          planetoidBelts: 0
+          terrestrialPlanets: 0
+      - x: 2
+        y: 9
+        name: NSY-X  Phi
+        primary:
+          type: A3
+          class: giant
+          companion:
+            type: A3
+            class: giant
+          close:
+            type: A3
+            class: giant
+          near:
+            type: F6
+            companion:
+              type: F6
+          far:
+            type: BD
+            companion:
+              type: BD
+        counts:
+          gasGiants: 3
+          planetoidBelts: 0
+          terrestrialPlanets: 0
+      - x: 4
+        y: 4
+        name: NSY-X SL1
+        primary:
+          type: BD
+        counts:
+          gasGiants: 0
+          planetoidBelts: 0
+          terrestrialPlanets: 0
+      - x: 5
+        y: 3
+        name: NSY-X BKK
+        counts:
+          density: 23
+        primary:
+          type: K3
+          near:
+            type: K3
+      - x: 5
+        y: 5
+        name: NSY-X
+        primary:
+          type: G7
+          near:
+            type: K8
+            bodies:
+              - uwp: Large Gas Giant
+              - uwp: X69A000-0
+                orbit: warm
+              - uwp: X721000-0
+      - x: 5
+        y: 7
+        name: NSY-X AL-Alpha
+        primary:
+          type: K3
+          bodies:
+          - uwp: Small Gas Giant
+          - uwp: Large Gas Giant
+          - uwp: X8B7000-0
+          - uwp: Super-Earth
+          - uwp: X111000-0
+          - uwp: Large Gas Giant
+          - uwp: X000000-0
+          - uwp: X000000-0
+          - uwp: X610000-0
+          - uwp: Small Gas Giant
+          - uwp: X000000-0
+          - uwp: Small Gas Giant
+          - uwp: Large Gas Giant
+          - uwp: X000000-0
+      - x: 6
+        y: 1
+        name: NSY-X SL2
+        primary:
+          type: BD
+        counts:
+          gasGiants: 0
+          planetoidBelts: 1
+          terrestrialPlanets: 7
+      - x: 6
+        y: 3
+        name: NSY-X SM2
+        primary:
+          type: M6
+        counts:
+          density: 23
+      - x: 6
+        y: 8
+        name: NSY-X BLL1
+        primary:
+          type: BD
+          close:
+            type: BD
+        counts:
+          gasGiants: 2
+          planetoidBelts: 1
+          terrestrialPlanets: 0
+      - x: 7
+        y: 3
+        name: NSY-X SGM1
+        primary:
+          type: M1
+          class: giant
+        counts:
+          gasGiants: 0
+          planetoidBelts: 0
+          terrestrialPlanets: 0
+      - x: 7
+        y: 5
+        name: NSY-X BMm1
+        primary:
+          type: M5
+          far:
+            type: M5
+        counts:
+          gasGiants: 1
+          planetoidBelts: 0
+          terrestrialPlanets: 8
+      - x: 8
+        y: 7
+        name: NSY-X Zeta
+        primary:
+          type: D
+  - name: NSoY N
+    type: MINIMAL
+    index: N
+  - name: NSoY O
+    type: MINIMAL
+    index: O
+  - name: NSoY P
+    type: MINIMAL
+    index: P
+regions:
+  - Color: DarkGreen
+    HexColour: E0FFFF
+    LabelPosition: 0535
+    Label: NSY-X
+    parsecs:
+      - 0505
+      - 0505
+    hexes:
+      - 0535

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../seed_data/trade_codes'
+require_relative '../seed_data/mgt2_trade_codes'
 
 TradeCode.upsert_all(TRADE_CODES, unique_by: %i[code])

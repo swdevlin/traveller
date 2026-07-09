@@ -1,7 +1,3 @@
-require 'net/http'
-require 'uri'
-require 'json'
-
 class RoguesController < ApplicationController
   include ParentHex
 
@@ -22,6 +18,8 @@ class RoguesController < ApplicationController
         generate_gas_giant
     when 'PlanetoidBelt'
         generate_stellar_object(PlanetoidBelt)
+    when 'TerrestrialPlanet'
+        TerrestrialPlanet.new(rogue_params)
     else
         StellarObject.new(rogue_params)
     end
@@ -31,7 +29,7 @@ class RoguesController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    @rogue.star_system_id = nil
+    @rogue.orbiting_id = nil
 
     unless StellarObject::STI_TYPES.include?(@rogue.type)
       @rogue.errors.add(:type, 'is not a valid type')
@@ -50,7 +48,11 @@ class RoguesController < ApplicationController
     end
 
     if @rogue.save
-      redirect_to safe_return_to || after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
+      if @rogue.is_a?(TerrestrialPlanet)
+        redirect_to edit_stellar_object_path(@rogue), notice: 'Rogue terrestrial planet created. Fill in the details.'
+      else
+        redirect_to after_create_path, notice: "Rogue #{@rogue.type.underscore.humanize(capitalize: false)} added."
+      end
     else
       render :new, status: :unprocessable_entity
     end
@@ -60,9 +62,9 @@ class RoguesController < ApplicationController
   def destroy
     type = @stellar_object.type.underscore.humanize
     parsec = @stellar_object.parsec
-    # Try to find a subsector if it's a rogue object (no star system)
+    # Try to find a subsector if it's a rogue object (not orbiting a star)
     subsector = nil
-    if @stellar_object.star_system_id.nil? && parsec
+    if @stellar_object.orbiting_id.nil? && parsec
       subsector = Subsector.all.find { |s| s.parsecs.include?(parsec) }
     end
 
@@ -102,38 +104,19 @@ class RoguesController < ApplicationController
   end
 
   def generate_stellar_object(klass, params = {})
-    base = Rails.application.config.x.generator_service
-    uri  = URI.join(base.end_with?('/') ? base : "#{base}/", klass.name.underscore)
-    uri.query = URI.encode_www_form(params) if params.present?
+    result = generator_service.generate_stellar_object(klass, params: params)
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 5
-    http.read_timeout = 5
-
-    response = http.get(uri.request_uri)
-
-    unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+    unless result.success?
       return klass.new(rogue_params).tap do |so|
-        so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
+        so.errors.add(:base, result.errors.to_sentence)
       end
     end
 
-    data =
-      begin
-        JSON.parse(response.body)
-      rescue JSON::ParserError => e
-        Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
-        return klass.new(rogue_params).tap do |so|
-          so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
-        end
-      end
-
     so = klass.new(rogue_params)
-    so.assign_data_from_generator(data)
+    so.assign_data_from_generator(result.value)
     so
   rescue StandardError => e
-    Rails.logger.error "#{uri} unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    Rails.logger.error "#{klass} unexpected error: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
     klass.new(rogue_params).tap do |so|
       so.errors.add(:base, "Cannot create #{klass.name.underscore.humanize(capitalize: false)} at this time")
     end
@@ -145,7 +128,7 @@ class RoguesController < ApplicationController
 
     data_keys = klass ? klass.allowed_data_keys : []
 
-    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, data: data_keys)
+    params.require(:stellar_object).permit(:parsec_id, :type, :name, :notes, :known, data: data_keys)
   end
 
   def after_create_path

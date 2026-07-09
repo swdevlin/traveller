@@ -1,0 +1,96 @@
+<tr class='cursor-pointer'
+    data-controller='row-link'
+    data-row-link-url-value='<%= stellar_object_path(stellar_object) %>'
+    data-action='click->row-link#navigate'>
+  <td class='whitespace-nowrap'>
+    <span class='pill'><%= stellar_object.orbit_sequence %></span>
+  </td>
+
+  <% if show_orbit_number? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(stellar_object.orbit, precision: 1) %>
+    </td>
+  <% end %>
+
+  <% if show_au? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(stellar_object.au, precision: 1) %>
+    </td>
+  <% end %>
+
+  <td>
+    <% if @star_system.main_world.present? %>
+      <% if stellar_object == @star_system.main_world %>
+        <i class='fa-regular fa-globe mr-2' title='Main world'></i>
+      <% elsif @star_system.main_world.is_a?(Moon) && @star_system.main_world.orbiting_id == stellar_object.id %>
+        <i class='fa-regular fa-globe mr-2' title='Main world (moon)'></i>
+      <% end %>
+    <% end %>
+    <%= stellar_object.name %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% if stellar_object.respond_to?(:period) %>
+      <%= format_period(stellar_object.period) %>
+    <% end %>
+  </td>
+
+  <td class='whitespace-nowrap'>
+    <% if stellar_object.is_a?(GasGiant) %>
+      <%= "Gas Giant (#{GasGiant::SIZES[stellar_object.code]})" %>
+    <% else %>
+      <%= stellar_object.uwp %>
+    <% end %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% if stellar_object.respond_to?(:habitability_rating) && stellar_object.habitability_rating.present? %>
+      <span class='pill'><%= stellar_object.habitability_rating %></span>
+    <% end %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% if stellar_object.respond_to?(:resource_rating) && stellar_object.resource_rating.present? %>
+      <span class='pill'><%= stellar_object.resource_rating %></span>
+    <% end %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <% moon_count = stellar_object.has_attribute?('moon_count') ? stellar_object[:moon_count].to_i : stellar_object.moons.size %>
+    <%= moon_count if moon_count > 0 %>
+  </td>
+
+  <td class='whitespace-nowrap'>
+    <% if stellar_object.is_a?(GasGiant) %>
+      <%= stellar_object.type.underscore.humanize %>
+    <% elsif stellar_object.is_a?(PlanetoidBelt) %>
+      Rating: <%= stellar_object.resource_rating %>
+    <% else %>
+      <%= temperature_label(stellar_object.temperature) if stellar_object.respond_to?(:temperature) %>
+    <% end %>
+    <% if stellar_object.respond_to?(:data) && stellar_object.data['native_sophont'] %>
+      <i class='fa-regular fa-user-alien ml-1' title='Native sophont'></i>
+    <% end %>
+    <% if stellar_object.respond_to?(:data) && stellar_object.data['extinct_sophont'] %>
+      <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
+    <% end %>
+  </td>
+
+  <td class='actions-cell'>
+    <div class='action-group'>
+      <%= link_to edit_stellar_object_path(stellar_object),
+                  class: 'action',
+                  title: 'Edit' do %>
+        <i class='fa-regular fa-pen-to-square'></i>
+      <% end %>
+
+      <%= button_to stellar_object_path(stellar_object),
+                    method: :delete,
+                    class: 'action danger',
+                    title: 'Delete',
+                    data: { turbo_confirm: "Delete this #{stellar_object.type.underscore.humanize(capitalize: false)}?" } do %>
+        <i class='fa-regular fa-trash'></i>
+      <% end %>
+    </div>
+  </td>
+</tr>

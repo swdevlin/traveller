@@ -1,65 +1,65 @@
-<div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl mt-4">
-  <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
-    <div class="flex items-center justify-between gap-3">
-      <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
-        Rogue objects
-      </p>
-      <% if local_assigns[:new_url].present? %>
-        <%= link_to new_url, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+<div class='table-card mt-4'>
+  <div class='table-banner'>
+    <p>Rogue objects</p>
+
+    <% if local_assigns[:new_url].present? %>
+      <div class='actions'>
+        <%= link_to new_url, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-fixed divide-y divide-slate-700 text-sm">
-      <thead class="bg-slate-900/80">
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-20">
-          Hex
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-40">
-          Type
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Name
-        </th>
-        <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
-          Actions
-        </th>
+        <th scope='col' class='w-20'>Hex</th>
+        <th scope='col' class='w-40'>Type</th>
+        <th scope='col'>Name</th>
+        <th scope='col' class='text-center w-16'>Known</th>
+        <th scope='col' class='text-right w-16 whitespace-nowrap actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+
+      <tbody>
       <% rogues.each do |rogue| %>
-        <tr class="transition hover:bg-slate-900/80">
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-            <%= rogue.parsec.subsector_hex_code %>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= stellar_object_path(rogue) %>'
+            data-action='click->row-link#navigate'>
+          <td class='whitespace-nowrap'>
+            <span class='pill'><%= rogue.parsec.subsector_hex_code %></span>
           </td>
 
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
+          <td class='whitespace-nowrap'>
             <%= rogue.type.underscore.humanize %>
           </td>
 
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
+          <td>
             <%= rogue.name %>
           </td>
-          <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
-            <div class="inline-flex items-center justify-end gap-2">
+
+          <td class='text-center'>
+            <%= content_tag(:i, '', class: 'fa-regular fa-check') if rogue.known? %>
+          </td>
+
+          <td class='actions-cell'>
+            <div class='action-group'>
               <%= link_to edit_stellar_object_path(rogue),
-                          class: "text-slate-300 hover:text-traveller-red/90",
-                          title: "Edit" do %>
-                <i class="fa-solid fa-pen-to-square"></i>
+                          class: 'action',
+                          title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
               <%= button_to stellar_object_path(rogue),
                             method: :delete,
-                            form_class: "inline",
-                            class: "text-slate-300 hover:text-traveller-red/90",
-                            title: "Delete",
+                            class: 'action danger',
+                            title: 'Delete',
                             data: { turbo_confirm: "Delete this #{rogue.type.underscore.humanize(capitalize: false)}?" } do %>
-                <i class="fa-solid fa-trash"></i>
+                <i class='fa-regular fa-trash'></i>
               <% end %>
             </div>
           </td>

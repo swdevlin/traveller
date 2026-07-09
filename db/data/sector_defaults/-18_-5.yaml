@@ -1,0 +1,55 @@
+name: Far Shore
+abbreviation: FarS
+X: -18
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: FarS A
+    type: DEEP_RIFT
+    index: A
+  - name: FarS B
+    type: RIFT_FADE
+    index: B
+  - name: FarS C
+    type: DEEP_RIFT
+    index: C
+  - name: FarS D
+    type: RIFT_FADE
+    index: D
+  - name: FarS E
+    type: RIFT_FADE
+    index: E
+  - name: FarS F
+    type: DEEP_RIFT
+    index: F
+  - name: FarS G
+    type: DEEP_RIFT
+    index: G
+  - name: FarS H
+    type: DEEP_RIFT
+    index: H
+  - name: FarS I
+    type: RIFT
+    index: I
+  - name: FarS J
+    type: RIFT
+    index: J
+  - name: FarS K
+    type: RIFT_FADE
+    index: K
+  - name: FarS L
+    type: RIFT
+    index: L
+  - name: FarS M
+    type: MINIMAL
+    index: M
+  - name: FarS N
+    type: MINIMAL
+    index: N
+  - name: FarS O
+    type: SPARSE
+    index: O
+  - name: FarS P
+    type: SPARSE
+    index: P

@@ -1,0 +1,87 @@
+<%= content_for :title, "Regions" %>
+<%= content_for :page_kicker, 'Reference Manual' %>
+<%= content_for :page_title, "Regions" %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Region registry</p>
+      <div class='actions'>
+        <%= link_to new_region_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          <span>New</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col'>Name</th>
+            <th scope='col'>Label</th>
+            <th scope='col'>Colour</th>
+            <th scope='col'>Label Position</th>
+            <th scope='col'>Sectors</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if @regions.any? %>
+            <% @regions.each do |region| %>
+              <tr class='cursor-pointer hover:border-outline/40' onclick="window.location='<%= region_path(region) %>'">
+                <td>
+                  <%= link_to region.name, region_path(region), class: 't-link' %>
+                </td>
+
+                <td><%= region.label %></td>
+
+                <td>
+                  <% if region.colour.present? || region.border_colour.present? %>
+                    <svg width="18" height="20" viewBox="0 0 20 22" aria-hidden="true">
+                      <polygon points="10,1 19,5.5 19,16.5 10,21 1,16.5 1,5.5"
+                               fill="<%= region.colour.presence || 'transparent' %>"
+                               stroke="<%= region.border_colour.presence || 'transparent' %>"
+                               stroke-width="2"/>
+                    </svg>
+                  <% end %>
+                </td>
+
+                <td>
+                  <% if (lsh = region.label_sector_and_hex) %>
+                    <% lsector, hx, hy = lsh %>
+                    <% lp = region.label_parsec %>
+                    <span class='font-mono text-sm text-fg'>
+                      <%= link_to lsector.name, sector_path(lsector),
+                                  class: 'no-underline hover:underline',
+                                  onclick: 'event.stopPropagation()' %>
+                      &#32;<%= lp ? link_to(format('%02d%02d', hx, hy), parsec_path(lp), class: 'no-underline hover:underline', onclick: 'event.stopPropagation()') : format('%02d%02d', hx, hy) %>
+                    </span>
+                  <% else %>
+                    <span class='text-fg-muted'>—</span>
+                  <% end %>
+                </td>
+
+                <td>
+                  <% region.sectors.each_with_index do |sector, i| %>
+                    <%= link_to sector.name, sector_path(sector),
+                                class: 'no-underline hover:underline hover:underline-offset-2',
+                                onclick: 'event.stopPropagation()' %><%= i < region.sectors.size - 1 ? ', ' : '' %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan='5'>No regions defined.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class='w-full pb-4'>
+      <%== @pagy.series_nav %>
+    </div>
+  </div>
+<% end %>

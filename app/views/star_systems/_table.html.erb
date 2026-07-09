@@ -1,103 +1,113 @@
-<div class="overflow-hidden rounded-xl border border-slate-700/60 bg-slate-900/70 shadow-xl mt-4">
-  <div class="bg-gradient-to-r from-slate-900 via-sky-900/40 to-slate-900 px-4 py-3 sm:px-6 sm:py-4">
-    <div class="flex items-center justify-between gap-3">
-      <p class="text-xs font-medium tracking-[0.2em] text-slate-300 uppercase">
-        Star Systems
-      </p>
+<div class='table-card mt-4'>
+  <div class='table-banner'>
+    <p>Star systems</p>
 
+    <div class='actions'>
       <% if local_assigns[:new_url].present? %>
-        <%= link_to new_url, class: "btn-header" do %>
-          <i class="fa-solid fa-plus text-[0.7rem]"></i>
+        <%= link_to new_url, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
           Add
         <% end %>
       <% end %>
     </div>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-fixed divide-y divide-slate-700 text-sm">
-      <thead class="bg-slate-900/80">
+  <div class='table-scroll'>
+    <table>
+      <thead>
       <tr>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300 w-20">
-          Location
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Name
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          bases
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Statistics
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Trade codes
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Travel codes
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          Stars
-        </th>
-        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-300">
-          <span class="tracking-[0.2em]">PBG</span>
-        </th>
-        <th scope="col" class="px-2 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-300 w-16 whitespace-nowrap">
-          Actions
-        </th>
+        <th scope='col' class='w-20'>Location</th>
+        <th scope='col'>Name</th>
+        <th scope='col'>Bases</th>
+        <th scope='col'></th>
+        <th scope='col'>Statistics</th>
+        <th scope='col'>Trade codes</th>
+        <th scope='col'>Stars</th>
+        <th scope='col'>Allegiance</th>
+        <th scope='col'>Zone</th>
+        <th scope='col'><span class='tracking-[0.2em]'>PBG</span></th>
+        <th scope='col'>SI</th>
+        <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
       </tr>
       </thead>
-      <tbody class="divide-y divide-slate-800 bg-slate-950/60">
+
+      <tbody>
       <% star_systems.each do |star_system| %>
-        <tr class="transition hover:bg-slate-900/80">
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-            <%= link_to star_system.parsec.subsector_hex_code, star_system %>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= star_system_path(star_system) %>'
+            data-action='click->row-link#navigate'>
+          <td class='whitespace-nowrap'>
+            <%= star_system.parsec.subsector_hex_code %>
           </td>
 
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
+          <td class='whitespace-nowrap'>
             <%= star_system.name %>
           </td>
 
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
+          <td class='whitespace-nowrap'>
+            <%= star_system.facilities_string %>
           </td>
 
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-            <%= star_system.main_world_uwp %>
-          </td>
-
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-            <%= star_system.trade_codes_string %>
-          </td>
-
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-          </td>
-
-          <td class="px-4 py-3 whitespace-nowrap align-middle">
-            <%= star_system.table_description %>
-          </td>
-
-          <td class="px-2 py-3 whitespace-nowrap align-middle">
-            <span class="tracking-[0.2em]"><%= star_system.pbg %></span>
-            <% if star_system.has_gas_giant? %>
-              <i class="fa-regular fa-planet-ringed"></i>
+          <td class='text-center'>
+            <% if star_system.locked? %>
+              <i class='fa-regular fa-lock' title='Locked'></i>
             <% end %>
           </td>
 
-          <td class="px-2 py-3 whitespace-nowrap align-middle text-right">
-            <div class="inline-flex items-center justify-end gap-2">
-              <%= link_to edit_star_system_path(star_system),
-                          class: "text-slate-300 hover:text-traveller-red/90",
-                          title: "Edit" do %>
-                <i class="fa-solid fa-pen-to-square"></i>
+          <td class='whitespace-nowrap'>
+            <%= star_system.main_world_uwp %>
+            <% if star_system.native_sophont %>
+              <i class='fa-regular fa-user-alien ml-1' title='Native sophont'></i>
+            <% end %>
+            <% if star_system.extinct_sophont %>
+              <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <%= star_system.trade_codes_string %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <%= star_system.table_description %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if star_system.allegiance %>
+              <%= render 'allegiances/pill', allegiance: star_system.allegiance %>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if (tz = star_system.travel_zone) %>
+              <span class='pill'><%= tz.code %></span>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <span class='tracking-[0.2em]'><%= star_system.pbg %></span>
+            <% if star_system.has_gas_giant? %>
+              <i class='fa-regular fa-planet-ringed'></i>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <%= star_system.survey_index %>
+          </td>
+
+          <td class='actions-cell'>
+            <div class='action-group'>
+              <%= link_to edit_star_system_path(star_system), class: 'action', title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
               <% end %>
 
               <%= button_to star_system_path(star_system),
                             method: :delete,
-                            form_class: "inline",
-                            class: "text-slate-300 hover:text-traveller-red/90",
-                            title: "Delete",
-                            data: { turbo_confirm: "Delete this star system?" } do %>
-                <i class="fa-solid fa-trash"></i>
+                            class: 'action danger',
+                            title: 'Delete',
+                            data: { turbo_confirm: 'Delete this star system?' } do %>
+                <i class='fa-regular fa-trash'></i>
               <% end %>
             </div>
           </td>

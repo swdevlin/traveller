@@ -1,0 +1,2 @@
+module AllegiancesHelper
+end

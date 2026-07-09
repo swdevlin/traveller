@@ -1,0 +1,40 @@
+<% attribute = local_assigns.fetch(:attribute, :build) %>
+<% errors = form.object.errors[attribute] %>
+<div>
+  <div class='flex items-end justify-between gap-3'>
+    <div>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
+        Build plan
+      </div>
+      <div class='mt-1 text-lg font-semibold text-fg-muted'>
+        YAML input
+      </div>
+    </div>
+
+    <%= link_to 'Build spec reference',
+                help_page_path('subsector_build_specification'),
+                class: 'link-traveller text-xs' %>
+  </div>
+
+  <% if errors.any? %>
+    <ul class='mt-2 space-y-1 text-sm text-danger'>
+      <% errors.each do |message| %>
+        <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div id="<%= dom_id(form.object, :"#{attribute}_wrapper") %>">
+    <%= form.text_area attribute,
+                       rows: 16,
+                       aria: { label: 'Build plan YAML' },
+                       data: local_assigns.fetch(:textarea_data, {}),
+                       class: [
+                         'font-mono edit-base w-full resize-y mt-2',
+                         {
+                           'border-gray-400 focus:outline-blue-600': errors.none?,
+                           'border-red-400 focus:outline-red-600': errors.any?
+                         }
+                       ] %>
+  </div>
+</div>

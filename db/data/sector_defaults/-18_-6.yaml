@@ -1,0 +1,55 @@
+name: Lemuria
+abbreviation: Lem
+X: -18
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Lem A
+    type: MODERATE
+    index: A
+  - name: Lem B
+    type: MODERATE
+    index: B
+  - name: Lem C
+    type: MODERATE
+    index: C
+  - name: Lem D
+    type: MODERATE
+    index: D
+  - name: Lem E
+    type: STANDARD
+    index: E
+  - name: Lem F
+    type: MODERATE
+    index: F
+  - name: Lem G
+    type: STANDARD
+    index: G
+  - name: Lem H
+    type: MODERATE
+    index: H
+  - name: Lem I
+    type: STANDARD
+    index: I
+  - name: Lem J
+    type: STANDARD
+    index: J
+  - name: Lem K
+    type: STANDARD
+    index: K
+  - name: Lem L
+    type: STANDARD
+    index: L
+  - name: Lem M
+    type: STANDARD
+    index: M
+  - name: Lem N
+    type: STANDARD
+    index: N
+  - name: Lem O
+    type: STANDARD
+    index: O
+  - name: Lem P
+    type: STANDARD
+    index: P

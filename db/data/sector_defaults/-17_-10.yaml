@@ -1,0 +1,55 @@
+name: Elivagar
+abbreviation: Eliv
+X: -17
+Y: -10
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Eliv A
+    type: MODERATE
+    index: A
+  - name: Eliv B
+    type: MODERATE
+    index: B
+  - name: Eliv C
+    type: MODERATE
+    index: C
+  - name: Eliv D
+    type: MODERATE
+    index: D
+  - name: Eliv E
+    type: STANDARD
+    index: E
+  - name: Eliv F
+    type: MODERATE
+    index: F
+  - name: Eliv G
+    type: MODERATE
+    index: G
+  - name: Eliv H
+    type: STANDARD
+    index: H
+  - name: Eliv I
+    type: MODERATE
+    index: I
+  - name: Eliv J
+    type: STANDARD
+    index: J
+  - name: Eliv K
+    type: MODERATE
+    index: K
+  - name: Eliv L
+    type: MODERATE
+    index: L
+  - name: Eliv M
+    type: LOW
+    index: M
+  - name: Eliv N
+    type: STANDARD
+    index: N
+  - name: Eliv O
+    type: MODERATE
+    index: O
+  - name: Eliv P
+    type: STANDARD
+    index: P

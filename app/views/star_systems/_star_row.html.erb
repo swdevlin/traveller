@@ -1,0 +1,46 @@
+<tr class='cursor-pointer'
+    data-controller='row-link'
+    data-row-link-url-value='<%= star_path(star) %>'
+    data-action='click->row-link#navigate'>
+  <td class='whitespace-nowrap'>
+    <span class='pill'><%= star.orbit_sequence %></span>
+  </td>
+
+  <% if show_orbit_number? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(star.orbit, precision: 1) if star.orbit > 0 %>
+    </td>
+  <% end %>
+
+  <% if show_au? %>
+    <td class='text-right whitespace-nowrap'>
+      <%= number_with_precision(star.au, precision: 1) if star.au > 0 %>
+    </td>
+  <% end %>
+
+  <td style='padding-left: <%= indent %>px;'>
+    <%= star.name %>
+  </td>
+
+  <td class='text-right whitespace-nowrap'>
+    <%= format_period(star.period) if star.period > 0 %>
+  </td>
+
+  <td colspan='5'>
+    <%= star.spectral_classification %>
+  </td>
+
+  <td class='actions-cell'>
+    <div class='action-group'>
+      <%# buttons/links can go here later %>
+    </div>
+  </td>
+</tr>
+
+<% star.mapped_bodies.each do |ob| %>
+  <% if ob.is_a?(Star) %>
+    <%= render 'star_row', star: ob, indent: indent + 8 %>
+  <% else %>
+    <%= render 'stellar_object_row', stellar_object: ob, indent: indent + 8 %>
+  <% end %>
+<% end %>

@@ -1,0 +1,55 @@
+name: Open Rift Spinward 3
+abbreviation: ORS2
+X: -24
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ORS3 A
+    type: MODERATE
+    index: A
+  - name: ORS3 B
+    type: MODERATE
+    index: B
+  - name: ORS3 C
+    type: LOW
+    index: C
+  - name: ORS3 D
+    type: SPARSE
+    index: D
+  - name: ORS3 E
+    type: MODERATE
+    index: E
+  - name: ORS3 F
+    type: MODERATE
+    index: F
+  - name: ORS3 G
+    type: LOW
+    index: G
+  - name: ORS3 H
+    type: SPARSE
+    index: H
+  - name: ORS3 I
+    type: MODERATE
+    index: I
+  - name: ORS3 J
+    type: LOW
+    index: J
+  - name: ORS3 K
+    type: SPARSE
+    index: K
+  - name: ORS3 L
+    type: MINIMAL
+    index: L
+  - name: ORS3 M
+    type: LOW
+    index: M
+  - name: ORS3 N
+    type: SPARSE
+    index: N
+  - name: ORS3 O
+    type: MINIMAL
+    index: O
+  - name: ORS3 P
+    type: MINIMAL
+    index: P

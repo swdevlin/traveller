@@ -1,0 +1,55 @@
+name: LSD Transition Four
+abbreviation: LSD 4
+X: -17
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: LSD 4 A
+    type: MINIMAL
+    index: A
+  - name: LSD 4 B
+    type: SPARSE
+    index: B
+  - name: LSD 4 C
+    type: SPARSE
+    index: C
+  - name: LSD 4 D
+    type: LOW
+    index: D
+  - name: LSD 4 E
+    type: MINIMAL
+    index: E
+  - name: LSD 4 F
+    type: SPARSE
+    index: F
+  - name: LSD 4 G
+    type: SPARSE
+    index: G
+  - name: LSD 4 H
+    type: LOW
+    index: H
+  - name: LSD 4 I
+    type: MINIMAL
+    index: I
+  - name: LSD 4 J
+    type: SPARSE
+    index: J
+  - name: LSD 4 K
+    type: SPARSE
+    index: K
+  - name: LSD 4 L
+    type: LOW
+    index: L
+  - name: LSD 4 M
+    type: MINIMAL
+    index: M
+  - name: LSD 4 N
+    type: SPARSE
+    index: N
+  - name: LSD 4 O
+    type: SPARSE
+    index: O
+  - name: LSD 4 P
+    type: LOW
+    index: P

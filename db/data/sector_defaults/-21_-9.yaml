@@ -1,0 +1,59 @@
+name: Cathago
+abbreviation: Cath
+X: -21
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Cath A
+    type: MODERATE
+    index: A
+  - name: Cath B
+    type: MODERATE
+    index: B
+  - name: Cath C
+    type: MODERATE
+    index: C
+  - name: Cath D
+    type: MODERATE
+    index: D
+  - name: Cath E
+    type: MODERATE
+    index: E
+  - name: Cath F
+    type: MODERATE
+    index: F
+  - name: Cath G
+    type: MODERATE
+    index: G
+  - name: Cath H
+    type: MODERATE
+    index: H
+  - name: Cath I
+    type: MODERATE
+    index: I
+  - name: Cath J
+    type: MODERATE
+    index: J
+  - name: Cath K
+    type: MODERATE
+    index: K
+  - name: Cath L
+    type: MODERATE
+    index: L
+  - name: Cath M
+    type: MODERATE
+    index: M
+  - name: Cath N
+    type: MODERATE
+    index: N
+  - name: Cath O
+    type: MODERATE
+    index: O
+  - name: Cath P
+    populated: true
+    minTechLevel: 5
+    maxTechLevel: 12
+    allegiance: C
+    type: STANDARD
+    index: P

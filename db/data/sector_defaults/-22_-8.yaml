@@ -1,0 +1,55 @@
+name: Styx
+abbreviation: Styx
+X: -22
+Y: -8
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Styx A
+    type: RIFT_FADE
+    index: A
+  - name: Styx B
+    type: RIFT
+    index: B
+  - name: Styx C
+    type: RIFT
+    index: C
+  - name: Styx D
+    type: MINIMAL
+    index: D
+  - name: Styx E
+    type: RIFT_FADE
+    index: E
+  - name: Styx F
+    type: RIFT
+    index: F
+  - name: Styx G
+    type: RIFT
+    index: G
+  - name: Styx H
+    type: MINIMAL
+    index: H
+  - name: Styx I
+    type: RIFT_FADE
+    index: I
+  - name: Styx J
+    type: RIFT
+    index: J
+  - name: Styx K
+    type: RIFT
+    index: K
+  - name: Styx L
+    type: MINIMAL
+    index: L
+  - name: Styx M
+    type: RIFT_FADE
+    index: M
+  - name: Styx N
+    type: RIFT
+    index: N
+  - name: Styx O
+    type: RIFT
+    index: O
+  - name: Styx P
+    type: RIFT
+    index: P

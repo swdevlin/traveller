@@ -1,0 +1,55 @@
+name: Open Rift
+abbreviation: OR
+X: -21
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: OR A
+    type: DEEP_RIFT
+    index: A
+  - name: OR B
+    type: DEEP_RIFT
+    index: B
+  - name: OR C
+    type: DEEP_RIFT
+    index: C
+  - name: OR D
+    type: RIFT_FADE
+    index: D
+  - name: OR E
+    type: DEEP_RIFT
+    index: E
+  - name: OR F
+    type: DEEP_RIFT
+    index: F
+  - name: OR G
+    type: DEEP_RIFT
+    index: G
+  - name: OR H
+    type: RIFT_FADE
+    index: H
+  - name: OR I
+    type: DEEP_RIFT
+    index: I
+  - name: OR J
+    type: DEEP_RIFT
+    index: J
+  - name: OR K
+    type: DEEP_RIFT
+    index: K
+  - name: OR L
+    type: DEEP_RIFT
+    index: L
+  - name: OR M
+    type: DEEP_RIFT
+    index: M
+  - name: OR N
+    type: DEEP_RIFT
+    index: N
+  - name: OR O
+    type: DEEP_RIFT
+    index: O
+  - name: OR P
+    type: DEEP_RIFT
+    index: P

@@ -1,0 +1,55 @@
+name: Idirda
+abbreviation: Idirda
+X: -16
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Idirda A
+    type: STANDARD
+    index: A
+  - name: Idirda B
+    type: STANDARD
+    index: B
+  - name: Idirda C
+    type: STANDARD
+    index: C
+  - name: Idirda D
+    type: STANDARD
+    index: D
+  - name: Idirda E
+    type: STANDARD
+    index: E
+  - name: Idirda F
+    type: STANDARD
+    index: F
+  - name: Idirda G
+    type: STANDARD
+    index: G
+  - name: Idirda H
+    type: MODERATE
+    index: H
+  - name: Idirda I
+    type: LOW
+    index: I
+  - name: Idirda J
+    type: MODERATE
+    index: J
+  - name: Idirda K
+    type: MODERATE
+    index: K
+  - name: Idirda L
+    type: STANDARD
+    index: L
+  - name: Idirda M
+    type: MODERATE
+    index: M
+  - name: Idirda N
+    type: MODERATE
+    index: N
+  - name: Idirda O
+    type: MODERATE
+    index: O
+  - name: Idirda P
+    type: MODERATE
+    index: P

@@ -1,0 +1,55 @@
+name: Orion's Spit Coreward
+abbreviation: OSC
+X: -20
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: OSC A
+    type: SPARSE
+    index: A
+  - name: OSC B
+    type: MODERATE
+    index: B
+  - name: OSC C
+    type: MODERATE
+    index: C
+  - name: OSC D
+    type: SPARSE
+    index: D
+  - name: OSC E
+    type: MINIMAL
+    index: E
+  - name: OSC F
+    type: MODERATE
+    index: F
+  - name: OSC G
+    type: MODERATE
+    index: G
+  - name: OSC H
+    type: MINIMAL
+    index: H
+  - name: OSC I
+    type: MINIMAL
+    index: I
+  - name: OSC J
+    type: MODERATE
+    index: J
+  - name: OSC K
+    type: MODERATE
+    index: K
+  - name: OSC L
+    type: MINIMAL
+    index: L
+  - name: OSC M
+    type: MINIMAL
+    index: M
+  - name: OSC N
+    type: MODERATE
+    index: N
+  - name: OSC O
+    type: MODERATE
+    index: O
+  - name: OSC P
+    type: MINIMAL
+    index: P

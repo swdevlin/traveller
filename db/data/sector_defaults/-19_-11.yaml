@@ -1,0 +1,55 @@
+name: ZSD Transition Two
+abbreviation: ZSD Two
+X: -19
+Y: -11
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ZSD Two A
+    type: DEEP_RIFT
+    index: A
+  - name: ZSD Two B
+    type: DEEP_RIFT
+    index: B
+  - name: ZSD Two C
+    type: DEEP_RIFT
+    index: C
+  - name: ZSD Two D
+    type: DEEP_RIFT
+    index: D
+  - name: ZSD Two E
+    type: DEEP_RIFT
+    index: E
+  - name: ZSD Two F
+    type: DEEP_RIFT
+    index: F
+  - name: ZSD Two G
+    type: DEEP_RIFT
+    index: G
+  - name: ZSD Two H
+    type: DEEP_RIFT
+    index: H
+  - name: ZSD Two I
+    type: DEEP_RIFT
+    index: I
+  - name: ZSD Two J
+    type: DEEP_RIFT
+    index: J
+  - name: ZSD Two K
+    type: RIFT
+    index: K
+  - name: ZSD Two L
+    type: DEEP_RIFT
+    index: L
+  - name: ZSD Two M
+    type: DEEP_RIFT
+    index: M
+  - name: ZSD Two N
+    type: DEEP_RIFT
+    index: N
+  - name: ZSD Two O
+    type: DEEP_RIFT
+    index: O
+  - name: ZSD Two P
+    type: DEEP_RIFT
+    index: P

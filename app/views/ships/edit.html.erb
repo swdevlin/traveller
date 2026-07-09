@@ -1,0 +1,7 @@
+<%= content_for :title, "Editing #{@ship.to_s}" %>
+<%= content_for :page_kicker, "Ship Data Core" %>
+<%= content_for :page_title, @ship.to_s %>
+
+<%= render 'application/page' do %>
+  <%= render "form", ship: @ship %>
+<% end %>

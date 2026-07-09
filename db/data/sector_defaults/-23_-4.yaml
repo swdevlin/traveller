@@ -1,0 +1,55 @@
+name: Open Rift Spinward 2
+abbreviation: ORS2
+X: -23
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ORS2 A
+    type: SPARSE
+    index: A
+  - name: ORS2 B
+    type: SPARSE
+    index: B
+  - name: ORS2 C
+    type: MINIMAL
+    index: C
+  - name: ORS2 D
+    type: RIFT
+    index: D
+  - name: ORS2 E
+    type: SPARSE
+    index: E
+  - name: ORS2 F
+    type: MINIMAL
+    index: F
+  - name: ORS2 G
+    type: MINIMAL
+    index: G
+  - name: ORS2 H
+    type: RIFT
+    index: H
+  - name: ORS2 I
+    type: MINIMAL
+    index: I
+  - name: ORS2 J
+    type: RIFT
+    index: J
+  - name: ORS2 K
+    type: RIFT
+    index: K
+  - name: ORS2 L
+    type: RIFT
+    index: L
+  - name: ORS2 M
+    type: RIFT
+    index: M
+  - name: ORS2 N
+    type: RIFT
+    index: N
+  - name: ORS2 O
+    type: RIFT
+    index: O
+  - name: ORS2 P
+    type: RIFT
+    index: P

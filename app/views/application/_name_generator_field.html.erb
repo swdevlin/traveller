@@ -1,0 +1,64 @@
+<%# locals: form: %>
+<% eff_lang = form.object.effective_language(current_campaign).to_s %>
+<% own_lang = form.object.language.to_s %>
+<% tooltip = if own_lang.present?
+               "Language: #{own_lang.capitalize}"
+             elsif eff_lang.present?
+               "Language: inherited (#{eff_lang.capitalize})"
+             else
+               'Language: none set'
+             end %>
+<div data-controller='random-name'
+     data-random-name-effective-language-value='<%= eff_lang %>'
+     data-random-name-word-url-value='<%= language_word_path %>'>
+  <div class='edit-row'>
+    <div class='edit-label'>Name</div>
+    <div class='edit-field'>
+      <div class='flex'>
+        <%= form.text_field :name,
+                            class: 'edit-base w-120 rounded-r-none',
+                            data: { random_name_target: 'nameField' } %>
+
+        <%= form.hidden_field :language, data: { random_name_target: 'languageInput' } %>
+
+        <button type='button'
+                class='flex-shrink-0 shadow-sm px-3 border border-outline border-l-0 rounded-none
+                       bg-button text-fg-bright hover:border-highlight transition
+                       disabled:opacity-50 disabled:cursor-not-allowed'
+                data-random-name-target='generateButton'
+                data-action='click->random-name#generate'>
+          <i class='fa-regular fa-dice'></i>
+        </button>
+
+        <div class='relative flex-shrink-0'>
+          <button type='button'
+                  title='<%= tooltip %>'
+                  class='shadow-sm h-full px-3 border border-outline border-l-0 rounded-l-none rounded-r-md
+                         bg-button text-fg-bright hover:border-highlight transition'
+                  data-random-name-target='languageButton'
+                  data-action='click->random-name#toggleLanguagePicker'>
+            <i class='fa-solid fa-language'></i>
+          </button>
+
+          <div class='hidden absolute z-50 top-full right-0 mt-1 w-48 rounded-md border border-outline bg-dropdown shadow-xl overflow-y-auto max-h-64'
+               data-random-name-target='languagePanel'>
+            <button type='button'
+                    class='w-full text-left px-3 py-2 text-sm italic text-fg-muted hover:bg-dropdown-hover border-b border-outline'
+                    data-action='click->random-name#clearLanguage'>
+              — Inherited —
+            </button>
+            <% WordGenerator.languages.each do |lang| %>
+              <button type='button'
+                      class='w-full text-left px-3 py-2 text-sm hover:bg-dropdown-hover border-b border-outline last:border-b-0'
+                      data-action='click->random-name#selectLanguage'
+                      data-value='<%= lang %>'>
+                <%= lang.to_s.capitalize %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <%= render 'application/field_error', form: form, attribute: :name %>
+    </div>
+  </div>
+</div>

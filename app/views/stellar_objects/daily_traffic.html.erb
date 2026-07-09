@@ -1,0 +1,8 @@
+<%= modal(title: 'Daily Traffic', padding: true, advance: false, overlay: false) do %>
+  <div id="<%= dom_id(@stellar_object, :daily_traffic) %>">
+    <%= render 'stellar_objects/daily_traffic_result',
+               stellar_object: @stellar_object,
+               traffic: @traffic,
+               frontier: @frontier %>
+  </div>
+<% end %>

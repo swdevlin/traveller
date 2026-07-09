@@ -1,0 +1,68 @@
+<%= content_for :title, 'Law levels' %>
+<%= content_for :page_kicker, 'Reference Manual' %>
+<%= content_for :page_title, 'Law levels' %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Law level registry</p>
+
+      <div class='actions'>
+        <%= link_to new_law_level_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Code</th>
+          <th scope='col'>Armour</th>
+          <th scope='col'>Weapons</th>
+          <th scope='col' class='text-right actions-cell'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @law_levels.each do |law_level| %>
+          <tr data-controller='row-link'
+              data-row-link-url-value='<%= law_level_path(law_level) %>'
+              data-action='click->row-link#navigate'>
+            <td class='whitespace-nowrap'>
+              <%= link_to law_level_path(law_level), class: 't-link' do %>
+                <span class='pill'><%= traveller_hex(law_level.code) %></span>
+              <% end %>
+            </td>
+
+            <td>
+              <%= law_level.armour %>
+            </td>
+
+            <td>
+              <%= law_level.weapons %>
+            </td>
+
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_law_level_path(law_level), class: 'action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to law_level,
+                              method: :delete,
+                              class: 'action danger',
+                              data: { turbo_confirm: 'Delete this law level?' } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

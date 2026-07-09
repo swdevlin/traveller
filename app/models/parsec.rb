@@ -9,6 +9,16 @@ class Parsec < ApplicationRecord
     message: 'parsec already exists'
   }
 
+  def rogues
+    StellarObject
+      .where(parsec_id: id)
+      .where(orbiting_id: nil)
+  end
+
+  def display_name
+    "#{sector.name} (#{hex_code})"
+  end
+
   def subsector
     ul = sector.upper_left
     hx = (x - ul.x)
@@ -21,11 +31,14 @@ class Parsec < ApplicationRecord
     [(x / 8) + 1, (y / 10) + 1]
   end
 
-  def hex_code
-    ul = sector.upper_left
-    hx = (x - ul.x) + 1
-    hy = (ul.y - y) + 1
+  def self.hex_address_from_coords(parsec_x, parsec_y, sector_x, sector_y)
+    hx = parsec_x - sector_x * 32 + 1
+    hy = sector_y * 40 - parsec_y + 1
     format('%02d%02d', hx, hy)
+  end
+
+  def hex_code
+    self.class.hex_address_from_coords(x, y, sector.x, sector.y)
   end
 
   def subsector_hex_code

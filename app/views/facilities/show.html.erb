@@ -1,0 +1,21 @@
+<% content_for :title, @facility.name %>
+<% content_for :page_kicker, "Base Classification" %>
+<% content_for :page_title, @facility.name %>
+
+<%= content_for :page_buttons do %>
+  <%= link_to "Edit", edit_facility_path(@facility), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: facilities_path,
+             label: 'Bases',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @facility,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>
+
+<%= render 'application/page' do %>
+  <%= render @facility %>
+<% end %>

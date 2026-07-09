@@ -1,0 +1,22 @@
+<%= form_with(model: travel_zone, class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/edit_field', form: form, attribute: :code do %>
+      <%= form.text_field :code, class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :colour do %>
+      <%= form.text_field :colour,
+          data: { controller: 'coloris' },
+          class: 'edit-base w-32' %>
+    <% end %>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit travel_zone.persisted? ? 'Update core' : 'Commit core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', travel_zone.persisted? ? travel_zone : travel_zones_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

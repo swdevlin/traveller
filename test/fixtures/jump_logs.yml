@@ -1,0 +1,58 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ship: one
+  from_parsec: one
+  to_parsec: one
+  depart_year: 1
+  depart_day: 1
+  arrive_year: 1
+  arrive_day: 1
+  sequence: 1
+  notes: MyText
+  misjump: false
+
+two:
+  ship: two
+  from_parsec: two
+  to_parsec: two
+  depart_year: 1
+  depart_day: 1
+  arrive_year: 1
+  arrive_day: 1
+  sequence: 1
+  notes: MyText
+  misjump: false
+
+chain_a:
+  ship: one
+  from_parsec: one
+  to_parsec: two
+  depart_year: 1105
+  depart_day: 1
+  arrive_year: 1105
+  arrive_day: 8
+  sequence: 10
+  misjump: false
+
+chain_b:
+  ship: one
+  from_parsec: two
+  to_parsec: one
+  depart_year: 1105
+  depart_day: 8
+  arrive_year: 1105
+  arrive_day: 15
+  sequence: 11
+  misjump: false
+
+chain_c:
+  ship: one
+  from_parsec: one
+  to_parsec: two
+  depart_year: 1105
+  depart_day: 15
+  arrive_year: 1105
+  arrive_day: 22
+  sequence: 12
+  misjump: false

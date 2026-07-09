@@ -1,0 +1,60 @@
+<% content_for :title, 'Edit Subsector' %>
+
+<%= render 'help/page', title: 'Edit Subsector' do %>
+  <div class='space-y-6'>
+    <div>
+      <dl class='space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>The subsector&rsquo;s designation. Use <i class="fa-regular fa-dice"></i> generate a random name. Use <i class="fa-solid fa-language"></i> to set the language used to generate the name.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Observations</dt>
+          <dd class='mt-1 text-fg'>Free-text notes in CommonMark (Markdown) format. Displayed on the subsector survey record.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Build Plan</dt>
+          <dd class='mt-1 text-fg'>
+            YAML configuration that controls how this subsector is procedurally generated.
+            See the <%= link_to 'build specification reference', help_page_path('subsector_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for the full schema.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Derive Build from Survey</dt>
+          <dd class='mt-1 text-fg'>
+            <div class='space-y-3'>
+              <p>The <span class="font-semibold text-fg-bright">Derive Build from Survey</span> button creates a build configuration
+                that matches the existing sector data. This is useful when you want to generate a new version
+                of the subsector but ensure that the same hexes have star systems and rogue objects.
+              </p>
+              <p>The derived build configuration preserves the structural outline of the subsector. It keeps:</p>
+              <ul class='list-disc list-inside space-y-1'>
+                <li>which hexes contain star systems</li>
+                <li>the star types and the types of stellar bodies orbiting the stars</li>
+                <li>the UWP for terrestrial planets</li>
+                <li>the UWP for planetoid belts</li>
+                <li>the size of gas giants</li>
+                <li>which hexes contain rogue objects</li>
+                <li>the types of rogue objects</li>
+                <li>the names of objects</li>
+              </ul>
+              <p>Data that may change when generating the subsector will be the specific details about
+                objects. For example, the atmospheric composition may be different, the number of moons or
+                planetoids may change.</p>
+            </div>
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Update sore</dt>
+          <dd class='mt-1 text-fg'>
+            Save the changes and return to the subsector view.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0619SE
+    </div>
+  </div>
+<% end %>

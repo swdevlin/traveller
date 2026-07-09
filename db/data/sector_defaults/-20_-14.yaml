@@ -1,0 +1,55 @@
+name: Orion's Spit Rimward
+abbreviation: OSR
+X: -20
+Y: -14
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: OSR A
+    type: RIFT
+    index: A
+  - name: OSR B
+    type: MODERATE
+    index: B
+  - name: OSR C
+    type: MODERATE
+    index: C
+  - name: OSR D
+    type: RIFT
+    index: D
+  - name: OSR E
+    type: RIFT
+    index: E
+  - name: OSR F
+    type: LOW
+    index: F
+  - name: OSR G
+    type: LOW
+    index: G
+  - name: OSR H
+    type: RIFT
+    index: H
+  - name: OSR I
+    type: RIFT
+    index: I
+  - name: OSR J
+    type: RIFT
+    index: J
+  - name: OSR K
+    type: RIFT
+    index: K
+  - name: OSR L
+    type: RIFT
+    index: L
+  - name: OSR M
+    type: RIFT
+    index: M
+  - name: OSR N
+    type: RIFT
+    index: N
+  - name: OSR O
+    type: SPARSE
+    index: O
+  - name: OSR P
+    type: RIFT
+    index: P

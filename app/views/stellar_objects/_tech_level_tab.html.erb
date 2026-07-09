@@ -1,0 +1,77 @@
+<% tl_code = stellar_object.tech_level_code %>
+<% tl_data = stellar_object.data&.dig('tech_level') %>
+<% tech = tl_code.present? ? TechLevel.find_by(code: tl_code) : nil %>
+<% tl_records = tl_data ? TechLevel.where(code: tl_data.values.grep(Integer).uniq).index_by(&:code) : {} %>
+
+<% if tl_data.present? || tech %>
+  <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'application/data_block',
+                 label: 'Tech Level',
+                 value: safe_join([tag.span(HexDigit.hex_digit(tl_code), class: 'identifier-sm'), tech&.descriptor].compact, ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <%= render 'application/data_block', label: 'Era', value: tech&.short_description %>
+    </div>
+
+    <%= render 'application/subsection', title: 'Capabilities' %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% if (c = tl_data&.dig('energy')) %>
+        <%= render 'application/data_block', label: 'Energy',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.energy].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('electronics')) %>
+        <%= render 'application/data_block', label: 'Electronics',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.electronics].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('manufacturing')) %>
+        <%= render 'application/data_block', label: 'Manufacturing',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.manufacturing].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('medical')) %>
+        <%= render 'application/data_block', label: 'Medical',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.medical].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if tech&.environmental.present? %>
+        <%= render 'application/data_block', label: 'Environmental',
+                   value: safe_join([tag.span(HexDigit.hex_digit(tl_code), class: 'identifier-sm'), tech.environmental].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('land')) %>
+        <%= render 'application/data_block', label: 'Land Transport',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.land].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('sea')) %>
+        <%= render 'application/data_block', label: 'Water Transport',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.sea].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('air')) %>
+        <%= render 'application/data_block', label: 'Air Transport',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.air].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('space')) %>
+        <%= render 'application/data_block', label: 'Space Transport',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.space].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('personal_military')) %>
+        <%= render 'application/data_block', label: 'Personal Military',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.personal_military].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+      <% if (c = tl_data&.dig('heavy_military')) %>
+        <%= render 'application/data_block', label: 'Heavy Military',
+                   value: safe_join([tag.span(HexDigit.hex_digit(c), class: 'identifier-sm'), tl_records[c]&.heavy_military].compact, ' '),
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="text-fg-muted text-sm">No tech level data recorded.</div>
+<% end %>

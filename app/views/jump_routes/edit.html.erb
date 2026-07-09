@@ -1,0 +1,7 @@
+<% content_for :title, "Editing #{@jump_route.name}" %>
+<% content_for :page_kicker, 'Jump Route' %>
+<% content_for :page_title, @jump_route.name %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', jump_route: @jump_route %>
+<% end %>

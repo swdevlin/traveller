@@ -1,69 +1,92 @@
-<% content_for :title, "Showing subsector" %>
-
+<% content_for :title, "Subsector #{@subsector.name}" %>
 <% sector = @subsector.sector %>
 
-<div class="w-full">
-  <h1 class="font-bold text-4xl mb-4"><%= @subsector.name %>, <%= link_to sector.name, sector_path(sector), class:"text-inherit hover:text-traveller-red/90 hover:underline" %></h1>
+<% content_for :page_kicker, 'IISS Class I Subsector Survey' %>
+<% content_for :page_title do %>
+  <%= @subsector.name %><span class='text-fg-muted'>, <%= sector.name %></span>
+<% end %>
 
-  <div class="flex flex-col md:flex-row md:items-start gap-6">
-    <div class="flex-1 min-w-0">
-      <div>
-        <p>
-          <strong>Library data:</strong>
-          <% if (u = safe_external_url(@subsector.wiki_link)) %>
-            <%= link_to "Traveller Wiki", u, target: "_blank", rel: "noopener", class: "link-traveller" %>
-          <% else %>
-            <span>Undocumented</span>
-          <% end %>
-        </p>
-      </div>
+<% content_for :page_buttons do %>
+  <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to 'Edit',
+                edit_subsector_path(@subsector),
+                class: 'w-full sm:w-auto btn btn-primary' %>
 
-      <% if @subsector.notes.present? %>
-        <div class="mb-4">
-          <strong class="block text-sm font-semibold mb-1">Notes</strong>
-          <p class="text-sm whitespace-pre-line">
-            <%= @subsector.notes %>
-          </p>
-        </div>
-      <% end %>
+    <%= button_to 'Load Defaults',
+                  load_defaults_subsector_path(@subsector),
+                  method: :post,
+                  class: 'w-full sm:w-auto btn',
+                  data: @subsector.build.present? ? { turbo_confirm: 'This will replace the current build configuration. Continue?' } : {} %>
 
-      <%= render "star_systems/table", star_systems: @subsector.star_systems, new_url: new_subsector_star_system_path(@subsector) %>
+    <%= link_to 'Populate',
+                populate_subsector_path(@subsector),
+                class: 'w-full sm:w-auto btn' %>
 
-      <%= render 'rogues/table', rogues: @subsector.rogues, new_url: new_subsector_rogue_path(@subsector) %>
-
-      <% confirm_msg = "There are #{pluralize(@star_system_count, "star system")} and #{pluralize(@rogue_count, "rogue stellar object")} in the subsector. Are you sure you wish to clear the subsector?" %>
-
-      <div class="mt-6 flex flex-col sm:flex-row gap-2">
-        <%= link_to "Edit",
-                    edit_subsector_path(@subsector),
-                    class: "w-full sm:w-auto btn btn-primary" %>
-
-        <%= link_to "Populate",
-                      populate_subsector_path(@subsector),
-                      class: "w-full sm:w-auto btn"
-        %>
-
-        <%= button_to "Clear",
-                      clear_subsector_path(@subsector),
-                      method: "post",
-                      class: "w-full sm:w-auto btn btn-danger",
-                      data: {turbo_confirm: confirm_msg}
-        %>
-      </div>
-    </div>
-
-    <div class="w-full md:w-[300px] shrink-0">
-      <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
-
-      <div class="mt-2">
-        <strong class="block font-medium mb-2">
-          <%= link_to sector.name, sector, class: "link-traveller-i" %>
-        </strong>
-
-        <%= render "sectors/subsector_grid",
-                   sector: sector,
-                   active_subsector: @subsector %>
-      </div>
-    </div>
+    <%= button_to 'Clear',
+                  clear_subsector_path(@subsector),
+                  method: 'post',
+                  class: 'w-full sm:w-auto btn btn-danger',
+                  data: { turbo_confirm: confirm_msg } %>
   </div>
+<% end %>
+
+<% content_for :page_side do %>
+  <%= render 'subsectors/map_embed', subsector: @subsector %>
+  <strong class='block font-medium mt-2 mb-2'>
+    <%= link_to sector.name, sector, class: 'link-traveller-i' %>
+  </strong>
+  <%= render 'sectors/subsector_grid',
+             sector: sector,
+             active_subsector: @subsector %>
+<% end %>
+
+<div data-controller="subsector-refresh"
+     data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
+  <%= render 'application/two_column_page' do %>
+    <div class='space-y-6'>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+        <%= render 'application/data_block',
+                   label: 'Sector',
+                   value: link_to(sector.name,
+                                  sector_path(sector),
+                                  class: 'hover:underline underline-offset-4') %>
+
+        <%= render 'application/data_block',
+                   label: 'Library data',
+                   value: (
+                     if (u = safe_external_url(@subsector.wiki_link))
+                       link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
+                               class: 'hover:underline underline-offset-4')
+                     else
+                       content_tag(:span, 'Undocumented', class: 'text-fg-muted')
+                     end
+                   ) %>
+      </div>
+
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
+        <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
+        <% if show_population_count? %>
+          <%= render 'application/data_block', label: 'Populated', value: @populated_system_count %>
+        <% end %>
+      </div>
+
+      <%= render 'application/observation_block',
+                 notes: @subsector.notes %>
+
+      <turbo-frame id="<%= dom_id(@subsector, :star_systems) %>"
+                   src="<%= star_systems_table_subsector_path(@subsector) %>"
+                   target="_top"
+                   data-subsector-refresh-target="frame">
+        <%= render 'star_systems/table',
+                   star_systems: @star_systems,
+                   new_url: new_subsector_star_system_path(@subsector) %>
+      </turbo-frame>
+
+      <%= render 'rogues/table',
+                 rogues: @subsector.rogues,
+                 new_url: new_subsector_rogue_path(@subsector) %>
+    </div>
+  <% end %>
 </div>

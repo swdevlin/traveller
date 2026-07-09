@@ -1,0 +1,82 @@
+<div class='table-card'>
+  <div class='table-scroll'>
+    <table>
+      <thead>
+      <tr>
+        <th scope='col'>Name</th>
+        <th scope='col'>Style</th>
+        <th scope='col'>Max Jump</th>
+        <th scope='col'>Known</th>
+        <th scope='col' class='text-right'>Systems</th>
+        <th scope='col' class='text-right'>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% jump_routes.each do |jump_route| %>
+        <tr class='cursor-pointer'
+            data-controller='row-link'
+            data-row-link-url-value='<%= jump_route_path(jump_route) %>'
+            data-action='click->row-link#navigate'>
+          <td class='whitespace-nowrap'>
+            <%= jump_route.name %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if jump_route.colour.present? %>
+              <svg width="60" height="<%= [jump_route.line_width * 2 + 4, 12].max %>" style="vertical-align:middle;">
+                <line x1="4" y1="50%" x2="56" y2="50%"
+                      stroke="<%= jump_route.colour %>"
+                      stroke-width="<%= jump_route.line_width %>"
+                      stroke-linecap="round"
+                      <% if jump_route.stroke_dasharray %>stroke-dasharray="<%= jump_route.stroke_dasharray %>"<% end %>/>
+              </svg>
+            <% end %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <%= jump_route.max_jump %>
+          </td>
+
+          <td class='whitespace-nowrap'>
+            <% if jump_route.known? %>
+              <i class='fa-regular fa-check text-fg-muted'></i>
+            <% end %>
+          </td>
+
+          <td class='text-right whitespace-nowrap'>
+            <% count = jump_route.jump_route_links.size %>
+            <%= count > 0 ? count + 1 : '—' %>
+          </td>
+
+          <td class='actions-cell'>
+            <div class='action-group'>
+              <% if jump_route.jump_route_links.size > 0 %>
+                <%= link_to map_jump_route_path(jump_route),
+                            target: '_blank',
+                            rel: 'noopener',
+                            class: 'action',
+                            title: 'View map' do %>
+                  <i class='fa-regular fa-map'></i>
+                <% end %>
+              <% end %>
+
+              <%= link_to edit_jump_route_path(jump_route), class: 'action', title: 'Edit' do %>
+                <i class='fa-regular fa-pen-to-square'></i>
+              <% end %>
+
+              <%= button_to jump_route,
+                            method: :delete,
+                            class: 'action danger',
+                            title: 'Delete',
+                            data: { turbo_confirm: "Delete #{jump_route.name}?" } do %>
+                <i class='fa-regular fa-trash'></i>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

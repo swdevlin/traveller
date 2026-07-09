@@ -1,0 +1,55 @@
+name: Voidshore Four
+abbreviation: VS 4
+X: -18
+Y: -12
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VS 4 A
+    type: SPARSE
+    index: A
+  - name: VS 4 B
+    type: LOW
+    index: B
+  - name: VS 4 C
+    type: LOW
+    index: C
+  - name: VS 4 D
+    type: MODERATE
+    index: D
+  - name: VS 4 E
+    type: LOW
+    index: E
+  - name: VS 4 F
+    type: MODERATE
+    index: F
+  - name: VS 4 G
+    type: RIFT
+    index: G
+  - name: VS 4 H
+    type: LOW
+    index: H
+  - name: VS 4 I
+    type: RIFT
+    index: I
+  - name: VS 4 J
+    type: SPARSE
+    index: J
+  - name: VS 4 K
+    type: SPARSE
+    index: K
+  - name: VS 4 L
+    type: SPARSE
+    index: L
+  - name: VS 4 M
+    type: SPARSE
+    index: M
+  - name: VS 4 N
+    type: MODERATE
+    index: N
+  - name: VS 4 O
+    type: SPARSE
+    index: O
+  - name: VS 4 P
+    type: LOW
+    index: P

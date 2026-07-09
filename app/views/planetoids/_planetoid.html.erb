@@ -1,0 +1,31 @@
+<% allegiance = planetoid.allegiance %>
+<% parent = planetoid.orbiting %>
+<% star_system = parent&.star_system %>
+<% parsec = planetoid.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+<% shadow_km = planetoid.effective_jump_shadow_km %>
+<% shadow_source = shadow_km&.positive? ? planetoid.effective_jump_shadow_source : nil %>
+
+<%
+  hierarchy = []
+  hierarchy << [sector.name, sector_path(sector)] if sector
+  hierarchy << [subsector.name, subsector_path(subsector)] if subsector
+  hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
+  hierarchy << [parent.display_name, star_path(parent)] if parent
+%>
+
+<div id="<%= dom_id planetoid %>" class="space-y-4">
+  <%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
+  <%= render 'stellar_objects/uwp_tabs',
+             stellar_object: planetoid,
+             parent: parent,
+             parsec: parsec,
+             allegiance: allegiance,
+             shadow_km: shadow_km,
+             shadow_source: shadow_source %>
+
+  <%= render 'stellar_objects/known_toggle', stellar_object: planetoid %>
+  <%= render 'application/observation_block', notes: planetoid.notes %>
+</div>

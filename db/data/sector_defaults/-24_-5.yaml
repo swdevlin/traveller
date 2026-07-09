@@ -1,0 +1,55 @@
+name: Crossing Spinward 5
+abbreviation: CrossS5
+X: -24
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CrossS5 A
+    type: MODERATE
+    index: A
+  - name: CrossS5 B
+    type: LOW
+    index: B
+  - name: CrossS5 C
+    type: LOW
+    index: C
+  - name: CrossS5 D
+    type: SPARSE
+    index: D
+  - name: CrossS5 E
+    type: MODERATE
+    index: E
+  - name: CrossS5 F
+    type: LOW
+    index: F
+  - name: CrossS5 G
+    type: MODERATE
+    index: G
+  - name: CrossS5 H
+    type: SPARSE
+    index: H
+  - name: CrossS5 I
+    type: MODERATE
+    index: I
+  - name: CrossS5 J
+    type: LOW
+    index: J
+  - name: CrossS5 K
+    type: LOW
+    index: K
+  - name: CrossS5 L
+    type: SPARSE
+    index: L
+  - name: CrossS5 M
+    type: LOW
+    index: M
+  - name: CrossS5 N
+    type: SPARSE
+    index: N
+  - name: CrossS5 O
+    type: MINIMAL
+    index: O
+  - name: CrossS5 P
+    type: RIFT
+    index: P

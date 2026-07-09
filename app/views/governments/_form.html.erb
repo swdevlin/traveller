@@ -1,0 +1,32 @@
+<%= form_with(model: government, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: government.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :code do %>
+      <%= form.text_field :code, class: 'edit-base sm:w-28 w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_type do %>
+      <%= form.text_field :government_type, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <div>
+      <%= form.label :description, class: 'text-xs uppercase tracking-[0.18em] text-fg-muted' %>
+      <%= form.text_area :description,
+                          rows: 4,
+                          class: [
+                            'w-full edit-base mt-2 resize-y',
+                            {
+                              'border-gray-400 focus:outline-blue-600': government.errors[:description].none?,
+                              'border-red-400 focus:outline-red-600': government.errors[:description].any?
+                            }
+                          ] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', government.persisted? ? government : governments_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

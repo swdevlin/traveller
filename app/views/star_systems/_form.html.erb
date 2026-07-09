@@ -1,19 +1,59 @@
 <%= form_with model: @star_system, url: @form_url, class: 'flex flex-col space-y-6', data: { controller: 'star-system-form' } do |f| %>
   <%= hidden_field_tag :return_to, @return_to if @return_to.present? %>
 
+  <%= render 'application/name_generator_field', form: f %>
+
   <div>
-    <%= f.label :name, 'Name', class: 'block text-sm font-semibold mb-1' %>
-    <%= f.text_field :name, class: 'w-full edit-base' %>
+    <%= f.label :allegiance_id, 'Allegiance', class: 'block text-sm font-semibold mb-1' %>
+    <% current_allegiance = f.object.allegiance %>
+    <div class='relative'
+         data-controller='allegiance-combobox'
+         data-allegiance-combobox-search-url-value='<%= search_allegiances_path %>'>
+      <%= f.hidden_field :allegiance_id, data: { allegiance_combobox_target: 'hidden' } %>
+      <input type='text'
+             placeholder='Search by code or name&hellip;'
+             autocomplete='off'
+             value='<%= current_allegiance ? "#{current_allegiance.code} \u2014 #{current_allegiance.name}" : "" %>'
+             data-allegiance-combobox-target='input'
+             data-action='input->allegiance-combobox#search focus->allegiance-combobox#open'
+             class='w-64 edit-base pr-8' />
+      <button type='button'
+              class='<%= current_allegiance ? "" : "hidden" %> absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-bright'
+              data-allegiance-combobox-target='clear'
+              data-action='click->allegiance-combobox#clear'>
+        <i class='fa-regular fa-xmark'></i>
+      </button>
+      <div class='hidden absolute z-50 w-full mt-1 bg-dropdown border border-outline rounded-lg shadow-xl overflow-hidden'
+           data-allegiance-combobox-target='dropdown'>
+        <ul data-allegiance-combobox-target='list'
+            data-action='click->allegiance-combobox#select'></ul>
+      </div>
+    </div>
   </div>
 
   <%# New-only fields get injected here %>
   <%= yield f if block_given? %>
 
   <div>
-    <%= f.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>
+    <%= f.label :travel_zone_id, 'Travel Zone', class: 'block text-sm font-semibold mb-1' %>
+    <%= f.select :travel_zone_id,
+                 (@travel_zones || TravelZone.ordered).map { |tz| [tz.name, tz.id] },
+                 { include_blank: 'None', selected: f.object.travel_zone_id },
+                 { class: 'edit-base w-48' } %>
+  </div>
+
+  <%= render 'application/boolean_toggle', form: f, attribute: :locked,
+        checked: f.object.locked?, label: 'Locked' %>
+
+  <div>
+    <%= f.label :notes, 'Observations', class: 'block text-sm font-semibold mb-1' %>
     <%= f.text_area :notes, rows: 6, class: 'w-full edit-base' %>
   </div>
 
-  <%= f.submit @submit_label, class: 'btn btn-primary' %>
+  <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+    <%= f.submit @submit_label, class: 'w-full sm:w-auto btn btn-primary' %>
+    <%= link_to 'Cancel', @form_url, class: 'w-full sm:w-auto btn' %>
+  </div>
+
 <% end %>
 

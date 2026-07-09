@@ -1,0 +1,55 @@
+name: Riftsedge Rimward
+abbreviation: ReRi
+X: -23
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ReRi A
+    type: RIFT_FADE
+    index: A
+  - name: ReRi B
+    type: RIFT
+    index: B
+  - name: ReRi C
+    type: MINIMAL
+    index: C
+  - name: ReRi D
+    type: SPARSE
+    index: D
+  - name: ReRi E
+    type: RIFT
+    index: E
+  - name: ReRi F
+    type: MINIMAL
+    index: F
+  - name: ReRi G
+    type: SPARSE
+    index: G
+  - name: ReRi H
+    type: LOW
+    index: H
+  - name: ReRi I
+    type: RIFT
+    index: I
+  - name: ReRi J
+    type: SPARSE
+    index: J
+  - name: ReRi K
+    type: LOW
+    index: K
+  - name: ReRi L
+    type: MODERATE
+    index: L
+  - name: ReRi M
+    type: RIFT
+    index: M
+  - name: ReRi N
+    type: MINIMAL
+    index: N
+  - name: ReRi O
+    type: SPARSE
+    index: O
+  - name: ReRi P
+    type: MODERATE
+    index: P

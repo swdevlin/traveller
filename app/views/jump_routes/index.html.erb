@@ -1,0 +1,14 @@
+<% content_for :title, 'Jump Routes' %>
+<% content_for :page_kicker, 'Reference Manual' %>
+<% content_for :page_title, 'Jump Routes' %>
+
+<%= render 'application/page' do %>
+  <div class='flex justify-end pb-2'>
+    <%= link_to new_jump_route_path, class: 'btn-header' do %>
+      <i class='fa-regular fa-plus'></i>
+      Add
+    <% end %>
+  </div>
+
+  <%= render 'table', jump_routes: @jump_routes %>
+<% end %>

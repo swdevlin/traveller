@@ -1,0 +1,208 @@
+<% content_for :title, 'Planetary body' %>
+
+<%= render 'help/page', title: 'Planetary Body' do %>
+  <div class='space-y-6'>
+      <div class='space-y-3  text-fg'>
+        <p>
+          Applies to terrestrial planets, planetoids, and moons. Sections are shown only when
+          data is present. Orbital Data is omitted for rogue bodies not attached to a star.
+        </p>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Controls</p>
+        <dl class='space-y-5'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Regenerate</dt>
+            <dd class='mt-1 text-fg'>
+              Available on terrestrial planets and planetoid belts that orbit a stellar primary.
+              Submits the body's Universal World Profile and orbital parameters to the generator
+              data core, which recomputes and returns a complete characteristic profile.
+              All existing survey data for the body is superseded by the returned values.
+            </dd>
+            <dd class='mt-2 text-fg'>
+              For terrestrial planets, the satellite inventory is also replaced — all previously
+              recorded moons are expunged and reconstructed from the generator's output. For
+              planetoid belts, the significant body catalogue is similarly replaced. This
+              operation is irreversible.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Header</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>UWP</dt>
+            <dd class='mt-1 text-fg'>Universal World Profile — a seven-digit hex code encoding starport, size, atmosphere, hydrographics, population, government, and law level.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Starport</dt>
+            <dd class='mt-1 text-fg'>Class of the body's primary port facility, from A (excellent) through E (frontier) and X (none).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Allegiance</dt>
+            <dd class='mt-1 text-fg'>Political or cultural allegiance code, if assigned.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Orbital Data</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Orbit / AU</dt>
+            <dd class='mt-1 text-fg'>Orbital radius. Shown as orbit number and/or astronomical units depending on campaign display settings. Moon orbits are expressed in planetary diameters.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Period</dt>
+            <dd class='mt-1 text-fg'>Time to complete one orbit around the parent body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Effective HZCO Deviation</dt>
+            <dd class='mt-1 text-fg'>Deviation from the habitable zone centre orbit, accounting for stellar luminosity and greenhouse effect.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Retrograde</dt>
+            <dd class='mt-1 text-fg'>Whether the body orbits in the direction opposite to the primary star's rotation.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Inclination</dt>
+            <dd class='mt-1 text-fg'>Orbital plane inclination in degrees relative to the stellar equator.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Eccentricity</dt>
+            <dd class='mt-1 text-fg'>Orbital eccentricity (0 = circular; higher values indicate more elliptical orbits).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Tidally Locked</dt>
+            <dd class='mt-1 text-fg'>The body to which this object is gravitationally locked, if applicable.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Sidereal Day</dt>
+            <dd class='mt-1 text-fg'>Rotation period relative to the stars, in hours.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Twilight Zone</dt>
+            <dd class='mt-1 text-fg'>Indicates the body orbits within the star's twilight zone, producing extreme day/night temperature differentials.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Physical Data</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Diameter</dt>
+            <dd class='mt-1 text-fg'>Surface diameter in kilometres, with UWP size code.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Mass</dt>
+            <dd class='mt-1 text-fg'>Planetary mass expressed in Earth masses (☉).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Gravity</dt>
+            <dd class='mt-1 text-fg'>Surface gravity in standard g.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Density</dt>
+            <dd class='mt-1 text-fg'>Mean density expressed relative to Earth (☉).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Environmental Data</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Temperature</dt>
+            <dd class='mt-1 text-fg'>Mean surface temperature in °C.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Rotation</dt>
+            <dd class='mt-1 text-fg'>Sidereal rotation period in hours.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Axial Tilt</dt>
+            <dd class='mt-1 text-fg'>Axial tilt in degrees; drives seasonal variation.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Albedo</dt>
+            <dd class='mt-1 text-fg'>Fraction of incident solar radiation reflected by the surface and atmosphere (0–1).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Greenhouse</dt>
+            <dd class='mt-1 text-fg'>Greenhouse effect factor; contributes to surface temperature above the baseline solar input.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Atmosphere</dt>
+            <dd class='mt-1 text-fg'>Atmosphere code with composition type. Tainted atmospheres include irritant, severity, and persistence sub-classifications.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Hydrographics</dt>
+            <dd class='mt-1 text-fg'>Percentage of surface covered by liquid, with liquid type and distribution pattern.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Biological Data</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Habitability Rating</dt>
+            <dd class='mt-1 text-fg'>
+              A score from 0 to 10 indicating how suitable the world is for unprotected human habitation.
+              0 is actively hostile; 10 is a Terra-equivalent garden world. See WBH p. 132.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biomass Rating</dt>
+            <dd class='mt-1 text-fg'>Total biological mass present on the world, on an arbitrary comparative scale.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biodiversity Rating</dt>
+            <dd class='mt-1 text-fg'>Number of distinct species or ecological niches. Values of 10 or above are equivalent to pre-human Terra.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biocomplexity Rating</dt>
+            <dd class='mt-1 text-fg'>Highest level of biological complexity present, from primitive single-cell organisms (1) through extant or extinct sophonts (9) to ecosystem-wide superorganisms (10).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Resource Rating</dt>
+            <dd class='mt-1 text-fg'>Economic value of extractable resources. Ranges from 2 (none extractable) through 12 (liable to trigger a resource rush).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Social Data</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Population</dt>
+            <dd class='mt-1 text-fg'>Population code (0–12) with approximate headcount range, concentration rating, urbanisation percentage, and major city count.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Native / Extinct Sophont</dt>
+            <dd class='mt-1 text-fg'>Whether a sophont species is or was native to this body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Government</dt>
+            <dd class='mt-1 text-fg'>Government type code and description.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Law Level</dt>
+            <dd class='mt-1 text-fg'>Law level code indicating degree of legal restriction, keyed to weapon restrictions.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Tech Level</dt>
+            <dd class='mt-1 text-fg'>Technological sophistication of the dominant culture (0–35).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0423PB
+      </div>
+  </div>
+<% end %>

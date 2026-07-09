@@ -1,0 +1,82 @@
+<% content_for :title, 'Survey Overlay' %>
+
+<%= render 'help/page', title: 'Survey Overlay' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+  The survey overlay lets the referee colour starmap hexes based on rules they define. Multiple overlays are supported and the order they are applied can also be controlled.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>
+            A short label for the rule, shown in the survey overlay dropdown.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Colour</dt>
+          <dd class='mt-1 text-fg'>
+            The background colour applied to any hex whose main world matches the rule.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Enabled</dt>
+          <dd class='mt-1 text-fg'>
+            Toggles the rule on or off from the dropdown without deleting it. Disabled rules are
+            never evaluated.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Field</dt>
+          <dd class='mt-1 text-fg'>
+            The value a condition compares against.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Operator</dt>
+          <dd class='mt-1 text-fg'>
+            How the field's value is compared: is, less than, less than or equal to, greater than,
+            greater than or equal to, between, or one of. Each condition can also be negated.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Value(s)</dt>
+          <dd class='mt-1 text-fg'>
+            Picked from a dropdown of the field's valid codes — a single value for most operators,
+            two for between, and any number of ticked options for one of.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Rule Structure</p>
+
+      <p class='text-fg-muted mb-4'>
+        A rule is one or more groups of conditions. Conditions within a group are combined with
+        <span class='font-semibold text-fg-bright'>AND</span> — every condition in the group must
+        match. Groups themselves are combined with <span class='font-semibold text-fg-bright'>OR</span>
+        — any one matching group is enough for the rule to match. Use "+ Add AND condition" to add
+        a condition to a group, and "+ Add OR group" to add an alternative group.
+      </p>
+
+      <p class='text-fg-muted font-mono text-sm'>
+        (Starport one of [A, B, C] AND Population &gt; 8) OR (Survey Index is 10)
+      </p>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0708SO
+    </div>
+
+  </div>
+<% end %>

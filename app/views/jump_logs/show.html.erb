@@ -1,0 +1,34 @@
+<% jump_log_label = [format_traveller_date(@jump_log.arrive_year, @jump_log.arrive_day), @jump_log.to_parsec&.display_name].compact.join(' – ') %>
+<%= content_for :title, jump_log_label %>
+<%= content_for :page_kicker, 'Ship Records' %>
+<%= content_for :page_title, jump_log_label %>
+
+<% content_for :page_side do %>
+  <div class='mt-2'>
+    <div class='aspect-[540/767] w-full overflow-hidden rounded-2xl bg-panel'>
+      <object type='image/svg+xml'
+              data='<%= @map_url %>'
+              class='block h-full w-full'>
+        Star chart
+      </object>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <%= render @jump_log %>
+
+  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+    <%= link_to 'Edit', edit_jump_log_path(@jump_log), class: 'w-full sm:w-auto btn btn-primary' %>
+    <%= render 'application/back_button',
+               path: jump_logs_path,
+               label: 'Jump logs',
+               class: 'w-full sm:w-auto' %>
+    <%= button_to 'Delete',
+                  @jump_log,
+                  method: :delete,
+                  form_class: 'w-full sm:w-auto inline-flex m-0',
+                  class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                  data: { turbo_confirm: 'Are you sure?' } %>
+  </div>
+<% end %>

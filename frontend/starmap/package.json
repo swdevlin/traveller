@@ -1,0 +1,21 @@
+{
+  "name": "starmap",
+  "private": true,
+  "devDependencies": {
+    "elm-review": "^2.12.0",
+    "elm-tooling": "^1.15.0",
+    "elm-watch": "^1.1.2",
+    "run-pty": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "run-pty % elm-watch hot % python ./server.py",
+    "build": "elm-watch make",
+    "test": "elm-test-rs",
+    "testw": "elm-test-rs --watch",
+    "format": "elm-format src --yes"
+  },
+  "dependencies": {
+    "elm": "0.19.1-6",
+    "elm-test-rs": "3.0.0-5"
+  }
+}

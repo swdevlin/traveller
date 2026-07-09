@@ -1,0 +1,22 @@
+<div id="<%%= dom_id <%= singular_table_name %> %>" class='space-y-6 mb-4'>
+<% attributes.reject(&:password_digest?).each do |attribute| -%>
+<% if attribute.attachment? -%>
+  <%%= render 'application/data_block',
+             label: '<%= attribute.human_name %>',
+             value: (link_to <%= singular_table_name %>.<%= attribute.column_name %>.filename, <%= singular_table_name %>.<%= attribute.column_name %> if <%= singular_table_name %>.<%= attribute.column_name %>.attached?)
+  %>
+<% elsif attribute.attachments? -%>
+  <%%= render 'application/data_block',
+             label: '<%= attribute.human_name %>',
+             value: safe_join(<%= singular_table_name %>.<%= attribute.column_name %>.map { |f| link_to f.filename, f }, tag.br)
+  %>
+<% else -%>
+  <%%= render 'application/data_block',
+             label: '<%= attribute.human_name %>',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-slate-100',
+             value: <%= singular_table_name %>.<%= attribute.column_name %>
+  %>
+<% end -%>
+
+<% end -%>
+</div>

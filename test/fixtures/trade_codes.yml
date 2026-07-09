@@ -1,11 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-<%
-  require_relative '../../db/seed_data/trade_codes'
-  TRADE_CODES.each do |row|
-%>
-<%= row[:code].downcase %>:
-  code: <%= row[:code] %>
-  definition: <%= row[:definition].inspect %>
+tc1:
+  code: T1
+  definition: "Fixture trade code 1"
 
-<% end %>
+tc2:
+  code: T2
+  definition: "Fixture trade code 2"

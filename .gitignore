@@ -29,6 +29,7 @@
 !/tmp/storage/.keep
 
 /public/assets
+/public/starmap.js
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
@@ -48,3 +49,5 @@
 
 /node_modules/*
 /vendor/bundle
+/frontend/starmap/node_modules/
+/frontend/starmap/elm-stuff/

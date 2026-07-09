@@ -1,0 +1,55 @@
+name: No Shore R1
+abbreviation: NSR1
+X: -11
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: NSR1 A
+    type: DEEP_RIFT
+    index: A
+  - name: NSR1 B
+    type: DEEP_RIFT
+    index: B
+  - name: NSR1 C
+    type: DEEP_RIFT
+    index: C
+  - name: NSR1 D
+    type: DEEP_RIFT
+    index: D
+  - name: NSR1 E
+    type: RIFT
+    index: E
+  - name: NSR1 F
+    type: DEEP_RIFT
+    index: F
+  - name: NSR1 G
+    type: RIFT
+    index: G
+  - name: NSR1 H
+    type: RIFT
+    index: H
+  - name: NSR1 I
+    type: MINIMAL
+    index: I
+  - name: NSR1 J
+    type: MINIMAL
+    index: J
+  - name: NSR1 K
+    type: MINIMAL
+    index: K
+  - name: NSR1 L
+    type: MINIMAL
+    index: L
+  - name: NSR1 M
+    type: SPARSE
+    index: M
+  - name: NSR1 N
+    type: SPARSE
+    index: N
+  - name: NSR1 O
+    type: SPARSE
+    index: O
+  - name: NSR1 P
+    type: SPARSE
+    index: P

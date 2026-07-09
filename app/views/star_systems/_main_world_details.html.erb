@@ -1,0 +1,20 @@
+<% main_world = star_system.main_world %>
+<% return unless main_world&.respond_to?(:uwp) %>
+
+<%= render 'application/subsection', title: 'Main World' %>
+
+<%
+  physical_tab = main_world.is_a?(PlanetoidBelt) ? 'planetoid_belts/physical_belt_tab' : 'stellar_objects/physical_tab'
+  shadow_km = main_world.try(:effective_jump_shadow_km)
+  shadow_source = shadow_km&.positive? ? main_world.try(:effective_jump_shadow_source) : nil
+%>
+
+<%= render 'stellar_objects/uwp_tabs',
+           stellar_object: main_world,
+           parent: main_world.try(:orbiting),
+           parsec: star_system.parsec,
+           allegiance: star_system.allegiance,
+           physical_tab: physical_tab,
+           shadow_km: shadow_km,
+           shadow_source: shadow_source,
+           hide_orbital: true %>

@@ -1,0 +1,55 @@
+name: Styx Spinward
+abbreviation: StyxS
+X: -23
+Y: -8
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: StyxS A
+    type: RIFT
+    index: A
+  - name: StyxS B
+    type: MINIMAL
+    index: B
+  - name: StyxS C
+    type: SPARSE
+    index: C
+  - name: StyxS D
+    type: MINIMAL
+    index: D
+  - name: StyxS E
+    type: RIFT
+    index: E
+  - name: StyxS F
+    type: MINIMAL
+    index: F
+  - name: StyxS G
+    type: MINIMAL
+    index: G
+  - name: StyxS H
+    type: MINIMAL
+    index: H
+  - name: StyxS I
+    type: MINIMAL
+    index: I
+  - name: StyxS J
+    type: MINIMAL
+    index: J
+  - name: StyxS K
+    type: MINIMAL
+    index: K
+  - name: StyxS L
+    type: RIFT
+    index: L
+  - name: StyxS M
+    type: MINIMAL
+    index: M
+  - name: StyxS N
+    type: MINIMAL
+    index: N
+  - name: StyxS O
+    type: RIFT
+    index: O
+  - name: StyxS P
+    type: RIFT
+    index: P

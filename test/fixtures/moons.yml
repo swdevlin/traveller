@@ -1,0 +1,13 @@
+# Moon fixtures — loaded into stellar_objects table (Moon is an STI subclass of StellarObject)
+# Accessed via moons(:name) in tests.
+
+orbiting_gas_giant:
+  type: Moon
+  orbiting: small
+  orbit: 10.0
+  orbit_x: 1
+  orbit_y: 1
+  inclination: 0
+  eccentricity: 0
+  size_code: '2'
+  data: {}

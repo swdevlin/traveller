@@ -1,0 +1,131 @@
+name: Gimli
+abbreviation: Gimli
+X: -18
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Gimli A
+    type: MODERATE
+    index: A
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli B
+    type: MODERATE
+    index: B
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli C
+    type: MODERATE
+    index: C
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli D
+    type: MODERATE
+    index: D
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli E
+    type: STANDARD
+    index: E
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli F
+    type: MODERATE
+    index: F
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli G
+    type: MODERATE
+    index: G
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli H
+    type: STANDARD
+    index: H
+    populated:
+      type: full
+      minTechLevel: 5
+      maxTechLevel: 12
+      allegiance: GR
+  - name: Gimli I
+    type: MODERATE
+    index: I
+    populated:
+      type: hard-horizontal
+      demarcation: 5
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Gimli J
+    type: STANDARD
+    index: J
+    populated:
+      type: split-horizontal
+      demarcation: 6
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Gimli K
+    type: MODERATE
+    index: K
+    populated:
+      type: split-horizontal
+      demarcation: 6
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Gimli L
+    type: MODERATE
+    index: L
+    populated:
+      type: split-horizontal
+      demarcation: 9
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: GR
+      after:
+        allegiance: null
+  - name: Gimli M
+    type: LOW
+    index: M
+  - name: Gimli N
+    type: STANDARD
+    index: N
+  - name: Gimli O
+    type: MODERATE
+    index: O
+  - name: Gimli P
+    type: STANDARD
+    index: P

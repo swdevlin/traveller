@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Region One
+  source: manual
+  colour: '#336699'
+  player_visible: false
+
+two:
+  name: Region Two
+  source: manual
+  colour: '#993366'
+  player_visible: false

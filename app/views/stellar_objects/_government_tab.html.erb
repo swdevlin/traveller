@@ -1,0 +1,52 @@
+<% gov = stellar_object.government ? Government.find_by(code: stellar_object.government.code) : nil %>
+
+<% if gov %>
+  <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'application/data_block',
+                 label: 'Government',
+                 value: safe_join([tag.span(HexDigit.hex_digit(gov.code), class: 'identifier-sm'), gov.government_type], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      <%= render 'application/data_block', label: 'Description', value: gov.description %>
+    </div>
+
+    <% judicial = stellar_object.government_judicial
+       executive = stellar_object.government_executive
+       legislative = stellar_object.government_legislative %>
+    <% if judicial || executive || legislative %>
+      <%= render 'application/subsection', title: 'Structure' %>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <%= render 'application/data_block',
+                   label: 'Judicial',
+                   value: judicial ? safe_join([tag.span(judicial, class: 'identifier-sm'), StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS[judicial]].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+        <%= render 'application/data_block',
+                   label: 'Executive',
+                   value: executive ? safe_join([tag.span(executive, class: 'identifier-sm'), StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS[executive]].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+        <%= render 'application/data_block',
+                   label: 'Legislative',
+                   value: legislative ? safe_join([tag.span(legislative, class: 'identifier-sm'), StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS[legislative]].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      </div>
+    <% end %>
+
+    <% authority = stellar_object.government_authority
+       centralisation = stellar_object.government_centralisation %>
+    <% if authority || centralisation %>
+      <%= render 'application/subsection', title: 'Characteristics' %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <%= render 'application/data_block',
+                   label: 'Authority',
+                   value: authority ? safe_join([tag.span(authority, class: 'identifier-sm'), StellarObjectsHelper::GOVERNMENT_AUTHORITY_DESCRIPTIONS[authority]].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+        <%= render 'application/data_block',
+                   label: 'Centralisation',
+                   value: centralisation ? safe_join([tag.span(centralisation, class: 'identifier-sm'), StellarObjectsHelper::GOVERNMENT_CENTRALISATION_DESCRIPTIONS[centralisation]].compact, ' ') : nil,
+                   value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-fg-muted text-sm">No government data recorded.</div>
+<% end %>

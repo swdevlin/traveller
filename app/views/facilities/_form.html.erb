@@ -1,0 +1,28 @@
+<%= form_with(model: facility, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to %>
+
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: facility.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :code do %>
+      <%= form.text_field :code, class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-100' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :traveller_map_code do %>
+      <%= form.text_field :traveller_map_code, class: 'edit-base x-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :icon_class do %>
+      <%= form.text_field :icon_class, class: 'edit-base w-64', placeholder: 'fa-solid fa-star' %>
+    <% end %>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', facility.persisted? ? facility : facilities_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

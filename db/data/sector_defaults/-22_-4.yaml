@@ -1,0 +1,55 @@
+name: Open Rift Spinward
+abbreviation: ORS
+X: -22
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: ORS A
+    type: RIFT_FADE
+    index: A
+  - name: ORS B
+    type: DEEP_RIFT
+    index: B
+  - name: ORS C
+    type: DEEP_RIFT
+    index: C
+  - name: ORS D
+    type: DEEP_RIFT
+    index: D
+  - name: ORS E
+    type: RIFT_FADE
+    index: E
+  - name: ORS F
+    type: DEEP_RIFT
+    index: F
+  - name: ORS G
+    type: DEEP_RIFT
+    index: G
+  - name: ORS H
+    type: DEEP_RIFT
+    index: H
+  - name: ORS I
+    type: DEEP_RIFT
+    index: I
+  - name: ORS J
+    type: RIFT_FADE
+    index: J
+  - name: ORS K
+    type: DEEP_RIFT
+    index: K
+  - name: ORS L
+    type: DEEP_RIFT
+    index: L
+  - name: ORS M
+    type: RIFT_FADE
+    index: M
+  - name: ORS N
+    type: DEEP_RIFT
+    index: N
+  - name: ORS O
+    type: DEEP_RIFT
+    index: O
+  - name: ORS P
+    type: DEEP_RIFT
+    index: P

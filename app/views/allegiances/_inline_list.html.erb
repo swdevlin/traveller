@@ -1,0 +1,9 @@
+<%= safe_join(
+      allegiances.map { |a|
+        link_to a.code,
+                allegiance_path(a),
+                class: 't-pill t-link no-underline',
+                title: a.name
+      },
+      ' '
+    ) %>

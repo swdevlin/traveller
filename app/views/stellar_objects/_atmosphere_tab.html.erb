@@ -1,0 +1,34 @@
+<% atmosphere = stellar_object.atmosphere %>
+<% atm_code = atmosphere&.code %>
+<%
+  if atm_code.nil? && stellar_object.uwp.present?
+    char = stellar_object.uwp[2]
+    atm_code = HexDigit::HEX_DIGITS.index(char)
+  end
+%>
+<% taint_code = atmosphere&.taint_code.presence %>
+
+<div class="space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <%= render 'application/data_block',
+               label: 'Atmosphere',
+               value: safe_join([tag.span(HexDigit.hex_digit(atm_code.to_i), class: 'identifier-sm'), atmosphere_description(atm_code.to_i)].compact, ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+
+    <% if atm_code %>
+      <%= render 'application/data_block',
+                 label: 'Survival Requirement',
+                 value: atmosphere_survival_requirement(atm_code.to_i, tainted: taint_code.present?) %>
+    <% end %>
+
+    <% if taint_code.present? %>
+      <%= render 'application/data_block', label: 'Irritant', value: safe_join([tag.span(taint_code, class: 'identifier-sm'), taint_description(taint_code)], ' ') %>
+      <%= render 'application/data_block', label: 'Severity', value: safe_join([tag.span(atmosphere.taint_severity, class: 'identifier-sm'), taint_severity_description(atmosphere.taint_severity)], ' ') %>
+      <%= render 'application/data_block', label: 'Persistence', value: safe_join([tag.span(atmosphere.taint_persistence, class: 'identifier-sm'), taint_persistence_description(atmosphere.taint_persistence)], ' ') %>
+    <% end %>
+
+    <% if atmosphere&.composition.present? %>
+      <%= render 'application/data_block', label: 'Composition', value: atmosphere.composition %>
+    <% end %>
+  </div>
+</div>

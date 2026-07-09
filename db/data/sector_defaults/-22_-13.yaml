@@ -1,0 +1,55 @@
+name: VS-X
+abbreviation: VSX
+X: -22
+Y: -13
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: VSX A
+    type: MINIMAL
+    index: A
+  - name: VSX B
+    type: SPARSE
+    index: B
+  - name: VSX C
+    type: LOW
+    index: C
+  - name: VSX D
+    type: MODERATE
+    index: D
+  - name: VSX E
+    type: MINIMAL
+    index: E
+  - name: VSX F
+    type: SPARSE
+    index: F
+  - name: VSX G
+    type: LOW
+    index: G
+  - name: VSX H
+    type: MODERATE
+    index: H
+  - name: VSX I
+    type: MINIMAL
+    index: I
+  - name: VSX J
+    type: MINIMAL
+    index: J
+  - name: VSX K
+    type: SPARSE
+    index: K
+  - name: VSX L
+    type: LOW
+    index: L
+  - name: VSX M
+    type: MINIMAL
+    index: M
+  - name: VSX N
+    type: MINIMAL
+    index: N
+  - name: VSX O
+    type: MINIMAL
+    index: O
+  - name: VSX P
+    type: SPARSE
+    index: P

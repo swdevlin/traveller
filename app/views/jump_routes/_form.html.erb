@@ -1,0 +1,135 @@
+<%= form_with(model: jump_route, class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-60' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :colour do %>
+      <%= form.text_field :colour,
+                          data: { controller: 'coloris' },
+                          class: 'edit-base w-32' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :line_style, field_label: 'Line Style' do %>
+      <%= form.select :line_style,
+                      JumpRoute::LINE_STYLES.map { |s| [s.capitalize, s] },
+                      {},
+                      class: 'edit-base w-40' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :line_width, field_label: 'Line Width' do %>
+      <%= form.number_field :line_width, min: 1, max: 20, class: 'edit-base w-28' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :known, field_label: 'Known' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :known,
+                 checked: jump_route.known, checked_value: 'true', unchecked_value: 'false' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :notes do %>
+      <%= form.text_area :notes, rows: 4, class: 'edit-base w-full resize-y' %>
+    <% end %>
+
+    <% if jump_route.plotted? %>
+      <%= render 'application/subsection', title: 'Route Planning' %>
+      <p class='text-xs text-fg-muted -mt-1 mb-2'>Saving will recalculate and replace all route links. Jump range is used for recalculation.</p>
+
+      <%# Jump range %>
+      <%= render 'application/edit_field', form: form, attribute: :max_jump, field_label: 'Jump Range' do %>
+        <%= form.select :max_jump,
+                        (1..6).map { |n| [n, n] },
+                        { selected: jump_route.max_jump || 2 },
+                        class: 'edit-base w-28' %>
+      <% end %>
+
+      <%# From system %>
+      <div class='py-1'>
+        <label class='edit-label'>From System</label>
+        <div data-controller='system-search'
+             data-system-search-search-url-value='<%= search_star_systems_path %>'>
+          <input type='text'
+                 placeholder='Search for a system…'
+                 autocomplete='off'
+                 data-system-search-target='input'
+                 data-action='input->system-search#search'
+                 value='<%= star_system_search_label(jump_route.from_star_system) %>'
+                 class='w-full edit-base mt-2'>
+          <%= form.hidden_field :from_star_system_id, data: { 'system-search-target': 'idField' } %>
+          <div data-system-search-target='dropdown'
+               class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+            <ul data-system-search-target='list'></ul>
+          </div>
+        </div>
+      </div>
+
+      <%# To system %>
+      <div class='py-1'>
+        <label class='edit-label'>To System</label>
+        <div data-controller='system-search'
+             data-system-search-search-url-value='<%= search_star_systems_path %>'>
+          <input type='text'
+                 placeholder='Search for a system…'
+                 autocomplete='off'
+                 data-system-search-target='input'
+                 data-action='input->system-search#search'
+                 value='<%= star_system_search_label(jump_route.to_star_system) %>'
+                 class='w-full edit-base mt-2'>
+          <%= form.hidden_field :to_star_system_id, data: { 'system-search-target': 'idField' } %>
+          <div data-system-search-target='dropdown'
+               class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+            <ul data-system-search-target='list'></ul>
+          </div>
+        </div>
+      </div>
+
+      <%# Refueling %>
+      <div class='py-1'>
+        <label class='edit-label'>Refuelling</label>
+        <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+          <% JumpRoute::REFUELING.each do |value| %>
+            <label class='flex items-center gap-2 cursor-pointer'>
+              <%= form.radio_button :refueling, value, checked: jump_route.refueling == value, class: 'accent-highlight' %>
+              <%= refueling_label(value) %>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Travel zone exclusions %>
+      <% if @travel_zones&.any? %>
+        <div class='py-1'>
+          <label class='edit-label'>Exclude Travel Zones</label>
+          <%# Hidden sentinel ensures the param is sent even when no boxes are checked %>
+          <input type='hidden' name='jump_route[excluded_travel_zone_ids][]' value=''>
+          <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+            <% @travel_zones.each do |tz| %>
+              <label class='flex items-center gap-2 cursor-pointer'>
+                <input type='checkbox'
+                       name='jump_route[excluded_travel_zone_ids][]'
+                       value='<%= tz.id %>'
+                       class='accent-highlight'
+                       <%= 'checked' if jump_route.excluded_travel_zone_ids&.include?(tz.id) %>>
+                <span class='inline-flex items-center gap-1'>
+                  <svg width='12' height='12' viewBox='0 0 12 12'>
+                    <circle cx='6' cy='6' r='5' fill='<%= tz.colour %>'/>
+                  </svg>
+                  <%= tz.name %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <%# Network routes use max_jump as freeform metadata only %>
+      <%= render 'application/edit_field', form: form, attribute: :max_jump do %>
+        <%= form.number_field :max_jump, class: 'edit-base w-28' %>
+      <% end %>
+    <% end %>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit jump_route.persisted? ? 'Update' : 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', jump_route.persisted? ? jump_route : jump_routes_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

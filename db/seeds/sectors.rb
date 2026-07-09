@@ -1,147 +1,46 @@
 # frozen_string_literal: true
 
 sectors = [
-  { x: -22, y: -9,  name: "Acheron",                     abbreviation: "Ach" },
-  { x: -23, y: -9,  name: "Acheron Spinward",            abbreviation: "AchS" },
-  { x: -24, y: -9,  name: "Acheron Spinward 2",          abbreviation: "AchS2" },
-  { x: -13, y: -1,  name: "Alila",                       abbreviation: "Alila" },
-  { x: -21, y: -6,  name: "Anwnn",                       abbreviation: "Anwnn" },
-  { x: -22, y: -6,  name: "Anwnn Spinward",              abbreviation: "AnwnnS" },
-  { x: -23, y: -6,  name: "Anwnn Spinward 2",            abbreviation: "AnwnnS2" },
-  { x: -24, y: -6,  name: "Anwnn Spinward 3",            abbreviation: "AnwnnS3" },
-  { x: -25, y: -6,  name: "Anwnn Spinward 4",            abbreviation: "AnwnnS4" },
-  { x: -26, y: -6,  name: "Anwnn Spinward 5",            abbreviation: "AnwnnS5" },
-  { x: -20, y: -9,  name: "Arcadia",                     abbreviation: "Arc" },
-  { x: -19, y: -7,  name: "Atlantis",                    abbreviation: "Atl" },
-  { x: -20, y: -6,  name: "Baltia",                      abbreviation: "Balt" },
-  { x: -19, y: -4,  name: "Best Prospect",               abbreviation: "Best" },
-  { x: -19, y: -8,  name: "Bifrost",                     abbreviation: "Bi" },
-  { x: -10, y: -3,  name: "Big Empty",                   abbreviation: "BigE" },
-  { x: -15, y: -11, name: "Big Island",                  abbreviation: "BigI" },
-  { x: -17, y: -4,  name: "Black Night",                 abbreviation: "BN" },
-  { x: -19, y: -6,  name: "Brittia",                     abbreviation: "Brit" },
-  { x: -21, y: -9,  name: "Cathago",                     abbreviation: "Cath" },
-  { x: -20, y: -10, name: "Celadon",                     abbreviation: "Cela" },
-  { x: -21, y: -3,  name: "Central Bay",                 abbreviation: "CBay" },
-  { x: -22, y: -3,  name: "Central Bay Spinward",        abbreviation: "CBayS" },
-  { x: -23, y: -3,  name: "Central Bay Spinward 2",      abbreviation: "CBayS2" },
-  { x: -19, y: -3,  name: "Colaeus",                     abbreviation: "Col" },
-  { x: -21, y: -2,  name: "Coreward Shore",              abbreviation: "CShore" },
-  { x: -22, y: -2,  name: "Coreward Shore Spinward",     abbreviation: "CShoreS" },
-  { x: -19, y: -5,  name: "Crossing",                    abbreviation: "Cross" },
-  { x: -20, y: -5,  name: "Crossing Spinward",           abbreviation: "CrossS" },
-  { x: -21, y: -5,  name: "Crossing Spinward 2",         abbreviation: "CrossS2" },
-  { x: -22, y: -5,  name: "Crossing Spinward 3",         abbreviation: "CrossS3" },
-  { x: -23, y: -5,  name: "Crossing Spinward 4",         abbreviation: "CrossS4" },
-  { x: -24, y: -5,  name: "Crossing Spinward 5",         abbreviation: "CrossS5" },
-  { x: -12, y: -2,  name: "Deepnight",                   abbreviation: "Deepn" },
-  { x: -16, y: -3,  name: "Diamond Scatter",             abbreviation: "DS" },
-  { x: -17, y: -10, name: "Elivagar",                    abbreviation: "Eliv" },
-  { x: -18, y: -5,  name: "Far Shore",                   abbreviation: "FarS" },
-  { x: -17, y: -5,  name: "Far Shore 2",                 abbreviation: "FarS2" },
-  { x: -16, y: -5,  name: "Far Shore 3",                 abbreviation: "FarS3" },
-  { x: -15, y: -5,  name: "Far Shore 4",                 abbreviation: "FarS4" },
-  { x: -20, y: -3,  name: "Far Shore of Yonder",         abbreviation: "FSoY" },
-  { x: -16, y: -4,  name: "Few Glimmers",                abbreviation: "FewG" },
-  { x: -12, y: -3,  name: "Few Stars",                   abbreviation: "FewS" },
-  { x: -12, y: -4,  name: "Few Stars Rimward",           abbreviation: "FewSR1" },
-  { x: -12, y: -5,  name: "Few Stars Rimward 2",         abbreviation: "FewSR2" },
-  { x: -12, y: -6,  name: "Few Stars Rimward 3",         abbreviation: "FewSR3" },
-  { x: -13, y: -3,  name: "First Prospect",              abbreviation: "First" },
-  { x: -13, y: -4,  name: "First Prospect R1",           abbreviation: "FirstR1" },
-  { x: -13, y: -5,  name: "First Prospect R2",           abbreviation: "FirstR2" },
-  { x: -21, y: -11, name: "FSD Transition Spinward",     abbreviation: "FSD TS" },
-  { x: -18, y: -9,  name: "Gimli",                       abbreviation: "Gimli" },
-  { x: -11, y: -1,  name: "Giskakii",                    abbreviation: "Gis" },
-  { x: -20, y: -2,  name: "Greenwald's Beach",           abbreviation: "GB" },
-  { x: -12, y: -1,  name: "Gudala",                      abbreviation: "Gudala" },
-  { x: -21, y: -7,  name: "Hades",                       abbreviation: "Hades" },
-  { x: -22, y: -7,  name: "Hades Spinward",              abbreviation: "HadesS" },
-  { x: -23, y: -7,  name: "Hades Spinward 2",            abbreviation: "HadesS2" },
-  { x: -24, y: -7,  name: "Hades Spinward 3",            abbreviation: "HadesS3" },
-  { x: -25, y: -7,  name: "Hades Spinward 4",            abbreviation: "HadesS4" },
-  { x: -26, y: -7,  name: "Hades Spinward 5",            abbreviation: "HadesS5" },
-  { x: -20, y: -7,  name: "Harappa",                     abbreviation: "Hara" },
-  { x: -21, y: -10, name: "Hubur",                       abbreviation: "Hubur" },
-  { x: -17, y: -8,  name: "Hvergelmir",                  abbreviation: "Hver" },
-  { x: -16, y: -2,  name: "Idirda",                      abbreviation: "Idirda" },
-  { x: -17, y: -7,  name: "Ifingr",                      abbreviation: "Ifingr" },
-  { x: -10, y: -2,  name: "Incognita Citerior",          abbreviation: "IC" },
-  { x: -10, y: -1,  name: "Incognita Ulterior",          abbreviation: "IU" },
-  { x: -15, y: -4,  name: "Just Empty",                  abbreviation: "JE" },
-  { x: -15, y: -3,  name: "Kaalin Citerior",             abbreviation: "KaaCit" },
-  { x: -15, y: -2,  name: "Kaalin Ulterior",             abbreviation: "KaaUlt" },
-  { x: -15, y: -1,  name: "Kaalin Unnamed",              abbreviation: "KU" },
-  { x: -20, y: -4,  name: "Last Prospect",               abbreviation: "Last" },
-  { x: -18, y: -6,  name: "Lemuria",                     abbreviation: "Lem" },
-  { x: -22, y: -10, name: "Lethe",                       abbreviation: "Lethe" },
-  { x: -17, y: -11, name: "LSD Transition Four",         abbreviation: "LSD 4" },
-  { x: -20, y: -11, name: "LSD Transition One",          abbreviation: "LSD One" },
-  { x: -19, y: -12, name: "LSD Transition Rimward",      abbreviation: "LSD TR" },
-  { x: -18, y: -11, name: "LSD Transition Three",        abbreviation: "LSD 3" },
-  { x: -16, y: -11, name: "LSD Transition Trailing",     abbreviation: "LSD TT" },
-  { x: -18, y: -10, name: "Malvam",                      abbreviation: "Malvam" },
-  { x: -17, y: -6,  name: "Muspelheim",                  abbreviation: "Musp" },
-  { x: -19, y: -10, name: "Naraka",                      abbreviation: "Naraka" },
-  { x: -19, y: -2,  name: "Narrow Transit",              abbreviation: "NT" },
-  { x: -13, y: -2,  name: "Near Side of Yonder",         abbreviation: "NSoY" },
-  { x: -17, y: -9,  name: "Niflheim",                    abbreviation: "Nif" },
-  { x: -18, y: -4,  name: "No Prospect",                 abbreviation: "NoP" },
-  { x: -11, y: -3,  name: "No Shore",                    abbreviation: "NS" },
-  { x: -11, y: -4,  name: "No Shore R1",                 abbreviation: "NSR1" },
-  { x: -11, y: -5,  name: "No Shore R2",                 abbreviation: "NSR2" },
-  { x: -20, y: -8,  name: "Olympus",                     abbreviation: "Oly" },
-  { x: -21, y: -4,  name: "Open Rift",                   abbreviation: "OR" },
-  { x: -22, y: -4,  name: "Open Rift Spinward",          abbreviation: "ORS" },
-  { x: -23, y: -4,  name: "Open Rift Spinward 2",        abbreviation: "ORS2" },
-  { x: -24, y: -4,  name: "Open Rift Spinward 3",        abbreviation: "ORS2" },
-  { x: -20, y: -13, name: "Orion's Spit Coreward",       abbreviation: "OSC" },
-  { x: -20, y: -14, name: "Orion's Spit Rimward",        abbreviation: "OSR" },
-  { x: -17, y: -3,  name: "Pytheas",                     abbreviation: "Pytheas" },
-  { x: -17, y: -2,  name: "Pytheas Interior",            abbreviation: "PyI" },
-  { x: -22, y: -11, name: "Riftsedge Bridge",            abbreviation: "ReBr" },
-  { x: -23, y: -12, name: "Riftsedge Central",           abbreviation: "ReCe" },
-  { x: -23, y: -11, name: "Riftsedge Coreward",          abbreviation: "ReCo" },
-  { x: -23, y: -13, name: "Riftsedge Rimward",           abbreviation: "ReRi" },
-  { x: -18, y: -3,  name: "Sisyphus Citerior",           abbreviation: "SisCit" },
-  { x: -18, y: -2,  name: "Sisyphus Ulterior",           abbreviation: "SisUlt" },
-  { x: -22, y: -8,  name: "Styx",                        abbreviation: "Styx" },
-  { x: -23, y: -8,  name: "Styx Spinward",               abbreviation: "StyxS" },
-  { x: -21, y: -8,  name: "Tir NaNog",                   abbreviation: "Tir" },
-  { x: -19, y: -9,  name: "Troy",                        abbreviation: "Troy" },
-  { x: -14, y: -1,  name: "Unnamed 1",                   abbreviation: "Un1" },
-  { x: -14, y: -2,  name: "Unnamed 2",                   abbreviation: "Un2" },
-  { x: -14, y: -3,  name: "Unnamed 3",                   abbreviation: "Un3" },
-  { x: -14, y: -4,  name: "Unnamed 4",                   abbreviation: "Un4" },
-  { x: -14, y: -5,  name: "Unnamed 5",                   abbreviation: "Un5" },
-  { x: -18, y: -8,  name: "Valhol",                      abbreviation: "Valhol" },
-  { x: -11, y: -2,  name: "Vilaakasii",                  abbreviation: "Vilaa" },
-  { x: -19, y: -13, name: "Voidshore Eight",             abbreviation: "VS8" },
-  { x: -16, y: -13, name: "Voidshore Eleven",            abbreviation: "VS11" },
-  { x: -17, y: -12, name: "Voidshore Five",              abbreviation: "VS 5" },
-  { x: -18, y: -12, name: "Voidshore Four",              abbreviation: "VS 4" },
-  { x: -18, y: -13, name: "Voidshore Nine",              abbreviation: "VS9" },
-  { x: -22, y: -12, name: "Voidshore One",               abbreviation: "VS 1" },
-  { x: -15, y: -13, name: "Voidshore Rimward",           abbreviation: "VSRim" },
-  { x: -21, y: -13, name: "Voidshore Seven",             abbreviation: "VS7" },
-  { x: -16, y: -12, name: "Voidshore Six",               abbreviation: "VS 6" },
-  { x: -17, y: -13, name: "Voidshore Ten",               abbreviation: "VS10" },
-  { x: -20, y: -12, name: "Voidshore Three",             abbreviation: "VS 3" },
-  { x: -15, y: -12, name: "Voidshore Trailing",          abbreviation: "VS Trail" },
-  { x: -21, y: -12, name: "Voidshore Two",               abbreviation: "VS 2" },
-  { x: -22, y: -13, name: "VS-X",                        abbreviation: "VSX" },
-  { x: -18, y: -7,  name: "Wilderlands",                 abbreviation: "Wldr" },
-  { x: -19, y: -11, name: "ZSD Transition Two",          abbreviation: "ZSD Two" },
-  { x: -16, y: -6,  name: "Muspelheim Trailing 1",       abbreviation: "MuspT1" },
-  { x: -15, y: -6,  name: "Muspelheim Trailing 2",       abbreviation: "MuspT2" },
-  { x: -14, y: -6,  name: "Muspelheim Trailing 3",       abbreviation: "MuspT3" },
-  { x: -13, y: -6,  name: "Muspelheim Trailing 4",       abbreviation: "MuspT4" }
+  {
+    x: -5, y: 1, name: 'Foreven', abbreviation: 'Fore',
+    subsector_names: [
+      'Shivva', 'Lieber', 'Shial', 'Massina',
+      'Pieplow', 'Anika', 'Mowbrey', 'Fessor',
+      'Lassana', 'Xenough Titan', 'Xenough', 'Reidain',
+      'Rull', 'Harem', 'Piah', 'Urnian'
+    ]
+  }
 ]
 
 sectors.each do |attrs|
   puts(".#{attrs[:name]}")
+
   sector = Sector.find_or_initialize_by(x: attrs[:x], y: attrs[:y])
-  sector.name         = attrs[:name]
+  is_new = sector.new_record?
+  sector.name = attrs[:name]
   sector.abbreviation = attrs[:abbreviation]
-  sector.save!
+
+  if is_new
+    Sector.skip_callback(:commit, :after, :create_subsectors_and_parsecs)
+    begin
+      sector.save!
+    ensure
+      Sector.set_callback(:commit, :after, :create_subsectors_and_parsecs)
+    end
+
+    (attrs[:subsector_names] || []).each_with_index do |name, index|
+      letter = ('A'.ord + index).chr
+      x = (index % 4) + 1
+      y = (index / 4) + 1
+      CreateSubsectorJob.perform_now(sector.id, letter, x, y, name)
+    end
+  else
+    sector.save!
+
+    (attrs[:subsector_names] || []).each_with_index do |name, index|
+      x = (index % 4) + 1
+      y = (index / 4) + 1
+      sector.subsectors.find_by(x: x, y: y)&.update!(name: name)
+    end
+  end
 end

@@ -1,41 +1,20 @@
-<%= form_with(model: subsector, class: "contents") do |form| %>
-  <% if subsector.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(subsector.errors.count, "error") %> prohibited this subsector from being saved:</h2>
+<%= form_with(model: subsector, class: 'contents') do |form| %>
+  <div class='space-y-6 pb-10'>
+    <%= render 'application/form_errors', errors: subsector.errors.where(:base) %>
 
-      <ul class="list-disc ml-6">
-        <% subsector.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <%= render 'application/name_generator_field', form: form %>
+
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Observations</div>
+      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>
-  <% end %>
 
-  <div class="my-5">
-    <%= form.label :name %>
-    <%= form.text_field :name, class: [
-      "w-full edit-base",
-      {
-        "border-gray-400 focus:outline-blue-600": subsector.errors[:name].none?,
-        "border-red-400 focus:outline-red-600": subsector.errors[:name].any?
-      }]
-    %>
-  </div>
+    <%= render 'application/build_config', form: form, attribute: :build %>
+    <%= render 'derive_build_button', subsector: subsector %>
 
-  <div class="my-5">
-    <%= form.label :notes, "Notes" %>
-    <%= form.text_area :notes,
-                       rows: 6,
-                       class: [
-                         "edit-base mt-2 w-full resize-y",
-                         {
-                           "border-gray-400 focus:outline-blue-600": subsector.errors[:notes].none?,
-                           "border-red-400 focus:outline-red-600": subsector.errors[:notes].any?
-                         }
-                       ] %>
-  </div>
-
-  <div class="inline">
-    <%= form.submit "Save changes", class: "w-full sm:w-auto btn btn-primary" %>
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', subsector, class: 'w-full sm:w-auto btn' %>
+    </div>
   </div>
 <% end %>

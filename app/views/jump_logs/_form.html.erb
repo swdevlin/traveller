@@ -1,0 +1,168 @@
+<%= form_with(model: jump_log, class: 'contents',
+                               data: { controller: 'jump-form jump-dates',
+                                       action: 'change->jump-dates#departChanged parsec-select:hex-selected->jump-form#fromParsecSelected',
+                                       jump_form_ships_url_value: api_ships_path,
+                                       jump_form_map_base_url_value: api_map_path({}),
+                                       jump_form_new_record_value: jump_log.new_record? }) do |form| %>
+  <div class='space-y-6 pb-10'>
+    <% if jump_log.errors.any? %>
+      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
+        <div class='mt-1 text-sm font-semibold text-fg-bright'>
+          <%= pluralize(jump_log.errors.count, 'error') %> prevented this jump log from being saved
+        </div>
+        <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
+          <% jump_log.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class='mt-4'>
+      <%= form.label :ship_id, 'Ship', class: 'edit-label' %>
+      <div class='flex items-center gap-3 mt-2'>
+        <select name='jump_log[ship_id]' id='jump_log_ship_id'
+                class='edit-base w-52'
+                data-jump-form-target='shipSelect'
+                data-action='change->jump-form#shipChanged'>
+          <option value=''>Select a ship</option>
+          <% @ships.each do |ship| %>
+            <option value='<%= ship.id %>'
+                    data-jump-drive='<%= ship.jump_drive %>'
+                    <%= 'selected' if ship.id == jump_log.ship_id %>>
+              <%= ship.name %>
+            </option>
+          <% end %>
+        </select>
+        <%= link_to new_modal_ships_path,
+                    class: 'btn btn-sm',
+                    data: { turbo_frame: 'modal' } do %>
+          <i class='fa-regular fa-plus'></i> New ship
+        <% end %>
+      </div>
+    </div>
+
+    <%# From parsec %>
+    <div>
+      <div class='edit-label mb-2'>From</div>
+      <div class='flex flex-row gap-2'
+           data-controller='parsec-select'
+           data-parsec-role='from'
+           data-parsec-select-parsec-id-value='<%= jump_log.from_parsec_id.to_i %>'
+           data-parsec-select-sector-id-value='<%= jump_log.from_parsec&.sector_id.to_i %>'
+           data-parsec-select-url-value='<%= api_parsecs_path %>'
+           data-from-x='<%= jump_log.from_parsec&.x %>'
+           data-from-y='<%= jump_log.from_parsec&.y %>'>
+        <%= select_tag 'from_sector',
+                       options_for_select([['Sector…', '']] + @sectors.map { |s| [s.name, s.id] },
+                                          jump_log.from_parsec&.sector_id),
+                       class: 'edit-base w-52',
+                       data: { parsec_select_target: 'sector', action: 'change->parsec-select#sectorChanged' } %>
+        <%= select_tag 'from_hex',
+                       '<option value="">Hex…</option>'.html_safe,
+                       disabled: jump_log.from_parsec_id.blank?,
+                       class: 'edit-base w-52',
+                       data: { parsec_select_target: 'hex', action: 'change->parsec-select#hexChanged' } %>
+        <%= hidden_field_tag 'jump_log[from_parsec_id]', jump_log.from_parsec_id,
+                             data: { parsec_select_target: 'hiddenId' } %>
+      </div>
+    </div>
+
+    <%# To parsec %>
+    <div data-controller='parsec-select'
+         data-parsec-role='to'
+         data-parsec-select-parsec-id-value='<%= jump_log.to_parsec_id.to_i %>'
+         data-parsec-select-sector-id-value='<%= jump_log.to_parsec&.sector_id.to_i %>'
+         data-parsec-select-from-x-value='<%= jump_log.from_parsec&.x %>'
+         data-parsec-select-from-y-value='<%= jump_log.from_parsec&.y %>'
+         data-parsec-select-max-distance-value='<%= jump_log.ship&.jump_drive || 0 %>'
+         data-parsec-select-url-value='<%= api_parsecs_path %>'>
+      <%= hidden_field_tag 'jump_log[to_parsec_id]', jump_log.to_parsec_id,
+                           data: { parsec_select_target: 'hiddenId' } %>
+      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 13rem<%= ' 5rem' if current_campaign.tracks_survey_index? %>'>
+        <%# Labels row %>
+        <div class='flex items-center gap-4'>
+          <span class='edit-label'>To</span>
+          <%= render 'application/boolean_toggle', form: form, attribute: :misjump,
+                checked: form.object.misjump?,
+                label: 'Misjump',
+                checkbox_data: { jump_form_target: 'misjumpCheckbox',
+                                 action: 'change->jump-form#misjumpChanged' } %>
+        </div>
+        <div></div>
+        <% if current_campaign.tracks_survey_index? %>
+          <%= form.label :destination_survey_index, 'Survey Index', class: 'edit-label whitespace-nowrap' %>
+        <% end %>
+        <%# Fields row %>
+        <select class='edit-base w-full'
+                data-parsec-select-target='sector'
+                data-action='change->parsec-select#sectorChanged'>
+          <option value=''>Sector…</option>
+          <% @sectors.each do |s| %>
+            <option value='<%= s.id %>'
+                    data-sector-x='<%= s.x %>'
+                    data-sector-y='<%= s.y %>'
+                    <%= 'selected' if s.id == jump_log.to_parsec&.sector_id %>>
+              <%= s.name %>
+            </option>
+          <% end %>
+        </select>
+        <%= select_tag 'to_hex',
+                       '<option value="">Hex…</option>'.html_safe,
+                       disabled: jump_log.to_parsec_id.blank?,
+                       class: 'edit-base w-full',
+                       data: { parsec_select_target: 'hex', action: 'change->parsec-select#hexChanged' } %>
+        <% if current_campaign.tracks_survey_index? %>
+          <%= form.number_field :destination_survey_index, min: 0, max: 12,
+                                class: 'edit-base w-full' %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Departure %>
+    <div>
+      <div class='edit-label mb-2'>Depart</div>
+      <div class='flex flex-row gap-2'>
+        <%= form.number_field :depart_year, placeholder: 'Year',
+                              class: ['edit-base w-28', { 'border-gray-400': jump_log.errors[:depart_year].none?,
+                                                          'border-red-400': jump_log.errors[:depart_year].any? }],
+                              data: { jump_dates_target: 'departYear' } %>
+        <%= form.number_field :depart_day, placeholder: 'Day', min: 1, max: 365,
+                              class: ['edit-base w-24', { 'border-gray-400': jump_log.errors[:depart_day].none?,
+                                                          'border-red-400': jump_log.errors[:depart_day].any? }],
+                              data: { jump_dates_target: 'departDay' } %>
+      </div>
+    </div>
+
+    <%# Arrival %>
+    <div>
+      <div class='edit-label mb-2'>Arrive</div>
+      <div class='flex flex-row gap-2'>
+        <%= form.number_field :arrive_year, placeholder: 'Year',
+                              class: ['edit-base w-28', { 'border-gray-400': jump_log.errors[:arrive_year].none?,
+                                                          'border-red-400': jump_log.errors[:arrive_year].any? }],
+                              data: { jump_dates_target: 'arriveYear' } %>
+        <%= form.number_field :arrive_day, placeholder: 'Day', min: 1, max: 365,
+                              class: ['edit-base w-24', { 'border-gray-400': jump_log.errors[:arrive_day].none?,
+                                                          'border-red-400': jump_log.errors[:arrive_day].any? }],
+                              data: { jump_dates_target: 'arriveDay' } %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :notes, 'Notes', class: 'edit-label' %>
+      <%= form.text_area :notes, rows: 4,
+                         class: ['w-full edit-base mt-2 resize-y',
+                                 { 'border-gray-400': jump_log.errors[:notes].none?,
+                                   'border-red-400': jump_log.errors[:notes].any? }] %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit jump_log.persisted? ? 'Update log' : 'Create log',
+                      class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', jump_log.persisted? ? jump_log : jump_logs_path,
+                  class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

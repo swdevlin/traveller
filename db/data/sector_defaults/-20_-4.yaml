@@ -1,0 +1,1199 @@
+name: Last Prospect
+abbreviation: Last
+X: -20
+Y: -4
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Last A
+    type: RIFT
+    index: A
+  - name: Last B
+    type: SPARSE
+    index: B
+  - name: Last C
+    type: RIFT
+    index: C
+  - name: Last D
+    type: MODERATE
+    index: D
+  - name: Last E
+    type: RIFT
+    index: E
+  - name: Last F
+    type: LOW
+    index: F
+  - name: Last G
+    type: MODERATE
+    index: G
+  - name: Last H
+    type: MODERATE
+    index: H
+  - name: Last I
+    type: RIFT_FADE
+    index: I
+  - name: Last J
+    type: MINIMAL
+    index: J
+    systems:
+      - x: 1
+        y: 1
+        primary:
+          type: M5
+      - x: 1
+        y: 2
+        primary:
+          type: K7
+          near:
+            type: M2
+          far:
+            type: M6
+      - x: 1
+        y: 3
+        primary:
+          type: G6
+          far:
+            type: M6
+      - x: 1
+        y: 5
+        primary:
+          type: BD
+          far:
+            type: BD
+      - x: 1
+        y: 8
+        primary:
+          type: K8
+          far:
+            type: M8
+      - x: 1
+        y: 9
+        primary:
+          type: G5
+          far:
+            type: M9
+      - x: 2
+        y: 2
+        allegiance: Sov
+        primary:
+          type: F3
+          bodies:
+            - uwp: C6658A7-9
+              orbit: warm
+            - uwp: X000000-0
+            - uwp: C8535A7-9
+            - uwp: E510367-8
+            - uwp: E310267-9
+            - uwp: X100000-0
+            - uwp: X111000-0
+            - uwp: X111000-0
+            - uwp: small gas giant
+            - uwp: X420000-0
+            - uwp: small gas giant
+            - uwp: small gas giant
+          far:
+            type: K7
+            bodies:
+              - uwp: X4A1000-0
+              - uwp: X310000-0
+              - uwp: small gas giant
+              - uwp: large gas giant
+              - uwp: large gas giant
+              - uwp: large gas giant
+      - x: 2
+        y: 5
+        allegiance: Sov
+        primary:
+          type: K5
+          bodies:
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: C4225A7-9
+              orbit: habitable
+            - uwp: small gas giant
+          far:
+            type: M9
+            bodies:
+              - uwp: large gas giant
+              - uwp: small gas giant
+      - x: 2
+        y: 6
+        primary:
+          type: K4
+      - x: 3
+        y: 3
+        primary:
+          type: M6
+          near:
+            type: M5
+      - x: 3
+        y: 5
+        primary:
+          type: M5
+      - x: 4
+        y: 1
+        primary:
+          type: K4
+          near:
+            type: M5
+          far:
+            type: K5
+      - x: 4
+        y: 5
+        primary:
+          type: K0
+          far:
+            type: K2
+      - x: 4
+        y: 6
+        primary:
+          type: M5
+          far:
+            type: M2
+      - x: 4
+        y: 7
+        allegiance: Sov
+        primary:
+          type: K7
+          bodies:
+            - uwp: D000368-9
+            - uwp: D221368-9
+            - uwp: B6747A8-9
+              orbit: habitable
+            - uwp: D62A468-9
+            - uwp: D3A0268-9
+      - x: 4
+        y: 8
+        primary:
+          type: K1
+          far:
+            type: K3
+      - x: 4
+        y: 9
+        primary:
+          type: G4
+      - x: 5
+        y: 2
+        primary:
+          type: G3
+          far:
+            type: M5
+      - x: 5
+        y: 4
+        allegiance: Sov
+        bases:
+          - O
+        primary:
+          type: K5
+          bodies:
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: X000000-0
+            - uwp: terrestrial
+            - uwp: small gas giant
+            - uwp: X310000-0
+            - uwp: large gas giant
+            - uwp: small gas giant
+            - uwp: small gas giant
+          near:
+            type: G7
+          far:
+            type: BD
+            bodies:
+              - uwp: large gas giant
+      - x: 5
+        y: 7
+        primary:
+          type: M5
+          far:
+            type: K3
+      - x: 5
+        y: 10
+        allegiance: Sov
+        primary:
+          type: M7
+          bodies:
+            - uwp: small gas giant
+            - uwp: large gas giant
+            - uwp: C6657A7-9
+              orbit: habitable
+            - uwp: D6004A7-9
+            - uwp: X7A2000-0
+            - uwp: terrestrial
+            - uwp: large gas giant
+            - uwp: X000000-0
+            - uwp: X5A1000-0
+          far:
+            type: BD
+            bodies:
+              - uwp: X521000-0
+      - x: 6
+        y: 2
+        primary:
+          type: K5
+      - x: 6
+        y: 7
+        primary:
+          type: M3
+          near:
+            type: M3
+          far:
+            type: K3
+      - x: 6
+        y: 8
+        primary:
+          type: F3
+      - x: 6
+        y: 10
+        primary:
+          type: A9
+      - x: 7
+        y: 1
+        primary:
+          type: G3
+          far:
+            type: BD
+      - x: 7
+        y: 2
+        primary:
+          type: G8
+      - x: 7
+        y: 6
+        allegiance: TA
+        primary:
+          type: K7
+          bodies:
+            - uwp: X422000-0
+            - uwp: EA67496-9
+              orbit: habitable
+            - uwp: X721000-0
+            - uwp: XAA3000-0
+            - uwp: large gas giant
+            - uwp: X000000-0
+      - x: 8
+        y: 1
+        primary:
+          type: M6
+          class: giant
+          bodies:
+            - uwp: terrestrial
+            - uwp: terrestrial
+            - uwp: small gas giant
+      - x: 8
+        y: 2
+        primary:
+          type: G9
+          far:
+            type: BD
+      - x: 8
+        y: 3
+        primary:
+          type: M9
+          near:
+            type: M3
+          far:
+            type: M8
+      - x: 8
+        y: 4
+        primary:
+          type: K4
+          near:
+            type: M7
+          far:
+            type: M8
+      - x: 8
+        y: 9
+        primary:
+          type: F2
+          bodies:
+            - empty
+            - empty
+            - empty
+            - empty
+            - uwp: small gas giant
+      - x: 8
+        y: 10
+        primary:
+          type: M3
+  - name: Last K
+    type: MINIMAL
+    index: K
+    systems:
+      - x: 1
+        y: 1
+        primary:
+          type: K4
+      - x: 1
+        y: 4
+        primary:
+          type: F9
+          near:
+            type: K3
+      - x: 1
+        y: 6
+        name: Lucky-Find
+        bases:
+          - O
+        allegiance: TA
+        primary:
+          type: M8
+          class: V
+          bodies:
+            - uwp: X100000-0
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: E765396-9
+              name: Lucky-Find
+              orbit: habitable
+            - uwp: terrestrial
+            - uwp: small gas giant
+            - uwp: X000000-0
+            - uwp: X000000-0
+      - x: 1
+        y: 9
+        primary:
+          type: BD
+          close:
+            type: BD
+          near:
+            type: BD
+          far:
+            type: BD
+      - x: 2
+        y: 2
+        primary:
+          type: M2
+      - x: 2
+        y: 3
+        primary:
+          type: M9
+      - x: 2
+        y: 5
+        primary:
+          type: F2
+      - x: 2
+        y: 6
+        allegiance: TA
+        primary:
+          type: K6
+          companion:
+            type: BD
+          bodies:
+            - uwp: X000000-0
+          close:
+            type: M6
+            bodies:
+              - uwp: X000000-0
+              - uwp: X200000-0
+              - uwp: X110000-0
+          near:
+            type: BD
+            bodies:
+              - uwp: X622000-0
+            companion:
+              type: BD
+          far:
+            type: M5
+            bodies:
+              - uwp: X7A9000-0
+              - uwp: X420000-0
+              - uwp: C677796-9
+                orbit: habitable
+              - uwp: small gas giant
+              - uwp: X6A7000-0
+              - uwp: X532000-0
+              - uwp: X000000-0
+      - x: 2
+        y: 7
+      - x: 2
+        y: 9
+        primary:
+          type: K5
+      - x: 3
+        y: 1
+        primary:
+          type: M1
+      - x: 3
+        y: 6
+        allegiance: TA
+        primary:
+          type: K5
+          bodies:
+            - uwp: XAAA000-0
+            - uwp: large gas giant
+            - uwp: large gas giant
+            - uwp: large gas giant
+            - uwp: X100000-0
+            - uwp: D000496-9
+            - uwp: X000000-0
+          far:
+            type: G8
+            bodies: [ ]
+      - x: 3
+        y: 7
+        name: Home-of-Tenipal
+        allegiance: TA
+        primary:
+          type: K5
+          bodies:
+            - uwp: C677A96-9
+              orbit: habitable
+              name: Home-of-Tenipal
+            - uwp: D114596-9
+              name: Ice-Pond
+            - uwp: D000000-0
+            - uwp: D311496-9
+              name: Not-Good
+            - uwp: small gas giant
+            - uwp: C6A8796-9
+              name: Ambitious-Place
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: X6A1000-0
+            - uwp: X6A2000-0
+            - uwp: small gas giant
+            - uwp: XAA1000-0
+          far:
+            type: K7
+            bodies:
+              - uwp: large gas giant
+              - uwp: C000596-9
+                name: Mining-Port
+              - uwp: small gas giant
+              - uwp: X310000-0
+              - uwp: X700000-0
+      - x: 3
+        y: 8
+        name: Heavy-Air
+        allegiance: TA
+        primary:
+          type: M8
+          bodies:
+            - uwp: X32A000-0
+            - uwp: C996796-9
+              name: Heavy-Air
+              orbit: habitable
+            - uwp: small gas giant
+            - uwp: X210000-0
+            - uwp: large gas giant
+            - uwp: X000000-0
+            - uwp: small gas giant
+            - uwp: X610000-0
+            - uwp: X310000-0
+            - uwp: X000000-0
+            - uwp: small gas giant
+      - x: 3
+        y: 10
+        primary:
+          type: K7
+      - x: 4
+        y: 2
+        primary:
+          type: K4
+          near:
+            type: K7
+      - x: 4
+        y: 5
+        allegiance: TA
+        name: Support-For-Ships
+        bases:
+          - O
+        primary:
+          type: K0
+          bodies: [ ]
+          near:
+            type: G2
+            bodies:
+              - uwp: C311396-9
+                name: Support-For-Ships
+                orbit: habitable
+              - uwp: X100000-0
+              - uwp: X000000-0
+              - uwp: X210200-0
+              - uwp: X300000-0
+              - uwp: X100000-0
+      - x: 5
+        y: 1
+        primary:
+          type: M5
+      - x: 5
+        y: 6
+        primary:
+          type: M4
+          near:
+            type: M3
+      - x: 5
+        y: 8
+        primary:
+          type: K7
+          near:
+            type: K5
+      - x: 5
+        y: 9
+        primary:
+          type: M4
+          far:
+            type: BD
+      - x: 5
+        y: 10
+        primary:
+          type: M3
+      - x: 6
+        y: 1
+        primary:
+          type: G6
+      - x: 6
+        y: 2
+        primary:
+          type: K3
+      - x: 6
+        y: 6
+        primary:
+          type: K4
+          far:
+            type: M4
+      - x: 6
+        y: 8
+        primary:
+          type: K4
+          far:
+            type: M4
+      - x: 7
+        y: 1
+        primary:
+          type: K3
+          far:
+            type: M1
+      - x: 7
+        y: 3
+      - x: 7
+        y: 4
+        primary:
+          type: K6
+      - x: 7
+        y: 5
+        primary:
+          type: M5
+      - x: 7
+        y: 6
+        primary:
+          type: K7
+          far:
+            type: M4
+      - x: 7
+        y: 9
+        primary:
+          type: M4
+          near:
+            type: M2
+          far:
+            type: M1
+      - x: 7
+        y: 10
+        primary:
+          type: F9
+          far:
+            type: M9
+      - x: 8
+        y: 4
+        primary:
+          type: M2
+          near:
+            type: M2
+      - x: 8
+        y: 5
+        primary:
+          type: G1
+          far:
+            type: K2
+      - x: 8
+        y: 6
+        primary:
+          type: K4
+      - x: 8
+        y: 7
+        primary:
+          type: M2
+          far:
+            type: M9
+      - x: 8
+        y: 9
+        primary:
+          type: K3
+          far:
+            type: K1
+  - name: Last L
+    type: MINIMAL
+    index: L
+  - name: Last M
+    type: RIFT_FADE
+    index: M
+  - name: Last N
+    type: RIFT
+    index: N
+  - name: Last O
+    type: RIFT
+    index: O
+    systems:
+      - x: 1
+        y: 6
+        primary:
+          type: M5
+      - x: 2
+        y: 1
+        primary:
+          type: G4
+          near:
+            type: G5
+      - x: 2
+        y: 2
+        name: Zrenh
+        allegiance: Er
+        primary:
+          type: K5
+          bodies:
+            - uwp: C659845-A
+              name: Zrenh
+              orbit: habitable
+            - uwp: E9A1345-A
+      - x: 2
+        y: 3
+        primary:
+          type: K2
+          far:
+            type: M8
+      - x: 2
+        y: 5
+        allegiance: Er
+        name: Czath
+        primary:
+          type: M1
+          near:
+            type: M3
+            bodies:
+              - uwp: E000445-A
+              - uwp: small gas giant
+              - uwp: D000545-A
+              - uwp: X3A1000-0
+              - uwp: C554645-A
+                name: Czath
+                orbit: habitable
+              - uwp: small gas giant
+              - uwp: small gas giant
+              - uwp: small gas giant
+              - uwp: E000245-A
+              - uwp: E000245-A
+      - x: 2
+        y: 6
+        primary:
+          type: K7
+          near:
+            type: K2
+          far:
+            type: K3
+      - x: 2
+        y: 9
+        primary:
+          type: K7
+          near:
+            type: M5
+      - x: 2
+        y: 10
+        primary:
+          type: K4
+      - x: 3
+        y: 2
+        primary:
+          type: F9
+      - x: 3
+        y: 6
+        primary:
+          type: K2
+          far:
+            type: M6
+      - x: 3
+        y: 8
+        primary:
+          type: G1
+          near:
+            type: M6
+          far:
+            type: BD
+      - x: 3
+        y: 10
+        primary:
+          type: K5
+          close:
+            type: BD
+      - x: 4
+        y: 7
+        allegiance: Er
+        name: Zahline
+        primary:
+          type: M0
+          bodies:
+            - uwp: small gas giant
+            - uwp: C666835-A
+              name: Zahline
+              orbit: habitable
+            - uwp: E000335-A
+            - uwp: large gas giant
+            - uwp: X000000-0
+            - uwp: large gas giant
+            - uwp: X110000-0
+      - x: 5
+        y: 2
+        primary:
+          type: G1
+          near:
+            type: M6
+          far:
+            type: BD
+      - x: 5
+        y: 6
+        primary:
+          type: K1
+          near:
+            type: M7
+            bodies:
+              - uwp: X8B8000-0
+              - uwp: X000000-0
+              - uwp: large gas giant
+              - uwp: small gas giant
+              - uwp: X310000-0
+      - x: 6
+        y: 2
+        primary:
+          type: K0
+          near:
+            type: M1
+      - x: 6
+        y: 3
+        allegiance: Er
+        primary:
+          type: M5
+          bodies:
+            - uwp: X440000-0
+            - uwp: X864873-1
+            - uwp: large gas giant
+            - uwp: X521000-0
+      - x: 6
+        y: 4
+        primary:
+          type: M5
+      - x: 7
+        y: 4
+        primary:
+          type: M5
+      - x: 7
+        y: 7
+        primary:
+          type: K9
+          close:
+            type: M4
+            companion:
+              type: M4
+          near:
+            type: M4
+          far:
+            type: M5
+      - x: 7
+        y: 8
+        primary:
+          type: F6
+      - x: 7
+        y: 9
+        primary:
+          type: K4
+          near:
+            type: M4
+          far:
+            type: K3
+      - x: 7
+        y: 10
+        allegiance: Er
+        name: Kskatk
+        primary:
+          type: K8
+          bodies:
+            - uwp: E746775-5
+              name: Kskatk
+              orbit: habitable
+            - uwp: small gas giant
+            - uwp: X521000-0
+      - x: 8
+        y: 1
+        primary:
+          type: M3
+          companion:
+            type: M3
+      - x: 8
+        y: 2
+        primary:
+          type: K5
+      - x: 8
+        y: 3
+        primary:
+          type: M1
+          near:
+            type: M4
+      - x: 8
+        y: 4
+        primary:
+          type: K2
+          far:
+            type: K8
+      - x: 8
+        y: 7
+        primary:
+          type: M6
+      - x: 8
+        y: 10
+        primary:
+          type: M2
+          far:
+            type: M7
+            companion:
+              type: M7
+  - name: Last P
+    type: DEEP_RIFT
+    index: P
+    systems:
+      - x: 1
+        y: 2
+        primary:
+          type: K1
+      - x: 1
+        y: 3
+        primary:
+          type: M9
+      - x: 1
+        y: 4
+        primary:
+          type: F2
+          far:
+            type: F6
+      - x: 1
+        y: 6
+        primary:
+          type: M5
+          far:
+            type: BD
+      - x: 1
+        y: 8
+        primary:
+          type: F9
+      - x: 1
+        y: 10
+        primary:
+          type: K7
+      - x: 2
+        y: 1
+        primary:
+          type: G9
+          far:
+            type: M7
+      - x: 2
+        y: 2
+        primary:
+          type: M3
+          far:
+            type: M4
+      - x: 2
+        y: 5
+        primary:
+          type: K7
+          far:
+            type: M0
+      - x: 2
+        y: 7
+        primary:
+          type: M2
+      - x: 2
+        y: 9
+        primary:
+          type: M4
+          near:
+            type: M5
+      - x: 3
+        y: 1
+        primary:
+          type: M2
+      - x: 3
+        y: 4
+        primary:
+          type: BD
+          far:
+            type: BD
+      - x: 3
+        y: 7
+        allegiance: Er
+        bases:
+          - R
+        primary:
+          type: F8
+          far:
+            type: F9
+            companion:
+              type: M0
+      - x: 3
+        y: 8
+        primary:
+          type: K4
+          near:
+            type: K2
+          far:
+            type: M5
+      - x: 3
+        y: 9
+        primary:
+          type: K7
+          bodies:
+            - uwp: X000000-0
+            - uwp: large gas giant
+            - uwp: X777000-0
+              name: Erline
+              orbit: habitable
+            - uwp: small gas giant
+            - uwp: large gas giant
+            - uwp: X000000-0
+            - uwp: terrestrial
+            - uwp: X000000-0
+            - uwp: X000000-0
+      - x: 3
+        y: 10
+        primary:
+          type: M4
+          far:
+            type: F2
+      - x: 4
+        y: 2
+        primary:
+          type: M7
+          far:
+            type: M7
+      - x: 4
+        y: 3
+        primary:
+          type: M1
+          bodies:
+            - uwp: X200000-0
+            - uwp: X100000-0
+            - uwp: X200000-0
+      - x: 4
+        y: 4
+        primary:
+          type: M4
+          far:
+            type: M3
+      - x: 4
+        y: 7
+        primary:
+          type: M6
+          bodies: [ ]
+          near:
+            type: M8
+            bodies:
+              - uwp: small gas giant
+              - uwp: X644000-0
+              - uwp: X100000-0
+              - uwp: X310000-0
+              - uwp: X510000-0
+              - uwp: X200000-0
+              - uwp: small gas giant
+          far:
+            type: M1
+            bodies: [ ]
+      - x: 4
+        y: 8
+        primary:
+          type: G4
+      - x: 4
+        y: 9
+        primary:
+          type: F4
+      - x: 5
+        y: 2
+        primary:
+          type: M5
+          near:
+            type: M5
+      - x: 5
+        y: 3
+        primary:
+          type: M6
+      - x: 5
+        y: 5
+        primary:
+          type: G5
+          bodies: [ ]
+      - x: 5
+        y: 6
+        primary:
+          type: G2
+          near:
+            type: M5
+          far:
+            type: G3
+      - x: 5
+        y: 7
+        primary:
+          type: K5
+          bodies:
+            - uwp: X886000-0
+            - uwp: small gas giant
+            - uwp: X220000-0
+            - uwp: small gas giant
+          close:
+            type: K5
+            companion:
+              type: K7
+            bodies:
+              - uwp: large gas giant
+              - uwp: large gas giant
+              - uwp: X7AA000-0
+          near:
+            type: K9
+            companion:
+              type: K9
+            bodies:
+              - uwp: large gas giant
+              - uwp: large gas giant
+              - uwp: X7AA000-0
+          far:
+            type: M8
+            bodies:
+              - uwp: X231000-0
+              - uwp: X200000-0
+              - uwp: small gas giant
+      - x: 5
+        y: 8
+        primary:
+          type: K6
+          near:
+            type: M7
+      - x: 5
+        y: 9
+        primary:
+          type: M6
+      - x: 6
+        y: 1
+        primary:
+          type: M3
+          companion:
+            type: M3
+          far:
+            type: BD
+      - x: 6
+        y: 2
+        primary:
+          type: K1
+          near:
+            type: K4
+          far:
+            type: M3
+      - x: 6
+        y: 7
+        name: Erhal
+        allegiance: Er
+        primary:
+          type: G3
+          bodies:
+            - uwp: X621000-0
+            - uwp: small gas giant
+            - uwp: small gas giant
+            - uwp: X777671-2
+              name: Erhal
+              orbit: habitable
+            - uwp: large gas giant
+          far:
+            type: M9
+            bodies:
+              - uwp: X311000-0
+              - uwp: X831000-0
+      - x: 6
+        y: 8
+        primary:
+          type: M1
+          far:
+            type: K9
+      - x: 6
+        y: 9
+        primary:
+          type: M6
+      - x: 7
+        y: 1
+        primary:
+          type: M8
+          near:
+            type: M7
+      - x: 7
+        y: 4
+        primary:
+          type: K5
+          near:
+            type: M7
+          far:
+            type: BD
+      - x: 7
+        y: 7
+        primary:
+          type: M9
+          near:
+            type: M4
+      - x: 7
+        y: 8
+        primary:
+          type: A2
+          bodies:
+            - uwp: large gas giant
+      - x: 7
+        y: 9
+        primary:
+          type: M7
+          near:
+            type: M9
+      - x: 7
+        y: 10
+        allegiance: Er
+        name: Ctskath
+        primary:
+          type: M3
+          bodies:
+            - uwp: small gas giant
+            - uwp: large gas giant
+            - uwp: small gas giant
+            - uwp: D555343-A
+              name: Ctskath
+              orbit: cold
+            - uwp: small gas giant
+            - uwp: X621000-0
+      - x: 8
+        y: 3
+        primary:
+          type: M4
+      - x: 8
+        y: 4
+        primary:
+          type: M2
+      - x: 8
+        y: 5
+        primary:
+          type: M3
+          companion:
+            type: M3
+          far:
+            type: BD
+      - x: 8
+        y: 7
+        primary:
+          type: F6
+      - x: 8
+        y: 8
+        primary:
+          type: G0
+      - x: 8
+        y: 9
+        primary:
+          type: G5

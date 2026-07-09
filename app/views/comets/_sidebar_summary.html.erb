@@ -1,0 +1,9 @@
+<%= render 'application/subsection', title: 'Comet Classification' %>
+
+<div class="grid grid-cols-2 gap-3">
+  <%= render 'application/data_block', label: 'Type', value: stellar_object.comet_type_description %>
+
+  <%= render 'application/data_block', label: 'Allegiance', value: stellar_object.allegiance&.name || 'None' %>
+</div>
+
+<%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>

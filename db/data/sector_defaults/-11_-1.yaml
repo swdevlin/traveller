@@ -1,0 +1,55 @@
+name: Giskakii
+abbreviation: Gis
+X: -11
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Gis A
+    type: STANDARD
+    index: A
+  - name: Gis B
+    type: STANDARD
+    index: B
+  - name: Gis C
+    type: STANDARD
+    index: C
+  - name: Gis D
+    type: STANDARD
+    index: D
+  - name: Gis E
+    type: STANDARD
+    index: E
+  - name: Gis F
+    type: STANDARD
+    index: F
+  - name: Gis G
+    type: STANDARD
+    index: G
+  - name: Gis H
+    type: LOW
+    index: H
+  - name: Gis I
+    type: STANDARD
+    index: I
+  - name: Gis J
+    type: STANDARD
+    index: J
+  - name: Gis K
+    type: LOW
+    index: K
+  - name: Gis L
+    type: LOW
+    index: L
+  - name: Gis M
+    type: LOW
+    index: M
+  - name: Gis N
+    type: LOW
+    index: N
+  - name: Gis O
+    type: LOW
+    index: O
+  - name: Gis P
+    type: LOW
+    index: P

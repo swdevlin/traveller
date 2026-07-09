@@ -1,0 +1,61 @@
+<%= modal(title: 'Select Main World', padding: false, advance: false, overlay: false) do %>
+  <% if @worlds.empty? %>
+    <p class='p-5 text-fg-muted text-sm'>No worlds with a UWP in this system.</p>
+  <% else %>
+    <div class='table-card rounded-none border-x-0 border-b-0'>
+      <div class='table-scroll'>
+        <table>
+          <thead>
+            <tr>
+              <th scope='col'>ID</th>
+              <th scope='col'>Name</th>
+              <th scope='col'>UWP</th>
+              <th scope='col' class='text-right'>Avg Temp</th>
+              <th scope='col' class='text-right'>HZCO Δ</th>
+              <th scope='col' class='actions-cell'></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @worlds.each do |world| %>
+              <% is_current = world.id == @star_system.main_world_id %>
+              <tr class='<%= is_current ? "text-highlight" : "" %>'>
+                <td class='whitespace-nowrap'>
+                  <% if world.orbit_sequence.present? %>
+                    <span class='pill'><%= world.orbit_sequence %></span>
+                  <% end %>
+                </td>
+                <td class='whitespace-nowrap'><%= world.display_name %></td>
+                <td class='font-mono whitespace-nowrap'><%= world.uwp %></td>
+                <td class='text-right whitespace-nowrap'>
+                  <% if world.temperature.present? %>
+                    <%= format_temperature_celsius(world.temperature) %> °C
+                  <% else %>
+                    <span class='text-fg-muted'>—</span>
+                  <% end %>
+                </td>
+                <td class='text-right whitespace-nowrap'>
+                  <% if world.effective_hzco_deviation.present? %>
+                    <%= number_with_precision(world.effective_hzco_deviation, precision: 2, strip_insignificant_zeros: true) %>
+                  <% else %>
+                    <span class='text-fg-muted'>—</span>
+                  <% end %>
+                </td>
+                <td class='actions-cell'>
+                  <% unless is_current %>
+                    <%= button_to 'Select',
+                                  set_main_world_star_system_path(@star_system),
+                                  params: { main_world_id: world.id },
+                                  method: :patch,
+                                  class: 'btn btn-primary btn-sm' %>
+                  <% else %>
+                    <span class='text-xs text-highlight block text-center'>Current</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+<% end %>

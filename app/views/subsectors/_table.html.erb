@@ -1,0 +1,71 @@
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Subsector registry</p>
+
+    <div class='actions'>
+      <%# buttons/links can go here later %>
+    </div>
+  </div>
+
+  <div class='table-scroll'>
+    <table>
+      <thead>
+      <tr>
+        <th scope='col'>Subsector</th>
+        <th scope='col' class='text-right'>Star systems</th>
+        <th scope='col' class='text-right'>Stars</th>
+        <% if show_population_count? %>
+          <th scope='col' class='text-right'>Populated</th>
+        <% end %>
+        <th scope='col'>Allegiances</th>
+        <th scope='col' class='text-right'>Rogues</th>
+        <th scope='col'>Build</th>
+        <th scope='col'></th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <% if subsectors.any? %>
+        <% subsectors.each do |subsector| %>
+          <tr data-controller='row-link'
+              data-row-link-url-value='<%= subsector_path(subsector) %>'
+              data-action='click->row-link#navigate'
+              class='cursor-pointer'>
+            <td><%= subsector.name %></td>
+
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_star_systems %></td>
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_stars %></td>
+            <% if show_population_count? %>
+              <td class='text-right whitespace-nowrap'><%= subsector.number_of_populated_star_systems %></td>
+            <% end %>
+
+            <td><%= render 'allegiances/inline_list', allegiances: subsector.allegiances %></td>
+
+            <td class='text-right whitespace-nowrap'><%= subsector.number_of_rogues %></td>
+
+            <td class='whitespace-nowrap'>
+              <% if subsector.build.present? %>
+                <% label = { 'traveller_map' => 'TravellerMap', 'deepnight_books' => 'Deepnight Books',
+                             'homebrew' => 'Homebrew', 'default' => 'Default' }[subsector.build_source] || 'Configured' %>
+                <span class='text-green-400'>
+                  <i class='fa-regular fa-circle-check mr-1'></i><%= label %>
+                </span>
+              <% else %>
+                <span class='text-fg-muted'>
+                  <i class='fa-regular fa-circle-minus mr-1'></i>Not configured
+                </span>
+              <% end %>
+            </td>
+
+            <td></td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan='<%= show_population_count? ? 8 : 7 %>'>No subsectors recorded yet.</td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

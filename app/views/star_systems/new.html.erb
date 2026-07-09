@@ -1,50 +1,127 @@
-<div class='flex flex-col gap-6'>
-  <h1 class='text-3xl font-bold mb-6'>
-    <i class='fa-solid fa-meteor mr-2 text-slate-300'></i>
-    Add a star system to <span class='text-slate-200'><%= @context_label %></span>
-  </h1>
+<% content_for :title, 'New star system' %>
+<% content_for :page_kicker, @context_label %>
+<% content_for :page_title, 'Register Star System' %>
+<% content_for :help_path, help_page_path('star_system_registration') %>
 
-  <%= render 'form' do |f| %>
-    <% random_checked = params.dig(:star_system, :random_star) != '0' %>
+<% create_mode = params.dig(:star_system, :create_mode).presence || 'empty' %>
+
+<%= render 'application/page' do %>
+  <%= form_with model: @star_system, url: @form_url, class: 'space-y-8',
+                data: { controller: 'star-system-form' } do |f| %>
+
+    <div>
+      <%= f.label :name, class: 'block text-sm font-semibold mb-1' do %>Name<%= required_icon(@star_system, :name) %><% end %>
+      <%= f.text_field :name,
+                       class: 'w-160 edit-base' %>
+      <%= render 'application/field_error', form: f, attribute: :name %>
+    </div>
 
     <% unless @parsec %>
+      <% parsec_class = [
+        'w-40 edit-base',
+        (@star_system.errors[:parsec_id].any? ? 'border-highlight/90 focus:border-highlight/90 focus:ring-highlight/30' : nil)
+      ].compact.join(' ')
+      %>
       <div>
-        <%= f.label :parsec_id, 'Hex', class: 'block text-sm font-semibold mb-1' %>
+        <%= f.label :parsec_id, class: 'block text-sm font-semibold mb-1' do %>Hex<%= required_icon(@star_system, :parsec_id) %><% end %>
         <%= f.select :parsec_id,
                      options_for_select(@parsec_options, @star_system.parsec_id),
                      { prompt: 'Select a hex' },
-                     class: 'w-full edit-base' %>
+                     class: parsec_class %>
+        <%= render 'application/field_error', form: f, attribute: :parsec_id %>
       </div>
     <% end %>
 
-    <div class='space-y-6'>
-      <div class='flex items-center gap-3'>
-        <%= f.check_box :random_star,
-                        { class: 'h-4 w-4 rounded border-slate-700 bg-slate-950',
-                          data: { action: 'star-system-form#toggleRandom', star_system_form_target: 'randomToggle' } },
-                        '1',
-                        '0' %>
-        <%= f.label :random_star, 'Random stars (generate all stars randomly)', class: 'text-sm font-semibold' %>
-      </div>
+    <div class='space-y-4'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Initialization Mode</div>
 
-      <div class="<%= 'hidden' if random_checked %> space-y-6" data-star-system-form-target="starConfig">
-        <div>
-          <h3 class='text-sm font-semibold text-deepnight-orange mb-3'>Primary Star</h3>
-          <%= render 'star_fields', prefix: 'primary', disabled: random_checked %>
-          <div class='mt-4'>
-            <%= render 'star_section', prefix: 'primary_companion', label: 'Companion', indent: true %>
+      <div class='rounded-2xl border border-outline/70 bg-panel p-4 space-y-3'>
+        <%# ── Empty ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'empty',
+                             checked: create_mode == 'empty',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-fg-bright'>Empty</div>
+            <div class='text-xs text-fg-muted'>Register with optional star configuration.</div>
           </div>
+        </label>
+
+        <div class="ml-7 space-y-6 <%= 'hidden' unless create_mode == 'empty' %>"
+             data-star-system-form-target='starConfig'>
+          <h3 class='text-sm font-semibold text-highlight mb-3'>Primary Star</h3>
+          <%= render 'star_fields', prefix: 'primary', disabled: create_mode != 'empty' %>
         </div>
 
-        <%= render 'star_section', prefix: 'close', label: 'Close Star' %>
-        <%= render 'star_section', prefix: 'close_companion', label: 'Companion', indent: true, parent_prefix: 'close' %>
+        <div class='border-t border-outline'></div>
 
-        <%= render 'star_section', prefix: 'near', label: 'Near Star' %>
-        <%= render 'star_section', prefix: 'near_companion', label: 'Companion', indent: true, parent_prefix: 'near' %>
+        <%# ── Random ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'random',
+                             checked: create_mode == 'random',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-fg-bright'>Random</div>
+            <div class='text-xs text-fg-muted'>Generate automatically.</div>
+          </div>
+        </label>
 
-        <%= render 'star_section', prefix: 'far', label: 'Far Star' %>
-        <%= render 'star_section', prefix: 'far_companion', label: 'Companion', indent: true, parent_prefix: 'far' %>
+        <div class='border-t border-outline'></div>
+
+        <%# ── Build configuration ── %>
+        <label class='flex items-start gap-3 cursor-pointer'>
+          <%= f.radio_button :create_mode, 'build_configuration',
+                             checked: create_mode == 'build_configuration',
+                             class: 'mt-1 h-4 w-4',
+                             data: { action: 'star-system-form#sync' } %>
+          <div>
+            <div class='text-sm font-semibold text-fg-bright'>Build configuration</div>
+            <div class='text-xs text-fg-muted'>Directive packet (YAML).</div>
+          </div>
+        </label>
+
+        <div class="ml-7 space-y-2 <%= 'hidden' unless create_mode == 'build_configuration' %>"
+             data-star-system-form-target='buildConfigSection'>
+          <%= f.label :build, class: 'block text-xs uppercase tracking-[0.22em] text-fg-muted' do %>
+            Build configuration (<%= link_to 'YAML', help_page_path('star_system_build_specification'), class: 't-link' %>)
+          <% end %>
+
+          <% if @build_errors.present? %>
+            <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <div class="text-xs uppercase tracking-[0.22em] text-red-200/80">
+                  Build errors
+                </div>
+
+                <span class="identifier border-red-900/60 bg-red-950/60 text-red-100">
+                  <%= pluralize(@build_errors.size, "issue") %>
+                </span>
+              </div>
+
+              <ul class="mt-3 space-y-1 text-sm text-red-100">
+                <% @build_errors.each do |err| %>
+                  <li class="flex gap-2">
+                    <span class="select-none text-red-300">•</span>
+                    <span class="font-mono break-words"><%= err %></span>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= f.text_area :build,
+                          rows: 12,
+                          class: 'w-full edit-base font-mono',
+                          disabled: create_mode != 'build_configuration',
+                          data: { star_system_form_target: 'buildConfig' } %>
+        </div>
       </div>
     </div>
+
+    <div class='pt-4'>
+      <%= f.submit 'Commit Core', class: 'btn btn-primary w-full sm:w-auto' %>
+    </div>
   <% end %>
-</div>
+<% end %>

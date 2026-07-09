@@ -1,0 +1,55 @@
+name: Anwnn Spinward 2
+abbreviation: AnwnnS2
+X: -23
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AnwnnS2 A
+    type: RIFT_FADE
+    index: A
+  - name: AnwnnS2 B
+    type: RIFT_FADE
+    index: B
+  - name: AnwnnS2 C
+    type: RIFT_FADE
+    index: C
+  - name: AnwnnS2 D
+    type: DEEP_RIFT
+    index: D
+  - name: AnwnnS2 E
+    type: RIFT_FADE
+    index: E
+  - name: AnwnnS2 F
+    type: RIFT_FADE
+    index: F
+  - name: AnwnnS2 G
+    type: RIFT_FADE
+    index: G
+  - name: AnwnnS2 H
+    type: RIFT_FADE
+    index: H
+  - name: AnwnnS2 I
+    type: RIFT_FADE
+    index: I
+  - name: AnwnnS2 J
+    type: RIFT_FADE
+    index: J
+  - name: AnwnnS2 K
+    type: RIFT_FADE
+    index: K
+  - name: AnwnnS2 L
+    type: DEEP_RIFT
+    index: L
+  - name: AnwnnS2 M
+    type: RIFT_FADE
+    index: M
+  - name: AnwnnS2 N
+    type: RIFT_FADE
+    index: N
+  - name: AnwnnS2 O
+    type: RIFT_FADE
+    index: O
+  - name: AnwnnS2 P
+    type: RIFT_FADE
+    index: P

@@ -1,15 +1,19 @@
-<% content_for :title, "Showing trade code" %>
+<% content_for :title, "#{@trade_code.code} Trade Code" %>
+<% content_for :page_kicker, "Trade Code Classification" %>
+<% content_for :page_title, @trade_code.definition %>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
-
-  <h1 class="font-bold text-4xl">Showing trade code</h1>
-
+<%= render 'application/page' do %>
   <%= render @trade_code %>
 
-  <%= link_to "Edit this trade code", edit_trade_code_path(@trade_code), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to trade codes", trade_codes_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this trade code", @trade_code, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
-</div>
+  <%= link_to "Edit", edit_trade_code_path(@trade_code), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: trade_codes_path,
+             label: 'Trade codes',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @trade_code,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

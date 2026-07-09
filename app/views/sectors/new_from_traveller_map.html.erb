@@ -1,0 +1,46 @@
+<% content_for :title, "IISS Stellar Cartography Downlink" %>
+<% content_for :page_kicker, "IISS Sector Registry" %>
+<% content_for :page_title, "Stellar Cartography Downlink" %>
+
+<%= render 'application/page' do %>
+  <div class="max-w-2xl space-y-6">
+    <p class="text-fg">
+      Search the Traveller Map database to import a sector.
+    </p>
+
+    <%= form_with url: new_from_traveller_map_sectors_path,
+                  method: :get,
+                  data: {
+                    turbo_frame: "traveller_map_results",
+                    controller: "autosubmit",
+                    autosubmit_delay_value: 250
+                  },
+                  class: "flex items-center gap-2" do %>
+
+      <%= text_field_tag :q, params[:q],
+                         placeholder: "Search sectors (min 3 characters)...",
+                         autocomplete: "off",
+                         autofocus: true,
+                         data: {
+                           controller: params[:q].present? ? "autofocus" : nil,
+                           action: "input->autosubmit#queue"
+                         },
+                         class: 'input w-full px-4 text-fg-bright' %>
+
+      <% if params[:q].present? %>
+        <%= link_to "Clear",
+                    new_from_traveller_map_sectors_path,
+                    data: { turbo_frame: "traveller_map_results" },
+                    class: "btn" %>
+      <% end %>
+    <% end %>
+
+    <turbo-frame id="traveller_map_results", target="_top">
+      <%= render 'traveller_map_results', sectors: @sectors, query: @query, existing_sectors: @existing_sectors %>
+    </turbo-frame>
+
+    <div class="flex mt-4 gap-3">
+      <%= link_to "Cancel", sectors_path, class: "btn" %>
+    </div>
+  </div>
+<% end %>

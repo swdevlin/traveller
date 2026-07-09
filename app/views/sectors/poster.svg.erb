@@ -1,0 +1,230 @@
+<%
+  map_w, map_h = hex_map_svg_dimensions(32, 40)
+  hex_content = @hex_map_svg.sub(/\A.*?<svg[^>]*>/m, '').sub(/<\/svg>\s*\z/m, '')
+
+  map_x    = 15.0
+  map_y    = 15.0
+  map_w_mm = 527.5
+  map_scale = map_w_mm / map_w
+  map_h_mm = (map_h * map_scale).round(1)
+
+  map_right    = map_x + map_w_mm
+  map_bottom   = map_y + map_h_mm
+  map_center_x = (map_x + map_right / 2.0).round(1)
+  map_center_y = (map_y + map_h_mm / 2.0).round(1)
+
+  strip_x  = map_right + 3.0
+  strip_rx = 591.0
+  strip_cx = ((strip_x + strip_rx) / 2.0).round(1)
+
+  # Center x-position (poster mm) for each subsector column (x=1..4)
+  ss_col_centers = (1..4).map do |ss_x|
+    col_a = (ss_x - 1) * 8 + 4
+    col_b = col_a + 1
+    avg_cx = (hex_center(col_a, 1).first + hex_center(col_b, 1).first) / 2.0
+    (map_x + avg_cx * map_scale).round(1)
+  end
+
+  # Center y-position (poster mm) for each subsector row (y=1..4)
+  ss_row_centers = (1..4).map do |ss_y|
+    row_a = (ss_y - 1) * 10 + 5
+    row_b = row_a + 1
+    avg_cy = (hex_center(1, row_a).last + hex_center(1, row_b).last) / 2.0
+    (map_y + avg_cy * map_scale).round(1)
+  end
+
+  legend_strip_x = map_x
+  legend_strip_y = map_bottom + 15
+  disclaim_y     = 825.0
+
+  logo_path = Rails.root.join('app/assets/images/android-chrome-512x512.png')
+  logo_data = Base64.strict_encode64(File.binread(logo_path))
+  logo_size = (35.0 * 0.70).round(1)
+  logo_x    = (strip_rx - logo_size - 3).round(1)
+  logo_y    = (disclaim_y + 10 - logo_size).round(1)
+-%>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="594mm" height="841mm"
+     viewBox="0 0 594 841">
+
+  <defs>
+    <%= render 'shared/svg_icon_symbols', prefix: 'poster-' %>
+    <% @facility_icons&.each do |code, icon| %>
+      <symbol id="poster-facility-icon-<%= code %>" viewBox="<%= icon.view_box %>">
+        <%= icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
+  </defs>
+
+  <style>
+    .p-bg      { fill: #ffffff; }
+    .p-border  { fill: none; stroke: #999999; stroke-width: 0.5; }
+    .p-divider { stroke: #999999; stroke-width: 0.3; fill: none; }
+    .p-dir     { font-family: "Orbitron", system-ui, sans-serif; font-size: 0.8mm; fill: #cc0000; font-weight: bold; letter-spacing: 0.2mm; }
+    .p-edge    { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 1.5mm; fill: #333333; }
+    .p-name    { font-family: "Orbitron", system-ui, sans-serif; font-size: 7mm; fill: #222222; font-weight: bold; letter-spacing: 0.5mm; }
+    .p-legend-title { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 1.4mm; fill: #333333; font-weight: bold; letter-spacing: 0.3mm; }
+    .p-legend  { font-family: "JetBrains Mono", ui-monospace, monospace; fill: #444444; }
+    .p-disclaim { font-family: "Inter", system-ui, sans-serif; font-size: 1mm; fill: #888888; }
+  </style>
+
+  <!-- White background -->
+  <rect class="p-bg" width="594" height="841"/>
+
+  <!-- Outer border -->
+  <rect class="p-border" x="3" y="3" width="588" height="835"/>
+
+  <!-- ── Nested hex map ── -->
+  <svg x="<%= map_x.round(1) %>" y="<%= map_y.round(1) %>"
+       width="<%= map_w_mm.round(1) %>" height="<%= map_h_mm %>"
+       viewBox="0 0 <%= map_w %> <%= map_h %>">
+    <%= hex_content.html_safe %>
+  </svg>
+
+  <!-- Right strip separator -->
+<!--  <line class="p-divider" x1="<%#= map_right.round(1) %>" y1="5" x2="<%#= map_right.round(1) %>" y2="836"/>-->
+
+  <!-- ── COREWARD direction labels (left and right ends, just above map) ── -->
+  <text class="p-dir" x="<%= (map_x + 3).round(1) %>" y="<%= (map_y - 0.1).round(1) %>" text-anchor="start">COREWARD</text>
+  <text class="p-dir" x="<%= (map_right - 3).round(1) %>" y="<%= (map_y - 0.1).round(1) %>" text-anchor="end">COREWARD</text>
+
+  <!-- Coreward adjacent subsector labels -->
+  <% @coreward_subsectors.each do |ss| %>
+    <% cx = ss_col_centers[ss.x - 1] %>
+    <text class="p-edge" x="<%= cx %>" y="<%= (map_y - 3).round(1) %>" text-anchor="middle">To <%= h(ss.name) %></text>
+  <% end %>
+
+  <!-- ── RIMWARD direction labels (left and right ends, just below map) ── -->
+  <text class="p-dir" x="<%= (map_x + 3).round(1) %>" y="<%= (map_bottom + 0.1).round(1) %>" text-anchor="start">RIMWARD</text>
+  <text class="p-dir" x="<%= (map_right - 3).round(1) %>" y="<%= (map_bottom + 0.1).round(1) %>" text-anchor="end">RIMWARD</text>
+
+  <!-- Rimward adjacent subsector labels -->
+  <% @rimward_subsectors.each do |ss| %>
+    <% cx = ss_col_centers[ss.x - 1] %>
+    <text class="p-edge" x="<%= cx %>" y="<%= (map_bottom + 1.5).round(1) %>" text-anchor="middle">To <%= h(ss.name) %></text>
+  <% end %>
+
+  <!-- ── SPINWARD direction labels (rotated −90°, top and bottom of left edge) ── -->
+  <%# rotate(-90): screen_x = y_r, screen_y = -x_r. %>
+  <text class="p-dir" transform="rotate(-90)"
+        x="<%= -(map_y + 25).round(1) %>" y="<%= (map_x + 0.5).round(1) %>"
+        text-anchor="start">SPINWARD</text>
+  <text class="p-dir" transform="rotate(-90)"
+        x="<%= -(map_bottom - 30).round(1) %>" y="<%= (map_x + 0.5).round(1) %>"
+        text-anchor="end">SPINWARD</text>
+
+  <!-- Spinward adjacent subsector labels -->
+  <% @spinward_subsectors.each do |ss| %>
+    <% cy = ss_row_centers[ss.y - 1] %>
+    <text class="p-edge" transform="rotate(-90)"
+          x="<%= -cy %>" y="<%= (map_x - 2).round(1) %>"
+          text-anchor="middle">To <%= h(ss.name) %></text>
+  <% end %>
+
+  <!-- ── TRAILING direction labels (rotated +90°, top and bottom of right map edge, reads down) ── -->
+  <%# rotate(90): screen_x = -y_r, screen_y = x_r. %>
+  <text class="p-dir" transform="rotate(90)"
+        x="<%= (map_y + 3).round(1) %>" y="<%= -(strip_x - 2).round(1) %>"
+        text-anchor="start">TRAILING</text>
+  <text class="p-dir" transform="rotate(90)"
+        x="<%= (map_bottom - 3).round(1) %>" y="<%= -(strip_x - 2).round(1) %>"
+        text-anchor="end">TRAILING</text>
+
+  <!-- Trailing adjacent subsector labels (rotated +90°, reads down) -->
+  <% @trailing_subsectors.each do |ss| %>
+    <% cy = ss_row_centers[ss.y - 1] %>
+    <text class="p-edge" transform="rotate(90)"
+          x="<%= cy %>" y="<%= -(strip_x - 1).round(1) %>"
+          text-anchor="middle">To <%= h(ss.name) %></text>
+  <% end %>
+
+  <!-- ── Sector name (rotated +90°, right strip, reading downward) ── -->
+  <%# rotate(90): screen_x = -y_r, screen_y = x_r. y_r = -strip_cx, x_r = map_center_y. %>
+  <text class="p-name" transform="rotate(90)"
+        x="<%= map_center_y %>" y="<%= -strip_cx %>"
+        text-anchor="middle"><%= h(@sector.name.upcase) %> SECTOR</text>
+
+  <!-- ── Legend (below map) ── -->
+  <text class="p-legend-title" font-size="1.4" x="<%= (legend_strip_x + 0.5).round(1) %>" y="<%= legend_strip_y %>">LEGEND</text>
+
+  <%
+    legend_hex_r   = PosterHelper::LEGEND_ICON_SIZE / 2.0
+    bases_items    = @facility_icons&.keys&.sort || []
+
+    legend_start_y = (legend_strip_y + 5).round(1)
+    legend_max_y   = (disclaim_y - PosterHelper::LEGEND_ITEM_H).round(1)
+    cursor = PosterHelper::LegendCursor.new(
+      (legend_strip_x + 0.5).round(1),
+      legend_start_y,
+      legend_max_y
+    )
+  %>
+
+  <!-- Travel zones -->
+  <% @travel_zones_on_poster&.each do |zone| %>
+    <%
+      icon_svg = %(<path d="M 0,#{-legend_hex_r / 2.0} A #{legend_hex_r},#{legend_hex_r} 0 1 1 #{PosterHelper::LEGEND_ICON_SIZE},#{-legend_hex_r / 2.0}" fill="none" stroke="#{zone.colour}" stroke-width="1" stroke-linecap="round"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, zone.name) %>
+  <% end %>
+
+  <!-- Gas giant, Comet -->
+  <%= add_legend_item(cursor,
+        '<use href="#poster-gas-giant-icon" x="0" y="-3.5" width="7" height="7" style="fill:#222222"/>',
+        'Gas giant') %>
+  <%= add_legend_item(cursor,
+        '<use href="#poster-comet-icon" x="0" y="-3.5" width="7" height="7" style="fill:#222222"/>',
+        'Comet') %>
+
+  <!-- Bases -->
+  <% bases_items.each do |code| %>
+    <%
+      base_name = @facility_names[code] || code
+      icon_svg  = %(<use href="#poster-facility-icon-#{h(code)}" x="0" y="-3.5" width="7" height="7" style="fill:#333333"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, base_name) %>
+  <% end %>
+
+  <!-- Sophonts -->
+  <%
+    native_icon  = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@native_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
+    extinct_icon = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@extinct_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
+  %>
+  <%= add_legend_item(cursor, native_icon, 'Native sophont') %>
+  <%= add_legend_item(cursor, extinct_icon, 'Extinct sophont') %>
+
+  <!-- Allegiances -->
+  <% @allegiances_on_poster&.each do |alleg| %>
+    <%
+      bg = alleg.background_colour.presence || '#ffffff'
+      bd = alleg.border_colour.presence || '#999999'
+      icon_svg = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{bg}" stroke="#{bd}" stroke-width="0.3"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, alleg.name) %>
+  <% end %>
+
+  <!-- Jump Routes -->
+  <% @jump_routes_on_poster&.each do |net| %>
+    <%
+      colour    = net.colour.presence || '#888888'
+      lw        = (net.line_width * map_scale).round(2)
+      ldash     = net.stroke_dasharray&.split(',')&.map { |v| (v.to_f * map_scale).round(2) }&.join(',')
+      dash_attr = ldash ? %( stroke-dasharray="#{ldash}") : ''
+      icon_svg  = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#ffffff" stroke="#999999" stroke-width="0.4"/>) +
+                  %(<line x1="0" y1="0" x2="7" y2="0" stroke="#{colour}" stroke-width="#{lw}" stroke-opacity="0.85" stroke-linecap="round"#{dash_attr}/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, net.name) %>
+  <% end %>
+
+  <!-- ── Logo (branding, bottom right) ── -->
+  <image href="data:image/png;base64,<%= logo_data %>"
+         x="<%= logo_x %>" y="<%= logo_y %>"
+         width="<%= logo_size %>" height="<%= logo_size %>"/>
+
+  <!-- ── Disclaimer (full width, bottom of poster) ── -->
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y %>">Mongoose Publishing permits websites and fanzines for this game, provided it contains this notice, that Mongoose Publishing is notified, and subject to a withdrawal of permission on 90-day notice.</text>
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y + 5 %>">The contents are for personal, non-commercial use only. Any use of Mongoose Publishing's copyrighted material or trademarks should not be viewed as a challenge to those copyrights or trademarks.</text>
+  <text class="p-disclaim" font-size="1" x="<%= map_x %>" y="<%= disclaim_y + 10 %>">The Traveller game in all forms is owned by Mongoose Publishing. Copyright 1977&#8211;2026 Mongoose Publishing. Traveller is a registered trademark of Mongoose Publishing.</text>
+  <text class="p-disclaim" font-size="1" x="<%= (map_right - 3).round(1) %>" y="<%= disclaim_y + 10 %>" text-anchor="end">Astrographic chart generated by mytravelleruniverse.net</text>
+
+</svg>

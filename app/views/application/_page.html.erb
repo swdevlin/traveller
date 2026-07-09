@@ -1,0 +1,34 @@
+<div class="w-full">
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <% if content_for?(:page_kicker) %>
+          <div class="page-kicker">
+            <%= yield :page_kicker %>
+          </div>
+        <% end %>
+
+        <div class="page-title">
+          <%= yield :page_title %>
+        </div>
+      </div>
+
+      <div class="page-actions">
+        <%= yield :page_actions if content_for?(:page_actions) %>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="page-main">
+        <%= yield %>
+        <% if content_for?(:iiss_form) %>
+          <div class="pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted">
+            FORM <%= yield :iiss_form %>
+          </div>
+        <% end %>
+
+        <%= yield :page_buttons if content_for?(:page_buttons)%>
+      </div>
+    </div>
+  </div>
+</div>

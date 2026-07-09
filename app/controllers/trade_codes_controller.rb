@@ -3,7 +3,20 @@ class TradeCodesController < ApplicationController
 
   # GET /trade_codes or /trade_codes.json
   def index
-    @trade_codes = TradeCode.all
+    @trade_codes = TradeCode.order(:code)
+  end
+
+  # POST /trade_codes/import_t5
+  def import_t5
+    load Rails.root.join('db/seed_data/t5_trade_codes.rb')
+    created = TRADE_CODES.count do |attrs|
+      TradeCode.find_or_create_by!(code: attrs[:code]) do |tc|
+        tc.definition = attrs[:definition]
+      end.previously_new_record?
+    end
+    redirect_to trade_codes_path,
+                notice: created > 0 ? "#{created} trade #{'code'.pluralize(created)} added." : 'All T5 trade codes already present.',
+                status: :see_other
   end
 
   # GET /trade_codes/1 or /trade_codes/1.json
@@ -13,6 +26,7 @@ class TradeCodesController < ApplicationController
   # GET /trade_codes/new
   def new
     @trade_code = TradeCode.new
+    @return_to = request.referer
   end
 
   # GET /trade_codes/1/edit
@@ -25,7 +39,7 @@ class TradeCodesController < ApplicationController
 
     respond_to do |format|
       if @trade_code.save
-        format.html { redirect_to @trade_code, notice: 'Trade code was successfully created.' }
+        format.html { redirect_to params[:return_to].presence || @trade_code, notice: 'Trade code was successfully created.' }
         format.json { render :show, status: :created, location: @trade_code }
       else
         format.html { render :new, status: :unprocessable_entity }

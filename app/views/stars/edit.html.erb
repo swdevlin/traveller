@@ -1,0 +1,7 @@
+<%= content_for :title, "Editing #{@star.display_name}" %>
+<%= content_for :page_kicker, 'Star Data Core' %>
+<%= content_for :page_title, @star.display_name %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', star: @star %>
+<% end %>

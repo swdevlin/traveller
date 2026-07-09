@@ -1,0 +1,55 @@
+name: Crossing Spinward 2
+abbreviation: CrossS2
+X: -21
+Y: -5
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: CrossS2 A
+    type: DEEP_RIFT
+    index: A
+  - name: CrossS2 B
+    type: DEEP_RIFT
+    index: B
+  - name: CrossS2 C
+    type: DEEP_RIFT
+    index: C
+  - name: CrossS2 D
+    type: DEEP_RIFT
+    index: D
+  - name: CrossS2 E
+    type: DEEP_RIFT
+    index: E
+  - name: CrossS2 F
+    type: DEEP_RIFT
+    index: F
+  - name: CrossS2 G
+    type: DEEP_RIFT
+    index: G
+  - name: CrossS2 H
+    type: DEEP_RIFT
+    index: H
+  - name: CrossS2 I
+    type: DEEP_RIFT
+    index: I
+  - name: CrossS2 J
+    type: DEEP_RIFT
+    index: J
+  - name: CrossS2 K
+    type: DEEP_RIFT
+    index: K
+  - name: CrossS2 L
+    type: DEEP_RIFT
+    index: L
+  - name: CrossS2 M
+    type: DEEP_RIFT
+    index: M
+  - name: CrossS2 N
+    type: DEEP_RIFT
+    index: N
+  - name: CrossS2 O
+    type: DEEP_RIFT
+    index: O
+  - name: CrossS2 P
+    type: DEEP_RIFT
+    index: P

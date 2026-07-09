@@ -9,6 +9,19 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.7
+
+FROM node:24-bookworm AS elm_build
+
+WORKDIR /starmap
+
+COPY frontend/starmap/elm.json frontend/starmap/package.json frontend/starmap/package-lock.json ./
+RUN npm ci
+
+COPY frontend/starmap ./
+RUN --mount=type=cache,target=/root/.elm \
+    npx elm make src/Main.elm --output=starmap.js --optimize
+
+
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
@@ -16,9 +29,22 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips42 librsvg2-2 librsvg2-bin fontconfig sqlite3 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install fonts for SVG rasterisation (Orbitron + JetBrains Mono + Inter)
+# Sources: google/fonts variable instances, JetBrains/JetBrainsMono, google/fonts inter
+RUN mkdir -p /usr/local/share/fonts/orbitron /usr/local/share/fonts/jetbrains-mono /usr/local/share/fonts/inter && \
+    curl -fsSL -o "/usr/local/share/fonts/orbitron/Orbitron[wght].ttf" \
+      "https://github.com/google/fonts/raw/main/ofl/orbitron/Orbitron%5Bwght%5D.ttf" && \
+    curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono-Regular.ttf \
+      "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Regular.ttf" && \
+    curl -fsSL -o /usr/local/share/fonts/jetbrains-mono/JetBrainsMono-Italic.ttf \
+      "https://github.com/JetBrains/JetBrainsMono/raw/master/fonts/ttf/JetBrainsMono-Italic.ttf" && \
+    curl -fsSL -o "/usr/local/share/fonts/inter/Inter[opsz,wght].ttf" \
+      "https://github.com/google/fonts/raw/main/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf" && \
+    fc-cache -f
 
 # Set production environment variables and enable jemalloc for reduced memory usage and latency.
 ENV RAILS_ENV="production" \
@@ -46,12 +72,14 @@ RUN bundle install && \
 # Copy application code
 COPY . .
 
+COPY --from=elm_build /starmap/starmap.js /rails/public/starmap.js
+
 # Precompile bootsnap code for faster boot times.
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
 # Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ruby bin/rails assets:precompile
+RUN SECRET_KEY_BASE_DUMMY=1 APARTMENT_DISABLE_INIT=1 ruby bin/rails assets:precompile
 
 
 

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class StarSystemsControllerTest < ActionDispatch::IntegrationTest
+class StarSystemsControllerTest < AuthenticatedIntegrationTest
   setup do
     @star_system = star_systems(:in_one)
     @parsec = parsecs(:one)
@@ -17,7 +17,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'should create star_system' do
+  test 'should create star_system with random mode' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -25,7 +25,7 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
 
     assert_difference('StarSystem.count') do
-      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', random_star: '1', parsec_id: @parsec.id } }
+      post subsector_star_systems_url(@subsector), params: { star_system: { name: 'The New One', create_mode: 'random', parsec_id: @parsec.id } }
     end
 
     star_system = StarSystem.order(:created_at).last
@@ -52,52 +52,53 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       delete star_system_url(@star_system)
     end
 
-    assert_redirected_to star_systems_url
+    assert_redirected_to subsector_url(@subsector)
   end
 
-  test 'primary luminosity is required' do
+  test 'should create empty star_system' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    assert_difference('StarSystem.count') do
+      post subsector_star_systems_url(@subsector), params: {
+        star_system: {
+          name: 'Empty One',
+          parsec_id: @parsec.id,
+          create_mode: 'empty',
+          primary_spectral_type: 'G',
+          primary_spectral_subtype: 7,
+          primary_luminosity: 'V'
+        }
+      }
+    end
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+  end
+
+  test 'empty mode requires parsec' do
+    base = Rails.application.config.x.generator_service
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, body: '', headers: {})
+
     post subsector_star_systems_url(@subsector), params: {
       star_system: {
         name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
+        create_mode: 'empty',
         primary_spectral_type: 'G',
-        primary_spectral_subtype: '2'
+        primary_spectral_subtype: 7,
+        primary_luminosity: 'V'
       }
     }
 
     assert_response :unprocessable_entity
   end
 
-  test 'primary spectral_type is required' do
-    post subsector_star_systems_url(@subsector), params: {
-      star_system: {
-        name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
-        primary_spectral_subtype: '2'
-      }
-    }
-
-    assert_response :unprocessable_entity
-  end
-
-  test 'primary spectral_subtype is required' do
-    post subsector_star_systems_url(@subsector), params: {
-      star_system: {
-        name: 'Test',
-        parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
-        primary_spectral_type: 'G'
-      }
-    }
-
-    assert_response :unprocessable_entity
-  end
-
-  test 'create succeeds with random_star true even without star params' do
+  test 'create succeeds with random mode' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -108,14 +109,14 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
-        random_star: '1'
+        create_mode: 'random'
       }
     }
 
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
   end
 
-  test 'create succeeds with all primary star params when random_star is false' do
+  test 'create succeeds with empty mode and primary star params' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read
 
@@ -126,13 +127,160 @@ class StarSystemsControllerTest < ActionDispatch::IntegrationTest
       star_system: {
         name: 'Test',
         parsec_id: @parsec.id,
-        random_star: '0',
-        primary_luminosity: 'V',
+        create_mode: 'empty',
         primary_spectral_type: 'G',
-        primary_spectral_subtype: '2'
+        primary_spectral_subtype: '2',
+        primary_luminosity: 'V'
       }
     }
 
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+  end
+
+  test 'build configuration create adds rogues and strips them from the generator payload' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    posted = nil
+    stub_request(:post, "#{base}/star_system")
+      .with { |req| posted = JSON.parse(req.body) }
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      rogues:
+        - type: relic
+          name: The Monolith
+    YAML
+
+    assert_difference -> { @parsec.rogues.where(type: 'Relic').count } do
+      post subsector_star_systems_url(@subsector), params: {
+        star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+      }
+    end
+
+    assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+    assert_not posted.key?('rogues')
+    assert_equal 'The Monolith', @parsec.rogues.where(type: 'Relic').sole.name
+  end
+
+  test 'build configuration create uses config bases over generator response bases' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      bases:
+        - #{facilities(:two).code}
+    YAML
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+    }
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+    assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'build configuration create falls back to generator response bases when config has none' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    star_system = StarSystem.order(:created_at).last
+    assert_redirected_to star_system_url(star_system)
+    assert_equal [facilities(:one).code], star_system.facilities.pluck(:code)
+  end
+
+  test 'replace with a rogues entry replaces the existing rogues in the hex' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    existing = stellar_objects(:one)
+
+    build = <<~YAML
+      rogues:
+        - type: relic
+    YAML
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_not StellarObject.exists?(existing.id)
+    assert_equal %w[Relic], @parsec.rogues.pluck(:type)
+  end
+
+  test 'replace without a rogues entry leaves existing rogues alone' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    existing = stellar_objects(:one)
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert StellarObject.exists?(existing.id)
+  end
+
+  test 'replace with config bases replaces existing facilities' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    StarSystemFacility.create!(star_system: @star_system, facility: facilities(:one))
+
+    build = <<~YAML
+      name: Halvor
+      bases:
+        - #{facilities(:two).code}
+    YAML
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal [facilities(:two).code], @star_system.reload.facilities.pluck(:code)
+  end
+
+  test 'replace without config bases falls back to generator response bases' do
+    base = Rails.application.config.x.generator_service
+    body = JSON.parse(file_fixture('star_system_import_minimal.json').read)
+      .merge('bases' => [facilities(:one).code]).to_json
+
+    stub_request(:post, "#{base}/star_system")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    post do_replace_star_system_url(@star_system), params: {
+      star_system: { create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal [facilities(:one).code], @star_system.reload.facilities.pluck(:code)
   end
 end

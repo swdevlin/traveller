@@ -1,0 +1,76 @@
+<% content_for :title, "Bases" %>
+<% content_for :page_kicker, "Reference Manual" %>
+<% content_for :page_title, "Base Classifications" %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+  <div class='table-scroll'>
+    <div class='table-banner'>
+      <p>Base registry</p>
+      <div class='actions'>
+        <%= link_to new_facility_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <div class='t-scroll-x'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Code</th>
+          <th scope='col'>Icon</th>
+          <th scope='col'>Name</th>
+          <th scope='col'>TravellerMap Code</th>
+          <th scope='col' class='text-right'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @facilities.each do |facility| %>
+          <tr>
+            <td class='whitespace-nowrap'>
+              <span class='pill'><%= facility.code %></span>
+            </td>
+
+            <td class='whitespace-nowrap'>
+              <% if facility.icon_class.present? %>
+                <i class='<%= facility.icon_class %>'></i>
+              <% end %>
+            </td>
+
+            <td>
+              <%= link_to facility_path(facility), class: 't-link' do %>
+                <%= facility.name %>
+              <% end %>
+            </td>
+
+            <td class='whitespace-nowrap'>
+              <% if facility.traveller_map_code.present? %>
+                <span class='pill'><%= facility.traveller_map_code %></span>
+              <% end %>
+            </td>
+
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_facility_path(facility), class: 'action' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to facility,
+                              method: :delete,
+                              class: 'action danger',
+                              data: { turbo_confirm: "Delete #{facility.code}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+<% end %>

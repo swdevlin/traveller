@@ -1,0 +1,55 @@
+name: Brittia
+abbreviation: Brit
+X: -19
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Brit A
+    type: RIFT
+    index: A
+  - name: Brit B
+    type: RIFT
+    index: B
+  - name: Brit C
+    type: RIFT
+    index: C
+  - name: Brit D
+    type: MINIMAL
+    index: D
+  - name: Brit E
+    type: RIFT
+    index: E
+  - name: Brit F
+    type: RIFT
+    index: F
+  - name: Brit G
+    type: MINIMAL
+    index: G
+  - name: Brit H
+    type: SPARSE
+    index: H
+  - name: Brit I
+    type: RIFT
+    index: I
+  - name: Brit J
+    type: MINIMAL
+    index: J
+  - name: Brit K
+    type: SPARSE
+    index: K
+  - name: Brit L
+    type: LOW
+    index: L
+  - name: Brit M
+    type: SPARSE
+    index: M
+  - name: Brit N
+    type: LOW
+    index: N
+  - name: Brit O
+    type: MODERATE
+    index: O
+  - name: Brit P
+    type: MODERATE
+    index: P

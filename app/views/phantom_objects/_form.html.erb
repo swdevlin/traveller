@@ -1,0 +1,19 @@
+<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
+  <div class="space-y-2 pb-10">
+    <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
+
+    <%= render 'application/name_generator_field', form: form %>
+
+    <%= render 'stellar_objects/known_field', form: form, stellar_object: stellar_object %>
+
+    <div>
+      <div class="edit-label">Observations</div>
+      <%= form.text_area :notes, rows: 6, class: "edit-base mt-2 w-full resize-y" %>
+    </div>
+
+    <div class="pt-2 flex flex-col sm:flex-row gap-2">
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

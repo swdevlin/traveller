@@ -1,0 +1,55 @@
+name: Sisyphus Citerior
+abbreviation: SisCit
+X: -18
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: SisCit A
+    type: SPARSE
+    index: A
+  - name: SisCit B
+    type: MODERATE
+    index: B
+  - name: SisCit C
+    type: SPARSE
+    index: C
+  - name: SisCit D
+    type: MODERATE
+    index: D
+  - name: SisCit E
+    type: SPARSE
+    index: E
+  - name: SisCit F
+    type: MODERATE
+    index: F
+  - name: SisCit G
+    type: MODERATE
+    index: G
+  - name: SisCit H
+    type: MODERATE
+    index: H
+  - name: SisCit I
+    type: SPARSE
+    index: I
+  - name: SisCit J
+    type: SPARSE
+    index: J
+  - name: SisCit K
+    type: SPARSE
+    index: K
+  - name: SisCit L
+    type: SPARSE
+    index: L
+  - name: SisCit M
+    type: RIFT
+    index: M
+  - name: SisCit N
+    type: RIFT
+    index: N
+  - name: SisCit O
+    type: RIFT
+    index: O
+  - name: SisCit P
+    type: RIFT
+    index: P

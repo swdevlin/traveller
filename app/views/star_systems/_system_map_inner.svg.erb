@@ -1,0 +1,181 @@
+<defs>
+  <filter id="jump-glow" x="-20%" y="-100%" width="140%" height="300%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="blur" />
+    <feMerge>
+      <feMergeNode in="blur" />
+      <feMergeNode in="SourceGraphic" />
+    </feMerge>
+  </filter>
+  <symbol id="jump-shadow-marker" viewBox="0 0 640 640">
+    <path d="M416 104L184 320L416 536L416 104z"/>
+  </symbol>
+  <linearGradient id="gg-bands" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#c4b5fd" />
+    <stop offset="15%"  stop-color="#a78bfa" />
+    <stop offset="25%"  stop-color="#8b5cf6" />
+    <stop offset="38%"  stop-color="#a78bfa" />
+    <stop offset="48%"  stop-color="#c4b5fd" />
+    <stop offset="58%"  stop-color="#a78bfa" />
+    <stop offset="68%"  stop-color="#7c3aed" />
+    <stop offset="78%"  stop-color="#a78bfa" />
+    <stop offset="88%"  stop-color="#c4b5fd" />
+    <stop offset="100%" stop-color="#a78bfa" />
+  </linearGradient>
+  <% layout.nodes.select { |n| n.image.present? }.each do |node| %>
+    <clipPath id="clip-<%= node.id %>">
+      <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>" />
+    </clipPath>
+  <% end %>
+  <symbol id="belt-icon" viewBox="-16 -16 32 32">
+    <polygon points="-12,-6 -7,-10 -3,-5 -6,-1 -10,-2" fill="#94a3b8" />
+    <polygon points="4,-11 10,-9 8,-4 3,-6" fill="#cbd5e1" />
+    <polygon points="-10,4 -5,2 -2,7 -7,10" fill="#64748b" />
+    <polygon points="2,1 8,-1 11,5 7,8 3,6" fill="#94a3b8" />
+    <polygon points="-1,9 4,11 1,14 -3,12" fill="#cbd5e1" />
+  </symbol>
+</defs>
+
+<g class="subway-tracks">
+  <% layout.edges.each do |edge| %>
+    <line x1="<%= edge.x1 %>" y1="<%= edge.y1 %>"
+          x2="<%= edge.x2 %>" y2="<%= edge.y2 %>"
+          class="subway-<%= edge.kind %>" />
+    <% if edge.au_label %>
+      <% if edge.kind == :track %>
+        <text x="<%= (edge.x1 + edge.x2) / 2 %>" y="<%= edge.y1 - 10 %>"
+              text-anchor="middle" class="subway-au-label">
+          <%= edge.au_label %>
+        </text>
+      <% else %>
+        <text x="<%= edge.x1 + 12 %>" y="<%= (edge.y1 + edge.y2) / 2 + 4 %>"
+              text-anchor="start" class="subway-au-label">
+          <%= edge.au_label %>
+        </text>
+      <% end %>
+    <% end %>
+  <% end %>
+</g>
+
+<% if layout.jump_shadows.any? %>
+  <g class="jump-shadow-overlays">
+    <% layout.jump_shadows.each do |js| %>
+      <% shadow_colour = star_fill_colour(js.colour) %>
+      <% if js.vertical %>
+        <line x1="<%= js.x %>" y1="<%= js.y1_branch %>"
+              x2="<%= js.x %>" y2="<%= js.y2_branch %>"
+              class="subway-track"
+              style="stroke: <%= shadow_colour %>"
+              filter="url(#jump-glow)" />
+        <% if js.has_marker %>
+          <use href="#jump-shadow-marker"
+               x="<%= js.x - 10 %>" y="<%= js.y2_branch - 10 %>"
+               width="20" height="20"
+               class="jump-marker"
+               style="fill: <%= shadow_colour %>"
+               transform="rotate(90, <%= js.x %>, <%= js.y2_branch %>)" />
+        <% end %>
+      <% else %>
+        <line x1="<%= js.x1 %>" y1="<%= js.y %>"
+              x2="<%= js.x %>"  y2="<%= js.y %>"
+              class="subway-track"
+              style="stroke: <%= shadow_colour %>"
+              filter="url(#jump-glow)" />
+        <use href="#jump-shadow-marker"
+             x="<%= js.x - 10 %>" y="<%= js.y - 10 %>"
+             width="20" height="20"
+             class="jump-marker"
+             style="fill: <%= shadow_colour %>" />
+      <% end %>
+    <% end %>
+  </g>
+<% end %>
+
+<g class="subway-nodes">
+  <% layout.nodes.each do |node| %>
+    <% case node.kind %>
+    <% when :star %>
+      <% if linkable %><a href="<%= star_path(node.url_target) %>" class="subway-clickable"><% end %>
+        <title><%= node.tooltip %></title>
+        <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius + 8 %>"
+                fill="transparent" />
+        <% if node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-star" />
+        <% else %>
+          <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
+                  fill="<%= star_fill_colour(node.colour) %>"
+                  class="subway-star" />
+        <% end %>
+        <text x="<%= node.x %>" y="<%= node.y - node.radius - 12 %>"
+              text-anchor="middle" class="subway-label subway-star-label">
+          <%= node.label %>
+        </text>
+      <% if linkable %></a><% end %>
+
+    <% else %>
+      <% if linkable %><a href="<%= stellar_object_path(node.url_target) %>" class="subway-clickable"><% end %>
+        <title><%= node.tooltip %></title>
+        <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius + 6 %>"
+                fill="transparent" />
+        <% if node.kind == :gas_giant && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-gas-giant" />
+        <% elsif node.kind == :gas_giant %>
+          <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
+                  fill="url(#gg-bands)" class="subway-gas-giant" />
+        <% elsif node.kind == :planetoid_belt && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-planetoid-belt" />
+        <% elsif node.kind == :planetoid_belt %>
+          <use href="#belt-icon"
+               x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+               width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>" />
+        <% elsif node.kind == :terrestrial && node.image.present? %>
+          <image href="<%= "/stellar_objects/#{node.image}.webp" %>"
+                 x="<%= node.x - node.radius %>" y="<%= node.y - node.radius %>"
+                 width="<%= node.radius * 2 %>" height="<%= node.radius * 2 %>"
+                 clip-path="url(#clip-<%= node.id %>)"
+                 preserveAspectRatio="xMidYMid slice"
+                 class="subway-terrestrial" />
+        <% elsif node.kind == :terrestrial && node.colour %>
+          <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
+                  fill="<%= node.colour %>" class="subway-terrestrial" />
+        <% else %>
+          <circle cx="<%= node.x %>" cy="<%= node.y %>" r="<%= node.radius %>"
+                  class="subway-<%= node.kind.to_s.dasherize %>" />
+        <% end %>
+        <% if node.label %>
+          <% if node.vertical %>
+            <text x="<%= node.x + node.radius + 10 %>" y="<%= node.y + 4 %>"
+                  text-anchor="start" class="subway-label">
+              <%= node.label %>
+            </text>
+          <% else %>
+            <text x="<%= node.x %>" y="<%= node.y - node.radius - 10 %>"
+                  text-anchor="middle" class="subway-label">
+              <%= node.label %>
+            </text>
+          <% end %>
+        <% end %>
+        <% if node.sublabel %>
+          <text x="<%= node.x %>" y="<%= node.y + node.radius + 18 %>"
+                text-anchor="middle" class="subway-sublabel">
+            <%= node.sublabel %>
+          </text>
+        <% end %>
+      <% if linkable %></a><% end %>
+    <% end %>
+  <% end %>
+</g>

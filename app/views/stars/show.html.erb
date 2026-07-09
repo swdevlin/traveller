@@ -1,0 +1,39 @@
+<%= content_for :title, @star.display_name %>
+<%= content_for :page_kicker, "IISS Class 0/I Survey" %>
+<%= content_for :page_title, @star.display_name %>
+<%= content_for :iiss_form, 'FORM 0421B-0I' %>
+<%= content_for :page_buttons do %>
+  <div class='flex items-center justify-between'>
+    <div>
+      <%= link_to 'Edit', edit_star_path(@star), class: 'w-full sm:w-auto btn btn-primary' %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-fg-muted hover:text-fg-bright'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= star_path(@star, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
+<% end %>
+
+<%
+  star_system = @star.star_system
+  parsec = star_system&.parsec
+  subsector = parsec&.subsector
+%>
+
+<%= render 'application/page' do %>
+  <div class='flex flex-col md:flex-row md:items-start gap-6'>
+    <div class='flex-1 min-w-0'>
+      <%= render @star %>
+    </div>
+
+    <% if subsector %>
+      <div class='w-full md:w-[300px] shrink-0'>
+        <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

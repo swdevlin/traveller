@@ -1,0 +1,87 @@
+name: Arcadia
+abbreviation: Arc
+X: -20
+Y: -9
+unusualChance: 1
+defaultSI: 3
+populated:
+  type: full
+  minTechLevel: 5
+  maxTechLevel: 12
+  allegiance: C
+subsectors:
+  - name: Arc A
+    type: MODERATE
+    index: A
+    populated:
+      type: split-vertical
+      demarcation: 1
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+  - name: Arc B
+    type: MODERATE
+    index: B
+  - name: Arc C
+    type: MODERATE
+    index: C
+  - name: Arc D
+    type: MODERATE
+    index: D
+  - name: Arc E
+    type: MODERATE
+    index: E
+    populated:
+      type: split-vertical
+      demarcation: 1
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+  - name: Arc F
+    type: MODERATE
+    index: F
+  - name: Arc G
+    type: STANDARD
+    index: G
+  - name: Arc H
+    type: MODERATE
+    index: H
+  - name: Arc I
+    type: MODERATE
+    index: I
+  - name: Arc J
+    type: MODERATE
+    index: J
+  - name: Arc K
+    type: LOW
+    index: K
+  - name: Arc L
+    type: MODERATE
+    index: L
+  - name: Arc M
+    type: MODERATE
+    index: M
+  - name: Arc N
+    type: MODERATE
+    index: N
+  - name: Arc O
+    type: MODERATE
+    index: O
+  - name: Arc P
+    type: MODERATE
+    index: P
+    populated:
+      type: split-horizontal
+      demarcation: 8
+      before:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+      after:
+        allegiance: null

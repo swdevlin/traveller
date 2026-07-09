@@ -1,2 +1,4 @@
 web: bin/rails server
 css: bin/rails tailwindcss:watch
+elm: cd frontend/starmap && npx elm-watch hot
+elm-server: cd frontend/starmap && python ./server.py

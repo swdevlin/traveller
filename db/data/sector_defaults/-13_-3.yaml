@@ -1,0 +1,55 @@
+name: First Prospect
+abbreviation: First
+X: -13
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: First A
+    type: SPARSE
+    index: A
+  - name: First B
+    type: SPARSE
+    index: B
+  - name: First C
+    type: SPARSE
+    index: C
+  - name: First D
+    type: RIFT
+    index: D
+  - name: First E
+    type: DEEP_RIFT
+    index: E
+  - name: First F
+    type: RIFT_FADE
+    index: F
+  - name: First G
+    type: RIFT_FADE
+    index: G
+  - name: First H
+    type: DEEP_RIFT
+    index: H
+  - name: First I
+    type: DEEP_RIFT
+    index: I
+  - name: First J
+    type: EMPTY
+    index: J
+  - name: First K
+    type: EMPTY
+    index: K
+  - name: First L
+    type: DEEP_RIFT
+    index: L
+  - name: First M
+    type: DEEP_RIFT
+    index: M
+  - name: First N
+    type: DEEP_RIFT
+    index: N
+  - name: First O
+    type: DEEP_RIFT
+    index: O
+  - name: First P
+    type: EMPTY
+    index: P

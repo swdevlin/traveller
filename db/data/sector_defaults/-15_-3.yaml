@@ -1,0 +1,55 @@
+name: Kaalin Citerior
+abbreviation: KaaCit
+X: -15
+Y: -3
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: KaaCit A
+    type: LOW
+    index: A
+  - name: KaaCit B
+    type: LOW
+    index: B
+  - name: KaaCit C
+    type: LOW
+    index: C
+  - name: KaaCit D
+    type: SPARSE
+    index: D
+  - name: KaaCit E
+    type: SPARSE
+    index: E
+  - name: KaaCit F
+    type: MINIMAL
+    index: F
+  - name: KaaCit G
+    type: MINIMAL
+    index: G
+  - name: KaaCit H
+    type: MINIMAL
+    index: H
+  - name: KaaCit I
+    type: MINIMAL
+    index: I
+  - name: KaaCit J
+    type: RIFT
+    index: J
+  - name: KaaCit K
+    type: RIFT
+    index: K
+  - name: KaaCit L
+    type: RIFT
+    index: L
+  - name: KaaCit M
+    type: RIFT_FADE
+    index: M
+  - name: KaaCit N
+    type: RIFT_FADE
+    index: N
+  - name: KaaCit O
+    type: RIFT_FADE
+    index: O
+  - name: KaaCit P
+    type: RIFT_FADE
+    index: P

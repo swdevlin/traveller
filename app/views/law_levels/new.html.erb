@@ -1,0 +1,7 @@
+<%= content_for :title, "New law level" %>
+<%= content_for :page_kicker, "Law level Data Core" %>
+<%= content_for :page_title, "New Law level" %>
+
+<%= render 'application/page' do %>
+  <%= render "form", law_level: @law_level %>
+<% end %>

@@ -1,0 +1,18 @@
+<div id="<%= dom_id star_system, :main_world %>">
+  <%= render 'application/data_block',
+             label: 'Main world UWP',
+             value: (if star_system.main_world
+                       link_to(star_system.main_world_uwp.presence || '???????-?',
+                               stellar_object_path(star_system.main_world),
+                               class: 'no-underline hover:underline hover:underline-offset-2')
+                     else
+                       (star_system.main_world_uwp.presence || '???????-?')
+                     end),
+             value_style: :mono,
+             value_wrap_class: 'flex items-center gap-2',
+             suffix: link_to(select_main_world_star_system_path(star_system),
+                             data: { turbo_frame: 'modal' },
+                             class: 'btn-header') {
+               tag.i(class: 'fa-regular fa-pen-to-square')
+             } %>
+</div>

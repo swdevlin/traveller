@@ -1,0 +1,106 @@
+<% star_system = star.star_system %>
+<% parsec = star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+<% orbiting = star.orbiting %>
+
+<div id="<%= dom_id star %>" class="space-y-4">
+  <div class="grid grid-cols-1 gap-2 sm:grid-cols-5">
+    <% if orbiting %>
+      <%= render 'application/data_block',
+                 label: 'Orbiting',
+                 value: link_to(orbiting.display_name,
+                                star_path(orbiting),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if star_system %>
+      <%= render 'application/data_block',
+                 label: 'Star System',
+                 value: link_to(star_system.display_name,
+                                star_system_path(star_system),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if subsector %>
+      <%= render 'application/data_block',
+                 label: 'Subsector',
+                 value: link_to(subsector.name,
+                                subsector_path(subsector),
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
+
+    <% if sector %>
+      <%= render 'application/data_block',
+                 label: 'Sector',
+                 value: link_to(
+                   sector.name,
+                   sector_path(sector),
+                   class: 'hover:underline underline-offset-4'
+                 ),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2',
+                 suffix: tag.span(parsec.hex_code, class: 'identifier') %>
+    <% end %>
+  </div>
+
+  <div class="space-y-2">
+    <div class="flex items-center gap-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">
+        Stellar Properties
+      </div>
+      <div class="h-px flex-1 bg-panel"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
+      <%= render 'application/data_block', label: 'Spectral Type', value: star.stellar_type %>
+      <%= render 'application/data_block', label: 'Subtype', value: star.stellar_subtype %>
+      <%= render 'application/data_block', label: 'Luminosity Class', value: star.stellar_class %>
+      <%= render 'application/data_block', label: 'Colour', value: star.colour %>
+      <%= render 'application/data_block', label: 'Temperature', value: number_with_delimiter(star.temperature), suffix: 'K' %>
+      <%= render 'application/data_block', label: 'Age', value: number_with_precision(star.age, precision: 2, strip_insignificant_zeros: true), suffix: 'Gyr' %>
+      <%= render 'application/data_block', label: 'Mass', value: number_with_precision(star.mass, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+      <%= render 'application/data_block', label: 'Diameter', value: number_with_precision(star.diameter, precision: 2, strip_insignificant_zeros: true), suffix: '☉' %>
+      <%= render 'application/data_block', label: 'Luminosity', value: format_precision(star.luminosity), suffix: '☉' %>
+      <%= render 'application/data_block', label: 'Protostar', value: star.is_protostar ? 'Yes' : 'No' %>
+    </div>
+  </div>
+
+  <% if orbiting %>
+    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+        <div class="text-xs uppercase tracking-[0.22em] text-highlight">
+          Orbital Data
+        </div>
+        <div class="h-px flex-1 bg-panel"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+        <% if show_orbit_number? %>
+          <%= render 'application/data_block', label: 'Orbit', value: format_precision(star.orbit) %>
+        <% end %>
+        <% if show_au? %>
+          <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
+        <% end %>
+        <%= render 'application/data_block', label: 'Period', value: format_period(star.period) %>
+        <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-2">
+    <div class="flex items-center gap-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">
+        System Data
+      </div>
+      <div class="h-px flex-1 bg-panel"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+      <%= render 'application/data_block', label: 'Minimum Orbit', value: number_with_precision(star.minimum_allowable_orbit, precision: 2, strip_insignificant_zeros: true) %>
+      <%= render 'application/data_block', label: 'HZCO', value: format_precision(star.hzco) %>
+      <%= render 'application/data_block', label: 'Jump Shadow', value: number_with_delimiter(number_with_precision(star.jump_shadow, precision: 0)), suffix: 'km' %>
+    </div>
+  </div>
+
+  <%= render 'orbiting_table', bodies: star.orbiting_bodies %>
+</div>

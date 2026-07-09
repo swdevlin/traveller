@@ -1,12 +1,98 @@
-<% content_for :title, "Showing star system" %>
+<% parsec = @star_system.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = subsector&.sector %>
 
-<div class="md:w-2/3 w-full">
+<%= content_for :title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
+<%= content_for :page_kicker, 'IISS Class III Survey' %>
+<%= content_for :page_title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
+<%= content_for :iiss_form, '0421D' %>
+<%= content_for :page_buttons do %>
+  <div class='flex items-center justify-between'>
+    <div class='flex flex-wrap gap-2'>
+      <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Replace', replace_star_system_path(@star_system),
+                  class: "w-full sm:w-auto btn btn-secondary #{@star_system.locked? ? 'opacity-50 pointer-events-none' : ''}",
+                  title: @star_system.locked? ? 'Unlock this star system to replace it' : nil %>
+      <% unless @star_system.has_populated_world? %>
+        <%= link_to 'Social Characteristics', assign_social_characteristics_star_system_path(@star_system),
+                    class: 'w-full sm:w-auto btn btn-secondary',
+                    data: { turbo_frame: 'modal' } %>
+      <% end %>
+      <%= button_to 'Delete',
+                    @star_system,
+                    method: :delete,
+                    form_class: 'inline-block',
+                    class: 'w-full btn btn-danger',
+                    data: { turbo_confirm: 'Are you sure?' } %>
+    </div>
+    <button type='button'
+            title='Copy as markdown'
+            class='text-fg-muted hover:text-fg-bright'
+            data-controller='clipboard'
+            data-clipboard-markdown-url-value='<%= star_system_path(@star_system, format: :md) %>'
+            data-action='click->clipboard#copyMarkdown'>
+      <i class='fa-brands fa-markdown'></i>
+    </button>
+  </div>
+<% end %>
 
-  <h1 class="font-bold text-4xl"><%= @star_system.name%></h1>
+<%= content_for :page_side do %>
+  <% if @star_system.main_world&.respond_to?(:uwp) %>
+    <div class='mb-6'>
+      <%= render 'application/planetary_body_sidebar_summary',
+                 stellar_object: @star_system.main_world,
+                 title: 'Main World Planetary Profile',
+                 hide_transit_times: true %>
+    </div>
+  <% end %>
 
+  <% if subsector %>
+    <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
+  <% end %>
+
+  <% if parsec %>
+    <%= render 'star_systems/jump_survey', star_system: @star_system %>
+  <% end %>
+
+  <div class='mt-6'>
+    <%= render 'application/subsection', title: 'Jump Route Links' %>
+    <div id="jump-route-links-<%= @star_system.id %>" class='mt-2'>
+      <% star_system_links = @star_system.jump_route_links %>
+      <div class='table-card'>
+        <div class='table-banner'>
+          <p>Jump route links</p>
+          <div class='actions'>
+            <% if JumpRoute.any? %>
+              <%= link_to link_modal_star_system_path(@star_system),
+                          class: 'btn-header',
+                          data: { turbo_frame: 'modal' } do %>
+                <i class='fa-regular fa-plus'></i>
+                Add
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+        <div class='table-scroll'>
+          <table>
+            <thead>
+              <tr>
+                <th>System</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% star_system_links.each do |link| %>
+                <%= render 'jump_route_link_row', link: link, star_system_id: @star_system.id %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
   <%= render @star_system %>
-
-  <%= link_to "Edit this star system", edit_star_system_path(@star_system), class: "w-full sm:w-auto btn" %>
-  <%= link_to "Back to star systems", star_systems_path, class: "w-full sm:w-auto btn" %>
-  <%= button_to "Delete star system", @star_system, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0", class: "w-full btn btn-danger", data: { turbo_confirm: "Are you sure?" } %>
-</div>
+<% end %>

@@ -1,0 +1,55 @@
+name: Greenwald's Beach
+abbreviation: GB
+X: -20
+Y: -2
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: GB A
+    type: LOW
+    index: A
+  - name: GB B
+    type: LOW
+    index: B
+  - name: GB C
+    type: LOW
+    index: C
+  - name: GB D
+    type: LOW
+    index: D
+  - name: GB E
+    type: SPARSE
+    index: E
+  - name: GB F
+    type: SPARSE
+    index: F
+  - name: GB G
+    type: SPARSE
+    index: G
+  - name: GB H
+    type: SPARSE
+    index: H
+  - name: GB I
+    type: RIFT
+    index: I
+  - name: GB J
+    type: MINIMAL
+    index: J
+  - name: GB K
+    type: RIFT
+    index: K
+  - name: GB L
+    type: MINIMAL
+    index: L
+  - name: GB M
+    type: RIFT_FADE
+    index: M
+  - name: GB N
+    type: RIFT_FADE
+    index: N
+  - name: GB O
+    type: RIFT_FADE
+    index: O
+  - name: GB P
+    type: SPARSE
+    index: P

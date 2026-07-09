@@ -1,0 +1,23 @@
+<% hydrographics = stellar_object.hydrographics %>
+<% hydro_code = hydrographics&.code %>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <% if hydro_code %>
+    <%= render 'application/data_block',
+               label: 'Hydrographics',
+               value: safe_join([tag.span(HexDigit.hex_digit(hydro_code), class: 'identifier-sm'), hydrographics_description(hydro_code)], ' '),
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <%= render 'application/data_block',
+               label: 'Liquid',
+               value: hydrographics.liquid,
+               value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% if hydrographics.distribution.present? %>
+      <%= render 'application/data_block',
+                 label: 'Distribution',
+                 value: safe_join([tag.span(HexDigit.hex_digit(hydrographics.distribution), class: 'identifier-sm'), hydrographics_distribution_description(hydrographics.distribution)], ' '),
+                 value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <% end %>
+  <% else %>
+    <div class="text-fg-muted text-sm col-span-full">No hydrographic data recorded.</div>
+  <% end %>
+</div>

@@ -1,0 +1,55 @@
+name: Wilderlands
+abbreviation: Wldr
+X: -18
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Wldr A
+    type: STANDARD
+    index: A
+  - name: Wldr B
+    type: MODERATE
+    index: B
+  - name: Wldr C
+    type: STANDARD
+    index: C
+  - name: Wldr D
+    type: MODERATE
+    index: D
+  - name: Wldr E
+    type: STANDARD
+    index: E
+  - name: Wldr F
+    type: MODERATE
+    index: F
+  - name: Wldr G
+    type: MODERATE
+    index: G
+  - name: Wldr H
+    type: LOW
+    index: H
+  - name: Wldr I
+    type: STANDARD
+    index: I
+  - name: Wldr J
+    type: MODERATE
+    index: J
+  - name: Wldr K
+    type: STANDARD
+    index: K
+  - name: Wldr L
+    type: SPARSE
+    index: L
+  - name: Wldr M
+    type: MODERATE
+    index: M
+  - name: Wldr N
+    type: STANDARD
+    index: N
+  - name: Wldr O
+    type: MODERATE
+    index: O
+  - name: Wldr P
+    type: STANDARD
+    index: P

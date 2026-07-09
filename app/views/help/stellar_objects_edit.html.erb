@@ -1,0 +1,337 @@
+<% content_for :title, 'Edit planetary body' %>
+
+<%= render 'help/page', title: 'Edit Planetary Body' do %>
+  <div class='space-y-6'>
+      <div class='space-y-3  text-fg'>
+        <p>
+          The edit form applies to terrestrial planets, planetoids, and moons.
+          The Orbital section is only shown when the body orbits a star.
+          Press <span class='font-semibold text-fg-bright'>Update core</span> to save changes.
+        </p>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Name</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Name</dt>
+            <dd class='mt-1 text-fg'>The body's designation or proper name.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Orbital</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Orbit</dt>
+            <dd class='mt-1 text-fg'>Orbital radius as an orbit number. Must be at or beyond the parent star's minimum allowable orbit.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Period</dt>
+            <dd class='mt-1 text-fg'>Orbital period around the parent body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Retrograde</dt>
+            <dd class='mt-1 text-fg'>Enable if the body orbits opposite to the primary star's rotation.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Rotation</dt>
+            <dd class='mt-1 text-fg'>Sidereal rotation period in hours.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Inclination</dt>
+            <dd class='mt-1 text-fg'>Orbital plane inclination in degrees.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Eccentricity</dt>
+            <dd class='mt-1 text-fg'>Orbital eccentricity (0 = circular).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Starport</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Starport</dt>
+            <dd class='mt-1 text-fg'>Class of the primary port facility (A–E, X for none).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Physical</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Size</dt>
+            <dd class='mt-1 text-fg'>UWP size code. Changing size recalculates diameter, mass, and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Diameter</dt>
+            <dd class='mt-1 text-fg'>Surface diameter in kilometres. Editing diameter recalculates mass and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Density</dt>
+            <dd class='mt-1 text-fg'>Mean density relative to Earth (☉). Editing density recalculates mass and gravity.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Mass / Gravity</dt>
+            <dd class='mt-1 text-fg'>Calculated from diameter and density. Can be overridden manually.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Temperature</dt>
+            <dd class='mt-1 text-fg'>Mean surface temperature in Kelvin.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Axial Tilt</dt>
+            <dd class='mt-1 text-fg'>Axial tilt in degrees.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Albedo</dt>
+            <dd class='mt-1 text-fg'>Fraction of incident solar radiation reflected (0–1).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Greenhouse</dt>
+            <dd class='mt-1 text-fg'>Greenhouse effect factor.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Atmosphere</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Atmosphere</dt>
+            <dd class='mt-1 text-fg'>Atmosphere type code (UWP digit).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Composition</dt>
+            <dd class='mt-1 text-fg'>Free-text description of atmospheric composition.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Irritant / Taint Severity / Taint Persistence</dt>
+            <dd class='mt-1 text-fg'>Atmospheric taint type, how dangerous it is, and how quickly it disperses.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Hazard</dt>
+            <dd class='mt-1 text-fg'>Insidious atmospheric hazard code (B Biological, R Radioactive, G Gas, T Thermal).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Hydrographics</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Hydrographics</dt>
+            <dd class='mt-1 text-fg'>Percentage of surface covered by liquid (UWP code).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Liquid</dt>
+            <dd class='mt-1 text-fg'>Type of liquid present (e.g. water, hydrocarbons).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Distribution</dt>
+            <dd class='mt-1 text-fg'>Pattern of liquid distribution across the surface.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Population</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Population</dt>
+            <dd class='mt-1 text-fg'>Population code 0–12.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Concentration Rating</dt>
+            <dd class='mt-1 text-fg'>How concentrated the population is (0 = extremely dispersed, 9 = extremely concentrated).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Urbanisation %</dt>
+            <dd class='mt-1 text-fg'>Percentage of the population living in urban settlements (0–100).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Major Cities</dt>
+            <dd class='mt-1 text-fg'>Number of significant urban centres.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Native / Extinct Sophont</dt>
+            <dd class='mt-1 text-fg'>Whether a sophont species is or was native to this body.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Habitability Rating</dt>
+            <dd class='mt-1 text-fg'>
+              A score from 0 to 10 indicating suitability for unprotected human habitation.
+              0 is actively hostile; 10 is a Terra-equivalent garden world. See WBH p. 132.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biomass Rating</dt>
+            <dd class='mt-1 text-fg'>Total biological mass on a comparative scale.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biodiversity Rating</dt>
+            <dd class='mt-1 text-fg'>Number of distinct species or ecological niches.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Biocomplexity Rating</dt>
+            <dd class='mt-1 text-fg'>Highest level of biological complexity present (1–10).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Resource Rating</dt>
+            <dd class='mt-1 text-fg'>Economic value of extractable resources (2–12).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Government</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Government</dt>
+            <dd class='mt-1 text-fg'>Government type code (0–F hex). See WBH p. 156.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Judicial / Executive / Legislative</dt>
+            <dd class='mt-1 text-fg'>
+              Structural composition of each branch: D Demos (elected assembly), S Single Council,
+              M Multiple Councils, R Ruler. See WBH p. 158.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Authority</dt>
+            <dd class='mt-1 text-fg'>
+              Which branch holds supreme authority: L Legislative, E Executive, J Judicial, B Balance (no dominant branch). See WBH p. 159.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Centralisation</dt>
+            <dd class='mt-1 text-fg'>
+              Degree of central control: C Confederal (constituent units hold power), F Federal (power shared between centre and units), U Unitary (centre holds power). See WBH p. 159.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Law Level</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Law Level</dt>
+            <dd class='mt-1 text-fg'>
+              Overall degree of legal restriction (0–F hex). Changing this value automatically resets
+              all five sub-classification selects to match, providing a baseline that can then be
+              adjusted individually.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Weapons &amp; Armour</dt>
+            <dd class='mt-1 text-fg'>Law level governing possession and carry of weapons and personal armour.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Criminal Law</dt>
+            <dd class='mt-1 text-fg'>Law level for criminal offences and prosecution thresholds.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Economic Law</dt>
+            <dd class='mt-1 text-fg'>Law level regulating commerce, licensing, and trade.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Private Law</dt>
+            <dd class='mt-1 text-fg'>Law level governing civil disputes and private contracts.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Personal Rights</dt>
+            <dd class='mt-1 text-fg'>Law level covering individual freedoms such as identification requirements and movement.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Uniformity</dt>
+            <dd class='mt-1 text-fg'>How consistently laws are applied: P Personal (varies by individual), T Territorial (varies by region), U Universal (applied equally to all).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Judicial System</dt>
+            <dd class='mt-1 text-fg'>Court structure: I Inquisitorial (state-led investigation), A Adversarial (opposing counsel), T Traditional (customary or religious law).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Death Penalty</dt>
+            <dd class='mt-1 text-fg'>Whether capital punishment is in use.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Presumed Innocence</dt>
+            <dd class='mt-1 text-fg'>Whether defendants are presumed innocent until proven guilty.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Econometric Infractions Administrative</dt>
+            <dd class='mt-1 text-fg'>Whether economic violations are handled administratively rather than criminally.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Tech Level</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Tech Level</dt>
+            <dd class='mt-1 text-fg'>Technological sophistication of the dominant culture (0–35). Sets the overall tech level recorded in the UWP.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Electronics</dt>
+            <dd class='mt-1 text-fg'>Tech level for electronics and computing. May differ from the overall level where a society has specialised in this field (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Energy</dt>
+            <dd class='mt-1 text-fg'>Tech level for energy production and distribution (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Land</dt>
+            <dd class='mt-1 text-fg'>Tech level for land transport (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Sea</dt>
+            <dd class='mt-1 text-fg'>Tech level for sea transport (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Air</dt>
+            <dd class='mt-1 text-fg'>Tech level for air transport (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Space</dt>
+            <dd class='mt-1 text-fg'>Tech level for space transport and operations (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Personal Military</dt>
+            <dd class='mt-1 text-fg'>Tech level for personal-scale military equipment (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Heavy Military</dt>
+            <dd class='mt-1 text-fg'>Tech level for heavy military equipment and vehicles (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Manufacturing</dt>
+            <dd class='mt-1 text-fg'>Tech level for industrial manufacturing (WBH p. 173).</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Medical</dt>
+            <dd class='mt-1 text-fg'>Tech level for medical technology (WBH p. 173).</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class=' font-semibold text-highlight mb-2'>Observations</p>
+        <dl class='space-y-5 '>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Observations</dt>
+            <dd class='mt-1 text-fg'>Free-text notes in CommonMark (Markdown) format.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0423PB
+      </div>
+  </div>
+<% end %>

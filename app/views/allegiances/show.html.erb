@@ -1,0 +1,19 @@
+<% content_for :title, @allegiance.name %>
+<% content_for :page_kicker, "Allegiance Classification" %>
+<% content_for :page_title, @allegiance.name %>
+
+<%= render 'application/page' do %>
+  <%= render @allegiance %>
+
+  <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= render 'application/back_button',
+             path: allegiances_path(page: @page),
+             label: 'Allegiances',
+             class: 'w-full sm:w-auto' %>
+  <%= button_to "Delete",
+                @allegiance,
+                method: :delete,
+                form_class: "w-full sm:w-auto inline-flex m-0",
+                class: "w-full sm:w-auto btn btn-danger cursor-pointer",
+                data: { turbo_confirm: "Are you sure?" } %>
+<% end %>

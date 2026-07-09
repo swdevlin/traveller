@@ -1,0 +1,4 @@
+<% if stellar_object.parsec_id? && stellar_object.orbiting_id.nil? %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :known,
+        checked: stellar_object.known?, label: 'Known' %>
+<% end %>

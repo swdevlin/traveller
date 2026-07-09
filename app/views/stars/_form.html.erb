@@ -1,0 +1,126 @@
+<% orbiting = star.orbiting %>
+
+<%= form_with(model: star, class: 'contents') do |form| %>
+  <div class="space-y-6 pb-10">
+    <%= render 'application/form_errors', errors: star.errors.where(:base) %>
+
+    <%= render 'application/name_generator_field', form: form %>
+
+    <div data-controller="star-classification"
+         data-star-classification-lookup-url-value="<%= lookup_stars_path %>">
+
+    <div class="flex items-center gap-2 pt-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">Stellar Classification</div>
+      <div class="h-px flex-1 bg-panel"></div>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :stellar_type, field_label: 'Spectral Type' do %>
+      <%= form.select :stellar_type,
+                      options_for_select(@spectral_type_options, star.stellar_type),
+                      { prompt: 'Select type' },
+                      class: 'edit-base',
+                      data: { star_classification_target: 'stellarType', action: 'change->star-classification#classify' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :stellar_subtype, field_label: 'Subtype' do %>
+      <%= form.select :stellar_subtype,
+                      options_for_select(@spectral_subtype_options, star.stellar_subtype),
+                      { prompt: '0-9' },
+                      class: 'edit-base',
+                      data: { star_classification_target: 'stellarSubtype', action: 'change->star-classification#classify' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :stellar_class, field_label: 'Luminosity Class' do %>
+      <%= form.select :stellar_class,
+                      options_for_select(@luminosity_options, star.stellar_class),
+                      { prompt: 'Select class' },
+                      class: 'edit-base',
+                      data: { star_classification_target: 'stellarClass', action: 'change->star-classification#classify' } %>
+    <% end %>
+
+    <div class="flex items-center gap-2 pt-2">
+      <div class="text-xs uppercase tracking-[0.22em] text-highlight">Stellar Properties</div>
+      <div class="h-px flex-1 bg-panel"></div>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉', calculated: true do %>
+      <%= form.number_field :mass, value: format_precision(star.mass, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'mass' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :diameter, field_label: 'Diameter ☉', calculated: true do %>
+      <%= form.number_field :diameter, value: format_precision(star.diameter, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'diameter' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :temperature, calculated: true do %>
+      <%= form.number_field :temperature, value: format_precision(star.temperature, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'temperature' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :luminosity, field_label: 'Luminosity ☉', calculated: true do %>
+      <%= form.number_field :luminosity, value: format_precision(star.luminosity, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'luminosity' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :age, calculated: true do %>
+      <%= form.number_field :age, value: format_precision(star.age, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'age' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :minimum_allowable_orbit, field_label: 'Minimum Orbit', calculated: true do %>
+      <%= form.number_field :minimum_allowable_orbit, value: format_precision(star.minimum_allowable_orbit, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'minimumOrbit' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :hzco, field_label: 'HZCO', calculated: true do %>
+      <%= form.number_field :hzco, value: format_precision(star.hzco, precision: 5),
+                            class: 'edit-base sm:w-28 w-24', step: 'any',
+                            data: { star_classification_target: 'hzco' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :colour, calculated: true do %>
+      <%= form.text_field :colour, class: 'edit-base sm:w-36 w-28',
+                          data: { star_classification_target: 'colour' } %>
+    <% end %>
+
+    </div>
+
+    <% if orbiting %>
+      <div class="flex items-center gap-2 pt-2">
+        <div class="text-xs uppercase tracking-[0.22em] text-highlight">Orbital Data</div>
+        <div class="h-px flex-1 bg-panel"></div>
+      </div>
+
+      <div data-controller='star-orbit'>
+        <%= render 'application/edit_field', form: form, attribute: :orbit do %>
+          <%= form.number_field :orbit, value: format_precision(star.orbit, precision: 5),
+                                class: 'edit-base sm:w-28 w-24', step: 'any',
+                                data: { star_orbit_target: 'orbit', action: 'input->star-orbit#recalculate' } %>
+        <% end %>
+
+        <%= render 'application/edit_field', form: form, attribute: :au, field_label: 'AU', calculated: true do %>
+          <%= form.number_field :au, value: format_precision(star.au, precision: 5),
+                                class: 'edit-base sm:w-28 w-24', step: 'any', disabled: true,
+                                data: { star_orbit_target: 'au' } %>
+        <% end %>
+      </div>
+
+      <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
+        <%= form.number_field :eccentricity, value: format_precision(star.eccentricity, precision: 5),
+                              class: 'edit-base sm:w-28 w-24', step: 'any' %>
+      <% end %>
+    <% end %>
+
+    <div class="pt-2 flex flex-col sm:flex-row gap-2">
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', star_path(star), class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

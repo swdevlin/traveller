@@ -1,0 +1,203 @@
+<% content_for :title, 'Campaign Settings' %>
+<% content_for :page_kicker, 'Campaign Core' %>
+<% content_for :page_title, @campaign.name %>
+
+<%
+  sophont_check_labels = {
+    'standard'  => 'Standard',
+    'rareEarth'      => 'Rare Earth Variant',
+    'veryRareEarth'  => 'Very Rare Earth Variant',
+    'none'           => 'None'
+  }
+  sophont_default = @campaign.charted_space? ? 'none' : 'standard'
+  sophont_label = sophont_check_labels.fetch(@campaign.sophont_check.presence || sophont_default, 'Standard')
+%>
+
+<% content_for :page_side do %>
+  <div class='space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-1'>
+      <div class="uppercase tracking-[0.22em] text-highlight">Statistics</div>
+      <%= render 'application/data_block',
+                 label: 'Sectors',
+                 value: number_with_delimiter(@sector_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Subsectors with Build Scripts',
+                 value: number_with_delimiter(@subsector_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Star systems',
+                 value: number_with_delimiter(@star_system_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Native Sophonts',
+                 value: number_with_delimiter(@native_sophont_count) %>
+
+      <%= render 'application/data_block',
+                 label: 'Extinct Sophonts',
+                 value: number_with_delimiter(@extinct_sophont_count) %>
+    </div>
+  </div>
+<% end %>
+
+<%= render 'application/two_column_page' do %>
+  <div class='space-y-6'>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Campaign Type',
+                 value: @campaign.campaign_type.humanize %>
+
+      <% if @campaign.sector_source.present? %>
+        <%= render 'application/data_block',
+                   label: 'Sector Data Source',
+                   value: @campaign.sector_source.humanize %>
+      <% end %>
+
+      <%= render 'application/data_block',
+                 label: 'Track Survey Index',
+                 value: @campaign.tracks_survey_index? ? 'Yes' : 'No' %>
+    </div>
+
+    <%= render 'application/subsection', title: 'System Generation' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Sophont Check',
+                 value: sophont_label %>
+
+      <%= render 'application/data_block',
+                 label: 'Max Tech Level',
+                 value: @campaign.max_tech_level_value %>
+
+      <%= render 'application/data_block',
+                 label: 'Native Sophont Tech Level Rules',
+                 value: @campaign.native_tech_level? ? 'Yes' : 'No' %>
+
+      <%= render 'application/data_block',
+                 label: 'Allow Captive Government',
+                 value: @campaign.allow_captive_government? ? 'Yes' : 'No' %>
+
+      <%= render 'application/data_block',
+                 label: 'Realistic Star Distribution',
+                 value: @campaign.realistic_star_distribution? ? 'Yes' : 'No' %>
+    </div>
+
+    <%= render 'application/subsection', title: 'Display Preferences' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Distance Display',
+                 value: @campaign.show_au? ? 'AU' : 'Orbit #' %>
+
+      <%= render 'application/data_block',
+                 label: 'Date Format',
+                 value: @campaign.traveller_date_format? ? 'Traveller Standard' : 'ISO 8601' %>
+    </div>
+
+    <%= render 'application/subsection', title: 'Map Colours' %>
+
+    <%
+      hex_svg = ->(colour) do
+        tag.svg(viewBox: '0 0 20 18', width: '20', height: '18', xmlns: 'http://www.w3.org/2000/svg',
+                style: 'display:inline-block;vertical-align:middle') do
+          tag.polygon(points: '10,0 20,4.5 20,13.5 10,18 0,13.5 0,4.5',
+                      fill: colour, stroke: '#555', 'stroke-width': '1')
+        end
+      end
+    %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <% native_colour = @campaign.native_sophont_colour.presence %>
+      <%= render 'application/data_block',
+                 label: 'Native Sophont Colour',
+                 value: native_colour ? hex_svg.call(native_colour) : '—' %>
+
+      <%= render 'application/data_block',
+                 label: 'Show on Maps',
+                 value: @campaign.show_native_sophont? ? 'Yes' : 'No' %>
+
+      <% extinct_colour = @campaign.extinct_sophont_colour.presence %>
+      <%= render 'application/data_block',
+                 label: 'Extinct Sophont Colour',
+                 value: extinct_colour ? hex_svg.call(extinct_colour) : '—' %>
+
+      <%= render 'application/data_block',
+                 label: 'Show on Maps',
+                 value: @campaign.show_extinct_sophont? ? 'Yes' : 'No' %>
+    </div>
+
+    <%= render 'application/subsection', title: 'API Access' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block', label: 'Campaign Slug', value: @campaign.slug %>
+    </div>
+
+    <div class='mt-4'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-1'>API Token</div>
+      <div class='flex items-center gap-2' data-token='<%= @campaign.api_token %>'>
+        <input type='text' readonly value='<%= '•' * 64 %>'
+               id='api-token-field'
+               class='edit-base font-mono text-xs w-full sm:w-2/3 select-all cursor-default'
+               tabindex='-1' />
+        <button type='button'
+                class='btn btn-sm shrink-0'
+                onclick="const t=this.closest('[data-token]').dataset.token; navigator.clipboard.writeText(t).then(() => this.textContent = 'Copied!').catch(() => {}); setTimeout(() => this.textContent = 'Copy', 1500)">
+          Copy
+        </button>
+        <%= button_to regenerate_api_token_campaign_settings_path,
+              method: :post,
+              class: 'btn btn-sm shrink-0',
+              data: { turbo_confirm: 'Regenerate the API token? The existing token will stop working immediately and you will need to update your Foundry module settings.' } do %>
+          <i class='fa-regular fa-rotate mr-1'></i> Regenerate
+        <% end %>
+      </div>
+    </div>
+
+    <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+      <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
+        <i class='fa-regular fa-pencil mr-1.5'></i> Edit
+      <% end %>
+
+      <% if @campaign.deepnight_revelation? %>
+        <%= button_to populate_deepnight_campaign_settings_path,
+              method: :post,
+              class: 'w-full sm:w-auto btn' do %>
+          <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
+        <% end %>
+      <% end %>
+
+      <%= button_to assign_builds_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @campaign.sector_source.nil? do %>
+        <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
+      <% end %>
+
+      <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
+      <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
+      <%= button_to populate_empty_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: !@has_empty_sectors,
+            data: { turbo_confirm: empty_confirm } do %>
+        <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
+      <% end %>
+
+      <%= button_to populate_all_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @subsector_count.zero?,
+            data: { turbo_confirm: confirm_msg } do %>
+        <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
+      <% end %>
+
+      <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Any parsec the players have visited (via the jump log) and any locked systems will be left untouched. Are you sure?" %>
+      <%= button_to regenerate_all_campaign_settings_path,
+            method: :post,
+            class: 'w-full sm:w-auto btn',
+            disabled: @subsector_count.zero?,
+            data: { turbo_confirm: regenerate_confirm } do %>
+        <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
+      <% end %>
+    </div>
+  </div>
+<% end %>

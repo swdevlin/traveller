@@ -1,7 +1,7 @@
-<%= form_with(model: parsec, class: "contents") do |form| %>
+<%= form_with(model: parsec, class: 'space-y-8') do |form| %>
   <% if parsec.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(parsec.errors.count, "error") %> prohibited this parsec from being saved:</h2>
+      <h2><%= pluralize(parsec.errors.count, 'error') %> prohibited this hex from being saved:</h2>
 
       <ul class="list-disc ml-6">
         <% parsec.errors.each do |error| %>
@@ -11,12 +11,31 @@
     </div>
   <% end %>
 
+  <div class='space-y-4'>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Hex Label</div>
+
+    <div>
+      <%= form.label :label, 'Text', class: 'block text-sm font-semibold mb-1' %>
+      <%= form.text_field :label, class: 'edit-base w-full' %>
+    </div>
+
+    <div>
+      <%= form.label :label_colour, 'Colour', class: 'block text-sm font-semibold mb-1' %>
+      <%= form.color_field :label_colour,
+            value: parsec.label_colour.presence || '#000000',
+            class: 'h-9 w-16 rounded cursor-pointer border border-outline bg-transparent p-0.5' %>
+    </div>
+
+    <%= render 'application/boolean_toggle', form: form, attribute: :player_visible,
+          checked: parsec.player_visible, label: 'Visible to players' %>
+  </div>
+
   <div>
-    <%= form.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>
+    <%= form.label :notes, 'Observations', class: 'block text-sm font-semibold mb-1' %>
     <%= form.text_area :notes, rows: 6, class: 'w-full edit-base' %>
   </div>
 
-  <div class="inline">
-    <%= form.submit class: "btn btn-primary" %>
+  <div>
+    <%= form.submit 'Save', class: 'btn btn-primary' %>
   </div>
 <% end %>

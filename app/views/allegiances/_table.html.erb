@@ -1,0 +1,69 @@
+<div class="table-card">
+
+<div class='table-scroll'>
+  <table>
+    <thead>
+    <tr>
+      <th scope='col'>Code</th>
+      <th scope='col'>Name</th>
+      <th scope='col'>Colour</th>
+      <th scope='col'>Legacy</th>
+      <th scope='col' class='text-right'>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% allegiances.each do |allegiance| %>
+      <tr class='cursor-pointer'
+          data-controller='row-link'
+          data-row-link-url-value='<%= allegiance_path(allegiance) %>'
+          data-action='click->row-link#navigate'>
+        <td class='whitespace-nowrap'>
+          <span class='pill'><%= allegiance.code %></span>
+        </td>
+
+        <td>
+          <%= allegiance.name %>
+        </td>
+
+        <td>
+          <% if allegiance.background_colour.present? || allegiance.border_colour.present? %>
+            <svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:middle;">
+              <polygon points="10,2 18,6 18,14 10,18 2,14 2,6"
+                       fill="<%= allegiance.background_colour.presence || 'none' %>"
+                       stroke="<%= allegiance.border_colour.presence || 'none' %>"
+                       stroke-width="2"/>
+            </svg>
+          <% end %>
+        </td>
+
+        <td class='whitespace-nowrap'>
+          <% if allegiance.legacy_code.present? %>
+            <span class='pill'><%= allegiance.legacy_code %></span>
+          <% end %>
+        </td>
+
+        <td class='actions-cell'>
+          <div class='action-group'>
+            <%= link_to edit_allegiance_path(allegiance), class: 'action', data: { turbo_frame: '_top' } do %>
+              <i class='fa-regular fa-pen-to-square'></i>
+            <% end %>
+
+            <%= button_to allegiance,
+                          method: :delete,
+                          class: 'action danger',
+                          data: { turbo_confirm: "Delete #{allegiance.code}?" } do %>
+              <i class='fa-regular fa-trash'></i>
+            <% end %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <div class='w-full pb-4'>
+    <%== pagy.series_nav %>
+  </div>
+</div>
+</div>

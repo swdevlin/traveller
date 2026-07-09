@@ -1,0 +1,55 @@
+name: Hades
+abbreviation: Hades
+X: -21
+Y: -7
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Hades A
+    type: RIFT
+    index: A
+  - name: Hades B
+    type: RIFT
+    index: B
+  - name: Hades C
+    type: MINIMAL
+    index: C
+  - name: Hades D
+    type: MINIMAL
+    index: D
+  - name: Hades E
+    type: RIFT
+    index: E
+  - name: Hades F
+    type: MINIMAL
+    index: F
+  - name: Hades G
+    type: SPARSE
+    index: G
+  - name: Hades H
+    type: LOW
+    index: H
+  - name: Hades I
+    type: RIFT
+    index: I
+  - name: Hades J
+    type: MINIMAL
+    index: J
+  - name: Hades K
+    type: MINIMAL
+    index: K
+  - name: Hades L
+    type: SPARSE
+    index: L
+  - name: Hades M
+    type: SPARSE
+    index: M
+  - name: Hades N
+    type: SPARSE
+    index: N
+  - name: Hades O
+    type: LOW
+    index: O
+  - name: Hades P
+    type: MODERATE
+    index: P

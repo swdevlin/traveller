@@ -1,0 +1,5 @@
+<turbo-frame id="<%= dom_id(@subsector, :star_systems) %>" target="_top">
+  <%= render 'star_systems/table',
+             star_systems: @star_systems || @subsector.star_systems,
+             new_url: new_subsector_star_system_path(@subsector) %>
+</turbo-frame>

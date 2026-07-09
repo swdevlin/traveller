@@ -1,0 +1,55 @@
+name: Acheron Spinward
+abbreviation: AchS
+X: -23
+Y: -9
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: AchS A
+    type: RIFT_FADE
+    index: A
+  - name: AchS B
+    type: DEEP_RIFT
+    index: B
+  - name: AchS C
+    type: DEEP_RIFT
+    index: C
+  - name: AchS D
+    type: RIFT_FADE
+    index: D
+  - name: AchS E
+    type: RIFT_FADE
+    index: E
+  - name: AchS F
+    type: RIFT_FADE
+    index: F
+  - name: AchS G
+    type: RIFT_FADE
+    index: G
+  - name: AchS H
+    type: RIFT_FADE
+    index: H
+  - name: AchS I
+    type: RIFT_FADE
+    index: I
+  - name: AchS J
+    type: RIFT_FADE
+    index: J
+  - name: AchS K
+    type: RIFT_FADE
+    index: K
+  - name: AchS L
+    type: RIFT_FADE
+    index: L
+  - name: AchS M
+    type: RIFT
+    index: M
+  - name: AchS N
+    type: RIFT_FADE
+    index: N
+  - name: AchS O
+    type: RIFT_FADE
+    index: O
+  - name: AchS P
+    type: RIFT
+    index: P

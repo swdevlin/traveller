@@ -1,0 +1,7 @@
+<% content_for :title, "Editing #{@facility.name}" %>
+<% content_for :page_kicker, "Base Data Core" %>
+<% content_for :page_title, @facility.name %>
+
+<%= render 'application/page' do %>
+  <%= render "form", facility: @facility %>
+<% end %>

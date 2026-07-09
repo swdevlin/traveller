@@ -1,5 +1,6 @@
 class ParsecsController < ApplicationController
-  before_action :set_parsec, only: %i[ show edit update ]
+  before_action :set_parsec, except: :index
+  before_action :set_star_systems, only: [:show, :star_systems_table]
   before_action do
     Rails.logger.warn(">>> HIT ParsecsController##{action_name} params=#{params.to_unsafe_h.inspect}")
   end
@@ -15,6 +16,17 @@ class ParsecsController < ApplicationController
 
   # GET /parsecs/1/edit
   def edit
+  end
+
+  def clear
+    Parsec.transaction do
+      @parsec.clear
+    end
+    redirect_to parsec_path(@parsec), notice: 'Hex cleared.'
+  end
+
+  def star_systems_table
+    render layout: false
   end
 
   # PATCH/PUT /parsecs/1 or /parsecs/1.json
@@ -36,7 +48,11 @@ class ParsecsController < ApplicationController
       @parsec = Parsec.find(params[:id])
     end
 
+    def set_star_systems
+      @star_systems = @parsec.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
+    end
+
     def parsec_params
-      params.expect(parsec: [:note])
+      params.expect(parsec: [:note, :survey_index, :label, :label_colour, :player_visible])
     end
 end

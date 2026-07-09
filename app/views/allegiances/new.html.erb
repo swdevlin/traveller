@@ -1,0 +1,7 @@
+<% content_for :title, "New allegiance" %>
+<% content_for :page_kicker, "Allegiance Data Core" %>
+<% content_for :page_title, "New Allegiance" %>
+
+<%= render 'application/page' do %>
+  <%= render "form", allegiance: @allegiance %>
+<% end %>

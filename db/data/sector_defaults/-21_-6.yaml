@@ -1,0 +1,55 @@
+name: Anwnn
+abbreviation: Anwnn
+X: -21
+Y: -6
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Anwnn A
+    type: RIFT_FADE
+    index: A
+  - name: Anwnn B
+    type: RIFT_FADE
+    index: B
+  - name: Anwnn C
+    type: RIFT_FADE
+    index: C
+  - name: Anwnn D
+    type: RIFT_FADE
+    index: D
+  - name: Anwnn E
+    type: RIFT
+    index: E
+  - name: Anwnn F
+    type: RIFT
+    index: F
+  - name: Anwnn G
+    type: RIFT
+    index: G
+  - name: Anwnn H
+    type: RIFT
+    index: H
+  - name: Anwnn I
+    type: RIFT_FADE
+    index: I
+  - name: Anwnn J
+    type: RIFT
+    index: J
+  - name: Anwnn K
+    type: RIFT
+    index: K
+  - name: Anwnn L
+    type: MINIMAL
+    index: L
+  - name: Anwnn M
+    type: RIFT
+    index: M
+  - name: Anwnn N
+    type: RIFT
+    index: N
+  - name: Anwnn O
+    type: MINIMAL
+    index: O
+  - name: Anwnn P
+    type: SPARSE
+    index: P

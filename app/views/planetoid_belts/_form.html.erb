@@ -1,0 +1,206 @@
+<% star = stellar_object.orbiting %>
+
+<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
+
+    <%= render 'application/name_generator_field', form: form %>
+
+    <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
+      <%= form.select :starport_code,
+                      options_for_select(
+                        StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
+                        stellar_object.starport_code
+                      ),
+                      { include_blank: 'Select starport' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <% if star %>
+      <div class='flex items-center gap-2 pt-2'>
+        <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital Data</div>
+        <div class='h-px flex-1 bg-panel'></div>
+      </div>
+
+      <%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
+        <%= form.number_field :orbit,
+                              value: format_precision(stellar_object.orbit, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any',
+                              min: star.minimum_allowable_orbit,
+                              required: true %>
+      <% end %>
+
+      <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+        <%= render 'application/edit_field', form: form, attribute: :period do %>
+          <%= df.number_field :period,
+                              value: format_precision(stellar_object.period, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+        <% end %>
+
+        <%= render 'application/edit_field', form: form, attribute: :retrograde do %>
+          <%= render 'application/boolean_toggle', form: df, attribute: :retrograde,
+                checked: stellar_object.retrograde, checked_value: 'true', unchecked_value: 'false' %>
+        <% end %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :inclination do %>
+        <%= form.number_field :inclination,
+                              value: format_precision(stellar_object.inclination, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
+        <%= form.number_field :eccentricity,
+                              value: format_precision(stellar_object.eccentricity, precision: 5),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 'any' %>
+      <% end %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Composition</div>
+      <div class='h-px flex-1 bg-panel'></div>
+    </div>
+
+    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+      <%= render 'application/edit_field', form: form, attribute: :m_type, field_label: 'Metallic %' do %>
+        <%= df.number_field :m_type,
+                            value: stellar_object.m_type,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :s_type, field_label: 'Stony %' do %>
+        <%= df.number_field :s_type,
+                            value: stellar_object.s_type,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :c_type, field_label: 'Carbonaceous %' do %>
+        <%= df.number_field :c_type,
+                            value: stellar_object.c_type,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :o_type, field_label: 'Other %' do %>
+        <%= df.number_field :o_type,
+                            value: stellar_object.o_type,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating' do %>
+        <%= df.number_field :resource_rating,
+                            value: stellar_object.resource_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 2,
+                            max: 12 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :bulk do %>
+        <%= df.number_field :bulk,
+                            value: stellar_object.bulk,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 1 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :span do %>
+        <%= df.number_field :span,
+                            value: format_precision(stellar_object.span, precision: 5),
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 'any',
+                            min: -1,
+                            max: 1 %>
+      <% end %>
+    <% end %>
+
+    <div class='flex items-center gap-2 pt-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Social Data</div>
+      <div class='h-px flex-1 bg-panel'></div>
+    </div>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
+      <%= form.number_field :population_code,
+                            value: stellar_object.population_code,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 12 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_concentration_rating, field_label: 'Concentration Rating' do %>
+      <%= form.number_field :population_concentration_rating,
+                            value: stellar_object.population_concentration_rating,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 9 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_urbanization_percentage, field_label: 'Urbanisation %' do %>
+      <%= form.number_field :population_urbanization_percentage,
+                            value: stellar_object.population_urbanization_percentage,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0,
+                            max: 100 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :population_major_cities, field_label: 'Major Cities' do %>
+      <%= form.number_field :population_major_cities,
+                            value: stellar_object.population_major_cities,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
+      <%= form.select :government_code,
+                      options_for_select(
+                        Government.order(:code).map { |g| ["#{HexDigit.hex_digit(g.code)} – #{g.government_type}", g.code] },
+                        stellar_object.government_code
+                      ),
+                      { include_blank: 'Select government' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
+      <%= form.select :law_level_code,
+                      options_for_select(
+                        LawLevel.where.not(weapons: [nil, '']).order(:code).map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                        stellar_object.law_level_code
+                      ),
+                      { include_blank: 'Select law level' },
+                      class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'tech_level_form', form: form, stellar_object: stellar_object %>
+
+    <%= render 'stellar_objects/known_field', form: form, stellar_object: stellar_object %>
+
+    <div class='edit-row-notes'>
+      <div class='edit-label'>Observations</div>
+      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

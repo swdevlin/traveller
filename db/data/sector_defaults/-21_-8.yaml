@@ -1,0 +1,78 @@
+name: Tir NaNog
+abbreviation: Tir
+X: -21
+Y: -8
+unusualChance: 1
+defaultSI: 3
+populated:
+  type: full
+  minTechLevel: 5
+  maxTechLevel: 12
+  allegiance: C
+subsectors:
+  - name: Tir A
+    type: SPARSE
+    index: A
+    populated:
+      type: split-horizontal
+      demarcation: 2
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+  - name: Tir B
+    type: LOW
+    index: B
+  - name: Tir C
+    type: MODERATE
+    index: C
+  - name: Tir D
+    type: MODERATE
+    index: D
+    populated:
+      type: split-horizontal
+      demarcation: 1
+      before:
+        allegiance: null
+      after:
+        minTechLevel: 5
+        maxTechLevel: 12
+        allegiance: C
+  - name: Tir E
+    type: LOW
+    index: E
+  - name: Tir F
+    type: LOW
+    index: F
+  - name: Tir G
+    type: LOW
+    index: G
+  - name: Tir H
+    type: MODERATE
+    index: H
+  - name: Tir I
+    type: LOW
+    index: I
+  - name: Tir J
+    type: LOW
+    index: J
+  - name: Tir K
+    type: MODERATE
+    index: K
+  - name: Tir L
+    type: MODERATE
+    index: L
+  - name: Tir M
+    type: SPARSE
+    index: M
+  - name: Tir N
+    type: LOW
+    index: N
+  - name: Tir O
+    type: LOW
+    index: O
+  - name: Tir P
+    type: MODERATE
+    index: P

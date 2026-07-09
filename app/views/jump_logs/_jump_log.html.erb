@@ -1,0 +1,51 @@
+<div id="<%= dom_id jump_log %>" class='space-y-6 mb-4'>
+  <%= render 'application/data_block',
+             label: 'Ship',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: jump_log.ship.name
+  %>
+
+  <div class='flex flex-wrap gap-x-10 gap-y-6'>
+    <div class='min-w-0'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>From</div>
+      <div class='mt-2 text-fg-bright'>
+        <%= render 'parsecs/location', parsec: jump_log.from_parsec %>
+      </div>
+    </div>
+
+    <%= render 'application/data_block',
+               label: 'Depart',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+               value: format_traveller_date(jump_log.depart_year, jump_log.depart_day)
+    %>
+  </div>
+
+  <div class='flex flex-wrap gap-x-10 gap-y-6'>
+    <div class='min-w-0'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>To</div>
+      <div class='mt-2 text-fg-bright'>
+        <%= render 'parsecs/location', parsec: jump_log.to_parsec %>
+      </div>
+    </div>
+
+    <%= render 'application/data_block',
+               label: 'Arrive',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+               value: format_traveller_date(jump_log.arrive_year, jump_log.arrive_day)
+    %>
+
+    <% if jump_log.misjump? %>
+      <%= render 'application/data_block',
+                 label: 'Type',
+                 value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-amber-400',
+                 value: 'Misjump'
+      %>
+    <% end %>
+  </div>
+
+  <%= render 'application/data_block',
+             label: 'Notes',
+             value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+             value: jump_log.notes
+  %>
+</div>

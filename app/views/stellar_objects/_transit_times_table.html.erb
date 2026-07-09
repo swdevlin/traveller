@@ -1,0 +1,73 @@
+<% transit_bodies = transit_bodies_for(stellar_object) %>
+<% if transit_bodies.any? %>
+  <div class='table-card' data-controller='transit-speed'>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+          <tr>
+            <th scope='col'>ID</th>
+            <th scope='col' class='text-right'>AU</th>
+            <th scope='col'>Name</th>
+            <th scope='col'>UWP/SAM</th>
+            <th scope='col' class='text-right'>
+              <div class='flex items-center justify-end gap-2'>
+                <span>Transit Time</span>
+                <select data-transit-speed-target='selector'
+                        data-action='change->transit-speed#update'
+                        class='rounded border border-outline bg-panel px-1 py-0.5 text-xs normal-case tracking-normal font-normal cursor-pointer w-15'>
+                  <% (1..10).each do |g| %>
+                    <option value='<%= g %>'><%= g %>G</option>
+                  <% end %>
+                </select>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transit_bodies.each do |entry| %>
+            <%
+              body = entry[:body]
+              distance_km = entry[:distance_km]
+              times_json = (1..10).to_h { |g| [g.to_s, format_travel_time(flip_burn_travel_time_hours(distance_km, g))] }.to_json
+              body_path = body.is_a?(Star) ? star_path(body) : stellar_object_path(body)
+              profile = if body.is_a?(Star)
+                body.spectral_classification
+              elsif body.is_a?(GasGiant)
+                "Gas Giant (#{GasGiant::SIZES[body.data['code']]})"
+              elsif body.uwp.present?
+                body.uwp
+              end
+            %>
+            <tr class='cursor-pointer'
+                data-controller='row-link'
+                data-row-link-url-value='<%= body_path %>'
+                data-action='click->row-link#navigate'>
+              <td class='whitespace-nowrap'>
+                <% if body.orbit_sequence.present? %>
+                  <span class='pill'><%= body.orbit_sequence %></span>
+                <% else %>
+                  &mdash;
+                <% end %>
+              </td>
+              <td class='text-right whitespace-nowrap'>
+                <%= number_with_precision(entry[:au], precision: 2, strip_insignificant_zeros: true) %>
+              </td>
+              <td><%= body.name %></td>
+              <td>
+                <% if profile.present? %>
+                  <%= profile %>
+                <% else %>
+                  &mdash;
+                <% end %>
+              </td>
+              <td class='text-right whitespace-nowrap'
+                  data-transit-speed-target='time'
+                  data-times='<%= times_json %>'>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

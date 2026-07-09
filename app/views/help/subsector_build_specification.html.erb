@@ -1,0 +1,541 @@
+<% content_for :title, 'Subsector build specification' %>
+
+<%= render 'help/page', title: 'Subsector build specification' do %>
+  <div class='spec'>
+    <section>
+      <p>
+        Subsectors are populated from a build specification using the rules from the <cite>World Builder's Handbook</cite>. Much
+        of the build specification is optional. The generator will fill in the system as required.
+      </p>
+
+      <p>
+        The specification is a YAML document. The document uses two spaces when nesting data. And invalid YAML document,
+        either due to an invalid specification or bad formatting, will not be saved.
+      </p>
+
+      <p>
+        The subsector specification determines which hexes in the subsector have a star system and includes the
+        common build configuration for those star systems. Individual star systems can overwrite the default values.
+      </p>
+    </section>
+
+      <div class='grid gap-10 lg:grid-cols-4 items-start'>
+        <section>
+          <h2>Configuration structure</h2>
+
+          <p>
+            All top-level fields except <code>type</code> are optional.
+          </p>
+
+          <pre><code>type:
+unusualChance:
+defaultSI:
+sophontCheck:
+maxTechLevel:
+nativeTechLevel:
+allowCaptiveGovernment:
+exclude:
+required:
+systems:
+rogues:
+populated:</code></pre>
+        </section>
+
+        <section class='space-y-8 lg:col-span-3'>
+          <article>
+            <h3>Top-level properties</h3>
+
+            <dl class='spec-dl'>
+              <div>
+                <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+                <dd class="space-y-2">
+                  <p>Star density profile. Controls the per-hex probability that a system is placed when not using <code>systems</code>.
+                    type can be one of the following values:</p>
+                  <div class='mt-2 grid gap-2 sm:grid-cols-2'>
+                    <ul class='space-y-1  text-fg-muted'>
+                      <li><code class="text-fg-bright">DENSE</code> — 60%</li>
+                      <li><code class="text-fg-bright">STANDARD</code> — 50%</li>
+                      <li><code class="text-fg-bright">MODERATE</code> — 40%</li>
+                      <li><code class="text-fg-bright">LOW</code> — 30%</li>
+                      <li><code class="text-fg-bright">SPARSE</code> — 20%</li>
+                    </ul>
+                    <ul class='space-y-1  text-fg-muted'>
+                      <li><code class="text-fg-bright">MINIMAL</code> — 10%</li>
+                      <li><code class="text-fg-bright">RIFT</code> — 3%</li>
+                      <li><code class="text-fg-bright">RIFT_FADE</code> — 2%</li>
+                      <li><code class="text-fg-bright">DEEP_RIFT</code> — 1%</li>
+                      <li><code class="text-fg-bright">EMPTY</code> — 0%</li>
+                    </ul>
+                  </div>
+                </dd>
+              </div>
+
+              <div>
+                <dt>unusualChance</dt>
+                <dd>The chance to generate an unusual primary star. This is an integer from 0-100.</dd>
+              </div>
+
+              <div>
+                <dt>defaultSI</dt>
+                <dd>The default survey index to assign to the generated star systems.
+                  For exploration games, a survey index of 3 is recommended. For games where the systems
+                  are fully surveyed, as in a charted space game, a survey index of 12 is recommended.</dd>
+              </div>
+
+              <div>
+                <dt>sophontCheck</dt>
+                <dd>If false, then no native sophont check will be made.</dd>
+              </div>
+
+              <div>
+                <dt>maxTechLevel</dt>
+                <dd>Use this to limit the maximum tech level for any populated star system.</dd>
+              </div>
+
+              <div>
+                <dt>nativeTechLevel</dt>
+                <dd>If a native sophont is generated, this option will set the tech level for the main world.</dd>
+              </div>
+
+              <div>
+                <dt>allowCaptiveGovernment</dt>
+                <dd>If set to false, the main world will not have a captive government type.</dd>
+              </div>
+
+              <div>
+                <dt>exclude</dt>
+                <dd>A list of hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates that cannot have a system. <span class="yaml-tag">exclude</span>
+                  is ignored if <span class="yaml-tag">systems</span> is specified. See examples below.</dd>
+              </div>
+
+              <div>
+                <dt>required</dt>
+                <dd>A list of hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates that must have a star system. <span class="yaml-tag">required</span> is ignored
+                  if <span class="yaml-tag">systems</span> is specified. Each hex entry can include the <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %>. See examples below.</dd>
+              </div>
+
+              <div>
+                <dt>systems</dt>
+                <dd>An list of hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates that have star systems. If <span class="yaml-tag">systems</span> is specified, then only
+                  hexes in the list will have star systems. Each hex entry can include the <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %>. See examples below.</dd>
+              </div>
+
+              <div>
+                <dt>rogues</dt>
+                <dd>A list of rogue objects — objects in a hex without a star system, such as a drifting comet or a rogue planet.
+                  Each entry requires hex <span class="yaml-tag">x</span>,<span class="yaml-tag">y</span> coordinates and a <span class="yaml-tag">type</span>.
+                  A hex may contain more than one rogue object. Rogue objects can also be listed within individual
+                  <span class="yaml-tag">required</span> or <span class="yaml-tag">systems</span> entries, without coordinates.
+                  See rogue objects definition below.</dd>
+              </div>
+
+              <div>
+                <dt>populated</dt>
+                <dd class="space-y-2">
+                  <p>If included, every system in the subsector will be populated. See populated definition below for the full specification.</p>
+                  <p>If only certain systems should be populated, specify that in the individual entries in required or systems.</p>
+                </dd>
+              </div>
+            </dl>
+          </article>
+    </section>
+      </div>
+
+    <article>
+      <h3>Populated definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>If populated is specified, then every star system will be populated. The generator can randomly assign
+            systems to two different allegiances. If there are 3 or more polities in the subsector, you will need
+            to define them in the systems entry.</p>
+          <pre><code>populated:
+  type:
+  allegiance:
+  minTechLevel:
+  maxTechLevel:
+  minPopulationCode:
+  maxPopulationCode:
+  populationDM:
+  demarcation:
+  before:
+    allegiance:
+    minTechLevel:
+    maxTechLevel:
+    minPopulationCode:
+    maxPopulationCode:
+    populationDM:
+  after:
+    allegiance:
+    minTechLevel:
+    maxTechLevel:
+    minPopulationCode:
+    maxPopulationCode:
+    populationDM:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd class='space-y-2'>
+              <p>Layout preset for how population is distributed.</p>
+
+              <ul class='list-disc space-y-1 pl-6'>
+                <li><code class="text-fg">full</code> — applies one set of constraints to the whole subsector</li>
+                <li><code class="text-fg">hard-horizontal</code>, <code class="text-fg">hard-vertical</code> — divide into two regions; systems on the boundary fall entirely into the <code>before</code> region</li>
+                <li><code class="text-fg">split-horizontal</code>, <code class="text-fg">split-vertical</code> — divide into two regions; boundary systems are split proportionally</li>
+              </ul>
+            </dd>
+          </div>
+
+          <div>
+            <dt>allegiance</dt>
+            <dd>Allegiance code for the subsector. See <%= current_campaign ? link_to('allegiances', allegiances_path, class: 'hover:underline underline-offset-4') : 'allegiances' %>.</dd>
+          </div>
+
+          <div>
+            <dt>minTechLevel</dt>
+            <dd>Minimum tech level for the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>maxTechLevel</dt>
+            <dd>Maximum tech level for the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>minPopulationCode</dt>
+            <dd>Minimum population for systems in the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>maxPopulationCode</dt>
+            <dd>Maximum population for systems in the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>populationDM</dt>
+            <dd>DM applied to all population checks in the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>demarcation</dt>
+            <dd>
+              Dividing line for split and hard types.
+              Interpreted as a column (1–8) for vertical splits, or a row (1–10) for horizontal splits.
+            </dd>
+          </div>
+
+          <div>
+            <dt>before</dt>
+            <dd>
+              <span class="yaml-tag">demarcation</span> divides the subsector into two parts.
+              <span class="yaml-tag">before</span> is used for population settings for systems to the left or the top of the demarcation line.
+            </dd>
+          </div>
+
+          <div>
+            <dt>after</dt>
+            <dd>
+              <span class="yaml-tag">demarcation</span> divides the subsector into two parts.
+              <span class="yaml-tag">after</span> is used for population settings for systems to the right or the bottom of the demarcation line.
+            </dd>
+          </div>
+
+        </dl>
+      </div>
+    </article>
+
+    <article>
+      <h3>Rogue objects definition</h3>
+
+      <div class='grid gap-6 lg:grid-cols-4 items-start'>
+        <div class="space-y-3">
+          <p>Rogue objects are placed after the star systems are generated. Hexes whose star system is locked are
+            left untouched.</p>
+          <pre><code>rogues:
+  - x:
+    y:
+    type:
+    name:
+    known:</code></pre>
+        </div>
+        <dl class='spec-dl lg:col-span-3'>
+          <div>
+            <dt>x, y <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd>Hex coordinates for the rogue object. Required at the subsector level; omitted when the entry is
+              inside a <span class="yaml-tag">required</span> or <span class="yaml-tag">systems</span> entry, where the
+              object is placed in that system's hex.</dd>
+          </div>
+
+          <div>
+            <dt>type <span class='font-sans font-normal text-fg-muted'>(required)</span></dt>
+            <dd class='space-y-2'>
+              <p>The kind of rogue object. <code class="text-fg">random</code> rolls on the rogue objects table
+                from page 76 of the <cite>World Builder's Handbook</cite>; a sensor glitch result creates a phantom object.
+                Planetoids, planetoid belts, gas giants, and terrestrial planets are generated in full; a bare
+                <code class="text-fg">comet</code> or <code class="text-fg">gas giant</code> has its variant chosen randomly.
+                type can be one of the following values:</p>
+              <div class='mt-2 grid gap-2 sm:grid-cols-3'>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">random</code></li>
+                  <li><code class="text-fg-bright">comet</code></li>
+                  <li><code class="text-fg-bright">tiny comet</code></li>
+                  <li><code class="text-fg-bright">medium comet</code></li>
+                  <li><code class="text-fg-bright">large comet</code></li>
+                  <li><code class="text-fg-bright">inhabited comet</code></li>
+                  <li><code class="text-fg-bright">gas giant</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">small gas giant</code></li>
+                  <li><code class="text-fg-bright">medium gas giant</code></li>
+                  <li><code class="text-fg-bright">large gas giant</code></li>
+                  <li><code class="text-fg-bright">planetoid</code></li>
+                  <li><code class="text-fg-bright">planetoid belt</code></li>
+                  <li><code class="text-fg-bright">terrestrial planet</code></li>
+                  <li><code class="text-fg-bright">gas cloud</code></li>
+                </ul>
+                <ul class='space-y-1 text-sm text-fg-muted'>
+                  <li><code class="text-fg-bright">gravity anomaly</code></li>
+                  <li><code class="text-fg-bright">interstellar wreck</code></li>
+                  <li><code class="text-fg-bright">phantom object</code></li>
+                  <li><code class="text-fg-bright">radiation cloud</code></li>
+                  <li><code class="text-fg-bright">relic</code></li>
+                  <li><code class="text-fg-bright">space station</code></li>
+                  <li><code class="text-fg-bright">unusual object</code></li>
+                </ul>
+              </div>
+            </dd>
+          </div>
+
+          <div>
+            <dt>name</dt>
+            <dd>An optional name for the rogue object.</dd>
+          </div>
+
+          <div>
+            <dt>known</dt>
+            <dd>If true, the object is already charted and visible on the map.</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+
+    <section>
+      <h2>Sample specifications</h2>
+
+      <div class='grid gap-6 lg:grid-cols-2'>
+        <article class='spec-card'>
+          <h3>Minimal</h3>
+
+          <p class='text-fg-muted'>The simplest valid specification. Sets the star density profile to the Traveller standard (50%) and lets the generator populate the subsector.</p>
+
+          <pre><code>type: STANDARD</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Fixed Placement</h3>
+
+          <p class='text-gr-muted'>This configuration generates a subsector with only 4 star systems: 0106, 0108, 0310, 0704.
+            The system in 0310 will have a K4 star as the primary star in the system. See <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for
+            the specification for star systems.
+          </p>
+
+          <pre><code>type: STANDARD
+systems:
+  - x: 1
+    y: 6
+  - x: 1
+    y: 8
+  - x: 3
+    y: 10
+    name: Waypoint Echo
+    primary:
+      type: K4
+      class: V
+  - x: 7
+    y: 4</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Early Stellar</h3>
+
+          <p class='text-fg-muted'>This subsector will be sparsely populated. Systems will all be populated with an early stellar civilization.</p>
+
+          <pre><code>type: SPARSE
+allegiance: LtSa
+minTechLevel: 2
+maxTechLevel: 10</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Always Empty</h3>
+
+          <p class='text-fg-muted'>This subsector will be randomly generated, but hexes 0201, 0202, 0203, 0301, 0302, 0303 will never have a star system.</p>
+
+          <pre><code>type: STANDARD
+excluded:
+  - x: 2
+    y: 1
+  - x: 2
+    y: 2
+  - x: 2
+    y: 3
+  - x: 3
+    y: 1
+  - x: 3
+    y: 2
+  - x: 3
+    y: 3</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Island in the Rift</h3>
+
+          <p class='text-fg-muted'>A mostly empty subsector, except for one part of it.</p>
+
+          <pre><code>type: RIFT
+required:
+  - x: 4
+    y: 3
+  - x: 4
+    y: 4
+  - x: 4
+    y: 6
+  - x: 5
+    y: 4
+  - x: 5
+    y: 7
+  - x: 6
+    y: 5</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Rogue objects</h3>
+
+          <p class='text-fg-muted'>A standard subsector with a rogue gas giant in 0205, two random rogue objects in 0408,
+            and a named comet drifting in the hex of a required system at 0603.</p>
+
+          <pre><code>type: STANDARD
+rogues:
+  - x: 2
+    y: 5
+    type: large gas giant
+  - x: 4
+    y: 8
+    type: random
+  - x: 4
+    y: 8
+    type: random
+required:
+  - x: 6
+    y: 3
+    rogues:
+      - type: medium comet
+        name: Wanderer
+        known: true</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Population split</h3>
+
+          <p class='text-fg-muted'>Divide the subsector into two regions with different population constraints, split at row 3. All systems above row 3 will not be populated.</p>
+
+          <pre><code>type: STANDARD
+populated:
+  type: split-horizontal
+  demarcation: 3
+  before:
+    allegiance: null
+  after:
+    minTechLevel: 5
+    maxTechLevel: 12
+    allegiance: ImDr</code></pre>
+        </article>
+
+        <article class='spec-card'>
+          <h3>Kicking off Deepnight</h3>
+
+          <p class='text-fg-muted'>The starting subsector has 2 known systems: Demnan and Garva-411.
+            See <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for
+            the specification for star systems.
+          </p>
+
+          <pre><code>type: SPARSE
+unusualChance: 1
+defaultSI: 3
+systems:
+- x: 1
+  y: 4
+- x: 2
+  y: 1
+- x: 2
+  y: 7
+  surveyIndex: 5
+- x: 2
+  y: 10
+- x: 3
+  y: 3
+- x: 3
+  y: 9
+- x: 4
+  y: 3
+  surveyIndex: 5
+- x: 5
+  y: 2
+- x: 5
+  y: 6
+  known: true
+  name: Garva-411
+  primary:
+    type: NS
+    bodies:
+    - uwp: empty
+    - uwp: empty
+    - uwp: empty
+    - uwp: empty
+    - uwp: empty
+    - uwp: empty
+    - uwp: empty
+    - uwp: X000000-0
+    - uwp: X310000-0
+      mainWorld: true
+    - uwp: small gas giant
+    - uwp: terrestrial
+- x: 7
+  y: 2
+  surveyIndex: 5
+- x: 7
+  y: 4
+  known: true
+  name: Demnan
+  bases:
+  - S
+  - "N"
+  surveyIndex: 10
+  primary:
+    type: F7
+    class: V
+    companion:
+      type: K2
+      class: V
+    bodies:
+    - uwp: terrestrial
+    - uwp: large gas giant
+    - uwp: X000000-0
+    - uwp: E567000-0
+      orbit: habitable
+      mainWorld: true
+    - uwp: X000000-0
+    - uwp: large gas giant
+    - uwp: terrestrial
+    - uwp: small gas giant
+    far:
+      type: G2
+      class: V</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <p class='text-xs uppercase tracking-wide text-fg-muted'>Reference 0421RD</p>
+  </div>
+<% end %>

@@ -1,0 +1,37 @@
+<% allegiance = terrestrial_planet.allegiance %>
+<% parent = terrestrial_planet.orbiting %>
+<% star_system = parent&.star_system %>
+<% parsec = terrestrial_planet.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+<% shadow_km = terrestrial_planet.effective_jump_shadow_km %>
+<% shadow_source = shadow_km&.positive? ? terrestrial_planet.effective_jump_shadow_source : nil %>
+
+<%
+  hierarchy = []
+  hierarchy << [sector.name, sector_path(sector)] if sector
+  hierarchy << [subsector.name, subsector_path(subsector)] if subsector
+  hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
+  hierarchy << [parent.display_name, star_path(parent)] if parent
+
+  moons_count = @pagy&.count || @moons&.size || 0
+  extra_tabs = [
+    { id: 'moons', code: moons_count.to_s, label: 'Moons',
+      partial: 'terrestrial_planets/moons_tab', locals: {} }
+  ]
+%>
+
+<div id="<%= dom_id terrestrial_planet %>" class="space-y-4">
+  <%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
+  <%= render 'stellar_objects/uwp_tabs',
+             stellar_object: terrestrial_planet,
+             parent: parent,
+             parsec: parsec,
+             allegiance: allegiance,
+             shadow_km: shadow_km,
+             shadow_source: shadow_source,
+             extra_tabs: extra_tabs %>
+
+  <%= render 'application/observation_block', notes: terrestrial_planet.notes %>
+</div>

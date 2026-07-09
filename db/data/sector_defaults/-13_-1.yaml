@@ -1,0 +1,55 @@
+name: Alila
+abbreviation: Alila
+X: -13
+Y: -1
+unusualChance: 1
+defaultSI: 3
+subsectors:
+  - name: Alila A
+    type: STANDARD
+    index: A
+  - name: Alila B
+    type: MODERATE
+    index: B
+  - name: Alila C
+    type: MODERATE
+    index: C
+  - name: Alila D
+    type: STANDARD
+    index: D
+  - name: Alila E
+    type: MODERATE
+    index: E
+  - name: Alila F
+    type: MODERATE
+    index: F
+  - name: Alila G
+    type: STANDARD
+    index: G
+  - name: Alila H
+    type: STANDARD
+    index: H
+  - name: Alila I
+    type: MODERATE
+    index: I
+  - name: Alila J
+    type: MODERATE
+    index: J
+  - name: Alila K
+    type: STANDARD
+    index: K
+  - name: Alila L
+    type: STANDARD
+    index: L
+  - name: Alila M
+    type: MODERATE
+    index: M
+  - name: Alila N
+    type: MODERATE
+    index: N
+  - name: Alila O
+    type: LOW
+    index: O
+  - name: Alila P
+    type: MODERATE
+    index: P

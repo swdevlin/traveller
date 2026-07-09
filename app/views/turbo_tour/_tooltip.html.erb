@@ -1,0 +1,47 @@
+<div
+  data-turbo-tour-panel
+  role="dialog"
+  aria-modal="false"
+  tabindex="-1"
+  class="turbo-tour-tooltip"
+>
+  <div class="turbo-tour-tooltip__content">
+    <div class="turbo-tour-tooltip__header">
+      <p data-turbo-tour-progress class="turbo-tour-tooltip__progress"></p>
+      <h2 data-turbo-tour-title class="turbo-tour-tooltip__title"></h2>
+    </div>
+
+    <p data-turbo-tour-body class="turbo-tour-tooltip__body"></p>
+
+    <div class="turbo-tour-tooltip__footer">
+      <div class="turbo-tour-tooltip__actions">
+        <button
+          type="button"
+          data-action="turbo-tour#previous"
+          data-turbo-tour-prev
+          class="turbo-tour-tooltip__button turbo-tour-tooltip__button--secondary"
+        >
+          Prev
+        </button>
+
+        <button
+          type="button"
+          data-action="turbo-tour#next"
+          data-turbo-tour-next
+          class="turbo-tour-tooltip__button turbo-tour-tooltip__button--primary"
+        >
+          Next
+        </button>
+      </div>
+
+      <button
+        type="button"
+        data-action="turbo-tour#skip"
+        data-turbo-tour-skip
+        class="turbo-tour-tooltip__button turbo-tour-tooltip__button--ghost"
+      >
+        Skip
+      </button>
+    </div>
+  </div>
+</div>

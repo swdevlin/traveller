@@ -1,0 +1,128 @@
+journeys:
+  onboarding:
+    - name: sectors_view
+      target: sectors-view
+      title: "Sectors"
+      body: "Sectors in your Traveller universe are displayed here. Click on a sector to view it."
+
+    - name: sectors_toggle
+      target: sectors-toggle
+      title: "Sectors view"
+      body: "Sectors can be displayed in a table or grid view."
+
+    - name: new_sector_blank
+      target: new-sector-blank
+      title: "Create a new sector"
+      body: "Create a blank sector. Use this option if you are homebrewing a sector and do not want any data from Charted Space or from the Deepnight Revelation campaign."
+
+    - name: new_sector_import
+      target: new-sector-import
+      title: "Import a new import"
+      body: "Create a blank sector by importing data from charted space (from TravellerMap) or from the Deepnight Revelation campaign."
+
+    - name: nav_search
+      target: nav-search
+      title: "Search"
+      body: "Search for planets, subsectors, or sectors"
+
+    - name: nav_astrogation
+      target: nav-astrogation
+      title: "Sectors"
+      body: "Display the sectors"
+
+    - name: nav_jumps
+      target: nav-jumps
+      title: "Jumps"
+      body: "Use Jumps to track your player's jumps. Jumps are displayed on the maps."
+
+    - name: nav_starmap
+      target: nav-starmap
+      title: "Starmap"
+      body: "Starmap displays a full starmap, similar to TravellerMap. Players can access the map URL. For exploration campaigns, you can limit the data displayed to players via the survey index of systems."
+
+    - name: nav_route
+      target: nav-route
+      title: "Route"
+      body: "Plot a route between two systems. Routes can be saved and rendered on maps."
+
+    - name: nav_reference
+      target: nav-reference
+      title: "Reference"
+      body: "Display a partial index of Traveller books. Very much a work in progress."
+
+    - name: nav_encyclopedia
+      target: nav-encyclopedia
+      title: "Traveller Wiki"
+      body: "Jump to the Traveller wiki."
+
+    - name: nav_charted_space
+      target: nav-charted-space
+      title: "Traveller Map"
+      body: "Jump to TravellerMap. If you are viewing a sector that is in charted space, traveller map will be centered on the sector."
+
+    - name: nav_campaign
+      target: nav-campaign
+      title: "Campaign settings"
+      body: "One of the first things you should do is set up your campaign settings. You can also configure global data such as allegiances, bases, regions."
+
+    - name: nav_theme
+      target: nav-theme
+      title: "Theme"
+      body: "Choose your UI theme. Maybe the most important setting of all."
+
+  sector_new:
+    - name: sector_name
+      target: sector-name
+      title: "Sector designation"
+      body: "Use the dice button to generate a random name. Use the language button to choose the language used for name generation."
+
+    - name: sector_coordinates
+      target: sector-coordinates
+      title: "Imperial coordinates"
+      body: "The sector's position in the Imperial grid. X increases coreward, Y increases spinward. Each sector occupies a unique position."
+
+    - name: sector_settled
+      target: sector-settled
+      title: "Settled space"
+      body: "Enable this for a sector in known space. The build specification will include a populated section to indicate that the sebsectors are settled and the survey index will be 10 so the players will have access to the data. For exploration regions, you can set this to false and the survey index will be 3 and the default is not populated."
+
+    - name: sector_build_plan
+      target: sector-build-plan
+      title: "Default build plan"
+      body: "The build specification applied to every subsector when the sector is created. Toggling settled space updates this automatically, but you can edit it directly. See the build specification reference for the full schema."
+
+  sectors:
+    - name: sector_coordinates
+      target: sector-coordinates
+      title: "Coordinates"
+      body: "Every sector has an X and Y coordinate. These are used to position the sectors in space."
+
+    - name: public_map_link
+      target: public-map-link
+      title: "Public Map"
+      body: "Copy a URL to the sector map. The URL can be accessed even if the viewer is not logged in. Use this for embedding maps in external systems, such as Obsidian or your own website."
+
+    - name: sector_map
+      target: sector-map
+      title: "Sector Map"
+      body: "Open the sector map in a new browser tab. The map is interactive. Click on a system to view its details."
+
+    - name: sector_poster
+      target: sector-poster
+      title: "Poster"
+      body: "Generate a poster map PDF for the sector. This is suitable for sending to a print shop."
+
+    - name: sector_populate
+      target: sector-populate
+      title: "Populate"
+      body: "Generate star systems for the sector using the rules in the World Builder's Handbook. Any existing data will be replaced."
+
+    - name: sector_clear
+      target: sector-clear
+      title: "Clear"
+      body: "Use this button to clear out all generated data and start again. The sector and its subsectors are retained."
+
+    - name: sector_delete
+      target: sector-delete
+      title: "Delete"
+      body: "Delete the sector and its associated data."
