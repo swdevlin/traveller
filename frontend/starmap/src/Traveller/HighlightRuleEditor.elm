@@ -13,12 +13,14 @@ import Traveller.ToggleSwitch as ToggleSwitch
 
 
 type alias Model =
-    { draft : Rule }
+    { draft : Rule
+    , openPicker : Maybe ( Int, Int )
+    }
 
 
 init : Rule -> Model
 init rule =
-    { draft = rule }
+    { draft = rule, openPicker = Nothing }
 
 
 type Msg
@@ -38,6 +40,8 @@ type Msg
     | SetBetweenValue Int Int Bool String
     | ToggleOneOfValue Int Int String
     | SetNegate Int Int Bool
+    | ToggleValuePicker Int Int
+    | CloseValuePicker
 
 
 
@@ -82,7 +86,7 @@ update facilities msg model =
                 model
 
             else
-                { model | draft = { draft | groups = List.Extra.removeAt groupIdx draft.groups } }
+                { model | draft = { draft | groups = List.Extra.removeAt groupIdx draft.groups }, openPicker = Nothing }
 
         AddCondition groupIdx ->
             { model | draft = { draft | groups = updateGroupAt groupIdx (\g -> g ++ [ HighlightRule.newCondition HighlightRule.Starport ]) draft.groups } }
@@ -102,6 +106,7 @@ update facilities msg model =
                                 )
                                 draft.groups
                     }
+                , openPicker = Nothing
             }
 
         SetField groupIdx condIdx field ->
@@ -117,6 +122,7 @@ update facilities msg model =
                             { c | field = field, operator = operator, values = defaultValuesForOperator facilities field operator }
                         )
                         draft
+                , openPicker = Nothing
             }
 
         SetOperator groupIdx condIdx operator ->
@@ -126,6 +132,7 @@ update facilities msg model =
                         condIdx
                         (\c -> { c | operator = operator, values = defaultValuesForOperator facilities c.field operator })
                         draft
+                , openPicker = Nothing
             }
 
         SetSingleValue groupIdx condIdx value ->
@@ -171,6 +178,19 @@ update facilities msg model =
 
         SetNegate groupIdx condIdx negate ->
             { model | draft = updateConditionAt groupIdx condIdx (\c -> { c | negate = negate }) draft }
+
+        ToggleValuePicker groupIdx condIdx ->
+            { model
+                | openPicker =
+                    if model.openPicker == Just ( groupIdx, condIdx ) then
+                        Nothing
+
+                    else
+                        Just ( groupIdx, condIdx )
+            }
+
+        CloseValuePicker ->
+            { model | openPicker = Nothing }
 
 
 defaultValuesForOperator : List HighlightRule.FacilityOption -> Field -> Operator -> List String
@@ -302,7 +322,7 @@ viewHtml facilities model =
                 , HtmlAttrs.style "flex-direction" "column"
                 , HtmlAttrs.style "gap" "10px"
                 ]
-                (groupViews facilities draft.groups)
+                (groupViews facilities model.openPicker draft.groups)
             , linkButton AddGroup "+ Add OR group"
             , actionsRow
             ]
@@ -360,8 +380,8 @@ colourAndEnabledRow colour enabled =
         ]
 
 
-groupViews : List HighlightRule.FacilityOption -> List Group -> List (Html Msg)
-groupViews facilities groups =
+groupViews : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> List Group -> List (Html Msg)
+groupViews facilities openPicker groups =
     groups
         |> List.indexedMap (\i g -> ( i, g ))
         |> List.concatMap
@@ -372,12 +392,12 @@ groupViews facilities groups =
                  else
                     []
                 )
-                    ++ [ groupView facilities groupIdx group ]
+                    ++ [ groupView facilities openPicker groupIdx group ]
             )
 
 
-groupView : List HighlightRule.FacilityOption -> Int -> Group -> Html Msg
-groupView facilities groupIdx group =
+groupView : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> Int -> Group -> Html Msg
+groupView facilities openPicker groupIdx group =
     Html.div
         [ HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-direction" "column"
@@ -386,7 +406,7 @@ groupView facilities groupIdx group =
         , HtmlAttrs.style "border" "1px solid color-mix(in srgb, var(--color-outline) 20%, transparent)"
         , HtmlAttrs.style "border-radius" "4px"
         ]
-        (List.indexedMap (conditionRow facilities groupIdx) group
+        (List.indexedMap (conditionRow facilities openPicker groupIdx) group
             ++ [ Html.div [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "gap" "16px" ]
                     [ linkButton (AddCondition groupIdx) "+ Add AND condition"
                     , linkButton (RemoveGroup groupIdx) "Remove group"
@@ -408,8 +428,8 @@ linkButton msg label =
         [ Html.text label ]
 
 
-conditionRow : List HighlightRule.FacilityOption -> Int -> Int -> Condition -> Html Msg
-conditionRow facilities groupIdx condIdx condition =
+conditionRow : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> Int -> Int -> Condition -> Html Msg
+conditionRow facilities openPicker groupIdx condIdx condition =
     Html.div
         [ HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-wrap" "wrap"
@@ -425,7 +445,7 @@ conditionRow facilities groupIdx condIdx condition =
             (\label -> SetOperator groupIdx condIdx (operatorFromLabel condition.field label))
             (HighlightRule.operatorLabel condition.operator)
             (HighlightRule.operatorsFor condition.field |> List.map (\op -> ( HighlightRule.operatorLabel op, HighlightRule.operatorLabel op )))
-        , valuePicker facilities groupIdx condIdx condition
+        , valuePicker facilities (openPicker == Just ( groupIdx, condIdx )) groupIdx condIdx condition
         , Html.button
             [ HtmlAttrs.type_ "button"
             , HtmlEvents.onClick (RemoveCondition groupIdx condIdx)
@@ -467,8 +487,8 @@ htmlSelect toMsg selected options =
         )
 
 
-valuePicker : List HighlightRule.FacilityOption -> Int -> Int -> Condition -> Html Msg
-valuePicker facilities groupIdx condIdx condition =
+valuePicker : List HighlightRule.FacilityOption -> Bool -> Int -> Int -> Condition -> Html Msg
+valuePicker facilities isOpen groupIdx condIdx condition =
     let
         options =
             case condition.field of
@@ -492,10 +512,10 @@ valuePicker facilities groupIdx condIdx condition =
                     Html.text ""
 
         HighlightRule.OneOf ->
-            oneOfPicker groupIdx condIdx condition options
+            checklistDropdown isOpen groupIdx condIdx condition options
 
         HighlightRule.HasOneOf ->
-            checklistPicker groupIdx condIdx condition options
+            checklistDropdown isOpen groupIdx condIdx condition options
 
         _ ->
             htmlSelect
@@ -504,90 +524,128 @@ valuePicker facilities groupIdx condIdx condition =
                 (options |> List.map (\o -> ( o.code, o.label )))
 
 
-oneOfPicker : Int -> Int -> Condition -> List { code : String, label : String } -> Html Msg
-oneOfPicker groupIdx condIdx condition options =
-    Html.div [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "flex-wrap" "wrap", HtmlAttrs.style "gap" "6px" ]
-        (options
-            |> List.map
-                (\o ->
-                    let
-                        selected =
-                            List.member o.code condition.values
-                    in
-                    Html.button
-                        [ HtmlAttrs.type_ "button"
-                        , HtmlEvents.onClick (ToggleOneOfValue groupIdx condIdx o.code)
-                        , HtmlAttrs.class
-                            ("text-xs rounded-full px-2 py-0.5 border cursor-pointer "
+{-| A closed-by-default dropdown for "one of" / "has one of" against a field
+with potentially dozens of options (e.g. Bases). Showing every checklist
+open at once (one per condition) made the dialog grow tall fast, so instead
+this renders as a single summary button - like `htmlSelect`'s dropdown -
+that expands into the scrollable checklist only while open. `Model.openPicker`
+tracks at most one open picker at a time, keyed by `(groupIdx, condIdx)`, so
+opening one closes any other.
+
+A native `<select multiple>` was avoided as it needs ctrl/cmd-click and a
+fragile `HTMLOptionsCollection` decoder to read back the selection.
+
+The invisible full-screen catcher closes the popup on an outside click. It
+sits after the popup in the same wrapper (a sibling, not an ancestor), so
+clicks inside the popup never bubble into it and don't need
+`stopPropagationOn`.
+-}
+checklistDropdown : Bool -> Int -> Int -> Condition -> List { code : String, label : String } -> Html Msg
+checklistDropdown isOpen groupIdx condIdx condition options =
+    let
+        selectedLabels =
+            options |> List.filter (\o -> List.member o.code condition.values) |> List.map .label
+
+        summary =
+            case selectedLabels of
+                [] ->
+                    "Select…"
+
+                [ only ] ->
+                    only
+
+                [ a, b ] ->
+                    a ++ ", " ++ b
+
+                _ ->
+                    String.fromInt (List.length selectedLabels) ++ " selected"
+    in
+    Html.div [ HtmlAttrs.style "position" "relative" ]
+        ([ Html.button
+            [ HtmlAttrs.type_ "button"
+            , HtmlEvents.onClick (ToggleValuePicker groupIdx condIdx)
+            , HtmlAttrs.class "edit-base text-xs py-1 cursor-pointer flex items-center gap-2"
+            , HtmlAttrs.style "min-width" "160px"
+            ]
+            [ Html.span
+                [ HtmlAttrs.style "flex" "1"
+                , HtmlAttrs.style "overflow" "hidden"
+                , HtmlAttrs.style "text-overflow" "ellipsis"
+                , HtmlAttrs.style "white-space" "nowrap"
+                , HtmlAttrs.style "text-align" "left"
+                ]
+                [ Html.text summary ]
+            , Html.i [ HtmlAttrs.class "fa-solid fa-caret-down text-fg-muted", HtmlAttrs.style "font-size" "10px" ] []
+            ]
+         ]
+            ++ (if isOpen then
+                    [ Html.div
+                        [ HtmlAttrs.style "position" "fixed"
+                        , HtmlAttrs.style "inset" "0"
+                        , HtmlAttrs.style "z-index" "60"
+                        , HtmlEvents.onClick CloseValuePicker
+                        ]
+                        []
+                    , Html.div
+                        [ HtmlAttrs.class "starmap-glass-panel"
+                        , HtmlAttrs.style "position" "absolute"
+                        , HtmlAttrs.style "top" "100%"
+                        , HtmlAttrs.style "left" "0"
+                        , HtmlAttrs.style "margin-top" "4px"
+                        , HtmlAttrs.style "z-index" "61"
+                        , HtmlAttrs.style "display" "flex"
+                        , HtmlAttrs.style "flex-direction" "column"
+                        , HtmlAttrs.style "max-height" "180px"
+                        , HtmlAttrs.style "overflow-y" "auto"
+                        , HtmlAttrs.style "min-width" "160px"
+                        , HtmlAttrs.style "border-radius" "4px"
+                        , HtmlAttrs.style "padding" "4px"
+                        ]
+                        (checklistRows groupIdx condIdx condition options)
+                    ]
+
+                else
+                    []
+               )
+        )
+
+
+checklistRows : Int -> Int -> Condition -> List { code : String, label : String } -> List (Html Msg)
+checklistRows groupIdx condIdx condition options =
+    options
+        |> List.map
+            (\o ->
+                let
+                    selected =
+                        List.member o.code condition.values
+                in
+                Html.label
+                    [ HtmlAttrs.class "flex items-center gap-2 text-xs text-fg cursor-pointer select-none"
+                    , HtmlAttrs.style "padding" "3px 4px"
+                    , HtmlEvents.onClick (ToggleOneOfValue groupIdx condIdx o.code)
+                    ]
+                    [ Html.span
+                        [ HtmlAttrs.class
+                            ("flex items-center justify-center rounded border flex-shrink-0 "
                                 ++ (if selected then
-                                        "bg-highlight text-bg border-highlight"
+                                        "bg-highlight border-highlight"
 
                                     else
-                                        "bg-panel-muted text-fg border-outline"
+                                        "border-outline"
                                    )
                             )
+                        , HtmlAttrs.style "width" "14px"
+                        , HtmlAttrs.style "height" "14px"
                         ]
-                        [ Html.text o.label ]
-                )
-        )
+                        [ if selected then
+                            Html.i [ HtmlAttrs.class "fa-solid fa-check", HtmlAttrs.style "font-size" "9px", HtmlAttrs.style "color" "var(--color-bg)" ] []
 
-
-{-| A scrollable checklist for "has one of" against a field with potentially
-dozens of options (e.g. Bases) - the box is sized like `htmlSelect`'s single
-dropdown, but lists every option with its own checkbox rather than
-collapsing them, so it scales far better than `oneOfPicker`'s wrapped pills
-without relying on a native `<select multiple>` (which needs ctrl/cmd-click
-and a fragile `HTMLOptionsCollection` decoder). Each row toggles via the
-same `ToggleOneOfValue` message `oneOfPicker` uses. The checkbox itself is a
-custom icon-in-a-box, not a native `<input type="checkbox">` - the app's
-one native checkbox turned out to render invisibly against this theme, so
-every other boolean control here already avoids that element entirely.
--}
-checklistPicker : Int -> Int -> Condition -> List { code : String, label : String } -> Html Msg
-checklistPicker groupIdx condIdx condition options =
-    Html.div
-        [ HtmlAttrs.class "edit-base text-xs py-1"
-        , HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "flex-direction" "column"
-        , HtmlAttrs.style "max-height" "180px"
-        , HtmlAttrs.style "overflow-y" "auto"
-        , HtmlAttrs.style "min-width" "160px"
-        ]
-        (options
-            |> List.map
-                (\o ->
-                    let
-                        selected =
-                            List.member o.code condition.values
-                    in
-                    Html.label
-                        [ HtmlAttrs.class "flex items-center gap-2 text-xs text-fg cursor-pointer select-none"
-                        , HtmlAttrs.style "padding" "3px 4px"
-                        , HtmlEvents.onClick (ToggleOneOfValue groupIdx condIdx o.code)
+                          else
+                            Html.text ""
                         ]
-                        [ Html.span
-                            [ HtmlAttrs.class
-                                ("flex items-center justify-center rounded border flex-shrink-0 "
-                                    ++ (if selected then
-                                            "bg-highlight border-highlight"
-
-                                        else
-                                            "border-outline"
-                                       )
-                                )
-                            , HtmlAttrs.style "width" "14px"
-                            , HtmlAttrs.style "height" "14px"
-                            ]
-                            [ if selected then
-                                Html.i [ HtmlAttrs.class "fa-solid fa-check", HtmlAttrs.style "font-size" "9px", HtmlAttrs.style "color" "var(--color-bg)" ] []
-
-                              else
-                                Html.text ""
-                            ]
-                        , Html.text o.label
-                        ]
-                )
-        )
+                    , Html.text o.label
+                    ]
+            )
 
 
 actionsRow : Html Msg
