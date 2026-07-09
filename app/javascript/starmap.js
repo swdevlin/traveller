@@ -19,6 +19,7 @@ document.addEventListener('turbo:load', () => {
   const sectorLinesKey = `showSectorLines_${slug}`
   const subsectorLinesKey = `showSubsectorLines_${slug}`
   const backgroundNamesKey = `showBackgroundNames_${slug}`
+  const highlightRulesKey = `highlightRules_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const panOffset = JSON.parse(localStorage.getItem(panOffsetKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
@@ -29,6 +30,7 @@ document.addEventListener('turbo:load', () => {
   const showSectorLines = JSON.parse(localStorage.getItem(sectorLinesKey) ?? 'null')
   const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
   const showBackgroundNames = JSON.parse(localStorage.getItem(backgroundNamesKey) ?? 'null')
+  const highlightRules = JSON.parse(localStorage.getItem(highlightRulesKey) ?? '[]')
 
   const elm = window.Elm.Main.init({
     node,
@@ -43,6 +45,7 @@ document.addEventListener('turbo:load', () => {
       showSectorLines,
       showSubsectorLines,
       showBackgroundNames,
+      highlightRules,
       centerOn: null,
       ...serverFlags
     }
@@ -105,6 +108,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeBackgroundNames) {
     elm.ports.storeBackgroundNames.subscribe(value => {
       localStorage.setItem(backgroundNamesKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeHighlightRules) {
+    elm.ports.storeHighlightRules.subscribe(value => {
+      localStorage.setItem(highlightRulesKey, JSON.stringify(value))
     })
   }
 

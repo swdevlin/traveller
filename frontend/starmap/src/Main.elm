@@ -8,6 +8,7 @@ import Element
 import HostConfig
 import Html exposing (Html, a, div, text)
 import Html.Attributes exposing (class, href)
+import Json.Decode
 import Task
 import Traveller
 import Traveller.Ship exposing (Ship)
@@ -67,6 +68,7 @@ type alias Flags =
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
     , facilityIcons : List Traveller.FacilityIcon
+    , facilities : List { code : String, name : String }
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -76,6 +78,7 @@ type alias Flags =
     , theme : String
     , themeIsLight : Bool
     , themeOptions : List Traveller.ThemeOption
+    , highlightRules : Json.Decode.Value
     }
 
 
@@ -197,6 +200,7 @@ update msg model =
                                 , centerOn = model.flags.centerOn
                                 , rogueObjectPathData = model.flags.rogueObjectPathData
                                 , facilityIcons = model.flags.facilityIcons
+                                , facilities = model.flags.facilities
                                 , shipLocation = model.flags.shipLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay
@@ -206,6 +210,7 @@ update msg model =
                                 , theme = model.flags.theme
                                 , themeIsLight = model.flags.themeIsLight
                                 , themeOptions = model.flags.themeOptions
+                                , highlightRules = model.flags.highlightRules
                                 }
                                 model.key
                                 model.hostConfig

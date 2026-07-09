@@ -49,6 +49,7 @@ import Traveller.StellarObjectView
         , convertColor
         )
 import Traveller.TechLevel as TechLevel
+import Traveller.ToggleSwitch as ToggleSwitch
 import Traveller.UI
     exposing
         ( fontVar
@@ -342,40 +343,7 @@ viewSurveyControls msgs isReferee solarSystem =
                 , Html.div [ HtmlAttrs.class "min-w-0" ]
                     [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Known" ]
                     , Html.div [ HtmlAttrs.class "mt-2 flex items-center gap-3" ]
-                        [ Html.button
-                            [ HtmlAttrs.type_ "button"
-                            , HtmlAttrs.attribute "role" "switch"
-                            , HtmlAttrs.attribute "aria-checked"
-                                (if solarSystem.known then
-                                    "true"
-
-                                 else
-                                    "false"
-                                )
-                            , HtmlAttrs.class
-                                ("relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none "
-                                    ++ (if solarSystem.known then
-                                            "bg-toggle-on"
-
-                                        else
-                                            "bg-toggle-off"
-                                       )
-                                )
-                            , Html.Events.onClick (msgs.setKnown (not solarSystem.known))
-                            ]
-                            [ Html.span
-                                [ HtmlAttrs.class
-                                    ("pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out "
-                                        ++ (if solarSystem.known then
-                                                "translate-x-5 bg-toggle-knob-on"
-
-                                            else
-                                                "translate-x-0 bg-toggle-knob-off"
-                                           )
-                                    )
-                                ]
-                                []
-                            ]
+                        [ ToggleSwitch.view ToggleSwitch.Regular solarSystem.known (Html.Events.onClick (msgs.setKnown (not solarSystem.known)))
                         ]
                     ]
                 ]

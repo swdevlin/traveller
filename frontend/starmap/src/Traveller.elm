@@ -38,6 +38,7 @@ import Html.Lazy
 import Http
 import Json.Decode as JsDecode
 import Json.Encode as Encode
+import List.Extra
 import Parser
 import RemoteData exposing (RemoteData(..))
 import Result.Extra as Result
@@ -80,6 +81,9 @@ import Traveller.HexGeometry
         , rotatePoint
         , scaleAttr
         )
+import Traveller.HighlightRule as HighlightRule
+import Traveller.HighlightRuleEditor as HighlightRuleEditor
+import Traveller.ToggleSwitch as ToggleSwitch
 import Traveller.Hydrographics exposing (hydrographicsPercentageDescription, surfaceDistributionDescription)
 import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
@@ -673,6 +677,7 @@ type alias ModelData =
     , jumpRouteLinks : List JumpRouteLink
     , rogueObjectPathData : Maybe String
     , facilityIcons : Dict.Dict String FacilityIcon
+    , facilities : List HighlightRule.FacilityOption
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
@@ -684,6 +689,11 @@ type alias ModelData =
     , themeIsLight : Bool
     , themeOptions : List ThemeOption
     , showThemeMenu : Bool
+    , highlightRules : List HighlightRule.Rule
+    , showHighlightRulesMenu : Bool
+    , ruleEditor : Maybe HighlightRuleEditor.Model
+    , nextRuleId : Int
+    , pendingDeleteRuleId : Maybe String
     }
 
 
@@ -760,6 +770,16 @@ type Msg
     | CloseSearchDropdown
     | SelectTheme String
     | ToggleThemeMenu
+    | ToggleHighlightRulesMenu
+    | ToggleRuleEnabled String
+    | StartNewRule
+    | StartEditRule String
+    | RequestDeleteRule String
+    | CancelDeleteRule
+    | DeleteRule String
+    | MoveRuleUp String
+    | MoveRuleDown String
+    | HighlightRuleEditorMsg HighlightRuleEditor.Msg
     | GoToRailsApp
     | GotSubsectorLookupUrl (Result Http.Error String)
 
@@ -866,6 +886,11 @@ subscriptions time model =
 
           else
             Sub.none
+        , if model.showHighlightRulesMenu then
+            Browser.Events.onClick highlightRulesMenuOutsideClickDecoder
+
+          else
+            Sub.none
         ]
 
 
@@ -883,6 +908,22 @@ themeMenuOutsideClickDecoder =
 
                 else
                     JsDecode.fail "click was inside the theme menu"
+            )
+
+
+{-| Fires `ToggleHighlightRulesMenu` when a click lands outside the highlight
+rules toggle button or its dropdown.
+-}
+highlightRulesMenuOutsideClickDecoder : JsDecode.Decoder Msg
+highlightRulesMenuOutsideClickDecoder =
+    JsDecode.field "target" (isOutsideIds [ "starmap-highlight-toggle", "starmap-highlight-menu" ])
+        |> JsDecode.andThen
+            (\isOutside ->
+                if isOutside then
+                    JsDecode.succeed ToggleHighlightRulesMenu
+
+                else
+                    JsDecode.fail "click was inside the highlight rules menu"
             )
 
 
@@ -925,6 +966,7 @@ type alias Flags =
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
     , facilityIcons : List FacilityIcon
+    , facilities : List HighlightRule.FacilityOption
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -934,6 +976,7 @@ type alias Flags =
     , theme : String
     , themeIsLight : Bool
     , themeOptions : List ThemeOption
+    , highlightRules : JsDecode.Value
     }
 
 
@@ -1154,6 +1197,10 @@ init viewport settings key hostConfig referee =
         initialShowBackgroundNames =
             settings.showBackgroundNames |> Maybe.withDefault False
 
+        initialHighlightRules =
+            Codec.decodeValue HighlightRule.rulesCodec settings.highlightRules
+                |> Result.withDefault []
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
@@ -1210,11 +1257,17 @@ init viewport settings key hostConfig referee =
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
             , facilityIcons = settings.facilityIcons |> List.map (\icon -> ( icon.code, icon )) |> Dict.fromList
+            , facilities = settings.facilities |> List.sortBy .name
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             , theme = settings.theme
             , themeIsLight = settings.themeIsLight
             , themeOptions = settings.themeOptions
             , showThemeMenu = False
+            , highlightRules = initialHighlightRules
+            , showHighlightRulesMenu = False
+            , ruleEditor = Nothing
+            , nextRuleId = 1
+            , pendingDeleteRuleId = Nothing
             }
     in
     ( ( Time.millisToPosix 0
@@ -3042,7 +3095,7 @@ hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict nati
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool, highlightRules : List HighlightRule.Rule }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -3055,7 +3108,7 @@ viewHexes :
     -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -3120,6 +3173,26 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
 
                             Nothing ->
                                 hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+
+        -- Survey Overlay's rule-highlight colour, rendered as its own SVG layer
+        -- above the background-name watermark (see `keyedRuleOverlays`) rather
+        -- than folded into `computeHexColour`'s base fill, so the highlight
+        -- colour isn't obscured by the subsector/sector name text.
+        ruleOverlayFill : String -> Maybe String
+        ruleOverlayFill hexKey =
+            HighlightRule.matchColour highlightRules
+                (Dict.get hexKey solarSystemDict
+                    |> Maybe.andThen
+                        (\remote ->
+                            case remote of
+                                LoadedSolarSystem system ->
+                                    Just system
+
+                                _ ->
+                                    Nothing
+                        )
+                )
+                |> Maybe.map Color.Convert.colorToHex
 
         viewSingleHex hexAddr =
             let
@@ -3240,6 +3313,37 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     ( HexAddress.toKey hexAddr
                                     , Svg.Lazy.lazy renderHexBorderStroke hexapointsStr
                                     )
+                                )
+                            |> Svg.Keyed.node "g" [ SvgAttrs.pointerEvents "none" ]
+
+                    keyedRuleOverlays : Svg Msg
+                    keyedRuleOverlays =
+                        hexRange
+                            |> List.filterMap
+                                (\hexAddr ->
+                                    let
+                                        hexKey =
+                                            HexAddress.toKey hexAddr
+                                    in
+                                    ruleOverlayFill hexKey
+                                        |> Maybe.map
+                                            (\fillColour ->
+                                                let
+                                                    ( vox, voy ) =
+                                                        calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+
+                                                    hexapointsStr =
+                                                        convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+                                                in
+                                                ( hexKey
+                                                , Svg.polygon
+                                                    [ SvgAttrs.points hexapointsStr
+                                                    , SvgAttrs.fill fillColour
+                                                    , SvgAttrs.pointerEvents "none"
+                                                    ]
+                                                    []
+                                                )
+                                            )
                                 )
                             |> Svg.Keyed.node "g" [ SvgAttrs.pointerEvents "none" ]
 
@@ -3523,6 +3627,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 ]
                     ++ [ keyedHexBackgrounds ]
                     ++ backgroundNameLabels
+                    ++ [ keyedRuleOverlays ]
                     ++ [ keyedHexBorders ]
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
@@ -3738,17 +3843,11 @@ errorDialog httpErrors =
         ]
 
 
-renderFAIcon : String -> Int -> Element.Element Msg
-renderFAIcon icon size =
-    Element.el
-        [ Element.width (Element.px size)
-        , Element.height (Element.px size)
-        ]
-    <|
-        Element.html <|
-            Html.i
-                [ HtmlAttrs.style "font-size" (String.fromInt size ++ "px"), HtmlAttrs.class icon ]
-                []
+faIcon : String -> Int -> Html Msg
+faIcon icon size =
+    Html.i
+        [ HtmlAttrs.style "font-size" (String.fromInt size ++ "px"), HtmlAttrs.class icon ]
+        []
 
 
 type alias HexRect =
@@ -3954,124 +4053,145 @@ searchNavigation result model =
             Maybe.map2 (\x y -> ( { x = x, y = y }, Nothing )) result.x result.y
 
 
-viewSearchField : ModelData -> List (Element.Element Msg)
+viewSearchField : ModelData -> List (Html Msg)
 viewSearchField model =
     if model.viewMode /= HexMap then
         []
 
     else
-        [ el
-            [ Element.below
-                (if model.searchState.dropdownOpen then
-                    viewSearchDropdown model.searchState
-
-                 else
-                    Element.none
-                )
+        [ Html.div
+            [ HtmlAttrs.id "starmap-search"
+            , HtmlAttrs.style "position" "relative"
             ]
-            (Input.text
-                [ Element.width (Element.px 220)
-                , Font.size 13
-                , fontVar "--color-fg-bright"
-                , bgVar "--color-panel"
-                , borderVar "--color-outline"
-                , Border.width 1
-                , Border.rounded 4
-                , Element.padding 6
-                , Element.htmlAttribute (HtmlAttrs.id "starmap-search")
-                , Element.htmlAttribute
-                    (Html.Events.stopPropagationOn "keydown"
-                        (JsDecode.field "key" JsDecode.string
-                            |> JsDecode.map
-                                (\k ->
-                                    if k == "Escape" then
-                                        ( CloseSearchDropdown, True )
+            [ Html.input
+                [ HtmlAttrs.type_ "text"
+                , HtmlAttrs.value model.searchState.query
+                , HtmlAttrs.placeholder "Search… [/]"
+                , HtmlAttrs.style "width" "220px"
+                , HtmlAttrs.style "font-size" "13px"
+                , HtmlAttrs.style "color" "var(--color-fg-bright)"
+                , HtmlAttrs.style "background-color" "var(--color-panel)"
+                , HtmlAttrs.style "border" "1px solid var(--color-outline)"
+                , HtmlAttrs.style "border-radius" "4px"
+                , HtmlAttrs.style "padding" "6px"
+                , Html.Events.onInput SearchInput
+                , Html.Events.stopPropagationOn "keydown"
+                    (JsDecode.field "key" JsDecode.string
+                        |> JsDecode.map
+                            (\k ->
+                                if k == "Escape" then
+                                    ( CloseSearchDropdown, True )
 
-                                    else
-                                        ( NoOpMsg, True )
-                                )
-                        )
+                                else
+                                    ( NoOpMsg, True )
+                            )
                     )
                 ]
-                { onChange = SearchInput
-                , text = model.searchState.query
-                , placeholder =
-                    Just
-                        (Input.placeholder
-                            [ fontVar "--color-fg-muted"
-                            , Font.size 12
-                            ]
-                            (text "Search… [/]")
-                        )
-                , label = Input.labelHidden "Search starmap"
-                }
-            )
+                []
+            , if model.searchState.dropdownOpen then
+                viewSearchDropdown model.searchState
+
+              else
+                Html.text ""
+            ]
         ]
 
 
-viewSearchDropdown : SearchState -> Element.Element Msg
+viewSearchDropdown : SearchState -> Html Msg
 viewSearchDropdown searchState =
-    el
-        [ Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
-        , Border.rounded 4
-        , Element.width (Element.px 340)
-        , Element.padding 4
-        , Element.htmlAttribute (HtmlAttrs.style "z-index" "100")
+    Html.div
+        [ HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "100%"
+        , HtmlAttrs.style "left" "0"
+        , HtmlAttrs.style "margin-top" "4px"
+        , HtmlAttrs.style "border-radius" "4px"
+        , HtmlAttrs.style "width" "340px"
+        , HtmlAttrs.style "padding" "4px"
+        , HtmlAttrs.style "z-index" "100"
         ]
-        (case searchState.results of
+        [ case searchState.results of
             RemoteData.Loading ->
-                el [ Font.size 12, fontVar "--color-fg-muted", Element.padding 8 ]
-                    (text "Searching…")
+                Html.div
+                    [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "padding" "8px" ]
+                    [ Html.text "Searching…" ]
 
             RemoteData.Success [] ->
-                el [ Font.size 12, fontVar "--color-fg-muted", Element.padding 8 ]
-                    (text "No matches")
+                Html.div
+                    [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "padding" "8px" ]
+                    [ Html.text "No matches" ]
 
             RemoteData.Success results ->
-                column [ Element.width Element.fill, Element.spacing 2 ]
+                Html.div
+                    [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "flex-direction" "column", HtmlAttrs.style "gap" "2px" ]
                     (List.map viewSearchResultRow results)
 
             RemoteData.Failure _ ->
-                el [ Font.size 12, Element.htmlAttribute (HtmlAttrs.style "color" "var(--color-danger)"), Element.padding 8 ]
-                    (text "Search failed")
+                Html.div
+                    [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-danger)", HtmlAttrs.style "padding" "8px" ]
+                    [ Html.text "Search failed" ]
 
             RemoteData.NotAsked ->
-                Element.none
-        )
+                Html.text ""
+        ]
 
 
-viewSearchResultRow : SearchResult -> Element.Element Msg
+viewSearchResultRow : SearchResult -> Html Msg
 viewSearchResultRow result =
-    column
-        [ Element.width Element.fill
-        , Element.padding 8
-        , Element.spacing 3
-        , Element.pointer
-        , Element.htmlAttribute (Html.Events.onMouseDown (SelectSearchResult result))
-        , Element.htmlAttribute (HtmlAttrs.class "starmap-search-result")
-        , Border.rounded 3
+    Html.div
+        [ HtmlAttrs.style "padding" "8px"
+        , HtmlAttrs.style "cursor" "pointer"
+        , HtmlAttrs.style "border-radius" "3px"
+        , HtmlAttrs.class "starmap-search-result"
+        , Html.Events.onMouseDown (SelectSearchResult result)
         ]
-        [ row [ Element.width Element.fill, Element.spacing 8 ]
-            [ el
-                [ Font.size 14
-                , fontVar "--color-fg-bright"
-                , Element.width Element.fill
-                ]
-                (text result.name)
-            , el
-                [ Font.size 10
-                , fontVar "--color-fg-muted"
-                , Element.alignRight
-                ]
-                (text (String.toUpper result.displayType))
+        [ Html.div [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "align-items" "center", HtmlAttrs.style "gap" "8px" ]
+            [ Html.span
+                [ HtmlAttrs.style "font-size" "14px", HtmlAttrs.style "color" "var(--color-fg-bright)", HtmlAttrs.style "flex" "1" ]
+                [ Html.text result.name ]
+            , Html.span
+                [ HtmlAttrs.style "font-size" "10px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+                [ Html.text (String.toUpper result.displayType) ]
             ]
-        , el [ Font.size 12, fontVar "--color-fg-muted" ]
-            (text result.meta)
+        , Html.div
+            [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "margin-top" "3px" ]
+            [ Html.text result.meta ]
         ]
 
 
+{-| Built as a raw `Html` tree rather than elm-ui, for the same reason as
+`HighlightRuleEditor.view` and `viewHighlightRulesMenuHtml`: elm-ui's layout
+doesn't cooperate reliably with native controls (the search `<input>`) or
+with the CSS `gap`-based spacing this row needs. The status bar is the
+primary interaction surface on the starmap, so it's the natural next piece to
+migrate as part of the ongoing move off elm-ui.
+-}
 viewStatusRow : ModelData -> Element.Element Msg
 viewStatusRow model =
+    Element.html (viewStatusRowHtml model)
+
+
+navIconColour : String
+navIconColour =
+    "var(--color-button-primary)"
+
+
+navIcon : { title : String, icon : String, onClick : Msg } -> Html Msg
+navIcon opts =
+    Html.span
+        [ HtmlAttrs.class "starmap-icon-hover"
+        , HtmlAttrs.style "color" navIconColour
+        , HtmlAttrs.style "cursor" "pointer"
+        , HtmlAttrs.style "display" "inline-flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.title opts.title
+        , Html.Events.onClick opts.onClick
+        ]
+        [ faIcon opts.icon 16 ]
+
+
+viewStatusRowHtml : ModelData -> Html Msg
+viewStatusRowHtml model =
     let
         displayModeLabel =
             case model.displayMode of
@@ -4111,55 +4231,21 @@ viewStatusRow model =
         extras =
             case model.viewMode of
                 HexMap ->
-                    [ el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.pointer
-                        , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)))
-                        , Element.centerY
-                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
-                    , el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.pointer
-                        , Events.onClick (SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)))
-                        , Element.centerY
-                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
-                    , -- hovered hex
-                      el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.spacing 5
-                        , Element.pointer
-                        , Events.onClick RefreshMap
-                        , Element.centerY
-                        , Element.htmlAttribute <| HtmlAttrs.title "Refresh map"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-refresh" 14
+                    [ navIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)) }
+                    , navIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)) }
+                    , navIcon { title = "Refresh map", icon = "fa-regular fa-refresh", onClick = RefreshMap }
                     , if displayModeLabel /= "" then
-                        el [ uiDeepnightColorFontColour, Font.size 12, Element.centerY ] (text displayModeLabel)
+                        Html.span [ HtmlAttrs.style "color" navIconColour, HtmlAttrs.style "font-size" "12px" ] [ Html.text displayModeLabel ]
 
                       else
-                        Element.none
-                    , el
-                        [ uiDeepnightColorFontColour
-                        , Font.family [ Font.monospace ]
-                        , Font.size 14
-                        , Element.centerY
-                        , Element.width <| Element.minimum 10 Element.shrink
+                        Html.text ""
+                    , Html.span
+                        [ HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.style "font-family" "monospace"
+                        , HtmlAttrs.style "font-size" "14px"
+                        , HtmlAttrs.style "min-width" "10px"
                         ]
-                      <|
-                        case model.hoveringHex of
+                        [ case model.hoveringHex of
                             Just hoveringHex ->
                                 let
                                     hexLabel =
@@ -4177,39 +4263,19 @@ viewStatusRow model =
                                             _ ->
                                                 hexLabel
                                 in
-                                text displayText
+                                Html.text displayText
 
                             Nothing ->
-                                Element.none
+                                Html.text ""
+                        ]
                     ]
 
                 FullJourney ->
-                    [ el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.pointer
-                        , Events.onClick (JourneyMsg (Zoom ZoomIn))
-                        , Element.centerY
-                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom in"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-plus" 14
-                    , el
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.pointer
-                        , Events.onClick (JourneyMsg (Zoom ZoomOut))
-                        , Element.centerY
-                        , Element.htmlAttribute <| HtmlAttrs.title "Zoom out"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                        ]
-                      <|
-                        renderFAIcon "fa-regular fa-magnifying-glass-minus" 14
+                    [ navIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = JourneyMsg (Zoom ZoomIn) }
+                    , navIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = JourneyMsg (Zoom ZoomOut) }
                     ]
-    in
-    let
-        viewModeIcon : ViewMode -> String -> Element.Element Msg
+
+        viewModeIcon : ViewMode -> String -> Html Msg
         viewModeIcon targetMode iconName =
             let
                 isActive =
@@ -4224,106 +4290,126 @@ viewStatusRow model =
 
                 colour =
                     if isActive then
-                        uiDeepnightColorFontColour
+                        navIconColour
 
                     else
-                        Element.htmlAttribute (HtmlAttrs.style "color" "color-mix(in srgb, var(--color-button-primary) 55%, var(--color-fg-muted))")
+                        "color-mix(in srgb, var(--color-button-primary) 55%, var(--color-fg-muted))"
             in
-            el
-                [ colour
-                , Element.pointer
-                , Events.onClick (SetViewMode targetMode)
-                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                , Element.centerY
+            Html.span
+                [ HtmlAttrs.class "starmap-icon-hover"
+                , HtmlAttrs.style "color" colour
+                , HtmlAttrs.style "cursor" "pointer"
+                , HtmlAttrs.style "display" "inline-flex"
+                , HtmlAttrs.style "align-items" "center"
+                , Html.Events.onClick (SetViewMode targetMode)
                 ]
-            <|
-                renderFAIcon (iconStyle ++ " " ++ iconName) 16
+                [ faIcon (iconStyle ++ " " ++ iconName) 16 ]
+
         backToRailsButton =
             if model.isReferee then
-                [ el
-                    [ uiDeepnightColorFontColour
-                    , Element.pointer
-                    , Events.onClick GoToRailsApp
-                    , Element.centerY
-                    , Element.htmlAttribute (HtmlAttrs.title "Return to Rails app")
-                    , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                    ]
-                    (renderFAIcon "fa-regular fa-house" 14)
-                ]
+                [ navIcon { title = "Return to Rails app", icon = "fa-regular fa-house", onClick = GoToRailsApp } ]
 
             else
                 []
 
         displaySettingsGear =
             if model.viewMode == HexMap then
-                [ el
-                    [ uiDeepnightColorFontColour
-                    , Element.pointer
-                    , Events.onClick ToggleDisplaySettings
-                    , Element.centerY
-                    , Element.htmlAttribute (HtmlAttrs.title "Map display settings")
-                    , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                    ]
-                    (renderFAIcon "fa-regular fa-gear" 14)
-                ]
+                [ navIcon { title = "Map display settings", icon = "fa-regular fa-gear", onClick = ToggleDisplaySettings } ]
 
             else
                 []
 
         themeSwatchIcon =
-            [ el
-                [ uiDeepnightColorFontColour
-                , Element.pointer
-                , Events.onClick ToggleThemeMenu
-                , Element.centerY
-                , Element.htmlAttribute (HtmlAttrs.title "Change theme")
-                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
-                , Element.htmlAttribute (HtmlAttrs.id "starmap-theme-toggle")
-                , Element.below (viewThemeMenu model.themeOptions model.theme model.showThemeMenu)
+            [ Html.div [ HtmlAttrs.style "position" "relative" ]
+                [ Html.span
+                    [ HtmlAttrs.id "starmap-theme-toggle"
+                    , HtmlAttrs.class "starmap-icon-hover"
+                    , HtmlAttrs.style "color" navIconColour
+                    , HtmlAttrs.style "cursor" "pointer"
+                    , HtmlAttrs.style "display" "inline-flex"
+                    , HtmlAttrs.style "align-items" "center"
+                    , HtmlAttrs.title "Change theme"
+                    , Html.Events.onClick ToggleThemeMenu
+                    ]
+                    [ faIcon "fa-regular fa-swatchbook" 16 ]
+                , if model.showThemeMenu then
+                    viewThemeMenuHtml model.themeOptions model.theme
+
+                  else
+                    Html.text ""
                 ]
-                (renderFAIcon "fa-regular fa-swatchbook" 14)
             ]
+
+        highlightRulesIcon =
+            if model.viewMode == HexMap then
+                [ Html.div [ HtmlAttrs.style "position" "relative" ]
+                    [ Html.span
+                        [ HtmlAttrs.id "starmap-highlight-toggle"
+                        , HtmlAttrs.class "starmap-icon-hover"
+                        , HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.style "cursor" "pointer"
+                        , HtmlAttrs.style "display" "inline-flex"
+                        , HtmlAttrs.style "align-items" "center"
+                        , HtmlAttrs.title "Survey Overlay"
+                        , Html.Events.onClick ToggleHighlightRulesMenu
+                        ]
+                        [ faIcon "fa-regular fa-layer-group" 16 ]
+                    , if model.showHighlightRulesMenu then
+                        viewHighlightRulesMenuHtml model.highlightRules model.pendingDeleteRuleId
+
+                      else
+                        Html.text ""
+                    ]
+                ]
+
+            else
+                []
 
         mapAreaText =
             case model.viewMode of
                 HexMap ->
-                    el [ width fill ]
-                        (el [ Element.centerX, Element.centerY, Font.size 14, uiDeepnightColorFontColour ] <|
-                            text <|
-                                let
-                                    first =
-                                        shiftAddressBy { deltaX = 1, deltaY = 1 } model.hexRect.upperLeftHex
+                    Html.div
+                        [ HtmlAttrs.style "flex" "1"
+                        , HtmlAttrs.style "text-align" "center"
+                        , HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.style "font-size" "14px"
+                        ]
+                        [ Html.text <|
+                            let
+                                first =
+                                    shiftAddressBy { deltaX = 1, deltaY = 1 } model.hexRect.upperLeftHex
 
-                                    last =
-                                        shiftAddressBy { deltaX = -3, deltaY = -1 } model.hexRect.lowerRightHex
-                                in
-                                (universalHexLabelMaybe model.sectors first
-                                    |> Maybe.withDefault "???"
-                                )
-                                    ++ " – "
-                                    ++ (universalHexLabelMaybe model.sectors last
-                                            |> Maybe.withDefault "???"
-                                       )
-                        )
+                                last =
+                                    shiftAddressBy { deltaX = -3, deltaY = -1 } model.hexRect.lowerRightHex
+                            in
+                            (universalHexLabelMaybe model.sectors first
+                                |> Maybe.withDefault "???"
+                            )
+                                ++ " – "
+                                ++ (universalHexLabelMaybe model.sectors last
+                                        |> Maybe.withDefault "???"
+                                   )
+                        ]
 
                 FullJourney ->
-                    el [ width fill ] Element.none
+                    Html.div [ HtmlAttrs.style "flex" "1" ] []
 
         shipLocationDisplay =
             case model.viewMode of
                 HexMap ->
-                    [ row
-                        [ uiDeepnightColorFontColour
-                        , Font.size 14
-                        , Element.spacing 5
-                        , Element.pointer
-                        , Events.onClick JumpToShip
-                        , Element.centerY
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                    [ Html.div
+                        [ HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.style "font-size" "14px"
+                        , HtmlAttrs.style "display" "flex"
+                        , HtmlAttrs.style "align-items" "center"
+                        , HtmlAttrs.style "gap" "5px"
+                        , HtmlAttrs.style "cursor" "pointer"
+                        , HtmlAttrs.class "starmap-icon-hover"
+                        , Html.Events.onClick JumpToShip
                         ]
-                        [ text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
-                        , renderFAIcon "fa-regular fa-crosshairs-simple" 14
-                        , text <|
+                        [ Html.text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
+                        , faIcon "fa-regular fa-crosshairs-simple" 16
+                        , Html.text
                             (universalHexLabelMaybe model.sectors model.currentAddress
                                 |> Maybe.withDefault "???"
                             )
@@ -4333,12 +4419,16 @@ viewStatusRow model =
                 FullJourney ->
                     []
     in
-    Element.row
-        [ Element.spacing 8
-        , Element.width Element.fill
-        , Element.paddingEach { zeroEach | bottom = 10, top = 10, right = 8 }
+    Html.div
+        [ HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "8px"
+        , HtmlAttrs.style "width" "100%"
+        , HtmlAttrs.style "padding" "4px 8px 10px 0"
         ]
-        ([ el [ Font.size 20, uiDeepnightColorFontColour, Element.paddingEach { zeroEach | left = 8 } ] <| text model.campaignName
+        ([ Html.span
+            [ HtmlAttrs.style "font-size" "20px", HtmlAttrs.style "color" navIconColour, HtmlAttrs.style "padding-left" "8px" ]
+            [ Html.text model.campaignName ]
          , viewModeIcon HexMap "fa-hexagon"
          , viewModeIcon FullJourney "fa-map"
          ]
@@ -4347,50 +4437,202 @@ viewStatusRow model =
             ++ extras
             ++ [ mapAreaText ]
             ++ shipLocationDisplay
+            ++ highlightRulesIcon
             ++ themeSwatchIcon
             ++ displaySettingsGear
         )
 
 
-viewThemeMenu : List ThemeOption -> String -> Bool -> Element Msg
-viewThemeMenu options currentTheme isOpen =
-    if not isOpen then
-        Element.none
-
-    else
-        column
-            [ Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
-            , Element.htmlAttribute (HtmlAttrs.id "starmap-theme-menu")
-            , Border.rounded 6
-            , Element.paddingXY 0 4
-            , Element.spacing 0
-            , width (Element.px 176)
-            , Element.moveDown 4
-            , Element.alignRight
-            ]
-            (options
-                |> List.map
-                    (\option ->
-                        el
-                            [ width fill
-                            , Element.paddingXY 16 8
-                            , Element.pointer
-                            , Font.size 13
-                            , fontVar "--color-fg"
-                            , Events.onClick (SelectTheme option.key)
-                            , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
-                            ]
-                            (row [ width fill, Element.spacing 8 ]
-                                [ el [ width fill ] (text option.label)
-                                , if option.key == currentTheme then
-                                    el [ uiDeepnightColorFontColour, Font.size 12 ] (renderFAIcon "fa-regular fa-check" 12)
-
-                                  else
-                                    Element.none
+viewThemeMenuHtml : List ThemeOption -> String -> Html Msg
+viewThemeMenuHtml options currentTheme =
+    Html.div
+        [ HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.id "starmap-theme-menu"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "100%"
+        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "margin-top" "4px"
+        , HtmlAttrs.style "border-radius" "6px"
+        , HtmlAttrs.style "width" "176px"
+        , HtmlAttrs.style "padding" "4px 0"
+        , HtmlAttrs.style "z-index" "100"
+        ]
+        (options
+            |> List.map
+                (\option ->
+                    Html.div
+                        [ HtmlAttrs.class "starmap-display-option"
+                        , HtmlAttrs.style "display" "flex"
+                        , HtmlAttrs.style "align-items" "center"
+                        , HtmlAttrs.style "gap" "8px"
+                        , HtmlAttrs.style "padding" "8px 16px"
+                        , HtmlAttrs.style "cursor" "pointer"
+                        , HtmlAttrs.style "font-size" "13px"
+                        , HtmlAttrs.style "color" "var(--color-fg)"
+                        , Html.Events.onClick (SelectTheme option.key)
+                        ]
+                        [ Html.span [ HtmlAttrs.style "flex" "1" ] [ Html.text option.label ]
+                        , if option.key == currentTheme then
+                            Html.i
+                                [ HtmlAttrs.class "fa-regular fa-check"
+                                , HtmlAttrs.style "font-size" "12px"
+                                , HtmlAttrs.style "color" navIconColour
                                 ]
-                            )
-                    )
-            )
+                                []
+
+                          else
+                            Html.text ""
+                        ]
+                )
+        )
+
+
+facilityOptions : ModelData -> List HighlightRule.FacilityOption
+facilityOptions model =
+    model.facilities
+
+
+moveRule : String -> Int -> List HighlightRule.Rule -> List HighlightRule.Rule
+moveRule ruleId delta rules =
+    case List.Extra.findIndex (\r -> r.id == ruleId) rules of
+        Just idx ->
+            List.Extra.swapAt idx (idx + delta) rules
+
+        Nothing ->
+            rules
+
+
+{-| Built as a raw `Html` tree (rather than elm-ui `Element`s), for the same
+reason as `HighlightRuleEditor.view`: the enabled toggle switch is a native
+control, and elm-ui's spacing doesn't reliably apply around embedded native
+elements.
+-}
+viewHighlightRulesMenuHtml : List HighlightRule.Rule -> Maybe String -> Html Msg
+viewHighlightRulesMenuHtml rules pendingDeleteRuleId =
+    let
+        lastIdx =
+            List.length rules - 1
+    in
+    Html.div
+        [ HtmlAttrs.id "starmap-highlight-menu"
+        , HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "100%"
+        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "margin-top" "4px"
+        , HtmlAttrs.style "border-radius" "6px"
+        , HtmlAttrs.style "width" "260px"
+        , HtmlAttrs.style "z-index" "100"
+        , HtmlAttrs.style "padding" "4px 0"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex-direction" "column"
+        ]
+        ((if List.length rules > 1 then
+            [ Html.div
+                [ HtmlAttrs.class "text-xs text-fg-muted"
+                , HtmlAttrs.style "padding" "4px 16px 8px"
+                ]
+                [ Html.text "Earlier rules take precedence when more than one matches." ]
+            ]
+
+          else
+            []
+         )
+            ++ List.indexedMap
+                (\idx rule -> ruleRowHtml pendingDeleteRuleId (idx == 0) (idx == lastIdx) rule)
+                rules
+            ++ [ newOverlayRowHtml ]
+        )
+
+
+ruleRowHtml : Maybe String -> Bool -> Bool -> HighlightRule.Rule -> Html Msg
+ruleRowHtml pendingDeleteRuleId isFirst isLast rule =
+    let
+        isPendingDelete =
+            pendingDeleteRuleId == Just rule.id
+
+        moveButton attrs iconClass =
+            Html.span
+                (HtmlAttrs.style "font-size" "12px" :: attrs)
+                [ Html.i [ HtmlAttrs.class iconClass ] [] ]
+    in
+    Html.div
+        [ HtmlAttrs.class "starmap-display-option"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "10px"
+        , HtmlAttrs.style "padding" "8px 16px"
+        , HtmlAttrs.style "cursor" "pointer"
+        , Html.Events.onClick (StartEditRule rule.id)
+        ]
+        [ Html.span
+            [ HtmlAttrs.style "display" "inline-block"
+            , HtmlAttrs.style "width" "12px"
+            , HtmlAttrs.style "height" "12px"
+            , HtmlAttrs.style "flex-shrink" "0"
+            , HtmlAttrs.style "border-radius" "6px"
+            , HtmlAttrs.style "background-color" (Color.Convert.colorToHex rule.colour)
+            ]
+            []
+        , ToggleSwitch.view ToggleSwitch.Small
+            rule.enabled
+            (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( ToggleRuleEnabled rule.id, True )))
+        , Html.span [ HtmlAttrs.class "text-sm text-fg", HtmlAttrs.style "flex" "1" ] [ Html.text rule.name ]
+        , if isFirst then
+            moveButton [ HtmlAttrs.class "text-fg-muted", HtmlAttrs.style "opacity" "0.3" ] "fa-regular fa-chevron-up"
+
+          else
+            moveButton
+                [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                , HtmlAttrs.title "Move up (higher precedence)"
+                , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( MoveRuleUp rule.id, True ))
+                ]
+                "fa-regular fa-chevron-up"
+        , if isLast then
+            moveButton [ HtmlAttrs.class "text-fg-muted", HtmlAttrs.style "opacity" "0.3" ] "fa-regular fa-chevron-down"
+
+          else
+            moveButton
+                [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                , HtmlAttrs.title "Move down (lower precedence)"
+                , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( MoveRuleDown rule.id, True ))
+                ]
+                "fa-regular fa-chevron-down"
+        , if isPendingDelete then
+            Html.span [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "align-items" "center", HtmlAttrs.style "gap" "8px" ]
+                [ Html.span [ HtmlAttrs.class "text-xs text-fg-muted" ] [ Html.text "Delete?" ]
+                , Html.span
+                    [ HtmlAttrs.class "text-danger cursor-pointer"
+                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( DeleteRule rule.id, True ))
+                    ]
+                    [ Html.i [ HtmlAttrs.class "fa-regular fa-check", HtmlAttrs.style "font-size" "12px" ] [] ]
+                , Html.span
+                    [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                    , HtmlAttrs.style "font-size" "12px"
+                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( CancelDeleteRule, True ))
+                    ]
+                    [ Html.text "✕" ]
+                ]
+
+          else
+            Html.span
+                [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( RequestDeleteRule rule.id, True ))
+                ]
+                [ Html.i [ HtmlAttrs.class "fa-regular fa-trash", HtmlAttrs.style "font-size" "12px" ] [] ]
+        ]
+
+
+newOverlayRowHtml : Html Msg
+newOverlayRowHtml =
+    Html.button
+        [ HtmlAttrs.type_ "button"
+        , Html.Events.onClick StartNewRule
+        , HtmlAttrs.class "starmap-display-option text-sm text-link no-underline hover:text-link-hover hover:underline hover:underline-offset-2 cursor-pointer bg-transparent border-0 text-left"
+        , HtmlAttrs.style "width" "100%"
+        , HtmlAttrs.style "padding" "8px 16px"
+        ]
+        [ Html.text "+ New Overlay" ]
 
 
 viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Bool -> Element Msg
@@ -4694,7 +4936,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight, highlightRules = model.highlightRules }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -4900,6 +5142,12 @@ view ( time, model ) =
 
           else
             Element.htmlAttribute <| HtmlAttrs.class ""
+        , case model.ruleEditor of
+            Just editorModel ->
+                Element.inFront <| Element.map HighlightRuleEditorMsg (HighlightRuleEditor.view (facilityOptions model) editorModel)
+
+            Nothing ->
+                Element.htmlAttribute <| HtmlAttrs.class ""
         ]
         [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
@@ -5202,6 +5450,9 @@ port storeSubsectorLines : Bool -> Cmd msg
 
 
 port storeBackgroundNames : Bool -> Cmd msg
+
+
+port storeHighlightRules : Encode.Value -> Cmd msg
 
 
 port navigateToUrl : String -> Cmd msg
@@ -6727,6 +6978,134 @@ update msg ( time, model ) =
             ( withTime { model | showThemeMenu = not model.showThemeMenu }
             , Cmd.none
             )
+
+        ToggleHighlightRulesMenu ->
+            ( withTime
+                { model
+                    | showHighlightRulesMenu = not model.showHighlightRulesMenu
+                    , pendingDeleteRuleId = Nothing
+                }
+            , Cmd.none
+            )
+
+        ToggleRuleEnabled ruleId ->
+            let
+                newRules =
+                    List.map
+                        (\rule ->
+                            if rule.id == ruleId then
+                                { rule | enabled = not rule.enabled }
+
+                            else
+                                rule
+                        )
+                        model.highlightRules
+            in
+            ( withTime { model | highlightRules = newRules }
+            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+            )
+
+        StartNewRule ->
+            let
+                newId =
+                    "rule-" ++ String.fromInt model.nextRuleId
+            in
+            ( withTime
+                { model
+                    | ruleEditor = Just (HighlightRuleEditor.init (HighlightRule.newRule newId (Color.rgb255 250 204 21)))
+                    , nextRuleId = model.nextRuleId + 1
+                    , showHighlightRulesMenu = False
+                    , pendingDeleteRuleId = Nothing
+                }
+            , Cmd.none
+            )
+
+        StartEditRule ruleId ->
+            case model.highlightRules |> List.filter (\r -> r.id == ruleId) |> List.head of
+                Just rule ->
+                    ( withTime
+                        { model
+                            | ruleEditor = Just (HighlightRuleEditor.init rule)
+                            , showHighlightRulesMenu = False
+                            , pendingDeleteRuleId = Nothing
+                        }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        RequestDeleteRule ruleId ->
+            ( withTime { model | pendingDeleteRuleId = Just ruleId }, Cmd.none )
+
+        CancelDeleteRule ->
+            ( withTime { model | pendingDeleteRuleId = Nothing }, Cmd.none )
+
+        DeleteRule ruleId ->
+            let
+                newRules =
+                    List.filter (\r -> r.id /= ruleId) model.highlightRules
+            in
+            ( withTime { model | highlightRules = newRules, pendingDeleteRuleId = Nothing }
+            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+            )
+
+        MoveRuleUp ruleId ->
+            let
+                newRules =
+                    moveRule ruleId -1 model.highlightRules
+            in
+            ( withTime { model | highlightRules = newRules }
+            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+            )
+
+        MoveRuleDown ruleId ->
+            let
+                newRules =
+                    moveRule ruleId 1 model.highlightRules
+            in
+            ( withTime { model | highlightRules = newRules }
+            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+            )
+
+        HighlightRuleEditorMsg editorMsg ->
+            case model.ruleEditor of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just editorModel ->
+                    case editorMsg of
+                        HighlightRuleEditor.Cancel ->
+                            ( withTime { model | ruleEditor = Nothing }, Cmd.none )
+
+                        HighlightRuleEditor.Save ->
+                            let
+                                savedRule =
+                                    editorModel.draft
+
+                                newRules =
+                                    if List.any (\r -> r.id == savedRule.id) model.highlightRules then
+                                        List.map
+                                            (\r ->
+                                                if r.id == savedRule.id then
+                                                    savedRule
+
+                                                else
+                                                    r
+                                            )
+                                            model.highlightRules
+
+                                    else
+                                        model.highlightRules ++ [ savedRule ]
+                            in
+                            ( withTime { model | ruleEditor = Nothing, highlightRules = newRules }
+                            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                            )
+
+                        _ ->
+                            ( withTime { model | ruleEditor = Just (HighlightRuleEditor.update (facilityOptions model) editorMsg editorModel) }
+                            , Cmd.none
+                            )
 
         GoToRailsApp ->
             let

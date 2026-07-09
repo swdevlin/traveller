@@ -1,4 +1,4 @@
-module Traveller.EHex exposing (EHex, eHex)
+module Traveller.EHex exposing (EHex, eHex, toInt)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -11,6 +11,11 @@ import Parser.Extras as Parser
 -}
 type EHex
     = EHex { raw : Char, value : Int }
+
+
+toInt : EHex -> Int
+toInt (EHex { value }) =
+    value
 
 
 eHex : Parser EHex

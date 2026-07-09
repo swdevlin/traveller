@@ -37,6 +37,7 @@ class StarmapsController < ApplicationController
 
       { code: f.code, name: f.name, viewBox: icon.view_box, pathData: icon.path_data }
     end
+    facilities = Facility.order(:code).map { |f| { code: f.code, name: f.name } }
     @starmap_flags = {
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
@@ -49,6 +50,7 @@ class StarmapsController < ApplicationController
       rogueObjectPathData: rogue_icon&.path_data,
       shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
       facilityIcons: facility_icons,
+      facilities: facilities,
       theme: helpers.current_theme,
       themeIsLight: helpers.current_theme_light?,
       themeOptions: ApplicationHelper::THEMES.map { |key, info| { key: key, label: info[:label], light: info[:light] } }
