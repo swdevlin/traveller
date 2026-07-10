@@ -79,6 +79,8 @@ type alias Flags =
     , themeIsLight : Bool
     , themeOptions : List Traveller.ThemeOption
     , highlightRules : Json.Decode.Value
+    , routePlan : Json.Decode.Value
+    , hiddenJumpRouteIds : Json.Decode.Value
     }
 
 
@@ -211,6 +213,8 @@ update msg model =
                                 , themeIsLight = model.flags.themeIsLight
                                 , themeOptions = model.flags.themeOptions
                                 , highlightRules = model.flags.highlightRules
+                                , routePlan = model.flags.routePlan
+                                , hiddenJumpRouteIds = model.flags.hiddenJumpRouteIds
                                 }
                                 model.key
                                 model.hostConfig

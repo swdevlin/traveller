@@ -2,6 +2,7 @@
 
 class JumpRoutesController < ApplicationController
   before_action :set_jump_route, except: %i[index new create]
+  before_action :set_return_to, only: %i[edit update]
 
   def index
     @jump_routes = JumpRoute.ordered.includes(:jump_route_links)
@@ -58,7 +59,8 @@ class JumpRoutesController < ApplicationController
           render :edit, status: :unprocessable_entity and return
         end
       end
-      redirect_to @jump_route, notice: 'Jump route updated.', status: :see_other
+      redirect_to(@return_to == 'starmap' ? campaign_starmap_path : @jump_route,
+                  notice: 'Jump route updated.', status: :see_other)
     else
       @travel_zones = TravelZone.ordered
       render :edit, status: :unprocessable_entity
@@ -130,6 +132,10 @@ class JumpRoutesController < ApplicationController
 
   def set_jump_route
     @jump_route = JumpRoute.find(params.expect(:id))
+  end
+
+  def set_return_to
+    @return_to = 'starmap' if params[:return_to] == 'starmap'
   end
 
   def prepare_route_map

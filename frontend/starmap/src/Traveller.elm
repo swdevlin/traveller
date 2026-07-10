@@ -83,6 +83,8 @@ import Traveller.HexGeometry
         )
 import Traveller.HighlightRule as HighlightRule
 import Traveller.HighlightRuleEditor as HighlightRuleEditor
+import Traveller.JumpRouteLayer as JumpRouteLayer
+import Traveller.JumpRouteLayerEditor as JumpRouteLayerEditor
 import Traveller.ToggleSwitch as ToggleSwitch
 import Traveller.Hydrographics exposing (hydrographicsPercentageDescription, surfaceDistributionDescription)
 import Traveller.LawLevel as LawLevel
@@ -91,6 +93,8 @@ import Traveller.Parser exposing (UWP, hydrosphereDescription, sizeDescription, 
 import Traveller.Population exposing (concentration_rating_description, populationDescription)
 import Traveller.Region as Region exposing (Region, RegionDict)
 import Traveller.Route as Route exposing (Route, RouteList)
+import Traveller.RoutePlan as RoutePlan
+import Traveller.RoutePlanForm as RoutePlanForm
 import Traveller.Sector exposing (Sector, SectorDict, codec, sectorKey)
 import Traveller.Sidebar
     exposing
@@ -138,6 +142,7 @@ type alias JumpRouteLink =
     , strokeDasharray : String
     , lineWidth : Int
     , routeType : String
+    , jumpRouteId : Int
     }
 
 
@@ -171,6 +176,10 @@ jumpRouteLinkDecoder =
             (\partial ->
                 JsDecode.map partial
                     (JsDecode.field "route_type" (JsDecode.oneOf [ JsDecode.string, JsDecode.null "network" ]))
+            )
+        |> JsDecode.andThen
+            (\partial ->
+                JsDecode.map partial (JsDecode.field "jump_route_id" JsDecode.int)
             )
 
 
@@ -694,6 +703,14 @@ type alias ModelData =
     , ruleEditor : Maybe HighlightRuleEditor.Model
     , nextRuleId : Int
     , pendingDeleteRuleId : Maybe String
+    , routePlanForm : Maybe RoutePlanForm.Model
+    , activeRoutePlan : Maybe RoutePlan.StoredRoutePlan
+    , travelZoneOptions : List RoutePlan.TravelZoneOption
+    , jumpRouteLayers : List JumpRouteLayer.Route
+    , showJumpRouteLayersMenu : Bool
+    , jumpRouteLayerEditor : Maybe JumpRouteLayerEditor.Model
+    , pendingDeleteJumpRouteId : Maybe Int
+    , hiddenJumpRouteIds : Set.Set Int
     }
 
 
@@ -782,6 +799,19 @@ type Msg
     | HighlightRuleEditorMsg HighlightRuleEditor.Msg
     | GoToRailsApp
     | GotSubsectorLookupUrl (Result Http.Error String)
+    | OpenRoutePlanner
+    | OpenRoutePlannerFrom SolarSystem
+    | RoutePlanFormMsg RoutePlanForm.Msg
+    | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
+    | ToggleJumpRouteLayersMenu
+    | ToggleJumpRouteLayerHidden Int
+    | StartEditJumpRouteLayer Int
+    | RequestDeleteJumpRouteLayer Int
+    | CancelDeleteJumpRouteLayer
+    | DeleteJumpRouteLayer Int
+    | DeletedJumpRouteLayer Int (Result Http.Error ())
+    | JumpRouteLayerEditorMsg JumpRouteLayerEditor.Msg
+    | DownloadedJumpRouteLayers (Result Http.Error (List JumpRouteLayer.Route))
 
 
 type JourneyMsg
@@ -891,6 +921,11 @@ subscriptions time model =
 
           else
             Sub.none
+        , if model.showJumpRouteLayersMenu then
+            Browser.Events.onClick jumpRouteLayersMenuOutsideClickDecoder
+
+          else
+            Sub.none
         ]
 
 
@@ -924,6 +959,22 @@ highlightRulesMenuOutsideClickDecoder =
 
                 else
                     JsDecode.fail "click was inside the highlight rules menu"
+            )
+
+
+{-| Fires `ToggleJumpRouteLayersMenu` when a click lands outside the jump
+route layers toggle button or its dropdown.
+-}
+jumpRouteLayersMenuOutsideClickDecoder : JsDecode.Decoder Msg
+jumpRouteLayersMenuOutsideClickDecoder =
+    JsDecode.field "target" (isOutsideIds [ "starmap-jump-route-layers-toggle", "starmap-jump-route-layers-menu" ])
+        |> JsDecode.andThen
+            (\isOutside ->
+                if isOutside then
+                    JsDecode.succeed ToggleJumpRouteLayersMenu
+
+                else
+                    JsDecode.fail "click was inside the jump route layers menu"
             )
 
 
@@ -977,6 +1028,8 @@ type alias Flags =
     , themeIsLight : Bool
     , themeOptions : List ThemeOption
     , highlightRules : JsDecode.Value
+    , routePlan : JsDecode.Value
+    , hiddenJumpRouteIds : JsDecode.Value
     }
 
 
@@ -1201,6 +1254,14 @@ init viewport settings key hostConfig referee =
             Codec.decodeValue HighlightRule.rulesCodec settings.highlightRules
                 |> Result.withDefault []
 
+        initialActiveRoutePlan =
+            Codec.decodeValue RoutePlan.storedRoutePlanCodec settings.routePlan
+                |> Result.toMaybe
+
+        initialHiddenJumpRouteIds =
+            Codec.decodeValue JumpRouteLayer.hiddenIdsCodec settings.hiddenJumpRouteIds
+                |> Result.withDefault Set.empty
+
         model : ModelData
         model =
             { hexScale = settings.hexSize
@@ -1268,6 +1329,14 @@ init viewport settings key hostConfig referee =
             , ruleEditor = Nothing
             , nextRuleId = 1
             , pendingDeleteRuleId = Nothing
+            , routePlanForm = Nothing
+            , activeRoutePlan = initialActiveRoutePlan
+            , travelZoneOptions = []
+            , jumpRouteLayers = []
+            , showJumpRouteLayersMenu = False
+            , jumpRouteLayerEditor = Nothing
+            , pendingDeleteJumpRouteId = Nothing
+            , hiddenJumpRouteIds = initialHiddenJumpRouteIds
             }
     in
     ( ( Time.millisToPosix 0
@@ -1280,6 +1349,8 @@ init viewport settings key hostConfig referee =
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
         , sendJumpRouteLinksRequest model.hostConfig
+        , sendTravelZonesRequest model.hostConfig
+        , sendJumpRouteLayersRequest model.hostConfig
         , case settings.centerOn of
             Just _ ->
                 saveMapCoords hexRect.upperLeftHex
@@ -3095,7 +3166,7 @@ hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict nati
 viewHexes :
     ( HexRect, List ( Float, Float ) )
     -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool, highlightRules : List HighlightRule.Rule }
+    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool, highlightRules : List HighlightRule.Rule, previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String } }
     -> ( RouteList, HexAddress )
     -> Float
     -> Maybe HexAddress
@@ -3104,11 +3175,12 @@ viewHexes :
     -> Maybe String
     -> { x : Float, y : Float }
     -> List JumpRouteLink
+    -> Set.Set Int
     -> Maybe String
     -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks rogueObjectPathData facilityIcons displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules, previewRoute } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks hiddenJumpRouteIds rogueObjectPathData facilityIcons displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -3583,11 +3655,13 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     visibleLinks =
                         List.filter
                             (\link ->
-                                isReferee
+                                (isReferee
                                     || link.known
                                     || (link.routeType == "network"
                                             && (link.fromSurveyIndex >= 10 || link.toSurveyIndex >= 10)
                                        )
+                                )
+                                    && not (Set.member link.jumpRouteId hiddenJumpRouteIds)
                             )
                             jumpRouteLinks
 
@@ -3616,6 +3690,45 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     []
                             )
                             visibleLinks
+
+                    -- width "8" and dasharray "16,10" mirror JumpRoute's plotted-route
+                    -- save defaults (line_width: 8, line_style: 'dashed'), so the preview
+                    -- doesn't change appearance the moment it's saved - only the colour differs.
+                    previewRouteLines =
+                        case previewRoute of
+                            Nothing ->
+                                []
+
+                            Just { hops, colour } ->
+                                let
+                                    coords =
+                                        List.map (\hop -> ( hop.system.x, hop.system.y )) hops
+                                in
+                                List.map2
+                                    (\( fromX, fromY ) ( toX, toY ) ->
+                                        let
+                                            ( fx, fy ) =
+                                                calcVisualOrigin hexSize { row = fromY, col = fromX }
+
+                                            ( tx, ty ) =
+                                                calcVisualOrigin hexSize { row = toY, col = toX }
+                                        in
+                                        Svg.line
+                                            [ SvgAttrs.x1 (String.fromInt fx)
+                                            , SvgAttrs.y1 (String.fromInt fy)
+                                            , SvgAttrs.x2 (String.fromInt tx)
+                                            , SvgAttrs.y2 (String.fromInt ty)
+                                            , SvgAttrs.stroke colour
+                                            , SvgAttrs.strokeWidth "8"
+                                            , SvgAttrs.strokeDasharray "16,10"
+                                            , SvgAttrs.strokeOpacity "0.7"
+                                            , SvgAttrs.strokeLinecap "round"
+                                            , SvgAttrs.pointerEvents "none"
+                                            ]
+                                            []
+                                    )
+                                    coords
+                                    (List.drop 1 coords)
                 in
                 [ Svg.defs []
                     [ Svg.node "clipPath"
@@ -3631,6 +3744,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     ++ [ keyedHexBorders ]
                     ++ [ singlePolyHex ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] previewRouteLines ]
                     ++ [ keyedHexForegrounds ]
                     ++ subsectorLinesList
                     ++ sectorOutlines
@@ -4365,6 +4479,31 @@ viewStatusRowHtml model =
             else
                 []
 
+        jumpRouteLayersIcon =
+            if model.viewMode == HexMap then
+                [ Html.div [ HtmlAttrs.style "position" "relative" ]
+                    [ Html.span
+                        [ HtmlAttrs.id "starmap-jump-route-layers-toggle"
+                        , HtmlAttrs.class "starmap-icon-hover"
+                        , HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.style "cursor" "pointer"
+                        , HtmlAttrs.style "display" "inline-flex"
+                        , HtmlAttrs.style "align-items" "center"
+                        , HtmlAttrs.title "Jump Route Layers"
+                        , Html.Events.onClick ToggleJumpRouteLayersMenu
+                        ]
+                        [ faIcon "fa-regular fa-route" 16 ]
+                    , if model.showJumpRouteLayersMenu then
+                        viewJumpRouteLayersMenuHtml model.jumpRouteLayers model.hiddenJumpRouteIds model.pendingDeleteJumpRouteId model.isReferee
+
+                      else
+                        Html.text ""
+                    ]
+                ]
+
+            else
+                []
+
         mapAreaText =
             case model.viewMode of
                 HexMap ->
@@ -4438,6 +4577,7 @@ viewStatusRowHtml model =
             ++ [ mapAreaText ]
             ++ shipLocationDisplay
             ++ highlightRulesIcon
+            ++ jumpRouteLayersIcon
             ++ themeSwatchIcon
             ++ displaySettingsGear
         )
@@ -4490,6 +4630,61 @@ viewThemeMenuHtml options currentTheme =
 facilityOptions : ModelData -> List HighlightRule.FacilityOption
 facilityOptions model =
     model.facilities
+
+
+routePlanFormConfig : ModelData -> RoutePlanForm.Config
+routePlanFormConfig model =
+    { hostConfig = model.hostConfig
+    , isReferee = model.isReferee
+    , travelZoneOptions = model.travelZoneOptions
+    }
+
+
+jumpRouteLayerEditorConfig : ModelData -> JumpRouteLayerEditor.Config
+jumpRouteLayerEditorConfig model =
+    { hostConfig = model.hostConfig }
+
+
+{-| Display colour for a player's locally-stored active route line - distinct
+from both the default saved-route colour (`#E87040`) and any referee-chosen
+colour, so a player's own plan is always recognisable regardless of what
+routes a referee has published.
+-}
+playerRoutePlanColour : String
+playerRoutePlanColour =
+    "#3FB6FF"
+
+
+{-| The route line currently drawn on the map for route-planning purposes:
+the open form's live plan preview takes priority over the player's
+previously-stored route, falling back to that stored route once the form is
+closed (or has no successful plan yet). The preview uses the form's own
+`saveColour` (default `#E87040`, matching `Api::RoutePlansController#save`'s
+default) so the line never changes colour out from under the user the moment
+they save - it just becomes the saved route.
+-}
+activePreviewRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+activePreviewRoute model =
+    case model.routePlanForm of
+        Just form ->
+            case RemoteData.toMaybe form.planResult of
+                Just result ->
+                    if result.found then
+                        Just { hops = result.hops, colour = form.saveColour }
+
+                    else
+                        storedActiveRoute model
+
+                Nothing ->
+                    storedActiveRoute model
+
+        Nothing ->
+            storedActiveRoute model
+
+
+storedActiveRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+storedActiveRoute model =
+    model.activeRoutePlan |> Maybe.map (\stored -> { hops = stored.result.hops, colour = stored.colour })
 
 
 moveRule : String -> Int -> List HighlightRule.Rule -> List HighlightRule.Rule
@@ -4637,6 +4832,140 @@ newOverlayRowHtml =
         , HtmlAttrs.style "padding" "8px 16px"
         ]
         [ Html.text "+ New Overlay" ]
+
+
+{-| The "Jump Route Layers" dropdown: lists every `JumpRoute`, with a toggle
+switch that hides/shows that route's lines on this browser only (never
+persisted server-side). Referees additionally get click-to-edit rows and a
+two-step delete confirm; non-referees see a read-only list. Everyone gets the
+trailing "+ Plan a Route…" row, which opens the Route Planner - the only way
+to create a new jump route, whether a referee's hand-built network link or a
+player's calculated path.
+-}
+viewJumpRouteLayersMenuHtml : List JumpRouteLayer.Route -> Set.Set Int -> Maybe Int -> Bool -> Html Msg
+viewJumpRouteLayersMenuHtml routes hiddenIds pendingDeleteId isReferee =
+    Html.div
+        [ HtmlAttrs.id "starmap-jump-route-layers-menu"
+        , HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "100%"
+        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "margin-top" "4px"
+        , HtmlAttrs.style "border-radius" "6px"
+        , HtmlAttrs.style "width" "280px"
+        , HtmlAttrs.style "z-index" "100"
+        , HtmlAttrs.style "padding" "4px 0"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex-direction" "column"
+        ]
+        ((if List.isEmpty routes then
+            [ Html.div
+                [ HtmlAttrs.class "text-xs text-fg-muted"
+                , HtmlAttrs.style "padding" "8px 16px"
+                ]
+                [ Html.text "No jump routes yet." ]
+            ]
+
+          else
+            List.map (jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee) routes
+         )
+            ++ [ planRouteRowHtml ]
+        )
+
+
+jumpRouteLayerRowHtml : Set.Set Int -> Maybe Int -> Bool -> JumpRouteLayer.Route -> Html Msg
+jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee route =
+    let
+        isHidden =
+            Set.member route.id hiddenIds
+
+        isPendingDelete =
+            pendingDeleteId == Just route.id
+
+        linkCountLabel =
+            String.fromInt route.linkCount ++ " link" ++ (if route.linkCount == 1 then "" else "s")
+    in
+    Html.div
+        [ HtmlAttrs.class "starmap-display-option"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "10px"
+        , HtmlAttrs.style "padding" "8px 16px"
+        , HtmlAttrs.style "cursor"
+            (if isReferee then
+                "pointer"
+
+             else
+                "default"
+            )
+        , Html.Events.onClick
+            (if isReferee then
+                StartEditJumpRouteLayer route.id
+
+             else
+                NoOpMsg
+            )
+        ]
+        [ Html.span
+            [ HtmlAttrs.style "display" "inline-block"
+            , HtmlAttrs.style "width" "12px"
+            , HtmlAttrs.style "height" "12px"
+            , HtmlAttrs.style "flex-shrink" "0"
+            , HtmlAttrs.style "border-radius" "6px"
+            , HtmlAttrs.style "background-color" route.colour
+            ]
+            []
+        , ToggleSwitch.view ToggleSwitch.Small
+            (not isHidden)
+            (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( ToggleJumpRouteLayerHidden route.id, True )))
+        , Html.div [ HtmlAttrs.style "flex" "1", HtmlAttrs.style "min-width" "0" ]
+            [ Html.div [ HtmlAttrs.class "text-sm text-fg" ] [ Html.text route.name ]
+            , Html.div [ HtmlAttrs.class "text-xs text-fg-muted" ]
+                [ Html.text (route.routeType ++ " · " ++ linkCountLabel) ]
+            ]
+        , if not isReferee then
+            Html.text ""
+
+          else if isPendingDelete then
+            Html.span [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "align-items" "center", HtmlAttrs.style "gap" "8px" ]
+                [ Html.span [ HtmlAttrs.class "text-xs text-fg-muted" ] [ Html.text "Delete?" ]
+                , Html.span
+                    [ HtmlAttrs.class "text-danger cursor-pointer"
+                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( DeleteJumpRouteLayer route.id, True ))
+                    ]
+                    [ Html.i [ HtmlAttrs.class "fa-regular fa-check", HtmlAttrs.style "font-size" "12px" ] [] ]
+                , Html.span
+                    [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                    , HtmlAttrs.style "font-size" "12px"
+                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( CancelDeleteJumpRouteLayer, True ))
+                    ]
+                    [ Html.text "✕" ]
+                ]
+
+          else
+            Html.span
+                [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+                , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( RequestDeleteJumpRouteLayer route.id, True ))
+                ]
+                [ Html.i [ HtmlAttrs.class "fa-regular fa-trash", HtmlAttrs.style "font-size" "12px" ] [] ]
+        ]
+
+
+{-| Every new jump route - whether a referee's hand-built network link or a
+player's calculated path - is created through the Route Planner, opened here
+the same way the old standalone "Plan a route" toolbar icon did. Available to
+everyone, referees and players alike, matching that icon's prior visibility.
+-}
+planRouteRowHtml : Html Msg
+planRouteRowHtml =
+    Html.button
+        [ HtmlAttrs.type_ "button"
+        , Html.Events.onClick OpenRoutePlanner
+        , HtmlAttrs.class "starmap-display-option text-sm text-link no-underline hover:text-link-hover hover:underline hover:underline-offset-2 cursor-pointer bg-transparent border-0 text-left"
+        , HtmlAttrs.style "width" "100%"
+        , HtmlAttrs.style "padding" "8px 16px"
+        ]
+        [ Html.text "+ Plan a Route…" ]
 
 
 viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Bool -> Element Msg
@@ -4940,7 +5269,7 @@ viewHexMap model =
     viewHexes
         ( model.hexRect, model.rawHexaPoints )
         { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight, highlightRules = model.highlightRules }
+        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight, highlightRules = model.highlightRules, previewRoute = activePreviewRoute model }
         ( model.route, model.currentAddress )
         model.hexScale
         model.selectedHex
@@ -4949,6 +5278,7 @@ viewHexMap model =
         model.extinctSophontColour
         model.panOffset
         model.jumpRouteLinks
+        model.hiddenJumpRouteIds
         model.rogueObjectPathData
         model.facilityIcons
         model.displayMode
@@ -5029,6 +5359,7 @@ view ( time, model ) =
             , openShipTraffic = OpenShipTraffic
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
+            , planRouteFrom = OpenRoutePlannerFrom
             }
 
         solarSystemStatus =
@@ -5152,6 +5483,18 @@ view ( time, model ) =
 
             Nothing ->
                 Element.htmlAttribute <| HtmlAttrs.class ""
+        , case model.routePlanForm of
+            Just formModel ->
+                Element.inFront <| Element.map RoutePlanFormMsg (Element.html (RoutePlanForm.view (routePlanFormConfig model) formModel))
+
+            Nothing ->
+                Element.htmlAttribute <| HtmlAttrs.class ""
+        , case model.jumpRouteLayerEditor of
+            Just editorModel ->
+                Element.inFront <| Element.map JumpRouteLayerEditorMsg (Element.html (JumpRouteLayerEditor.view editorModel))
+
+            Nothing ->
+                Element.htmlAttribute <| HtmlAttrs.class ""
         ]
         [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
@@ -5252,6 +5595,21 @@ sendSubsectorLookupRequest hostConfig x y =
 fallbackSectorsUrl : HostConfig -> String
 fallbackSectorsUrl ( root, pathSegments ) =
     Url.Builder.crossOrigin root (List.take (List.length pathSegments - 1) pathSegments ++ [ "sectors" ]) []
+
+
+{-| The full-page Rails edit URL for a jump route, used when a "plotted"
+route (or any field outside the quick-edit set) needs editing - opened via
+the `navigateToUrlSameTab` port rather than replicated in Elm. Built the same
+way as the ctrl-click "open star system" navigation: take the
+`c/:campaign_slug` prefix off the API host's path segments.
+-}
+jumpRouteEditUrl : HostConfig -> Int -> String
+jumpRouteEditUrl ( _, pathSegments ) routeId =
+    let
+        campaignPrefix =
+            List.take 2 pathSegments |> String.join "/"
+    in
+    "/" ++ campaignPrefix ++ "/jump_routes/" ++ String.fromInt routeId ++ "/edit?return_to=starmap"
 
 
 sendRouteRequest : RequestEntry -> HostConfig -> Cmd Msg
@@ -5459,7 +5817,16 @@ port storeBackgroundNames : Bool -> Cmd msg
 port storeHighlightRules : Encode.Value -> Cmd msg
 
 
+port storeRoutePlan : Encode.Value -> Cmd msg
+
+
+port storeHiddenJumpRouteIds : Encode.Value -> Cmd msg
+
+
 port navigateToUrl : String -> Cmd msg
+
+
+port navigateToUrlSameTab : String -> Cmd msg
 
 
 port setTheme : String -> Cmd msg
@@ -7129,6 +7496,175 @@ update msg ( time, model ) =
                 Err _ ->
                     ( withTime model, Browser.Navigation.load (fallbackSectorsUrl model.hostConfig) )
 
+        OpenRoutePlanner ->
+            ( withTime { model | routePlanForm = Just (RoutePlanForm.init (routePlanFormConfig model)) }, Cmd.none )
+
+        OpenRoutePlannerFrom solarSystem ->
+            ( withTime { model | routePlanForm = Just (RoutePlanForm.initFrom (routePlanFormConfig model) solarSystem) }, Cmd.none )
+
+        DownloadedTravelZones (Ok zones) ->
+            ( withTime { model | travelZoneOptions = zones }, Cmd.none )
+
+        DownloadedTravelZones (Err _) ->
+            ( withTime model, Cmd.none )
+
+        ToggleJumpRouteLayersMenu ->
+            ( withTime
+                { model
+                    | showJumpRouteLayersMenu = not model.showJumpRouteLayersMenu
+                    , pendingDeleteJumpRouteId = Nothing
+                }
+            , Cmd.none
+            )
+
+        ToggleJumpRouteLayerHidden routeId ->
+            let
+                newHidden =
+                    if Set.member routeId model.hiddenJumpRouteIds then
+                        Set.remove routeId model.hiddenJumpRouteIds
+
+                    else
+                        Set.insert routeId model.hiddenJumpRouteIds
+            in
+            ( withTime { model | hiddenJumpRouteIds = newHidden }
+            , storeHiddenJumpRouteIds (Codec.encodeToValue JumpRouteLayer.hiddenIdsCodec newHidden)
+            )
+
+        StartEditJumpRouteLayer routeId ->
+            case model.jumpRouteLayers |> List.filter (\r -> r.id == routeId) |> List.head of
+                Just route ->
+                    if route.routeType == "network" then
+                        ( withTime
+                            { model
+                                | jumpRouteLayerEditor = Just (JumpRouteLayerEditor.init route)
+                                , showJumpRouteLayersMenu = False
+                                , pendingDeleteJumpRouteId = Nothing
+                            }
+                        , Cmd.none
+                        )
+
+                    else
+                        ( withTime { model | showJumpRouteLayersMenu = False, pendingDeleteJumpRouteId = Nothing }
+                        , navigateToUrlSameTab (jumpRouteEditUrl model.hostConfig routeId)
+                        )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        RequestDeleteJumpRouteLayer routeId ->
+            ( withTime { model | pendingDeleteJumpRouteId = Just routeId }, Cmd.none )
+
+        CancelDeleteJumpRouteLayer ->
+            ( withTime { model | pendingDeleteJumpRouteId = Nothing }, Cmd.none )
+
+        DeleteJumpRouteLayer routeId ->
+            ( withTime { model | pendingDeleteJumpRouteId = Nothing }
+            , sendDeleteJumpRouteRequest model.hostConfig routeId
+            )
+
+        DeletedJumpRouteLayer routeId (Ok ()) ->
+            let
+                newHidden =
+                    Set.remove routeId model.hiddenJumpRouteIds
+            in
+            ( withTime
+                { model
+                    | jumpRouteLayers = List.filter (\r -> r.id /= routeId) model.jumpRouteLayers
+                    , hiddenJumpRouteIds = newHidden
+                }
+            , Cmd.batch
+                [ sendJumpRouteLinksRequest model.hostConfig
+                , storeHiddenJumpRouteIds (Codec.encodeToValue JumpRouteLayer.hiddenIdsCodec newHidden)
+                ]
+            )
+
+        DeletedJumpRouteLayer _ (Err _) ->
+            ( withTime model, Cmd.none )
+
+        JumpRouteLayerEditorMsg editorMsg ->
+            case model.jumpRouteLayerEditor of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just editorModel ->
+                    case editorMsg of
+                        JumpRouteLayerEditor.Cancel ->
+                            ( withTime { model | jumpRouteLayerEditor = Nothing }, Cmd.none )
+
+                        JumpRouteLayerEditor.GotSaveResult (Ok savedRoute) ->
+                            let
+                                newLayers =
+                                    List.map
+                                        (\r ->
+                                            if r.id == savedRoute.id then
+                                                savedRoute
+
+                                            else
+                                                r
+                                        )
+                                        model.jumpRouteLayers
+                            in
+                            ( withTime { model | jumpRouteLayerEditor = Nothing, jumpRouteLayers = newLayers }
+                            , sendJumpRouteLinksRequest model.hostConfig
+                            )
+
+                        _ ->
+                            let
+                                ( newEditor, editorCmd ) =
+                                    JumpRouteLayerEditor.update (jumpRouteLayerEditorConfig model) editorMsg editorModel
+                            in
+                            ( withTime { model | jumpRouteLayerEditor = Just newEditor }
+                            , Cmd.map JumpRouteLayerEditorMsg editorCmd
+                            )
+
+        DownloadedJumpRouteLayers (Ok routes) ->
+            ( withTime { model | jumpRouteLayers = routes }, Cmd.none )
+
+        DownloadedJumpRouteLayers (Err _) ->
+            ( withTime model, Cmd.none )
+
+        RoutePlanFormMsg subMsg ->
+            case model.routePlanForm of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just formModel ->
+                    case subMsg of
+                        RoutePlanForm.Cancel ->
+                            ( withTime { model | routePlanForm = Nothing }, Cmd.none )
+
+                        RoutePlanForm.GotSaveResult (Ok _) ->
+                            ( withTime { model | routePlanForm = Nothing }
+                            , sendJumpRouteLinksRequest model.hostConfig
+                            )
+
+                        RoutePlanForm.GotPlanResult (Ok planResult) ->
+                            let
+                                ( newForm, formCmd ) =
+                                    RoutePlanForm.update (routePlanFormConfig model) subMsg formModel
+
+                                ( newActiveRoutePlan, storeCmd ) =
+                                    if not model.isReferee && planResult.found then
+                                        let
+                                            stored =
+                                                { result = planResult, colour = playerRoutePlanColour }
+                                        in
+                                        ( Just stored, storeRoutePlan (Codec.encodeToValue RoutePlan.storedRoutePlanCodec stored) )
+
+                                    else
+                                        ( model.activeRoutePlan, Cmd.none )
+                            in
+                            ( withTime { model | routePlanForm = Just newForm, activeRoutePlan = newActiveRoutePlan }
+                            , Cmd.batch [ Cmd.map RoutePlanFormMsg formCmd, storeCmd ]
+                            )
+
+                        _ ->
+                            let
+                                ( newForm, formCmd ) =
+                                    RoutePlanForm.update (routePlanFormConfig model) subMsg formModel
+                            in
+                            ( withTime { model | routePlanForm = Just newForm }, Cmd.map RoutePlanFormMsg formCmd )
+
         ToggleHexmap ->
             update (SetViewMode (if model.viewMode == HexMap then FullJourney else HexMap)) ( time, model )
 
@@ -7995,6 +8531,55 @@ sendJumpRouteLinksRequest hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson DownloadedJumpRouteLinks (JsDecode.list jumpRouteLinkDecoder)
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendTravelZonesRequest : HostConfig -> Cmd Msg
+sendTravelZonesRequest hostConfig =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "travel_zones" ])
+                []
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson DownloadedTravelZones (JsDecode.list RoutePlan.travelZoneOptionDecoder)
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendJumpRouteLayersRequest : HostConfig -> Cmd Msg
+sendJumpRouteLayersRequest ( urlHostRoot, urlHostPath ) =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "jump_routes" ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectJson DownloadedJumpRouteLayers JumpRouteLayer.routesDecoder
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendDeleteJumpRouteRequest : HostConfig -> Int -> Cmd Msg
+sendDeleteJumpRouteRequest ( urlHostRoot, urlHostPath ) routeId =
+    Http.request
+        { method = "DELETE"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "jump_routes", String.fromInt routeId ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever (DeletedJumpRouteLayer routeId)
         , timeout = Just 15000
         , tracker = Nothing
         }

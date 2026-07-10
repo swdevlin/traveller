@@ -23,6 +23,7 @@ class Api::JumpRouteLinksController < Api::BaseController
   def serialize_link(link)
     {
       id: link.id,
+      jump_route_id: link.jump_route_id,
       colour: link.jump_route.colour,
       known: link.jump_route.known?,
       route_type: link.jump_route.route_type,

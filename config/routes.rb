@@ -39,10 +39,15 @@ Rails.application.routes.draw do
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
+      resources :jump_routes, only: %i[index update destroy], defaults: { format: :json }
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
       get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
       get 'search',        to: 'search#query',        defaults: { format: :json }
       get 'subsector_at',  to: 'subsector_lookup#show', defaults: { format: :json }
+      get  'route_plan',         to: 'route_plans#plan',    defaults: { format: :json }
+      post 'route_plan/save',    to: 'route_plans#save',    defaults: { format: :json }
+      get  'route_plan/systems', to: 'route_plans#systems', defaults: { format: :json }
+      resources :travel_zones, only: :index, defaults: { format: :json }
     end
 
     resources :jump_logs

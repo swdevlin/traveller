@@ -1,4 +1,5 @@
 <%= form_with(model: jump_route, class: 'contents') do |form| %>
+  <%= hidden_field_tag :return_to, @return_to if @return_to.present? %>
   <div class='space-y-2 pb-10'>
     <%= render 'application/edit_field', form: form, attribute: :name do %>
       <%= form.text_field :name, class: 'edit-base w-60' %>
@@ -129,7 +130,13 @@
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
       <%= form.submit jump_route.persisted? ? 'Update' : 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', jump_route.persisted? ? jump_route : jump_routes_path, class: 'w-full sm:w-auto btn' %>
+      <%= link_to 'Cancel',
+                  if @return_to == 'starmap'
+                    campaign_starmap_path
+                  else
+                    jump_route.persisted? ? jump_route : jump_routes_path
+                  end,
+                  class: 'w-full sm:w-auto btn' %>
     </div>
   </div>
 <% end %>

@@ -20,6 +20,8 @@ document.addEventListener('turbo:load', () => {
   const subsectorLinesKey = `showSubsectorLines_${slug}`
   const backgroundNamesKey = `showBackgroundNames_${slug}`
   const highlightRulesKey = `highlightRules_${slug}`
+  const routePlanKey = `routePlan_${slug}`
+  const hiddenJumpRouteIdsKey = `hiddenJumpRouteIds_${slug}`
   const upperLeft = JSON.parse(localStorage.getItem(upperLeftKey) ?? 'null')
   const panOffset = JSON.parse(localStorage.getItem(panOffsetKey) ?? 'null')
   const hexSize = JSON.parse(localStorage.getItem(hexSizeKey) ?? '40')
@@ -31,6 +33,8 @@ document.addEventListener('turbo:load', () => {
   const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
   const showBackgroundNames = JSON.parse(localStorage.getItem(backgroundNamesKey) ?? 'null')
   const highlightRules = JSON.parse(localStorage.getItem(highlightRulesKey) ?? '[]')
+  const routePlan = JSON.parse(localStorage.getItem(routePlanKey) ?? 'null')
+  const hiddenJumpRouteIds = JSON.parse(localStorage.getItem(hiddenJumpRouteIdsKey) ?? '[]')
 
   const elm = window.Elm.Main.init({
     node,
@@ -46,6 +50,8 @@ document.addEventListener('turbo:load', () => {
       showSubsectorLines,
       showBackgroundNames,
       highlightRules,
+      routePlan,
+      hiddenJumpRouteIds,
       centerOn: null,
       ...serverFlags
     }
@@ -117,9 +123,27 @@ document.addEventListener('turbo:load', () => {
     })
   }
 
+  if (elm.ports.storeRoutePlan) {
+    elm.ports.storeRoutePlan.subscribe(value => {
+      localStorage.setItem(routePlanKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeHiddenJumpRouteIds) {
+    elm.ports.storeHiddenJumpRouteIds.subscribe(value => {
+      localStorage.setItem(hiddenJumpRouteIdsKey, JSON.stringify(value))
+    })
+  }
+
   if (elm.ports.navigateToUrl) {
     elm.ports.navigateToUrl.subscribe(url => {
       window.open(url, '_blank');
+    })
+  }
+
+  if (elm.ports.navigateToUrlSameTab) {
+    elm.ports.navigateToUrlSameTab.subscribe(url => {
+      window.location.href = url;
     })
   }
 
