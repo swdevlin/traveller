@@ -75,7 +75,6 @@ type alias SidebarMsgs msg =
     , openShipTraffic : msg
     , setKnown : Bool -> msg
     , setSurveyIndex : Int -> msg
-    , planRouteFrom : SolarSystem -> msg
     }
 
 
@@ -436,12 +435,6 @@ viewSystemDetailsSidebar msgs solarSystem opts =
                 , icon = "fa-solid fa-gauge-high"
                 , label = "Travel Times"
                 , onClick = msgs.toggleTravelTable
-                }
-            , viewSidebarButton
-                { active = False
-                , icon = "fa-solid fa-route"
-                , label = "Plan Route"
-                , onClick = msgs.planRouteFrom solarSystem
                 }
             ]
         ]

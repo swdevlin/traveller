@@ -104,7 +104,8 @@ import Traveller.Sidebar
         )
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
 import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
-import Traveller.StarColour exposing (starColourName, starColourRGB)
+import Traveller.StarColour exposing (starColourRGB)
+import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
 import Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf)
 import Traveller.StellarObjectView
@@ -364,6 +365,26 @@ searchResultDecoder =
 type DragMode
     = IsDragging { start : ( Float, Float ), last : ( Float, Float ) }
     | NoDragging
+
+
+starMapMinWidth : Float
+starMapMinWidth =
+    480
+
+
+starMapMaxWidth : Float
+starMapMaxWidth =
+    3000
+
+
+starMapMinHeight : Float
+starMapMinHeight =
+    360
+
+
+starMapMaxHeight : Float
+starMapMaxHeight =
+    2000
 
 
 {-| RequestNum is a unique identifier for a request.
@@ -747,8 +768,10 @@ type alias ModelData =
     , ship : Maybe Ship
     , isReferee : Bool
     , pendingCtrlNavigation : Bool
-    , objectToBeAnalyzed : Maybe { stellarObject : StellarObject, data : AnalysisDetail }
+    , objectToBeAnalyzed : List { stellarObject : StellarObject, data : AnalysisDetail } -- navigation stack; head is the currently shown modal
     , analysisTab : String
+    , starMapModalSize : { width : Float, height : Float }
+    , starMapResizeDrag : Maybe { startX : Float, startY : Float, startWidth : Float, startHeight : Float }
     , selectedRogueObjects : Maybe (List RogueObjectDetail)
     , timeOpened : Time.Posix
     , campaignName : String
@@ -841,6 +864,9 @@ type Msg
     | ViewObjectAnalysisDetail StellarObject
     | CloseObjectAnalysis
     | SetAnalysisTab String
+    | StarMapResizeStart { startX : Float, startY : Float }
+    | StarMapResizeMove ( Float, Float )
+    | StarMapResizeEnd
     | PanMap { deltaX : Int, deltaY : Int }
     | PanPixels { dx : Float, dy : Float }
     | HexMapWheelZoom Float
@@ -873,7 +899,6 @@ type Msg
     | GoToRailsApp
     | GotSubsectorLookupUrl (Result Http.Error String)
     | OpenRoutePlanner
-    | OpenRoutePlannerFrom SolarSystem
     | RoutePlanFormMsg RoutePlanForm.Msg
     | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
     | ToggleJumpRouteLayersMenu
@@ -918,10 +943,10 @@ toKey model key ctrl =
             model.hexScale * 0.5
     in
     case ( model.objectToBeAnalyzed, model.viewMode, key ) of
-        ( Just _, _, "Escape" ) ->
+        ( _ :: _, _, "Escape" ) ->
             CloseObjectAnalysis
 
-        ( Nothing, _, "Escape" ) ->
+        ( [], _, "Escape" ) ->
             if model.searchState.dropdownOpen then
                 CloseSearchDropdown
 
@@ -931,47 +956,47 @@ toKey model key ctrl =
             else
                 NoOpMsg
 
-        ( Nothing, _, "/" ) ->
+        ( [], _, "/" ) ->
             FocusSearch
 
-        ( Nothing, HexMap, "ArrowRight" ) ->
+        ( [], HexMap, "ArrowRight" ) ->
             if ctrl then
                 PanMap { deltaX = halfH, deltaY = 0 }
 
             else
                 PanPixels { dx = panStep, dy = 0 }
 
-        ( Nothing, HexMap, "ArrowLeft" ) ->
+        ( [], HexMap, "ArrowLeft" ) ->
             if ctrl then
                 PanMap { deltaX = -halfH, deltaY = 0 }
 
             else
                 PanPixels { dx = -panStep, dy = 0 }
 
-        ( Nothing, HexMap, "ArrowUp" ) ->
+        ( [], HexMap, "ArrowUp" ) ->
             if ctrl then
                 PanMap { deltaX = 0, deltaY = -halfV }
 
             else
                 PanPixels { dx = 0, dy = -panStep }
 
-        ( Nothing, HexMap, "ArrowDown" ) ->
+        ( [], HexMap, "ArrowDown" ) ->
             if ctrl then
                 PanMap { deltaX = 0, deltaY = halfV }
 
             else
                 PanPixels { dx = 0, dy = panStep }
 
-        ( Nothing, FullJourney, "ArrowRight" ) ->
+        ( [], FullJourney, "ArrowRight" ) ->
             JourneyMsg (Pan ( -50, 0 ))
 
-        ( Nothing, FullJourney, "ArrowLeft" ) ->
+        ( [], FullJourney, "ArrowLeft" ) ->
             JourneyMsg (Pan ( 50, 0 ))
 
-        ( Nothing, FullJourney, "ArrowUp" ) ->
+        ( [], FullJourney, "ArrowUp" ) ->
             JourneyMsg (Pan ( 0, 50 ))
 
-        ( Nothing, FullJourney, "ArrowDown" ) ->
+        ( [], FullJourney, "ArrowDown" ) ->
             JourneyMsg (Pan ( 0, -50 ))
 
         _ ->
@@ -996,6 +1021,14 @@ subscriptions time model =
             Sub.none
         , if model.showJumpRouteLayersMenu then
             Browser.Events.onClick jumpRouteLayersMenuOutsideClickDecoder
+
+          else
+            Sub.none
+        , if model.starMapResizeDrag /= Nothing then
+            Sub.batch
+                [ Browser.Events.onMouseMove (mouseMoveDecoder StarMapResizeMove)
+                , Browser.Events.onMouseUp (JsDecode.succeed StarMapResizeEnd)
+                ]
 
           else
             Sub.none
@@ -1372,8 +1405,10 @@ init viewport settings key hostConfig referee =
             , hexColours = Dict.empty
             , isReferee = referee
             , pendingCtrlNavigation = False
-            , objectToBeAnalyzed = Nothing
+            , objectToBeAnalyzed = []
             , analysisTab = "orbital"
+            , starMapModalSize = { width = 760, height = 560 }
+            , starMapResizeDrag = Nothing
             , selectedRogueObjects = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
@@ -1935,11 +1970,18 @@ drawUnknownSlot iconX iconY size =
         ]
 
 
-drawPlanetoidBelt : Float -> Float -> Float -> Svg Msg
-drawPlanetoidBelt iconX iconY size =
+drawPlanetoidBelt : Bool -> Float -> Float -> Float -> Svg Msg
+drawPlanetoidBelt themeIsLight iconX iconY size =
     let
         scale =
             7 * iconScale size / 16 * cornerGlyphScale
+
+        ( darkest, mid, lightest ) =
+            if themeIsLight then
+                ( "#1e293b", "#475569", "#64748b" )
+
+            else
+                ( "#64748b", "#94a3b8", "#cbd5e1" )
     in
     Svg.g
         [ SvgAttrs.transform <|
@@ -1951,17 +1993,24 @@ drawPlanetoidBelt iconX iconY size =
                 ++ String.fromFloat scale
                 ++ ")"
         ]
-        [ Svg.polygon [ SvgAttrs.points "-12,-6 -7,-10 -3,-5 -6,-1 -10,-2", SvgAttrs.fill "#475569" ] []
-        , Svg.polygon [ SvgAttrs.points "4,-11 10,-9 8,-4 3,-6", SvgAttrs.fill "#64748b" ] []
-        , Svg.polygon [ SvgAttrs.points "-10,4 -5,2 -2,7 -7,10", SvgAttrs.fill "#1e293b" ] []
-        , Svg.polygon [ SvgAttrs.points "2,1 8,-1 11,5 7,8 3,6", SvgAttrs.fill "#475569" ] []
-        , Svg.polygon [ SvgAttrs.points "-1,9 4,11 1,14 -3,12", SvgAttrs.fill "#64748b" ] []
+        [ Svg.polygon [ SvgAttrs.points "-12,-6 -7,-10 -3,-5 -6,-1 -10,-2", SvgAttrs.fill mid ] []
+        , Svg.polygon [ SvgAttrs.points "4,-11 10,-9 8,-4 3,-6", SvgAttrs.fill lightest ] []
+        , Svg.polygon [ SvgAttrs.points "-10,4 -5,2 -2,7 -7,10", SvgAttrs.fill darkest ] []
+        , Svg.polygon [ SvgAttrs.points "2,1 8,-1 11,5 7,8 3,6", SvgAttrs.fill mid ] []
+        , Svg.polygon [ SvgAttrs.points "-1,9 4,11 1,14 -3,12", SvgAttrs.fill lightest ] []
         ]
 
 
-drawBases : Dict.Dict String FacilityIcon -> List String -> Int -> Int -> Float -> Svg Msg
-drawBases facilityIcons codes cx cy size =
+drawBases : Bool -> Dict.Dict String FacilityIcon -> List String -> Int -> Int -> Float -> Svg Msg
+drawBases themeIsLight facilityIcons codes cx cy size =
     let
+        baseIconColour =
+            if themeIsLight then
+                "#222222"
+
+            else
+                "#cbd5e1"
+
         renderable =
             codes
                 |> List.filterMap (\code -> Dict.get code facilityIcons)
@@ -1999,7 +2048,7 @@ drawBases facilityIcons codes cx cy size =
                 , SvgAttrs.height (String.fromFloat iconSize)
                 , SvgAttrs.viewBox icon.viewBox
                 ]
-                [ Svg.path [ SvgAttrs.d icon.pathData, SvgAttrs.fill "#222222" ] [] ]
+                [ Svg.path [ SvgAttrs.d icon.pathData, SvgAttrs.fill baseIconColour ] [] ]
     in
     Svg.g [] (List.indexedMap renderIcon renderable)
 
@@ -2050,18 +2099,25 @@ drawTravelZoneRing cx cy size colour =
         []
 
 
-drawGasGiant : Float -> Float -> Float -> Svg Msg
-drawGasGiant iconX iconY size =
+drawGasGiant : Bool -> Float -> Float -> Float -> Svg Msg
+drawGasGiant themeIsLight iconX iconY size =
     let
         r =
             5 * iconScale size * cornerGlyphScale
+
+        colour =
+            if themeIsLight then
+                "#222222"
+
+            else
+                "#cbd5e1"
     in
     Svg.g []
         [ Svg.circle
             [ SvgAttrs.cx <| String.fromFloat iconX
             , SvgAttrs.cy <| String.fromFloat iconY
             , SvgAttrs.r <| String.fromFloat r
-            , SvgAttrs.fill "#222222"
+            , SvgAttrs.fill colour
             ]
             []
         , Svg.ellipse
@@ -2070,7 +2126,7 @@ drawGasGiant iconX iconY size =
             , SvgAttrs.rx <| String.fromFloat (r * 1.8)
             , SvgAttrs.ry <| String.fromFloat (r * 0.55)
             , SvgAttrs.fill "none"
-            , SvgAttrs.stroke "#222222"
+            , SvgAttrs.stroke colour
             , SvgAttrs.strokeWidth "1.2"
             , SvgAttrs.transform <|
                 "rotate(-30 "
@@ -2095,6 +2151,7 @@ type alias HexRenderOpts =
     , isReferee : Bool
     , facilityIcons : Dict.Dict String FacilityIcon
     , displayMode : DisplayMode
+    , themeIsLight : Bool
     }
 
 
@@ -2247,7 +2304,7 @@ viewRoleBadge size cx rowY role hexColour =
 
 
 renderHexContent : HexRenderOpts -> Svg Msg
-renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode } =
+renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode, themeIsLight } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -2431,7 +2488,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                         Nothing ->
                             Svg.text ""
                     , if showGasGiant && size > 15 then
-                        drawGasGiant topRightAnchorX topRightAnchorY size
+                        drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
                       else
                         Svg.text ""
@@ -2468,7 +2525,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                       else
                         hexCentreText (String.join " " starSystem.tradeCodes)
                     , if showGasGiant && size > 15 then
-                        drawGasGiant topRightAnchorX topRightAnchorY size
+                        drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
                       else
                         Svg.text ""
@@ -2667,12 +2724,12 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                       else
                         Svg.text ""
                     , if showGasGiant && size > 15 then
-                        drawGasGiant gasGiantX topRightAnchorY size
+                        drawGasGiant themeIsLight gasGiantX topRightAnchorY size
 
                       else
                         Svg.text ""
                     , if showPlanetoidBelt && size > 15 then
-                        drawPlanetoidBelt beltX beltY size
+                        drawPlanetoidBelt themeIsLight beltX beltY size
 
                       else
                         Svg.text ""
@@ -2689,7 +2746,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     , travelZoneRing
                     ]
         , if showBases && size > 15 then
-            drawBases facilityIcons starSystem.baseCodes vox voy size
+            drawBases themeIsLight facilityIcons starSystem.baseCodes vox voy size
 
           else
             Svg.text ""
@@ -2821,8 +2878,9 @@ viewHex :
     -> Maybe String
     -> Dict.Dict String FacilityIcon
     -> DisplayMode
+    -> Bool
     -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode themeIsLight =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
@@ -2848,6 +2906,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
                     , isReferee = isReferee
                     , facilityIcons = facilityIcons
                     , displayMode = displayMode
+                    , themeIsLight = themeIsLight
                     }
             in
             ( Svg.Lazy.lazy renderHexBg opts
@@ -3185,7 +3244,7 @@ backgroundNameLabel themeIsLight fontSize cx cy name =
                 "#D3D3D3"
 
             else
-                "#2a2a2a"
+                "#4d4d4d"
     in
     Svg.text_
         [ SvgAttrs.x (String.fromInt cx)
@@ -3393,6 +3452,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 rogueObjectPathData
                 facilityIcons
                 displayMode
+                themeIsLight
             )
     in
     hexRange
@@ -3448,6 +3508,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     , isReferee = isReferee
                                     , facilityIcons = facilityIcons
                                     , displayMode = displayMode
+                                    , themeIsLight = themeIsLight
                                     }
 
                             _ ->
@@ -5005,7 +5066,8 @@ jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee route =
             pendingDeleteId == Just route.id
 
         linkCountLabel =
-            String.fromInt route.linkCount ++ " link"
+            String.fromInt route.linkCount
+                ++ " link"
                 ++ (if route.linkCount == 1 then
                         ""
 
@@ -5487,7 +5549,6 @@ view ( time, model ) =
             , openShipTraffic = OpenShipTraffic
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
-            , planRouteFrom = OpenRoutePlannerFrom
             }
 
         solarSystemStatus =
@@ -5573,55 +5634,77 @@ view ( time, model ) =
         timeChars : Int
         timeChars =
             (Time.posixToMillis time - Time.posixToMillis model.timeOpened) // 12
+
+        -- One `inFront` layer per open object, oldest first (so each newer
+        -- drill-down paints on top of, not instead of, whatever's beneath
+        -- it — closing the top one reveals the previous one, still there).
+        objectAnalysisLayers : List (Element.Attribute Msg)
+        objectAnalysisLayers =
+            model.objectToBeAnalyzed
+                |> List.reverse
+                |> List.indexedMap
+                    (\index entry ->
+                        Element.inFront <|
+                            viewObjectAnalysisDetail timeChars
+                                CloseObjectAnalysis
+                                NoOpMsg
+                                model.analysisTab
+                                SetAnalysisTab
+                                model.isReferee
+                                ViewObjectAnalysisDetail
+                                (1000 + index * 10)
+                                { width = model.starMapModalSize.width
+                                , height = model.starMapModalSize.height
+                                , onResizeStart = StarMapResizeStart
+                                }
+                                entry.data
+                    )
     in
     row
-        [ width fill
-        , height fill
-        , Font.size 20
-        , fontVar "--color-fg"
-        , bgVar "--color-bg"
-        , case model.objectToBeAnalyzed of
-            Just analysisDetail ->
-                Element.inFront <| viewObjectAnalysisDetail timeChars CloseObjectAnalysis NoOpMsg model.analysisTab SetAnalysisTab model.isReferee analysisDetail.data
+        ([ width fill
+         , height fill
+         , Font.size 20
+         , fontVar "--color-fg"
+         , bgVar "--color-bg"
+         ]
+            ++ objectAnalysisLayers
+            ++ [ Element.htmlAttribute <| HtmlAttrs.class ""
+               , case ( model.showTravelTable, model.selectedSystem ) of
+                    ( True, Just solarSystem ) ->
+                        Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
 
-            Nothing ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
-        , Element.htmlAttribute <| HtmlAttrs.class ""
-        , case ( model.showTravelTable, model.selectedSystem ) of
-            ( True, Just solarSystem ) ->
-                Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
+                    _ ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , if model.showShipTraffic then
+                    Element.inFront <| ShipTraffic.viewModal shipTrafficMsgs model.shipTraffic model.shipTrafficFrontier
 
-            _ ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
-        , if model.showShipTraffic then
-            Element.inFront <| ShipTraffic.viewModal shipTrafficMsgs model.shipTraffic model.shipTrafficFrontier
+                 else
+                    Element.htmlAttribute <| HtmlAttrs.class ""
+               , if model.showDisplaySettings then
+                    Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines model.showBackgroundNames
 
-          else
-            Element.htmlAttribute <| HtmlAttrs.class ""
-        , if model.showDisplaySettings then
-            Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines model.showBackgroundNames
+                 else
+                    Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.ruleEditor of
+                    Just editorModel ->
+                        Element.inFront <| Element.map HighlightRuleEditorMsg (HighlightRuleEditor.view (facilityOptions model) editorModel)
 
-          else
-            Element.htmlAttribute <| HtmlAttrs.class ""
-        , case model.ruleEditor of
-            Just editorModel ->
-                Element.inFront <| Element.map HighlightRuleEditorMsg (HighlightRuleEditor.view (facilityOptions model) editorModel)
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.routePlanForm of
+                    Just formModel ->
+                        Element.inFront <| Element.map RoutePlanFormMsg (Element.html (RoutePlanForm.view (routePlanFormConfig model) formModel))
 
-            Nothing ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
-        , case model.routePlanForm of
-            Just formModel ->
-                Element.inFront <| Element.map RoutePlanFormMsg (Element.html (RoutePlanForm.view (routePlanFormConfig model) formModel))
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.jumpRouteLayerEditor of
+                    Just editorModel ->
+                        Element.inFront <| Element.map JumpRouteLayerEditorMsg (Element.html (JumpRouteLayerEditor.view editorModel))
 
-            Nothing ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
-        , case model.jumpRouteLayerEditor of
-            Just editorModel ->
-                Element.inFront <| Element.map JumpRouteLayerEditorMsg (Element.html (JumpRouteLayerEditor.view editorModel))
-
-            Nothing ->
-                Element.htmlAttribute <| HtmlAttrs.class ""
-        ]
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               ]
+        )
         [ column [ width fill, Element.alignTop ]
             [ viewStatusRow model
             , el
@@ -7625,9 +7708,6 @@ update msg ( time, model ) =
         OpenRoutePlanner ->
             ( withTime { model | routePlanForm = Just (RoutePlanForm.init (routePlanFormConfig model)) }, Cmd.none )
 
-        OpenRoutePlannerFrom solarSystem ->
-            ( withTime { model | routePlanForm = Just (RoutePlanForm.initFrom (routePlanFormConfig model) solarSystem) }, Cmd.none )
-
         DownloadedTravelZones (Ok zones) ->
             ( withTime { model | travelZoneOptions = zones }, Cmd.none )
 
@@ -8452,12 +8532,14 @@ update msg ( time, model ) =
 
                         Star (StarDataWrap starDataConfig) ->
                             let
+                                surveyIndex =
+                                    model.selectedSystem |> Maybe.map .surveyIndex |> Maybe.withDefault 0
+
                                 starDetailData : AnalyisDetailStarData
                                 starDetailData =
                                     { spectralType = starDataConfig.stellarType
                                     , subtype = starDataConfig.subtype |> Maybe.map String.fromInt |> Maybe.withDefault "—"
                                     , class_ = starDataConfig.stellarClass
-                                    , colour = starColourName starDataConfig.colour
                                     , temperature = starDataConfig.temperature |> Maybe.map (\t -> String.fromInt t ++ " K") |> Maybe.withDefault "—"
                                     , age = rnd 2 starDataConfig.age ++ " Gyr"
                                     , mass = rndm 3 0 starDataConfig.mass ++ " ☉"
@@ -8466,21 +8548,69 @@ update msg ( time, model ) =
                                     , minimumOrbit = rndm 3 0 starDataConfig.minimumAllowableOrbit
                                     , hzco = rndm 3 0 starDataConfig.hzco
                                     , jumpShadow = starDataConfig.jumpShadow |> Maybe.map (\js -> format { usLocale | decimals = Exact 0, thousandSeparator = " " } js ++ " km") |> Maybe.withDefault "—"
+                                    , showNames = showName
+                                    , primaryStarData = StarDataWrap starDataConfig
+                                    , children = StarOrbitMap.buildChildren surveyIndex starDataConfig.companion starDataConfig.stellarObjects
                                     }
                             in
                             AnalyisDetailStar header starDetailData
             in
-            ( withTime { model | objectToBeAnalyzed = Just { stellarObject = stellarObject, data = analysisDetail }, timeOpened = time }
+            ( withTime
+                { model
+                    | objectToBeAnalyzed = { stellarObject = stellarObject, data = analysisDetail } :: model.objectToBeAnalyzed
+                    , timeOpened = time
+                }
             , Cmd.none
             )
 
         CloseObjectAnalysis ->
-            ( withTime { model | objectToBeAnalyzed = Nothing, analysisTab = "orbital" }
+            ( withTime
+                { model
+                    | objectToBeAnalyzed = List.drop 1 model.objectToBeAnalyzed
+                    , analysisTab = "orbital"
+                    , starMapResizeDrag = Nothing
+                }
             , Cmd.none
             )
 
         SetAnalysisTab tab ->
             ( withTime { model | analysisTab = tab, timeOpened = time }
+            , Cmd.none
+            )
+
+        StarMapResizeStart { startX, startY } ->
+            ( withTime
+                { model
+                    | starMapResizeDrag =
+                        Just
+                            { startX = startX
+                            , startY = startY
+                            , startWidth = model.starMapModalSize.width
+                            , startHeight = model.starMapModalSize.height
+                            }
+                }
+            , Cmd.none
+            )
+
+        StarMapResizeMove ( clientX, clientY ) ->
+            case model.starMapResizeDrag of
+                Just drag ->
+                    let
+                        newWidth =
+                            clamp starMapMinWidth starMapMaxWidth (drag.startWidth + (clientX - drag.startX))
+
+                        newHeight =
+                            clamp starMapMinHeight starMapMaxHeight (drag.startHeight + (clientY - drag.startY))
+                    in
+                    ( withTime { model | starMapModalSize = { width = newWidth, height = newHeight } }
+                    , Cmd.none
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        StarMapResizeEnd ->
+            ( withTime { model | starMapResizeDrag = Nothing }
             , Cmd.none
             )
 

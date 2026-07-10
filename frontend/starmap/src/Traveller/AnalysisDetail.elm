@@ -33,10 +33,13 @@ import Html.Attributes as HtmlAttrs
 import Html.Events
 import Json.Decode
 import List.Extra
+import Traveller.StarOrbitMap as StarOrbitMap
+import Traveller.StellarObject exposing (StarData, StellarObject)
 import Traveller.TravelCalculations as TravelCalc
 import Traveller.UI
     exposing
         ( accentHeadingColour
+        , bgVar
         , fontVar
         , groupAttrs
         , profileFieldDisplay
@@ -65,7 +68,6 @@ type alias AnalyisDetailStarData =
     { spectralType : String
     , subtype : String
     , class_ : String
-    , colour : String
     , temperature : String
     , age : String
     , mass : String
@@ -74,6 +76,9 @@ type alias AnalyisDetailStarData =
     , minimumOrbit : String
     , hzco : String
     , jumpShadow : String
+    , showNames : Bool
+    , primaryStarData : StarData
+    , children : List StarOrbitMap.ChildNode
     }
 
 
@@ -395,7 +400,7 @@ viewJumpShadowTable maybeKm =
 
                     cell attrs child =
                         el
-                            ([ width fill
+                            ([ width (Element.px 46)
                              , Element.paddingXY 0 4
                              , Element.centerX
                              ]
@@ -426,8 +431,8 @@ viewJumpShadowTable maybeKm =
                 in
                 column [ width fill, Element.paddingEach { zeroEach | top = 8 } ]
                     [ viewSectionHeader "Safe Jump Distance"
-                    , row [ width fill ] (List.map headerCell mDrives)
-                    , row [ width fill ] (List.map timeCell mDrives)
+                    , row [] (List.map headerCell mDrives)
+                    , row [] (List.map timeCell mDrives)
                     ]
 
 
@@ -622,8 +627,40 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> AnalysisDetail -> Element.Element msg
-viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee data =
+viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
+viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject zIndex starMapResizeConfig data =
+    case data of
+        AnalyisDetailStar detailHeader starData ->
+            Element.html
+                (StarOrbitMap.viewModal
+                    { close = closeMsg, noOp = noOpMsg, onSelectObject = onSelectObject, zIndex = zIndex }
+                    starMapResizeConfig
+                    detailHeader.header
+                    (starStatItems starData)
+                    starData.showNames
+                    starData.primaryStarData
+                    starData.children
+                )
+
+        _ ->
+            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee zIndex data
+
+
+starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
+starStatItems data =
+    [ { label = "Temperature", value = data.temperature }
+    , { label = "Age", value = data.age }
+    , { label = "Mass", value = data.mass }
+    , { label = "Diameter", value = data.diameter }
+    , { label = "Luminosity", value = data.luminosity }
+    , { label = "Min. Orbit", value = data.minimumOrbit }
+    , { label = "HZCO", value = data.hzco }
+    , { label = "Jump Shadow", value = data.jumpShadow }
+    ]
+
+
+viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> Int -> AnalysisDetail -> Element.Element msg
+viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee zIndex data =
     let
         profileLayout profile content_ =
             row [ Element.spacing 0 ]
@@ -664,12 +701,16 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
                     , 960
                     )
 
-                AnalyisDetailStar detailHeader starData ->
-                    ( detailHeader.header, viewStarAnalysisDetail starData, 750 )
+                AnalyisDetailStar detailHeader _ ->
+                    -- unreachable: viewObjectAnalysisDetail dispatches stars to StarOrbitMap.viewModal above
+                    ( detailHeader.header, Element.none, 750 )
     in
     el
         [ width fill
         , height fill
+        , Element.htmlAttribute (HtmlAttrs.style "position" "fixed")
+        , Element.htmlAttribute (HtmlAttrs.style "inset" "0")
+        , Element.htmlAttribute (HtmlAttrs.style "z-index" (String.fromInt zIndex))
         , Events.onClick closeMsg
         ]
     <|
@@ -677,7 +718,9 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
             [ Element.centerX
             , Element.centerY
             , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True )))
-            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
+            , bgVar "--color-panel"
+            , Border.width 1
+            , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
             , Element.htmlAttribute (HtmlAttrs.style "max-height" "92vh")
             , Element.htmlAttribute (HtmlAttrs.style "overflow-y" "auto")
             , width <| Element.px modalWidth
@@ -708,21 +751,6 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
                 ]
             , content
             ]
-
-
-viewStarAnalysisDetail : AnalyisDetailStarData -> Element.Element msg
-viewStarAnalysisDetail data =
-    column groupAttrs
-        [ textDisplay "Colour" data.colour
-        , textDisplay "Temperature" data.temperature
-        , textDisplay "Age" data.age
-        , textDisplay "Mass" data.mass
-        , textDisplay "Diameter" data.diameter
-        , textDisplay "Luminosity" data.luminosity
-        , textDisplay "Min. Orbit" data.minimumOrbit
-        , textDisplay "HZCO" data.hzco
-        , textDisplay "Jump Shadow" data.jumpShadow
-        ]
 
 
 viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> AnalyisDetailPlanetoidData -> Element.Element msg

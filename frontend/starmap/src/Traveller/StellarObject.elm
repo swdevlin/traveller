@@ -253,7 +253,7 @@ type alias InnerStarData =
     , companion : Maybe StarData
     , orbit : Float
     , period : Float
-    , baseline : Int
+    , baseline : Float
     , stellarObjects : List StellarObject
     , orbitSequence : String
     , au : Float
@@ -261,6 +261,7 @@ type alias InnerStarData =
     , luminosity : Maybe Float
     , hzco : Maybe Float
     , minimumAllowableOrbit : Maybe Float
+    , spread : Float
     }
 
 
@@ -843,7 +844,7 @@ codecStarData =
         |> Codec.field "companion" .companion (Codec.nullable <| Codec.lazy (\_ -> codecStarData))
         |> Codec.field "orbit" .orbit Codec.float
         |> Codec.field "period" .period Codec.float
-        |> Codec.field "baseline" .baseline Codec.int
+        |> Codec.field "baseline" .baseline Codec.float
         |> Codec.field "stellar_objects" .stellarObjects (Codec.list (Codec.lazy (\_ -> codecStellarObject)))
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
         |> Codec.field "au" .au Codec.float
@@ -851,6 +852,7 @@ codecStarData =
         |> Codec.optionalNullableField "luminosity" .luminosity Codec.float
         |> Codec.optionalNullableField "hzco" .hzco Codec.float
         |> Codec.optionalNullableField "minimum_allowable_orbit" .minimumAllowableOrbit Codec.float
+        |> Codec.field "spread" .spread Codec.float
         |> Codec.buildObject
         |> Codec.map StarDataWrap (\(StarDataWrap data) -> data)
 

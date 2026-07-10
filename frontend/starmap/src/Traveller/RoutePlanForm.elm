@@ -1,4 +1,4 @@
-module Traveller.RoutePlanForm exposing (Config, Model, Msg(..), init, initFrom, update, view)
+module Traveller.RoutePlanForm exposing (Config, Model, Msg(..), init, update, view)
 
 {-| A self-contained route-planning modal: pick a from/to system, a jump
 range, a refuelling filter and any excluded travel zones, plan the route
@@ -27,7 +27,6 @@ import Traveller.RoutePlan as RoutePlan
         , RoutePlanSystemResult
         , TravelZoneOption
         )
-import Traveller.SolarSystem exposing (SolarSystem)
 import Url.Builder
 
 
@@ -97,23 +96,6 @@ init _ =
     , saveColour = "#E87040"
     , saveState = NotAsked
     }
-
-
-{-| Pre-seed the "from" picker with the currently-selected system, mirroring
-the Rails navbar's `from_id`-seeded `new_route_plan_path`.
--}
-initFrom : Config -> SolarSystem -> Model
-initFrom config solarSystem =
-    let
-        endpoint : RoutePlanEndpoint
-        endpoint =
-            { id = solarSystem.id, name = Maybe.withDefault "Unnamed System" solarSystem.name }
-    in
-    let
-        model =
-            init config
-    in
-    { model | fromPicker = { emptyPicker | query = endpoint.name, selected = Just endpoint } }
 
 
 type Msg

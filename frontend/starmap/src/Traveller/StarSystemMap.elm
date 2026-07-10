@@ -1,4 +1,16 @@
-module Traveller.StarSystemMap exposing (MapNode, systemNodes, viewStarSystemMap)
+module Traveller.StarSystemMap exposing
+    ( MapNode
+    , gasGiantRadius
+    , isDisplayable
+    , isKnown
+    , makeBodyNode
+    , makeStarNode
+    , starRadius
+    , svgDefs
+    , svgStyle
+    , systemNodes
+    , viewStarSystemMap
+    )
 
 {-| Vertical subway-style SVG map of a star system.
 
@@ -719,8 +731,8 @@ isKnown si obj =
 isDisplayable : StellarObject -> Bool
 isDisplayable obj =
     case obj of
-        Planetoid pdata ->
-            pdata.size /= "S" && pdata.size /= "0"
+        Planetoid _ ->
+            False
 
         _ ->
             True

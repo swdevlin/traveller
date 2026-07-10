@@ -1,6 +1,7 @@
 module Traveller.TravelCalculations exposing
     ( auToKMs
     , calcDistance2F
+    , kmToAu
     , safeJumpTimeFromShadow
     , secondsToDaysWatches
     , travelTime
@@ -17,6 +18,13 @@ import Traveller.Point exposing (StellarPoint)
 auToKMs : Float -> Float
 auToKMs au =
     au * 149597871.0
+
+
+{-| Convert kilometers to AU (Astronomical Units)
+-}
+kmToAu : Float -> Float
+kmToAu km =
+    km / 149597871.0
 
 
 {-| Calculate travel time in seconds based on distance in km and M-drive rating
