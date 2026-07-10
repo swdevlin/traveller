@@ -1,10 +1,10 @@
 module Traveller.AnalysisDetail exposing
-    ( AnalysisDetail(..)
-    , AnalysisDetailHeader
-    , AnalyisDetailGasGiantData
+    ( AnalyisDetailGasGiantData
     , AnalyisDetailPlanetoidBeltData
     , AnalyisDetailPlanetoidData
     , AnalyisDetailStarData
+    , AnalysisDetail(..)
+    , AnalysisDetailHeader
     , viewGasGiantAnalysisDetail
     , viewObjectAnalysisDetail
     , viewPlanetoidAnalysisDetail
@@ -36,14 +36,14 @@ import List.Extra
 import Traveller.TravelCalculations as TravelCalc
 import Traveller.UI
     exposing
-        ( fontVar
+        ( accentHeadingColour
+        , fontVar
         , groupAttrs
         , profileFieldDisplay
         , taintTextDisplay
         , textDisplay
         , textDisplayMedium
         , textDisplayNarrow
-        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -225,7 +225,7 @@ type alias AnalyisDetailPlanetoidData =
 
 activeTabColour : String
 activeTabColour =
-    "var(--color-button-primary)"
+    "var(--color-highlight)"
 
 
 mutedTabColour : String
@@ -238,7 +238,7 @@ viewTabBar activeTab setTab tabs =
     row
         [ width fill
         , Border.widthEach { zeroEach | bottom = 1 }
-        , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+        , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
         ]
         (List.map (viewOneTab activeTab setTab) tabs)
 
@@ -263,7 +263,7 @@ viewOneTab activeTab setTab tab =
 
             colour =
                 if isActive then
-                    activeTabColour
+                    "var(--color-fg-bright)"
 
                 else
                     mutedTabColour
@@ -285,7 +285,7 @@ viewOneTab activeTab setTab tab =
             , Element.pointer
             ]
             (column [ Element.spacing 1, Element.centerX ]
-                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, uiDeepnightColorFontColour ] (text tab.code)
+                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, accentHeadingColour ] (text tab.code)
                 , el [ Font.size 11, Font.center, Element.centerX ] (text tab.label)
                 ]
             )
@@ -298,11 +298,11 @@ viewSectionHeader title =
         , Element.spacing 8
         , Element.paddingEach { zeroEach | top = 12, bottom = 2 }
         ]
-        [ el [ uiDeepnightColorFontColour, Font.size 11, Font.bold ] <| text (String.toUpper title)
+        [ el [ accentHeadingColour, Font.size 11, Font.bold ] <| text (String.toUpper title)
         , el
             [ width fill
             , height (Element.px 1)
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
+            , Element.htmlAttribute (HtmlAttrs.style "background-color" "var(--color-outline)")
             , Element.centerY
             ]
             Element.none
@@ -320,7 +320,7 @@ viewPlanetaryProfile data =
             [ Element.centerX
             , Font.size 15
             , Font.family [ Font.monospace ]
-            , uiDeepnightColorFontColour
+            , fontVar "--color-fg-bright"
             , Element.paddingEach { zeroEach | top = 6, bottom = 6 }
             ]
             (text data.uwp)
@@ -341,10 +341,17 @@ viewGasGiantProfile data =
     let
         sizeDescription =
             case data.code of
-                "GS" -> "Small"
-                "GM" -> "Medium"
-                "GL" -> "Large"
-                _ -> data.code
+                "GS" ->
+                    "Small"
+
+                "GM" ->
+                    "Medium"
+
+                "GL" ->
+                    "Large"
+
+                _ ->
+                    data.code
     in
     column
         [ Element.paddingEach { zeroEach | right = 16 }
@@ -400,9 +407,9 @@ viewJumpShadowTable maybeKm =
                         cell
                             [ Font.bold
                             , Font.size 11
-                            , uiDeepnightColorFontColour
+                            , fontVar "--color-fg"
                             , Border.widthEach { zeroEach | bottom = 1 }
-                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                             ]
                             (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
 
@@ -555,7 +562,7 @@ viewCultureGauge trait =
             toHexChar trait.value
     in
     column [ width fill, Element.spacing 4 ]
-        [ el [ Font.size 12, uiDeepnightColorFontColour, Font.bold ] (text trait.label)
+        [ el [ Font.size 12, fontVar "--color-fg-muted", Font.bold ] (text trait.label)
         , el [ width fill, Element.paddingEach { zeroEach | top = 4 } ] <|
             Element.html <|
                 let
@@ -574,7 +581,7 @@ viewCultureGauge trait =
                             , HtmlAttrs.style "left" "0"
                             , HtmlAttrs.style "right" "0"
                             , HtmlAttrs.style "height" "1px"
-                            , HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 40%, transparent)"
+                            , HtmlAttrs.style "background-color" "var(--color-gauge-line)"
                             , HtmlAttrs.style "transform" "translateY(-50%)"
                             ]
                             []
@@ -584,7 +591,7 @@ viewCultureGauge trait =
                             , HtmlAttrs.style "left" caretLeft
                             , HtmlAttrs.style "transform" "translateX(-50%) translateY(-50%)"
                             , HtmlAttrs.style "font-size" "10px"
-                            , HtmlAttrs.style "color" "var(--color-button-primary)"
+                            , HtmlAttrs.style "color" "var(--color-highlight)"
                             ]
                             [ Html.text "▲" ]
                         ]
@@ -623,7 +630,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
                 [ column
                     [ width (Element.px 220)
                     , Border.widthEach { zeroEach | right = 1 }
-                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                     , Element.alignTop
                     ]
                     [ profile ]
@@ -682,9 +689,9 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee d
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 16 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                 ]
-                [ el [ Font.size 18, uiDeepnightColorFontColour, Font.bold ] <|
+                [ el [ Font.size 18, fontVar "--color-fg-bright", Font.bold ] <|
                     text header
                 , el
                     [ Element.paddingEach { top = 0, left = 10, right = 0, bottom = 0 }
@@ -723,15 +730,32 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
     let
         firstTabIndex =
             case safeTab of
-                "starport" -> 76
-                "physical" -> 7
-                "atmo" -> 17
-                "hydro" -> 23
-                "pop" -> 26
-                "gov" -> 44
-                "law" -> 52
-                "tech" -> 63
-                _ -> 0
+                "starport" ->
+                    76
+
+                "physical" ->
+                    7
+
+                "atmo" ->
+                    17
+
+                "hydro" ->
+                    23
+
+                "pop" ->
+                    26
+
+                "gov" ->
+                    44
+
+                "law" ->
+                    52
+
+                "tech" ->
+                    63
+
+                _ ->
+                    0
 
         tabOffset =
             Array.get firstTabIndex counts |> Maybe.withDefault 0
@@ -750,7 +774,8 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
         -- Culture trait labels padded to exactly 8 slots so gov/law/tech indices are stable
         cultureLabels =
             let
-                ls = List.map .label data.cultureTrait
+                ls =
+                    List.map .label data.cultureTrait
             in
             ls ++ List.repeat (max 0 (8 - List.length ls)) ""
 
@@ -763,6 +788,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
             , data.orbital.retrograde
             , data.physical.inclination
             , data.physical.eccentricity
+
             -- 7–16: physical tab
             , data.physical.sizeCode
             , data.physical.diameter
@@ -774,6 +800,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
             , data.physical.axialTilt
             , data.physical.albedo
             , data.physical.greenhouse
+
             -- 17–22: atmo tab
             , data.atmosphere.type_
             , data.atmosphere.bar
@@ -781,10 +808,12 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
             , data.atmosphere.taint.subtype
             , data.atmosphere.taint.severity
             , data.atmosphere.taint.persistence
+
             -- 23–25: hydro tab
             , data.hydrographics.percentage
             , data.hydrographics.liquid
             , data.hydrographics.surfaceDistribution
+
             -- 26–35: pop tab
             , data.social.population
             , data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault ""
@@ -797,52 +826,52 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
             , data.life.habitability
             , data.life.sophonts
             ]
-            -- 36–43: culture (8 fixed slots)
-            ++ cultureLabels
-            -- 44–51: gov tab
-            ++ [ data.social.government
-               , data.government.type_
-               , data.government.description
-               , data.government.judicial
-               , data.government.executive
-               , data.government.legislative
-               , data.government.authority
-               , data.government.centralisation
-               ]
-            -- 52–62: law tab
-            ++ [ data.social.lawLevel
-               , data.lawSubClassifications.weaponsAndArmour
-               , data.lawSubClassifications.criminalLaw
-               , data.lawSubClassifications.economicLaw
-               , data.lawSubClassifications.privateLaw
-               , data.lawSubClassifications.personalRights
-               , data.lawCharacteristics.uniformity
-               , data.lawCharacteristics.judicialSystem
-               , data.lawCharacteristics.deathPenalty
-               , data.lawCharacteristics.presumedInnocence
-               , data.lawCharacteristics.econometricInfractionsAdministrative
-               ]
-            -- 63–75: tech tab
-            ++ [ data.social.techLevel
-               , data.techDetail.descriptor
-               , data.techDetail.energy
-               , data.techDetail.electronics
-               , data.techDetail.manufacturing
-               , data.techDetail.medical
-               , data.techDetail.environmental
-               , data.techDetail.land
-               , data.techDetail.sea
-               , data.techDetail.air
-               , data.techDetail.space
-               , data.techDetail.personalMilitary
-               , data.techDetail.heavyMilitary
-               ]
-            -- 76–79: starport tab
-            ++ [ data.starport.code
-               , data.starport.quality
-               , data.starport.fuel
-               , data.starport.facilities
-               ]
+                -- 36–43: culture (8 fixed slots)
+                ++ cultureLabels
+                -- 44–51: gov tab
+                ++ [ data.social.government
+                   , data.government.type_
+                   , data.government.description
+                   , data.government.judicial
+                   , data.government.executive
+                   , data.government.legislative
+                   , data.government.authority
+                   , data.government.centralisation
+                   ]
+                -- 52–62: law tab
+                ++ [ data.social.lawLevel
+                   , data.lawSubClassifications.weaponsAndArmour
+                   , data.lawSubClassifications.criminalLaw
+                   , data.lawSubClassifications.economicLaw
+                   , data.lawSubClassifications.privateLaw
+                   , data.lawSubClassifications.personalRights
+                   , data.lawCharacteristics.uniformity
+                   , data.lawCharacteristics.judicialSystem
+                   , data.lawCharacteristics.deathPenalty
+                   , data.lawCharacteristics.presumedInnocence
+                   , data.lawCharacteristics.econometricInfractionsAdministrative
+                   ]
+                -- 63–75: tech tab
+                ++ [ data.social.techLevel
+                   , data.techDetail.descriptor
+                   , data.techDetail.energy
+                   , data.techDetail.electronics
+                   , data.techDetail.manufacturing
+                   , data.techDetail.medical
+                   , data.techDetail.environmental
+                   , data.techDetail.land
+                   , data.techDetail.sea
+                   , data.techDetail.air
+                   , data.techDetail.space
+                   , data.techDetail.personalMilitary
+                   , data.techDetail.heavyMilitary
+                   ]
+                -- 76–79: starport tab
+                ++ [ data.starport.code
+                   , data.starport.quality
+                   , data.starport.fuel
+                   , data.starport.facilities
+                   ]
 
         counts =
             List.Extra.scanl (\word total -> total + (floor <| sqrt <| toFloat <| String.length word)) 0 strings
@@ -903,8 +932,26 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
                         , row (Element.spacing 40 :: groupAttrs)
                             [ column [ Element.alignTop ]
                                 [ textDisplayMedium ("Diameter (" ++ show 7 data.physical.sizeCode ++ ")") <| show 8 data.physical.diameter
-                                , textDisplayMedium "Mass" <| (let m = show 9 data.physical.mass in if m == "—" || m == "" then m else m ++ " ☉")
-                                , textDisplayMedium "Density" <| (let d = show 10 data.physical.density in if d == "—" || d == "" then d else d ++ " ☉")
+                                , textDisplayMedium "Mass" <|
+                                    let
+                                        m =
+                                            show 9 data.physical.mass
+                                    in
+                                    if m == "—" || m == "" then
+                                        m
+
+                                    else
+                                        m ++ " ☉"
+                                , textDisplayMedium "Density" <|
+                                    let
+                                        d =
+                                            show 10 data.physical.density
+                                    in
+                                    if d == "—" || d == "" then
+                                        d
+
+                                    else
+                                        d ++ " ☉"
                                 , textDisplayMedium "Gravity (G)" <| show 11 data.physical.gravity
                                 ]
                             ]
@@ -927,7 +974,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
                         , textDisplay "Hazard Code" <| show 19 data.atmosphere.hazardCode
                         , row [ width fill ]
                             [ el
-                                [ uiDeepnightColorFontColour
+                                [ fontVar "--color-fg-muted"
                                 , Font.bold
                                 , Font.size 14
                                 , Element.alignTop
@@ -983,9 +1030,51 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
                         [ viewSectionHeader "Population"
                         , column groupAttrs
                             [ textDisplay "Population" <| show 26 data.social.population
-                            , textDisplay "Concentration Rating" (let s = show 27 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if data.social.concentrationRating == Nothing then "—" else "" else s)
-                            , textDisplay "Urbanisation %" (let s = show 28 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if data.social.urbanizationPercentage == Nothing then "—" else "" else s)
-                            , textDisplay "Major Cities" (let s = show 29 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if data.social.majorCities == Nothing then "—" else "" else s)
+                            , textDisplay "Concentration Rating"
+                                (let
+                                    s =
+                                        show 27 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if data.social.concentrationRating == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
+                            , textDisplay "Urbanisation %"
+                                (let
+                                    s =
+                                        show 28 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if data.social.urbanizationPercentage == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
+                            , textDisplay "Major Cities"
+                                (let
+                                    s =
+                                        show 29 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if data.social.majorCities == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
                             ]
                         , viewSectionHeader "Life"
                         , column groupAttrs
@@ -1084,11 +1173,31 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
                             column [ width fill ]
                                 [ viewSectionHeader "Sub-Classifications"
                                 , column groupAttrs
-                                    [ if sc.weaponsAndArmour /= "" then textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour else Element.none
-                                    , if sc.criminalLaw /= "" then textDisplay "Criminal Law" <| show 54 sc.criminalLaw else Element.none
-                                    , if sc.economicLaw /= "" then textDisplay "Economic Law" <| show 55 sc.economicLaw else Element.none
-                                    , if sc.privateLaw /= "" then textDisplay "Private Law" <| show 56 sc.privateLaw else Element.none
-                                    , if sc.personalRights /= "" then textDisplay "Personal Rights" <| show 57 sc.personalRights else Element.none
+                                    [ if sc.weaponsAndArmour /= "" then
+                                        textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
+
+                                      else
+                                        Element.none
+                                    , if sc.criminalLaw /= "" then
+                                        textDisplay "Criminal Law" <| show 54 sc.criminalLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.economicLaw /= "" then
+                                        textDisplay "Economic Law" <| show 55 sc.economicLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.privateLaw /= "" then
+                                        textDisplay "Private Law" <| show 56 sc.privateLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.personalRights /= "" then
+                                        textDisplay "Personal Rights" <| show 57 sc.personalRights
+
+                                      else
+                                        Element.none
                                     ]
                                 ]
 
@@ -1098,11 +1207,31 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
                                 , column groupAttrs
-                                    [ if ch.uniformity /= "" then textDisplay "Law Uniformity" <| show 58 ch.uniformity else Element.none
-                                    , if ch.judicialSystem /= "" then textDisplay "Judicial System" <| show 59 ch.judicialSystem else Element.none
-                                    , if ch.deathPenalty /= "" then textDisplay "Death Penalty" <| show 60 ch.deathPenalty else Element.none
-                                    , if ch.presumedInnocence /= "" then textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence else Element.none
-                                    , if ch.econometricInfractionsAdministrative /= "" then textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative else Element.none
+                                    [ if ch.uniformity /= "" then
+                                        textDisplay "Law Uniformity" <| show 58 ch.uniformity
+
+                                      else
+                                        Element.none
+                                    , if ch.judicialSystem /= "" then
+                                        textDisplay "Judicial System" <| show 59 ch.judicialSystem
+
+                                      else
+                                        Element.none
+                                    , if ch.deathPenalty /= "" then
+                                        textDisplay "Death Penalty" <| show 60 ch.deathPenalty
+
+                                      else
+                                        Element.none
+                                    , if ch.presumedInnocence /= "" then
+                                        textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
+
+                                      else
+                                        Element.none
+                                    , if ch.econometricInfractionsAdministrative /= "" then
+                                        textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
+
+                                      else
+                                        Element.none
                                     ]
                                 ]
 
@@ -1192,8 +1321,11 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab data =
     let
         firstTabIndex =
             case safeTab of
-                "physical" -> 4
-                _ -> 0
+                "physical" ->
+                    4
+
+                _ ->
+                    0
 
         tabOffset =
             Array.get firstTabIndex counts |> Maybe.withDefault 0
@@ -1242,7 +1374,16 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab data =
                 "physical" ->
                     row (Element.spacing 40 :: groupAttrs)
                         [ column [ Element.alignTop ]
-                            [ textDisplayMedium "Mass" <| (let m = show 4 data.physical.mass in if m == "—" || m == "" then m else m ++ " ☉")
+                            [ textDisplayMedium "Mass" <|
+                                let
+                                    m =
+                                        show 4 data.physical.mass
+                                in
+                                if m == "—" || m == "" then
+                                    m
+
+                                else
+                                    m ++ " ☉"
                             , textDisplayMedium "Diameter (km)" <| show 5 data.physical.diameter
                             , textDisplayMedium "Axial Tilt" <| show 6 data.physical.axialTilt
                             ]
@@ -1279,15 +1420,32 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
         firstTabIndex =
             case safeTab of
-                "starport" -> 76
-                "physical" -> 7
-                "atmo" -> 17
-                "hydro" -> 23
-                "pop" -> 26
-                "gov" -> 44
-                "law" -> 52
-                "tech" -> 63
-                _ -> 0
+                "starport" ->
+                    76
+
+                "physical" ->
+                    7
+
+                "atmo" ->
+                    17
+
+                "hydro" ->
+                    23
+
+                "pop" ->
+                    26
+
+                "gov" ->
+                    44
+
+                "law" ->
+                    52
+
+                "tech" ->
+                    63
+
+                _ ->
+                    0
 
         tabOffset =
             Array.get firstTabIndex counts |> Maybe.withDefault 0
@@ -1305,7 +1463,8 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
         cultureLabels =
             let
-                ls = List.map .label pd.cultureTrait
+                ls =
+                    List.map .label pd.cultureTrait
             in
             ls ++ List.repeat (max 0 (8 - List.length ls)) ""
 
@@ -1318,6 +1477,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
             , pd.orbital.retrograde
             , pd.physical.inclination
             , pd.physical.eccentricity
+
             -- 7–16: physical tab (belt composition replaces planet physical; padded to 10 slots)
             , data.composition.mType
             , data.composition.sType
@@ -1329,6 +1489,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
             , ""
             , ""
             , ""
+
             -- 17–22: atmo tab
             , pd.atmosphere.type_
             , pd.atmosphere.bar
@@ -1336,10 +1497,12 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
             , pd.atmosphere.taint.subtype
             , pd.atmosphere.taint.severity
             , pd.atmosphere.taint.persistence
+
             -- 23–25: hydro tab
             , pd.hydrographics.percentage
             , pd.hydrographics.liquid
             , pd.hydrographics.surfaceDistribution
+
             -- 26–35: pop tab
             , pd.social.population
             , pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault ""
@@ -1352,52 +1515,52 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
             , pd.life.habitability
             , pd.life.sophonts
             ]
-            -- 36–43: culture (8 fixed slots)
-            ++ cultureLabels
-            -- 44–51: gov tab
-            ++ [ pd.social.government
-               , pd.government.type_
-               , pd.government.description
-               , pd.government.judicial
-               , pd.government.executive
-               , pd.government.legislative
-               , pd.government.authority
-               , pd.government.centralisation
-               ]
-            -- 52–62: law tab
-            ++ [ pd.social.lawLevel
-               , pd.lawSubClassifications.weaponsAndArmour
-               , pd.lawSubClassifications.criminalLaw
-               , pd.lawSubClassifications.economicLaw
-               , pd.lawSubClassifications.privateLaw
-               , pd.lawSubClassifications.personalRights
-               , pd.lawCharacteristics.uniformity
-               , pd.lawCharacteristics.judicialSystem
-               , pd.lawCharacteristics.deathPenalty
-               , pd.lawCharacteristics.presumedInnocence
-               , pd.lawCharacteristics.econometricInfractionsAdministrative
-               ]
-            -- 63–75: tech tab
-            ++ [ pd.social.techLevel
-               , pd.techDetail.descriptor
-               , pd.techDetail.energy
-               , pd.techDetail.electronics
-               , pd.techDetail.manufacturing
-               , pd.techDetail.medical
-               , pd.techDetail.environmental
-               , pd.techDetail.land
-               , pd.techDetail.sea
-               , pd.techDetail.air
-               , pd.techDetail.space
-               , pd.techDetail.personalMilitary
-               , pd.techDetail.heavyMilitary
-               ]
-            -- 76–79: starport tab
-            ++ [ pd.starport.code
-               , pd.starport.quality
-               , pd.starport.fuel
-               , pd.starport.facilities
-               ]
+                -- 36–43: culture (8 fixed slots)
+                ++ cultureLabels
+                -- 44–51: gov tab
+                ++ [ pd.social.government
+                   , pd.government.type_
+                   , pd.government.description
+                   , pd.government.judicial
+                   , pd.government.executive
+                   , pd.government.legislative
+                   , pd.government.authority
+                   , pd.government.centralisation
+                   ]
+                -- 52–62: law tab
+                ++ [ pd.social.lawLevel
+                   , pd.lawSubClassifications.weaponsAndArmour
+                   , pd.lawSubClassifications.criminalLaw
+                   , pd.lawSubClassifications.economicLaw
+                   , pd.lawSubClassifications.privateLaw
+                   , pd.lawSubClassifications.personalRights
+                   , pd.lawCharacteristics.uniformity
+                   , pd.lawCharacteristics.judicialSystem
+                   , pd.lawCharacteristics.deathPenalty
+                   , pd.lawCharacteristics.presumedInnocence
+                   , pd.lawCharacteristics.econometricInfractionsAdministrative
+                   ]
+                -- 63–75: tech tab
+                ++ [ pd.social.techLevel
+                   , pd.techDetail.descriptor
+                   , pd.techDetail.energy
+                   , pd.techDetail.electronics
+                   , pd.techDetail.manufacturing
+                   , pd.techDetail.medical
+                   , pd.techDetail.environmental
+                   , pd.techDetail.land
+                   , pd.techDetail.sea
+                   , pd.techDetail.air
+                   , pd.techDetail.space
+                   , pd.techDetail.personalMilitary
+                   , pd.techDetail.heavyMilitary
+                   ]
+                -- 76–79: starport tab
+                ++ [ pd.starport.code
+                   , pd.starport.quality
+                   , pd.starport.fuel
+                   , pd.starport.facilities
+                   ]
 
         counts =
             List.Extra.scanl (\word total -> total + (floor <| sqrt <| toFloat <| String.length word)) 0 strings
@@ -1405,9 +1568,14 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
         uc i =
             let
-                s = String.slice i (i + 1) pd.uwp
+                s =
+                    String.slice i (i + 1) pd.uwp
             in
-            if String.isEmpty s then "⊕" else s
+            if String.isEmpty s then
+                "⊕"
+
+            else
+                s
 
         tabs =
             [ { id = "orbital", label = "Orbital", code = "⊕" }
@@ -1471,7 +1639,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
                         , textDisplay "Hazard Code" <| show 19 pd.atmosphere.hazardCode
                         , row [ width fill ]
                             [ el
-                                [ uiDeepnightColorFontColour
+                                [ fontVar "--color-fg-muted"
                                 , Font.bold
                                 , Font.size 14
                                 , Element.alignTop
@@ -1527,9 +1695,51 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
                         [ viewSectionHeader "Population"
                         , column groupAttrs
                             [ textDisplay "Population" <| show 26 pd.social.population
-                            , textDisplay "Concentration Rating" (let s = show 27 (pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if pd.social.concentrationRating == Nothing then "—" else "" else s)
-                            , textDisplay "Urbanisation %" (let s = show 28 (pd.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if pd.social.urbanizationPercentage == Nothing then "—" else "" else s)
-                            , textDisplay "Major Cities" (let s = show 29 (pd.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "") in if s == "" then if pd.social.majorCities == Nothing then "—" else "" else s)
+                            , textDisplay "Concentration Rating"
+                                (let
+                                    s =
+                                        show 27 (pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if pd.social.concentrationRating == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
+                            , textDisplay "Urbanisation %"
+                                (let
+                                    s =
+                                        show 28 (pd.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if pd.social.urbanizationPercentage == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
+                            , textDisplay "Major Cities"
+                                (let
+                                    s =
+                                        show 29 (pd.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                 in
+                                 if s == "" then
+                                    if pd.social.majorCities == Nothing then
+                                        "—"
+
+                                    else
+                                        ""
+
+                                 else
+                                    s
+                                )
                             ]
                         , viewSectionHeader "Life"
                         , column groupAttrs
@@ -1555,7 +1765,8 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
                 "gov" ->
                     let
-                        g = pd.government
+                        g =
+                            pd.government
                     in
                     column [ width fill ]
                         [ column groupAttrs
@@ -1613,8 +1824,11 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
                 "law" ->
                     let
-                        sc = pd.lawSubClassifications
-                        ch = pd.lawCharacteristics
+                        sc =
+                            pd.lawSubClassifications
+
+                        ch =
+                            pd.lawCharacteristics
                     in
                     column [ width fill ]
                         [ column groupAttrs
@@ -1624,11 +1838,31 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
                             column [ width fill ]
                                 [ viewSectionHeader "Sub-Classifications"
                                 , column groupAttrs
-                                    [ if sc.weaponsAndArmour /= "" then textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour else Element.none
-                                    , if sc.criminalLaw /= "" then textDisplay "Criminal Law" <| show 54 sc.criminalLaw else Element.none
-                                    , if sc.economicLaw /= "" then textDisplay "Economic Law" <| show 55 sc.economicLaw else Element.none
-                                    , if sc.privateLaw /= "" then textDisplay "Private Law" <| show 56 sc.privateLaw else Element.none
-                                    , if sc.personalRights /= "" then textDisplay "Personal Rights" <| show 57 sc.personalRights else Element.none
+                                    [ if sc.weaponsAndArmour /= "" then
+                                        textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
+
+                                      else
+                                        Element.none
+                                    , if sc.criminalLaw /= "" then
+                                        textDisplay "Criminal Law" <| show 54 sc.criminalLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.economicLaw /= "" then
+                                        textDisplay "Economic Law" <| show 55 sc.economicLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.privateLaw /= "" then
+                                        textDisplay "Private Law" <| show 56 sc.privateLaw
+
+                                      else
+                                        Element.none
+                                    , if sc.personalRights /= "" then
+                                        textDisplay "Personal Rights" <| show 57 sc.personalRights
+
+                                      else
+                                        Element.none
                                     ]
                                 ]
 
@@ -1638,11 +1872,31 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
                                 , column groupAttrs
-                                    [ if ch.uniformity /= "" then textDisplay "Law Uniformity" <| show 58 ch.uniformity else Element.none
-                                    , if ch.judicialSystem /= "" then textDisplay "Judicial System" <| show 59 ch.judicialSystem else Element.none
-                                    , if ch.deathPenalty /= "" then textDisplay "Death Penalty" <| show 60 ch.deathPenalty else Element.none
-                                    , if ch.presumedInnocence /= "" then textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence else Element.none
-                                    , if ch.econometricInfractionsAdministrative /= "" then textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative else Element.none
+                                    [ if ch.uniformity /= "" then
+                                        textDisplay "Law Uniformity" <| show 58 ch.uniformity
+
+                                      else
+                                        Element.none
+                                    , if ch.judicialSystem /= "" then
+                                        textDisplay "Judicial System" <| show 59 ch.judicialSystem
+
+                                      else
+                                        Element.none
+                                    , if ch.deathPenalty /= "" then
+                                        textDisplay "Death Penalty" <| show 60 ch.deathPenalty
+
+                                      else
+                                        Element.none
+                                    , if ch.presumedInnocence /= "" then
+                                        textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
+
+                                      else
+                                        Element.none
+                                    , if ch.econometricInfractionsAdministrative /= "" then
+                                        textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
+
+                                      else
+                                        Element.none
                                     ]
                                 ]
 
@@ -1652,7 +1906,8 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
                 "tech" ->
                     let
-                        td = pd.techDetail
+                        td =
+                            pd.techDetail
 
                         capDefs =
                             [ ( "Energy", td.energy, 65 )

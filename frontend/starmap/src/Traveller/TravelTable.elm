@@ -25,7 +25,6 @@ import Traveller.TravelCalculations exposing (calcDistance2F, travelTimeHoursDay
 import Traveller.UI
     exposing
         ( fontVar
-        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -63,9 +62,9 @@ viewModal msgs mDrive solarSystem =
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                 ]
-                [ el [ Font.size 16, uiDeepnightColorFontColour, Font.bold ] (text "Travel Times")
+                [ el [ Font.size 16, fontVar "--color-fg-bright", Font.bold ] (text "Travel Times")
                 , el
                     [ Element.alignRight
                     , Events.onClick msgs.close
@@ -103,7 +102,7 @@ viewMDriveSelector msgs currentMDrive =
 
                 fontColour =
                     if isActive then
-                        "#fff"
+                        "var(--color-fg-bright)"
 
                     else
                         "var(--color-fg)"

@@ -1,5 +1,6 @@
 module Traveller.UI exposing
-    ( bgVar
+    ( accentHeadingColour
+    , bgVar
     , borderVar
     , cssColor
     , descriptionStyle
@@ -21,7 +22,6 @@ module Traveller.UI exposing
     , textDisplayNarrow
     , travelStyle
     , travellerRed
-    , uiDeepnightColorFontColour
     , valueAttrs
     , zeroEach
     )
@@ -101,9 +101,12 @@ travellerRed =
     Element.rgb 0.882 0.024 0
 
 
-uiDeepnightColorFontColour : Element.Attribute msg
-uiDeepnightColorFontColour =
-    fontVar "--color-button-primary"
+{-| Colour for section headings, titles, and other accent text — e.g. "MAIN WORLD PROFILE",
+the drawer's system name, active tab codes. Matches Rails' `.dg-subsection .label`/`.page-title`.
+-}
+accentHeadingColour : Element.Attribute msg
+accentHeadingColour =
+    fontVar "--color-highlight"
 
 
 
@@ -166,7 +169,7 @@ zeroEach =
 
 headerAttrs : List (Element.Attribute msg)
 headerAttrs =
-    [ uiDeepnightColorFontColour
+    [ fontVar "--color-fg-muted"
     , Font.size 14
     , Font.bold
     , Element.alignTop
@@ -175,7 +178,8 @@ headerAttrs =
 
 valueAttrs : List (Element.Attribute msg)
 valueAttrs =
-    [ Font.size 14
+    [ fontVar "--color-fg"
+    , Font.size 14
     , Element.alignTop
     ]
 
@@ -235,8 +239,8 @@ numberDisplay lbl val =
 profileFieldDisplay : String -> String -> Element.Element msg
 profileFieldDisplay lbl val =
     row [ width fill, Element.paddingEach { zeroEach | top = 3 } ]
-        [ el [ width (Element.px 80), uiDeepnightColorFontColour, Font.size 11, Font.bold, Element.alignTop ] (text lbl)
-        , Element.paragraph [ width fill, Font.size 12, Element.alignTop ] [ text val ]
+        [ el [ width (Element.px 80), fontVar "--color-fg-muted", Font.size 11, Font.bold, Element.alignTop ] (text lbl)
+        , Element.paragraph [ width fill, Font.size 12, Element.alignTop, fontVar "--color-fg-bright" ] [ text val ]
         ]
 
 

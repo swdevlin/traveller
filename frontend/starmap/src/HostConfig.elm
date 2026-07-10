@@ -40,12 +40,13 @@ rebuildRoot : Url.Protocol -> String -> Maybe Int -> String
 rebuildRoot protocol host port_ =
     protocolToString protocol
         ++ host
-        ++ case port_ of
-            Just portNumber ->
-                ":" ++ String.fromInt portNumber
+        ++ (case port_ of
+                Just portNumber ->
+                    ":" ++ String.fromInt portNumber
 
-            Nothing ->
-                ""
+                Nothing ->
+                    ""
+           )
 
 
 pathSegments : String -> List String

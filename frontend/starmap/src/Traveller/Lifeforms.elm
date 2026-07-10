@@ -174,8 +174,8 @@ habitabilityDescription maybeRating =
         |> Maybe.withDefault "N/A"
 
 
-{-| Kept in sync by hand with app/helpers/stellar_objects_helper.rb's
-HABITABILITY_COLOURS\_{LIGHT,DARK}, since Rails and Elm render habitability
+{-| Kept in sync by hand with app/helpers/stellar\_objects\_helper.rb's
+HABITABILITY\_COLOURS\_{LIGHT,DARK}, since Rails and Elm render habitability
 maps independently.
 -}
 habitabilityColour : Bool -> Maybe Int -> String

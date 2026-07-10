@@ -1,4 +1,4 @@
-module Traveller.Region exposing (Region, RegionDict, codecColour, codec)
+module Traveller.Region exposing (Region, RegionDict, codec, codecColour)
 
 import Codec exposing (Codec)
 import Color exposing (Color)

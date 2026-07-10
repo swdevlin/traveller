@@ -539,6 +539,7 @@ The invisible full-screen catcher closes the popup on an outside click. It
 sits after the popup in the same wrapper (a sibling, not an ancestor), so
 clicks inside the popup never bubble into it and don't need
 `stopPropagationOn`.
+
 -}
 checklistDropdown : Bool -> Int -> Int -> Condition -> List { code : String, label : String } -> Html Msg
 checklistDropdown isOpen groupIdx condIdx condition options =

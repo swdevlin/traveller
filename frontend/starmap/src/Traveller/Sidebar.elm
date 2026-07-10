@@ -33,7 +33,6 @@ import Html.Attributes as HtmlAttrs
 import Html.Events
 import Parser
 import Traveller.Atmosphere as Atmosphere
-import Traveller.TravelCalculations as TravelCalc
 import Traveller.Government as Government
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.LawLevel as LawLevel
@@ -41,8 +40,8 @@ import Traveller.Parser exposing (UWP, uwp)
 import Traveller.Population as Population
 import Traveller.Sector exposing (SectorDict)
 import Traveller.SolarSystem exposing (BaseFacility, MainWorldProfile, SolarSystem)
-import Traveller.StellarObject exposing (StellarObject)
 import Traveller.StarSystemMap exposing (viewStarSystemMap)
+import Traveller.StellarObject exposing (StellarObject)
 import Traveller.StellarObjectView
     exposing
         ( StellarObjectMsgs
@@ -50,11 +49,12 @@ import Traveller.StellarObjectView
         )
 import Traveller.TechLevel as TechLevel
 import Traveller.ToggleSwitch as ToggleSwitch
+import Traveller.TravelCalculations as TravelCalc
 import Traveller.UI
     exposing
-        ( fontVar
+        ( accentHeadingColour
+        , fontVar
         , profileFieldDisplay
-        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -127,7 +127,7 @@ viewSidebarButton { active, icon, label, onClick } =
         , Element.htmlAttribute
             (HtmlAttrs.style "color"
                 (if active then
-                    "#fff"
+                    "var(--color-fg-bright)"
 
                  else
                     "var(--color-fg-muted)"
@@ -178,12 +178,23 @@ viewMainWorldProfile profile =
 
         spQuality =
             case spCode of
-                "A" -> "Excellent"
-                "B" -> "Good"
-                "C" -> "Routine"
-                "D" -> "Poor"
-                "E" -> "Frontier"
-                _ -> "None"
+                "A" ->
+                    "Excellent"
+
+                "B" ->
+                    "Good"
+
+                "C" ->
+                    "Routine"
+
+                "D" ->
+                    "Poor"
+
+                "E" ->
+                    "Frontier"
+
+                _ ->
+                    "None"
 
         gravityStr =
             profile.gravity
@@ -211,11 +222,11 @@ viewMainWorldProfile profile =
                 , Element.spacing 8
                 , Element.paddingEach { zeroEach | top = 8, bottom = 4 }
                 ]
-                [ el [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] (text (String.toUpper title))
+                [ el [ accentHeadingColour, Font.size 10, Font.bold ] (text (String.toUpper title))
                 , el
                     [ width fill
                     , height (Element.px 1)
-                    , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
+                    , Element.htmlAttribute (HtmlAttrs.style "background-color" "var(--color-outline)")
                     , Element.centerY
                     ]
                     Element.none
@@ -259,11 +270,11 @@ viewSidebarJumpTable maybeKm =
 
                     headerCell m =
                         cell
-                            [ uiDeepnightColorFontColour
+                            [ fontVar "--color-fg"
                             , Font.size 10
                             , Font.bold
                             , Border.widthEach { zeroEach | bottom = 1 }
-                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                             ]
                             (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
 
@@ -284,11 +295,11 @@ viewSidebarJumpTable maybeKm =
                             , Element.spacing 8
                             , Element.paddingEach { zeroEach | top = 6, bottom = 2 }
                             ]
-                            [ el [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] (text (String.toUpper title))
+                            [ el [ accentHeadingColour, Font.size 10, Font.bold ] (text (String.toUpper title))
                             , el
                                 [ width fill
                                 , height (Element.px 1)
-                                , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 30%, transparent)")
+                                , Element.htmlAttribute (HtmlAttrs.style "background-color" "var(--color-outline)")
                                 , Element.centerY
                                 ]
                                 Element.none
@@ -298,7 +309,7 @@ viewSidebarJumpTable maybeKm =
                     [ width fill
                     , Element.paddingXY 8 4
                     , Border.widthEach { zeroEach | bottom = 1 }
-                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                     ]
                     [ sectionRow "Safe Jump Distance"
                     , row [ width fill ] (List.map headerCell mDrives)
@@ -362,7 +373,7 @@ viewBasesList bases =
 
     else
         column [ width fill, Element.paddingXY 8 4, Element.spacing 4 ]
-            (row [ uiDeepnightColorFontColour, Font.size 10, Font.bold ] [ text "BASES" ]
+            (row [ accentHeadingColour, Font.size 10, Font.bold ] [ text "BASES" ]
                 :: List.map viewBaseRow bases
             )
 
@@ -483,15 +494,25 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                             Nothing ->
                                 Element.none
                         , column [ centerX, Element.spacing 2 ]
-                            [ case selectedSystem |> Maybe.andThen (\sys -> if isReferee || sys.surveyIndex >= 10 then sys.name else Nothing) of
+                            [ case
+                                selectedSystem
+                                    |> Maybe.andThen
+                                        (\sys ->
+                                            if isReferee || sys.surveyIndex >= 10 then
+                                                sys.name
+
+                                            else
+                                                Nothing
+                                        )
+                              of
                                 Just sysName ->
                                     column [ centerX, Element.spacing 2 ]
-                                        [ el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text sysName)
+                                        [ el [ centerX, accentHeadingColour, Font.size 18, Font.bold ] (text sysName)
                                         , el [ centerX, Font.size 12, fontVar "--color-fg-muted" ] (text <| universalHexLabel sectors viewingAddress)
                                         ]
 
                                 Nothing ->
-                                    el [ centerX, uiDeepnightColorFontColour, Font.size 18, Font.bold ] (text <| universalHexLabel sectors viewingAddress)
+                                    el [ centerX, accentHeadingColour, Font.size 18, Font.bold ] (text <| universalHexLabel sectors viewingAddress)
                             , case selectedSystem of
                                 Just sys ->
                                     if isReferee || sys.surveyIndex >= 10 then
@@ -562,8 +583,11 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                         let
                                             isAllegianceRegion =
                                                 case allegianceName of
-                                                    Just aName -> region.name == aName
-                                                    Nothing -> False
+                                                    Just aName ->
+                                                        region.name == aName
+
+                                                    Nothing ->
+                                                        False
                                         in
                                         if List.member viewingAddress region.hexes && not isAllegianceRegion then
                                             text region.name

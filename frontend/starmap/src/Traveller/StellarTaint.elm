@@ -1,4 +1,4 @@
-module Traveller.StellarTaint exposing (StellarTaint, codecStellarTaint, taintSubtypeDescription, taintSeverityDescription, taintPersistenceDescription)
+module Traveller.StellarTaint exposing (StellarTaint, codecStellarTaint, taintPersistenceDescription, taintSeverityDescription, taintSubtypeDescription)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -48,6 +48,7 @@ taintSubtypeDescription code =
         unknown ->
             "N/A" ++ " (Unknown subtype: " ++ unknown ++ ")"
 
+
 taintSeverityDescription : Int -> String
 taintSeverityDescription code =
     case code of
@@ -81,10 +82,12 @@ taintSeverityDescription code =
         _ ->
             "N/A"
 
+
 taintPersistenceDescription : Int -> String
 taintPersistenceDescription code =
     if code >= 9 then
         "Constant (Ever-present at indicated severity; no roll)"
+
     else
         case code of
             2 ->

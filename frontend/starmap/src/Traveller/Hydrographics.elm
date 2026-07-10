@@ -13,7 +13,8 @@ codec : Codec StellarHydrographics
 codec =
     Codec.object StellarHydrographics
         |> Codec.field "code" .code Codec.int
-        |> Codec.field "distribution" .distribution
+        |> Codec.field "distribution"
+            .distribution
             (Codec.build
                 (\maybeInt ->
                     case maybeInt of

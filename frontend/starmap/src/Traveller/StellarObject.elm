@@ -492,7 +492,8 @@ codecPlanetoidBeltData =
         |> Codec.optionalNullableField "name" .name Codec.string
         |> Codec.optionalField "atmosphere" .atmosphere Atmosphere.codec
         |> Codec.optionalField "hydrographics" .hydrographics codecHydrographics
-        |> Codec.optionalNullableField "population" .population
+        |> Codec.optionalNullableField "population"
+            .population
             (Codec.oneOf Population.codec
                 [ Codec.succeed
                     { code = 0
@@ -780,7 +781,8 @@ codecSharedPData =
         |> Codec.field "jump_shadow" .jumpShadow (Codec.build (Codec.encoder (Codec.nullable Codec.float)) (JsDecode.nullable (JsDecode.field "distance_km" JsDecode.float)))
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
-        |> Codec.optionalNullableField "population" .population
+        |> Codec.optionalNullableField "population"
+            .population
             (Codec.oneOf Population.codec
                 [ Codec.succeed
                     { code = 0
@@ -884,7 +886,8 @@ codecHydrographics =
     Codec.object Hydrographics
         |> Codec.field "code" .code Codec.int
         |> Codec.field "distribution" .distribution codecDistribution
-        |> Codec.optionalNullableField "liquid" .liquid
+        |> Codec.optionalNullableField "liquid"
+            .liquid
             (Codec.build JsEncode.string
                 (JsDecode.oneOf
                     [ JsDecode.string

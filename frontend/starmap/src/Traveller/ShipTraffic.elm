@@ -23,7 +23,6 @@ import RemoteData exposing (RemoteData(..))
 import Traveller.UI
     exposing
         ( fontVar
-        , uiDeepnightColorFontColour
         , zeroEach
         )
 
@@ -78,9 +77,9 @@ viewModal msgs remoteTraffic frontier =
                 [ width fill
                 , Element.paddingEach { zeroEach | bottom = 12 }
                 , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                 ]
-                [ el [ Font.size 16, uiDeepnightColorFontColour, Font.bold ] (text "Ship Traffic")
+                [ el [ Font.size 16, fontVar "--color-fg-bright", Font.bold ] (text "Ship Traffic")
                 , el
                     [ Element.alignRight
                     , Events.onClick msgs.close
@@ -128,7 +127,7 @@ viewBody remoteTraffic =
 
         Success traffic ->
             column [ width fill, Element.spacing 10 ]
-                [ el [ Element.centerX, Font.size 40, Font.bold, uiDeepnightColorFontColour ]
+                [ el [ Element.centerX, Font.size 40, Font.bold, fontVar "--color-fg-bright" ]
                     (text (String.fromInt traffic.result))
                 , el [ Element.centerX, Font.size 11, fontVar "--color-fg-muted" ]
                     (text "ships / day")
@@ -151,7 +150,7 @@ viewBody remoteTraffic =
 viewDataField : String -> String -> Element msg
 viewDataField lbl val =
     column [ width fill, Element.spacing 2 ]
-        [ el [ Font.size 10, uiDeepnightColorFontColour, Font.bold ] (text (String.toUpper lbl))
+        [ el [ Font.size 10, fontVar "--color-fg-muted", Font.bold ] (text (String.toUpper lbl))
         , el [ Font.size 13 ] (text val)
         ]
 
@@ -162,7 +161,7 @@ viewFrontierToggle msgs frontier =
         [ width fill
         , Element.paddingEach { zeroEach | top = 8 }
         , Border.widthEach { zeroEach | top = 1 }
-        , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 15%, transparent)")
+        , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
         , Element.spacing 10
         ]
         [ el

@@ -5,6 +5,7 @@ module Traveller.StarSystemMap exposing (MapNode, systemNodes, viewStarSystemMap
 Primary star's bodies are laid out top-to-bottom on a central spine.
 Secondary stars branch off at their orbital position with their own
 indented sub-spine, mirroring the approach chosen for the visual design.
+
 -}
 
 import Element exposing (Element)
@@ -28,6 +29,7 @@ import Traveller.StellarObject
         )
 import Traveller.StellarObjectView exposing (StellarObjectMsgs)
 import Traveller.TravelCalculations exposing (auToKMs)
+
 
 
 -- ── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -86,8 +88,6 @@ beltRadius =
 defaultRadius : Float
 defaultRadius =
     5
-
-
 
 
 
@@ -774,12 +774,12 @@ svgStyle =
     Svg.node "style"
         []
         [ Svg.text """
-            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
-            .sm-star-label { font-family: "Tomorrow", system-ui, sans-serif; font-size: 12px; fill: #1A3A5A; font-weight: 600; letter-spacing: 0.04em; }
-            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: #2A6A8A; }
-            .sm-body-sublabel { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
-            .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: #4A7A9A; }
-            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: #4A7A9A; }
+            .sm-au { font-family: ui-monospace, monospace; font-size: 10px; fill: var(--color-fg-muted); }
+            .sm-star-label { font-family: "Tomorrow", system-ui, sans-serif; font-size: 12px; fill: var(--color-highlight); font-weight: 600; letter-spacing: 0.04em; }
+            .sm-body-label { font-family: ui-monospace, monospace; font-size: 10px; fill: var(--color-highlight); }
+            .sm-body-sublabel { font-family: ui-monospace, monospace; font-size: 9px; fill: var(--color-fg-muted); }
+            .sm-orbit-sequence { font-family: ui-monospace, monospace; font-size: 10px; fill: var(--color-fg-muted); }
+            .sm-jump-time { font-family: ui-monospace, monospace; font-size: 9px; fill: var(--color-fg-muted); }
             .sm-node:hover circle, .sm-node:hover image { opacity: 0.75; }
             .sm-node { cursor: pointer; }
         """
@@ -810,7 +810,7 @@ renderEdge edge =
                  , SA.y1 (String.fromFloat edge.y1)
                  , SA.x2 (String.fromFloat edge.x2)
                  , SA.y2 (String.fromFloat edge.y2)
-                 , SA.stroke "#8AAFC4"
+                 , SA.stroke "var(--color-outline)"
                  , SA.strokeWidth "3"
                  , SA.strokeLinecap "round"
                  ]
@@ -896,7 +896,7 @@ renderNode : StellarObjectMsgs msg -> Maybe Int -> MapNode -> Svg msg
 renderNode msgs mDrive node =
     let
         strokeColour =
-            "#1A4A6A"
+            "var(--color-outline)"
 
         strokeWidth =
             "1.5"

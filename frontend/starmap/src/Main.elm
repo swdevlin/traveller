@@ -219,11 +219,11 @@ update msg model =
                                 model.key
                                 model.hostConfig
                                 model.referee
+
                         newModel =
                             { model | travellerModel = Just newTraveller }
                     in
                     ( newModel, Cmd.map GotTravellerMsg cmd )
-
 
 
 elmUiHackLayout : Html.Html msg
@@ -263,7 +263,7 @@ view model =
                         |> Html.map GotTravellerMsg
 
                 Nothing ->
-                    Html.div [ Html.Attributes.class "status-scan", Html.Attributes.style "color" "#2A6A8A", Html.Attributes.style "padding" "2rem", Html.Attributes.style "font-family" "Tomorrow, monospace" ] [ Html.text "Initialising navigation systems..." ]
+                    Html.div [ Html.Attributes.class "status-scan", Html.Attributes.style "padding" "2rem", Html.Attributes.style "font-family" "Tomorrow, monospace" ] [ Html.text "Initialising navigation systems..." ]
             ]
         ]
     }
