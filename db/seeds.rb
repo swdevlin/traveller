@@ -20,3 +20,6 @@ require_relative "seeds/tech_levels"
 
 puts "Seeding travel zones..."
 require_relative "seeds/travel_zones"
+
+puts "Seeding survey overlays..."
+require_relative "seeds/survey_overlays"

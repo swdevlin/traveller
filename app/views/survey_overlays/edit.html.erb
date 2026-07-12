@@ -1,0 +1,7 @@
+<% content_for :title, "Editing #{@survey_overlay.name}" %>
+<% content_for :page_kicker, 'Survey Overlay' %>
+<% content_for :page_title, @survey_overlay.name %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', survey_overlay: @survey_overlay %>
+<% end %>

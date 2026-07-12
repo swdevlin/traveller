@@ -45,8 +45,6 @@ class StarmapsController < ApplicationController
       ship: ship && { name: ship.name, jDrive: ship.jump_drive, mDrive: ship.m_drive },
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
       allSectorsMapUrl: all_sectors_map_url,
-      nativeSophontColour: Current.campaign&.native_sophont_colour.presence,
-      extinctSophontColour: Current.campaign&.extinct_sophont_colour.presence,
       rogueObjectPathData: rogue_icon&.path_data,
       shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
       facilityIcons: facility_icons,

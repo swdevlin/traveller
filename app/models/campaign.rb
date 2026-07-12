@@ -15,21 +15,11 @@ class Campaign < ApplicationRecord
   }, prefix: :source
 
   store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
-                            :native_sophont_colour, :extinct_sophont_colour,
-                            :show_native_sophont, :show_extinct_sophont,
                             :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
                             :default_language, :date_format
 
   def tracks_survey_index?
     ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
-  end
-
-  def show_native_sophont?
-    ActiveModel::Type::Boolean.new.cast(show_native_sophont) != false
-  end
-
-  def show_extinct_sophont?
-    ActiveModel::Type::Boolean.new.cast(show_extinct_sophont) != false
   end
 
   def allow_captive_government?
@@ -92,10 +82,6 @@ class Campaign < ApplicationRecord
     self.native_tech_level      = false
     self.token_secret           = SecureRandom.hex(32)
     self.api_token              = SecureRandom.hex(32)
-    self.native_sophont_colour  = '#B0E0E6'
-    self.extinct_sophont_colour = '#EEE8AA'
-    self.show_native_sophont    = true
-    self.show_extinct_sophont   = true
     self.allow_captive_government  = !deepnight_revelation?
     self.orbit_distance_display    = 'au'
     self.realisticStarDistribution = false

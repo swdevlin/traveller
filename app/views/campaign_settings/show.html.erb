@@ -94,37 +94,6 @@
                  value: @campaign.traveller_date_format? ? 'Traveller Standard' : 'ISO 8601' %>
     </div>
 
-    <%= render 'application/subsection', title: 'Map Colours' %>
-
-    <%
-      hex_svg = ->(colour) do
-        tag.svg(viewBox: '0 0 20 18', width: '20', height: '18', xmlns: 'http://www.w3.org/2000/svg',
-                style: 'display:inline-block;vertical-align:middle') do
-          tag.polygon(points: '10,0 20,4.5 20,13.5 10,18 0,13.5 0,4.5',
-                      fill: colour, stroke: '#555', 'stroke-width': '1')
-        end
-      end
-    %>
-    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
-      <% native_colour = @campaign.native_sophont_colour.presence %>
-      <%= render 'application/data_block',
-                 label: 'Native Sophont Colour',
-                 value: native_colour ? hex_svg.call(native_colour) : '—' %>
-
-      <%= render 'application/data_block',
-                 label: 'Show on Maps',
-                 value: @campaign.show_native_sophont? ? 'Yes' : 'No' %>
-
-      <% extinct_colour = @campaign.extinct_sophont_colour.presence %>
-      <%= render 'application/data_block',
-                 label: 'Extinct Sophont Colour',
-                 value: extinct_colour ? hex_svg.call(extinct_colour) : '—' %>
-
-      <%= render 'application/data_block',
-                 label: 'Show on Maps',
-                 value: @campaign.show_extinct_sophont? ? 'Yes' : 'No' %>
-    </div>
-
     <%= render 'application/subsection', title: 'API Access' %>
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>

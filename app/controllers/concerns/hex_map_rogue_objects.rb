@@ -5,14 +5,13 @@ module HexMapRogueObjects
 
   private
 
-  def build_rogue_objects_data
-    parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
+  def build_rogue_objects_data(parsec_scope)
     @rogue_object_positions = Set.new
     @rogue_object_icon = nil
-    return if parsec_ids.empty?
+    return if @parsecs_by_pos.blank?
 
     scope = StellarObject
-      .where(parsec_id: parsec_ids, orbiting_id: nil)
+      .where(parsec_id: parsec_scope, orbiting_id: nil)
       .where.not(type: %w[GasGiant Comet Star])
 
     unless authenticated?

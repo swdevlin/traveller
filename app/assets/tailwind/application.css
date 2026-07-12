@@ -798,7 +798,8 @@
   }
 
   .btn-danger {
-    @apply hover:bg-danger/90 text-white border border-danger/90;
+    @apply bg-danger-bg text-danger-fg border border-danger-outline
+    hover:bg-danger hover:text-white hover:border-danger;
   }
 
   .identifier,

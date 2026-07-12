@@ -1,0 +1,76 @@
+<% content_for :title, 'Survey Overlays' %>
+<% content_for :page_kicker, 'Reference Manual' %>
+<% content_for :page_title, 'Survey Overlays' %>
+
+<%= render 'application/page' do %>
+  <div class='flex justify-end pb-2'>
+    <%= link_to new_survey_overlay_path, class: 'btn-header' do %>
+      <i class='fa-regular fa-plus'></i>
+      Add
+    <% end %>
+  </div>
+
+  <div class='table-card'>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Name</th>
+          <th scope='col'>Colour</th>
+          <th scope='col'>Enabled</th>
+          <th scope='col' class='text-right'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @survey_overlays.each do |survey_overlay| %>
+          <tr class='cursor-pointer'
+              data-controller='row-link'
+              data-row-link-url-value='<%= survey_overlay_path(survey_overlay) %>'
+              data-action='click->row-link#navigate'>
+            <td class='whitespace-nowrap'>
+              <%= survey_overlay.name %>
+            </td>
+
+            <td class='whitespace-nowrap'>
+              <svg width='16' height='16' viewBox='0 0 16 16'>
+                <circle cx='8' cy='8' r='7' fill='<%= survey_overlay.colour %>'/>
+              </svg>
+            </td>
+
+            <td class='whitespace-nowrap'>
+              <% if survey_overlay.enabled? %>
+                <i class='fa-regular fa-check text-fg-muted'></i>
+              <% end %>
+            </td>
+
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= button_to move_up_survey_overlay_path(survey_overlay), method: :patch, class: 'action', title: 'Move up' do %>
+                  <i class='fa-regular fa-chevron-up'></i>
+                <% end %>
+
+                <%= button_to move_down_survey_overlay_path(survey_overlay), method: :patch, class: 'action', title: 'Move down' do %>
+                  <i class='fa-regular fa-chevron-down'></i>
+                <% end %>
+
+                <%= link_to edit_survey_overlay_path(survey_overlay), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+
+                <%= button_to survey_overlay,
+                              method: :delete,
+                              class: 'action danger',
+                              title: 'Delete',
+                              data: { turbo_confirm: "Delete #{survey_overlay.name}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

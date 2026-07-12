@@ -1,10 +1,10 @@
-<% content_for :title, 'Survey Overlay' %>
+<% content_for :title, 'Survey Overlays' %>
 
-<%= render 'help/page', title: 'Survey Overlay' do %>
+<%= render 'help/page', title: 'Survey Overlays' do %>
   <div class='space-y-8'>
 
     <p class='text-fg-muted'>
-  The survey overlay lets the referee colour starmap hexes based on rules they define. Multiple overlays are supported and the order they are applied can also be controlled.
+      A survey overlay colours starmap hexes based on rules the referee defines. Multiple overlays are supported and the order they are applied can also be controlled.
     </p>
 
     <div>
@@ -13,7 +13,7 @@
         <div>
           <dt class='font-semibold text-fg-bright'>Name</dt>
           <dd class='mt-1 text-fg'>
-            A short label for the rule, shown in the survey overlay dropdown.
+            A short label for the overlay, shown in the overlay dropdown.
           </dd>
         </div>
 
@@ -25,9 +25,17 @@
         </div>
 
         <div>
+          <dt class='font-semibold text-fg-bright'>Known</dt>
+          <dd class='mt-1 text-fg'>
+            If checked, this overlay is available for players to select from their own overlay list;
+            players cannot edit or delete it.
+          </dd>
+        </div>
+
+        <div>
           <dt class='font-semibold text-fg-bright'>Enabled</dt>
           <dd class='mt-1 text-fg'>
-            Toggles the rule on or off from the dropdown without deleting it. Disabled rules are
+            Toggles the overlay on or off from the dropdown without deleting it. Disabled overlays are
             never evaluated.
           </dd>
         </div>
@@ -50,8 +58,7 @@
         <div>
           <dt class='font-semibold text-fg-bright'>Value(s)</dt>
           <dd class='mt-1 text-fg'>
-            Picked from a dropdown of the field's valid codes — a single value for most operators,
-            two for between, and any number of ticked options for one of.
+            A single value for most operators, two for between, and any number for one of.
           </dd>
         </div>
 

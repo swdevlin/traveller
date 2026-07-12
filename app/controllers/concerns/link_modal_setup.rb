@@ -3,6 +3,8 @@
 module LinkModalSetup
   extend ActiveSupport::Concern
 
+  include HexMapOverlays
+
   private
 
   def setup_link_modal_ivars
@@ -99,6 +101,8 @@ module LinkModalSetup
     @nearby_systems = star_systems
       .select { |s| nearby_parsec_id_set.include?(s.parsec_id) }
       .sort_by { |s| [s.parsec.q - parsec.q, s.parsec.r - parsec.r, s.parsec.s - parsec.s].map(&:abs).max }
+
+    build_survey_overlays_data
 
     @map_svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
   end

@@ -185,13 +185,13 @@
     <%= add_legend_item(cursor, icon_svg, base_name) %>
   <% end %>
 
-  <!-- Sophonts -->
-  <%
-    native_icon  = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@native_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
-    extinct_icon = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{@extinct_sophont_colour}" stroke="#999999" stroke-width="0.3"/>)
-  %>
-  <%= add_legend_item(cursor, native_icon, 'Native sophont') %>
-  <%= add_legend_item(cursor, extinct_icon, 'Extinct sophont') %>
+  <!-- Survey overlays -->
+  <% @enabled_survey_overlays&.each do |overlay| %>
+    <%
+      icon_svg = %(<polygon points="#{hex_polygon_points(legend_hex_r, 0, legend_hex_r)}" fill="#{overlay.colour}" stroke="#999999" stroke-width="0.3"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, overlay.name) %>
+  <% end %>
 
   <!-- Allegiances -->
   <% @allegiances_on_poster&.each do |alleg| %>

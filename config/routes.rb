@@ -40,6 +40,12 @@ Rails.application.routes.draw do
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
       resources :jump_routes, only: %i[index update destroy], defaults: { format: :json }
+      resources :survey_overlays, only: %i[index create update destroy], defaults: { format: :json } do
+        member do
+          patch :move_up
+          patch :move_down
+        end
+      end
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
       get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
       get 'search',        to: 'search#query',        defaults: { format: :json }
@@ -74,6 +80,13 @@ Rails.application.routes.draw do
         get  :import_hexes
         post :upload_hexes
         get  :download_csv
+      end
+    end
+
+    resources :survey_overlays do
+      member do
+        patch :move_up
+        patch :move_down
       end
     end
 

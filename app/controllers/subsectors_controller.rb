@@ -2,6 +2,7 @@ class SubsectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
   include HexMapRogueObjects
+  include HexMapOverlays
   include StrategicMapData
   optional_authentication only: %i[map strategic_map resource_map heat_map tech_level_map habitability_map government_map]
   before_action :set_subsector, except: :index
@@ -106,11 +107,11 @@ class SubsectorsController < ApplicationController
       .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
       .maximum(:updated_at)
     rogue_max_updated = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
     rogue_object_max_updated = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where.not(type: %w[GasGiant Comet Star])
       .maximum(:updated_at)
     facility_max_updated = StarSystemFacility
@@ -128,12 +129,13 @@ class SubsectorsController < ApplicationController
       rogue_object_max_updated.to_i,
       facility_max_updated.to_i,
       current_campaign.updated_at.to_i,
+      SurveyOverlay.maximum(:updated_at).to_i,
+      SurveyOverlay.count,
       MAP_TEMPLATE_VERSION
     ].join('-'))
     cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
 
-    @native_sophont_colour  = current_campaign.native_sophont_colour.presence
-    @extinct_sophont_colour = current_campaign.extinct_sophont_colour.presence
+    build_survey_overlays_data
 
     fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated, jump_route_link_max_updated].compact.max
     return if performed?
@@ -151,7 +153,7 @@ class SubsectorsController < ApplicationController
       h[[col, row]] = sys
     end
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
 
     subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
     subsector_parsec_subquery = @subsector.parsecs.select(:id)
@@ -180,7 +182,7 @@ class SubsectorsController < ApplicationController
     )
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -280,7 +282,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
     build_strategic_data
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
@@ -300,7 +302,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -393,7 +395,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
     build_strategic_data
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
@@ -413,7 +415,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -504,7 +506,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
     build_strategic_data
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
@@ -524,7 +526,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -613,7 +615,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
 
@@ -632,7 +634,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -723,7 +725,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
 
     @habitability_colour_by_pos = @systems_by_pos.each_with_object({}) do |(pos, sys), h|
       colour = StellarObjectsHelper.habitability_colour(sys.main_world_habitability_rating, light: theme_light)
@@ -748,7 +750,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -840,7 +842,7 @@ class SubsectorsController < ApplicationController
     end
 
     build_bases_data
-    build_rogue_objects_data
+    build_rogue_objects_data(subsector_parsecs.select(:id))
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
 
@@ -859,7 +861,7 @@ class SubsectorsController < ApplicationController
     @region_fills_by_pos = {}
 
     rogue_data = StellarObject
-      .where(parsec: @subsector.parsecs, orbiting_id: nil)
+      .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .pluck(:parsec_id, :type)
     @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|

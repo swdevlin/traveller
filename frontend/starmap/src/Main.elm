@@ -61,8 +61,6 @@ type alias Flags =
     , ship : Maybe Ship
     , apiBaseUrl : String
     , allSectorsMapUrl : Maybe String
-    , nativeSophontColour : Maybe String
-    , extinctSophontColour : Maybe String
     , viewMode : Maybe String
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
@@ -195,8 +193,6 @@ update msg model =
                                 , campaignName = model.flags.campaignName
                                 , ship = model.flags.ship
                                 , allSectorsMapUrl = model.flags.allSectorsMapUrl
-                                , nativeSophontColour = model.flags.nativeSophontColour
-                                , extinctSophontColour = model.flags.extinctSophontColour
                                 , viewMode = model.flags.viewMode
                                 , journeyState = model.flags.journeyState
                                 , centerOn = model.flags.centerOn

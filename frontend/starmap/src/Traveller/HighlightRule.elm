@@ -7,6 +7,8 @@ module Traveller.HighlightRule exposing
     , Rule
     , UwpFields
     , allFields
+    , apiRuleEncodeBody
+    , apiRulesDecoder
     , evaluate
     , fieldLabel
     , fieldOptions
@@ -21,6 +23,8 @@ module Traveller.HighlightRule exposing
 
 import Codec exposing (Codec)
 import Color exposing (Color)
+import Json.Decode as JsDecode
+import Json.Encode as Encode
 import Traveller.Region exposing (codecColour)
 import Traveller.SolarSystemStars exposing (StarSystem)
 
@@ -225,7 +229,7 @@ newCondition field =
 newRule : String -> Color -> Rule
 newRule id colour =
     { id = id
-    , name = "New Rule"
+    , name = "New Overlay"
     , colour = colour
     , enabled = True
     , groups = [ [ newCondition Starport ] ]
@@ -832,3 +836,54 @@ ruleCodec =
 rulesCodec : Codec (List Rule)
 rulesCodec =
     Codec.list ruleCodec
+
+
+
+-- API ENCODING/DECODING
+--
+-- `Api::SurveyOverlaysController` serializes/accepts `SurveyOverlay` rows as
+-- `{ id, name, colour, enabled, rule_data, position }`, distinct from
+-- `ruleCodec`'s shape (integer id rather than string, groups nested under
+-- `rule_data` rather than top-level, no `position`). The server already
+-- orders by `position`, so it isn't decoded here; `id`/`position` are never
+-- sent back on write, since referee overlays are only ever created/updated
+-- via their own dedicated request (id in the URL, not the body).
+
+
+apiRulesDecoder : JsDecode.Decoder (List Rule)
+apiRulesDecoder =
+    JsDecode.list apiRuleDecoder
+
+
+apiRuleDecoder : JsDecode.Decoder Rule
+apiRuleDecoder =
+    JsDecode.map5
+        (\id name colour enabled groups ->
+            { id = id, name = name, colour = colour, enabled = enabled, groups = groups }
+        )
+        (JsDecode.field "id" JsDecode.int |> JsDecode.map String.fromInt)
+        (JsDecode.field "name" JsDecode.string)
+        (JsDecode.field "colour" (Codec.decoder codecColour))
+        (JsDecode.field "enabled" JsDecode.bool)
+        (JsDecode.maybe (JsDecode.at [ "rule_data", "groups" ] (JsDecode.list (Codec.decoder groupCodec)))
+            |> JsDecode.map (Maybe.withDefault [])
+        )
+
+
+{-| The JSON body for a create/update request against
+`Api::SurveyOverlaysController` - see the comment above for why `id` and
+`position` are omitted.
+-}
+apiRuleEncodeBody : Rule -> Encode.Value
+apiRuleEncodeBody rule =
+    Encode.object
+        [ ( "name", Encode.string rule.name )
+        , ( "colour", Codec.encoder codecColour rule.colour )
+        , ( "enabled", Encode.bool rule.enabled )
+        , ( "rule_data", Encode.object [ ( "groups", Encode.list groupEncodeValue rule.groups ) ] )
+        ]
+
+
+groupEncodeValue : Group -> Encode.Value
+groupEncodeValue group =
+    Encode.list (Codec.encoder conditionCodec) group

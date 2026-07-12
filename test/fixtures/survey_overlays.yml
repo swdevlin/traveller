@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Survey Overlay One
+  colour: '#22c55e'
+  enabled: true
+  position: 1
+
+two:
+  name: Survey Overlay Two
+  colour: '#6b7280'
+  enabled: true
+  position: 2

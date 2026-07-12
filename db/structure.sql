@@ -1005,6 +1005,41 @@ ALTER SEQUENCE public.subsectors_id_seq OWNED BY public.subsectors.id;
 
 
 --
+-- Name: survey_overlays; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.survey_overlays (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    colour character varying NOT NULL,
+    enabled boolean DEFAULT true NOT NULL,
+    rule_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    "position" integer NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: survey_overlays_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.survey_overlays_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: survey_overlays_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.survey_overlays_id_seq OWNED BY public.survey_overlays.id;
+
+
+--
 -- Name: tech_levels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1324,6 +1359,13 @@ ALTER TABLE ONLY public.subsectors ALTER COLUMN id SET DEFAULT nextval('public.s
 
 
 --
+-- Name: survey_overlays id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.survey_overlays ALTER COLUMN id SET DEFAULT nextval('public.survey_overlays_id_seq'::regclass);
+
+
+--
 -- Name: tech_levels id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1565,6 +1607,14 @@ ALTER TABLE ONLY public.stellar_objects
 
 ALTER TABLE ONLY public.subsectors
     ADD CONSTRAINT subsectors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: survey_overlays survey_overlays_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.survey_overlays
+    ADD CONSTRAINT survey_overlays_pkey PRIMARY KEY (id);
 
 
 --
@@ -2303,6 +2353,9 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260712164658'),
+('20260712113141'),
+('20260712113122'),
 ('20260703181955'),
 ('20260701100000'),
 ('20260619175832'),

@@ -258,32 +258,6 @@
                         { class: 'edit-base' } %>
       <% end %>
 
-      <%= render 'application/subsection', title: 'Map Colours' %>
-
-      <%= render 'application/edit_field', form: form, attribute: :native_sophont_colour, field_label: 'Native Sophont Colour' do %>
-        <%= form.text_field :native_sophont_colour,
-                            data: { controller: 'coloris' },
-                            class: 'edit-base w-32' %>
-      <% end %>
-
-      <%= render 'application/boolean_toggle',
-                 form: form,
-                 attribute: :show_native_sophont,
-                 checked: @campaign.show_native_sophont?,
-                 label: 'Show Native Sophont Colours on SVG Maps' %>
-
-      <%= render 'application/edit_field', form: form, attribute: :extinct_sophont_colour, field_label: 'Extinct Sophont Colour' do %>
-        <%= form.text_field :extinct_sophont_colour,
-                            data: { controller: 'coloris' },
-                            class: 'edit-base w-32' %>
-      <% end %>
-
-      <%= render 'application/boolean_toggle',
-                 form: form,
-                 attribute: :show_extinct_sophont,
-                 checked: @campaign.show_extinct_sophont?,
-                 label: 'Show Extinct Sophont Colours on SVG Maps' %>
-
       <div class='pt-2 flex flex-col sm:flex-row gap-2'>
         <%= form.submit 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>
         <%= link_to 'Cancel', campaign_settings_path, class: 'w-full sm:w-auto btn' %>

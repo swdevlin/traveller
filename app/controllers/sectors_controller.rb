@@ -4,6 +4,7 @@ class SectorsController < ApplicationController
   include UrlTokenVerification
   include HexMapBases
   include HexMapRogueObjects
+  include HexMapOverlays
   optional_authentication only: %i[map poster]
   before_action :set_sector, except: %i[index new new_from_traveller_map create]
 
@@ -122,8 +123,7 @@ class SectorsController < ApplicationController
 
   def map
     @show_map_links = authenticated?
-    @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
-    @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
+    build_survey_overlays_data
     @cols = 32
     @rows = 40
     @subsector_overlays = true
@@ -135,6 +135,7 @@ class SectorsController < ApplicationController
       .where(parsecs: { sector_id: @sector.id })
       .includes(:parsec, :allegiance, :main_world, stars: [:companion])
 
+    sector_parsec_subquery = @sector.parsecs.select(:id)
     max_updated = @star_systems.maximum(:updated_at)
     max_parsec_updated = @sector.parsecs.maximum(:updated_at)
     region_parsec_max = RegionParsec.joins(:parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
@@ -142,11 +143,11 @@ class SectorsController < ApplicationController
     region_max_updated = [region_parsec_max, region_record_max].compact.max
     jump_max_updated = JumpLog.maximum(:updated_at)
     rogue_max_updated = StellarObject
-      .where(parsec: @sector.parsecs, orbiting_id: nil)
+      .where(parsec_id: sector_parsec_subquery, orbiting_id: nil)
       .where(type: %w[GasGiant Comet])
       .maximum(:updated_at)
     rogue_object_max_updated = StellarObject
-      .where(parsec: @sector.parsecs, orbiting_id: nil)
+      .where(parsec_id: sector_parsec_subquery, orbiting_id: nil)
       .where.not(type: %w[GasGiant Comet Star])
       .maximum(:updated_at)
     facility_max_updated = StarSystemFacility
@@ -162,8 +163,8 @@ class SectorsController < ApplicationController
       .where(jump_route_links: { from_star_system_id: sector_star_system_ids })
       .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
-    sophont_variant = "#{current_campaign.show_native_sophont?}-#{@native_sophont_colour}-#{current_campaign.show_extinct_sophont?}-#{@extinct_sophont_colour}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{sophont_variant}"
+    overlay_variant = "#{SurveyOverlay.maximum(:updated_at).to_i}-#{SurveyOverlay.count}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{overlay_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -188,8 +189,7 @@ class SectorsController < ApplicationController
     @cols = 32
     @rows = 40
     @subsector_overlays = true
-    @native_sophont_colour  = current_campaign.show_native_sophont?  ? current_campaign.native_sophont_colour.presence  : nil
-    @extinct_sophont_colour = current_campaign.show_extinct_sophont? ? current_campaign.extinct_sophont_colour.presence : nil
+    build_survey_overlays_data
 
     @ul = @sector.upper_left
 
@@ -348,7 +348,7 @@ class SectorsController < ApplicationController
       )
 
       rogue_data = StellarObject
-        .where(parsec: @sector.parsecs, orbiting_id: nil)
+        .where(parsec_id: sector_parsec_subquery, orbiting_id: nil)
         .where(type: %w[GasGiant Comet])
         .pluck(:parsec_id, :type)
       @rogues_by_pos = rogue_data.each_with_object({}) do |(pid, t), h|
@@ -363,7 +363,7 @@ class SectorsController < ApplicationController
         ordered
       end
 
-      build_rogue_objects_data
+      build_rogue_objects_data(sector_parsec_subquery)
 
       star_system_subquery = @star_systems.select(:id)
       @jump_route_links_for_map = JumpRouteLink

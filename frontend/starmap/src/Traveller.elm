@@ -776,8 +776,6 @@ type alias ModelData =
     , timeOpened : Time.Posix
     , campaignName : String
     , allSectorsMapUrl : Maybe String
-    , nativeSophontColour : Maybe String
-    , extinctSophontColour : Maybe String
     , sidebarOpen : Bool
     , jumpRouteLinks : List JumpRouteLink
     , rogueObjectPathData : Maybe String
@@ -898,6 +896,8 @@ type Msg
     | HighlightRuleEditorMsg HighlightRuleEditor.Msg
     | GoToRailsApp
     | GotSubsectorLookupUrl (Result Http.Error String)
+    | GotSurveyOverlays (Result Http.Error (List HighlightRule.Rule))
+    | SurveyOverlayMutated (Result Http.Error ())
     | OpenRoutePlanner
     | RoutePlanFormMsg RoutePlanForm.Msg
     | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
@@ -1116,8 +1116,6 @@ type alias Flags =
     , campaignName : Maybe String
     , ship : Maybe Ship
     , allSectorsMapUrl : Maybe String
-    , nativeSophontColour : Maybe String
-    , extinctSophontColour : Maybe String
     , viewMode : Maybe String
     , journeyState : Maybe String
     , centerOn : Maybe ( Int, Int )
@@ -1356,9 +1354,16 @@ init viewport settings key hostConfig referee =
         initialShowBackgroundNames =
             settings.showBackgroundNames |> Maybe.withDefault False
 
+        -- Referee overlays are DB-backed (fetched via `sendSurveyOverlaysRequest`
+        -- once init completes) and never available to non-referees; players keep
+        -- their own private, browser-local rule set decoded from `localStorage`.
         initialHighlightRules =
-            Codec.decodeValue HighlightRule.rulesCodec settings.highlightRules
-                |> Result.withDefault []
+            if referee then
+                []
+
+            else
+                Codec.decodeValue HighlightRule.rulesCodec settings.highlightRules
+                    |> Result.withDefault []
 
         initialActiveRoutePlan =
             Codec.decodeValue RoutePlan.storedRoutePlanCodec settings.routePlan
@@ -1414,8 +1419,6 @@ init viewport settings key hostConfig referee =
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , ship = settings.ship
             , allSectorsMapUrl = settings.allSectorsMapUrl
-            , nativeSophontColour = settings.nativeSophontColour
-            , extinctSophontColour = settings.extinctSophontColour
             , displayMode = initialDisplayMode
             , regionDisplay = initialRegionDisplay
             , showDisplaySettings = False
@@ -1459,6 +1462,11 @@ init viewport settings key hostConfig referee =
         , sendJumpRouteLinksRequest model.hostConfig
         , sendTravelZonesRequest model.hostConfig
         , sendJumpRouteLayersRequest model.hostConfig
+        , if referee then
+            sendSurveyOverlaysRequest model.hostConfig
+
+          else
+            Cmd.none
         , case settings.centerOn of
             Just _ ->
                 saveMapCoords hexRect.upperLeftHex
@@ -3276,8 +3284,8 @@ regionLabel x y name =
         [ Svg.text name ]
 
 
-hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> SolarSystemDict -> Maybe String -> Maybe String -> String
-hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict nativeSophontColour extinctSophontColour =
+hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> SolarSystemDict -> String
+hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict =
     let
         defaultBg =
             if themeIsLight then
@@ -3305,14 +3313,7 @@ hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict nati
                                             defaultBg
 
                                 Nothing ->
-                                    if system.nativeSophont then
-                                        nativeSophontColour |> Maybe.withDefault defaultBg
-
-                                    else if system.extinctSophont then
-                                        extinctSophontColour |> Maybe.withDefault defaultBg
-
-                                    else
-                                        defaultBg
+                                    defaultBg
 
                     _ ->
                         defaultBg
@@ -3332,8 +3333,6 @@ viewHexes :
     -> Float
     -> Maybe HexAddress
     -> Bool
-    -> Maybe String
-    -> Maybe String
     -> { x : Float, y : Float }
     -> List JumpRouteLink
     -> Set.Set Int
@@ -3341,7 +3340,7 @@ viewHexes :
     -> Dict.Dict String FacilityIcon
     -> DisplayMode
     -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules, previewRoute } ( route, currentAddress ) hexSize maybeSelectedHex isReferee nativeSophontColour extinctSophontColour panOffset jumpRouteLinks hiddenJumpRouteIds rogueObjectPathData facilityIcons displayMode =
+viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules, previewRoute } ( route, currentAddress ) hexSize maybeSelectedHex isReferee panOffset jumpRouteLinks hiddenJumpRouteIds rogueObjectPathData facilityIcons displayMode =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
@@ -3402,10 +3401,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     selectedHexBg
 
                                 else
-                                    hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+                                    hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict
 
                             Nothing ->
-                                hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict nativeSophontColour extinctSophontColour
+                                hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict
 
         -- Survey Overlay's rule-highlight colour, rendered as its own SVG layer
         -- above the background-name watermark (see `keyedRuleOverlays`) rather
@@ -4880,6 +4879,19 @@ moveRule ruleId delta rules =
             rules
 
 
+{-| Referee overlay ids are the `SurveyOverlay` row's real integer id (see
+`HighlightRule.apiRulesDecoder`), stringified only because `Rule.id` is
+shared with the player's locally-generated `"rule-N"` ids - this looks the
+rule back up and parses its id back to an `Int` for API calls.
+-}
+findRuleWithId : String -> List HighlightRule.Rule -> Maybe ( Int, HighlightRule.Rule )
+findRuleWithId ruleId rules =
+    rules
+        |> List.filter (\r -> r.id == ruleId)
+        |> List.head
+        |> Maybe.andThen (\r -> String.toInt r.id |> Maybe.map (\id -> ( id, r )))
+
+
 {-| Built as a raw `Html` tree (rather than elm-ui `Element`s), for the same
 reason as `HighlightRuleEditor.view`: the enabled toggle switch is a native
 control, and elm-ui's spacing doesn't reliably apply around embedded native
@@ -4899,7 +4911,9 @@ viewHighlightRulesMenuHtml rules pendingDeleteRuleId =
         , HtmlAttrs.style "right" "0"
         , HtmlAttrs.style "margin-top" "4px"
         , HtmlAttrs.style "border-radius" "6px"
-        , HtmlAttrs.style "width" "260px"
+        , HtmlAttrs.style "width" "max-content"
+        , HtmlAttrs.style "min-width" "260px"
+        , HtmlAttrs.style "max-width" "360px"
         , HtmlAttrs.style "z-index" "100"
         , HtmlAttrs.style "padding" "4px 0"
         , HtmlAttrs.style "display" "flex"
@@ -4959,7 +4973,15 @@ ruleRowHtml pendingDeleteRuleId isFirst isLast rule =
         , ToggleSwitch.view ToggleSwitch.Small
             rule.enabled
             (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( ToggleRuleEnabled rule.id, True )))
-        , Html.span [ HtmlAttrs.class "text-sm text-fg", HtmlAttrs.style "flex" "1" ] [ Html.text rule.name ]
+        , Html.span
+            [ HtmlAttrs.class "text-sm text-fg"
+            , HtmlAttrs.style "flex" "1"
+            , HtmlAttrs.style "min-width" "0"
+            , HtmlAttrs.style "white-space" "nowrap"
+            , HtmlAttrs.style "overflow" "hidden"
+            , HtmlAttrs.style "text-overflow" "ellipsis"
+            ]
+            [ Html.text rule.name ]
         , if isFirst then
             moveButton [ HtmlAttrs.class "text-fg-muted", HtmlAttrs.style "opacity" "0.3" ] "fa-regular fa-chevron-up"
 
@@ -5464,8 +5486,6 @@ viewHexMap model =
         model.hexScale
         model.selectedHex
         model.isReferee
-        model.nativeSophontColour
-        model.extinctSophontColour
         model.panOffset
         model.jumpRouteLinks
         model.hiddenJumpRouteIds
@@ -7569,21 +7589,30 @@ update msg ( time, model ) =
             )
 
         ToggleRuleEnabled ruleId ->
-            let
-                newRules =
-                    List.map
-                        (\rule ->
-                            if rule.id == ruleId then
-                                { rule | enabled = not rule.enabled }
+            if model.isReferee then
+                case findRuleWithId ruleId model.highlightRules of
+                    Just ( id, rule ) ->
+                        ( withTime model, sendUpdateSurveyOverlayRequest model.hostConfig id { rule | enabled = not rule.enabled } )
 
-                            else
-                                rule
-                        )
-                        model.highlightRules
-            in
-            ( withTime { model | highlightRules = newRules }
-            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
-            )
+                    Nothing ->
+                        ( withTime model, Cmd.none )
+
+            else
+                let
+                    newRules =
+                        List.map
+                            (\rule ->
+                                if rule.id == ruleId then
+                                    { rule | enabled = not rule.enabled }
+
+                                else
+                                    rule
+                            )
+                            model.highlightRules
+                in
+                ( withTime { model | highlightRules = newRules }
+                , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                )
 
         StartNewRule ->
             let
@@ -7622,31 +7651,58 @@ update msg ( time, model ) =
             ( withTime { model | pendingDeleteRuleId = Nothing }, Cmd.none )
 
         DeleteRule ruleId ->
-            let
-                newRules =
-                    List.filter (\r -> r.id /= ruleId) model.highlightRules
-            in
-            ( withTime { model | highlightRules = newRules, pendingDeleteRuleId = Nothing }
-            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
-            )
+            if model.isReferee then
+                case String.toInt ruleId of
+                    Just id ->
+                        ( withTime { model | pendingDeleteRuleId = Nothing }, sendDeleteSurveyOverlayRequest model.hostConfig id )
+
+                    Nothing ->
+                        ( withTime { model | pendingDeleteRuleId = Nothing }, Cmd.none )
+
+            else
+                let
+                    newRules =
+                        List.filter (\r -> r.id /= ruleId) model.highlightRules
+                in
+                ( withTime { model | highlightRules = newRules, pendingDeleteRuleId = Nothing }
+                , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                )
 
         MoveRuleUp ruleId ->
-            let
-                newRules =
-                    moveRule ruleId -1 model.highlightRules
-            in
-            ( withTime { model | highlightRules = newRules }
-            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
-            )
+            if model.isReferee then
+                case String.toInt ruleId of
+                    Just id ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id True )
+
+                    Nothing ->
+                        ( withTime model, Cmd.none )
+
+            else
+                let
+                    newRules =
+                        moveRule ruleId -1 model.highlightRules
+                in
+                ( withTime { model | highlightRules = newRules }
+                , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                )
 
         MoveRuleDown ruleId ->
-            let
-                newRules =
-                    moveRule ruleId 1 model.highlightRules
-            in
-            ( withTime { model | highlightRules = newRules }
-            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
-            )
+            if model.isReferee then
+                case String.toInt ruleId of
+                    Just id ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id False )
+
+                    Nothing ->
+                        ( withTime model, Cmd.none )
+
+            else
+                let
+                    newRules =
+                        moveRule ruleId 1 model.highlightRules
+                in
+                ( withTime { model | highlightRules = newRules }
+                , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                )
 
         HighlightRuleEditorMsg editorMsg ->
             case model.ruleEditor of
@@ -7663,24 +7719,41 @@ update msg ( time, model ) =
                                 savedRule =
                                     editorModel.draft
 
-                                newRules =
-                                    if List.any (\r -> r.id == savedRule.id) model.highlightRules then
-                                        List.map
-                                            (\r ->
-                                                if r.id == savedRule.id then
-                                                    savedRule
-
-                                                else
-                                                    r
-                                            )
-                                            model.highlightRules
-
-                                    else
-                                        model.highlightRules ++ [ savedRule ]
+                                isExisting =
+                                    List.any (\r -> r.id == savedRule.id) model.highlightRules
                             in
-                            ( withTime { model | ruleEditor = Nothing, highlightRules = newRules }
-                            , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
-                            )
+                            if model.isReferee then
+                                case ( isExisting, String.toInt savedRule.id ) of
+                                    ( True, Just id ) ->
+                                        ( withTime { model | ruleEditor = Nothing }
+                                        , sendUpdateSurveyOverlayRequest model.hostConfig id savedRule
+                                        )
+
+                                    _ ->
+                                        ( withTime { model | ruleEditor = Nothing }
+                                        , sendCreateSurveyOverlayRequest model.hostConfig savedRule
+                                        )
+
+                            else
+                                let
+                                    newRules =
+                                        if isExisting then
+                                            List.map
+                                                (\r ->
+                                                    if r.id == savedRule.id then
+                                                        savedRule
+
+                                                    else
+                                                        r
+                                                )
+                                                model.highlightRules
+
+                                        else
+                                            model.highlightRules ++ [ savedRule ]
+                                in
+                                ( withTime { model | ruleEditor = Nothing, highlightRules = newRules }
+                                , storeHighlightRules (Codec.encodeToValue HighlightRule.rulesCodec newRules)
+                                )
 
                         _ ->
                             ( withTime { model | ruleEditor = Just (HighlightRuleEditor.update (facilityOptions model) editorMsg editorModel) }
@@ -7712,6 +7785,18 @@ update msg ( time, model ) =
             ( withTime { model | travelZoneOptions = zones }, Cmd.none )
 
         DownloadedTravelZones (Err _) ->
+            ( withTime model, Cmd.none )
+
+        GotSurveyOverlays (Ok rules) ->
+            ( withTime { model | highlightRules = rules }, Cmd.none )
+
+        GotSurveyOverlays (Err _) ->
+            ( withTime model, Cmd.none )
+
+        SurveyOverlayMutated (Ok ()) ->
+            ( withTime model, sendSurveyOverlaysRequest model.hostConfig )
+
+        SurveyOverlayMutated (Err _) ->
             ( withTime model, Cmd.none )
 
         ToggleJumpRouteLayersMenu ->
@@ -8857,6 +8942,88 @@ sendJumpRouteLayersRequest ( urlHostRoot, urlHostPath ) =
         , timeout = Just 15000
         , tracker = Nothing
         }
+
+
+{-| Survey overlays are a referee-only, DB-backed tool (players keep their
+own private set in `localStorage` instead) - this is only ever called for a
+referee session, and the server enforces that too.
+-}
+sendSurveyOverlaysRequest : HostConfig -> Cmd Msg
+sendSurveyOverlaysRequest ( urlHostRoot, urlHostPath ) =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays" ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectJson GotSurveyOverlays HighlightRule.apiRulesDecoder
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+{-| After any referee mutation (create/update/delete/reorder) succeeds, the
+full list is re-fetched from the server rather than patched optimistically,
+so the client never drifts from the DB's id/ordering.
+-}
+sendCreateSurveyOverlayRequest : HostConfig -> HighlightRule.Rule -> Cmd Msg
+sendCreateSurveyOverlayRequest ( urlHostRoot, urlHostPath ) rule =
+    Http.request
+        { method = "POST"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays" ]) []
+        , body = Http.jsonBody (HighlightRule.apiRuleEncodeBody rule)
+        , expect = Http.expectWhatever SurveyOverlayMutated
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendUpdateSurveyOverlayRequest : HostConfig -> Int -> HighlightRule.Rule -> Cmd Msg
+sendUpdateSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id rule =
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
+        , body = Http.jsonBody (HighlightRule.apiRuleEncodeBody rule)
+        , expect = Http.expectWhatever SurveyOverlayMutated
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendDeleteSurveyOverlayRequest : HostConfig -> Int -> Cmd Msg
+sendDeleteSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id =
+    Http.request
+        { method = "DELETE"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever SurveyOverlayMutated
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendMoveSurveyOverlayRequest : HostConfig -> Int -> Bool -> Cmd Msg
+sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id moveUp =
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id, moveAction moveUp ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever SurveyOverlayMutated
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+moveAction : Bool -> String
+moveAction moveUp =
+    if moveUp then
+        "move_up"
+
+    else
+        "move_down"
 
 
 sendDeleteJumpRouteRequest : HostConfig -> Int -> Cmd Msg

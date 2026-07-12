@@ -1,0 +1,79 @@
+<%=
+  form_with model: survey_overlay,
+            data: {
+              controller: 'survey-overlay-rule',
+              survey_overlay_rule_fields_value: SurveyOverlay::FIELDS.to_json,
+              survey_overlay_rule_operators_value: SurveyOverlay::OPERATORS.to_json,
+              survey_overlay_rule_operators_for_field_value: SurveyOverlay::OPERATORS_FOR_FIELD.to_json,
+              survey_overlay_rule_field_options_value: SurveyOverlay.picker_options.to_json,
+              survey_overlay_rule_initial_value: survey_overlay.rule_data.to_json,
+              action: 'submit->survey-overlay-rule#serialize'
+            },
+            class: 'contents' do |form|
+%>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-60' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :colour do %>
+      <%= form.text_field :colour,
+                          data: { controller: 'coloris' },
+                          class: 'edit-base w-32' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :enabled, field_label: 'Enabled' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :enabled,
+                 checked: survey_overlay.enabled, checked_value: 'true', unchecked_value: 'false' %>
+    <% end %>
+
+    <%= render 'application/subsection', title: 'Rule' %>
+    <p class='text-xs text-fg-muted -mt-1 mb-2'>
+      Conditions within a group are combined with AND. Groups are combined with OR — any one matching
+      group is enough for the rule to match.
+    </p>
+
+    <div data-survey-overlay-rule-target='groups' class='space-y-4'></div>
+
+    <button type='button' data-action='survey-overlay-rule#addGroup' class='btn btn-sm'>
+      <i class='fa-regular fa-plus mr-1'></i> Add OR group
+    </button>
+
+    <%= form.hidden_field :rule_data_json, data: { survey_overlay_rule_target: 'output' } %>
+
+    <template data-survey-overlay-rule-target='groupTemplate'>
+      <div data-group class='rounded-md border border-outline p-3 space-y-2'>
+        <div data-conditions class='space-y-2'></div>
+        <div class='flex gap-2'>
+          <button type='button' data-action='survey-overlay-rule#addCondition' class='btn btn-sm'>
+            <i class='fa-regular fa-plus mr-1'></i> Add AND condition
+          </button>
+          <button type='button' data-action='survey-overlay-rule#removeGroup' class='btn btn-sm btn-danger'>
+            Remove group
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template data-survey-overlay-rule-target='conditionTemplate'>
+      <div data-condition class='flex flex-wrap items-center gap-2 text-sm'>
+        <select data-field data-action='change->survey-overlay-rule#fieldChanged' class='edit-base min-w-40'></select>
+        <select data-operator class='edit-base min-w-56'></select>
+        <label class='flex items-center gap-1 cursor-pointer'>
+          <input type='checkbox' data-negate class='accent-highlight'> Not
+        </label>
+        <div data-values-picker class='flex flex-wrap items-center gap-x-3 gap-y-1'></div>
+        <button type='button' data-action='survey-overlay-rule#removeCondition'
+                class='text-danger-fg hover:text-white hover:bg-danger rounded p-1.5 cursor-pointer transition'
+                title='Remove condition'>
+          <i class='fa-regular fa-trash'></i>
+        </button>
+      </div>
+    </template>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit survey_overlay.persisted? ? 'Update' : 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', survey_overlay.persisted? ? survey_overlay : survey_overlays_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,40 @@
+<div id="<%= dom_id survey_overlay %>" class='space-y-6 mb-4'>
+  <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+    <%= render 'application/data_block', label: 'Name', value: survey_overlay.name %>
+
+    <%
+      swatch = %(<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#{survey_overlay.colour}" stroke="none"/></svg>).html_safe
+    %>
+    <%= render 'application/data_block',
+               label: 'Colour',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-fg-bright',
+               value: safe_join([swatch, tag.span(survey_overlay.colour, class: 'font-mono text-sm')])
+    %>
+
+    <%= render 'application/data_block', label: 'Enabled', value: survey_overlay.enabled? ? 'Yes' : 'No' %>
+  </div>
+
+  <%= render 'application/subsection', title: 'Rule' %>
+  <% if survey_overlay.groups.any? %>
+    <div class='space-y-2'>
+      <% survey_overlay.groups.each_with_index do |group, index| %>
+        <% if index > 0 %>
+          <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Or</div>
+        <% end %>
+        <div class='rounded-md border border-outline p-3 space-y-1 font-mono text-sm'>
+          <% group.each_with_index do |condition, condition_index| %>
+            <div>
+              <% if condition_index > 0 %>and <% end %>
+              <%= SurveyOverlay.field_label(condition[:field]) %>
+              <% if condition[:negate] %>not <% end %>
+              <%= SurveyOverlay.operator_label(condition[:operator]) %>
+              <%= Array(condition[:values]).join(', ') %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class='text-sm text-fg-muted mb-4'>No conditions defined yet.</p>
+  <% end %>
+</div>
