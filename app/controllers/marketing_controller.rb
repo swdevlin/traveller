@@ -2,6 +2,7 @@ class MarketingController < ApplicationController
   allow_unauthenticated_access
 
   def index
+    @forced_theme = 'deepnight'
     return unless authenticated?
 
     campaign = Campaign.where(referee_id: Current.user.id).first

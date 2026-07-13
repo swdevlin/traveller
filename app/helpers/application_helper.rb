@@ -18,7 +18,7 @@ module ApplicationHelper
   }.freeze
 
   def current_theme
-    cookies[:theme].presence || 'dark'
+    @forced_theme || cookies[:theme].presence || 'dark'
   end
 
   def current_theme_light?
