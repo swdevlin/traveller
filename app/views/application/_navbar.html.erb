@@ -109,7 +109,7 @@
             <button type='button'
                     data-action='theme#set'
                     data-theme-value='<%= theme %>'
-                    class='w-full flex items-center justify-between px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if theme == 'kkree' %>'>
+                    class='w-full flex items-center justify-between px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if index == ApplicationHelper::THEMES.size - 1 %>'>
               <span><%= info[:label] %></span>
               <% if current_theme == theme %>
                 <i class='fa-regular fa-check text-xs text-highlight'></i>
