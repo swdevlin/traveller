@@ -76,6 +76,7 @@ type alias Flags =
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
     , showBackgroundNames : Maybe Bool
+    , showJumpLogFill : Maybe Bool
     , theme : String
     , themeIsLight : Bool
     , themeOptions : List Traveller.ThemeOption
@@ -211,6 +212,7 @@ update msg model =
                                 , showSectorLines = model.flags.showSectorLines
                                 , showSubsectorLines = model.flags.showSubsectorLines
                                 , showBackgroundNames = model.flags.showBackgroundNames
+                                , showJumpLogFill = model.flags.showJumpLogFill
                                 , theme = model.flags.theme
                                 , themeIsLight = model.flags.themeIsLight
                                 , themeOptions = model.flags.themeOptions

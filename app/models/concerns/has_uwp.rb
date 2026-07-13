@@ -516,7 +516,7 @@ module HasUwp
     return 'molten' if temp && temp >= 673.15
     return 'ice'    if temp && temp < 263.15
 
-    if atmo >= 2 && atmo <= 9
+    if atmo <= 9
       return 'waterworld'       if hydro == 10
       return "tp_#{hydro * 10}" if hydro >= 1 && hydro <= 9
     end

@@ -787,9 +787,12 @@ type alias ModelData =
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
+    , showMapDisplayDropdown : Bool
+    , showRegionDropdown : Bool
     , showSectorLines : Bool
     , showSubsectorLines : Bool
     , showBackgroundNames : Bool
+    , showJumpLogFill : Bool
     , searchState : SearchState
     , theme : String
     , themeIsLight : Bool
@@ -877,9 +880,12 @@ type Msg
     | SetDisplayMode DisplayMode
     | SetRegionDisplay RegionDisplay
     | ToggleDisplaySettings
+    | ToggleMapDisplayDropdown
+    | ToggleRegionDropdown
     | ToggleSectorLines
     | ToggleSubsectorLines
     | ToggleBackgroundNames
+    | ToggleJumpLogFill
     | SearchInput String
     | GotSearchResults (Result Http.Error (List SearchResult))
     | SelectSearchResult SearchResult
@@ -1027,6 +1033,16 @@ subscriptions time model =
 
           else
             Sub.none
+        , if model.showMapDisplayDropdown then
+            Browser.Events.onClick mapDisplayDropdownOutsideClickDecoder
+
+          else
+            Sub.none
+        , if model.showRegionDropdown then
+            Browser.Events.onClick regionDropdownOutsideClickDecoder
+
+          else
+            Sub.none
         , if model.starMapResizeDrag /= Nothing then
             Sub.batch
                 [ Browser.Events.onMouseMove (mouseMoveDecoder StarMapResizeMove)
@@ -1087,6 +1103,38 @@ jumpRouteLayersMenuOutsideClickDecoder =
             )
 
 
+{-| Fires `ToggleMapDisplayDropdown` when a click lands outside the map
+display toggle button or its dropdown.
+-}
+mapDisplayDropdownOutsideClickDecoder : JsDecode.Decoder Msg
+mapDisplayDropdownOutsideClickDecoder =
+    JsDecode.field "target" (isOutsideIds [ "starmap-map-display-toggle", "starmap-map-display-menu" ])
+        |> JsDecode.andThen
+            (\isOutside ->
+                if isOutside then
+                    JsDecode.succeed ToggleMapDisplayDropdown
+
+                else
+                    JsDecode.fail "click was inside the map display dropdown"
+            )
+
+
+{-| Fires `ToggleRegionDropdown` when a click lands outside the region
+toggle button or its dropdown.
+-}
+regionDropdownOutsideClickDecoder : JsDecode.Decoder Msg
+regionDropdownOutsideClickDecoder =
+    JsDecode.field "target" (isOutsideIds [ "starmap-region-toggle", "starmap-region-menu" ])
+        |> JsDecode.andThen
+            (\isOutside ->
+                if isOutside then
+                    JsDecode.succeed ToggleRegionDropdown
+
+                else
+                    JsDecode.fail "click was inside the region dropdown"
+            )
+
+
 isOutsideIds : List String -> JsDecode.Decoder Bool
 isOutsideIds insideIds =
     JsDecode.oneOf
@@ -1134,6 +1182,7 @@ type alias Flags =
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
     , showBackgroundNames : Maybe Bool
+    , showJumpLogFill : Maybe Bool
     , theme : String
     , themeIsLight : Bool
     , themeOptions : List ThemeOption
@@ -1360,6 +1409,9 @@ init viewport settings key hostConfig referee =
         initialShowBackgroundNames =
             settings.showBackgroundNames |> Maybe.withDefault False
 
+        initialShowJumpLogFill =
+            settings.showJumpLogFill |> Maybe.withDefault True
+
         -- Referee overlays are DB-backed (fetched via `sendSurveyOverlaysRequest`
         -- once init completes) and never available to non-referees; players keep
         -- their own private, browser-local rule set decoded from `localStorage`.
@@ -1428,9 +1480,12 @@ init viewport settings key hostConfig referee =
             , displayMode = initialDisplayMode
             , regionDisplay = initialRegionDisplay
             , showDisplaySettings = False
+            , showMapDisplayDropdown = False
+            , showRegionDropdown = False
             , showSectorLines = initialShowSectorLines
             , showSubsectorLines = initialShowSubsectorLines
             , showBackgroundNames = initialShowBackgroundNames
+            , showJumpLogFill = initialShowJumpLogFill
             , sidebarOpen = False
             , jumpRouteLinks = []
             , rogueObjectPathData = settings.rogueObjectPathData
@@ -3334,33 +3389,53 @@ hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict =
         defaultBg
 
 
-viewHexes :
-    ( HexRect, List ( Float, Float ) )
-    -> { svgWidth : Float, svgHeight : Float, maxAcross : Int, maxTall : Int }
-    -> { solarSystemDict : SolarSystemDict, hexColours : HexColorDict, regionLabels : RegionLabelDict, regions : RegionDict, regionDisplay : RegionDisplay, showSectorLines : Bool, showSubsectorLines : Bool, sectors : SectorDict, showBackgroundNames : Bool, themeIsLight : Bool, highlightRules : List HighlightRule.Rule, previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String } }
-    -> ( RouteList, HexAddress )
-    -> Float
-    -> Maybe HexAddress
-    -> Bool
-    -> { x : Float, y : Float }
-    -> List JumpRouteLink
-    -> Set.Set Int
-    -> Maybe String
-    -> Dict.Dict String FacilityIcon
-    -> DisplayMode
-    -> Html Msg
-viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeight, maxAcross, maxTall } { solarSystemDict, hexColours, regionLabels, regions, regionDisplay, showSectorLines, showSubsectorLines, sectors, showBackgroundNames, themeIsLight, highlightRules, previewRoute } ( route, currentAddress ) hexSize maybeSelectedHex isReferee panOffset jumpRouteLinks hiddenJumpRouteIds rogueObjectPathData facilityIcons displayMode =
+type alias ViewHexesConfig =
+    { hexRect : HexRect
+    , rawHexaPoints : List ( Float, Float )
+    , svgWidth : Float
+    , svgHeight : Float
+    , maxAcross : Int
+    , maxTall : Int
+    , solarSystemDict : SolarSystemDict
+    , hexColours : HexColorDict
+    , regionLabels : RegionLabelDict
+    , regions : RegionDict
+    , regionDisplay : RegionDisplay
+    , showSectorLines : Bool
+    , showSubsectorLines : Bool
+    , sectors : SectorDict
+    , showBackgroundNames : Bool
+    , showJumpLogFill : Bool
+    , themeIsLight : Bool
+    , highlightRules : List HighlightRule.Rule
+    , previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String }
+    , route : RouteList
+    , currentAddress : HexAddress
+    , hexSize : Float
+    , maybeSelectedHex : Maybe HexAddress
+    , isReferee : Bool
+    , panOffset : { x : Float, y : Float }
+    , jumpRouteLinks : List JumpRouteLink
+    , hiddenJumpRouteIds : Set.Set Int
+    , rogueObjectPathData : Maybe String
+    , facilityIcons : Dict.Dict String FacilityIcon
+    , displayMode : DisplayMode
+    }
+
+
+viewHexes : ViewHexesConfig -> Html Msg
+viewHexes config =
     let
         renderCurrentAddressOutline : HexAddress -> Svg Msg
         renderCurrentAddressOutline ca =
             let
                 locationOrigin =
-                    calcVisualOrigin hexSize
+                    calcVisualOrigin config.hexSize
                         { row = ca.y, col = ca.x }
                         |> Tuple.mapBoth toFloat toFloat
 
                 pointsStr =
-                    hexagonPoints locationOrigin hexSize
+                    hexagonPoints locationOrigin config.hexSize
                         |> String.join " "
             in
             Svg.polygon
@@ -3374,27 +3449,27 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
 
         hexRange =
             HexAddress.betweenWithMax
-                (HexAddress.shiftAddressBy { deltaX = -1, deltaY = -1 } upperLeftHex)
-                lowerRightHex
-                { maxAcross = maxAcross, maxTall = maxTall }
+                (HexAddress.shiftAddressBy { deltaX = -1, deltaY = -1 } config.hexRect.upperLeftHex)
+                config.hexRect.lowerRightHex
+                { maxAcross = config.maxAcross, maxTall = config.maxTall }
 
         computeHexColour : HexAddress -> String -> String
         computeHexColour hexAddr hexKey =
-            if hexAddr == currentAddress then
+            if hexAddr == config.currentAddress then
                 currentAddressHexBg
 
-            else if isOnRoute route hexAddr then
+            else if config.showJumpLogFill && isOnRoute config.route hexAddr then
                 routeHexBg
 
             else
                 let
                     regionFill =
-                        case regionDisplay of
+                        case config.regionDisplay of
                             ShowRegionsFill ->
-                                Dict.get hexKey hexColours
+                                Dict.get hexKey config.hexColours
 
                             ShowRegionsBoth ->
-                                Dict.get hexKey hexColours
+                                Dict.get hexKey config.hexColours
 
                             _ ->
                                 Nothing
@@ -3404,16 +3479,16 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                         Color.Convert.colorToHex color
 
                     Nothing ->
-                        case maybeSelectedHex of
+                        case config.maybeSelectedHex of
                             Just selectedHex ->
                                 if selectedHex == hexAddr then
                                     selectedHexBg
 
                                 else
-                                    hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict
+                                    hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict
 
                             Nothing ->
-                                hexBackgroundColour displayMode themeIsLight isReferee hexKey solarSystemDict
+                                hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict
 
         -- Survey Overlay's rule-highlight colour, rendered as its own SVG layer
         -- above the background-name watermark (see `keyedRuleOverlays`) rather
@@ -3421,8 +3496,8 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
         -- colour isn't obscured by the subsector/sector name text.
         ruleOverlayFill : String -> Maybe String
         ruleOverlayFill hexKey =
-            HighlightRule.matchColour highlightRules
-                (Dict.get hexKey solarSystemDict
+            HighlightRule.matchColour config.highlightRules
+                (Dict.get hexKey config.solarSystemDict
                     |> Maybe.andThen
                         (\remote ->
                             case remote of
@@ -3441,7 +3516,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     HexAddress.toKey hexAddr
 
                 ( vox, voy ) =
-                    calcVisualOrigin hexSize
+                    calcVisualOrigin config.hexSize
                         { row = hexAddr.y, col = hexAddr.x }
 
                 hexColour =
@@ -3449,18 +3524,18 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
             in
             ( hexAddr
             , viewHex
-                hexSize
-                solarSystemDict
+                config.hexSize
+                config.solarSystemDict
                 hexAddr
                 vox
                 voy
                 hexColour
-                rawHexaPoints
-                isReferee
-                rogueObjectPathData
-                facilityIcons
-                displayMode
-                themeIsLight
+                config.rawHexaPoints
+                config.isReferee
+                config.rogueObjectPathData
+                config.facilityIcons
+                config.displayMode
+                config.themeIsLight
             )
     in
     hexRange
@@ -3468,17 +3543,17 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
         |> (\hexSvgsWithHexAddress ->
                 let
                     labelPos hexAddr =
-                        calcVisualOrigin hexSize
+                        calcVisualOrigin config.hexSize
                             { row = hexAddr.y, col = hexAddr.x }
 
                     renderRegionLabel : HexAddress -> Maybe (Svg.Svg msg)
                     renderRegionLabel hexAddress =
-                        case regionDisplay of
+                        case config.regionDisplay of
                             HideRegions ->
                                 Nothing
 
                             _ ->
-                                regionLabels
+                                config.regionLabels
                                     |> Dict.get (HexAddress.toKey hexAddress)
                                     |> Maybe.map
                                         (\name ->
@@ -3499,10 +3574,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                 HexAddress.toKey hexAddr
 
                             ( vox, voy ) =
-                                calcVisualOrigin hexSize
+                                calcVisualOrigin config.hexSize
                                     { row = hexAddr.y, col = hexAddr.x }
                         in
-                        case Dict.get hexKey solarSystemDict of
+                        case Dict.get hexKey config.solarSystemDict of
                             Just (LoadedSolarSystem loadedSystem) ->
                                 renderHexSystemLabels
                                     { starSystem = loadedSystem
@@ -3511,12 +3586,12 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     , hexAddrY = hexAddr.y
                                     , vox = vox
                                     , voy = voy
-                                    , size = hexSize
+                                    , size = config.hexSize
                                     , hexapointsStr = ""
-                                    , isReferee = isReferee
-                                    , facilityIcons = facilityIcons
-                                    , displayMode = displayMode
-                                    , themeIsLight = themeIsLight
+                                    , isReferee = config.isReferee
+                                    , facilityIcons = config.facilityIcons
+                                    , displayMode = config.displayMode
+                                    , themeIsLight = config.themeIsLight
                                     }
 
                             _ ->
@@ -3530,7 +3605,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
         |> (\( hexSvgsWithHexAddress, labels, systemLabels ) ->
                 let
                     singlePolyHex =
-                        renderCurrentAddressOutline currentAddress
+                        renderCurrentAddressOutline config.currentAddress
 
                     keyedHexBackgrounds : Svg Msg
                     keyedHexBackgrounds =
@@ -3548,10 +3623,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                 (\hexAddr ->
                                     let
                                         ( vox, voy ) =
-                                            calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+                                            calcVisualOrigin config.hexSize { row = hexAddr.y, col = hexAddr.x }
 
                                         hexapointsStr =
-                                            convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+                                            convertRawHexagonPoints ( toFloat vox, toFloat voy ) config.rawHexaPoints
                                     in
                                     ( HexAddress.toKey hexAddr
                                     , Svg.Lazy.lazy renderHexBorderStroke hexapointsStr
@@ -3573,10 +3648,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                             (\fillColour ->
                                                 let
                                                     ( vox, voy ) =
-                                                        calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+                                                        calcVisualOrigin config.hexSize { row = hexAddr.y, col = hexAddr.x }
 
                                                     hexapointsStr =
-                                                        convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+                                                        convertRawHexagonPoints ( toFloat vox, toFloat voy ) config.rawHexaPoints
                                                 in
                                                 ( hexKey
                                                 , Svg.polygon
@@ -3601,20 +3676,20 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 in
                 let
                     ulSector =
-                        HexAddress.toSectorAddress upperLeftHex
+                        HexAddress.toSectorAddress config.hexRect.upperLeftHex
 
                     lrSector =
-                        HexAddress.toSectorAddress lowerRightHex
+                        HexAddress.toSectorAddress config.hexRect.lowerRightHex
 
                     sectorOutlines =
-                        if showSectorLines then
+                        if config.showSectorLines then
                             List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
                                 |> List.concatMap
                                     (\sx ->
                                         List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
                                             |> List.map
                                                 (\sy ->
-                                                    renderSectorOutline hexSize { ulSector | sectorX = sx, sectorY = sy }
+                                                    renderSectorOutline config.hexSize { ulSector | sectorX = sx, sectorY = sy }
                                                 )
                                     )
 
@@ -3622,14 +3697,14 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                             []
 
                     subsectorLinesList =
-                        if showSubsectorLines then
+                        if config.showSubsectorLines then
                             List.range (min ulSector.sectorX lrSector.sectorX) (max ulSector.sectorX lrSector.sectorX)
                                 |> List.concatMap
                                     (\sx ->
                                         List.range (min ulSector.sectorY lrSector.sectorY) (max ulSector.sectorY lrSector.sectorY)
                                             |> List.concatMap
                                                 (\sy ->
-                                                    renderSubsectorLines hexSize { ulSector | sectorX = sx, sectorY = sy }
+                                                    renderSubsectorLines config.hexSize { ulSector | sectorX = sx, sectorY = sy }
                                                 )
                                     )
 
@@ -3637,7 +3712,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                             []
 
                     backgroundNameLabels =
-                        if not showBackgroundNames || hexSize > maxHexSizeForBackgroundNames then
+                        if not config.showBackgroundNames || config.hexSize > maxHexSizeForBackgroundNames then
                             []
 
                         else
@@ -3661,7 +3736,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                             String.length (String.trim name) > 1
 
                                 subsectorFontSize =
-                                    round (hexSize * 2.2)
+                                    round (config.hexSize * 2.2)
 
                                 sectorFontSize =
                                     round (toFloat subsectorFontSize * 2.5)
@@ -3671,7 +3746,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                         hex =
                                             { ulSector | sectorX = sx, sectorY = sy }
                                     in
-                                    case Dict.get (HexAddress.toSectorKey hex) sectors of
+                                    case Dict.get (HexAddress.toSectorKey hex) config.sectors of
                                         Nothing ->
                                             []
 
@@ -3684,9 +3759,9 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                                     Just name ->
                                                         let
                                                             ( cx, cy ) =
-                                                                sectorCellCenterPixel hexSize hex { x = 0, y = 0 } { x = 32, y = 40 }
+                                                                sectorCellCenterPixel config.hexSize hex { x = 0, y = 0 } { x = 32, y = 40 }
                                                         in
-                                                        [ backgroundNameLabel themeIsLight sectorFontSize cx cy name ]
+                                                        [ backgroundNameLabel config.themeIsLight sectorFontSize cx cy name ]
 
                                             else
                                                 List.range 1 4
@@ -3704,12 +3779,12 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                                                                 (\name ->
                                                                                     let
                                                                                         ( cx, cy ) =
-                                                                                            sectorCellCenterPixel hexSize
+                                                                                            sectorCellCenterPixel config.hexSize
                                                                                                 hex
                                                                                                 { x = (subCol - 1) * 8, y = (subRow - 1) * 10 }
                                                                                                 { x = subCol * 8, y = subRow * 10 }
                                                                                     in
-                                                                                    backgroundNameLabel themeIsLight subsectorFontSize cx cy name
+                                                                                    backgroundNameLabel config.themeIsLight subsectorFontSize cx cy name
                                                                                 )
                                                                     )
                                                         )
@@ -3759,10 +3834,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     edgesFor hexAddr =
                                         let
                                             ( vox, voy ) =
-                                                calcVisualOrigin hexSize { row = hexAddr.y, col = hexAddr.x }
+                                                calcVisualOrigin config.hexSize { row = hexAddr.y, col = hexAddr.x }
 
                                             verts =
-                                                rawHexaPoints
+                                                config.rawHexaPoints
                                                     |> List.map (\( dx, dy ) -> ( toFloat vox + dx, toFloat voy + dy ))
 
                                             vertPairs =
@@ -3812,7 +3887,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     )
 
                     regionBorderLines =
-                        case regionDisplay of
+                        case config.regionDisplay of
                             HideRegions ->
                                 []
 
@@ -3820,32 +3895,32 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                 []
 
                             _ ->
-                                regions |> Dict.values |> List.filterMap renderBorderRegion
+                                config.regions |> Dict.values |> List.filterMap renderBorderRegion
                 in
                 let
                     visibleLinks =
                         List.filter
                             (\link ->
-                                (isReferee
+                                (config.isReferee
                                     || link.known
                                     || (link.routeType
                                             == "network"
                                             && (link.fromSurveyIndex >= 10 || link.toSurveyIndex >= 10)
                                        )
                                 )
-                                    && not (Set.member link.jumpRouteId hiddenJumpRouteIds)
+                                    && not (Set.member link.jumpRouteId config.hiddenJumpRouteIds)
                             )
-                            jumpRouteLinks
+                            config.jumpRouteLinks
 
                     jumpRouteLinkLines =
                         List.map
                             (\link ->
                                 let
                                     ( fx, fy ) =
-                                        calcVisualOrigin hexSize { row = link.fromY, col = link.fromX }
+                                        calcVisualOrigin config.hexSize { row = link.fromY, col = link.fromX }
 
                                     ( tx, ty ) =
-                                        calcVisualOrigin hexSize { row = link.toY, col = link.toX }
+                                        calcVisualOrigin config.hexSize { row = link.toY, col = link.toX }
                                 in
                                 Svg.line
                                     [ SvgAttrs.x1 (String.fromInt fx)
@@ -3867,7 +3942,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                     -- save defaults (line_width: 8, line_style: 'dashed'), so the preview
                     -- doesn't change appearance the moment it's saved - only the colour differs.
                     previewRouteLines =
-                        case previewRoute of
+                        case config.previewRoute of
                             Nothing ->
                                 []
 
@@ -3880,10 +3955,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                                     (\( fromX, fromY ) ( toX, toY ) ->
                                         let
                                             ( fx, fy ) =
-                                                calcVisualOrigin hexSize { row = fromY, col = fromX }
+                                                calcVisualOrigin config.hexSize { row = fromY, col = fromX }
 
                                             ( tx, ty ) =
-                                                calcVisualOrigin hexSize { row = toY, col = toX }
+                                                calcVisualOrigin config.hexSize { row = toY, col = toX }
                                         in
                                         Svg.line
                                             [ SvgAttrs.x1 (String.fromInt fx)
@@ -3926,10 +4001,10 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
            )
         |> (let
                 widthString =
-                    String.fromFloat <| svgWidth
+                    String.fromFloat <| config.svgWidth
 
                 heightString =
-                    String.fromFloat <| svgHeight
+                    String.fromFloat <| config.svgHeight
             in
             Svg.svg
                 [ SvgAttrs.width <| widthString
@@ -3939,7 +4014,7 @@ viewHexes ( { upperLeftHex, lowerRightHex }, rawHexaPoints ) { svgWidth, svgHeig
                 , Html.Events.preventDefaultOn "wheel"
                     (JsDecode.map (\dy -> ( HexMapWheelZoom dy, True )) (JsDecode.field "deltaY" JsDecode.float))
                 , viewBox <|
-                    toViewBox hexSize upperLeftHex panOffset
+                    toViewBox config.hexSize config.hexRect.upperLeftHex config.panOffset
                         ++ " "
                         ++ widthString
                         ++ " "
@@ -5228,267 +5303,328 @@ planRouteRowHtml =
         [ Html.text "+ Plan a Route…" ]
 
 
-viewDisplaySettingsModal : DisplayMode -> RegionDisplay -> Bool -> Bool -> Bool -> Bool -> Element Msg
-viewDisplaySettingsModal currentMode currentRegionDisplay isReferee showSectorLines_ showSubsectorLines_ showBackgroundNames_ =
-    let
-        radioButton : Bool -> Element Msg
-        radioButton isActive =
-            el
-                [ width (Element.px 16)
-                , height (Element.px 16)
-                , Border.width 2
-                , Border.rounded 8
-                , Element.htmlAttribute
-                    (HtmlAttrs.style "border-color"
-                        (if isActive then
-                            "var(--color-outline)"
+type alias DisplaySettingsConfig =
+    { displayMode : DisplayMode
+    , regionDisplay : RegionDisplay
+    , isReferee : Bool
+    , showSectorLines : Bool
+    , showSubsectorLines : Bool
+    , showBackgroundNames : Bool
+    , showJumpLogFill : Bool
+    , showMapDisplayDropdown : Bool
+    , showRegionDropdown : Bool
+    }
 
-                         else
-                            "color-mix(in srgb, var(--color-outline) 35%, transparent)"
-                        )
-                    )
-                , Element.centerY
-                ]
-            <|
-                if isActive then
-                    el
-                        [ width (Element.px 8)
-                        , height (Element.px 8)
-                        , Border.rounded 4
-                        , bgVar "--color-outline"
-                        , Element.centerX
-                        , Element.centerY
-                        ]
-                        Element.none
 
-                else
-                    Element.none
+dsStopPropagation : Html.Attribute Msg
+dsStopPropagation =
+    Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True ))
 
-        modeOption : DisplayMode -> String -> String -> Element Msg
-        modeOption mode label description =
-            let
-                isActive =
-                    currentMode == mode
-            in
-            el
-                [ width fill
-                , Element.pointer
-                , Events.onClick (SetDisplayMode mode)
-                , Element.paddingXY 6 8
-                , Border.rounded 4
-                , Element.htmlAttribute
-                    (HtmlAttrs.style "background-color"
-                        (if isActive then
-                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                         else
-                            "transparent"
-                        )
-                    )
-                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
-                ]
-            <|
-                row [ Element.spacing 10, width fill ]
-                    [ radioButton isActive
-                    , column [ Element.spacing 2, width fill ]
-                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
-                        , Element.paragraph [ Font.size 11, fontVar "--color-fg-muted" ] [ text description ]
-                        ]
-                    ]
+dsFieldLabel : String -> Html Msg
+dsFieldLabel label =
+    Html.div
+        [ HtmlAttrs.style "font-size" "11px"
+        , HtmlAttrs.style "text-transform" "uppercase"
+        , HtmlAttrs.style "letter-spacing" "0.15em"
+        , HtmlAttrs.style "font-weight" "700"
+        , HtmlAttrs.style "color" "var(--color-fg-muted)"
+        , HtmlAttrs.style "margin-bottom" "4px"
+        ]
+        [ Html.text label ]
 
-        regionOption : RegionDisplay -> String -> String -> Element Msg
-        regionOption mode label description =
-            let
-                isActive =
-                    currentRegionDisplay == mode
-            in
-            el
-                [ width fill
-                , Element.pointer
-                , Events.onClick (SetRegionDisplay mode)
-                , Element.paddingXY 6 8
-                , Border.rounded 4
-                , Element.htmlAttribute
-                    (HtmlAttrs.style "background-color"
-                        (if isActive then
-                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                         else
-                            "transparent"
-                        )
-                    )
-                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
-                ]
-            <|
-                row [ Element.spacing 10, width fill ]
-                    [ radioButton isActive
-                    , column [ Element.spacing 2 ]
-                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
-                        , el [ Font.size 11, fontVar "--color-fg-muted" ] (text description)
-                        ]
-                    ]
-
-        options =
-            [ modeOption ShowStars "Stars" "Primary stars in each system"
-            , modeOption ShowMainWorld "Main World" "Planet image for the main world"
-            , modeOption ShowTradeCodes "Trade Codes" "Abbreviated trade classification codes"
-            , modeOption ShowTechLevel "Tech Level" "Tech level rating"
-            , modeOption ShowGovernment "Government" "Government type and code per hex"
-            ]
-                ++ (if isReferee then
-                        [ modeOption ShowWTN "WTN" "World Trade Number"
-                        , modeOption ShowGWP "GWP" "Gross World Product"
-                        , modeOption ShowImportance "Importance" "Economic importance rating"
-                        , modeOption ShowStrategic "Strategic" "Tiered bars: Importance, Resource Units, Resource Factor, Trade Ease"
-                        , modeOption ShowResource "Resource" "Tiered bars: Importance, Trade Ease, plus route role badge"
-                        , modeOption ShowHabitability "Habitability" "Main world habitability rating"
-                        ]
+dsRadioIcon : Bool -> Html Msg
+dsRadioIcon isActive =
+    Html.div
+        [ HtmlAttrs.style "width" "16px"
+        , HtmlAttrs.style "height" "16px"
+        , HtmlAttrs.style "flex" "0 0 auto"
+        , HtmlAttrs.style "border-radius" "8px"
+        , HtmlAttrs.style "border"
+            ("2px solid "
+                ++ (if isActive then
+                        "var(--color-outline)"
 
                     else
-                        []
+                        "color-mix(in srgb, var(--color-outline) 35%, transparent)"
                    )
+            )
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "box-sizing" "border-box"
+        ]
+        [ if isActive then
+            Html.div
+                [ HtmlAttrs.style "width" "8px"
+                , HtmlAttrs.style "height" "8px"
+                , HtmlAttrs.style "border-radius" "4px"
+                , HtmlAttrs.style "background-color" "var(--color-outline)"
+                ]
+                []
 
-        regionOptions =
-            [ regionOption HideRegions "Hidden" "Regions not shown"
-            , regionOption ShowRegionsFill "Fill" "Hex colour fill only"
-            , regionOption ShowRegionsBorder "Border" "Region border lines only"
-            , regionOption ShowRegionsBoth "Fill & Border" "Hex colour fill with border lines"
+          else
+            Html.text ""
+        ]
+
+
+dsCheckboxIcon : Bool -> Html Msg
+dsCheckboxIcon isActive =
+    Html.div
+        [ HtmlAttrs.style "width" "16px"
+        , HtmlAttrs.style "height" "16px"
+        , HtmlAttrs.style "flex" "0 0 auto"
+        , HtmlAttrs.style "border-radius" "3px"
+        , HtmlAttrs.style "border"
+            ("2px solid "
+                ++ (if isActive then
+                        "var(--color-outline)"
+
+                    else
+                        "color-mix(in srgb, var(--color-outline) 35%, transparent)"
+                   )
+            )
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "box-sizing" "border-box"
+        ]
+        [ if isActive then
+            Html.div
+                [ HtmlAttrs.style "width" "8px"
+                , HtmlAttrs.style "height" "8px"
+                , HtmlAttrs.style "border-radius" "1px"
+                , HtmlAttrs.style "background-color" "var(--color-outline)"
+                ]
+                []
+
+          else
+            Html.text ""
+        ]
+
+
+dsOptionRow : Bool -> String -> String -> Msg -> Html Msg
+dsOptionRow isActive label description msg =
+    Html.div
+        [ HtmlAttrs.class "starmap-display-option"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "flex-start"
+        , HtmlAttrs.style "gap" "10px"
+        , HtmlAttrs.style "padding" "8px 10px"
+        , HtmlAttrs.style "border-radius" "4px"
+        , HtmlAttrs.style "cursor" "pointer"
+        , HtmlAttrs.style "background-color"
+            (if isActive then
+                "color-mix(in srgb, var(--color-outline) 10%, transparent)"
+
+             else
+                "transparent"
+            )
+        , Html.Events.onClick msg
+        ]
+        [ Html.div [ HtmlAttrs.style "margin-top" "2px" ] [ dsRadioIcon isActive ]
+        , Html.div
+            [ HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "flex-direction" "column"
+            , HtmlAttrs.style "gap" "2px"
             ]
+            [ Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "font-weight" "700", HtmlAttrs.style "color" "var(--color-fg)" ] [ Html.text label ]
+            , Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ] [ Html.text description ]
+            ]
+        ]
 
-        sectionDivider =
-            row
-                [ width fill
-                , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
-                , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+
+dsCheckboxRow : Bool -> String -> Msg -> Html Msg
+dsCheckboxRow isActive label msg =
+    Html.div
+        [ HtmlAttrs.class "starmap-display-option"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "10px"
+        , HtmlAttrs.style "padding" "6px 10px"
+        , HtmlAttrs.style "border-radius" "4px"
+        , HtmlAttrs.style "cursor" "pointer"
+        , Html.Events.onClick msg
+        ]
+        [ dsCheckboxIcon isActive
+        , Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg)" ] [ Html.text label ]
+        ]
+
+
+dsDropdownField :
+    { label : String
+    , toggleId : String
+    , menuId : String
+    , isOpen : Bool
+    , onToggle : Msg
+    , currentLabel : String
+    , rows : List (Html Msg)
+    }
+    -> Html Msg
+dsDropdownField field =
+    Html.div
+        [ HtmlAttrs.style "position" "relative"
+        , HtmlAttrs.style "margin-bottom" "12px"
+        ]
+        [ dsFieldLabel field.label
+        , Html.div
+            [ HtmlAttrs.id field.toggleId
+            , HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "align-items" "center"
+            , HtmlAttrs.style "justify-content" "space-between"
+            , HtmlAttrs.style "font-size" "13px"
+            , HtmlAttrs.style "color" "var(--color-fg)"
+            , HtmlAttrs.style "background-color" "var(--color-panel)"
+            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
+            , HtmlAttrs.style "border-radius" "4px"
+            , HtmlAttrs.style "padding" "8px 10px"
+            , HtmlAttrs.style "cursor" "pointer"
+            , Html.Events.onClick field.onToggle
+            ]
+            [ Html.text field.currentLabel
+            , faIcon "fa-regular fa-chevron-down" 12
+            ]
+        , if field.isOpen then
+            Html.div
+                [ HtmlAttrs.class "starmap-glass-panel"
+                , HtmlAttrs.id field.menuId
+                , HtmlAttrs.style "position" "absolute"
+                , HtmlAttrs.style "top" "100%"
+                , HtmlAttrs.style "left" "0"
+                , HtmlAttrs.style "right" "0"
+                , HtmlAttrs.style "margin-top" "4px"
+                , HtmlAttrs.style "border-radius" "4px"
+                , HtmlAttrs.style "padding" "4px"
+                , HtmlAttrs.style "z-index" "10"
+                , HtmlAttrs.style "max-height" "260px"
+                , HtmlAttrs.style "overflow-y" "auto"
                 ]
-                [ el [ Font.size 12, Font.bold, fontVar "--color-fg-muted" ] (text "REGIONS") ]
+                field.rows
 
-        overlayDivider =
-            row
-                [ width fill
-                , Element.paddingEach { zeroEach | top = 12, bottom = 12 }
-                , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+          else
+            Html.text ""
+        ]
+
+
+mapDisplayModes : Bool -> List ( DisplayMode, String, String )
+mapDisplayModes isReferee =
+    [ ( ShowStars, "Stars", "Primary stars in each system" )
+    , ( ShowMainWorld, "Main World", "Planet image for the main world" )
+    , ( ShowTradeCodes, "Trade Codes", "Abbreviated trade classification codes" )
+    , ( ShowTechLevel, "Tech Level", "Tech level rating" )
+    , ( ShowGovernment, "Government", "Government type and code per hex" )
+    ]
+        ++ (if isReferee then
+                [ ( ShowWTN, "WTN", "World Trade Number" )
+                , ( ShowGWP, "GWP", "Gross World Product" )
+                , ( ShowImportance, "Importance", "Economic importance rating" )
+                , ( ShowStrategic, "Strategic", "Tiered bars: Importance, Resource Units, Resource Factor, Trade Ease" )
+                , ( ShowResource, "Resource", "Tiered bars: Importance, Trade Ease, plus route role badge" )
+                , ( ShowHabitability, "Habitability", "Main world habitability rating" )
                 ]
-                [ el [ Font.size 12, Font.bold, fontVar "--color-fg-muted" ] (text "OVERLAY LINES") ]
 
-        checkboxButton : Bool -> Element Msg
-        checkboxButton isActive =
-            el
-                [ width (Element.px 16)
-                , height (Element.px 16)
-                , Border.width 2
-                , Border.rounded 3
-                , Element.htmlAttribute
-                    (HtmlAttrs.style "border-color"
-                        (if isActive then
-                            "var(--color-outline)"
+            else
+                []
+           )
 
-                         else
-                            "color-mix(in srgb, var(--color-outline) 35%, transparent)"
-                        )
-                    )
-                , Element.centerY
-                ]
-            <|
-                if isActive then
-                    el
-                        [ width (Element.px 8)
-                        , height (Element.px 8)
-                        , Border.rounded 1
-                        , bgVar "--color-outline"
-                        , Element.centerX
-                        , Element.centerY
-                        ]
-                        Element.none
 
-                else
-                    Element.none
+regionModes : List ( RegionDisplay, String, String )
+regionModes =
+    [ ( HideRegions, "Hidden", "Regions not shown" )
+    , ( ShowRegionsFill, "Fill", "Hex colour fill only" )
+    , ( ShowRegionsBorder, "Border", "Region border lines only" )
+    , ( ShowRegionsBoth, "Fill & Border", "Hex colour fill with border lines" )
+    ]
 
-        toggleOption : Bool -> String -> String -> Msg -> Element Msg
-        toggleOption isActive label description msg =
-            el
-                [ width fill
-                , Element.pointer
-                , Events.onClick msg
-                , Element.paddingXY 6 8
-                , Border.rounded 4
-                , Element.htmlAttribute
-                    (HtmlAttrs.style "background-color"
-                        (if isActive then
-                            "color-mix(in srgb, var(--color-outline) 10%, transparent)"
 
-                         else
-                            "transparent"
-                        )
-                    )
-                , Element.htmlAttribute (HtmlAttrs.class "starmap-display-option")
-                ]
-            <|
-                row [ Element.spacing 10, width fill ]
-                    [ checkboxButton isActive
-                    , column [ Element.spacing 2 ]
-                        [ el [ Font.size 13, Font.bold, fontVar "--color-fg" ] (text label)
-                        , el [ Font.size 11, fontVar "--color-fg-muted" ] (text description)
-                        ]
-                    ]
+dsCurrentLabel : a -> List ( a, String, String ) -> String
+dsCurrentLabel current modes =
+    modes
+        |> List.filter (\( mode, _, _ ) -> mode == current)
+        |> List.head
+        |> Maybe.map (\( _, label, _ ) -> label)
+        |> Maybe.withDefault ""
 
-        overlayOptions =
-            [ toggleOption showSectorLines_ "Sector Lines" "Sector boundary outlines" ToggleSectorLines
-            , toggleOption showSubsectorLines_ "Subsector Lines" "Subsector grid within each sector" ToggleSubsectorLines
-            , toggleOption showBackgroundNames_ "Sector / Subsector Names" "Faint background watermark of the sector or subsector name" ToggleBackgroundNames
+
+viewDisplaySettingsModalHtml : DisplaySettingsConfig -> Html Msg
+viewDisplaySettingsModalHtml config =
+    let
+        mapModes =
+            mapDisplayModes config.isReferee
+
+        mapDisplayRows =
+            mapModes
+                |> List.map (\( mode, label, description ) -> dsOptionRow (mode == config.displayMode) label description (SetDisplayMode mode))
+
+        regionRows =
+            regionModes
+                |> List.map (\( mode, label, description ) -> dsOptionRow (mode == config.regionDisplay) label description (SetRegionDisplay mode))
+
+        overlayRows =
+            [ dsCheckboxRow config.showSectorLines "Sector lines" ToggleSectorLines
+            , dsCheckboxRow config.showSubsectorLines "Subsector lines" ToggleSubsectorLines
+            , dsCheckboxRow config.showBackgroundNames "Names" ToggleBackgroundNames
+            , dsCheckboxRow config.showJumpLogFill "Jump log" ToggleJumpLogFill
             ]
     in
-    el
-        [ width fill
-        , height fill
-        , Events.onClick ToggleDisplaySettings
-        , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-bg) 30%, transparent)")
+    Html.div
+        [ HtmlAttrs.style "position" "fixed"
+        , HtmlAttrs.style "inset" "0"
+        , HtmlAttrs.style "z-index" "200"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-bg) 30%, transparent)"
+        , Html.Events.onClick ToggleDisplaySettings
         ]
-    <|
-        el
-            [ Element.centerX
-            , Element.centerY
-            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True )))
-            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
-            , Element.padding 20
-            , Border.rounded 6
-            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
-            , width (Element.px 480)
+        [ Html.div
+            [ HtmlAttrs.class "starmap-glass-panel"
+            , HtmlAttrs.style "width" "480px"
+            , HtmlAttrs.style "border-radius" "6px"
+            , HtmlAttrs.style "padding" "20px"
+            , dsStopPropagation
             ]
-        <|
-            column [ width fill, Element.spacing 8 ]
-                [ row
-                    [ width fill
-                    , Element.paddingEach { zeroEach | bottom = 12 }
-                    , Border.widthEach { zeroEach | bottom = 1 }
-                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-                    ]
-                    [ el [ Font.size 14, Font.bold, fontVar "--color-fg" ] (text "Map Display")
-                    , el
-                        [ Element.alignRight
-                        , Events.onClick ToggleDisplaySettings
-                        , Element.pointer
-                        , Font.size 14
-                        , fontVar "--color-fg-muted"
-                        , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
-                        ]
-                        (text "✕")
-                    ]
-                , let
-                    half =
-                        (List.length options + 1) // 2
-                  in
-                  row [ width fill, Element.spacing 6 ]
-                    [ column [ width (Element.fillPortion 1), Element.spacing 6 ] (List.take half options)
-                    , column [ width (Element.fillPortion 1), Element.spacing 6 ] (List.drop half options)
-                    ]
-                , sectionDivider
-                , column [ width fill, Element.spacing 6 ] regionOptions
-                , overlayDivider
-                , column [ width fill, Element.spacing 6 ] overlayOptions
+            [ Html.div
+                [ HtmlAttrs.style "display" "flex"
+                , HtmlAttrs.style "align-items" "center"
+                , HtmlAttrs.style "justify-content" "space-between"
+                , HtmlAttrs.style "padding-bottom" "12px"
+                , HtmlAttrs.style "margin-bottom" "12px"
+                , HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
                 ]
+                [ Html.span [ HtmlAttrs.style "font-size" "14px", HtmlAttrs.style "font-weight" "700", HtmlAttrs.style "color" "var(--color-fg)" ] [ Html.text "Map Display" ]
+                , Html.span
+                    [ HtmlAttrs.class "starmap-modal-close"
+                    , HtmlAttrs.style "cursor" "pointer"
+                    , HtmlAttrs.style "font-size" "14px"
+                    , HtmlAttrs.style "color" "var(--color-fg-muted)"
+                    , Html.Events.onClick ToggleDisplaySettings
+                    ]
+                    [ Html.text "✕" ]
+                ]
+            , dsDropdownField
+                { label = "Map Display"
+                , toggleId = "starmap-map-display-toggle"
+                , menuId = "starmap-map-display-menu"
+                , isOpen = config.showMapDisplayDropdown
+                , onToggle = ToggleMapDisplayDropdown
+                , currentLabel = dsCurrentLabel config.displayMode mapModes
+                , rows = mapDisplayRows
+                }
+            , dsDropdownField
+                { label = "Regions"
+                , toggleId = "starmap-region-toggle"
+                , menuId = "starmap-region-menu"
+                , isOpen = config.showRegionDropdown
+                , onToggle = ToggleRegionDropdown
+                , currentLabel = dsCurrentLabel config.regionDisplay regionModes
+                , rows = regionRows
+                }
+            , Html.div [ HtmlAttrs.style "margin-top" "8px" ]
+                (dsFieldLabel "Overlays" :: overlayRows)
+            ]
+        ]
 
 
 viewHexMap : ModelData -> Element Msg
@@ -5527,19 +5663,37 @@ viewHexMap model =
             ( left_x - right_x |> abs, down_y - left_y |> abs )
     in
     viewHexes
-        ( model.hexRect, model.rawHexaPoints )
-        { svgWidth = svgWidth, svgHeight = svgHeight, maxAcross = maxAcross, maxTall = maxTall }
-        { solarSystemDict = model.solarSystems, hexColours = model.hexColours, regionLabels = model.regionLabels, regions = model.regions, regionDisplay = model.regionDisplay, showSectorLines = model.showSectorLines, showSubsectorLines = model.showSubsectorLines, sectors = model.sectors, showBackgroundNames = model.showBackgroundNames, themeIsLight = model.themeIsLight, highlightRules = model.highlightRules, previewRoute = activePreviewRoute model }
-        ( model.route, model.currentAddress )
-        model.hexScale
-        model.selectedHex
-        model.isReferee
-        model.panOffset
-        model.jumpRouteLinks
-        model.hiddenJumpRouteIds
-        model.rogueObjectPathData
-        model.facilityIcons
-        model.displayMode
+        { hexRect = model.hexRect
+        , rawHexaPoints = model.rawHexaPoints
+        , svgWidth = svgWidth
+        , svgHeight = svgHeight
+        , maxAcross = maxAcross
+        , maxTall = maxTall
+        , solarSystemDict = model.solarSystems
+        , hexColours = model.hexColours
+        , regionLabels = model.regionLabels
+        , regions = model.regions
+        , regionDisplay = model.regionDisplay
+        , showSectorLines = model.showSectorLines
+        , showSubsectorLines = model.showSubsectorLines
+        , sectors = model.sectors
+        , showBackgroundNames = model.showBackgroundNames
+        , showJumpLogFill = model.showJumpLogFill
+        , themeIsLight = model.themeIsLight
+        , highlightRules = model.highlightRules
+        , previewRoute = activePreviewRoute model
+        , route = model.route
+        , currentAddress = model.currentAddress
+        , hexSize = model.hexScale
+        , maybeSelectedHex = model.selectedHex
+        , isReferee = model.isReferee
+        , panOffset = model.panOffset
+        , jumpRouteLinks = model.jumpRouteLinks
+        , hiddenJumpRouteIds = model.hiddenJumpRouteIds
+        , rogueObjectPathData = model.rogueObjectPathData
+        , facilityIcons = model.facilityIcons
+        , displayMode = model.displayMode
+        }
         |> Element.html
 
 
@@ -5749,7 +5903,20 @@ view ( time, model ) =
                  else
                     Element.htmlAttribute <| HtmlAttrs.class ""
                , if model.showDisplaySettings then
-                    Element.inFront <| viewDisplaySettingsModal model.displayMode model.regionDisplay model.isReferee model.showSectorLines model.showSubsectorLines model.showBackgroundNames
+                    Element.inFront <|
+                        Element.html
+                            (viewDisplaySettingsModalHtml
+                                { displayMode = model.displayMode
+                                , regionDisplay = model.regionDisplay
+                                , isReferee = model.isReferee
+                                , showSectorLines = model.showSectorLines
+                                , showSubsectorLines = model.showSubsectorLines
+                                , showBackgroundNames = model.showBackgroundNames
+                                , showJumpLogFill = model.showJumpLogFill
+                                , showMapDisplayDropdown = model.showMapDisplayDropdown
+                                , showRegionDropdown = model.showRegionDropdown
+                                }
+                            )
 
                  else
                     Element.htmlAttribute <| HtmlAttrs.class ""
@@ -6095,6 +6262,9 @@ port storeSubsectorLines : Bool -> Cmd msg
 
 
 port storeBackgroundNames : Bool -> Cmd msg
+
+
+port storeJumpLogFill : Bool -> Cmd msg
 
 
 port storeHighlightRules : Encode.Value -> Cmd msg
@@ -7458,7 +7628,7 @@ update msg ( time, model ) =
                         ShowGovernment ->
                             "Government"
             in
-            ( withTime { model | displayMode = mode }
+            ( withTime { model | displayMode = mode, showMapDisplayDropdown = False }
             , storeDisplayMode modeString
             )
 
@@ -7478,12 +7648,35 @@ update msg ( time, model ) =
                         ShowRegionsBoth ->
                             "Both"
             in
-            ( withTime { model | regionDisplay = mode }
+            ( withTime { model | regionDisplay = mode, showRegionDropdown = False }
             , storeRegionDisplay modeString
             )
 
         ToggleDisplaySettings ->
-            ( withTime { model | showDisplaySettings = not model.showDisplaySettings }
+            ( withTime
+                { model
+                    | showDisplaySettings = not model.showDisplaySettings
+                    , showMapDisplayDropdown = False
+                    , showRegionDropdown = False
+                }
+            , Cmd.none
+            )
+
+        ToggleMapDisplayDropdown ->
+            ( withTime
+                { model
+                    | showMapDisplayDropdown = not model.showMapDisplayDropdown
+                    , showRegionDropdown = False
+                }
+            , Cmd.none
+            )
+
+        ToggleRegionDropdown ->
+            ( withTime
+                { model
+                    | showRegionDropdown = not model.showRegionDropdown
+                    , showMapDisplayDropdown = False
+                }
             , Cmd.none
             )
 
@@ -7500,6 +7693,11 @@ update msg ( time, model ) =
         ToggleBackgroundNames ->
             ( withTime { model | showBackgroundNames = not model.showBackgroundNames }
             , storeBackgroundNames (not model.showBackgroundNames)
+            )
+
+        ToggleJumpLogFill ->
+            ( withTime { model | showJumpLogFill = not model.showJumpLogFill }
+            , storeJumpLogFill (not model.showJumpLogFill)
             )
 
         SearchInput query ->

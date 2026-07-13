@@ -19,6 +19,7 @@ document.addEventListener('turbo:load', () => {
   const sectorLinesKey = `showSectorLines_${slug}`
   const subsectorLinesKey = `showSubsectorLines_${slug}`
   const backgroundNamesKey = `showBackgroundNames_${slug}`
+  const jumpLogFillKey = `showJumpLogFill_${slug}`
   const highlightRulesKey = `highlightRules_${slug}`
   const routePlanKey = `routePlan_${slug}`
   const hiddenJumpRouteIdsKey = `hiddenJumpRouteIds_${slug}`
@@ -32,6 +33,7 @@ document.addEventListener('turbo:load', () => {
   const showSectorLines = JSON.parse(localStorage.getItem(sectorLinesKey) ?? 'null')
   const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
   const showBackgroundNames = JSON.parse(localStorage.getItem(backgroundNamesKey) ?? 'null')
+  const showJumpLogFill = JSON.parse(localStorage.getItem(jumpLogFillKey) ?? 'null')
   const highlightRules = JSON.parse(localStorage.getItem(highlightRulesKey) ?? '[]')
   const routePlan = JSON.parse(localStorage.getItem(routePlanKey) ?? 'null')
   const hiddenJumpRouteIds = JSON.parse(localStorage.getItem(hiddenJumpRouteIdsKey) ?? '[]')
@@ -49,6 +51,7 @@ document.addEventListener('turbo:load', () => {
       showSectorLines,
       showSubsectorLines,
       showBackgroundNames,
+      showJumpLogFill,
       highlightRules,
       routePlan,
       hiddenJumpRouteIds,
@@ -114,6 +117,12 @@ document.addEventListener('turbo:load', () => {
   if (elm.ports.storeBackgroundNames) {
     elm.ports.storeBackgroundNames.subscribe(value => {
       localStorage.setItem(backgroundNamesKey, JSON.stringify(value))
+    })
+  }
+
+  if (elm.ports.storeJumpLogFill) {
+    elm.ports.storeJumpLogFill.subscribe(value => {
+      localStorage.setItem(jumpLogFillKey, JSON.stringify(value))
     })
   }
 

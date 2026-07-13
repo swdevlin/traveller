@@ -251,7 +251,7 @@ class StarSystemMapLayout
     end
     return :molten if hydro_code > 0 && body.temperature.present? && body.temperature.to_f >= MOLTEN_THRESHOLD_K
     return :ice if hydro_code > 0 && body.temperature.present? && body.temperature.to_f < ICE_THRESHOLD_K
-    if (2..9).cover?(atmo_code)
+    if atmo_code <= 9
       return :waterworld if hydro_code == 10
       return :"tp_#{hydro_code * 10}" if (1..9).cover?(hydro_code)
     end
