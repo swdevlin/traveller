@@ -48,8 +48,8 @@ type Msg
 -- UPDATE
 
 
-update : List HighlightRule.FacilityOption -> Msg -> Model -> Model
-update facilities msg model =
+update : HighlightRule.PickerData -> Msg -> Model -> Model
+update pickerData msg model =
     let
         draft =
             model.draft
@@ -119,7 +119,7 @@ update facilities msg model =
                                 operator =
                                     List.head (HighlightRule.operatorsFor field) |> Maybe.withDefault HighlightRule.Eq
                             in
-                            { c | field = field, operator = operator, values = defaultValuesForOperator facilities field operator }
+                            { c | field = field, operator = operator, values = defaultValuesForOperator pickerData field operator }
                         )
                         draft
                 , openPicker = Nothing
@@ -130,7 +130,7 @@ update facilities msg model =
                 | draft =
                     updateConditionAt groupIdx
                         condIdx
-                        (\c -> { c | operator = operator, values = defaultValuesForOperator facilities c.field operator })
+                        (\c -> { c | operator = operator, values = defaultValuesForOperator pickerData c.field operator })
                         draft
                 , openPicker = Nothing
             }
@@ -193,13 +193,37 @@ update facilities msg model =
             { model | openPicker = Nothing }
 
 
-defaultValuesForOperator : List HighlightRule.FacilityOption -> Field -> Operator -> List String
-defaultValuesForOperator facilities field operator =
+defaultValuesForOperator : HighlightRule.PickerData -> Field -> Operator -> List String
+defaultValuesForOperator pickerData field operator =
     case field of
         HighlightRule.Bases ->
-            case List.head facilities of
-                Just facility ->
-                    [ facility.code ]
+            case List.head pickerData.facilities of
+                Just option ->
+                    [ option.code ]
+
+                Nothing ->
+                    []
+
+        HighlightRule.Allegiance ->
+            case List.head pickerData.allegiances of
+                Just option ->
+                    [ option.code ]
+
+                Nothing ->
+                    []
+
+        HighlightRule.Sector ->
+            case List.head pickerData.sectors of
+                Just option ->
+                    [ option.code ]
+
+                Nothing ->
+                    []
+
+        HighlightRule.Subsector ->
+            case List.head pickerData.subsectors of
+                Just option ->
+                    [ option.code ]
 
                 Nothing ->
                     []
@@ -281,13 +305,13 @@ operatorFromLabel field label =
 -}
 
 
-view : List HighlightRule.FacilityOption -> Model -> Element Msg
-view facilities model =
-    Element.html (viewHtml facilities model)
+view : HighlightRule.PickerData -> Model -> Element Msg
+view pickerData model =
+    Element.html (viewHtml pickerData model)
 
 
-viewHtml : List HighlightRule.FacilityOption -> Model -> Html Msg
-viewHtml facilities model =
+viewHtml : HighlightRule.PickerData -> Model -> Html Msg
+viewHtml pickerData model =
     let
         draft =
             model.draft
@@ -322,7 +346,7 @@ viewHtml facilities model =
                 , HtmlAttrs.style "flex-direction" "column"
                 , HtmlAttrs.style "gap" "10px"
                 ]
-                (groupViews facilities model.openPicker draft.groups)
+                (groupViews pickerData model.openPicker draft.groups)
             , linkButton AddGroup "+ Add OR group"
             , actionsRow
             ]
@@ -380,8 +404,8 @@ colourAndEnabledRow colour enabled =
         ]
 
 
-groupViews : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> List Group -> List (Html Msg)
-groupViews facilities openPicker groups =
+groupViews : HighlightRule.PickerData -> Maybe ( Int, Int ) -> List Group -> List (Html Msg)
+groupViews pickerData openPicker groups =
     groups
         |> List.indexedMap (\i g -> ( i, g ))
         |> List.concatMap
@@ -392,12 +416,12 @@ groupViews facilities openPicker groups =
                  else
                     []
                 )
-                    ++ [ groupView facilities openPicker groupIdx group ]
+                    ++ [ groupView pickerData openPicker groupIdx group ]
             )
 
 
-groupView : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> Int -> Group -> Html Msg
-groupView facilities openPicker groupIdx group =
+groupView : HighlightRule.PickerData -> Maybe ( Int, Int ) -> Int -> Group -> Html Msg
+groupView pickerData openPicker groupIdx group =
     Html.div
         [ HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-direction" "column"
@@ -406,7 +430,7 @@ groupView facilities openPicker groupIdx group =
         , HtmlAttrs.style "border" "1px solid color-mix(in srgb, var(--color-outline) 20%, transparent)"
         , HtmlAttrs.style "border-radius" "4px"
         ]
-        (List.indexedMap (conditionRow facilities openPicker groupIdx) group
+        (List.indexedMap (conditionRow pickerData openPicker groupIdx) group
             ++ [ Html.div [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "gap" "16px" ]
                     [ linkButton (AddCondition groupIdx) "+ Add AND condition"
                     , linkButton (RemoveGroup groupIdx) "Remove group"
@@ -428,8 +452,8 @@ linkButton msg label =
         [ Html.text label ]
 
 
-conditionRow : List HighlightRule.FacilityOption -> Maybe ( Int, Int ) -> Int -> Int -> Condition -> Html Msg
-conditionRow facilities openPicker groupIdx condIdx condition =
+conditionRow : HighlightRule.PickerData -> Maybe ( Int, Int ) -> Int -> Int -> Condition -> Html Msg
+conditionRow pickerData openPicker groupIdx condIdx condition =
     Html.div
         [ HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-wrap" "wrap"
@@ -445,7 +469,7 @@ conditionRow facilities openPicker groupIdx condIdx condition =
             (\label -> SetOperator groupIdx condIdx (operatorFromLabel condition.field label))
             (HighlightRule.operatorLabel condition.operator)
             (HighlightRule.operatorsFor condition.field |> List.map (\op -> ( HighlightRule.operatorLabel op, HighlightRule.operatorLabel op )))
-        , valuePicker facilities (openPicker == Just ( groupIdx, condIdx )) groupIdx condIdx condition
+        , valuePicker pickerData (openPicker == Just ( groupIdx, condIdx )) groupIdx condIdx condition
         , Html.button
             [ HtmlAttrs.type_ "button"
             , HtmlEvents.onClick (RemoveCondition groupIdx condIdx)
@@ -469,13 +493,33 @@ negateCheckbox groupIdx condIdx negate =
         ]
 
 
+{-| Sized from the options themselves - `ch` is roughly one character's
+width in the current font, so a select showing "Alikaia Main Society" ends
+up wide enough to read without truncation, while a short list like Starport
+stays compact. Floored at 6ch so short lists still get a sensible minimum.
+-}
 htmlSelect : (String -> msg) -> String -> List ( String, String ) -> Html msg
 htmlSelect toMsg selected options =
+    let
+        minWidthCh =
+            options
+                |> List.map (Tuple.second >> String.length)
+                |> List.maximum
+                |> Maybe.withDefault 0
+                |> (+) 3
+                |> max 6
+    in
     Html.select
         [ HtmlEvents.onInput toMsg
         , HtmlAttrs.value selected
         , HtmlAttrs.class "edit-base text-xs py-1"
-        , HtmlAttrs.style "min-width" "72px"
+        , HtmlAttrs.style "min-width" (String.fromInt minWidthCh ++ "ch")
+
+        -- conditionRow is a flex container; without this, a flex item's
+        -- default flex-shrink:1 lets the row squeeze the select back down
+        -- below the min-width above once the row's items don't all fit,
+        -- silently undoing the sizing this function exists to do.
+        , HtmlAttrs.style "flex-shrink" "0"
         ]
         (options
             |> List.map
@@ -487,13 +531,22 @@ htmlSelect toMsg selected options =
         )
 
 
-valuePicker : List HighlightRule.FacilityOption -> Bool -> Int -> Int -> Condition -> Html Msg
-valuePicker facilities isOpen groupIdx condIdx condition =
+valuePicker : HighlightRule.PickerData -> Bool -> Int -> Int -> Condition -> Html Msg
+valuePicker pickerData isOpen groupIdx condIdx condition =
     let
         options =
             case condition.field of
                 HighlightRule.Bases ->
-                    facilities |> List.map (\f -> { code = f.code, label = f.name })
+                    pickerData.facilities |> List.map (\o -> { code = o.code, label = o.name })
+
+                HighlightRule.Allegiance ->
+                    pickerData.allegiances |> List.map (\o -> { code = o.code, label = o.name })
+
+                HighlightRule.Sector ->
+                    pickerData.sectors |> List.map (\o -> { code = o.code, label = o.name })
+
+                HighlightRule.Subsector ->
+                    pickerData.subsectors |> List.map (\o -> { code = o.code, label = o.name })
 
                 _ ->
                     HighlightRule.fieldOptions condition.field
@@ -561,7 +614,7 @@ checklistDropdown isOpen groupIdx condIdx condition options =
                 _ ->
                     String.fromInt (List.length selectedLabels) ++ " selected"
     in
-    Html.div [ HtmlAttrs.style "position" "relative" ]
+    Html.div [ HtmlAttrs.style "position" "relative", HtmlAttrs.style "flex-shrink" "0" ]
         ([ Html.button
             [ HtmlAttrs.type_ "button"
             , HtmlEvents.onClick (ToggleValuePicker groupIdx condIdx)

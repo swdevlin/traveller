@@ -162,7 +162,8 @@ CREATE TABLE public.allegiances (
     created_at timestamp(6) without time zone NOT NULL,
     legacy_code character varying,
     name character varying NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    known boolean DEFAULT true NOT NULL
 );
 
 
@@ -2353,6 +2354,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260712170000'),
 ('20260712164658'),
 ('20260712113141'),
 ('20260712113122'),

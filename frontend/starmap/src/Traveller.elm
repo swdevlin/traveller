@@ -780,7 +780,10 @@ type alias ModelData =
     , jumpRouteLinks : List JumpRouteLink
     , rogueObjectPathData : Maybe String
     , facilityIcons : Dict.Dict String FacilityIcon
-    , facilities : List HighlightRule.FacilityOption
+    , facilities : List HighlightRule.Option
+    , allegianceOptions : List HighlightRule.Option
+    , sectorOptions : List HighlightRule.Option
+    , subsectorOptions : List HighlightRule.Option
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
@@ -1121,7 +1124,10 @@ type alias Flags =
     , centerOn : Maybe ( Int, Int )
     , rogueObjectPathData : Maybe String
     , facilityIcons : List FacilityIcon
-    , facilities : List HighlightRule.FacilityOption
+    , facilities : List HighlightRule.Option
+    , allegianceOptions : List HighlightRule.Option
+    , sectorOptions : List HighlightRule.Option
+    , subsectorOptions : List HighlightRule.Option
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -1430,6 +1436,9 @@ init viewport settings key hostConfig referee =
             , rogueObjectPathData = settings.rogueObjectPathData
             , facilityIcons = settings.facilityIcons |> List.map (\icon -> ( icon.code, icon )) |> Dict.fromList
             , facilities = settings.facilities |> List.sortBy .name
+            , allegianceOptions = settings.allegianceOptions |> List.sortBy .name
+            , sectorOptions = settings.sectorOptions |> List.sortBy .name
+            , subsectorOptions = settings.subsectorOptions |> List.sortBy .name
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             , theme = settings.theme
             , themeIsLight = settings.themeIsLight
@@ -4633,7 +4642,7 @@ viewStatusRowHtml model =
                         ]
                         [ faIcon "fa-regular fa-layer-group" 16 ]
                     , if model.showHighlightRulesMenu then
-                        viewHighlightRulesMenuHtml model.highlightRules model.pendingDeleteRuleId
+                        viewHighlightRulesMenuHtml model.highlightRules
 
                       else
                         Html.text ""
@@ -4809,9 +4818,13 @@ viewThemeMenuHtml options currentTheme =
         )
 
 
-facilityOptions : ModelData -> List HighlightRule.FacilityOption
-facilityOptions model =
-    model.facilities
+pickerData : ModelData -> HighlightRule.PickerData
+pickerData model =
+    { facilities = model.facilities
+    , allegiances = model.allegianceOptions
+    , sectors = model.sectorOptions
+    , subsectors = model.subsectorOptions
+    }
 
 
 routePlanFormConfig : ModelData -> RoutePlanForm.Config
@@ -4897,8 +4910,8 @@ reason as `HighlightRuleEditor.view`: the enabled toggle switch is a native
 control, and elm-ui's spacing doesn't reliably apply around embedded native
 elements.
 -}
-viewHighlightRulesMenuHtml : List HighlightRule.Rule -> Maybe String -> Html Msg
-viewHighlightRulesMenuHtml rules pendingDeleteRuleId =
+viewHighlightRulesMenuHtml : List HighlightRule.Rule -> Html Msg
+viewHighlightRulesMenuHtml rules =
     let
         lastIdx =
             List.length rules - 1
@@ -4935,18 +4948,15 @@ viewHighlightRulesMenuHtml rules pendingDeleteRuleId =
             []
          )
             ++ List.indexedMap
-                (\idx rule -> ruleRowHtml pendingDeleteRuleId (idx == 0) (idx == lastIdx) rule)
+                (\idx rule -> ruleRowHtml (idx == 0) (idx == lastIdx) rule)
                 rules
             ++ [ newOverlayRowHtml ]
         )
 
 
-ruleRowHtml : Maybe String -> Bool -> Bool -> HighlightRule.Rule -> Html Msg
-ruleRowHtml pendingDeleteRuleId isFirst isLast rule =
+ruleRowHtml : Bool -> Bool -> HighlightRule.Rule -> Html Msg
+ruleRowHtml isFirst isLast rule =
     let
-        isPendingDelete =
-            pendingDeleteRuleId == Just rule.id
-
         moveButton attrs iconClass =
             Html.span
                 (HtmlAttrs.style "font-size" "12px" :: attrs)
@@ -5002,28 +5012,11 @@ ruleRowHtml pendingDeleteRuleId isFirst isLast rule =
                 , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( MoveRuleDown rule.id, True ))
                 ]
                 "fa-regular fa-chevron-down"
-        , if isPendingDelete then
-            Html.span [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "align-items" "center", HtmlAttrs.style "gap" "8px" ]
-                [ Html.span [ HtmlAttrs.class "text-xs text-fg-muted" ] [ Html.text "Delete?" ]
-                , Html.span
-                    [ HtmlAttrs.class "text-danger cursor-pointer"
-                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( DeleteRule rule.id, True ))
-                    ]
-                    [ Html.i [ HtmlAttrs.class "fa-regular fa-check", HtmlAttrs.style "font-size" "12px" ] [] ]
-                , Html.span
-                    [ HtmlAttrs.class "text-fg-muted cursor-pointer"
-                    , HtmlAttrs.style "font-size" "12px"
-                    , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( CancelDeleteRule, True ))
-                    ]
-                    [ Html.text "✕" ]
-                ]
-
-          else
-            Html.span
-                [ HtmlAttrs.class "text-fg-muted cursor-pointer"
-                , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( RequestDeleteRule rule.id, True ))
-                ]
-                [ Html.i [ HtmlAttrs.class "fa-regular fa-trash", HtmlAttrs.style "font-size" "12px" ] [] ]
+        , Html.span
+            [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+            , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( RequestDeleteRule rule.id, True ))
+            ]
+            [ Html.i [ HtmlAttrs.class "fa-regular fa-trash", HtmlAttrs.style "font-size" "12px" ] [] ]
         ]
 
 
@@ -5037,6 +5030,61 @@ newOverlayRowHtml =
         , HtmlAttrs.style "padding" "8px 16px"
         ]
         [ Html.text "+ New Overlay" ]
+
+
+{-| A confirmation modal for deleting a survey overlay, in the same visual
+style as `HighlightRuleEditor.viewHtml` (fixed dimmed backdrop, centered
+glass panel, backdrop click cancels). Replaces the old inline "Delete? ✓ ✕"
+prompt that appeared in place of the trash icon within the dropdown row.
+-}
+viewDeleteRuleConfirmModal : HighlightRule.Rule -> Html Msg
+viewDeleteRuleConfirmModal rule =
+    Html.div
+        [ HtmlAttrs.style "position" "fixed"
+        , HtmlAttrs.style "inset" "0"
+        , HtmlAttrs.style "z-index" "150"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-bg) 30%, transparent)"
+        , Html.Events.onClick CancelDeleteRule
+        ]
+        [ Html.div
+            [ HtmlAttrs.class "starmap-glass-panel"
+            , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( NoOpMsg, True ))
+            , HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "flex-direction" "column"
+            , HtmlAttrs.style "gap" "16px"
+            , HtmlAttrs.style "border-radius" "6px"
+            , HtmlAttrs.style "box-shadow" "0 8px 32px rgba(0, 0, 0, 0.25)"
+            , HtmlAttrs.style "padding" "20px"
+            , HtmlAttrs.style "width" "100%"
+            , HtmlAttrs.style "max-width" "360px"
+            ]
+            [ Html.span [ HtmlAttrs.class "text-sm text-fg-bright" ]
+                [ Html.text ("Delete the survey overlay \"" ++ rule.name ++ "\"?") ]
+            , Html.span [ HtmlAttrs.class "text-xs text-fg-muted" ]
+                [ Html.text "This cannot be undone." ]
+            , Html.div
+                [ HtmlAttrs.style "display" "flex"
+                , HtmlAttrs.style "gap" "8px"
+                , HtmlAttrs.style "justify-content" "flex-end"
+                ]
+                [ Html.button
+                    [ HtmlAttrs.type_ "button"
+                    , HtmlAttrs.class "btn btn-sm"
+                    , Html.Events.onClick CancelDeleteRule
+                    ]
+                    [ Html.text "Cancel" ]
+                , Html.button
+                    [ HtmlAttrs.type_ "button"
+                    , HtmlAttrs.class "btn btn-danger btn-sm"
+                    , Html.Events.onClick (DeleteRule rule.id)
+                    ]
+                    [ Html.text "Delete" ]
+                ]
+            ]
+        ]
 
 
 {-| The "Jump Route Layers" dropdown: lists every `JumpRoute`, with a toggle
@@ -5707,7 +5755,13 @@ view ( time, model ) =
                     Element.htmlAttribute <| HtmlAttrs.class ""
                , case model.ruleEditor of
                     Just editorModel ->
-                        Element.inFront <| Element.map HighlightRuleEditorMsg (HighlightRuleEditor.view (facilityOptions model) editorModel)
+                        Element.inFront <| Element.map HighlightRuleEditorMsg (HighlightRuleEditor.view (pickerData model) editorModel)
+
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.pendingDeleteRuleId |> Maybe.andThen (\id -> List.filter (\r -> r.id == id) model.highlightRules |> List.head) of
+                    Just rule ->
+                        Element.inFront <| Element.html (viewDeleteRuleConfirmModal rule)
 
                     Nothing ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -6508,6 +6562,8 @@ update msg ( time, model ) =
                                             , habitabilityRating = fallibleSystem.habitabilityRating
                                             , governmentCode = fallibleSystem.governmentCode
                                             , governmentName = fallibleSystem.governmentName
+                                            , sectorId = fallibleSystem.sectorId
+                                            , subsectorId = fallibleSystem.subsectorId
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -7645,7 +7701,7 @@ update msg ( time, model ) =
                     ( withTime model, Cmd.none )
 
         RequestDeleteRule ruleId ->
-            ( withTime { model | pendingDeleteRuleId = Just ruleId }, Cmd.none )
+            ( withTime { model | pendingDeleteRuleId = Just ruleId, showHighlightRulesMenu = False }, Cmd.none )
 
         CancelDeleteRule ->
             ( withTime { model | pendingDeleteRuleId = Nothing }, Cmd.none )
@@ -7756,7 +7812,7 @@ update msg ( time, model ) =
                                 )
 
                         _ ->
-                            ( withTime { model | ruleEditor = Just (HighlightRuleEditor.update (facilityOptions model) editorMsg editorModel) }
+                            ( withTime { model | ruleEditor = Just (HighlightRuleEditor.update (pickerData model) editorMsg editorModel) }
                             , Cmd.none
                             )
 

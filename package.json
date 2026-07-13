@@ -2,5 +2,8 @@
   "dependencies": {
     "tailwindcss": "^4.1.18",
     "ultimate_turbo_modal": "3.0.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

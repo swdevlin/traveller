@@ -24,7 +24,12 @@ class Parsec < ApplicationRecord
     hx = (x - ul.x)
     hy = (ul.y - y)
     sx, sy = subsector_xy_for_parsec(hx, hy)
-    sector.subsectors.find_by(x: sx, y: sy)
+
+    if sector.association(:subsectors).loaded?
+      sector.subsectors.find { |s| s.x == sx && s.y == sy }
+    else
+      sector.subsectors.find_by(x: sx, y: sy)
+    end
   end
 
   def subsector_xy_for_parsec(x, y)

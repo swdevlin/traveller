@@ -183,11 +183,70 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     assert_includes SurveyOverlay.picker_options.fetch('bases'), [facility.code, facility.name]
   end
 
+  test 'picker_options includes allegiances sourced live from the Allegiance table' do
+    allegiance = allegiances(:one)
+
+    assert_includes SurveyOverlay.picker_options.fetch('allegiance'), [allegiance.code, allegiance.name]
+  end
+
+  test 'picker_options includes sectors sourced live from the Sector table' do
+    sector = sectors(:one)
+
+    assert_includes SurveyOverlay.picker_options.fetch('sector'), [sector.id.to_s, sector.name]
+  end
+
+  test 'picker_options includes subsectors sourced live from the Subsector table, labelled with their sector' do
+    subsector = subsectors(:subsector_1_1)
+
+    assert_includes SurveyOverlay.picker_options.fetch('subsector'),
+                     [subsector.id.to_s, "#{subsector.name} (#{subsector.sector.name})"]
+  end
+
+  test 'rejects an unknown allegiance code' do
+    survey_overlay = overlay_with(field: 'allegiance', operator: 'eq', values: ['not-a-real-code'])
+
+    assert_not survey_overlay.valid?
+    assert survey_overlay.errors[:rule_data].any?
+  end
+
+  test 'accepts an allegiance code that exists in the Allegiance table' do
+    survey_overlay = overlay_with(field: 'allegiance', operator: 'eq', values: [allegiances(:one).code])
+
+    assert survey_overlay.valid?
+  end
+
+  test 'rejects an unknown sector id' do
+    survey_overlay = overlay_with(field: 'sector', operator: 'eq', values: ['999999'])
+
+    assert_not survey_overlay.valid?
+    assert survey_overlay.errors[:rule_data].any?
+  end
+
+  test 'accepts a sector id that exists' do
+    survey_overlay = overlay_with(field: 'sector', operator: 'eq', values: [sectors(:one).id.to_s])
+
+    assert survey_overlay.valid?
+  end
+
+  test 'rejects an unknown subsector id' do
+    survey_overlay = overlay_with(field: 'subsector', operator: 'eq', values: ['999999'])
+
+    assert_not survey_overlay.valid?
+    assert survey_overlay.errors[:rule_data].any?
+  end
+
+  test 'accepts a subsector id that exists' do
+    survey_overlay = overlay_with(field: 'subsector', operator: 'eq', values: [subsectors(:subsector_1_1).id.to_s])
+
+    assert survey_overlay.valid?
+  end
+
   # matches?/colour_for — mirrors Traveller.HighlightRule.evaluate/matchColour
 
   FakeStarSystem = Struct.new(
     :main_world_uwp, :survey_index, :known, :gas_giant_count, :belt_count,
     :native_sophont, :extinct_sophont, :main_world_importance, :base_codes,
+    :allegiance, :parsec,
     keyword_init: true
   ) do
     def known?
@@ -199,11 +258,16 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     end
   end
 
+  FakeAllegiance = Struct.new(:code, keyword_init: true)
+  FakeSubsector = Struct.new(:id, keyword_init: true)
+  FakeParsec = Struct.new(:sector_id, :subsector, keyword_init: true)
+
   def fake_star_system(**overrides)
     FakeStarSystem.new(
       {
         main_world_uwp: 'A788899-C', survey_index: 5, known: true, gas_giant_count: 2, belt_count: 1,
-        native_sophont: false, extinct_sophont: false, main_world_importance: nil, base_codes: []
+        native_sophont: false, extinct_sophont: false, main_world_importance: nil, base_codes: [],
+        allegiance: nil, parsec: FakeParsec.new(sector_id: 7, subsector: FakeSubsector.new(id: 3))
       }.merge(overrides)
     )
   end
@@ -320,6 +384,37 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     assert_not overlay.matches?(fake_star_system(main_world_uwp: 'A788899-C', known: false))
     assert overlay.matches?(fake_star_system(main_world_uwp: 'B788899-C', native_sophont: true))
     assert_not overlay.matches?(fake_star_system(main_world_uwp: 'B788899-C', native_sophont: false))
+  end
+
+  test 'matches? allegiance field compares the code' do
+    overlay = overlay_with(field: 'allegiance', operator: 'eq', values: ['Im'])
+
+    assert overlay.matches?(fake_star_system(allegiance: FakeAllegiance.new(code: 'Im')))
+    assert_not overlay.matches?(fake_star_system(allegiance: FakeAllegiance.new(code: 'Zh')))
+    assert_not overlay.matches?(fake_star_system(allegiance: nil))
+  end
+
+  test 'matches? allegiance one_of operator' do
+    overlay = overlay_with(field: 'allegiance', operator: 'one_of', values: %w[Im Zh])
+
+    assert overlay.matches?(fake_star_system(allegiance: FakeAllegiance.new(code: 'Zh')))
+    assert_not overlay.matches?(fake_star_system(allegiance: FakeAllegiance.new(code: 'So')))
+  end
+
+  test 'matches? sector field compares the parsec sector id' do
+    overlay = overlay_with(field: 'sector', operator: 'eq', values: ['7'])
+
+    assert overlay.matches?(fake_star_system)
+    assert_not overlay.matches?(
+      fake_star_system(parsec: FakeParsec.new(sector_id: 8, subsector: FakeSubsector.new(id: 3)))
+    )
+  end
+
+  test 'matches? subsector field compares the parsec subsector id' do
+    overlay = overlay_with(field: 'subsector', operator: 'eq', values: ['3'])
+
+    assert overlay.matches?(fake_star_system)
+    assert_not overlay.matches?(fake_star_system(parsec: FakeParsec.new(sector_id: 7, subsector: nil)))
   end
 
   test 'colour_for returns the colour of the first enabled, matching overlay in order' do

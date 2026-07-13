@@ -38,6 +38,19 @@ class AllegiancesControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to allegiance_url(@allegiance)
   end
 
+  test 'toggle_known flips the known flag and redirects back to the index' do
+    assert @allegiance.known?
+
+    patch toggle_known_allegiance_url(@allegiance)
+
+    assert_redirected_to allegiances_url
+    assert_not @allegiance.reload.known?
+
+    patch toggle_known_allegiance_url(@allegiance)
+
+    assert @allegiance.reload.known?
+  end
+
   test 'should destroy allegiance' do
     assert_difference('Allegiance.count', -1) do
       delete allegiance_url(@allegiance)

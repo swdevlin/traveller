@@ -8,7 +8,7 @@ class Api::StarMapController < Api::BaseController
 
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: :sector }, :allegiance, :travel_zone, :main_world, :trade_codes, :facilities)
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, :main_world, :trade_codes, :facilities)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?
@@ -81,6 +81,7 @@ class Api::StarMapController < Api::BaseController
 
       wd = world_data[ss.main_world_id]
       player_visible = is_referee || ss.known? || ss.survey_index >= 10
+      allegiance_visible = is_referee || ss.allegiance&.known?
 
       world_name  = wd&.at(1)
       wtn         = player_visible ? wd&.at(2) : nil
@@ -105,13 +106,15 @@ class Api::StarMapController < Api::BaseController
         sector_x:          sector.x,
         sector_y:          sector.y,
         sector_name:       sector.name,
+        sector_id:         sector.id,
+        subsector_id:      parsec.subsector&.id,
         x:                 parsec.x - sector.x * 32 + 1,
         y:                 sector.y * 40 - parsec.y + 1,
         origin_x:          parsec.x,
         origin_y:          parsec.y,
         scan_points:       0,
-        allegiance:        ss.allegiance&.code,
-        allegiance_name:   ss.allegiance&.name,
+        allegiance:        allegiance_visible ? ss.allegiance&.code : nil,
+        allegiance_name:   allegiance_visible ? ss.allegiance&.name : nil,
         native_sophont:    native_ids.include?(ss.id),
         extinct_sophont:   extinct_ids.include?(ss.id),
         star_count:        (stars_by_system[ss.id] || []).size,

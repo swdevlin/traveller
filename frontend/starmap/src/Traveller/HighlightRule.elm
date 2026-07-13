@@ -1,9 +1,10 @@
 module Traveller.HighlightRule exposing
     ( Condition
-    , FacilityOption
     , Field(..)
     , Group
     , Operator(..)
+    , Option
+    , PickerData
     , Rule
     , UwpFields
     , allFields
@@ -31,7 +32,8 @@ import Traveller.SolarSystemStars exposing (StarSystem)
 
 {-| Every field a highlight rule can be built from: the eight UWP components,
 the referee-only survey index and known state, the system's gas giant and
-planetoid belt counts, and its native/extinct sophont flags.
+planetoid belt counts, its native/extinct sophont flags, and its
+allegiance/sector/subsector membership.
 -}
 type Field
     = Starport
@@ -51,20 +53,35 @@ type Field
     | Importance
     | Bases
     | BaseCount
+    | Allegiance
+    | Sector
+    | Subsector
 
 
 allFields : List Field
 allFields =
-    [ Starport, Size, Atmosphere, Hydrographics, Population, Government, LawLevel, TechLevel, SurveyIndex, Known, GasGiantCount, PlanetoidBeltCount, NativeSophont, ExtinctSophont, Importance, Bases, BaseCount ]
+    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, Sector, Size, Starport, Subsector, SurveyIndex, TechLevel ]
 
 
-{-| The (code, name) shape of a base facility, sourced live from the
-server-loaded facility list (`Traveller.FacilityIcon`) rather than a
-hardcoded table, since facilities are referee-editable rows in the
-`Facility` table, not a fixed enum.
+{-| The (code, name) shape of a live, server-loaded option list - bases
+(Facility), allegiances, sectors and subsectors are all referee-editable
+rows in their own tables rather than a fixed enum, so their picker options
+are sourced live rather than hardcoded.
 -}
-type alias FacilityOption =
+type alias Option =
     { code : String, name : String }
+
+
+{-| The live option lists needed to drive the value picker for every
+"sourced from a DB table" field. Threaded through the rule editor alongside
+the rule itself.
+-}
+type alias PickerData =
+    { facilities : List Option
+    , allegiances : List Option
+    , sectors : List Option
+    , subsectors : List Option
+    }
 
 
 fieldLabel : Field -> String
@@ -120,6 +137,15 @@ fieldLabel field =
 
         BaseCount ->
             "Base Count"
+
+        Allegiance ->
+            "Allegiance"
+
+        Sector ->
+            "Sector"
+
+        Subsector ->
+            "Subsector"
 
 
 type Operator
@@ -183,6 +209,15 @@ operatorsFor field =
 
         Bases ->
             [ Has, HasOneOf ]
+
+        Allegiance ->
+            [ Eq, OneOf ]
+
+        Sector ->
+            [ Eq, OneOf ]
+
+        Subsector ->
+            [ Eq, OneOf ]
 
         _ ->
             [ Eq, Lt, Lte, Gt, Gte, Between, OneOf ]
@@ -313,6 +348,15 @@ fieldOptions field =
         Bases ->
             []
 
+        Allegiance ->
+            []
+
+        Sector ->
+            []
+
+        Subsector ->
+            []
+
 
 {-| The ordinal rank used by the comparison operators, e.g. `<`/`between`.
 For most fields this is just the option's position in `fieldOptions` (which
@@ -436,6 +480,15 @@ uwpFieldAccessor field fields =
         BaseCount ->
             Nothing
 
+        Allegiance ->
+            Nothing
+
+        Sector ->
+            Nothing
+
+        Subsector ->
+            Nothing
+
 
 getFieldValue : Field -> StarSystem -> Maybe String
 getFieldValue field system =
@@ -484,6 +537,15 @@ getFieldValue field system =
                  else
                     "false"
                 )
+
+        Allegiance ->
+            system.allegiance
+
+        Sector ->
+            Just (String.fromInt system.sectorId)
+
+        Subsector ->
+            Maybe.map String.fromInt system.subsectorId
 
         _ ->
             system.mainWorldUwp
@@ -653,6 +715,15 @@ fieldToString field =
         BaseCount ->
             "base_count"
 
+        Allegiance ->
+            "allegiance"
+
+        Sector ->
+            "sector"
+
+        Subsector ->
+            "subsector"
+
 
 fieldFromString : String -> Maybe Field
 fieldFromString s =
@@ -707,6 +778,15 @@ fieldFromString s =
 
         "base_count" ->
             Just BaseCount
+
+        "allegiance" ->
+            Just Allegiance
+
+        "sector" ->
+            Just Sector
+
+        "subsector" ->
+            Just Subsector
 
         _ ->
             Nothing

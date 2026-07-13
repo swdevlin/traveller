@@ -8,6 +8,7 @@
       <th scope='col'>Name</th>
       <th scope='col'>Colour</th>
       <th scope='col'>Legacy</th>
+      <th scope='col'>Known</th>
       <th scope='col' class='text-right'>Actions</th>
     </tr>
     </thead>
@@ -41,6 +42,10 @@
           <% if allegiance.legacy_code.present? %>
             <span class='pill'><%= allegiance.legacy_code %></span>
           <% end %>
+        </td>
+
+        <td class='whitespace-nowrap'>
+          <%= render 'known_toggle', allegiance: allegiance %>
         </td>
 
         <td class='actions-cell'>

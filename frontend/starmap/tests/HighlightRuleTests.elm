@@ -36,6 +36,8 @@ baseSystem =
     , habitabilityRating = Nothing
     , governmentCode = Just 9
     , governmentName = Nothing
+    , sectorId = 42
+    , subsectorId = Just 7
     }
 
 
@@ -301,6 +303,52 @@ evaluateTests =
 
                     rule =
                         ruleFrom [ [ condition Starport Eq [ "A" ] ] ]
+                in
+                Expect.equal False (HighlightRule.evaluate rule system)
+        , Test.test "Allegiance matches the system's allegiance code" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | allegiance = Just "Im" }
+
+                    rule =
+                        ruleFrom [ [ condition Allegiance Eq [ "Im" ] ] ]
+                in
+                Expect.equal True (HighlightRule.evaluate rule system)
+        , Test.test "Allegiance fails when the system has no allegiance" <|
+            \_ ->
+                ruleFrom [ [ condition Allegiance Eq [ "Im" ] ] ]
+                    |> evaluatesTo False
+        , Test.test "Allegiance OneOf matches any listed code" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | allegiance = Just "Zh" }
+
+                    rule =
+                        ruleFrom [ [ condition Allegiance OneOf [ "Im", "Zh" ] ] ]
+                in
+                Expect.equal True (HighlightRule.evaluate rule system)
+        , Test.test "Sector matches the system's sector id" <|
+            \_ ->
+                ruleFrom [ [ condition Sector Eq [ "42" ] ] ]
+                    |> evaluatesTo True
+        , Test.test "Sector rejects a non-matching sector id" <|
+            \_ ->
+                ruleFrom [ [ condition Sector Eq [ "1" ] ] ]
+                    |> evaluatesTo False
+        , Test.test "Subsector matches the system's subsector id" <|
+            \_ ->
+                ruleFrom [ [ condition Subsector Eq [ "7" ] ] ]
+                    |> evaluatesTo True
+        , Test.test "Subsector fails when the system has no subsector" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | subsectorId = Nothing }
+
+                    rule =
+                        ruleFrom [ [ condition Subsector Eq [ "7" ] ] ]
                 in
                 Expect.equal False (HighlightRule.evaluate rule system)
         ]

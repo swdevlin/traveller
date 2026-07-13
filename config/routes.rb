@@ -118,6 +118,9 @@ Rails.application.routes.draw do
         get 'table'
         get 'search'
       end
+      member do
+        patch 'toggle_known'
+      end
     end
 
     resources :parsecs, only: %i[index show edit update] do

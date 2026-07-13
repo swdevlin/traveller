@@ -1,0 +1,8 @@
+<%= form_with url: toggle_known_allegiance_path(allegiance, page: params[:page]), method: :patch do %>
+  <button type='submit'
+          role='switch'
+          aria-checked='<%= allegiance.known? %>'
+          class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= allegiance.known? ? "bg-toggle-on" : "bg-toggle-off" %>'>
+    <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= allegiance.known? ? "translate-x-5 bg-toggle-knob-on" : "translate-x-0 bg-toggle-knob-off" %>'></span>
+  </button>
+<% end %>

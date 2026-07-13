@@ -107,6 +107,8 @@ type alias StarSystem =
     , habitabilityRating : Maybe Int
     , governmentCode : Maybe Int
     , governmentName : Maybe String
+    , sectorId : Int
+    , subsectorId : Maybe Int
     }
 
 
@@ -138,6 +140,8 @@ type alias FallibleStarSystem =
     , habitabilityRating : Maybe Int
     , governmentCode : Maybe Int
     , governmentName : Maybe String
+    , sectorId : Int
+    , subsectorId : Maybe Int
     }
 
 
@@ -175,6 +179,8 @@ starSystemCodec =
         |> Codec.field "habitability_rating" .habitabilityRating (Codec.nullable Codec.int)
         |> Codec.field "government_code" .governmentCode (Codec.nullable Codec.int)
         |> Codec.field "government_name" .governmentName (Codec.nullable Codec.string)
+        |> Codec.field "sector_id" .sectorId Codec.int
+        |> Codec.field "subsector_id" .subsectorId (Codec.nullable Codec.int)
         |> Codec.buildObject
 
 
@@ -236,3 +242,5 @@ fallibleStarSystemDecoder =
         |> optional "habitability_rating" (Decode.nullable Decode.int) Nothing
         |> optional "government_code" (Decode.nullable Decode.int) Nothing
         |> optional "government_name" (Decode.nullable Decode.string) Nothing
+        |> optional "sector_id" Decode.int 0
+        |> optional "subsector_id" (Decode.nullable Decode.int) Nothing

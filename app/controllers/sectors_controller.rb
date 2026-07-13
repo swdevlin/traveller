@@ -133,7 +133,7 @@ class SectorsController < ApplicationController
     @star_systems = StarSystem
       .joins(:parsec)
       .where(parsecs: { sector_id: @sector.id })
-      .includes(:parsec, :allegiance, :main_world, stars: [:companion])
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, stars: [:companion])
 
     sector_parsec_subquery = @sector.parsecs.select(:id)
     max_updated = @star_systems.maximum(:updated_at)
@@ -196,7 +196,7 @@ class SectorsController < ApplicationController
     @star_systems = StarSystem
       .joins(:parsec)
       .where(parsecs: { sector_id: @sector.id })
-      .includes(:parsec, :allegiance, :main_world, stars: [:companion])
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, stars: [:companion])
 
     build_sector_map_data
 

@@ -67,6 +67,9 @@ type alias Flags =
     , rogueObjectPathData : Maybe String
     , facilityIcons : List Traveller.FacilityIcon
     , facilities : List { code : String, name : String }
+    , allegianceOptions : List { code : String, name : String }
+    , sectorOptions : List { code : String, name : String }
+    , subsectorOptions : List { code : String, name : String }
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -199,6 +202,9 @@ update msg model =
                                 , rogueObjectPathData = model.flags.rogueObjectPathData
                                 , facilityIcons = model.flags.facilityIcons
                                 , facilities = model.flags.facilities
+                                , allegianceOptions = model.flags.allegianceOptions
+                                , sectorOptions = model.flags.sectorOptions
+                                , subsectorOptions = model.flags.subsectorOptions
                                 , shipLocation = model.flags.shipLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay

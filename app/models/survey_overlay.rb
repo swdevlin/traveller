@@ -6,23 +6,26 @@ class SurveyOverlay < ApplicationRecord
   end
 
   FIELDS = [
-    ['starport', 'Starport'],
-    ['size', 'Size'],
+    ['allegiance', 'Allegiance'],
     ['atmosphere', 'Atmosphere'],
-    ['hydrographics', 'Hydrographics'],
-    ['population', 'Population'],
-    ['government', 'Government'],
-    ['law_level', 'Law Level'],
-    ['tech_level', 'Tech Level'],
-    ['survey_index', 'Survey Index'],
-    ['known', 'Known'],
-    ['gas_giant_count', 'Gas Giants'],
-    ['planetoid_belt_count', 'Planetoid Belts'],
-    ['native_sophont', 'Native Sophont'],
-    ['extinct_sophont', 'Extinct Sophont'],
-    ['importance', 'Importance'],
+    ['base_count', 'Base Count'],
     ['bases', 'Bases'],
-    ['base_count', 'Base Count']
+    ['extinct_sophont', 'Extinct Sophont'],
+    ['gas_giant_count', 'Gas Giants'],
+    ['government', 'Government'],
+    ['hydrographics', 'Hydrographics'],
+    ['importance', 'Importance'],
+    ['known', 'Known'],
+    ['law_level', 'Law Level'],
+    ['native_sophont', 'Native Sophont'],
+    ['planetoid_belt_count', 'Planetoid Belts'],
+    ['population', 'Population'],
+    ['sector', 'Sector'],
+    ['size', 'Size'],
+    ['starport', 'Starport'],
+    ['subsector', 'Subsector'],
+    ['survey_index', 'Survey Index'],
+    ['tech_level', 'Tech Level']
   ].freeze
 
   OPERATORS = [
@@ -44,7 +47,10 @@ class SurveyOverlay < ApplicationRecord
     'known'           => %w[eq],
     'native_sophont'  => %w[eq],
     'extinct_sophont' => %w[eq],
-    'bases'           => %w[has has_one_of]
+    'bases'           => %w[has has_one_of],
+    'allegiance'      => %w[eq one_of],
+    'sector'          => %w[eq one_of],
+    'subsector'       => %w[eq one_of]
   }.freeze
 
   # The valid (code, label) options for each field, mirroring
@@ -76,10 +82,33 @@ class SurveyOverlay < ApplicationRecord
     Facility.order(:code).pluck(:code, :name)
   end
 
+  # Allegiance/Sector/Subsector are, like Bases, referee-editable rows in
+  # their own tables rather than a fixed enum, so their options are sourced
+  # live rather than listed in FIELD_OPTIONS. Sector/Subsector have no short
+  # `code` column, so the row's id is used as the rule value instead.
+  def self.allegiance_options
+    Allegiance.order(:code).pluck(:code, :name)
+  end
+
+  def self.sector_options
+    Sector.kept.order(:name).pluck(:id, :name).map { |id, name| [id.to_s, name] }
+  end
+
+  def self.subsector_options
+    Subsector.kept_sector.joins(:sector).order('sectors.name, subsectors.name')
+             .pluck(:id, :name, 'sectors.name')
+             .map { |id, name, sector_name| [id.to_s, "#{name} (#{sector_name})"] }
+  end
+
   # Every field's (code, label) options in one place, for driving the
   # per-field value picker in the form.
   def self.picker_options
-    FIELD_OPTIONS.merge('bases' => bases_options)
+    FIELD_OPTIONS.merge(
+      'bases'      => bases_options,
+      'allegiance' => allegiance_options,
+      'sector'     => sector_options,
+      'subsector'  => subsector_options
+    )
   end
 
   validates :name, presence: true
@@ -185,6 +214,9 @@ class SurveyOverlay < ApplicationRecord
     when 'extinct_sophont' then (!!star_system.extinct_sophont).to_s
     when 'importance'      then star_system.main_world_importance&.to_s
     when 'base_count'      then star_system.facilities.size.to_s
+    when 'allegiance'      then star_system.allegiance&.code
+    when 'sector'          then star_system.parsec.sector_id.to_s
+    when 'subsector'       then star_system.parsec.subsector&.id&.to_s
     end
   end
 
@@ -299,10 +331,15 @@ class SurveyOverlay < ApplicationRecord
       errors.add(:rule_data, "#{label} must have at least 1 value") if values.empty?
     end
 
-    if field == 'bases'
-      if values.any? { |value| !Facility.exists?(code: value) }
-        errors.add(:rule_data, "#{label} has an unknown base code")
-      end
+    case field
+    when 'bases'
+      errors.add(:rule_data, "#{label} has an unknown base code") if values.any? { |value| !Facility.exists?(code: value) }
+    when 'allegiance'
+      errors.add(:rule_data, "#{label} has an unknown allegiance") if values.any? { |value| !Allegiance.exists?(code: value) }
+    when 'sector'
+      errors.add(:rule_data, "#{label} has an unknown sector") if values.any? { |value| !Sector.kept.exists?(id: value) }
+    when 'subsector'
+      errors.add(:rule_data, "#{label} has an unknown subsector") if values.any? { |value| !Subsector.kept_sector.exists?(id: value) }
     else
       domain = FIELD_OPTIONS[field]&.map(&:first)
       if domain && values.any? { |value| !domain.include?(value) }

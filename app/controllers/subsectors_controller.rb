@@ -73,7 +73,7 @@ class SubsectorsController < ApplicationController
 
   def map
     @show_map_links = authenticated?
-    @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, stars: [])
+    @star_systems = @subsector.star_systems.includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [])
 
     @cols = 8
     @rows = 10

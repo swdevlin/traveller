@@ -38,6 +38,9 @@ class StarmapsController < ApplicationController
       { code: f.code, name: f.name, viewBox: icon.view_box, pathData: icon.path_data }
     end
     facilities = Facility.order(:code).map { |f| { code: f.code, name: f.name } }
+    allegiances = SurveyOverlay.allegiance_options.map { |code, name| { code: code, name: name } }
+    sectors = SurveyOverlay.sector_options.map { |code, name| { code: code, name: name } }
+    subsectors = SurveyOverlay.subsector_options.map { |code, name| { code: code, name: name } }
     @starmap_flags = {
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
@@ -49,6 +52,9 @@ class StarmapsController < ApplicationController
       shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
       facilityIcons: facility_icons,
       facilities: facilities,
+      allegianceOptions: allegiances,
+      sectorOptions: sectors,
+      subsectorOptions: subsectors,
       theme: helpers.current_theme,
       themeIsLight: helpers.current_theme_light?,
       themeOptions: ApplicationHelper::THEMES.map { |key, info| { key: key, label: info[:label], light: info[:light] } }

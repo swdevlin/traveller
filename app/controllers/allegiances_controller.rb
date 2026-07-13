@@ -1,5 +1,5 @@
 class AllegiancesController < ApplicationController
-  before_action :set_allegiance, only: %i[ show edit update destroy ]
+  before_action :set_allegiance, only: %i[ show edit update destroy toggle_known ]
 
   # GET /allegiances or /allegiances.json
   def index
@@ -33,6 +33,12 @@ class AllegiancesController < ApplicationController
   def show
     position = Allegiance.where('code < ?', @allegiance.code).count + 1
     @page = (position + 9) / 10
+  end
+
+  # PATCH /allegiances/1/toggle_known
+  def toggle_known
+    @allegiance.update!(known: !@allegiance.known?)
+    redirect_to allegiances_path(page: params[:page]), status: :see_other
   end
 
   def import_from_traveller_map
