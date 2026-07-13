@@ -539,59 +539,59 @@
 }
 
 :root[data-theme='solomani'] {
-  --color-fg: #e5e7eb;
-  --color-fg-muted: #a1a1aa;
-  --color-fg-bright: #ffffff;
+  --color-fg: #d9ddd7;
+  --color-fg-muted: #9ca49d;
+  --color-fg-bright: #f5f7f2;
 
-  --color-link: #93c5fd;
-  --color-link-hover: #f59e0b;
+  --color-link: #b8c7b5;
+  --color-link-hover: #e07a6f;
 
-  --color-bg: #1f2428;
-  --color-panel: #2b3238;
-  --color-panel-muted: #171b1f;
-  --color-outline: #5b6670;
+  --color-bg: #121719;
+  --color-panel: #222a2b;
+  --color-panel-muted: #181e20;
+  --color-outline: #5f6a67;
 
-  --color-panel-gradient-from: #2b3238;
-  --color-panel-gradient-via: #3f4a52;
-  --color-panel-gradient-to: #20262b;
+  --color-panel-gradient-from: #222a2b;
+  --color-panel-gradient-via: #38413e;
+  --color-panel-gradient-to: #1c2324;
 
-  --color-table-hover: #363f46;
+  --color-table-hover: #2d3636;
 
-  --color-button-primary: #2563eb;
-  --color-button-primary-outline: #93c5fd;
+  --color-button-primary: #a9443d;
+  --color-button-primary-outline: #dc7b71;
 
-  --color-button: #3a434b;
-  --color-button-outline: #7b8791;
+  --color-button: #35403f;
+  --color-button-outline: #74807c;
 
-  --color-highlight: #60a5fa;
+  --color-highlight: #d85a50;
 
-  --color-tip: #38bdf855;
-  --color-warning: #fde68a;
-  --color-danger: #ef4444;
+  --color-tip: #829b7a44;
+  --color-warning: #d8bb72;
+  --color-danger: #dc5149;
 
-  --color-toggle-on: #2563eb;
-  --color-toggle-off: #5b6670;
-  --color-toggle-knob-on: #ffffff;
-  --color-toggle-knob-off: #d1d5db;
+  --color-toggle-on: #a9443d;
+  --color-toggle-off: #56615e;
+  --color-toggle-knob-on: #f5f7f2;
+  --color-toggle-knob-off: #ced3ce;
 
-  --color-danger-fg: #fee2e2;
-  --color-danger-muted: #fca5a5;
-  --color-danger-bg: #450a0a66;
-  --color-danger-outline: #7f1d1daa;
+  --color-danger-fg: #ffe5e1;
+  --color-danger-muted: #e9958d;
+  --color-danger-bg: #501b1966;
+  --color-danger-outline: #a9443daa;
 
-  --color-nav-bar: #171b1f;
+  --color-nav-bar: #0d1113;
 
-  --color-dropdown: #2b3238;
-  --color-dropdown-hover: #363f46;
+  --color-dropdown: #222a2b;
+  --color-dropdown-hover: #2d3636;
 
-  --color-panel-muted-fade: #171b1f;
+  --color-panel-muted-fade: #181e20;
 
-  --color-gauge-line: #7b8791;
+  --color-gauge-line: #74807c;
 
-  --color-notice: #38bdf8;
-  --color-notice-fg: #e0f2fe;
-  --color-notice-bg: #0c4a6e66;
-  --color-notice-outline: #38bdf8aa;
+  --color-notice: #829b7a;
+  --color-notice-fg: #edf4ea;
+  --color-notice-bg: #293c2866;
+  --color-notice-outline: #829b7aaa;
 }
 
 :root[data-theme='swordworlds'] {
