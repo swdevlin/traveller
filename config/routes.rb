@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       patch 'star_systems/:id', to: 'star_systems#update', defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
+      get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }

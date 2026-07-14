@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf)
+module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -195,6 +195,7 @@ type alias GasGiantData =
     , orbitType : Int
     , au : Float
     , name : Maybe String
+    , id : Int
     }
 
 
@@ -522,7 +523,7 @@ codecPlanetoidBeltData =
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm ->
+        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -541,6 +542,7 @@ codecGasGiantData =
             , orbitType = ot
             , au = au
             , name = nm
+            , id = id_
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -570,6 +572,7 @@ codecGasGiantData =
         |> Codec.field "orbit_type" .orbitType Codec.int
         |> Codec.field "au" .au Codec.float
         |> Codec.optionalNullableField "name" .name Codec.string
+        |> Codec.field "id" .id Codec.int
         |> Codec.buildObject
 
 
@@ -745,7 +748,7 @@ codecSharedPData =
             )
         |> Codec.field "orbit" .orbit Codec.float
         |> Codec.optionalNullableField "period" .period Codec.float
-        |> Codec.optionalField "composition" .composition Codec.string
+        |> Codec.optionalNullableField "composition" .composition Codec.string
         |> Codec.field "retrograde" .retrograde Codec.bool
         |> Codec.optionalNullableField "trojan_offset" .trojanOffset Codec.float
         |> Codec.field "axial_tilt" .axialTilt Codec.float
@@ -769,10 +772,10 @@ codecSharedPData =
         |> Codec.optionalField "has_ring" (\d -> Just d.hasRing) Codec.bool
         |> Codec.optionalField "hydrographics" .hydrographics codecHydrographics
         |> Codec.field "albedo" .albedo Codec.float
-        |> Codec.optionalField "density" .density Codec.float
-        |> Codec.optionalField "greenhouse" .greenhouse Codec.float
+        |> Codec.optionalNullableField "density" .density Codec.float
+        |> Codec.optionalNullableField "greenhouse" .greenhouse Codec.float
         |> Codec.optionalNullableField "temperature" .meanTemperature Codec.float
-        |> Codec.optionalField "habitability_rating" .habitabilityRating Codec.int
+        |> Codec.optionalNullableField "habitability_rating" .habitabilityRating Codec.int
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
         |> Codec.field "uwp" .uwp Codec.string
         |> Codec.field "diameter" .diameter Codec.float
@@ -925,3 +928,20 @@ codecStellarObject =
     Codec.build
         encodeStellarObject
         decodeStellarObject
+
+
+type alias MoonsPage =
+    { moons : List StellarObject
+    , count : Int
+    , page : Int
+    , pages : Int
+    }
+
+
+moonsPageDecoder : JsDecode.Decoder MoonsPage
+moonsPageDecoder =
+    JsDecode.map4 MoonsPage
+        (JsDecode.field "moons" (JsDecode.list decodeStellarObject))
+        (JsDecode.field "count" JsDecode.int)
+        (JsDecode.field "page" JsDecode.int)
+        (JsDecode.field "pages" JsDecode.int)

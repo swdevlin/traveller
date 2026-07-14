@@ -107,7 +107,7 @@ import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, Star
 import Traveller.StarColour exposing (starColourRGB)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
-import Traveller.StellarObject exposing (GasGiantData, InnerStarData, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf)
+import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder)
 import Traveller.StellarObjectView
     exposing
         ( JumpShadowChecker
@@ -770,6 +770,8 @@ type alias ModelData =
     , pendingCtrlNavigation : Bool
     , objectToBeAnalyzed : List { stellarObject : StellarObject, data : AnalysisDetail } -- navigation stack; head is the currently shown modal
     , analysisTab : String
+    , moonsPage : RemoteData Http.Error MoonsPage
+    , moonsSignificantOnly : Bool
     , starMapModalSize : { width : Float, height : Float }
     , starMapResizeDrag : Maybe { startX : Float, startY : Float, startWidth : Float, startHeight : Float }
     , selectedRogueObjects : Maybe (List RogueObjectDetail)
@@ -868,6 +870,9 @@ type Msg
     | ViewObjectAnalysisDetail StellarObject
     | CloseObjectAnalysis
     | SetAnalysisTab String
+    | FetchedMoons (Result Http.Error MoonsPage)
+    | SetMoonsPage Int
+    | ToggleMoonsSignificantOnly
     | StarMapResizeStart { startX : Float, startY : Float }
     | StarMapResizeMove ( Float, Float )
     | StarMapResizeEnd
@@ -1470,6 +1475,8 @@ init viewport settings key hostConfig referee =
             , pendingCtrlNavigation = False
             , objectToBeAnalyzed = []
             , analysisTab = "orbital"
+            , moonsPage = RemoteData.NotAsked
+            , moonsSignificantOnly = False
             , starMapModalSize = { width = 760, height = 560 }
             , starMapResizeDrag = Nothing
             , selectedRogueObjects = Nothing
@@ -5874,6 +5881,11 @@ view ( time, model ) =
                                 SetAnalysisTab
                                 model.isReferee
                                 ViewObjectAnalysisDetail
+                                { page = model.moonsPage
+                                , significantOnly = model.moonsSignificantOnly
+                                , onToggleSignificant = ToggleMoonsSignificantOnly
+                                , onSetPage = SetMoonsPage
+                                }
                                 (1000 + index * 10)
                                 { width = model.starMapModalSize.width
                                 , height = model.starMapModalSize.height
@@ -6157,6 +6169,50 @@ sendShipTrafficRequest hostConfig starSystemId frontier =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson FetchedShipTraffic shipTrafficDecoder
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+currentGasGiantId : ModelData -> Maybe Int
+currentGasGiantId model =
+    List.head model.objectToBeAnalyzed
+        |> Maybe.andThen
+            (\entry ->
+                case entry.stellarObject of
+                    GasGiant ggdata ->
+                        Just ggdata.id
+
+                    _ ->
+                        Nothing
+            )
+
+
+sendMoonsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
+sendMoonsRequest hostConfig gasGiantId page significantOnly =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "stellar_objects", String.fromInt gasGiantId, "moons" ])
+                ([ Url.Builder.int "page" page ]
+                    ++ (if significantOnly then
+                            [ Url.Builder.string "significant_only" "1" ]
+
+                        else
+                            []
+                       )
+                )
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson FetchedMoons moonsPageDecoder
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -8913,9 +8969,57 @@ update msg ( time, model ) =
             )
 
         SetAnalysisTab tab ->
-            ( withTime { model | analysisTab = tab, timeOpened = time }
+            if tab == "moons" then
+                case currentGasGiantId model of
+                    Just gasGiantId ->
+                        ( withTime
+                            { model
+                                | analysisTab = tab
+                                , moonsPage = RemoteData.Loading
+                                , moonsSignificantOnly = False
+                                , timeOpened = time
+                            }
+                        , sendMoonsRequest model.hostConfig gasGiantId 1 False
+                        )
+
+                    Nothing ->
+                        ( withTime { model | analysisTab = tab, timeOpened = time }
+                        , Cmd.none
+                        )
+
+            else
+                ( withTime { model | analysisTab = tab, timeOpened = time }
+                , Cmd.none
+                )
+
+        FetchedMoons result ->
+            ( withTime { model | moonsPage = RemoteData.fromResult result }
             , Cmd.none
             )
+
+        SetMoonsPage page ->
+            case currentGasGiantId model of
+                Just gasGiantId ->
+                    ( withTime { model | moonsPage = RemoteData.Loading }
+                    , sendMoonsRequest model.hostConfig gasGiantId page model.moonsSignificantOnly
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        ToggleMoonsSignificantOnly ->
+            let
+                newSignificantOnly =
+                    not model.moonsSignificantOnly
+            in
+            case currentGasGiantId model of
+                Just gasGiantId ->
+                    ( withTime { model | moonsPage = RemoteData.Loading, moonsSignificantOnly = newSignificantOnly }
+                    , sendMoonsRequest model.hostConfig gasGiantId 1 newSignificantOnly
+                    )
+
+                Nothing ->
+                    ( withTime { model | moonsSignificantOnly = newSignificantOnly }, Cmd.none )
 
         StarMapResizeStart { startX, startY } ->
             ( withTime

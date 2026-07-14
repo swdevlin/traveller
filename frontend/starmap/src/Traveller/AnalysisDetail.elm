@@ -5,6 +5,7 @@ module Traveller.AnalysisDetail exposing
     , AnalyisDetailStarData
     , AnalysisDetail(..)
     , AnalysisDetailHeader
+    , MoonsTabConfig
     , viewGasGiantAnalysisDetail
     , viewObjectAnalysisDetail
     , viewPlanetoidAnalysisDetail
@@ -31,10 +32,13 @@ import Element.Font as Font
 import Html
 import Html.Attributes as HtmlAttrs
 import Html.Events
+import Http
 import Json.Decode
 import List.Extra
+import RemoteData exposing (RemoteData(..))
+import Round
 import Traveller.StarOrbitMap as StarOrbitMap
-import Traveller.StellarObject exposing (StarData, StellarObject)
+import Traveller.StellarObject exposing (MoonsPage, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 import Traveller.UI
     exposing
@@ -79,6 +83,14 @@ type alias AnalyisDetailStarData =
     , showNames : Bool
     , primaryStarData : StarData
     , children : List StarOrbitMap.ChildNode
+    }
+
+
+type alias MoonsTabConfig msg =
+    { page : RemoteData Http.Error MoonsPage
+    , significantOnly : Bool
+    , onToggleSignificant : msg
+    , onSetPage : Int -> msg
     }
 
 
@@ -627,8 +639,8 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
-viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject zIndex starMapResizeConfig data =
+viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
+viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex starMapResizeConfig data =
     case data of
         AnalyisDetailStar detailHeader starData ->
             Element.html
@@ -643,7 +655,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee o
                 )
 
         _ ->
-            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee zIndex data
+            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex data
 
 
 starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
@@ -659,8 +671,8 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> Int -> AnalysisDetail -> Element.Element msg
-viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee zIndex data =
+viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> Int -> AnalysisDetail -> Element.Element msg
+viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex data =
     let
         profileLayout profile content_ =
             row [ Element.spacing 0 ]
@@ -691,7 +703,7 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
 
                 AnalyisDetailGasGiant detailHeader sharedGGData ->
                     ( detailHeader.header
-                    , profileLayout (viewGasGiantProfile sharedGGData) (viewGasGiantAnalysisDetail timeChars activeTab setTab sharedGGData)
+                    , profileLayout (viewGasGiantProfile sharedGGData) (viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabConfig sharedGGData)
                     , 900
                     )
 
@@ -1344,8 +1356,8 @@ showIfNonEmpty lbl val =
         Element.none
 
 
-viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> AnalyisDetailGasGiantData -> Element.Element msg
-viewGasGiantAnalysisDetail timeChars activeTab setTab data =
+viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailGasGiantData -> Element.Element msg
+viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabConfig data =
     let
         firstTabIndex =
             case safeTab of
@@ -1388,6 +1400,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab data =
         tabs =
             [ { id = "orbital", label = "Orbital", code = "⊕" }
             , { id = "physical", label = "Physical", code = "⊕" }
+            , { id = "moons", label = "Moons (" ++ data.physical.moons ++ ")", code = "☾" }
             ]
 
         safeTab =
@@ -1421,6 +1434,9 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab data =
                             ]
                         ]
 
+                "moons" ->
+                    viewMoonsTab onSelectObject moonsTabConfig
+
                 _ ->
                     column [ width fill ]
                         [ row (Element.spacing 40 :: groupAttrs)
@@ -1437,6 +1453,182 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab data =
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
         , el [ Element.paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        ]
+
+
+viewMoonsTab : (StellarObject -> msg) -> MoonsTabConfig msg -> Element.Element msg
+viewMoonsTab onSelectObject moonsTabConfig =
+    let
+        outlineBorder =
+            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+
+        checkboxRow =
+            row
+                [ Element.spacing 6
+                , Element.pointer
+                , Events.onClick moonsTabConfig.onToggleSignificant
+                , Element.paddingEach { zeroEach | bottom = 8 }
+                ]
+                [ el [ Font.size 13, fontVar "--color-fg" ]
+                    (text
+                        (if moonsTabConfig.significantOnly then
+                            "☑"
+
+                         else
+                            "☐"
+                        )
+                    )
+                , el [ Font.size 13, fontVar "--color-fg-muted" ] (text "Significant only")
+                ]
+
+        headerCell alignAttrs label =
+            el
+                ([ Font.size 11
+                 , Font.bold
+                 , fontVar "--color-fg-muted"
+                 , Element.paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
+                 , Border.widthEach { zeroEach | bottom = 1 }
+                 , outlineBorder
+                 , Element.htmlAttribute (HtmlAttrs.style "white-space" "nowrap")
+                 ]
+                    ++ alignAttrs
+                )
+                (text label)
+
+        bodyCell moonObj alignAttrs content =
+            el
+                ([ Font.size 13
+                 , Element.paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                 , Element.pointer
+                 , Events.onClick (onSelectObject moonObj)
+                 ]
+                    ++ alignAttrs
+                )
+                content
+
+        asTerrestrialPlanet moonObj =
+            case moonObj of
+                TerrestrialPlanet pdata ->
+                    Just ( moonObj, pdata )
+
+                _ ->
+                    Nothing
+
+        moonsTable moons =
+            Element.table [ width fill ]
+                { data = List.filterMap asTerrestrialPlanet moons
+                , columns =
+                    [ { header = headerCell [] "Name"
+                      , width = Element.fillPortion 2
+                      , view =
+                            \( moonObj, pdata ) ->
+                                bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+                      }
+                    , { header = headerCell [ Font.alignRight ] "Orbit (diameters)"
+                      , width = Element.px 108
+                      , view =
+                            \( moonObj, pdata ) ->
+                                bodyCell moonObj
+                                    [ Font.alignRight, Element.htmlAttribute (HtmlAttrs.class "font-mono") ]
+                                    (text
+                                        (Round.round
+                                            (if pdata.orbit < 10 then
+                                                1
+
+                                             else
+                                                0
+                                            )
+                                            pdata.orbit
+                                        )
+                                    )
+                      }
+                    , { header = headerCell [] "UWP"
+                      , width = Element.fillPortion 2
+                      , view =
+                            \( moonObj, pdata ) ->
+                                bodyCell moonObj [ Element.htmlAttribute (HtmlAttrs.class "font-mono") ] (text pdata.uwp)
+                      }
+                    ]
+                }
+
+        pagerPill attrs label =
+            el
+                ([ Element.paddingXY 12 8
+                 , Border.rounded 8
+                 , Border.width 1
+                 , Font.size 13
+                 , Font.medium
+                 , Font.center
+                 , Element.htmlAttribute (HtmlAttrs.style "min-width" "34px")
+                 ]
+                    ++ attrs
+                )
+                (el [ Element.centerX ] (text label))
+
+        pagerArrow enabled label msg =
+            if enabled then
+                pagerPill
+                    [ bgVar "--color-panel-muted"
+                    , fontVar "--color-fg-bright"
+                    , outlineBorder
+                    , Element.pointer
+                    , Events.onClick msg
+                    ]
+                    label
+
+            else
+                pagerPill
+                    [ bgVar "--color-panel-muted"
+                    , fontVar "--color-fg-muted"
+                    , outlineBorder
+                    , Element.htmlAttribute (HtmlAttrs.style "opacity" "0.6")
+                    , Element.htmlAttribute (HtmlAttrs.style "cursor" "not-allowed")
+                    ]
+                    label
+
+        pagerCurrent label =
+            pagerPill
+                [ bgVar "--color-panel-muted"
+                , fontVar "--color-fg-bright"
+                , outlineBorder
+                ]
+                label
+
+        pager page =
+            row
+                [ Element.centerX
+                , Element.spacing 8
+                , Element.paddingEach { zeroEach | top = 16 }
+                ]
+                [ pagerArrow (page.page > 1) "‹" (moonsTabConfig.onSetPage (page.page - 1))
+                , pagerCurrent (String.fromInt page.page)
+                , pagerArrow (page.page < page.pages) "›" (moonsTabConfig.onSetPage (page.page + 1))
+                ]
+
+        mutedText str =
+            el [ Font.size 13, fontVar "--color-fg-muted" ] (text str)
+    in
+    column [ width fill ]
+        [ checkboxRow
+        , case moonsTabConfig.page of
+            NotAsked ->
+                mutedText "Select this tab to load moons."
+
+            Loading ->
+                mutedText "Loading moons…"
+
+            Failure _ ->
+                mutedText "Could not load moons."
+
+            Success page ->
+                if List.isEmpty page.moons then
+                    mutedText "No moons recorded."
+
+                else
+                    column [ width fill ]
+                        [ moonsTable page.moons
+                        , pager page
+                        ]
         ]
 
 

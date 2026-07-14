@@ -181,4 +181,38 @@ moon_orbiting_secondary_planet:
   orbit: 5
   diameter: 500
   size_code: '1'
+
+# Gas giant + moons for Api::StellarObjectsController#moons tests
+moons_test_gas_giant:
+  name: Moons Test Gas Giant
+  type: 'GasGiant'
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  au: 5.0
+  diameter: 100000
+  orbit: 5.0
+  data:
+    code: GM
+
+moons_test_significant_moon:
+  name: Significant Moon
+  type: 'Moon'
+  orbiting: moons_test_gas_giant
+  star_system: hierarchy_system
+  orbit: 1.0
+  diameter: 3000
+  size_code: '5'
+  uwp: 'X565540-6'
+  data: {}
+
+moons_test_insignificant_moon:
+  name: Insignificant Moon
+  type: 'Moon'
+  orbiting: moons_test_gas_giant
+  star_system: hierarchy_system
+  orbit: 2.0
+  diameter: 500
+  size_code: 'S'
+  uwp: 'XS00000-0'
+  data: {}
   data: {}
