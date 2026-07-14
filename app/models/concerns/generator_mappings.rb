@@ -85,6 +85,12 @@ module GeneratorMappings
       self.data['tech_level'] = GeneratorMappings.build_tech_level_from_generator(tech_level_payload)
     end
 
+    government_code_payload = payload['governmentCode']
+    unless government_code_payload.nil?
+      self.data ||= {}
+      self.data['government'] = { 'code' => government_code_payload }
+    end
+
     mapped = self.class.mapped_data_from_generator(payload)
 
     self.diameter = payload['diameter']

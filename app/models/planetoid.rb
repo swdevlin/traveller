@@ -41,7 +41,6 @@ class Planetoid < StellarObject
     atmosphere: 'atmosphere',
     hydrographics: 'hydrographics',
     population: 'population',
-    government: 'government',
     law_level: 'lawLevel',
     starport_code: 'starPort',
     tidal_lock: 'tidalLock',
