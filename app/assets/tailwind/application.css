@@ -372,59 +372,59 @@
 }
 
 :root[data-theme='imperium'] {
-  --color-fg: #e8e6df;
-  --color-fg-muted: #b8b2a3;
-  --color-fg-bright: #fffdf7;
+  --color-fg: #d9dee8;
+  --color-fg-muted: #9ba6b8;
+  --color-fg-bright: #f8fbff;
 
-  --color-link: #d4c38a;
-  --color-link-hover: #facc15;
+  --color-link: #b9c8e6;
+  --color-link-hover: #e7c77a;
 
-  --color-bg: #070b14;
-  --color-panel: #121826;
-  --color-panel-muted: #0b111d;
-  --color-outline: #4b5563;
+  --color-bg: #080d18;
+  --color-panel: #111a2b;
+  --color-panel-muted: #0c1422;
+  --color-outline: #46546b;
 
-  --color-panel-gradient-from: #111827;
-  --color-panel-gradient-via: #5f1d2e;
-  --color-panel-gradient-to: #2f2412;
+  --color-panel-gradient-from: #111a2b;
+  --color-panel-gradient-via: #1c2f54;
+  --color-panel-gradient-to: #171d2f;
 
-  --color-table-hover: #1a2233;
+  --color-table-hover: #1a2740;
 
-  --color-button-primary: #8b1e2d;
-  --color-button-primary-outline: #d4af37;
+  --color-button-primary: #274a82;
+  --color-button-primary-outline: #8da9d6;
 
-  --color-button: #1e293b;
-  --color-button-outline: #6b7280;
+  --color-button: #1d2a42;
+  --color-button-outline: #5d6f8d;
 
-  --color-highlight: #d4af37;
+  --color-highlight: #d6b867;
 
-  --color-tip: #38bdf855;
-  --color-warning: #fde68a;
-  --color-danger: #dc2626;
+  --color-tip: #7596c955;
+  --color-warning: #e6cf8a;
+  --color-danger: #c8484f;
 
-  --color-toggle-on: #d4af37;
-  --color-toggle-off: #4b5563;
-  --color-toggle-knob-on: #fffdf7;
-  --color-toggle-knob-off: #d1d5db;
+  --color-toggle-on: #3e67a5;
+  --color-toggle-off: #46546b;
+  --color-toggle-knob-on: #f8fbff;
+  --color-toggle-knob-off: #cbd3df;
 
-  --color-danger-fg: #fee2e2;
-  --color-danger-muted: #fca5a5;
-  --color-danger-bg: #450a0a66;
-  --color-danger-outline: #7f1d1daa;
+  --color-danger-fg: #ffe3e5;
+  --color-danger-muted: #e49aa0;
+  --color-danger-bg: #46161a66;
+  --color-danger-outline: #8f3038aa;
 
-  --color-nav-bar: #050810;
+  --color-nav-bar: #060a12;
 
-  --color-dropdown: #121826;
-  --color-dropdown-hover: #1a2233;
+  --color-dropdown: #111a2b;
+  --color-dropdown-hover: #1a2740;
 
-  --color-panel-muted-fade: #0b111d;
+  --color-panel-muted-fade: #0c1422;
 
-  --color-gauge-line: #9ca3af;
+  --color-gauge-line: #70809a;
 
-  --color-notice: #d4af37;
-  --color-notice-fg: #fff8dc;
-  --color-notice-bg: #78350f55;
-  --color-notice-outline: #d4af37aa;
+  --color-notice: #8da9d6;
+  --color-notice-fg: #eef4ff;
+  --color-notice-bg: #1b355e66;
+  --color-notice-outline: #8da9d6aa;
 }
 
 :root[data-theme='kkree'] {
