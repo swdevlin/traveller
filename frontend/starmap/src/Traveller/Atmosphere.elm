@@ -29,7 +29,7 @@ codec =
         |> Codec.optionalField "characteristic" .characteristic Codec.string
         |> Codec.field "bar" .bar Codec.float
         |> Codec.optionalNullableField "gasType" .gasType Codec.string
-        |> Codec.optionalField "density" .density Codec.string
+        |> Codec.optionalNullableField "density" .density Codec.string
         |> Codec.optionalNullableField "hazardCode" .hazardCode Codec.string
         |> Codec.buildObject
 
