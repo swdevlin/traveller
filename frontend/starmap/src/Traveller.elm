@@ -6174,14 +6174,21 @@ sendShipTrafficRequest hostConfig starSystemId frontier =
         }
 
 
-currentGasGiantId : ModelData -> Maybe Int
-currentGasGiantId model =
+currentMoonsParentId : ModelData -> Maybe Int
+currentMoonsParentId model =
     List.head model.objectToBeAnalyzed
         |> Maybe.andThen
             (\entry ->
                 case entry.stellarObject of
                     GasGiant ggdata ->
                         Just ggdata.id
+
+                    TerrestrialPlanet pdata ->
+                        if pdata.isMoon then
+                            Nothing
+
+                        else
+                            Just pdata.id
 
                     _ ->
                         Nothing
@@ -8478,6 +8485,7 @@ update msg ( time, model ) =
                                 planet =
                                     { uwp = pdata.uwp
                                     , jumpShadowKm = pdata.jumpShadow
+                                    , moons = 0
                                     , physical =
                                         { au = rnd 2 pdata.au
                                         , period = rnd 2 (pdata.period / 365.25)
@@ -8731,6 +8739,7 @@ update msg ( time, model ) =
                             in
                             { uwp = pdata.uwp
                             , jumpShadowKm = pdata.jumpShadow
+                            , moons = List.length pdata.moons
                             , physical =
                                 { au = rnd 2 pdata.au
                                 , period =
@@ -8917,7 +8926,11 @@ update msg ( time, model ) =
                             AnalyisDetailGasGiant header <| buildStringGasGiant gasGiantData
 
                         TerrestrialPlanet pdata ->
-                            AnalyisDetailPlanetoid header <| buildStringPlanet pdata
+                            if pdata.isMoon then
+                                AnalyisDetailPlanetoid header <| buildStringPlanet pdata
+
+                            else
+                                AnalyisDetailTerrestialPlanet header <| buildStringPlanet pdata
 
                         PlanetoidBelt planetoidBeltData ->
                             AnalyisDetailPlanetoidBelt header <| buildStringPlanetoidBelt planetoidBeltData
@@ -8970,7 +8983,7 @@ update msg ( time, model ) =
 
         SetAnalysisTab tab ->
             if tab == "moons" then
-                case currentGasGiantId model of
+                case currentMoonsParentId model of
                     Just gasGiantId ->
                         ( withTime
                             { model
@@ -8998,7 +9011,7 @@ update msg ( time, model ) =
             )
 
         SetMoonsPage page ->
-            case currentGasGiantId model of
+            case currentMoonsParentId model of
                 Just gasGiantId ->
                     ( withTime { model | moonsPage = RemoteData.Loading }
                     , sendMoonsRequest model.hostConfig gasGiantId page model.moonsSignificantOnly
@@ -9012,7 +9025,7 @@ update msg ( time, model ) =
                 newSignificantOnly =
                     not model.moonsSignificantOnly
             in
-            case currentGasGiantId model of
+            case currentMoonsParentId model of
                 Just gasGiantId ->
                     ( withTime { model | moonsPage = RemoteData.Loading, moonsSignificantOnly = newSignificantOnly }
                     , sendMoonsRequest model.hostConfig gasGiantId 1 newSignificantOnly

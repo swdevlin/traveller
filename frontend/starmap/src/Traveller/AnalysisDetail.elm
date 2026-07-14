@@ -140,6 +140,7 @@ type alias CultureTraitItem =
 type alias AnalyisDetailPlanetoidData =
     { uwp : String
     , jumpShadowKm : Maybe Float
+    , moons : Int
     , physical :
         { au : String
         , period : String
@@ -691,13 +692,13 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             case data of
                 AnalyisDetailTerrestialPlanet detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee sharedPData)
+                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig sharedPData)
                     , 960
                     )
 
                 AnalyisDetailPlanetoid detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee sharedPData)
+                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig sharedPData)
                     , 960
                     )
 
@@ -765,8 +766,8 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             ]
 
 
-viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> AnalyisDetailPlanetoidData -> Element.Element msg
-viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
+viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailPlanetoidData -> Element.Element msg
+viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig data =
     let
         firstTabIndex =
             case safeTab of
@@ -940,6 +941,12 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
             , { id = "-", label = "", code = "–" }
             , { id = "tech", label = "Tech", code = uc 8 }
             ]
+                ++ (if showMoonsTab then
+                        [ { id = "moons", label = "Moons (" ++ String.fromInt data.moons ++ ")", code = "☾" } ]
+
+                    else
+                        []
+                   )
 
         safeTab =
             if List.any (\t -> t.id == activeTab && t.id /= "-") tabs then
@@ -950,6 +957,9 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee data =
 
         tabContent =
             case safeTab of
+                "moons" ->
+                    viewMoonsTab onSelectObject moonsTabConfig
+
                 "starport" ->
                     column groupAttrs
                         [ textDisplay "Starport Class" <| show 76 data.starport.code

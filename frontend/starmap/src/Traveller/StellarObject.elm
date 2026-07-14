@@ -133,6 +133,8 @@ type alias SharedPData =
     , lawLevelDetail : Maybe LawLevelDetailData
     , techLevelDetail : Maybe TechLevelDetailData
     , name : Maybe String
+    , id : Int
+    , isMoon : Bool
     }
 
 
@@ -689,7 +691,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm ->
+        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -732,6 +734,8 @@ codecSharedPData =
             , lawLevelDetail = llD
             , techLevelDetail = tlD
             , name = nm
+            , id = id_
+            , isMoon = isMoon_
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -802,6 +806,8 @@ codecSharedPData =
         |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
         |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail
         |> Codec.optionalNullableField "name" .name Codec.string
+        |> Codec.field "id" .id Codec.int
+        |> Codec.field "is_moon" .isMoon Codec.bool
         |> Codec.buildObject
 
 

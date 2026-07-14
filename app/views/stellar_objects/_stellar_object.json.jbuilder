@@ -38,6 +38,7 @@ json.orbit_position do
   json.y stellar_object.orbit_y || 0.0
 end
 json.orbit_type stellar_object.orbit_type if stellar_object.respond_to?(:orbit_type)
+json.is_moon stellar_object.is_a?(Moon)
 json.orbiting_name stellar_object.orbiting&.display_name
 
 shadow_km = stellar_object.effective_jump_shadow_km
