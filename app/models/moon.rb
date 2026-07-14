@@ -3,9 +3,6 @@ class Moon < StellarObject
   include HasUwp
   include NormalizesPlanetaryData
 
-  after_initialize :normalize_data_types
-  before_validation :normalize_data_types
-
   validates :size_code, inclusion: { in: StellarObject::SIZE_CODES }
 
   def self.permitted_params
@@ -84,23 +81,5 @@ class Moon < StellarObject
 
       best
     end
-  end
-
-  def normalize_data_types
-    self.period = period.presence&.to_f
-    self.rotation = rotation.presence&.to_f
-    self.density = density.presence&.to_f
-    self.gravity = gravity.presence&.to_f
-    self.temperature = temperature.presence&.to_f
-    self.axial_tilt = axial_tilt.presence&.to_f
-    self.albedo = albedo.presence&.to_f
-    self.greenhouse = greenhouse.presence&.to_f
-    self.habitability_rating = habitability_rating.presence&.to_i
-    self.biomass_rating = biomass_rating.presence&.to_i
-    self.biodiversity_rating = biodiversity_rating.presence&.to_i
-    self.resource_rating = resource_rating.presence&.to_i
-    self.retrograde = ActiveModel::Type::Boolean.new.cast(retrograde)
-    self.native_sophont = ActiveModel::Type::Boolean.new.cast(native_sophont)
-    self.extinct_sophont = ActiveModel::Type::Boolean.new.cast(extinct_sophont)
   end
 end
