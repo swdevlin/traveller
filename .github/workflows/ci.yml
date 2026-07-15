@@ -36,6 +36,11 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install libvips
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips
+
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
@@ -136,6 +141,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+
+      - name: Install libvips
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips
 
       - name: Run System Tests
         env:
