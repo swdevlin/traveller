@@ -1616,14 +1616,14 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
         ]
 
 
-viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> RogueHexData -> Svg Msg
-viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surveyIndex, playerVisible, objects } =
+viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> Bool -> RogueHexData -> Svg Msg
+viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIsLight { surveyIndex, playerVisible, objects } =
     let
         origin =
             ( toFloat x, toFloat y )
 
-        hasComet =
-            List.any
+        cometDetail =
+            List.Extra.find
                 (\o ->
                     case o of
                         RogueCometDetail _ ->
@@ -1634,8 +1634,8 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surve
                 )
                 objects
 
-        hasGasGiant =
-            List.any
+        gasGiantDetail =
+            List.Extra.find
                 (\o ->
                     case o of
                         RogueGasGiantDetail _ ->
@@ -1646,8 +1646,8 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surve
                 )
                 objects
 
-        hasOther =
-            List.any
+        otherDetail =
+            List.Extra.find
                 (\o ->
                     case o of
                         RogueOtherDetail _ ->
@@ -1671,13 +1671,13 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surve
                 objects
 
         showComet =
-            hasComet && (isReferee || surveyIndex >= cometSI)
+            (cometDetail /= Nothing) && (isReferee || surveyIndex >= cometSI)
 
         showGasGiant =
-            hasGasGiant && (isReferee || surveyIndex >= gasGiantSI)
+            (gasGiantDetail /= Nothing) && (isReferee || surveyIndex >= gasGiantSI)
 
         showOther =
-            hasOther && (isReferee || playerVisible || surveyIndex >= cometSI || anyKnown)
+            (otherDetail /= Nothing) && (isReferee || playerVisible || surveyIndex >= cometSI || anyKnown)
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
@@ -1689,26 +1689,88 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData { surve
         ]
         [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
         , hexAddressLabel x y size hexAddress hexColour
-        , if showComet && size > 15 then
-            drawCometIcon (toFloat x) (toFloat y) size
+        , case ( showComet && size > 15, cometDetail ) of
+            ( True, Just detail ) ->
+                drawRogueIcon themeIsLight rogueObjectPathData detail (toFloat x) (toFloat y) size
 
-          else
-            Svg.text ""
-        , if showGasGiant && size > 15 then
-            drawRogueGasGiant (toFloat x) (toFloat y) size
+            _ ->
+                Svg.text ""
+        , case ( showGasGiant && size > 15, gasGiantDetail ) of
+            ( True, Just detail ) ->
+                drawRogueIcon themeIsLight rogueObjectPathData detail (toFloat x) (toFloat y) size
 
-          else
-            Svg.text ""
-        , if showOther && size > 15 then
-            drawRogueOther rogueObjectPathData (toFloat x) (toFloat y) size
+            _ ->
+                Svg.text ""
+        , case ( showOther && size > 15, otherDetail ) of
+            ( True, Just detail ) ->
+                drawRogueIcon themeIsLight rogueObjectPathData detail (toFloat x) (toFloat y) size
 
-          else
-            Svg.text ""
+            _ ->
+                Svg.text ""
         ]
 
 
-drawCometIcon : Float -> Float -> Float -> Svg Msg
-drawCometIcon cx cy size =
+drawRogueIcon : Bool -> Maybe String -> RogueObjectDetail -> Float -> Float -> Float -> Svg Msg
+drawRogueIcon themeIsLight rogueObjectPathData detail cx cy size =
+    let
+        colour =
+            if themeIsLight then
+                "#222222"
+
+            else
+                "#cbd5e1"
+    in
+    case detail of
+        RogueGasGiantDetail _ ->
+            let
+                r =
+                    size * 0.5 / 4
+            in
+            Svg.g []
+                [ Svg.circle
+                    [ SvgAttrs.cx <| String.fromFloat cx
+                    , SvgAttrs.cy <| String.fromFloat cy
+                    , SvgAttrs.r <| String.fromFloat r
+                    , SvgAttrs.fill colour
+                    ]
+                    []
+                , Svg.ellipse
+                    [ SvgAttrs.cx <| String.fromFloat cx
+                    , SvgAttrs.cy <| String.fromFloat cy
+                    , SvgAttrs.rx <| String.fromFloat (r * 1.8)
+                    , SvgAttrs.ry <| String.fromFloat (r * 0.55)
+                    , SvgAttrs.fill "none"
+                    , SvgAttrs.stroke colour
+                    , SvgAttrs.strokeWidth "1.2"
+                    , SvgAttrs.transform <|
+                        "rotate(-30 "
+                            ++ String.fromFloat cx
+                            ++ " "
+                            ++ String.fromFloat cy
+                            ++ ")"
+                    ]
+                    []
+                ]
+
+        RogueCometDetail _ ->
+            drawRoguePathIcon colour cometPathData cx cy size
+
+        RogueOtherDetail _ ->
+            case rogueObjectPathData of
+                Just pathData ->
+                    drawRoguePathIcon colour pathData cx cy size
+
+                Nothing ->
+                    Svg.text ""
+
+
+cometPathData : String
+cometPathData =
+    "M363.4 139.6L557.7 64.9C559.2 64.3 560.9 64 562.5 64C570 64 576 70 576 77.5C576 79.2 575.7 80.8 575.1 82.3L500.4 276.5L529.7 274.2C542.5 273.2 551.2 287 544.8 298.2L442.6 474.7C406.3 537.4 339.4 576 267 576C154.9 576 64 485.1 64 373C64 300.6 102.6 233.7 165.3 197.4L341.7 95.2C352.8 88.7 366.7 97.4 365.7 110.3L363.4 139.6zM256 264C249.9 264 244.3 267.5 241.7 272.9L212.5 332.1L147.2 341.6C141.2 342.5 136.2 346.7 134.3 352.5C132.4 358.3 134 364.7 138.3 368.9L185.5 414.9L174.3 479.9C173.3 485.9 175.7 492 180.7 495.6C185.7 499.2 192.2 499.7 197.5 496.8L255.9 466.1L314.3 496.8C319.7 499.6 326.2 499.2 331.1 495.6C336 492 338.5 486 337.5 479.9L326.3 414.9L373.5 368.9C377.9 364.6 379.4 358.3 377.5 352.5C375.6 346.7 370.6 342.5 364.6 341.6L299.3 332.1L270.1 272.9C267.4 267.4 261.8 264 255.8 264z"
+
+
+drawRoguePathIcon : String -> String -> Float -> Float -> Float -> Svg Msg
+drawRoguePathIcon colour pathData cx cy size =
     let
         iconSize =
             size * 0.5
@@ -1733,82 +1795,11 @@ drawCometIcon cx cy size =
                 ++ ")"
         ]
         [ Svg.path
-            [ SvgAttrs.d "M363.4 139.6L557.7 64.9C559.2 64.3 560.9 64 562.5 64C570 64 576 70 576 77.5C576 79.2 575.7 80.8 575.1 82.3L500.4 276.5L529.7 274.2C542.5 273.2 551.2 287 544.8 298.2L442.6 474.7C406.3 537.4 339.4 576 267 576C154.9 576 64 485.1 64 373C64 300.6 102.6 233.7 165.3 197.4L341.7 95.2C352.8 88.7 366.7 97.4 365.7 110.3L363.4 139.6zM256 264C249.9 264 244.3 267.5 241.7 272.9L212.5 332.1L147.2 341.6C141.2 342.5 136.2 346.7 134.3 352.5C132.4 358.3 134 364.7 138.3 368.9L185.5 414.9L174.3 479.9C173.3 485.9 175.7 492 180.7 495.6C185.7 499.2 192.2 499.7 197.5 496.8L255.9 466.1L314.3 496.8C319.7 499.6 326.2 499.2 331.1 495.6C336 492 338.5 486 337.5 479.9L326.3 414.9L373.5 368.9C377.9 364.6 379.4 358.3 377.5 352.5C375.6 346.7 370.6 342.5 364.6 341.6L299.3 332.1L270.1 272.9C267.4 267.4 261.8 264 255.8 264z"
-            , SvgAttrs.fill "#222222"
+            [ SvgAttrs.d pathData
+            , SvgAttrs.fill colour
             ]
             []
         ]
-
-
-drawRogueGasGiant : Float -> Float -> Float -> Svg Msg
-drawRogueGasGiant cx cy size =
-    let
-        r =
-            size * 0.5 / 4
-    in
-    Svg.g []
-        [ Svg.circle
-            [ SvgAttrs.cx <| String.fromFloat cx
-            , SvgAttrs.cy <| String.fromFloat cy
-            , SvgAttrs.r <| String.fromFloat r
-            , SvgAttrs.fill "#222222"
-            ]
-            []
-        , Svg.ellipse
-            [ SvgAttrs.cx <| String.fromFloat cx
-            , SvgAttrs.cy <| String.fromFloat cy
-            , SvgAttrs.rx <| String.fromFloat (r * 1.8)
-            , SvgAttrs.ry <| String.fromFloat (r * 0.55)
-            , SvgAttrs.fill "none"
-            , SvgAttrs.stroke "#222222"
-            , SvgAttrs.strokeWidth "1.2"
-            , SvgAttrs.transform <|
-                "rotate(-30 "
-                    ++ String.fromFloat cx
-                    ++ " "
-                    ++ String.fromFloat cy
-                    ++ ")"
-            ]
-            []
-        ]
-
-
-drawRogueOther : Maybe String -> Float -> Float -> Float -> Svg Msg
-drawRogueOther mPathData cx cy size =
-    case mPathData of
-        Nothing ->
-            Svg.text ""
-
-        Just pathData ->
-            let
-                iconSize =
-                    size * 0.5
-
-                scale =
-                    iconSize / 640
-
-                tx =
-                    cx - 320 * scale
-
-                ty =
-                    cy - 320 * scale
-            in
-            Svg.g
-                [ SvgAttrs.transform <|
-                    "translate("
-                        ++ String.fromFloat tx
-                        ++ ","
-                        ++ String.fromFloat ty
-                        ++ ") scale("
-                        ++ String.fromFloat scale
-                        ++ ")"
-                ]
-                [ Svg.path
-                    [ SvgAttrs.d pathData
-                    , SvgAttrs.fill "#222222"
-                    ]
-                    []
-                ]
 
 
 renderPolyline : String -> String -> Svg msg
@@ -3008,7 +2999,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             )
 
         Just (LoadedRogueHex rogueData) ->
-            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData rogueData
+            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData themeIsLight rogueData
             , Svg.text ""
             )
 
