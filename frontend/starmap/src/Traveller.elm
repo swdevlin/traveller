@@ -2257,6 +2257,9 @@ viewBarRow size cx rowY label tier hexColour =
         skew =
             segH * 0.6
 
+        isDarkHex =
+            hexColour == "#000000"
+
         numSegs =
             5
 
@@ -2294,7 +2297,14 @@ viewBarRow size cx rowY label tier hexColour =
 
                 fillColour =
                     if i < tier then
-                        "#1e3a5f"
+                        if isDarkHex then
+                            "#5fa8dc"
+
+                        else
+                            "#1e3a5f"
+
+                    else if isDarkHex then
+                        "#26313f"
 
                     else
                         "#dde3ec"
@@ -2450,10 +2460,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
             showPlanetoidBelt || showUnknownPlanetoidBelt
 
         topRightAnchorX =
-            toFloat vox + size * 0.38
+            toFloat vox + size * 0.44
 
         topRightAnchorY =
-            toFloat voy - size * 0.45
+            toFloat voy - size * 0.56
 
         topRightSpread =
             size * 0.16
@@ -2509,6 +2519,49 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
         hexCentreText txt =
             hexCentreTextColoured (hexTextColour hexColour) txt
 
+        hexCentreTextOffset : Float -> String -> Svg Msg
+        hexCentreTextOffset yOffset txt =
+            Svg.text_
+                [ SvgAttrs.x (String.fromInt vox)
+                , SvgAttrs.y (String.fromFloat (toFloat voy + yOffset))
+                , SvgAttrs.textAnchor "middle"
+                , SvgAttrs.dominantBaseline "middle"
+                , SvgAttrs.fill (hexTextColour hexColour)
+                , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
+                , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                , SvgAttrs.fontWeight "600"
+                , SvgAttrs.pointerEvents "none"
+                ]
+                [ Svg.text txt ]
+
+        starportChar : Maybe String
+        starportChar =
+            if isReferee || si >= uwpSI then
+                Maybe.map (String.left 1) starSystem.mainWorldUwp
+
+            else
+                Nothing
+
+        starportSvg : Float -> Float -> Svg Msg
+        starportSvg yOffset fontSizeFactor =
+            case starportChar of
+                Just sp ->
+                    Svg.text_
+                        [ SvgAttrs.x (String.fromInt vox)
+                        , SvgAttrs.y (String.fromFloat (toFloat voy + yOffset))
+                        , SvgAttrs.textAnchor "middle"
+                        , SvgAttrs.dominantBaseline "middle"
+                        , SvgAttrs.fill (hexTextColour hexColour)
+                        , SvgAttrs.fontSize (String.fromFloat (size * fontSizeFactor))
+                        , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                        , SvgAttrs.fontWeight "700"
+                        , SvgAttrs.pointerEvents "none"
+                        ]
+                        [ Svg.text sp ]
+
+                Nothing ->
+                    Svg.text ""
+
         gwpCompact : Int -> String
         gwpCompact v =
             if v >= 1000000000000 then
@@ -2563,13 +2616,17 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                       else
                         Svg.text ""
                     , travelZoneRing
+                    , starportSvg (-size * 0.42) 0.2
                     ]
 
             ShowWTN ->
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
                     [ case starSystem.wtn of
                         Just wtn ->
-                            hexCentreText (String.fromFloat (toFloat (round (wtn * 10)) / 10))
+                            Svg.g []
+                                [ hexCentreTextOffset (size * 0.05) (String.fromFloat (toFloat (round (wtn * 10)) / 10))
+                                , starportSvg (-size * 0.28) 0.2
+                                ]
 
                         Nothing ->
                             Svg.text ""
@@ -2580,7 +2637,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
                     [ case starSystem.gwp of
                         Just gwp ->
-                            hexCentreText (gwpCompact gwp)
+                            Svg.g []
+                                [ hexCentreTextOffset (size * 0.05) (gwpCompact gwp)
+                                , starportSvg (-size * 0.28) 0.2
+                                ]
 
                         Nothing ->
                             Svg.text ""
@@ -2593,7 +2653,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                         Svg.text ""
 
                       else
-                        hexCentreText (String.join " " starSystem.tradeCodes)
+                        Svg.g []
+                            [ hexCentreTextOffset (size * 0.05) (String.join " " starSystem.tradeCodes)
+                            , starportSvg (-size * 0.28) 0.2
+                            ]
                     , if showGasGiant && size > 15 then
                         drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
@@ -2606,17 +2669,20 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
                     [ case starSystem.importance of
                         Just imp ->
-                            hexCentreText
-                                ("{"
-                                    ++ (if imp >= 0 then
-                                            "+"
+                            Svg.g []
+                                [ hexCentreTextOffset (size * 0.05)
+                                    ("{"
+                                        ++ (if imp >= 0 then
+                                                "+"
 
-                                        else
-                                            ""
-                                       )
-                                    ++ String.fromInt imp
-                                    ++ "}"
-                                )
+                                            else
+                                                ""
+                                           )
+                                        ++ String.fromInt imp
+                                        ++ "}"
+                                    )
+                                , starportSvg (-size * 0.28) 0.2
+                                ]
 
                         Nothing ->
                             Svg.text ""
@@ -2628,7 +2694,8 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     Just strat ->
                         if size >= 30 then
                             Svg.g [ SvgAttrs.pointerEvents "none" ]
-                                [ viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour
+                                [ starportSvg (-size * 0.46) 0.18
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour
                                 , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour
                                 , viewBarRow size (toFloat vox) (toFloat voy + size * 0.1) "Rs" strat.resourceTier hexColour
                                 , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour
@@ -2646,14 +2713,15 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                     Just strat ->
                         if size >= 30 then
                             Svg.g [ SvgAttrs.pointerEvents "none" ]
-                                [ case strat.routeRole of
+                                [ starportSvg (-size * 0.46) 0.2
+                                , case strat.routeRole of
                                     Just role ->
-                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.36) role hexColour
+                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.16) role hexColour
 
                                     Nothing ->
                                         Svg.text ""
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.07) "Ix" strat.importanceTier hexColour
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.15) "Td" strat.tradeEaseTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.13) "Ix" strat.importanceTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.35) "Td" strat.tradeEaseTier hexColour
                                 , travelZoneRing
                                 ]
 
@@ -2667,7 +2735,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
                     [ case starSystem.techLevel of
                         Just tl ->
-                            hexCentreText (String.fromInt tl)
+                            Svg.g []
+                                [ hexCentreTextOffset (size * 0.05) (String.fromInt tl)
+                                , starportSvg (-size * 0.28) 0.2
+                                ]
 
                         Nothing ->
                             Svg.text ""
@@ -2678,7 +2749,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
                     [ case starSystem.habitabilityRating of
                         Just rating ->
-                            hexCentreText (String.fromInt rating)
+                            Svg.g []
+                                [ hexCentreTextOffset (size * 0.05) (String.fromInt rating)
+                                , starportSvg (-size * 0.28) 0.2
+                                ]
 
                         Nothing ->
                             Svg.text ""
@@ -2698,9 +2772,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                                         hexTextColour hexColour
                             in
                             Svg.g []
-                                [ Svg.text_
+                                [ starportSvg (-size * 0.42) 0.2
+                                , Svg.text_
                                     [ SvgAttrs.x (String.fromInt vox)
-                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.32))
+                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.12))
                                     , SvgAttrs.textAnchor "middle"
                                     , SvgAttrs.dominantBaseline "middle"
                                     , SvgAttrs.fill colour
@@ -2712,7 +2787,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                                     [ Svg.text (String.fromInt code) ]
                                 , Svg.text_
                                     [ SvgAttrs.x (String.fromInt vox)
-                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.02))
+                                    , SvgAttrs.y (String.fromFloat (toFloat voy + size * 0.18))
                                     , SvgAttrs.textAnchor "middle"
                                     , SvgAttrs.dominantBaseline "middle"
                                     , SvgAttrs.fill colour
@@ -2814,6 +2889,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                       else
                         Svg.text ""
                     , travelZoneRing
+                    , starportSvg (-size * 0.32) 0.24
                     ]
         , if showBases && size > 15 then
             drawBases themeIsLight facilityIcons starSystem.baseCodes vox voy size
