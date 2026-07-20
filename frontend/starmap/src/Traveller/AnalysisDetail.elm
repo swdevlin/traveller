@@ -17,22 +17,9 @@ module Traveller.AnalysisDetail exposing
 -}
 
 import Array
-import Element
-    exposing
-        ( column
-        , el
-        , fill
-        , height
-        , row
-        , text
-        , width
-        )
-import Element.Border as Border
-import Element.Events as Events
-import Element.Font as Font
 import FormatNumber exposing (format)
 import FormatNumber.Locales exposing (Decimals(..), usLocale)
-import Html
+import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Http
@@ -44,19 +31,6 @@ import Traveller.City exposing (CitiesPage)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StellarObject exposing (MoonsPage, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
-import Traveller.UI
-    exposing
-        ( accentHeadingColour
-        , bgVar
-        , fontVar
-        , groupAttrs
-        , profileFieldDisplay
-        , taintTextDisplay
-        , textDisplay
-        , textDisplayMedium
-        , textDisplayNarrow
-        , zeroEach
-        )
 
 
 type alias AnalysisDetailHeader =
@@ -252,6 +226,244 @@ type alias AnalyisDetailPlanetoidData =
     }
 
 
+
+-- ── HTML LAYOUT HELPERS ──────────────────────────────────────────────────────
+--
+-- Small elm-ui-flavoured wrappers kept local to this module rather than
+-- shared via Traveller.UI, which is still elm-ui and used by other
+-- not-yet-converted modules (Sidebar, StellarObjectView, ShipTraffic,
+-- TravelTable). Named to match their elm-ui counterparts so the view code
+-- below reads close to its previous shape.
+
+
+fill : String
+fill =
+    "100%"
+
+
+px : Int -> String
+px n =
+    String.fromInt n ++ "px"
+
+
+width : String -> Html.Attribute msg
+width =
+    HtmlAttrs.style "width"
+
+
+height : String -> Html.Attribute msg
+height =
+    HtmlAttrs.style "height"
+
+
+row : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+row attrs =
+    Html.div (HtmlAttrs.style "display" "flex" :: attrs)
+
+
+column : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+column attrs =
+    Html.div (HtmlAttrs.style "display" "flex" :: HtmlAttrs.style "flex-direction" "column" :: attrs)
+
+
+el : List (Html.Attribute msg) -> Html msg -> Html msg
+el attrs child =
+    Html.div attrs [ child ]
+
+
+text : String -> Html msg
+text =
+    Html.text
+
+
+none : Html msg
+none =
+    Html.text ""
+
+
+spacing : Int -> Html.Attribute msg
+spacing n =
+    HtmlAttrs.style "gap" (px n)
+
+
+padding : Int -> Html.Attribute msg
+padding n =
+    HtmlAttrs.style "padding" (px n)
+
+
+paddingXY : Int -> Int -> Html.Attribute msg
+paddingXY x y =
+    HtmlAttrs.style "padding" (px y ++ " " ++ px x)
+
+
+type alias EachSides =
+    { top : Int, right : Int, bottom : Int, left : Int }
+
+
+zeroEach : EachSides
+zeroEach =
+    { top = 0, right = 0, bottom = 0, left = 0 }
+
+
+paddingEach : EachSides -> Html.Attribute msg
+paddingEach sides =
+    HtmlAttrs.style "padding"
+        (px sides.top ++ " " ++ px sides.right ++ " " ++ px sides.bottom ++ " " ++ px sides.left)
+
+
+{-| Aligns a flex item to the start of its parent's cross axis (e.g. the top
+of a `row`).
+-}
+alignTop : Html.Attribute msg
+alignTop =
+    HtmlAttrs.style "align-self" "flex-start"
+
+
+{-| Centers a flex item along its parent's cross axis — the horizontal axis
+inside a `column`, or the vertical axis inside a `row`.
+-}
+centerSelf : Html.Attribute msg
+centerSelf =
+    HtmlAttrs.style "align-self" "center"
+
+
+pointerCursor : Html.Attribute msg
+pointerCursor =
+    HtmlAttrs.style "cursor" "pointer"
+
+
+{-| Reserves exactly this many pixels in a flex row/column and never grows
+or shrinks — for a fixed-width label sitting next to a wrapping value.
+-}
+fixedFlex : Int -> Html.Attribute msg
+fixedFlex n =
+    HtmlAttrs.style "flex" ("0 0 " ++ px n)
+
+
+{-| Grows to fill the remaining space in a flex row/column, alongside
+`shrinkable` so long unbroken text can still wrap instead of overflowing
+(flex items default to a content-based minimum size that ignores `width`).
+-}
+growFlex : Html.Attribute msg
+growFlex =
+    HtmlAttrs.style "flex" "1 1 0%"
+
+
+shrinkable : Html.Attribute msg
+shrinkable =
+    HtmlAttrs.style "min-width" "0"
+
+
+{-| A CSS custom-property-backed attribute, e.g. `bgVar "--color-panel"`, so
+the value can react to the Rails `data-theme` attribute at runtime.
+-}
+bgVar : String -> Html.Attribute msg
+bgVar varName =
+    HtmlAttrs.style "background-color" ("var(" ++ varName ++ ")")
+
+
+fontVar : String -> Html.Attribute msg
+fontVar varName =
+    HtmlAttrs.style "color" ("var(" ++ varName ++ ")")
+
+
+borderColorVar : String -> Html.Attribute msg
+borderColorVar varName =
+    HtmlAttrs.style "border-color" ("var(" ++ varName ++ ")")
+
+
+{-| Colour for section headings, titles, and other accent text — e.g. tab
+codes, "Culture" section headers. Matches Rails' `.dg-subsection .label`.
+-}
+accentHeadingColour : Html.Attribute msg
+accentHeadingColour =
+    fontVar "--color-highlight"
+
+
+outlineBorder : Html.Attribute msg
+outlineBorder =
+    borderColorVar "--color-outline"
+
+
+monospaceText : String -> Html msg
+monospaceText someString =
+    Html.span [ HtmlAttrs.class "font-mono" ] [ Html.text someString ]
+
+
+groupAttrs : List (Html.Attribute msg)
+groupAttrs =
+    [ paddingXY 5 0, width fill ]
+
+
+headerAttrs : List (Html.Attribute msg)
+headerAttrs =
+    [ fontVar "--color-fg-muted"
+    , HtmlAttrs.style "font-size" "14px"
+    , HtmlAttrs.class "font-bold"
+    , alignTop
+    ]
+
+
+valueAttrs : List (Html.Attribute msg)
+valueAttrs =
+    [ fontVar "--color-fg"
+    , HtmlAttrs.style "font-size" "14px"
+    , alignTop
+    ]
+
+
+textDisplay : String -> String -> Html msg
+textDisplay lbl val =
+    row
+        [ width fill, paddingEach { zeroEach | top = 5 } ]
+        [ el (fixedFlex 150 :: headerAttrs) (text lbl)
+        , el (growFlex :: shrinkable :: valueAttrs) (monospaceText val)
+        ]
+
+
+taintTextDisplay : String -> String -> Html msg
+taintTextDisplay lbl val =
+    row []
+        [ el (fixedFlex 100 :: headerAttrs) (text lbl)
+        , el (fixedFlex 530 :: alignTop :: valueAttrs) (monospaceText val)
+        ]
+
+
+textDisplayNarrow : String -> String -> Html msg
+textDisplayNarrow lbl val =
+    row [ width fill, paddingEach { zeroEach | top = 5 } ]
+        [ el (width (px 90) :: headerAttrs) (text lbl)
+        , el [ HtmlAttrs.style "font-size" "14px" ] (monospaceText val)
+        ]
+
+
+textDisplayMedium : String -> String -> Html msg
+textDisplayMedium lbl val =
+    row [ width fill, paddingEach { zeroEach | top = 5 } ]
+        [ el (width (px 120) :: headerAttrs) (text lbl)
+        , el [ HtmlAttrs.style "font-size" "14px" ] (monospaceText val)
+        ]
+
+
+profileFieldDisplay : String -> String -> Html msg
+profileFieldDisplay lbl val =
+    row [ width fill, paddingEach { zeroEach | top = 3 } ]
+        [ el
+            [ fixedFlex 80
+            , fontVar "--color-fg-muted"
+            , HtmlAttrs.style "font-size" "11px"
+            , HtmlAttrs.class "font-bold"
+            , alignTop
+            ]
+            (text lbl)
+        , el [ growFlex, shrinkable, HtmlAttrs.style "font-size" "12px", alignTop, fontVar "--color-fg-bright" ] (text val)
+        ]
+
+
+
+-- ── TAB BAR ──────────────────────────────────────────────────────────────────
+
+
 activeTabColour : String
 activeTabColour =
     "var(--color-highlight)"
@@ -262,26 +474,23 @@ mutedTabColour =
     "var(--color-fg-muted)"
 
 
-viewTabBar : String -> (String -> msg) -> List { id : String, label : String, code : String } -> Element.Element msg
+viewTabBar : String -> (String -> msg) -> List { id : String, label : String, code : String } -> Html msg
 viewTabBar activeTab setTab tabs =
     row
-        [ width fill
-        , Border.widthEach { zeroEach | bottom = 1 }
-        , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-        ]
+        [ width fill, HtmlAttrs.class "border-b", outlineBorder ]
         (List.map (viewOneTab activeTab setTab) tabs)
 
 
-viewOneTab : String -> (String -> msg) -> { id : String, label : String, code : String } -> Element.Element msg
+viewOneTab : String -> (String -> msg) -> { id : String, label : String, code : String } -> Html msg
 viewOneTab activeTab setTab tab =
     if tab.id == "-" then
         el
-            [ Element.paddingEach { top = 8, left = 2, right = 2, bottom = 8 }
-            , Element.htmlAttribute (HtmlAttrs.style "color" mutedTabColour)
+            [ paddingEach { top = 8, left = 2, right = 2, bottom = 8 }
+            , HtmlAttrs.style "color" mutedTabColour
             ]
-            (column [ Element.spacing 1, Element.centerX ]
-                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX ] (text "–")
-                , el [ Font.size 11, Font.center, Element.centerX ] (text "")
+            (column [ spacing 1, HtmlAttrs.style "align-items" "center" ]
+                [ el [ HtmlAttrs.style "font-size" "15px", HtmlAttrs.class "font-bold text-center" ] (text "–")
+                , el [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.class "text-center" ] (text "")
                 ]
             )
 
@@ -298,69 +507,61 @@ viewOneTab activeTab setTab tab =
                     mutedTabColour
         in
         el
-            [ Element.paddingEach { top = 8, left = 12, right = 12, bottom = 8 }
-            , Border.widthEach { zeroEach | bottom = 2 }
-            , Element.htmlAttribute
-                (HtmlAttrs.style "border-color"
-                    (if isActive then
-                        activeTabColour
+            [ paddingEach { top = 8, left = 12, right = 12, bottom = 8 }
+            , HtmlAttrs.class "border-b-2"
+            , HtmlAttrs.style "border-color"
+                (if isActive then
+                    activeTabColour
 
-                     else
-                        "transparent"
-                    )
+                 else
+                    "transparent"
                 )
-            , Element.htmlAttribute (HtmlAttrs.style "color" colour)
-            , Events.onClick (setTab tab.id)
-            , Element.pointer
+            , HtmlAttrs.style "color" colour
+            , Html.Events.onClick (setTab tab.id)
+            , pointerCursor
             ]
-            (column [ Element.spacing 1, Element.centerX ]
-                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, accentHeadingColour ] (viewTabCode tab.code)
-                , el [ Font.size 11, Font.center, Element.centerX ] (text tab.label)
+            (column [ spacing 1, HtmlAttrs.style "align-items" "center" ]
+                [ el [ HtmlAttrs.style "font-size" "15px", HtmlAttrs.class "font-bold text-center", accentHeadingColour ] (viewTabCode tab.code)
+                , el [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.class "text-center" ] (text tab.label)
                 ]
             )
 
 
-viewTabCode : String -> Element.Element msg
+viewTabCode : String -> Html msg
 viewTabCode code =
     case String.split ":" code of
         [ "fa", faClass ] ->
-            Element.html (Html.i [ HtmlAttrs.class faClass ] [])
+            Html.i [ HtmlAttrs.class faClass ] []
 
         _ ->
             text code
 
 
-viewSectionHeader : String -> Element.Element msg
+viewSectionHeader : String -> Html msg
 viewSectionHeader title =
     row
-        [ width fill
-        , Element.spacing 8
-        , Element.paddingEach { zeroEach | top = 12, bottom = 2 }
-        ]
-        [ el [ accentHeadingColour, Font.size 11, Font.bold ] <| text (String.toUpper title)
+        [ width fill, spacing 8, paddingEach { zeroEach | top = 12, bottom = 2 } ]
+        [ el [ accentHeadingColour, HtmlAttrs.style "font-size" "11px", HtmlAttrs.class "font-bold" ] (text (String.toUpper title))
         , el
-            [ width fill
-            , height (Element.px 1)
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "var(--color-outline)")
-            , Element.centerY
+            [ growFlex
+            , height (px 1)
+            , HtmlAttrs.style "background-color" "var(--color-outline)"
+            , centerSelf
             ]
-            Element.none
+            none
         ]
 
 
-viewPlanetaryProfile : AnalyisDetailPlanetoidData -> Element.Element msg
+viewPlanetaryProfile : AnalyisDetailPlanetoidData -> Html msg
 viewPlanetaryProfile data =
     column
-        [ Element.paddingEach { zeroEach | right = 16 }
-        , Element.spacing 0
-        ]
-        [ viewSectionHeader "Planetary Profile"
-        , el
-            [ Element.centerX
-            , Font.size 15
-            , Font.family [ Font.monospace ]
+        [ paddingEach { zeroEach | right = 16 }, spacing 0 ]
+        [ el
+            [ centerSelf
+            , HtmlAttrs.style "font-size" "15px"
+            , HtmlAttrs.class "font-mono"
             , fontVar "--color-fg-bright"
-            , Element.paddingEach { zeroEach | top = 6, bottom = 6 }
+            , paddingEach { zeroEach | top = 6, bottom = 6 }
             ]
             (text data.uwp)
         , profileFieldDisplay "Starport" (data.starport.code ++ " – " ++ data.starport.quality)
@@ -375,7 +576,7 @@ viewPlanetaryProfile data =
         ]
 
 
-viewGasGiantProfile : AnalyisDetailGasGiantData -> Element.Element msg
+viewGasGiantProfile : AnalyisDetailGasGiantData -> Html msg
 viewGasGiantProfile data =
     let
         sizeDescription =
@@ -393,22 +594,16 @@ viewGasGiantProfile data =
                     data.code
     in
     column
-        [ Element.paddingEach { zeroEach | right = 16 }
-        , Element.spacing 0
-        ]
-        [ viewSectionHeader "Gas Giant Profile"
-        , profileFieldDisplay "Size" (data.code ++ " – " ++ sizeDescription)
+        [ paddingEach { zeroEach | right = 16 }, spacing 0 ]
+        [ profileFieldDisplay "Size" (data.code ++ " – " ++ sizeDescription)
         ]
 
 
-viewBeltProfile : AnalyisDetailPlanetoidBeltData -> Element.Element msg
+viewBeltProfile : AnalyisDetailPlanetoidBeltData -> Html msg
 viewBeltProfile data =
     column
-        [ Element.paddingEach { zeroEach | right = 16 }
-        , Element.spacing 0
-        ]
-        [ viewSectionHeader "Belt Profile"
-        , profileFieldDisplay "Resource" data.belt.resourceRating
+        [ paddingEach { zeroEach | right = 16 }, spacing 0 ]
+        [ profileFieldDisplay "Resource" data.belt.resourceRating
         , profileFieldDisplay "Bulk" data.belt.bulk
         , profileFieldDisplay "Metallic" data.composition.mType
         , profileFieldDisplay "Stony" data.composition.sType
@@ -417,15 +612,15 @@ viewBeltProfile data =
         ]
 
 
-viewJumpShadowTable : Maybe Float -> Element.Element msg
+viewJumpShadowTable : Maybe Float -> Html msg
 viewJumpShadowTable maybeKm =
     case maybeKm of
         Nothing ->
-            Element.none
+            none
 
         Just km ->
             if km <= 0 then
-                Element.none
+                none
 
             else
                 let
@@ -434,23 +629,17 @@ viewJumpShadowTable maybeKm =
 
                     cell attrs child =
                         el
-                            ([ width (Element.px 46)
-                             , Element.paddingXY 0 4
-                             , Element.centerX
-                             ]
-                                ++ attrs
-                            )
+                            ([ width (px 46), paddingXY 0 4, HtmlAttrs.style "text-align" "center" ] ++ attrs)
                             child
 
                     headerCell m =
                         cell
-                            [ Font.bold
-                            , Font.size 11
+                            [ HtmlAttrs.class "font-bold border-b"
+                            , HtmlAttrs.style "font-size" "11px"
                             , fontVar "--color-fg"
-                            , Border.widthEach { zeroEach | bottom = 1 }
-                            , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+                            , outlineBorder
                             ]
-                            (el [ Element.centerX ] (text ("M" ++ String.fromInt m)))
+                            (text ("M" ++ String.fromInt m))
 
                     timeCell m =
                         let
@@ -460,10 +649,9 @@ viewJumpShadowTable maybeKm =
                             t =
                                 TravelCalc.travelTimeHoursDays secs
                         in
-                        cell [ Font.size 12, Font.family [ Font.monospace ] ]
-                            (el [ Element.centerX ] (text t))
+                        cell [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.class "font-mono" ] (text t)
                 in
-                column [ width fill, Element.paddingEach { zeroEach | top = 8 } ]
+                column [ width fill, paddingEach { zeroEach | top = 8 } ]
                     [ viewSectionHeader "Safe Jump Distance"
                     , row [] (List.map headerCell mDrives)
                     , row [] (List.map timeCell mDrives)
@@ -578,7 +766,7 @@ toHexChar n =
                 String.fromInt n
 
 
-viewCultureGauge : CultureTraitItem -> Element.Element msg
+viewCultureGauge : CultureTraitItem -> Html msg
 viewCultureGauge trait =
     let
         range =
@@ -599,82 +787,79 @@ viewCultureGauge trait =
 
         hexVal =
             toHexChar trait.value
-    in
-    column [ width fill, Element.spacing 4 ]
-        [ el [ Font.size 12, fontVar "--color-fg-muted", Font.bold ] (text trait.label)
-        , el [ width fill, Element.paddingEach { zeroEach | top = 4 } ] <|
-            Element.html <|
-                let
-                    caretLeft =
-                        String.fromFloat clampedPct ++ "%"
-                in
-                Html.div
-                    []
-                    [ Html.div
-                        [ HtmlAttrs.style "position" "relative"
-                        , HtmlAttrs.style "height" "16px"
-                        ]
-                        [ Html.div
-                            [ HtmlAttrs.style "position" "absolute"
-                            , HtmlAttrs.style "top" "50%"
-                            , HtmlAttrs.style "left" "0"
-                            , HtmlAttrs.style "right" "0"
-                            , HtmlAttrs.style "height" "1px"
-                            , HtmlAttrs.style "background-color" "var(--color-gauge-line)"
-                            , HtmlAttrs.style "transform" "translateY(-50%)"
-                            ]
-                            []
-                        , Html.div
-                            [ HtmlAttrs.style "position" "absolute"
-                            , HtmlAttrs.style "top" "50%"
-                            , HtmlAttrs.style "left" caretLeft
-                            , HtmlAttrs.style "transform" "translateX(-50%) translateY(-50%)"
-                            , HtmlAttrs.style "font-size" "10px"
-                            , HtmlAttrs.style "color" "var(--color-highlight)"
-                            ]
-                            [ Html.text "▲" ]
-                        ]
-                    , Html.div
-                        [ HtmlAttrs.style "display" "flex"
-                        , HtmlAttrs.style "justify-content" "space-between"
-                        , HtmlAttrs.style "font-size" "11px"
-                        , HtmlAttrs.style "color" "var(--color-fg-muted)"
-                        , HtmlAttrs.style "margin-top" "2px"
-                        ]
-                        [ Html.span [] [ Html.text trait.lowLabel ]
-                        , Html.span
-                            [ HtmlAttrs.style "font-family" "monospace"
-                            , HtmlAttrs.style "color" "var(--color-fg)"
-                            ]
-                            [ Html.text hexVal
-                            , if dm /= "±0" then
-                                Html.text (" DM: " ++ dm)
 
-                              else
-                                Html.text ""
-                            ]
-                        , Html.span [] [ Html.text trait.highLabel ]
-                        ]
+        caretLeft =
+            String.fromFloat clampedPct ++ "%"
+    in
+    column [ width fill, spacing 4 ]
+        [ el [ HtmlAttrs.style "font-size" "12px", fontVar "--color-fg-muted", HtmlAttrs.class "font-bold" ] (text trait.label)
+        , el [ width fill, paddingEach { zeroEach | top = 4 } ]
+            (Html.div
+                []
+                [ Html.div
+                    [ HtmlAttrs.style "position" "relative"
+                    , HtmlAttrs.style "height" "16px"
                     ]
+                    [ Html.div
+                        [ HtmlAttrs.style "position" "absolute"
+                        , HtmlAttrs.style "top" "50%"
+                        , HtmlAttrs.style "left" "0"
+                        , HtmlAttrs.style "right" "0"
+                        , HtmlAttrs.style "height" "1px"
+                        , HtmlAttrs.style "background-color" "var(--color-gauge-line)"
+                        , HtmlAttrs.style "transform" "translateY(-50%)"
+                        ]
+                        []
+                    , Html.div
+                        [ HtmlAttrs.style "position" "absolute"
+                        , HtmlAttrs.style "top" "50%"
+                        , HtmlAttrs.style "left" caretLeft
+                        , HtmlAttrs.style "transform" "translateX(-50%) translateY(-50%)"
+                        , HtmlAttrs.style "font-size" "10px"
+                        , HtmlAttrs.style "color" "var(--color-highlight)"
+                        ]
+                        [ Html.text "▲" ]
+                    ]
+                , Html.div
+                    [ HtmlAttrs.style "display" "flex"
+                    , HtmlAttrs.style "justify-content" "space-between"
+                    , HtmlAttrs.style "font-size" "11px"
+                    , HtmlAttrs.style "color" "var(--color-fg-muted)"
+                    , HtmlAttrs.style "margin-top" "2px"
+                    ]
+                    [ Html.span [] [ Html.text trait.lowLabel ]
+                    , Html.span
+                        [ HtmlAttrs.style "font-family" "monospace"
+                        , HtmlAttrs.style "color" "var(--color-fg)"
+                        ]
+                        [ Html.text hexVal
+                        , if dm /= "±0" then
+                            Html.text (" DM: " ++ dm)
+
+                          else
+                            Html.text ""
+                        ]
+                    , Html.span [] [ Html.text trait.highLabel ]
+                    ]
+                ]
+            )
         ]
 
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
+viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
 viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
     case data of
         AnalyisDetailStar detailHeader starData ->
-            Element.html
-                (StarOrbitMap.viewModal
-                    { close = closeMsg, noOp = noOpMsg, onSelectObject = onSelectObject, zIndex = zIndex }
-                    starMapResizeConfig
-                    detailHeader.header
-                    (starStatItems starData)
-                    starData.showNames
-                    starData.primaryStarData
-                    starData.children
-                )
+            StarOrbitMap.viewModal
+                { close = closeMsg, noOp = noOpMsg, onSelectObject = onSelectObject, zIndex = zIndex }
+                starMapResizeConfig
+                detailHeader.header
+                (starStatItems starData)
+                starData.showNames
+                starData.primaryStarData
+                starData.children
 
         _ ->
             viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data
@@ -693,19 +878,19 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Element.Element msg
+viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
 viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data =
     let
         profileLayout profile content_ =
-            row [ Element.spacing 0 ]
+            row [ spacing 0 ]
                 [ column
-                    [ width (Element.px 220)
-                    , Border.widthEach { zeroEach | right = 1 }
-                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-                    , Element.alignTop
+                    [ fixedFlex 220
+                    , HtmlAttrs.class "border-r"
+                    , outlineBorder
+                    , alignTop
                     ]
                     [ profile ]
-                , column [ width fill, Element.paddingEach { zeroEach | left = 16 }, Element.alignTop ]
+                , column [ growFlex, shrinkable, paddingEach { zeroEach | left = 16 }, alignTop ]
                     [ content_ ]
                 ]
 
@@ -737,57 +922,58 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
 
                 AnalyisDetailStar detailHeader _ ->
                     -- unreachable: viewObjectAnalysisDetail dispatches stars to StarOrbitMap.viewModal above
-                    ( detailHeader.header, Element.none, 750 )
+                    ( detailHeader.header, none, 750 )
     in
-    el
-        [ width fill
-        , height fill
-        , Element.htmlAttribute (HtmlAttrs.style "position" "fixed")
-        , Element.htmlAttribute (HtmlAttrs.style "inset" "0")
-        , Element.htmlAttribute (HtmlAttrs.style "z-index" (String.fromInt zIndex))
-        , Events.onClick closeMsg
+    Html.div
+        [ HtmlAttrs.style "position" "fixed"
+        , HtmlAttrs.style "inset" "0"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "z-index" (String.fromInt zIndex)
+
+        -- elm-ui's injected stylesheet sets `white-space: pre` on every
+        -- `column`-rendered element, including this modal's elm-ui
+        -- ancestors; since `white-space` inherits, that leaks into this
+        -- plain-Html subtree (mounted via `Element.html`) and silences
+        -- normal text wrapping unless reset here.
+        , HtmlAttrs.style "white-space" "normal"
+        , Html.Events.onClick closeMsg
         ]
-    <|
-        column
-            [ Element.centerX
-            , Element.centerY
-            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True )))
+        [ column
+            [ Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True ))
             , bgVar "--color-panel"
-            , Border.width 1
-            , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-            , Element.htmlAttribute (HtmlAttrs.style "max-height" "92vh")
-            , Element.htmlAttribute (HtmlAttrs.style "overflow-y" "auto")
-            , width <| Element.px modalWidth
-            , Element.padding 20
-            , Border.rounded 6
-            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
+            , HtmlAttrs.class "border"
+            , outlineBorder
+            , HtmlAttrs.style "max-height" "92vh"
+            , HtmlAttrs.style "overflow-y" "auto"
+            , width (px modalWidth)
+            , padding 20
+            , HtmlAttrs.class "rounded-md"
+            , HtmlAttrs.style "box-shadow" "0 8px 32px rgba(0, 0, 0, 0.25)"
             ]
             [ row
                 [ width fill
-                , Element.paddingEach { zeroEach | bottom = 16 }
-                , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+                , paddingEach { zeroEach | bottom = 16 }
+                , HtmlAttrs.class "border-b justify-between items-center"
+                , outlineBorder
                 ]
-                [ el [ Font.size 18, fontVar "--color-fg-bright", Font.bold ] <|
-                    text header
+                [ el [ HtmlAttrs.style "font-size" "18px", fontVar "--color-fg-bright", HtmlAttrs.class "font-bold" ] (text header)
                 , el
-                    [ Element.paddingEach { top = 0, left = 10, right = 0, bottom = 0 }
-                    , Element.pointer
-                    , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
-                    , Font.size 16
+                    [ pointerCursor
+                    , HtmlAttrs.class "starmap-modal-close"
+                    , HtmlAttrs.style "font-size" "16px"
                     , fontVar "--color-fg-muted"
-                    , Element.alignRight
-                    , Element.alignTop
-                    , Events.onClick closeMsg
+                    , Html.Events.onClick closeMsg
                     ]
-                  <|
-                    text "✕"
+                    (text "✕")
                 ]
             , content
             ]
+        ]
 
 
-viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Element.Element msg
+viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Html msg
 viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig citiesTabConfig data =
     let
         firstTabIndex =
@@ -993,19 +1179,19 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             textDisplay "Fuel" <| show 78 data.starport.fuel
 
                           else
-                            Element.none
+                            none
                         , if data.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 79 data.starport.facilities
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "physical" ->
                     column [ width fill ]
                         [ viewSectionHeader "Physical Data"
-                        , row (Element.spacing 40 :: groupAttrs)
-                            [ column [ Element.alignTop ]
+                        , row (spacing 40 :: groupAttrs)
+                            [ column [ alignTop ]
                                 [ textDisplayMedium ("Diameter (" ++ show 7 data.physical.sizeCode ++ ")") <| show 8 data.physical.diameter
                                 , textDisplayMedium "Mass" <|
                                     let
@@ -1031,8 +1217,8 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 ]
                             ]
                         , viewSectionHeader "Environmental Data"
-                        , row (Element.spacing 40 :: groupAttrs)
-                            [ column [ Element.alignTop ]
+                        , row (spacing 40 :: groupAttrs)
+                            [ column [ alignTop ]
                                 [ textDisplayNarrow "Temperature" <| show 12 data.physical.meanTemperature
                                 , textDisplayNarrow "Rotation" <| show 13 data.physical.rotation
                                 , textDisplayNarrow "Axial Tilt" <| show 14 data.physical.axialTilt
@@ -1050,11 +1236,11 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                         , row [ width fill ]
                             [ el
                                 [ fontVar "--color-fg-muted"
-                                , Font.bold
-                                , Font.size 14
-                                , Element.alignTop
-                                , width <| Element.px 50
-                                , Element.paddingEach <| { zeroEach | top = 5 }
+                                , HtmlAttrs.class "font-bold"
+                                , HtmlAttrs.style "font-size" "14px"
+                                , alignTop
+                                , width (px 50)
+                                , paddingEach <| { zeroEach | top = 5 }
                                 ]
                               <|
                                 text "Taint"
@@ -1073,7 +1259,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             textDisplay "Liquid" <| show 24 data.hydrographics.liquid
 
                           else
-                            Element.none
+                            none
                         , textDisplay "Surface Distribution" <| show 25 data.hydrographics.surfaceDistribution
                         ]
 
@@ -1087,7 +1273,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                             viewCultureGauge ct
 
                                         else
-                                            el [ width fill ] Element.none
+                                            el [ width fill ] none
                                     )
 
                         cultureRow2 =
@@ -1098,7 +1284,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                             viewCultureGauge ct
 
                                         else
-                                            el [ width fill ] Element.none
+                                            el [ width fill ] none
                                     )
                     in
                     column [ width fill ]
@@ -1163,14 +1349,14 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                         , if isReferee && not (List.isEmpty data.cultureTrait) then
                             column [ width fill ]
                                 [ viewSectionHeader "Culture"
-                                , column [ Element.spacing 12, width fill, Element.paddingEach { zeroEach | top = 8 } ]
-                                    [ row [ Element.spacing 16, width fill ] cultureRow1
-                                    , row [ Element.spacing 16, width fill ] cultureRow2
+                                , column [ spacing 12, width fill, paddingEach { zeroEach | top = 8 } ]
+                                    [ row [ spacing 16, width fill ] cultureRow1
+                                    , row [ spacing 16, width fill ] cultureRow2
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "gov" ->
@@ -1185,7 +1371,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 textDisplay "Description" <| show 46 g.description
 
                               else
-                                Element.none
+                                none
                             ]
                         , if g.judicial /= "" || g.executive /= "" || g.legislative /= "" then
                             column [ width fill ]
@@ -1195,22 +1381,22 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                         textDisplay "Judicial" <| show 47 g.judicial
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.executive /= "" then
                                         textDisplay "Executive" <| show 48 g.executive
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.legislative /= "" then
                                         textDisplay "Legislative" <| show 49 g.legislative
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         , if g.authority /= "" || g.centralisation /= "" then
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
@@ -1219,17 +1405,17 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                         textDisplay "Authority" <| show 50 g.authority
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.centralisation /= "" then
                                         textDisplay "Centralisation" <| show 51 g.centralisation
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "law" ->
@@ -1252,32 +1438,32 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                         textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.criminalLaw /= "" then
                                         textDisplay "Criminal Law" <| show 54 sc.criminalLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.economicLaw /= "" then
                                         textDisplay "Economic Law" <| show 55 sc.economicLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.privateLaw /= "" then
                                         textDisplay "Private Law" <| show 56 sc.privateLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.personalRights /= "" then
                                         textDisplay "Personal Rights" <| show 57 sc.personalRights
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         , if ch.uniformity /= "" || ch.judicialSystem /= "" || ch.deathPenalty /= "" || ch.presumedInnocence /= "" || ch.econometricInfractionsAdministrative /= "" then
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
@@ -1286,32 +1472,32 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                         textDisplay "Law Uniformity" <| show 58 ch.uniformity
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.judicialSystem /= "" then
                                         textDisplay "Judicial System" <| show 59 ch.judicialSystem
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.deathPenalty /= "" then
                                         textDisplay "Death Penalty" <| show 60 ch.deathPenalty
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.presumedInnocence /= "" then
                                         textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.econometricInfractionsAdministrative /= "" then
                                         textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "tech" ->
@@ -1344,7 +1530,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 textDisplay "Descriptor" <| show 64 td.descriptor
 
                               else
-                                Element.none
+                                none
                             ]
                         , if hasCaps then
                             column [ width fill ]
@@ -1357,13 +1543,13 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 _ ->
                     column [ width fill ]
-                        [ row (Element.spacing 40 :: groupAttrs)
-                            [ column [ Element.alignTop ]
+                        [ row (spacing 40 :: groupAttrs)
+                            [ column [ alignTop ]
                                 [ textDisplayNarrow "Orbit" <| show 0 data.orbital.orbit
                                 , textDisplayNarrow "AU" <| show 1 data.physical.au
                                 , textDisplayNarrow "HZCO Dev" <| show 2 data.orbital.effectiveHZCODeviation
@@ -1378,20 +1564,11 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ Element.paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
         ]
 
 
-showIfNonEmpty : String -> String -> Element.Element msg
-showIfNonEmpty lbl val =
-    if val /= "" then
-        textDisplay lbl val
-
-    else
-        Element.none
-
-
-viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailGasGiantData -> Element.Element msg
+viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailGasGiantData -> Html msg
 viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabConfig data =
     let
         firstTabIndex =
@@ -1448,8 +1625,8 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
         tabContent =
             case safeTab of
                 "physical" ->
-                    row (Element.spacing 40 :: groupAttrs)
-                        [ column [ Element.alignTop ]
+                    row (spacing 40 :: groupAttrs)
+                        [ column [ alignTop ]
                             [ textDisplayMedium "Mass" <|
                                 let
                                     m =
@@ -1463,7 +1640,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
                             , textDisplayMedium "Diameter (km)" <| show 5 data.physical.diameter
                             , textDisplayMedium "Axial Tilt" <| show 6 data.physical.axialTilt
                             ]
-                        , column [ Element.alignTop ]
+                        , column [ alignTop ]
                             [ textDisplayNarrow "Moons" <| show 7 data.physical.moons
                             , textDisplayNarrow "Rings" <| show 8 data.physical.hasRing
                             ]
@@ -1474,8 +1651,8 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
 
                 _ ->
                     column [ width fill ]
-                        [ row (Element.spacing 40 :: groupAttrs)
-                            [ column [ Element.alignTop ]
+                        [ row (spacing 40 :: groupAttrs)
+                            [ column [ alignTop ]
                                 [ textDisplayNarrow "AU" <| show 0 data.physical.au
                                 , textDisplayNarrow "Period (yrs)" <| show 1 data.physical.period
                                 , textDisplayNarrow "Inclination" <| show 2 data.physical.inclination
@@ -1487,24 +1664,21 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ Element.paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
         ]
 
 
-viewMoonsTab : (StellarObject -> msg) -> MoonsTabConfig msg -> Element.Element msg
+viewMoonsTab : (StellarObject -> msg) -> MoonsTabConfig msg -> Html msg
 viewMoonsTab onSelectObject moonsTabConfig =
     let
-        outlineBorder =
-            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-
         checkboxRow =
             row
-                [ Element.spacing 6
-                , Element.pointer
-                , Events.onClick moonsTabConfig.onToggleSignificant
-                , Element.paddingEach { zeroEach | bottom = 8 }
+                [ spacing 6
+                , pointerCursor
+                , Html.Events.onClick moonsTabConfig.onToggleSignificant
+                , paddingEach { zeroEach | bottom = 8 }
                 ]
-                [ el [ Font.size 13, fontVar "--color-fg" ]
+                [ el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg" ]
                     (text
                         (if moonsTabConfig.significantOnly then
                             "☑"
@@ -1513,18 +1687,18 @@ viewMoonsTab onSelectObject moonsTabConfig =
                             "☐"
                         )
                     )
-                , el [ Font.size 13, fontVar "--color-fg-muted" ] (text "Significant only")
+                , el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text "Significant only")
                 ]
 
         headerCell alignAttrs label =
             el
-                ([ Font.size 11
-                 , Font.bold
+                ([ HtmlAttrs.style "font-size" "11px"
+                 , HtmlAttrs.class "font-bold"
                  , fontVar "--color-fg-muted"
-                 , Element.paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
-                 , Border.widthEach { zeroEach | bottom = 1 }
+                 , paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
+                 , HtmlAttrs.class "border-b"
                  , outlineBorder
-                 , Element.htmlAttribute (HtmlAttrs.style "white-space" "nowrap")
+                 , HtmlAttrs.style "white-space" "nowrap"
                  ]
                     ++ alignAttrs
                 )
@@ -1532,10 +1706,10 @@ viewMoonsTab onSelectObject moonsTabConfig =
 
         bodyCell moonObj alignAttrs content =
             el
-                ([ Font.size 13
-                 , Element.paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
-                 , Element.pointer
-                 , Events.onClick (onSelectObject moonObj)
+                ([ HtmlAttrs.style "font-size" "13px"
+                 , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                 , pointerCursor
+                 , Html.Events.onClick (onSelectObject moonObj)
                  ]
                     ++ alignAttrs
                 )
@@ -1550,44 +1724,40 @@ viewMoonsTab onSelectObject moonsTabConfig =
                     Nothing
 
         moonsTable moons =
-            Element.table [ width fill ]
-                { data = List.filterMap asTerrestrialPlanet moons
-                , columns =
-                    [ { header = headerCell [] "Name"
-                      , width = Element.fillPortion 2
-                      , view =
-                            \( moonObj, pdata ) ->
-                                bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
-                      }
-                    , { header = headerCell [ Font.alignRight ] "Orbit (diameters)"
-                      , width = Element.px 108
-                      , view =
-                            \( moonObj, pdata ) ->
-                                bodyCell moonObj
-                                    [ Font.alignRight, Element.htmlAttribute (HtmlAttrs.class "font-mono") ]
-                                    (text
-                                        (Round.round
-                                            (if pdata.orbit < 10 then
-                                                1
+            Html.div
+                [ HtmlAttrs.style "display" "grid"
+                , HtmlAttrs.style "grid-template-columns" "2fr 108px 2fr"
+                , width fill
+                ]
+                (headerCell [] "Name"
+                    :: headerCell [ HtmlAttrs.class "text-right" ] "Orbit (diameters)"
+                    :: headerCell [] "UWP"
+                    :: (moons
+                            |> List.filterMap asTerrestrialPlanet
+                            |> List.concatMap
+                                (\( moonObj, pdata ) ->
+                                    [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+                                    , bodyCell moonObj
+                                        [ HtmlAttrs.class "text-right font-mono" ]
+                                        (text
+                                            (Round.round
+                                                (if pdata.orbit < 10 then
+                                                    1
 
-                                             else
-                                                0
+                                                 else
+                                                    0
+                                                )
+                                                pdata.orbit
                                             )
-                                            pdata.orbit
                                         )
-                                    )
-                      }
-                    , { header = headerCell [] "UWP"
-                      , width = Element.fillPortion 2
-                      , view =
-                            \( moonObj, pdata ) ->
-                                bodyCell moonObj [ Element.htmlAttribute (HtmlAttrs.class "font-mono") ] (text pdata.uwp)
-                      }
-                    ]
-                }
+                                    , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+                                    ]
+                                )
+                       )
+                )
 
         mutedText str =
-            el [ Font.size 13, fontVar "--color-fg-muted" ] (text str)
+            el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text str)
     in
     column [ width fill ]
         [ checkboxRow
@@ -1613,35 +1783,29 @@ viewMoonsTab onSelectObject moonsTabConfig =
         ]
 
 
-viewPagerPill : List (Element.Attribute msg) -> String -> Element.Element msg
+viewPagerPill : List (Html.Attribute msg) -> String -> Html msg
 viewPagerPill attrs label =
     el
-        ([ Element.paddingXY 12 8
-         , Border.rounded 8
-         , Border.width 1
-         , Font.size 13
-         , Font.medium
-         , Font.center
-         , Element.htmlAttribute (HtmlAttrs.style "min-width" "34px")
+        ([ paddingXY 12 8
+         , HtmlAttrs.class "rounded-lg border"
+         , HtmlAttrs.style "font-size" "13px"
+         , HtmlAttrs.class "font-medium text-center"
+         , HtmlAttrs.style "min-width" "34px"
          ]
             ++ attrs
         )
-        (el [ Element.centerX ] (text label))
+        (text label)
 
 
-viewPagerArrow : Bool -> String -> msg -> Element.Element msg
+viewPagerArrow : Bool -> String -> msg -> Html msg
 viewPagerArrow enabled label msg =
-    let
-        outlineBorder =
-            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-    in
     if enabled then
         viewPagerPill
             [ bgVar "--color-panel-muted"
             , fontVar "--color-fg-bright"
             , outlineBorder
-            , Element.pointer
-            , Events.onClick msg
+            , pointerCursor
+            , Html.Events.onClick msg
             ]
             label
 
@@ -1650,44 +1814,34 @@ viewPagerArrow enabled label msg =
             [ bgVar "--color-panel-muted"
             , fontVar "--color-fg-muted"
             , outlineBorder
-            , Element.htmlAttribute (HtmlAttrs.style "opacity" "0.6")
-            , Element.htmlAttribute (HtmlAttrs.style "cursor" "not-allowed")
+            , HtmlAttrs.style "opacity" "0.6"
+            , HtmlAttrs.style "cursor" "not-allowed"
             ]
             label
 
 
-viewPager : Int -> Int -> (Int -> msg) -> Element.Element msg
+viewPager : Int -> Int -> (Int -> msg) -> Html msg
 viewPager page pages onSetPage =
-    let
-        outlineBorder =
-            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-    in
     row
-        [ Element.centerX
-        , Element.spacing 8
-        , Element.paddingEach { zeroEach | top = 16 }
-        ]
+        [ centerSelf, spacing 8, paddingEach { zeroEach | top = 16 } ]
         [ viewPagerArrow (page > 1) "‹" (onSetPage (page - 1))
         , viewPagerPill [ bgVar "--color-panel-muted", fontVar "--color-fg-bright", outlineBorder ] (String.fromInt page)
         , viewPagerArrow (page < pages) "›" (onSetPage (page + 1))
         ]
 
 
-viewCitiesTab : CitiesTabConfig msg -> Element.Element msg
+viewCitiesTab : CitiesTabConfig msg -> Html msg
 viewCitiesTab citiesTabConfig =
     let
-        outlineBorder =
-            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-
         headerCell alignAttrs label =
             el
-                ([ Font.size 11
-                 , Font.bold
+                ([ HtmlAttrs.style "font-size" "11px"
+                 , HtmlAttrs.class "font-bold"
                  , fontVar "--color-fg-muted"
-                 , Element.paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
-                 , Border.widthEach { zeroEach | bottom = 1 }
+                 , paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
+                 , HtmlAttrs.class "border-b"
                  , outlineBorder
-                 , Element.htmlAttribute (HtmlAttrs.style "white-space" "nowrap")
+                 , HtmlAttrs.style "white-space" "nowrap"
                  ]
                     ++ alignAttrs
                 )
@@ -1695,42 +1849,39 @@ viewCitiesTab citiesTabConfig =
 
         bodyCell alignAttrs content =
             el
-                ([ Font.size 13
-                 , Element.paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                ([ HtmlAttrs.style "font-size" "13px"
+                 , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
                  ]
                     ++ alignAttrs
                 )
                 content
 
         citiesTable cities =
-            Element.table [ width fill ]
-                { data = cities
-                , columns =
-                    [ { header = headerCell [] "Name"
-                      , width = Element.fillPortion 2
-                      , view = \city -> bodyCell [] (text city.name)
-                      }
-                    , { header = headerCell [] "Type"
-                      , width = Element.fillPortion 2
-                      , view = \city -> bodyCell [] (text (Maybe.withDefault "Standard" city.typeLabel))
-                      }
-                    , { header = headerCell [] "Capital"
-                      , width = Element.fillPortion 1
-                      , view = \city -> bodyCell [] (text (Maybe.withDefault "—" city.capitalLabel))
-                      }
-                    , { header = headerCell [ Font.alignRight ] "Population"
-                      , width = Element.px 110
-                      , view =
-                            \city ->
-                                bodyCell
-                                    [ Font.alignRight, Element.htmlAttribute (HtmlAttrs.class "font-mono") ]
-                                    (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))
-                      }
-                    ]
-                }
+            Html.div
+                [ HtmlAttrs.style "display" "grid"
+                , HtmlAttrs.style "grid-template-columns" "2fr 2fr 1fr 110px"
+                , width fill
+                ]
+                (headerCell [] "Name"
+                    :: headerCell [] "Type"
+                    :: headerCell [] "Capital"
+                    :: headerCell [ HtmlAttrs.class "text-right" ] "Population"
+                    :: (cities
+                            |> List.concatMap
+                                (\city ->
+                                    [ bodyCell [] (text city.name)
+                                    , bodyCell [] (text (Maybe.withDefault "Standard" city.typeLabel))
+                                    , bodyCell [] (text (Maybe.withDefault "—" city.capitalLabel))
+                                    , bodyCell
+                                        [ HtmlAttrs.class "text-right font-mono" ]
+                                        (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))
+                                    ]
+                                )
+                       )
+                )
 
         mutedText str =
-            el [ Font.size 13, fontVar "--color-fg-muted" ] (text str)
+            el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text str)
     in
     column [ width fill ]
         [ case citiesTabConfig.page of
@@ -1755,7 +1906,7 @@ viewCitiesTab citiesTabConfig =
         ]
 
 
-viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Element.Element msg
+viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Html msg
 viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabConfig data =
     let
         pd =
@@ -1954,12 +2105,12 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             textDisplay "Fuel" <| show 78 pd.starport.fuel
 
                           else
-                            Element.none
+                            none
                         , if pd.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 79 pd.starport.facilities
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "physical" ->
@@ -1987,11 +2138,11 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                         , row [ width fill ]
                             [ el
                                 [ fontVar "--color-fg-muted"
-                                , Font.bold
-                                , Font.size 14
-                                , Element.alignTop
-                                , width <| Element.px 50
-                                , Element.paddingEach <| { zeroEach | top = 5 }
+                                , HtmlAttrs.class "font-bold"
+                                , HtmlAttrs.style "font-size" "14px"
+                                , alignTop
+                                , width (px 50)
+                                , paddingEach <| { zeroEach | top = 5 }
                                 ]
                               <|
                                 text "Taint"
@@ -2010,7 +2161,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             textDisplay "Liquid" <| show 24 pd.hydrographics.liquid
 
                           else
-                            Element.none
+                            none
                         , textDisplay "Surface Distribution" <| show 25 pd.hydrographics.surfaceDistribution
                         ]
 
@@ -2024,7 +2175,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                             viewCultureGauge ct
 
                                         else
-                                            el [ width fill ] Element.none
+                                            el [ width fill ] none
                                     )
 
                         cultureRow2 =
@@ -2035,7 +2186,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                             viewCultureGauge ct
 
                                         else
-                                            el [ width fill ] Element.none
+                                            el [ width fill ] none
                                     )
                     in
                     column [ width fill ]
@@ -2100,14 +2251,14 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                         , if isReferee && not (List.isEmpty pd.cultureTrait) then
                             column [ width fill ]
                                 [ viewSectionHeader "Culture"
-                                , column [ Element.spacing 12, width fill, Element.paddingEach { zeroEach | top = 8 } ]
-                                    [ row [ Element.spacing 16, width fill ] cultureRow1
-                                    , row [ Element.spacing 16, width fill ] cultureRow2
+                                , column [ spacing 12, width fill, paddingEach { zeroEach | top = 8 } ]
+                                    [ row [ spacing 16, width fill ] cultureRow1
+                                    , row [ spacing 16, width fill ] cultureRow2
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "gov" ->
@@ -2122,7 +2273,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                 textDisplay "Description" <| show 46 g.description
 
                               else
-                                Element.none
+                                none
                             ]
                         , if g.judicial /= "" || g.executive /= "" || g.legislative /= "" then
                             column [ width fill ]
@@ -2132,22 +2283,22 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                         textDisplay "Judicial" <| show 47 g.judicial
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.executive /= "" then
                                         textDisplay "Executive" <| show 48 g.executive
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.legislative /= "" then
                                         textDisplay "Legislative" <| show 49 g.legislative
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         , if g.authority /= "" || g.centralisation /= "" then
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
@@ -2156,17 +2307,17 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                         textDisplay "Authority" <| show 50 g.authority
 
                                       else
-                                        Element.none
+                                        none
                                     , if g.centralisation /= "" then
                                         textDisplay "Centralisation" <| show 51 g.centralisation
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "law" ->
@@ -2189,32 +2340,32 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                         textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.criminalLaw /= "" then
                                         textDisplay "Criminal Law" <| show 54 sc.criminalLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.economicLaw /= "" then
                                         textDisplay "Economic Law" <| show 55 sc.economicLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.privateLaw /= "" then
                                         textDisplay "Private Law" <| show 56 sc.privateLaw
 
                                       else
-                                        Element.none
+                                        none
                                     , if sc.personalRights /= "" then
                                         textDisplay "Personal Rights" <| show 57 sc.personalRights
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         , if ch.uniformity /= "" || ch.judicialSystem /= "" || ch.deathPenalty /= "" || ch.presumedInnocence /= "" || ch.econometricInfractionsAdministrative /= "" then
                             column [ width fill ]
                                 [ viewSectionHeader "Characteristics"
@@ -2223,32 +2374,32 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                         textDisplay "Law Uniformity" <| show 58 ch.uniformity
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.judicialSystem /= "" then
                                         textDisplay "Judicial System" <| show 59 ch.judicialSystem
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.deathPenalty /= "" then
                                         textDisplay "Death Penalty" <| show 60 ch.deathPenalty
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.presumedInnocence /= "" then
                                         textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
 
                                       else
-                                        Element.none
+                                        none
                                     , if ch.econometricInfractionsAdministrative /= "" then
                                         textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
 
                                       else
-                                        Element.none
+                                        none
                                     ]
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 "tech" ->
@@ -2280,7 +2431,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                 textDisplay "Descriptor" <| show 64 td.descriptor
 
                               else
-                                Element.none
+                                none
                             ]
                         , if hasCaps then
                             column [ width fill ]
@@ -2293,13 +2444,13 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                 ]
 
                           else
-                            Element.none
+                            none
                         ]
 
                 _ ->
                     column [ width fill ]
-                        [ row (Element.spacing 40 :: groupAttrs)
-                            [ column [ Element.alignTop ]
+                        [ row (spacing 40 :: groupAttrs)
+                            [ column [ alignTop ]
                                 [ textDisplayNarrow "Orbit" <| show 0 pd.orbital.orbit
                                 , textDisplayNarrow "AU" <| show 1 pd.physical.au
                                 , textDisplayNarrow "HZCO Dev" <| show 2 pd.orbital.effectiveHZCODeviation
@@ -2314,5 +2465,5 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ Element.paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
         ]

@@ -6058,27 +6058,29 @@ view ( time, model ) =
                 |> List.indexedMap
                     (\index entry ->
                         Element.inFront <|
-                            viewObjectAnalysisDetail timeChars
-                                CloseObjectAnalysis
-                                NoOpMsg
-                                model.analysisTab
-                                SetAnalysisTab
-                                model.isReferee
-                                ViewObjectAnalysisDetail
-                                { page = model.moonsPage
-                                , significantOnly = model.moonsSignificantOnly
-                                , onToggleSignificant = ToggleMoonsSignificantOnly
-                                , onSetPage = SetMoonsPage
-                                }
-                                { page = model.citiesPage
-                                , onSetPage = SetCitiesPage
-                                }
-                                (1000 + index * 10)
-                                { width = model.starMapModalSize.width
-                                , height = model.starMapModalSize.height
-                                , onResizeStart = StarMapResizeStart
-                                }
-                                entry.data
+                            Element.html
+                                (viewObjectAnalysisDetail timeChars
+                                    CloseObjectAnalysis
+                                    NoOpMsg
+                                    model.analysisTab
+                                    SetAnalysisTab
+                                    model.isReferee
+                                    ViewObjectAnalysisDetail
+                                    { page = model.moonsPage
+                                    , significantOnly = model.moonsSignificantOnly
+                                    , onToggleSignificant = ToggleMoonsSignificantOnly
+                                    , onSetPage = SetMoonsPage
+                                    }
+                                    { page = model.citiesPage
+                                    , onSetPage = SetCitiesPage
+                                    }
+                                    (1000 + index * 10)
+                                    { width = model.starMapModalSize.width
+                                    , height = model.starMapModalSize.height
+                                    , onResizeStart = StarMapResizeStart
+                                    }
+                                    entry.data
+                                )
                     )
     in
     row
