@@ -20,7 +20,7 @@ indented sub-spine, mirroring the approach chosen for the visual design.
 
 -}
 
-import Element exposing (Element)
+import Html exposing (Html)
 import Round
 import Svg exposing (Svg)
 import Svg.Attributes as SA
@@ -290,7 +290,7 @@ terrestrialImageName pdata =
 -- ── ENTRY POINT ──────────────────────────────────────────────────────────────
 
 
-viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Bool -> Maybe Int -> Element msg
+viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Bool -> Maybe Int -> Html msg
 viewStarSystemMap msgs solarSystem isReferee mDrive =
     let
         showNames =
@@ -308,19 +308,18 @@ viewStarSystemMap msgs solarSystem isReferee mDrive =
         vb =
             "0 0 " ++ w ++ " " ++ h
     in
-    Element.html <|
-        Svg.svg
-            [ SA.width "100%"
-            , SA.viewBox vb
-            , SA.preserveAspectRatio "xMinYMin meet"
-            , SA.style "display:block;"
-            ]
-            [ svgDefs
-            , svgStyle
-            , renderJumpShadows layout.jumpShadows
-            , renderEdges layout.edges
-            , renderNodes msgs mDrive layout.nodes
-            ]
+    Svg.svg
+        [ SA.width "100%"
+        , SA.viewBox vb
+        , SA.preserveAspectRatio "xMinYMin meet"
+        , SA.style "display:block;"
+        ]
+        [ svgDefs
+        , svgStyle
+        , renderJumpShadows layout.jumpShadows
+        , renderEdges layout.edges
+        , renderNodes msgs mDrive layout.nodes
+        ]
 
 
 

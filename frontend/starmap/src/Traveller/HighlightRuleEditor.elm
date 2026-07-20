@@ -300,8 +300,7 @@ operatorFromLabel field label =
    Built as a single raw `Html` tree rather than elm-ui `Element`s. This form is
    almost entirely native controls (selects, checkboxes, a colour input,
    buttons), and elm-ui's layout/spacing model doesn't reliably cooperate with
-   native elements embedded via `Element.html` - see `Traveller/Sidebar.elm`'s
-   `viewSurveyControls` for the same tradeoff made the same way.
+   native elements embedded via `Element.html`.
 -}
 
 

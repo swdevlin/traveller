@@ -1869,9 +1869,21 @@ viewCitiesTab citiesTabConfig =
                     :: (cities
                             |> List.concatMap
                                 (\city ->
+                                    let
+                                        typeText =
+                                            case city.typeLabel of
+                                                Just "Standard" ->
+                                                    ""
+
+                                                Just other ->
+                                                    other
+
+                                                Nothing ->
+                                                    ""
+                                    in
                                     [ bodyCell [] (text city.name)
-                                    , bodyCell [] (text (Maybe.withDefault "Standard" city.typeLabel))
-                                    , bodyCell [] (text (Maybe.withDefault "—" city.capitalLabel))
+                                    , bodyCell [] (text typeText)
+                                    , bodyCell [] (text (Maybe.withDefault "" city.capitalLabel))
                                     , bodyCell
                                         [ HtmlAttrs.class "text-right font-mono" ]
                                         (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))

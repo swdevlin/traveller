@@ -25,7 +25,6 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
-import Element.Lazy
 import FormatNumber exposing (format)
 import FormatNumber.Locales exposing (Decimals(..), usLocale)
 import HostConfig exposing (HostConfig)
@@ -122,8 +121,7 @@ import Traveller.ToggleSwitch as ToggleSwitch
 import Traveller.TravelTable as TravelTable
 import Traveller.UI
     exposing
-        ( accentHeadingColour
-        , bgVar
+        ( bgVar
         , borderVar
         , fontVar
         , monospaceText
@@ -5903,27 +5901,34 @@ humanizeTypeName name =
             ""
 
 
-viewRogueContent : List RogueObjectDetail -> Element Msg
+viewRogueContent : List RogueObjectDetail -> Html Msg
 viewRogueContent objects =
     let
         sectionHeader =
-            el
-                [ accentHeadingColour
-                , Font.size 16
-                , Font.bold
-                , Element.paddingEach { zeroEach | top = 8, bottom = 4 }
+            Html.div
+                [ HtmlAttrs.class "pt-2 pb-1 font-bold"
+                , HtmlAttrs.style "font-size" "16px"
+                , HtmlAttrs.style "color" "var(--color-highlight)"
                 ]
-                (text "Rogue Objects")
+                [ Html.text "Rogue Objects" ]
 
         headerRow =
-            row
-                [ width fill
-                , Element.paddingXY 0 4
-                , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+            Html.div
+                [ HtmlAttrs.class "flex w-full py-1 border-b"
+                , HtmlAttrs.style "border-color" "var(--color-outline)"
                 ]
-                [ el [ Font.size 11, Font.bold, fontVar "--color-fg", Element.width (Element.px 120) ] (text "Type")
-                , el [ Font.size 11, Font.bold, fontVar "--color-fg" ] (text "Name")
+                [ Html.div
+                    [ HtmlAttrs.class "font-bold w-[120px]"
+                    , HtmlAttrs.style "font-size" "11px"
+                    , HtmlAttrs.style "color" "var(--color-fg)"
+                    ]
+                    [ Html.text "Type" ]
+                , Html.div
+                    [ HtmlAttrs.class "font-bold"
+                    , HtmlAttrs.style "font-size" "11px"
+                    , HtmlAttrs.style "color" "var(--color-fg)"
+                    ]
+                    [ Html.text "Name" ]
                 ]
 
         objectRow detail =
@@ -5939,15 +5944,15 @@ viewRogueContent objects =
                         RogueOtherDetail d ->
                             ( humanizeTypeName d.typeName, d.name )
             in
-            row [ width fill, Element.paddingXY 0 2 ]
-                [ el [ Font.size 12, Element.width (Element.px 120) ] (text typeName)
-                , el [ Font.size 12 ] (text name)
+            Html.div [ HtmlAttrs.class "flex w-full py-0.5" ]
+                [ Html.div [ HtmlAttrs.class "w-[120px]", HtmlAttrs.style "font-size" "12px" ] [ Html.text typeName ]
+                , Html.div [ HtmlAttrs.style "font-size" "12px" ] [ Html.text name ]
                 ]
     in
-    column [ width fill, Element.paddingXY 8 4 ]
+    Html.div [ HtmlAttrs.class "w-full px-2 py-1" ]
         [ sectionHeader
         , headerRow
-        , column [ width fill, Element.spacing 2 ] (List.map objectRow objects)
+        , Html.div [ HtmlAttrs.class "flex flex-col w-full gap-0.5" ] (List.map objectRow objects)
         ]
 
 
@@ -6020,7 +6025,7 @@ view ( time, model ) =
             }
 
         sidebarColumn =
-            Element.Lazy.lazy2 viewSidebarColumn sidebarMsgs sidebarData
+            Element.html (Html.Lazy.lazy2 viewSidebarColumn sidebarMsgs sidebarData)
 
         sidebarOverlay =
             el
