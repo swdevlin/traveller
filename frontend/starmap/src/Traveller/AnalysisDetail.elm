@@ -5,6 +5,7 @@ module Traveller.AnalysisDetail exposing
     , AnalyisDetailStarData
     , AnalysisDetail(..)
     , AnalysisDetailHeader
+    , CitiesTabConfig
     , MoonsTabConfig
     , viewGasGiantAnalysisDetail
     , viewObjectAnalysisDetail
@@ -29,6 +30,8 @@ import Element
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import FormatNumber exposing (format)
+import FormatNumber.Locales exposing (Decimals(..), usLocale)
 import Html
 import Html.Attributes as HtmlAttrs
 import Html.Events
@@ -37,6 +40,7 @@ import Json.Decode
 import List.Extra
 import RemoteData exposing (RemoteData(..))
 import Round
+import Traveller.City exposing (CitiesPage)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StellarObject exposing (MoonsPage, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
@@ -94,6 +98,12 @@ type alias MoonsTabConfig msg =
     }
 
 
+type alias CitiesTabConfig msg =
+    { page : RemoteData Http.Error CitiesPage
+    , onSetPage : Int -> msg
+    }
+
+
 type alias AnalyisDetailGasGiantData =
     { code : String
     , jumpShadowKm : Maybe Float
@@ -141,6 +151,7 @@ type alias AnalyisDetailPlanetoidData =
     { uwp : String
     , jumpShadowKm : Maybe Float
     , moons : Int
+    , cityCount : Int
     , physical :
         { au : String
         , period : String
@@ -303,10 +314,20 @@ viewOneTab activeTab setTab tab =
             , Element.pointer
             ]
             (column [ Element.spacing 1, Element.centerX ]
-                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, accentHeadingColour ] (text tab.code)
+                [ el [ Font.size 15, Font.bold, Font.center, Element.centerX, accentHeadingColour ] (viewTabCode tab.code)
                 , el [ Font.size 11, Font.center, Element.centerX ] (text tab.label)
                 ]
             )
+
+
+viewTabCode : String -> Element.Element msg
+viewTabCode code =
+    case String.split ":" code of
+        [ "fa", faClass ] ->
+            Element.html (Html.i [ HtmlAttrs.class faClass ] [])
+
+        _ ->
+            text code
 
 
 viewSectionHeader : String -> Element.Element msg
@@ -640,8 +661,8 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
-viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex starMapResizeConfig data =
+viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Element.Element msg
+viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
     case data of
         AnalyisDetailStar detailHeader starData ->
             Element.html
@@ -656,7 +677,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee o
                 )
 
         _ ->
-            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex data
+            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data
 
 
 starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
@@ -672,8 +693,8 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> Int -> AnalysisDetail -> Element.Element msg
-viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig zIndex data =
+viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Element.Element msg
+viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data =
     let
         profileLayout profile content_ =
             row [ Element.spacing 0 ]
@@ -692,13 +713,13 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             case data of
                 AnalyisDetailTerrestialPlanet detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , 960
                     )
 
                 AnalyisDetailPlanetoid detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , 960
                     )
 
@@ -710,7 +731,7 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
 
                 AnalyisDetailPlanetoidBelt detailHeader sharePBData ->
                     ( detailHeader.header
-                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee sharePBData)
+                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabConfig sharePBData)
                     , 960
                     )
 
@@ -766,8 +787,8 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             ]
 
 
-viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailPlanetoidData -> Element.Element msg
-viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig data =
+viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Element.Element msg
+viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig citiesTabConfig data =
     let
         firstTabIndex =
             case safeTab of
@@ -947,6 +968,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                     else
                         []
                    )
+                ++ [ { id = "cities", label = "Cities (" ++ String.fromInt data.cityCount ++ ")", code = "fa:fa-regular fa-city" } ]
 
         safeTab =
             if List.any (\t -> t.id == activeTab && t.id /= "-") tabs then
@@ -959,6 +981,9 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             case safeTab of
                 "moons" ->
                     viewMoonsTab onSelectObject moonsTabConfig
+
+                "cities" ->
+                    viewCitiesTab citiesTabConfig
 
                 "starport" ->
                     column groupAttrs
@@ -1561,60 +1586,6 @@ viewMoonsTab onSelectObject moonsTabConfig =
                     ]
                 }
 
-        pagerPill attrs label =
-            el
-                ([ Element.paddingXY 12 8
-                 , Border.rounded 8
-                 , Border.width 1
-                 , Font.size 13
-                 , Font.medium
-                 , Font.center
-                 , Element.htmlAttribute (HtmlAttrs.style "min-width" "34px")
-                 ]
-                    ++ attrs
-                )
-                (el [ Element.centerX ] (text label))
-
-        pagerArrow enabled label msg =
-            if enabled then
-                pagerPill
-                    [ bgVar "--color-panel-muted"
-                    , fontVar "--color-fg-bright"
-                    , outlineBorder
-                    , Element.pointer
-                    , Events.onClick msg
-                    ]
-                    label
-
-            else
-                pagerPill
-                    [ bgVar "--color-panel-muted"
-                    , fontVar "--color-fg-muted"
-                    , outlineBorder
-                    , Element.htmlAttribute (HtmlAttrs.style "opacity" "0.6")
-                    , Element.htmlAttribute (HtmlAttrs.style "cursor" "not-allowed")
-                    ]
-                    label
-
-        pagerCurrent label =
-            pagerPill
-                [ bgVar "--color-panel-muted"
-                , fontVar "--color-fg-bright"
-                , outlineBorder
-                ]
-                label
-
-        pager page =
-            row
-                [ Element.centerX
-                , Element.spacing 8
-                , Element.paddingEach { zeroEach | top = 16 }
-                ]
-                [ pagerArrow (page.page > 1) "‹" (moonsTabConfig.onSetPage (page.page - 1))
-                , pagerCurrent (String.fromInt page.page)
-                , pagerArrow (page.page < page.pages) "›" (moonsTabConfig.onSetPage (page.page + 1))
-                ]
-
         mutedText str =
             el [ Font.size 13, fontVar "--color-fg-muted" ] (text str)
     in
@@ -1637,13 +1608,155 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 else
                     column [ width fill ]
                         [ moonsTable page.moons
-                        , pager page
+                        , viewPager page.page page.pages moonsTabConfig.onSetPage
                         ]
         ]
 
 
-viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> AnalyisDetailPlanetoidBeltData -> Element.Element msg
-viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
+viewPagerPill : List (Element.Attribute msg) -> String -> Element.Element msg
+viewPagerPill attrs label =
+    el
+        ([ Element.paddingXY 12 8
+         , Border.rounded 8
+         , Border.width 1
+         , Font.size 13
+         , Font.medium
+         , Font.center
+         , Element.htmlAttribute (HtmlAttrs.style "min-width" "34px")
+         ]
+            ++ attrs
+        )
+        (el [ Element.centerX ] (text label))
+
+
+viewPagerArrow : Bool -> String -> msg -> Element.Element msg
+viewPagerArrow enabled label msg =
+    let
+        outlineBorder =
+            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+    in
+    if enabled then
+        viewPagerPill
+            [ bgVar "--color-panel-muted"
+            , fontVar "--color-fg-bright"
+            , outlineBorder
+            , Element.pointer
+            , Events.onClick msg
+            ]
+            label
+
+    else
+        viewPagerPill
+            [ bgVar "--color-panel-muted"
+            , fontVar "--color-fg-muted"
+            , outlineBorder
+            , Element.htmlAttribute (HtmlAttrs.style "opacity" "0.6")
+            , Element.htmlAttribute (HtmlAttrs.style "cursor" "not-allowed")
+            ]
+            label
+
+
+viewPager : Int -> Int -> (Int -> msg) -> Element.Element msg
+viewPager page pages onSetPage =
+    let
+        outlineBorder =
+            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+    in
+    row
+        [ Element.centerX
+        , Element.spacing 8
+        , Element.paddingEach { zeroEach | top = 16 }
+        ]
+        [ viewPagerArrow (page > 1) "‹" (onSetPage (page - 1))
+        , viewPagerPill [ bgVar "--color-panel-muted", fontVar "--color-fg-bright", outlineBorder ] (String.fromInt page)
+        , viewPagerArrow (page < pages) "›" (onSetPage (page + 1))
+        ]
+
+
+viewCitiesTab : CitiesTabConfig msg -> Element.Element msg
+viewCitiesTab citiesTabConfig =
+    let
+        outlineBorder =
+            Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+
+        headerCell alignAttrs label =
+            el
+                ([ Font.size 11
+                 , Font.bold
+                 , fontVar "--color-fg-muted"
+                 , Element.paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
+                 , Border.widthEach { zeroEach | bottom = 1 }
+                 , outlineBorder
+                 , Element.htmlAttribute (HtmlAttrs.style "white-space" "nowrap")
+                 ]
+                    ++ alignAttrs
+                )
+                (text label)
+
+        bodyCell alignAttrs content =
+            el
+                ([ Font.size 13
+                 , Element.paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                 ]
+                    ++ alignAttrs
+                )
+                content
+
+        citiesTable cities =
+            Element.table [ width fill ]
+                { data = cities
+                , columns =
+                    [ { header = headerCell [] "Name"
+                      , width = Element.fillPortion 2
+                      , view = \city -> bodyCell [] (text city.name)
+                      }
+                    , { header = headerCell [] "Type"
+                      , width = Element.fillPortion 2
+                      , view = \city -> bodyCell [] (text (Maybe.withDefault "Standard" city.typeLabel))
+                      }
+                    , { header = headerCell [] "Capital"
+                      , width = Element.fillPortion 1
+                      , view = \city -> bodyCell [] (text (Maybe.withDefault "—" city.capitalLabel))
+                      }
+                    , { header = headerCell [ Font.alignRight ] "Population"
+                      , width = Element.px 110
+                      , view =
+                            \city ->
+                                bodyCell
+                                    [ Font.alignRight, Element.htmlAttribute (HtmlAttrs.class "font-mono") ]
+                                    (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))
+                      }
+                    ]
+                }
+
+        mutedText str =
+            el [ Font.size 13, fontVar "--color-fg-muted" ] (text str)
+    in
+    column [ width fill ]
+        [ case citiesTabConfig.page of
+            NotAsked ->
+                mutedText "Select this tab to load cities."
+
+            Loading ->
+                mutedText "Loading cities…"
+
+            Failure _ ->
+                mutedText "Could not load cities."
+
+            Success page ->
+                if List.isEmpty page.cities then
+                    mutedText "No cities recorded."
+
+                else
+                    column [ width fill ]
+                        [ citiesTable page.cities
+                        , viewPager page.page page.pages citiesTabConfig.onSetPage
+                        ]
+        ]
+
+
+viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Element.Element msg
+viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabConfig data =
     let
         pd =
             data.planet
@@ -1818,6 +1931,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
             , { id = "law", label = "Law", code = uc 6 }
             , { id = "-", label = "", code = "–" }
             , { id = "tech", label = "Tech", code = uc 8 }
+            , { id = "cities", label = "Cities (" ++ String.fromInt pd.cityCount ++ ")", code = "fa:fa-regular fa-city" }
             ]
 
         safeTab =
@@ -1829,6 +1943,9 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee data =
 
         tabContent =
             case safeTab of
+                "cities" ->
+                    viewCitiesTab citiesTabConfig
+
                 "starport" ->
                     column groupAttrs
                         [ textDisplay "Starport Class" <| show 76 pd.starport.code

@@ -3,6 +3,7 @@
 <% atmosphere_tainted = atmosphere&.tainted? %>
 <% population = stellar_object.population %>
 <% population_code = population&.dig('code') %>
+<% census_population = population&.dig('censusPopulation') %>
 <% government = stellar_object.government ? Government.find_by(code: stellar_object.government.code) : nil %>
 <% law_level = stellar_object.law_level ? LawLevel.find_by(code: stellar_object.law_level.code) : nil %>
 <% tech_level_record = stellar_object.tech_level_code.present? ? TechLevel.find_by(code: stellar_object.tech_level_code) : nil %>
@@ -38,7 +39,7 @@
   <% if population_code.present? %>
     <%= render 'application/data_block',
                label: 'Population',
-               value: safe_join([tag.span(HexDigit.hex_digit(population_code.to_i), class: 'identifier-sm'), (population_code.to_i > 0 ? population_range(population_code) : nil)].compact, ' ') %>
+               value: safe_join([tag.span(HexDigit.hex_digit(population_code.to_i), class: 'identifier-sm'), (population_code.to_i > 0 ? population_display(population_code, census_population) : nil)].compact, ' ') %>
   <% end %>
 
   <% if government %>

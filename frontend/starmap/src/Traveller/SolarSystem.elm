@@ -19,6 +19,7 @@ type alias MainWorldProfile =
     , temperature : Maybe Float
     , nativeSophont : Bool
     , extinctSophont : Bool
+    , censusPopulation : Maybe Int
     , survivalRequirement : String
     , jumpShadow : Maybe Float
     }
@@ -133,6 +134,7 @@ mainWorldProfileCodec =
         |> Codec.field "temperature" .temperature (Codec.nullable Codec.float)
         |> Codec.field "native_sophont" .nativeSophont Codec.bool
         |> Codec.field "extinct_sophont" .extinctSophont Codec.bool
+        |> Codec.field "census_population" .censusPopulation (Codec.nullable Codec.int)
         |> Codec.field "survival_requirement" .survivalRequirement Codec.string
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.buildObject

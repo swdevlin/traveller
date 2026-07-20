@@ -1,16 +1,41 @@
+<%
+  population_code = stellar_object.population&.dig('code')
+  census_population = stellar_object.population&.dig('censusPopulation')
+  concentration_rating = stellar_object.population&.dig('concentrationRating')
+  urbanization_percentage = stellar_object.population&.dig('urbanizationPercentage')
+  major_city_population = stellar_object.population_major_city_population
+  show_sophont = stellar_object.respond_to?(:native_sophont)
+%>
 <div class="space-y-4">
   <%= render 'application/subsection', title: 'Population' %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <%= render 'application/population_block', population: stellar_object.population %>
-    <% if stellar_object.population_major_city_population.present? %>
-      <%= render 'application/data_block', label: 'Major City Population', value: number_with_delimiter(stellar_object.population_major_city_population) %>
-    <% end %>
-  </div>
 
-  <% if stellar_object.respond_to?(:native_sophont) %>
+  <% if population_code.present? || show_sophont %>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <%= render 'application/data_block', label: 'Native Sophont', value: stellar_object.native_sophont ? 'Yes' : 'No' %>
-      <%= render 'application/data_block', label: 'Extinct Sophont', value: stellar_object.extinct_sophont ? 'Yes' : 'No' %>
+      <% if population_code.present? %>
+        <%= render 'application/data_block',
+                   label: 'Population',
+                   value: safe_join([tag.span(HexDigit.hex_digit(population_code), class: 'identifier-sm'), population_display(population_code, census_population)].compact, ' ') %>
+        <% if concentration_rating.present? %>
+          <%= render 'application/data_block',
+                     label: 'Concentration',
+                     value: safe_join([tag.span(concentration_rating, class: 'identifier-sm'), concentration_rating_description(concentration_rating)].compact, ' ') %>
+        <% end %>
+      <% end %>
+      <% if show_sophont %>
+        <%= render 'application/data_block', label: 'Native Sophont', value: stellar_object.native_sophont ? 'Yes' : 'No' %>
+        <%= render 'application/data_block', label: 'Extinct Sophont', value: stellar_object.extinct_sophont ? 'Yes' : 'No' %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if urbanization_percentage.present? || major_city_population.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% if urbanization_percentage.present? %>
+        <%= render 'application/data_block', label: 'Urbanisation', value: "#{urbanization_percentage}%" %>
+      <% end %>
+      <% if major_city_population.present? %>
+        <%= render 'application/data_block', label: 'Major City Population', value: number_with_delimiter(major_city_population) %>
+      <% end %>
     </div>
   <% end %>
 

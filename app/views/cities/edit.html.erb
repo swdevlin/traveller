@@ -1,0 +1,3 @@
+<%= modal(title: 'Edit City', padding: true, advance: false, overlay: false) do %>
+  <%= render 'form', city: @city, url: city_path(@city), submit_label: 'Save city' %>
+<% end %>

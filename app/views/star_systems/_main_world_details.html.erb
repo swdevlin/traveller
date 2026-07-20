@@ -7,6 +7,12 @@
   physical_tab = main_world.is_a?(PlanetoidBelt) ? 'planetoid_belts/physical_belt_tab' : 'stellar_objects/physical_tab'
   shadow_km = main_world.try(:effective_jump_shadow_km)
   shadow_source = shadow_km&.positive? ? main_world.try(:effective_jump_shadow_source) : nil
+
+  extra_tabs = []
+  if main_world.respond_to?(:cities)
+    extra_tabs << { id: 'cities', code: main_world.cities.count.to_s, label: 'Cities',
+                    partial: 'stellar_objects/cities_tab', locals: { stellar_object: main_world } }
+  end
 %>
 
 <%= render 'stellar_objects/uwp_tabs',
@@ -17,4 +23,5 @@
            physical_tab: physical_tab,
            shadow_km: shadow_km,
            shadow_source: shadow_source,
-           hide_orbital: true %>
+           hide_orbital: true,
+           extra_tabs: extra_tabs %>

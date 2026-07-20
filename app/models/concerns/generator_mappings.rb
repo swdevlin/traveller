@@ -27,12 +27,14 @@ module GeneratorMappings
     end
   end
 
-  def assign_moons(moons)
+  def assign_moons(moons, campaign: nil)
     return [] if moons.blank?
 
     now = Time.current
     tidal_lock_targets = []
-    records = Array(moons).map do |moon_data|
+    moons_data = Array(moons)
+    languages = []
+    records = moons_data.map do |moon_data|
       moon = Moon.new
       moon.orbiting_id = id
       moon.star_system_id = star_system_id
@@ -46,14 +48,37 @@ module GeneratorMappings
       elsif moon_data['tidalLock'].present?
         moon.tidal_lock_target_id = id
       end
+      has_cities = Array(moon_data['population']&.dig('majorCityPopulations')).present?
+      languages << (campaign && has_cities && moon.effective_language(campaign))
       moon.attributes.except('id').merge('created_at' => now, 'updated_at' => now)
     end
 
-    Moon.insert_all!(records)
+    moon_ids = Moon.insert_all!(records, returning: %w[id]).rows.flatten
+
+    city_records = moon_ids.each_with_index.flat_map do |moon_id, i|
+      GeneratorMappings.city_records_for(moon_id, moons_data[i]['population'], languages[i], now)
+    end
+    City.insert_all!(city_records) if city_records.any?
+
     tidal_lock_targets
   rescue => e
     Rails.logger.error("assign_moons failed: #{e.message} | payloads: #{moons.inspect}")
     raise
+  end
+
+  def self.city_records_for(stellar_object_id, population_payload, language, now)
+    populations = Array(population_payload&.dig('majorCityPopulations'))
+    return [] if populations.blank?
+
+    populations.map do |population|
+      {
+        'stellar_object_id' => stellar_object_id,
+        'name' => language.present? ? WordGenerator.new(language: language.to_sym).generate : nil,
+        'population' => population,
+        'created_at' => now,
+        'updated_at' => now
+      }
+    end
   end
 
   def self.build_tech_level_from_generator(tl)
@@ -89,6 +114,12 @@ module GeneratorMappings
     unless government_code_payload.nil?
       self.data ||= {}
       self.data['government'] = { 'code' => government_code_payload }
+    end
+
+    total_urban_population_payload = payload['totalUrbanPopulation']
+    unless total_urban_population_payload.nil?
+      self.data ||= {}
+      self.data['total_urban_population'] = total_urban_population_payload
     end
 
     mapped = self.class.mapped_data_from_generator(payload)

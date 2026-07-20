@@ -82,11 +82,19 @@ json.hydrographics do
   end
 end
 
+json.city_count stellar_object.cities.count if stellar_object.respond_to?(:cities)
+
 pop_code = stellar_object.population_code
 json.population do
   json.label 'Population'
   json.code  pop_code
   json.range StellarObjectsHelper::POPULATION_RANGES[pop_code]
+  if stellar_object.census_population.present?
+    json.census_population do
+      json.label 'Census Population'
+      json.value stellar_object.census_population
+    end
+  end
   cr = stellar_object.population_concentration_rating
   if cr.present?
     json.concentration_rating do

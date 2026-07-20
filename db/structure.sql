@@ -237,6 +237,41 @@ ALTER SEQUENCE public.campaigns_id_seq OWNED BY public.campaigns.id;
 
 
 --
+-- Name: cities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.cities (
+    id bigint NOT NULL,
+    stellar_object_id bigint NOT NULL,
+    name character varying,
+    population bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    city_type character varying,
+    capital_designation character varying
+);
+
+
+--
+-- Name: cities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.cities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.cities_id_seq OWNED BY public.cities.id;
+
+
+--
 -- Name: facilities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1161,7 +1196,8 @@ CREATE TABLE public.users (
     password_digest character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    completed_tours jsonb DEFAULT '[]'::jsonb NOT NULL
+    completed_tours jsonb DEFAULT '[]'::jsonb NOT NULL,
+    admin boolean DEFAULT false NOT NULL
 );
 
 
@@ -1217,6 +1253,13 @@ ALTER TABLE ONLY public.allegiances ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.campaigns ALTER COLUMN id SET DEFAULT nextval('public.campaigns_id_seq'::regclass);
+
+
+--
+-- Name: cities id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cities ALTER COLUMN id SET DEFAULT nextval('public.cities_id_seq'::regclass);
 
 
 --
@@ -1440,6 +1483,14 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 ALTER TABLE ONLY public.campaigns
     ADD CONSTRAINT campaigns_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cities cities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cities
+    ADD CONSTRAINT cities_pkey PRIMARY KEY (id);
 
 
 --
@@ -1725,6 +1776,20 @@ CREATE INDEX index_campaigns_on_referee_id ON public.campaigns USING btree (refe
 --
 
 CREATE UNIQUE INDEX index_campaigns_on_slug ON public.campaigns USING btree (slug);
+
+
+--
+-- Name: index_cities_on_stellar_object_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_cities_on_stellar_object_id ON public.cities USING btree (stellar_object_id);
+
+
+--
+-- Name: index_cities_on_stellar_object_id_and_population; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_cities_on_stellar_object_id_and_population ON public.cities USING btree (stellar_object_id, population);
 
 
 --
@@ -2108,6 +2173,14 @@ ALTER TABLE ONLY public.star_systems
 
 
 --
+-- Name: cities fk_rails_0fb3c1014e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.cities
+    ADD CONSTRAINT fk_rails_0fb3c1014e FOREIGN KEY (stellar_object_id) REFERENCES public.stellar_objects(id) ON DELETE CASCADE;
+
+
+--
 -- Name: subsectors fk_rails_21fde0491a; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2354,6 +2427,10 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260719020000'),
+('20260719010703'),
+('20260719004455'),
+('20260718191445'),
 ('20260712170000'),
 ('20260712164658'),
 ('20260712113141'),

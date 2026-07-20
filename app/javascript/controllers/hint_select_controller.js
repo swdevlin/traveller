@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['input', 'label', 'panel']
+  static targets = ['input', 'label', 'meta', 'panel']
 
   connect () {
     this._handleOutsideClick = this._handleOutsideClick.bind(this)
@@ -20,6 +20,9 @@ export default class extends Controller {
     const btn = event.currentTarget
     this.inputTarget.value = btn.dataset.value
     this.labelTarget.textContent = btn.dataset.label
+    if (this.hasMetaTarget) {
+      this.metaTarget.textContent = btn.dataset.meta || ''
+    }
     this.panelTarget.classList.add('hidden')
     this.inputTarget.dispatchEvent(new Event('change', { bubbles: true }))
   }

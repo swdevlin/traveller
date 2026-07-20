@@ -1,0 +1,3 @@
+<%= modal(title: 'New City', padding: true, advance: false, overlay: false) do %>
+  <%= render 'form', city: @city, url: stellar_object_cities_path(@stellar_object), submit_label: 'Create city' %>
+<% end %>

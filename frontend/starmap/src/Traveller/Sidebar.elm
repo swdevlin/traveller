@@ -28,6 +28,8 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Lazy
+import FormatNumber exposing (format)
+import FormatNumber.Locales exposing (Decimals(..), usLocale)
 import Html
 import Html.Attributes as HtmlAttrs
 import Html.Events
@@ -172,6 +174,14 @@ viewMainWorldProfile profile =
                 Err _ ->
                     "—"
 
+        populationStr =
+            case profile.censusPopulation of
+                Just census ->
+                    uwpChar 4 ++ " – " ++ format { usLocale | decimals = Exact 0, thousandSeparator = " " } (toFloat census)
+
+                Nothing ->
+                    withUwp 4 .population Population.populationDescription
+
         spCode =
             uwpChar 0
 
@@ -241,7 +251,7 @@ viewMainWorldProfile profile =
         , profileFieldDisplay "Temperature" tempStr
         , profileFieldDisplay "Survival" profile.survivalRequirement
         , profileFieldDisplay "Atmosphere" (withUwp 2 .atmosphere Atmosphere.atmosphereDescription)
-        , profileFieldDisplay "Population" (withUwp 4 .population Population.populationDescription)
+        , profileFieldDisplay "Population" populationStr
         , profileFieldDisplay "Government" (withUwp 5 .government Government.description)
         , profileFieldDisplay "Law Level" (withUwp 6 .lawLevel LawLevel.description)
         , profileFieldDisplay "Tech Level" (withUwp 8 .techLevel TechLevel.description)

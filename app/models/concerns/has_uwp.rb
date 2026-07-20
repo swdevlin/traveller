@@ -62,6 +62,7 @@ module HasUwp
     prepend LegalSystemAccessors
     prepend GovernanceAccessors
     prepend TechLevelAccessors
+    has_many :cities, foreign_key: :stellar_object_id, inverse_of: :stellar_object, dependent: :destroy
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
   end
@@ -173,6 +174,14 @@ module HasUwp
   def population_expansionism          = population&.dig('expansionism')
   def population_progressiveness       = population&.dig('progressiveness')
   def population_major_city_population = population&.dig('majorCityPopulation')
+
+  def total_urban_population
+    population&.dig('totalUrbanPopulation') || data&.dig('total_urban_population')
+  end
+
+  def census_population
+    population&.dig('censusPopulation')
+  end
 
   def government_code
     government&.code

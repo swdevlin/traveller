@@ -37,6 +37,7 @@ class MoonMarkdownPresenter < MarkdownPresenterBase
     atmosphere_tainted = atmosphere&.tainted?
     population = @obj.population
     population_code = population&.dig('code')
+    census_population = population&.dig('censusPopulation')
     government = @obj.government ? Government.find_by(code: @obj.government.code) : nil
     law_level = @obj.law_level ? LawLevel.find_by(code: @obj.law_level.code) : nil
     tl = @obj.tech_level_code.present? ? TechLevel.find_by(code: @obj.tech_level_code) : nil
@@ -54,7 +55,7 @@ class MoonMarkdownPresenter < MarkdownPresenterBase
       rows << ['Temperature', "#{celsius}°C"]
     end
     rows << ['Survival Req.', atmosphere_survival_requirement(atmosphere_code, tainted: atmosphere_tainted)]
-    rows << ['Population', "#{HexDigit.hex_digit(population_code.to_i)} — #{POPULATION_RANGES[population_code.to_i]}"] if population_code.present?
+    rows << ['Population', "#{HexDigit.hex_digit(population_code.to_i)} — #{population_display(population_code, census_population)}"] if population_code.present?
     rows << ['Government', "#{HexDigit.hex_digit(government.code)} — #{government.government_type}"] if government
     rows << ['Law Level', "#{HexDigit.hex_digit(law_level.code)} — #{law_level.weapons}"] if law_level
     if tl

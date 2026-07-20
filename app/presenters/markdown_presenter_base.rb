@@ -217,15 +217,25 @@ class MarkdownPresenterBase
   def population_section
     rows = []
     pop_code = @obj.population_code
-    rows << ['Population', "#{pop_code} — #{POPULATION_RANGES[pop_code.to_i]}"] if pop_code.present?
+    census_population = @obj.census_population
+    rows << ['Population', "#{pop_code} — #{population_display(pop_code, census_population)}"] if pop_code.present?
     if @obj.population_concentration_rating.present?
       cr = @obj.population_concentration_rating.to_i
       rows << ['Concentration', "#{cr} — #{CONCENTRATION_RATING_DESCRIPTIONS[cr]}"]
     end
     rows << ['Urbanisation', "#{@obj.population_urbanization_percentage}%"] if @obj.population_urbanization_percentage.present?
-    rows << ['Major Cities', @obj.population_major_cities] if @obj.population_major_cities.present?
+    has_city_list = @obj.respond_to?(:cities) && @obj.cities.any?
+    rows << ['Major Cities', @obj.population_major_cities] if @obj.population_major_cities.present? && !has_city_list
     if @obj.population_major_city_population.present?
       rows << ['Major City Population', number_with_delimiter(@obj.population_major_city_population)]
+    end
+    if has_city_list
+      @obj.cities.order(population: :desc).each_with_index do |city, i|
+        label = city.name.presence || "City #{i + 1}"
+        badges = [city.city_type, city.capital_designation].compact
+        label = "#{label} (#{badges.join(', ')})" if badges.any?
+        rows << [label, number_with_delimiter(city.population)]
+      end
     end
     rows << ['Native Sophont', @obj.native_sophont ? 'Yes' : 'No']
     rows << ['Extinct Sophont', @obj.extinct_sophont ? 'Yes' : 'No']
@@ -377,6 +387,12 @@ class MarkdownPresenterBase
     when 'Respirator' then 'Respirator + Filter'
     else base
     end
+  end
+
+  def population_display(code, census_population)
+    return number_with_delimiter(census_population) if census_population.present?
+
+    POPULATION_RANGES[code.to_i]
   end
 
   def culture_trait_dm(value)

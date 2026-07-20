@@ -1,0 +1,28 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  stellar_object: two
+  name: Newhaven
+  population: 520000
+
+two:
+  stellar_object: two
+  name: Port Meridian
+  population: 310000
+
+unnamed:
+  stellar_object: two
+  name:
+  population: 150000
+
+api_test_named:
+  stellar_object: cities_test_planet
+  name: Landing
+  city_type: Ar
+  capital_designation: Cw
+  population: 900000
+
+api_test_unnamed:
+  stellar_object: cities_test_planet
+  name:
+  population: 400000

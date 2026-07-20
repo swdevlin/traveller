@@ -130,4 +130,18 @@ class StellarObjectsHelperTest < ActionView::TestCase
     # 200K = -73.15C, rounded to -73
     assert_equal '-73', format_temperature_celsius(200)
   end
+
+  # population_display tests
+
+  test 'population_display shows census population with delimiters when present' do
+    assert_equal '1,234,567', population_display(6, 1_234_567)
+  end
+
+  test 'population_display falls back to population range when census population absent' do
+    assert_equal population_range(6), population_display(6, nil)
+  end
+
+  test 'population_display returns nil when both census population and code are absent' do
+    assert_nil population_display(nil, nil)
+  end
 end

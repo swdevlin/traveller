@@ -18,6 +18,10 @@
     { id: 'significant_bodies', code: (@planetoid_count || 0).to_s, label: 'Bodies',
       partial: 'planetoid_belts/significant_bodies_tab', locals: {} }
   ]
+  if planetoid_belt.respond_to?(:cities)
+    extra_tabs << { id: 'cities', code: planetoid_belt.cities.count.to_s, label: 'Cities',
+                    partial: 'stellar_objects/cities_tab', locals: { stellar_object: planetoid_belt } }
+  end
 %>
 
 <div id="<%= dom_id planetoid_belt %>" class="space-y-4">

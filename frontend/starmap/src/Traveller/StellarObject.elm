@@ -135,6 +135,7 @@ type alias SharedPData =
     , name : Maybe String
     , id : Int
     , isMoon : Bool
+    , cityCount : Int
     }
 
 
@@ -236,6 +237,8 @@ type alias PlanetoidBeltData =
     , lawLevelDetail : Maybe LawLevelDetailData
     , techLevelDetail : Maybe TechLevelDetailData
     , meanTemperature : Maybe Float
+    , id : Int
+    , cityCount : Int
     }
 
 
@@ -437,7 +440,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp ->
+        (\pos inc ecc hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp id_ cityCount_ ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -472,6 +475,8 @@ codecPlanetoidBeltData =
             , lawLevelDetail = llD
             , techLevelDetail = tlD
             , meanTemperature = temp
+            , id = id_
+            , cityCount = cityCount_
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -504,6 +509,7 @@ codecPlanetoidBeltData =
                     , concentrationRating = Nothing
                     , urbanizationPercentage = Nothing
                     , majorCities = Nothing
+                    , censusPopulation = Nothing
                     , cultureTrait = []
                     }
                 ]
@@ -519,6 +525,8 @@ codecPlanetoidBeltData =
         |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
         |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail
         |> Codec.optionalNullableField "temperature" .meanTemperature Codec.float
+        |> Codec.field "id" .id Codec.int
+        |> Codec.field "city_count" .cityCount Codec.int
         |> Codec.buildObject
 
 
@@ -691,7 +699,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ ->
+        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -736,6 +744,7 @@ codecSharedPData =
             , name = nm
             , id = id_
             , isMoon = isMoon_
+            , cityCount = cityCount_
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -797,6 +806,7 @@ codecSharedPData =
                     , concentrationRating = Nothing
                     , urbanizationPercentage = Nothing
                     , majorCities = Nothing
+                    , censusPopulation = Nothing
                     , cultureTrait = []
                     }
                 ]
@@ -808,6 +818,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "name" .name Codec.string
         |> Codec.field "id" .id Codec.int
         |> Codec.field "is_moon" .isMoon Codec.bool
+        |> Codec.field "city_count" .cityCount Codec.int
         |> Codec.buildObject
 
 

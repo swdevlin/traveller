@@ -24,4 +24,8 @@ class User < ApplicationRecord
   def complete_tour!(journey_name)
     update!(completed_tours: (completed_tours | [journey_name.to_s]))
   end
+
+  def admin?
+    admin
+  end
 end

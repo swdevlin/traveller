@@ -35,17 +35,19 @@ type alias StellarPopulation =
     , concentrationRating : Maybe Int
     , urbanizationPercentage : Maybe Int
     , majorCities : Maybe Int
+    , censusPopulation : Maybe Int
     , cultureTrait : List CultureTrait
     }
 
 
 decodeStellarPopulation : JsDecode.Decoder StellarPopulation
 decodeStellarPopulation =
-    JsDecode.map5 StellarPopulation
+    JsDecode.map6 StellarPopulation
         (JsDecode.field "code" JsDecode.int)
         (JsDecode.maybe (JsDecode.at [ "concentration_rating", "code" ] JsDecode.int))
         (JsDecode.maybe (JsDecode.at [ "urbanization_percentage", "value" ] JsDecode.int))
         (JsDecode.maybe (JsDecode.at [ "major_cities", "value" ] JsDecode.int))
+        (JsDecode.maybe (JsDecode.at [ "census_population", "value" ] JsDecode.int))
         (JsDecode.oneOf
             [ JsDecode.at [ "culture", "traits" ] (JsDecode.list decodeCultureTrait)
             , JsDecode.succeed []

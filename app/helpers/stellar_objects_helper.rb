@@ -180,6 +180,12 @@ module StellarObjectsHelper
     POPULATION_RANGES[code.to_i]
   end
 
+  def population_display(code, census_population)
+    return number_with_delimiter(census_population) if census_population.present?
+
+    population_range(code)
+  end
+
   CONCENTRATION_RATING_DESCRIPTIONS = {
     0 => 'Extremely Dispersed',
     1 => 'Highly Dispersed',

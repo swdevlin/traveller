@@ -19,6 +19,10 @@
     { id: 'moons', code: moons_count.to_s, label: 'Moons',
       partial: 'terrestrial_planets/moons_tab', locals: {} }
   ]
+  if terrestrial_planet.respond_to?(:cities)
+    extra_tabs << { id: 'cities', code: terrestrial_planet.cities.count.to_s, label: 'Cities',
+                    partial: 'stellar_objects/cities_tab', locals: { stellar_object: terrestrial_planet } }
+  end
 %>
 
 <div id="<%= dom_id terrestrial_planet %>" class="space-y-4">

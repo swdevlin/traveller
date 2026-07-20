@@ -216,3 +216,14 @@ moons_test_insignificant_moon:
   uwp: 'XS00000-0'
   data: {}
   data: {}
+
+# Terrestrial planet + cities for Api::StellarObjectsController#cities tests
+cities_test_planet:
+  name: Cities Test Planet
+  type: 'TerrestrialPlanet'
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  au: 1.0
+  diameter: 12000
+  orbit: 1.0
+  data: {}

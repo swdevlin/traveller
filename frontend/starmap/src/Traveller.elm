@@ -61,6 +61,7 @@ import Traveller.AnalysisDetail
         , viewObjectAnalysisDetail
         )
 import Traveller.Atmosphere exposing (atmosphereDescription, atmosphereDescriptionEx, atmosphereHazardDescription)
+import Traveller.City exposing (CitiesPage, citiesPageDecoder)
 import Traveller.Government as Government
 import Traveller.HexAddress as HexAddress exposing (HexAddress, SectorHexAddress, createFromStarSystem, shiftAddressBy, toSectorAddress, toUniversalAddress)
 import Traveller.HexGeometry
@@ -772,6 +773,7 @@ type alias ModelData =
     , analysisTab : String
     , moonsPage : RemoteData Http.Error MoonsPage
     , moonsSignificantOnly : Bool
+    , citiesPage : RemoteData Http.Error CitiesPage
     , starMapModalSize : { width : Float, height : Float }
     , starMapResizeDrag : Maybe { startX : Float, startY : Float, startWidth : Float, startHeight : Float }
     , selectedRogueObjects : Maybe (List RogueObjectDetail)
@@ -872,6 +874,8 @@ type Msg
     | SetAnalysisTab String
     | FetchedMoons (Result Http.Error MoonsPage)
     | SetMoonsPage Int
+    | FetchedCities (Result Http.Error CitiesPage)
+    | SetCitiesPage Int
     | ToggleMoonsSignificantOnly
     | StarMapResizeStart { startX : Float, startY : Float }
     | StarMapResizeMove ( Float, Float )
@@ -1477,6 +1481,7 @@ init viewport settings key hostConfig referee =
             , analysisTab = "orbital"
             , moonsPage = RemoteData.NotAsked
             , moonsSignificantOnly = False
+            , citiesPage = RemoteData.NotAsked
             , starMapModalSize = { width = 760, height = 560 }
             , starMapResizeDrag = Nothing
             , selectedRogueObjects = Nothing
@@ -5953,6 +5958,9 @@ view ( time, model ) =
                                 , onToggleSignificant = ToggleMoonsSignificantOnly
                                 , onSetPage = SetMoonsPage
                                 }
+                                { page = model.citiesPage
+                                , onSetPage = SetCitiesPage
+                                }
                                 (1000 + index * 10)
                                 { width = model.starMapModalSize.width
                                 , height = model.starMapModalSize.height
@@ -6262,6 +6270,26 @@ currentMoonsParentId model =
             )
 
 
+currentCitiesParentId : ModelData -> Maybe Int
+currentCitiesParentId model =
+    List.head model.objectToBeAnalyzed
+        |> Maybe.andThen
+            (\entry ->
+                case entry.stellarObject of
+                    TerrestrialPlanet pdata ->
+                        Just pdata.id
+
+                    Planetoid pdata ->
+                        Just pdata.id
+
+                    PlanetoidBelt bdata ->
+                        Just bdata.id
+
+                    _ ->
+                        Nothing
+            )
+
+
 sendMoonsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
 sendMoonsRequest hostConfig gasGiantId page significantOnly =
     let
@@ -6287,6 +6315,29 @@ sendMoonsRequest hostConfig gasGiantId page significantOnly =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson FetchedMoons moonsPageDecoder
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+sendCitiesRequest : HostConfig -> Int -> Int -> Cmd Msg
+sendCitiesRequest hostConfig stellarObjectId page =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "stellar_objects", String.fromInt stellarObjectId, "cities" ])
+                [ Url.Builder.int "page" page ]
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson FetchedCities citiesPageDecoder
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -8553,6 +8604,7 @@ update msg ( time, model ) =
                                     { uwp = pdata.uwp
                                     , jumpShadowKm = pdata.jumpShadow
                                     , moons = 0
+                                    , cityCount = pdata.cityCount
                                     , physical =
                                         { au = rnd 2 pdata.au
                                         , period = rnd 2 (pdata.period / 365.25)
@@ -8617,7 +8669,13 @@ update msg ( time, model ) =
                                                 "No"
                                         }
                                     , social =
-                                        { population = withCode 4 .population populationDescription
+                                        { population =
+                                            case pdata.population |> Maybe.andThen .censusPopulation of
+                                                Just census ->
+                                                    format { usLocale | decimals = Exact 0, thousandSeparator = " " } (toFloat census)
+
+                                                Nothing ->
+                                                    withCode 4 .population populationDescription
                                         , concentrationRating = pdata.population |> Maybe.andThen .concentrationRating
                                         , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
                                         , majorCities = pdata.population |> Maybe.andThen .majorCities
@@ -8807,6 +8865,7 @@ update msg ( time, model ) =
                             { uwp = pdata.uwp
                             , jumpShadowKm = pdata.jumpShadow
                             , moons = List.length pdata.moons
+                            , cityCount = pdata.cityCount
                             , physical =
                                 { au = rnd 2 pdata.au
                                 , period =
@@ -8889,7 +8948,13 @@ update msg ( time, model ) =
                                             Err _ ->
                                                 "—"
                                 in
-                                { population = withCode 4 .population populationDescription
+                                { population =
+                                    case pdata.population |> Maybe.andThen .censusPopulation of
+                                        Just census ->
+                                            format { usLocale | decimals = Exact 0, thousandSeparator = " " } (toFloat census)
+
+                                        Nothing ->
+                                            withCode 4 .population populationDescription
                                 , concentrationRating = pdata.population |> Maybe.andThen .concentrationRating
                                 , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
                                 , majorCities = pdata.population |> Maybe.andThen .majorCities
@@ -9067,6 +9132,23 @@ update msg ( time, model ) =
                         , Cmd.none
                         )
 
+            else if tab == "cities" then
+                case currentCitiesParentId model of
+                    Just stellarObjectId ->
+                        ( withTime
+                            { model
+                                | analysisTab = tab
+                                , citiesPage = RemoteData.Loading
+                                , timeOpened = time
+                            }
+                        , sendCitiesRequest model.hostConfig stellarObjectId 1
+                        )
+
+                    Nothing ->
+                        ( withTime { model | analysisTab = tab, timeOpened = time }
+                        , Cmd.none
+                        )
+
             else
                 ( withTime { model | analysisTab = tab, timeOpened = time }
                 , Cmd.none
@@ -9100,6 +9182,21 @@ update msg ( time, model ) =
 
                 Nothing ->
                     ( withTime { model | moonsSignificantOnly = newSignificantOnly }, Cmd.none )
+
+        FetchedCities result ->
+            ( withTime { model | citiesPage = RemoteData.fromResult result }
+            , Cmd.none
+            )
+
+        SetCitiesPage page ->
+            case currentCitiesParentId model of
+                Just stellarObjectId ->
+                    ( withTime { model | citiesPage = RemoteData.Loading }
+                    , sendCitiesRequest model.hostConfig stellarObjectId page
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
 
         StarMapResizeStart { startX, startY } ->
             ( withTime

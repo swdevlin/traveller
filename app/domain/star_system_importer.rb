@@ -24,6 +24,9 @@ class StarSystemImporter
       StellarObjectTradeCode
         .where(stellar_object_id: StellarObject.where(star_system_id: @star_system.id).select(:id))
         .delete_all
+      City
+        .where(stellar_object_id: StellarObject.where(star_system_id: @star_system.id).select(:id))
+        .delete_all
       StellarObject.where(star_system_id: @star_system.id).delete_all
       StarSystemTradeCode.where(star_system_id: @star_system.id).delete_all
       StarSystemFacility.where(star_system_id: @star_system.id).delete_all
@@ -134,6 +137,10 @@ class StarSystemImporter
 
   private
 
+  def effective_campaign
+    @campaign || Current.campaign
+  end
+
   def effective_system_language
     @system_language.presence || @subsector_language.presence || @campaign&.default_language.presence
   end
@@ -223,6 +230,15 @@ class StarSystemImporter
     end
   end
 
+  def assign_cities(stellar_object, so_data)
+    return unless stellar_object.respond_to?(:cities)
+    return if Array(so_data['population']&.dig('majorCityPopulations')).blank?
+
+    language = effective_campaign && stellar_object.effective_language(effective_campaign)
+    records = GeneratorMappings.city_records_for(stellar_object.id, so_data['population'], language, Time.current)
+    City.insert_all!(records) if records.any?
+  end
+
   def import_star(star, data)
     star.assign_data_from_generator(data)
     star.save!
@@ -254,13 +270,14 @@ class StarSystemImporter
         so.orbiting = star
         so.assign_data_from_generator(so_data)
         so.save!
+        assign_cities(so, so_data)
         tidal_lock_orbit_seq = so_data['tidalLockTarget']
         if tidal_lock_orbit_seq.present?
           @deferred_tidal_lock_assignments << { object: so, orbit_sequence: tidal_lock_orbit_seq }
         elsif so_data['tidalLock'].present?
           so.update_column(:tidal_lock_target_id, star.id)
         end
-        moon_tidal_locks = so.assign_moons(so_data['moons'])
+        moon_tidal_locks = so.assign_moons(so_data['moons'], campaign: effective_campaign)
         moon_tidal_locks.each do |entry|
           moon = Moon.find_by(star_system_id: @star_system.id, orbit_sequence: entry[:orbit_sequence])
           @deferred_tidal_lock_assignments << { object: moon, orbit_sequence: entry[:tidal_lock_orbit_seq] } if moon

@@ -22,6 +22,7 @@ if mw
     json.temperature mw.temperature
     json.native_sophont mw.native_sophont || false
     json.extinct_sophont mw.extinct_sophont || false
+    json.census_population mw.respond_to?(:census_population) ? mw.census_population : nil
     json.survival_requirement atmosphere_survival_requirement(
       mw.respond_to?(:atmosphere_code) ? mw.atmosphere_code : nil,
       tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.tainted?

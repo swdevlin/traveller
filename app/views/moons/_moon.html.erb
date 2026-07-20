@@ -13,6 +13,12 @@
   hierarchy << [subsector.name, subsector_path(subsector)] if subsector
   hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
   hierarchy << [parent.display_name, stellar_object_path(parent)] if parent
+
+  extra_tabs = []
+  if moon.respond_to?(:cities)
+    extra_tabs << { id: 'cities', code: moon.cities.count.to_s, label: 'Cities',
+                    partial: 'stellar_objects/cities_tab', locals: { stellar_object: moon } }
+  end
 %>
 
 <div id="<%= dom_id moon %>" class="space-y-4">
@@ -24,7 +30,8 @@
              parsec: parsec,
              allegiance: allegiance,
              shadow_km: shadow_km,
-             shadow_source: shadow_source %>
+             shadow_source: shadow_source,
+             extra_tabs: extra_tabs %>
 
   <%= render 'application/observation_block', notes: moon.notes %>
 </div>

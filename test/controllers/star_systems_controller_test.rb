@@ -37,6 +37,19 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'main world details show the major cities table' do
+    planet = stellar_objects(:two)
+    planet.update_column(:star_system_id, @star_system.id)
+    @star_system.update_column(:main_world_id, planet.id)
+
+    get star_system_url(@star_system)
+
+    assert_response :success
+    assert_select 'turbo-frame#cities-table' do
+      assert_select 'td', text: 'Newhaven'
+    end
+  end
+
   test 'should get edit' do
     get edit_star_system_url(@star_system)
     assert_response :success

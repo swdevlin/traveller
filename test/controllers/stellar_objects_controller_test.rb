@@ -67,6 +67,20 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@stellar_object)
   end
 
+  test 'population tab lists major cities highest population first' do
+    planet = stellar_objects(:two)
+
+    get stellar_object_url(planet)
+
+    assert_response :success
+    assert_select 'turbo-frame#cities-table' do
+      assert_select 'td', text: 'Newhaven'
+      assert_select 'td', text: '520,000'
+      assert_select 'td', text: 'Port Meridian'
+      assert_select 'td', text: 'City 3'
+    end
+  end
+
   test 'should destroy stellar_object' do
     referer_url = subsector_url(subsectors(:subsector_1_1))
 

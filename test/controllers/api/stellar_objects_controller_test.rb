@@ -55,4 +55,36 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
   end
+
+  test 'referee sees cities ordered by population, with a positional label when unnamed' do
+    sign_in_as users(:one)
+    planet = stellar_objects(:cities_test_planet)
+
+    get api_stellar_object_cities_url(planet), as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 2, body['count']
+    assert_equal 'Landing', body['cities'].first['name']
+    assert_equal 'Arcology, sealed city', body['cities'].first['type_label']
+    assert_equal 'World capital', body['cities'].first['capital_label']
+    assert_equal 900_000, body['cities'].first['population']
+    assert_equal 'City 2', body['cities'].second['name']
+    assert_nil body['cities'].second['type_label']
+    assert_nil body['cities'].second['capital_label']
+  end
+
+  test 'player is denied cities when the star system is unknown and unsurveyed' do
+    get api_stellar_object_cities_url(stellar_objects(:cities_test_planet)), as: :json
+
+    assert_response :not_found
+  end
+
+  test 'returns 404 for cities on a stellar object without cities' do
+    sign_in_as users(:one)
+
+    get api_stellar_object_cities_url(@gas_giant), as: :json
+
+    assert_response :not_found
+  end
 end

@@ -1,0 +1,53 @@
+<%
+  city_count = stellar_object.cities.count
+  pagy_cities, cities = pagy(stellar_object.cities.order(population: :desc),
+                              limit: 10, page_param: :cities_page, params: request.query_parameters)
+%>
+<% add_city_button = link_to new_stellar_object_city_path(stellar_object), class: 'btn-header', data: { turbo_frame: 'modal' } do %>
+  <i class="fa-regular fa-plus"></i>
+  Add
+<% end %>
+<turbo-frame id="cities-table">
+  <%= render 'application/collapsible_table_card',
+             title: safe_join(['Major cities ', tag.span(city_count, class: 'identifier')]),
+             actions: add_city_button do %>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Capital</th>
+            <th scope="col" class="text-right">Population</th>
+            <th scope="col" class="text-right actions-cell">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cities.each_with_index do |city, i| %>
+            <tr>
+              <td><%= city.name.presence || "City #{pagy_cities.from + i}" %></td>
+              <td><%= city.type_label if city.city_type.present? %></td>
+              <td><%= city.capital_label %></td>
+              <td class="text-right"><%= number_with_delimiter(city.population) %></td>
+              <td class="actions-cell">
+                <div class="action-group">
+                  <%= link_to edit_city_path(city), class: 'action', data: { turbo_frame: 'modal' } do %>
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  <% end %>
+                  <%= button_to city, method: :delete, class: 'action danger',
+                                data: { turbo_confirm: 'Delete this city?' } do %>
+                    <i class="fa-regular fa-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <div class="w-full pb-4">
+        <%== pagy_cities.series_nav %>
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>
+

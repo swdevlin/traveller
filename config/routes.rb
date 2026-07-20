@@ -14,6 +14,8 @@ Rails.application.routes.draw do
 
   get 'up' => 'rails/health#show', as: :rails_health_check
 
+  mount MissionControl::Jobs::Engine, at: '/jobs'
+
   # Campaign-scoped routes — all prefixed with /c/:campaign_slug
   scope '/c/:campaign_slug' do
     get '/', to: redirect { |params, _req| "/c/#{params[:campaign_slug]}/sectors" }, as: :campaign_root
@@ -37,6 +39,7 @@ Rails.application.routes.draw do
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
+      get 'stellar_objects/:id/cities', to: 'stellar_objects#cities', as: :stellar_object_cities, defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
@@ -109,6 +112,7 @@ Rails.application.routes.draw do
         get  :daily_traffic
         post :generate_daily_traffic
       end
+      resources :cities, only: %i[new create edit update destroy], shallow: true
     end
 
     resources :social_characteristics_presets, only: %i[index create destroy]

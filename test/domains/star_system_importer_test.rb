@@ -148,6 +148,47 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
   end
 
+  test 'cities are created from majorCityPopulations but left unnamed without a known language' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    planet = TerrestrialPlanet.find_by(star_system_id: star_system.id, orbit_sequence: 'A I')
+    assert_equal [500_000, 300_000, 100_000], planet.cities.order(population: :desc).pluck(:population)
+    assert planet.cities.all? { |city| city.name.nil? }
+  end
+
+  test 'cities are named when the system language is known' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
+    star_system = @importer.import!(@parsec, data, campaign: campaigns(:one), system_language: 'aslan')
+
+    planet = TerrestrialPlanet.find_by(star_system_id: star_system.id, orbit_sequence: 'A I')
+    assert_equal 3, planet.cities.count
+    assert planet.cities.all? { |city| city.name.present? }
+  end
+
+  test 'moons get their own cities from their own majorCityPopulations' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
+    star_system = @importer.import!(@parsec, data, campaign: campaigns(:one), system_language: 'aslan')
+
+    moon = Moon.find_by(star_system_id: star_system.id, orbit_sequence: 'A I m1')
+    assert_equal [40_000, 10_000], moon.cities.order(population: :desc).pluck(:population)
+    assert moon.cities.all? { |city| city.name.present? }
+  end
+
+  test 'reimport wipes and recreates cities without duplication' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    reimport_data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
+    @importer.reimport!(star_system, reimport_data)
+
+    planet = TerrestrialPlanet.find_by(star_system_id: star_system.id, orbit_sequence: 'A I')
+    moon = Moon.find_by(star_system_id: star_system.id, orbit_sequence: 'A I m1')
+    assert_equal 3, planet.cities.count
+    assert_equal 2, moon.cities.count
+    assert_equal 5, City.where(stellar_object_id: [planet.id, moon.id]).count
+  end
+
   test 'planetoids are linked to their belt via planetoid_belt_id' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_planetoid.json')))
     star_system = @importer.import!(@parsec, data)
