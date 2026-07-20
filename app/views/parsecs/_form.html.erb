@@ -16,7 +16,7 @@
 
     <div>
       <%= form.label :label, 'Text', class: 'block text-sm font-semibold mb-1' %>
-      <%= form.text_field :label, class: 'edit-base w-full' %>
+      <%= form.text_area :label, rows: 3, class: 'edit-base w-full' %>
     </div>
 
     <div>
@@ -26,8 +26,15 @@
             class: 'h-9 w-16 rounded cursor-pointer border border-outline bg-transparent p-0.5' %>
     </div>
 
-    <%= render 'application/boolean_toggle', form: form, attribute: :player_visible,
-          checked: parsec.player_visible, label: 'Visible to players' %>
+    <%= render 'application/edit_field', form: form, attribute: :icon_class do %>
+      <%= form.text_field :icon_class, class: 'edit-base w-64', placeholder: 'fa-solid fa-star' %>
+    <% end %>
+
+    <%= render 'application/boolean_toggle', form: form, attribute: :visible,
+          checked: parsec.visible, label: 'Visible on map' %>
+
+    <%= render 'application/boolean_toggle', form: form, attribute: :known,
+          checked: parsec.known, label: 'Known to players' %>
   </div>
 
   <div>

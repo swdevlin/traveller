@@ -89,6 +89,7 @@ import Traveller.JumpRouteLayer as JumpRouteLayer
 import Traveller.JumpRouteLayerEditor as JumpRouteLayerEditor
 import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
+import Traveller.MapLabel as MapLabel exposing (MapLabel)
 import Traveller.Parser exposing (UWP, hydrosphereDescription, sizeDescription, uwp)
 import Traveller.Population exposing (concentration_rating_description, populationDescription)
 import Traveller.Region as Region exposing (Region, RegionDict)
@@ -686,7 +687,7 @@ prepAndSendRequests ( dict, history ) hexRect hostConfig =
                     ( entry, ( d2, h2 ) ) =
                         prepNextRequest ( d, h ) rect
                 in
-                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: sendRoguesRequest entry hostConfig :: cmds )
+                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: sendRoguesRequest entry hostConfig :: sendMapLabelsRequest entry hostConfig :: cmds )
             )
             ( ( dict, history ), [] )
         |> Tuple.mapSecond Cmd.batch
@@ -765,6 +766,7 @@ type alias ModelData =
     , route : RouteList
     , regions : RegionDict
     , regionLabels : Dict.Dict String String
+    , mapLabels : Dict.Dict String MapLabel
     , hexColours : Dict.Dict String Color
     , ship : Maybe Ship
     , isReferee : Bool
@@ -885,6 +887,7 @@ type Msg
     | HexMapWheelZoom Float
     | CloseSidebar
     | DownloadedRogues String (Result Http.Error (List RogueResponseItem))
+    | DownloadedMapLabels String (Result Http.Error (List MapLabel))
     | ClearSelectedRogueObjects
     | SetDisplayMode DisplayMode
     | SetRegionDisplay RegionDisplay
@@ -1474,6 +1477,7 @@ init viewport settings key hostConfig referee =
             , currentAddress = toUniversalAddress { sectorX = -10, sectorY = -2, x = 31, y = 24 }
             , regions = Dict.empty
             , regionLabels = Dict.empty
+            , mapLabels = Dict.empty
             , hexColours = Dict.empty
             , isReferee = referee
             , pendingCtrlNavigation = False
@@ -1532,6 +1536,7 @@ init viewport settings key hostConfig referee =
     , Cmd.batch
         [ sendSolarSystemRequest ssReqEntry model.hostConfig
         , sendRoguesRequest ssReqEntry model.hostConfig
+        , sendMapLabelsRequest ssReqEntry model.hostConfig
         , sendSectorRequest secReqEntry model.hostConfig
         , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
@@ -1622,7 +1627,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
 
 
 viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> Bool -> RogueHexData -> Svg Msg
-viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIsLight { surveyIndex, playerVisible, objects } =
+viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIsLight { surveyIndex, objects } =
     let
         origin =
             ( toFloat x, toFloat y )
@@ -1682,7 +1687,7 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIs
             (gasGiantDetail /= Nothing) && (isReferee || surveyIndex >= gasGiantSI)
 
         showOther =
-            (otherDetail /= Nothing) && (isReferee || playerVisible || surveyIndex >= cometSI || anyKnown)
+            (otherDetail /= Nothing) && (isReferee || surveyIndex >= cometSI || anyKnown)
     in
     Svg.g
         [ SvgEvents.onMouseOver (HoveringHex hexAddress)
@@ -3103,7 +3108,6 @@ type RogueObjectDetail
 
 type alias RogueHexData =
     { surveyIndex : Int
-    , playerVisible : Bool
     , objects : List RogueObjectDetail
     }
 
@@ -3113,7 +3117,6 @@ type alias RogueResponseItem =
     , x : Int
     , y : Int
     , surveyIndex : Int
-    , playerVisible : Bool
     }
 
 
@@ -3147,12 +3150,11 @@ rogueObjectDetailDecoder =
 
 rogueResponseItemDecoder : JsDecode.Decoder RogueResponseItem
 rogueResponseItemDecoder =
-    JsDecode.map5 RogueResponseItem
+    JsDecode.map4 RogueResponseItem
         rogueObjectDetailDecoder
         (JsDecode.field "x" JsDecode.int)
         (JsDecode.field "y" JsDecode.int)
         (JsDecode.field "survey_index" JsDecode.int)
-        (JsDecode.field "player_visible" (JsDecode.oneOf [ JsDecode.bool, JsDecode.null False ]))
 
 
 type RemoteSolarSystem
@@ -3427,6 +3429,97 @@ regionLabel x y name =
         [ Svg.text name ]
 
 
+mapLabelSvg : Float -> Int -> Int -> MapLabel -> Svg msg
+mapLabelSvg hexSize cx cy mapLabel =
+    case mapLabel.text of
+        Nothing ->
+            Svg.text ""
+
+        Just text ->
+            let
+                fontSize =
+                    hexSize * 0.25
+
+                lines =
+                    String.split "\n" text
+
+                lineHeightEm =
+                    1.15
+
+                lineCount =
+                    List.length lines
+
+                firstDy =
+                    -(toFloat (lineCount - 1) * lineHeightEm / 2)
+
+                fillColour =
+                    mapLabel.colour
+                        |> Maybe.map Color.Convert.colorToHex
+                        |> Maybe.withDefault "#000000"
+
+                tspans =
+                    List.indexedMap
+                        (\i line ->
+                            Svg.tspan
+                                [ SvgAttrs.x (String.fromInt cx)
+                                , SvgAttrs.dy
+                                    (String.fromFloat
+                                        (if i == 0 then
+                                            firstDy
+
+                                         else
+                                            lineHeightEm
+                                        )
+                                        ++ "em"
+                                    )
+                                ]
+                                [ Svg.text line ]
+                        )
+                        lines
+
+                textSvg =
+                    Svg.text_
+                        [ SvgAttrs.x (String.fromInt cx)
+                        , SvgAttrs.y (String.fromInt cy)
+                        , SvgAttrs.textAnchor "middle"
+                        , SvgAttrs.dominantBaseline "middle"
+                        , SvgAttrs.fontFamily "JetBrains Mono, ui-monospace, monospace"
+                        , SvgAttrs.fontSize (String.fromFloat fontSize)
+                        , SvgAttrs.fontWeight "700"
+                        , SvgAttrs.fill fillColour
+                        , SvgAttrs.style "pointer-events: none; user-select: none;"
+                        ]
+                        tspans
+
+                iconSize =
+                    fontSize
+
+                iconSvg =
+                    case ( mapLabel.iconViewBox, mapLabel.iconPathData ) of
+                        ( Just viewBox, Just pathData ) ->
+                            let
+                                firstLineTop =
+                                    toFloat cy + firstDy * fontSize - (fontSize * lineHeightEm) / 2
+
+                                iconY =
+                                    firstLineTop - iconSize - 2
+                            in
+                            [ Svg.svg
+                                [ SvgAttrs.x (String.fromFloat (toFloat cx - iconSize / 2))
+                                , SvgAttrs.y (String.fromFloat iconY)
+                                , SvgAttrs.width (String.fromFloat iconSize)
+                                , SvgAttrs.height (String.fromFloat iconSize)
+                                , SvgAttrs.viewBox viewBox
+                                ]
+                                [ Svg.path [ SvgAttrs.d pathData, SvgAttrs.fill fillColour ] [] ]
+                            ]
+
+                        _ ->
+                            []
+            in
+            Svg.g [ SvgAttrs.pointerEvents "none" ] (iconSvg ++ [ textSvg ])
+
+
 hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> SolarSystemDict -> String
 hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict =
     let
@@ -3480,6 +3573,7 @@ type alias ViewHexesConfig =
     , regionLabels : RegionLabelDict
     , regions : RegionDict
     , regionDisplay : RegionDisplay
+    , mapLabels : Dict.Dict String MapLabel
     , showSectorLines : Bool
     , showSubsectorLines : Bool
     , sectors : SectorDict
@@ -3531,6 +3625,22 @@ viewHexes config =
                 (HexAddress.shiftAddressBy { deltaX = -1, deltaY = -1 } config.hexRect.upperLeftHex)
                 config.hexRect.lowerRightHex
                 { maxAcross = config.maxAcross, maxTall = config.maxTall }
+
+        renderMapLabel : HexAddress -> Maybe (Svg Msg)
+        renderMapLabel hexAddress =
+            config.mapLabels
+                |> Dict.get (HexAddress.toKey hexAddress)
+                |> Maybe.map
+                    (\mapLabelEntry ->
+                        let
+                            ( x, y ) =
+                                calcVisualOrigin config.hexSize { row = hexAddress.y, col = hexAddress.x }
+                        in
+                        mapLabelSvg config.hexSize x y mapLabelEntry
+                    )
+
+        mapLabelSvgs =
+            hexRange |> List.filterMap renderMapLabel
 
         computeHexColour : HexAddress -> String -> String
         computeHexColour hexAddr hexKey =
@@ -4077,6 +4187,7 @@ viewHexes config =
                     ++ regionBorderLines
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
                     ++ labels
+                    ++ mapLabelSvgs
            )
         |> (let
                 widthString =
@@ -5753,6 +5864,7 @@ viewHexMap model =
         , regionLabels = model.regionLabels
         , regions = model.regions
         , regionDisplay = model.regionDisplay
+        , mapLabels = model.mapLabels
         , showSectorLines = model.showSectorLines
         , showSubsectorLines = model.showSubsectorLines
         , sectors = model.sectors
@@ -6104,6 +6216,38 @@ sendRoguesRequest requestEntry hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson (DownloadedRogues url) (JsDecode.list rogueResponseItemDecoder)
+        , timeout = Just 15000
+        , tracker = Nothing
+        }
+
+
+sendMapLabelsRequest : RequestEntry -> HostConfig -> Cmd Msg
+sendMapLabelsRequest requestEntry hostConfig =
+    let
+        mapLabelsDecoder : JsDecode.Decoder (List MapLabel)
+        mapLabelsDecoder =
+            Codec.list MapLabel.codec
+                |> Codec.decoder
+
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "map_labels" ])
+                [ Url.Builder.int "ulx" requestEntry.upperLeftHex.x
+                , Url.Builder.int "uly" requestEntry.upperLeftHex.y
+                , Url.Builder.int "lrx" requestEntry.lowerRightHex.x
+                , Url.Builder.int "lry" requestEntry.lowerRightHex.y
+                ]
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson (DownloadedMapLabels url) mapLabelsDecoder
         , timeout = Just 15000
         , tracker = Nothing
         }
@@ -9251,7 +9395,7 @@ update msg ( time, model ) =
                                             Just { data | objects = item.detail :: data.objects }
 
                                         Nothing ->
-                                            Just { surveyIndex = item.surveyIndex, playerVisible = item.playerVisible, objects = [ item.detail ] }
+                                            Just { surveyIndex = item.surveyIndex, objects = [ item.detail ] }
                                 )
                                 acc
                         )
@@ -9276,6 +9420,18 @@ update msg ( time, model ) =
             ( withTime { model | solarSystems = newSolarSystems }, Cmd.none )
 
         DownloadedRogues _ (Err _) ->
+            ( withTime model, Cmd.none )
+
+        DownloadedMapLabels _ (Ok items) ->
+            let
+                newMapLabels =
+                    items
+                        |> List.map (\item -> ( HexAddress.toKey { x = item.x, y = item.y }, item ))
+                        |> Dict.fromList
+            in
+            ( withTime { model | mapLabels = Dict.union newMapLabels model.mapLabels }, Cmd.none )
+
+        DownloadedMapLabels _ (Err _) ->
             ( withTime model, Cmd.none )
 
         ClearSelectedRogueObjects ->

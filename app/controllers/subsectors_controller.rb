@@ -3,6 +3,7 @@ class SubsectorsController < ApplicationController
   include HexMapBases
   include HexMapRogueObjects
   include HexMapOverlays
+  include HexMapParsecLabels
   include StrategicMapData
   optional_authentication only: %i[map strategic_map resource_map heat_map tech_level_map habitability_map government_map]
   before_action :set_subsector, except: :index
@@ -140,12 +141,8 @@ class SubsectorsController < ApplicationController
     fresh_when etag: cache_key, last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated, jump_route_link_max_updated].compact.max
     return if performed?
 
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col = px - sub_ul.x + 1
-      row = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul.x + 1, sector_ul.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -266,14 +263,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col     = px - sub_ul.x + 1
-      row     = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -379,14 +370,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col      = px - sub_ul.x + 1
-      row      = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -490,14 +475,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col      = px - sub_ul.x + 1
-      row      = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -599,14 +578,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col      = px - sub_ul.x + 1
-      row      = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -709,14 +682,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col      = px - sub_ul.x + 1
-      row      = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1
@@ -826,14 +793,8 @@ class SubsectorsController < ApplicationController
                last_modified: [@subsector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_route_link_max].compact.max
     return if performed?
 
-    sector_ul_coord = @subsector.sector.upper_left
-
-    @parsecs_by_pos = @subsector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-      col      = px - sub_ul.x + 1
-      row      = sub_ul.y - py + 1
-      hex_code = format('%02d%02d', px - sector_ul_coord.x + 1, sector_ul_coord.y - py + 1)
-      [[col, row], { id: pid, hex_code: hex_code, label: lbl, label_colour: label_colour }]
-    end
+    @parsecs_by_pos = build_parsecs_by_pos(@subsector.parsecs, sub_ul, sector_ul: sector_ul)
+    @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
     @systems_by_pos = @star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - sub_ul.x + 1

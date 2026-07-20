@@ -50,6 +50,11 @@
         <%= icon.svg_content.html_safe %>
       </symbol>
     <% end %>
+    <% @map_label_icons&.each do |icon_class, icon| %>
+      <symbol id="map-label-icon-<%= icon_class.parameterize %>" viewBox="<%= icon.view_box %>">
+        <%= icon.svg_content.html_safe %>
+      </symbol>
+    <% end %>
     <% if @rogue_object_icon %>
       <symbol id="rogue-object-icon" viewBox="<%= @rogue_object_icon.view_box %>">
         <%= @rogue_object_icon.svg_content.html_safe %>
@@ -73,6 +78,7 @@
     .gas-giant-icon { fill: #222222; }
     .comet-icon { fill: #222222; }
     .parsec-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_PARSEC_LABEL %>px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .map-label-icon { fill: #222222; pointer-events: none; }
     .allegiance { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_ALLEGIANCE %>px; fill: #666666; }
     .uwp { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #777777; }
     .tech-level { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #1e3a5f; font-weight: bold; text-anchor: middle; }
@@ -508,11 +514,6 @@
             <% end %>
           <% end %>
         <% end %>
-        <% if parsec_data&.fetch(:label).present? %>
-          <text class="parsec-label" x="<%= cx.round(2) %>" y="<%= cy.round(2) %>"<% if parsec_data[:label_colour].present? %> style="fill:<%= parsec_data[:label_colour] %>"<% end %>>
-            <%= parsec_data[:label] %>
-          </text>
-        <% end %>
       <% end %>
     <% end %>
   </g>
@@ -524,4 +525,33 @@
       <%= entry[:text] %>
     </text>
   <% end %>
+
+  <%# Layer 7: Parsec labels (multi-line, optional icon) — drawn last so they sit on top of every other text/icon layer %>
+  <g>
+    <% parsecs_by_pos.each do |(col, row), parsec_data| %>
+      <% next if valid_positions && !valid_positions.include?([col, row]) %>
+      <% next unless parsec_data[:label].present? %>
+      <%
+        cx, cy = hex_center(col, row)
+        lines = parsec_data[:label].to_s.split("\n")
+        icon = @map_label_icons&.dig(parsec_data[:icon_class])
+        line_height = SubsectorsHelper::FONT_PARSEC_LABEL * 1.15
+        icon_size = SubsectorsHelper::FONT_PARSEC_LABEL
+        first_line_y = cy - ((lines.size - 1) * line_height) / 2.0
+        fill_style = parsec_data[:label_colour].present? ? "style=\"fill:#{parsec_data[:label_colour]}\"" : nil
+      %>
+      <% if icon %>
+        <% icon_y = first_line_y - (line_height / 2.0) - 2 - icon_size %>
+        <use href="#map-label-icon-<%= parsec_data[:icon_class].parameterize %>"
+             x="<%= (cx - icon_size / 2.0).round(2) %>" y="<%= icon_y.round(2) %>"
+             width="<%= icon_size %>" height="<%= icon_size %>"
+             class="map-label-icon"<%= " #{fill_style}".rstrip.html_safe if fill_style %>/>
+      <% end %>
+      <text class="parsec-label" x="<%= cx.round(2) %>" y="<%= first_line_y.round(2) %>"<%= " #{fill_style}".rstrip.html_safe if fill_style %>>
+        <% lines.each_with_index do |line, i| %>
+          <tspan x="<%= cx.round(2) %>"<% if i > 0 %> dy="<%= line_height.round(2) %>"<% end %>><%= line %></tspan>
+        <% end %>
+      </text>
+    <% end %>
+  </g>
 </svg>

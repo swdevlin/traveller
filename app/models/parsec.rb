@@ -1,4 +1,6 @@
 class Parsec < ApplicationRecord
+  include FontAwesomeIconField
+
   validates :x, :y, :sector, presence: true
   belongs_to :sector
   has_many :star_systems, dependent: :destroy
@@ -8,6 +10,8 @@ class Parsec < ApplicationRecord
     scope: [:y, :sector_id],
     message: 'parsec already exists'
   }
+
+  scope :labeled, -> { where.not(label: [nil, '']) }
 
   def rogues
     StellarObject

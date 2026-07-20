@@ -5,6 +5,7 @@ class SectorsController < ApplicationController
   include HexMapBases
   include HexMapRogueObjects
   include HexMapOverlays
+  include HexMapParsecLabels
   optional_authentication only: %i[map poster]
   before_action :set_sector, except: %i[index new new_from_traveller_map create]
 
@@ -324,11 +325,8 @@ class SectorsController < ApplicationController
       end
       build_bases_data
 
-      @parsecs_by_pos = @sector.parsecs.pluck(:id, :x, :y, :label, :label_colour).to_h do |pid, px, py, lbl, label_colour|
-        col = px - sector_ul.x + 1
-        row = sector_ul.y - py + 1
-        [[col, row], { id: pid, hex_code: format('%02d%02d', col, row), label: lbl, label_colour: label_colour }]
-      end
+      @parsecs_by_pos = build_parsecs_by_pos(@sector.parsecs, sector_ul)
+      @map_label_icons = build_parsec_label_icons(@parsecs_by_pos)
 
       sector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
       sector_parsec_subquery = @sector.parsecs.select(:id)

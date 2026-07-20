@@ -51,6 +51,7 @@ Rails.application.routes.draw do
         end
       end
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
+      get 'map_labels',    to: 'map_labels#index',    defaults: { format: :json }
       get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
       get 'search',        to: 'search#query',        defaults: { format: :json }
       get 'subsector_at',  to: 'subsector_lookup#show', defaults: { format: :json }

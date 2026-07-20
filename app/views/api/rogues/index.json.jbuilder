@@ -5,7 +5,6 @@ json.array! @rogues do |rogue|
   json.y              rogue.parsec.y
   json.survey_index   rogue.parsec.survey_index
   json.known          rogue.known
-  json.player_visible rogue.parsec.player_visible
 
   case rogue
   when Comet

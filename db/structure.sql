@@ -541,12 +541,14 @@ CREATE TABLE public.parsecs (
     updated_at timestamp(6) without time zone NOT NULL,
     x integer NOT NULL,
     y integer NOT NULL,
-    label character varying,
-    player_visible boolean DEFAULT false,
+    label text,
+    known boolean DEFAULT false,
     label_colour character varying,
     q integer NOT NULL,
     r integer NOT NULL,
-    s integer NOT NULL
+    s integer NOT NULL,
+    visible boolean DEFAULT true NOT NULL,
+    icon_class character varying
 );
 
 
@@ -2427,6 +2429,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260720143309'),
 ('20260719020000'),
 ('20260719010703'),
 ('20260719004455'),
