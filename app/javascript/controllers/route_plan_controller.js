@@ -18,8 +18,4 @@ export default class extends Controller {
   mDriveChanged() {
     this.shipTarget.value = ''
   }
-
-  preventModalClose(event) {
-    event.stopPropagation()
-  }
 }

@@ -1,0 +1,121 @@
+<% content_for :title, 'Course Plot' %>
+
+<%= render 'help/page', title: 'Course Plot' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Plots a jump route between two star systems using the same pathfinding the referee's ship
+      would follow, honouring jump range, fuel availability, and any excluded travel zones. See
+      <cite>Core Rulebook, p. 157</cite> for the jump mechanics this planner models.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>From / To</dt>
+          <dd class='mt-1 text-fg'>
+            Origin and destination star systems, chosen by search. When opened from a star system
+            or stellar object's show page, From defaults to that system — this can still be
+            changed.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Ship</dt>
+          <dd class='mt-1 text-fg'>
+            Optional. Selecting a ship fills in its jump drive rating and manoeuvre drive rating
+            as the Jump Range and M-Drive below. Changing either field manually clears the ship
+            selection.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Jump Range</dt>
+          <dd class='mt-1 text-fg'>
+            The maximum jump-<span class='font-mono'>N</span> the ship can make in a single hop
+            (1–6). No hop in the plotted route will exceed this distance.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>M-Drive</dt>
+          <dd class='mt-1 text-fg'>
+            The ship's manoeuvre drive rating, used to estimate in-system transit time to and from
+            the jump point at each hop.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Refuelling</dt>
+          <dd class='mt-1 text-fg'>
+            Restricts which systems may be used as refuelling stops along the route:
+          </dd>
+          <dl class='mt-2 space-y-2 pl-4'>
+            <div>
+              <dt class='font-semibold text-fg-bright'>Any</dt>
+              <dd class='mt-1'>No fuel restriction — commercial, wilderness, and refined sources all qualify.</dd>
+            </div>
+            <div>
+              <dt class='font-semibold text-fg-bright'>No wilderness (D+ starport)</dt>
+              <dd class='mt-1'>Only systems with a class D starport or better qualify; wilderness refuelling stops are excluded.</dd>
+            </div>
+            <div>
+              <dt class='font-semibold text-fg-bright'>Wilderness only (gas giant)</dt>
+              <dd class='mt-1'>Only systems offering wilderness refuelling (gas giant skimming) qualify.</dd>
+            </div>
+            <div>
+              <dt class='font-semibold text-fg-bright'>Refined fuel only (A/B starport)</dt>
+              <dd class='mt-1'>Only systems with a class A or B starport qualify, guaranteeing refined fuel.</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Exclude Travel Zones</dt>
+          <dd class='mt-1 text-fg'>
+            Travel zones checked here are avoided entirely — no hop in the route will pass through
+            a system flagged with an excluded zone.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Results</p>
+
+      <p class='text-fg-muted mb-4'>
+        Plotting the route shows the hop-by-hop path with jump distance, transit time, and
+        cumulative elapsed time for each leg, along with totals for the whole journey. If no route
+        satisfies the chosen jump range, refuelling, and travel zone constraints, no route is
+        found — try a higher jump range or relaxing the other filters.
+      </p>
+
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Save to map</dt>
+          <dd class='mt-1 text-fg'>
+            Commits the plotted route as a jump route on the starmap, named and coloured as
+            entered. The route is created with type <span class='font-mono'>plotted</span>,
+            meaning it stores the origin, destination, and filters used, and can be recalculated
+            later from the jump route's edit page.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Plan another route</dt>
+          <dd class='mt-1 text-fg'>
+            Starts a new plot from the same origin system, carrying forward the jump range,
+            refuelling, M-Drive, and travel zone exclusions just used.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0723RP
+    </div>
+
+  </div>
+<% end %>

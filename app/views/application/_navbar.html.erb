@@ -34,7 +34,6 @@
             <li data-tour-step="nav-starmap"><%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-highlight hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %></li>
             <li data-tour-step="nav-route">
               <%= link_to new_route_plan_path(from_id: @route_from_system&.id),
-                          data: { turbo_frame: 'modal' },
                           class: 'hover:text-highlight hover:underline hover:underline-offset-2 no-underline' do %>
                 <i class='fa-regular fa-route'></i> Route
               <% end %>

@@ -37,7 +37,6 @@ class RoutePlansController < ApplicationController
       @hop_timings   = timing.timings_for(ordered)
       @route_total   = timing.total(@hop_timings)
     end
-    render :create
   end
 
   def save
@@ -45,8 +44,7 @@ class RoutePlansController < ApplicationController
     pairs = system_ids.each_cons(2).to_a
 
     if pairs.empty?
-      render turbo_stream: turbo_stream.replace('route-save-form',
-               html: '<div id="route-save-form" class="text-sm text-fg-muted">Nothing to save.</div>'.html_safe)
+      redirect_to new_route_plan_path, alert: 'Nothing to save.'
       return
     end
 
@@ -71,8 +69,7 @@ class RoutePlansController < ApplicationController
       )
     end
 
-    render turbo_stream: turbo_stream.replace('route-save-form',
-             partial: 'route_plans/saved', locals: { route: route })
+    redirect_to route, notice: 'Jump route committed.', status: :see_other
   end
 
   def clear

@@ -1,147 +1,281 @@
-<%= modal(title: 'Plot Route', padding: true, advance: false, overlay: false) do %>
-  <% if flash[:alert] %>
-    <div class='mb-4 rounded-lg border border-red-500/40 bg-red-950/30 px-4 py-2 text-sm text-red-300'>
-      <%= flash[:alert] %>
-    </div>
-  <% end %>
+<% content_for :title, 'Course Plot' %>
+<% content_for :page_kicker, 'Astrogation Computer' %>
+<% content_for :page_title, 'Course Plot' %>
 
-  <%= form_with url: new_route_plan_path, method: :get,
-                data: { controller: 'route-plan', action: 'turbo:submit-end->route-plan#preventModalClose' },
-                class: 'space-y-6' do |f| %>
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <%= form_with url: new_route_plan_path, method: :get,
+                  data: { controller: 'route-plan' },
+                  class: 'space-y-6' do |f| %>
 
-    <%# From system %>
-    <div data-controller='system-search'
-         data-system-search-search-url-value='<%= search_star_systems_path %>'>
-      <label class='edit-label'>From</label>
-      <input type='text'
-             placeholder='Search for a system…'
-             autocomplete='off'
-             data-system-search-target='input'
-             data-action='input->system-search#search'
-             value='<%= @from_system ? (@from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}") : "" %>'
-             class='w-full edit-base mt-2'>
-      <input type='hidden'
-             name='from_id'
-             value='<%= @from_system&.id %>'
-             data-system-search-target='idField'>
-      <div data-system-search-target='dropdown'
-           class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
-        <ul data-system-search-target='list'></ul>
-      </div>
-    </div>
-
-    <%# To system %>
-    <div data-controller='system-search'
-         data-system-search-search-url-value='<%= search_star_systems_path %>'>
-      <label class='edit-label'>To</label>
-      <input type='text'
-             placeholder='Search for a system…'
-             autocomplete='off'
-             data-system-search-target='input'
-             data-action='input->system-search#search'
-             class='w-full edit-base mt-2'>
-      <input type='hidden'
-             name='to_id'
-             data-system-search-target='idField'>
-      <div data-system-search-target='dropdown'
-           class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
-        <ul data-system-search-target='list'></ul>
-      </div>
-    </div>
-
-    <%# Ship + Jump range + M-Drive %>
-    <div class='grid grid-cols-3 gap-4'>
-      <div>
-        <label class='edit-label'>Ship</label>
-        <select name='ship_id'
-                data-route-plan-target='ship'
-                data-action='change->route-plan#shipChanged'
-                class='w-full edit-base mt-2'>
-          <option value=''>— select a ship —</option>
-          <% @ships.each do |ship| %>
-            <option value='<%= ship.id %>'
-                    data-jump-drive='<%= ship.jump_drive %>'
-                    data-m-drive='<%= ship.m_drive %>'>
-              <%= ship.name %> (J-<%= ship.jump_drive %>)
-            </option>
-          <% end %>
-        </select>
-      </div>
-
-      <div>
-        <label class='edit-label'>Jump range</label>
-        <select name='jump_range'
-                data-route-plan-target='jumpRange'
-                data-action='change->route-plan#jumpRangeChanged'
-                class='w-full edit-base mt-2'>
-          <% (1..6).each do |n| %>
-            <option value='<%= n %>' <%= 'selected' if @jump_range == n %>><%= n %></option>
-          <% end %>
-        </select>
-      </div>
-
-      <div>
-        <label class='edit-label'>M-Drive</label>
-        <select name='m_drive'
-                data-route-plan-target='mDrive'
-                data-action='change->route-plan#mDriveChanged'
-                class='w-full edit-base mt-2'>
-          <% (1..6).each do |n| %>
-            <option value='<%= n %>' <%= 'selected' if @m_drive == n %>><%= n %></option>
-          <% end %>
-        </select>
-      </div>
-    </div>
-
-    <%# Refueling %>
-    <div>
-      <label class='edit-label'>Refuelling</label>
-      <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
-        <label class='flex items-center gap-2 cursor-pointer'>
-          <%= f.radio_button :refueling, 'any', checked: @refueling == 'any', class: 'accent-highlight' %>
-          Any
-        </label>
-        <label class='flex items-center gap-2 cursor-pointer'>
-          <%= f.radio_button :refueling, 'commercial', checked: @refueling == 'commercial', class: 'accent-highlight' %>
-          No wilderness (D+ starport)
-        </label>
-        <label class='flex items-center gap-2 cursor-pointer'>
-          <%= f.radio_button :refueling, 'wilderness', checked: @refueling == 'wilderness', class: 'accent-highlight' %>
-          Wilderness only (gas giant)
-        </label>
-        <label class='flex items-center gap-2 cursor-pointer'>
-          <%= f.radio_button :refueling, 'refined', checked: @refueling == 'refined', class: 'accent-highlight' %>
-          Refined fuel only (A/B starport)
-        </label>
-      </div>
-    </div>
-
-    <%# Travel zone exclusions %>
-    <% if @travel_zones.any? %>
-      <div>
-        <label class='edit-label'>Exclude Travel Zones</label>
-        <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
-          <% @travel_zones.each do |tz| %>
-            <label class='flex items-center gap-2 cursor-pointer'>
-              <input type='checkbox'
-                     name='excluded_travel_zone_ids[]'
-                     value='<%= tz.id %>'
-                     class='accent-highlight'
-                     <%= 'checked' if @excluded_travel_zone_ids.include?(tz.id) %>>
-              <span class='inline-flex items-center gap-1'>
-                <svg width='12' height='12' viewBox='0 0 12 12'>
-                  <circle cx='6' cy='6' r='5' fill='<%= tz.colour %>'/>
-                </svg>
-                <%= tz.name %>
-              </span>
-            </label>
-          <% end %>
+      <%# From system %>
+      <div data-controller='system-search'
+           data-system-search-search-url-value='<%= search_star_systems_path %>'>
+        <label class='edit-label'>From</label>
+        <input type='text'
+               placeholder='Search for a system…'
+               autocomplete='off'
+               data-system-search-target='input'
+               data-action='input->system-search#search'
+               value='<%= @from_system ? (@from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}") : "" %>'
+               class='w-full edit-base mt-2'>
+        <input type='hidden'
+               name='from_id'
+               value='<%= @from_system&.id %>'
+               data-system-search-target='idField'>
+        <div data-system-search-target='dropdown'
+             class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+          <ul data-system-search-target='list'></ul>
         </div>
+      </div>
+
+      <%# To system %>
+      <div data-controller='system-search'
+           data-system-search-search-url-value='<%= search_star_systems_path %>'>
+        <label class='edit-label'>To</label>
+        <input type='text'
+               placeholder='Search for a system…'
+               autocomplete='off'
+               data-system-search-target='input'
+               data-action='input->system-search#search'
+               value='<%= @to_system ? (@to_system.name.presence || "#{@to_system.parsec.sector.name} #{@to_system.parsec.hex_code}") : "" %>'
+               class='w-full edit-base mt-2'>
+        <input type='hidden'
+               name='to_id'
+               value='<%= @to_system&.id %>'
+               data-system-search-target='idField'>
+        <div data-system-search-target='dropdown'
+             class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+          <ul data-system-search-target='list'></ul>
+        </div>
+      </div>
+
+      <%# Ship + Jump range + M-Drive %>
+      <div class='grid grid-cols-3 gap-4'>
+        <div>
+          <label class='edit-label'>Ship</label>
+          <select name='ship_id'
+                  data-route-plan-target='ship'
+                  data-action='change->route-plan#shipChanged'
+                  class='w-full edit-base mt-2'>
+            <option value=''>— select a ship —</option>
+            <% @ships.each do |ship| %>
+              <option value='<%= ship.id %>'
+                      data-jump-drive='<%= ship.jump_drive %>'
+                      data-m-drive='<%= ship.m_drive %>'>
+                <%= ship.name %> (J-<%= ship.jump_drive %>)
+              </option>
+            <% end %>
+          </select>
+        </div>
+
+        <div>
+          <label class='edit-label'>Jump range</label>
+          <select name='jump_range'
+                  data-route-plan-target='jumpRange'
+                  data-action='change->route-plan#jumpRangeChanged'
+                  class='w-full edit-base mt-2'>
+            <% (1..6).each do |n| %>
+              <option value='<%= n %>' <%= 'selected' if @jump_range == n %>><%= n %></option>
+            <% end %>
+          </select>
+        </div>
+
+        <div>
+          <label class='edit-label'>M-Drive</label>
+          <select name='m_drive'
+                  data-route-plan-target='mDrive'
+                  data-action='change->route-plan#mDriveChanged'
+                  class='w-full edit-base mt-2'>
+            <% (1..6).each do |n| %>
+              <option value='<%= n %>' <%= 'selected' if @m_drive == n %>><%= n %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <%# Refueling %>
+      <div>
+        <label class='edit-label'>Refuelling</label>
+        <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+          <label class='flex items-center gap-2 cursor-pointer'>
+            <%= f.radio_button :refueling, 'any', checked: @refueling == 'any', class: 'accent-highlight' %>
+            Any
+          </label>
+          <label class='flex items-center gap-2 cursor-pointer'>
+            <%= f.radio_button :refueling, 'commercial', checked: @refueling == 'commercial', class: 'accent-highlight' %>
+            No wilderness (D+ starport)
+          </label>
+          <label class='flex items-center gap-2 cursor-pointer'>
+            <%= f.radio_button :refueling, 'wilderness', checked: @refueling == 'wilderness', class: 'accent-highlight' %>
+            Wilderness only (gas giant)
+          </label>
+          <label class='flex items-center gap-2 cursor-pointer'>
+            <%= f.radio_button :refueling, 'refined', checked: @refueling == 'refined', class: 'accent-highlight' %>
+            Refined fuel only (A/B starport)
+          </label>
+        </div>
+      </div>
+
+      <%# Travel zone exclusions %>
+      <% if @travel_zones.any? %>
+        <div>
+          <label class='edit-label'>Exclude Travel Zones</label>
+          <div class='mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm'>
+            <% @travel_zones.each do |tz| %>
+              <label class='flex items-center gap-2 cursor-pointer'>
+                <input type='checkbox'
+                       name='excluded_travel_zone_ids[]'
+                       value='<%= tz.id %>'
+                       class='accent-highlight'
+                       <%= 'checked' if @excluded_travel_zone_ids.include?(tz.id) %>>
+                <span class='inline-flex items-center gap-1'>
+                  <svg width='12' height='12' viewBox='0 0 12 12'>
+                    <circle cx='6' cy='6' r='5' fill='<%= tz.colour %>'/>
+                  </svg>
+                  <%= tz.name %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.submit 'Plot route', class: 'w-full sm:w-auto btn btn-primary' %>
       </div>
     <% end %>
 
-    <div>
-      <%= f.submit 'Plot route', class: 'w-full btn btn-primary' %>
-    </div>
-  <% end %>
+    <% if @from_system && @to_system %>
+      <%= render 'application/subsection', title: 'Route' %>
+
+      <% if @plan %>
+        <div class='space-y-4'>
+          <div class='space-y-3'>
+            <div class='grid grid-cols-3 gap-4 text-sm text-center'>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Jumps</div>
+                <div class='font-semibold text-fg'><%= @plan.hops.size - 1 %></div>
+              </div>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Jump Distance</div>
+                <div class='font-semibold text-fg'><%= @total_distance %></div>
+              </div>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Parsec Distance</div>
+                <div class='font-semibold text-fg'><%= @parsec_distance %></div>
+              </div>
+            </div>
+            <div class='grid grid-cols-3 gap-4 text-sm text-center'>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Total Time</div>
+                <div class='font-semibold text-fg'>
+                  <%= format_duration_range(@route_total[:total_min_hours], @route_total[:total_avg_hours], @route_total[:total_max_hours]) %>
+                </div>
+              </div>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Jump Time</div>
+                <div class='font-semibold text-fg'>
+                  <%= format_duration_range(@route_total[:jump_min_hours], @route_total[:jump_avg_hours], @route_total[:jump_max_hours]) %>
+                </div>
+              </div>
+              <div>
+                <div class='text-fg-muted text-xs uppercase tracking-wider mb-1'>Transit Time</div>
+                <div class='font-semibold text-fg'><%= format_duration_hours(@route_total[:transit_hours]) %></div>
+              </div>
+            </div>
+          </div>
+
+          <table class='w-full text-sm'>
+            <thead>
+              <tr class='border-b border-outline text-fg-muted text-xs uppercase tracking-wider'>
+                <th class='text-right pb-2 pr-4 w-16'>Jump</th>
+                <th class='text-left pb-2'>System</th>
+                <th class='text-right pb-2 pr-4'>Transit Time (one-way)</th>
+                <th class='text-right pb-2 pr-4'>Elapsed</th>
+              </tr>
+            </thead>
+            <tbody class='divide-y divide-outline/50'>
+              <% @plan.hops.each_with_index do |hop, i| %>
+                <tr class='<%= 'text-highlight font-medium' if i == 0 || i == @plan.hops.size - 1 %>'>
+                  <td class='py-2 pr-4 text-right tabular-nums text-fg-muted'>
+                    <% if i > 0 %>J-<%= hop.distance %><% end %>
+                  </td>
+                  <td class='py-2'>
+                    <% if hop.system.name.present? %>
+                      <%= link_to hop.system.name, star_system_path(hop.system.id),
+                                  class: 'block no-underline hover:underline hover:underline-offset-2' %>
+                      <%= link_to hop.system.hex_label, sector_path(hop.system.sector_id),
+                                  class: 'block text-xs text-fg-muted no-underline hover:underline hover:underline-offset-2' %>
+                    <% else %>
+                      <%= link_to hop.system.hex_label, star_system_path(hop.system.id),
+                                  class: 'block no-underline hover:underline hover:underline-offset-2' %>
+                    <% end %>
+                  </td>
+                  <td class='py-2 pr-4 text-right tabular-nums text-fg-muted'>
+                    <%= format_duration_hours(@hop_timings[i].transit_hours) %>
+                  </td>
+                  <td class='py-2 pr-4 text-right tabular-nums text-fg-muted'>
+                    <%= format_duration_hours(@hop_timings[i].elapsed_avg_hours) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class='py-6 text-center space-y-2'>
+          <div class='text-fg-bright font-medium'>No route found</div>
+          <div class='text-sm text-fg-muted'>
+            No <%= case @refueling
+                  when 'commercial' then 'commercial '
+                  when 'wilderness' then 'wilderness-capable '
+                  when 'refined'    then 'refined-fuel-only '
+                  end %>route exists between
+            <span class='text-fg'><%= @from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}" %></span> and
+            <span class='text-fg'><%= @to_system.name.presence || "#{@to_system.parsec.sector.name} #{@to_system.parsec.hex_code}" %></span>
+            within jump-<%= @jump_range %> range<% if @excluded_travel_zone_ids.any? %> (<%= pluralize(@excluded_travel_zone_ids.size, 'travel zone') %> excluded)<% end %>.
+            <% unless @jump_range == 6 %>
+              Try a higher jump range.
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class='mt-6 pt-4 border-t border-outline space-y-4'>
+        <% if @plan %>
+          <%= form_with url: save_route_plan_path, method: :post do |f| %>
+            <% @plan.hops.each do |h| %>
+              <input type='hidden' name='system_ids[]' value='<%= h.system.id %>'>
+            <% end %>
+            <input type='hidden' name='refueling'  value='<%= @refueling %>'>
+            <input type='hidden' name='from_id'    value='<%= @from_system.id %>'>
+            <input type='hidden' name='to_id'      value='<%= @to_system.id %>'>
+            <input type='hidden' name='jump_range' value='<%= @jump_range %>'>
+            <input type='hidden' name='m_drive'    value='<%= @m_drive %>'>
+            <% @excluded_travel_zone_ids.each do |zone_id| %>
+              <input type='hidden' name='excluded_travel_zone_ids[]' value='<%= zone_id %>'>
+            <% end %>
+            <div class='flex flex-wrap items-center gap-2'>
+              <%= f.text_field :name,
+                               placeholder: 'Route name',
+                               value: "#{@from_system.display_name} – #{@to_system.display_name}",
+                               class: 'edit-base flex-1 min-w-0' %>
+              <%= f.text_field :colour,
+                               value: '#E87040',
+                               data: { controller: 'coloris' },
+                               class: 'edit-base w-28' %>
+              <%= f.submit 'Save to map', class: 'btn btn-sm btn-primary' %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <%= link_to 'Plan another route',
+                    new_route_plan_path(from_id: @from_system.id, jump_range: @jump_range, refueling: @refueling,
+                                        m_drive: @m_drive,
+                                        excluded_travel_zone_ids: @excluded_travel_zone_ids),
+                    class: 'text-sm text-highlight no-underline hover:underline hover:underline-offset-2' %>
+      </div>
+    <% end %>
+  </div>
 <% end %>
