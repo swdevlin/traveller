@@ -465,7 +465,8 @@ CREATE TABLE public.jump_routes (
     excluded_travel_zone_ids integer[] DEFAULT '{}'::integer[],
     from_star_system_id bigint,
     to_star_system_id bigint,
-    travellermap_allegiance_code character varying
+    travellermap_allegiance_code character varying,
+    m_drive integer
 );
 
 
@@ -2429,6 +2430,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260722190812'),
 ('20260720143309'),
 ('20260719020000'),
 ('20260719010703'),

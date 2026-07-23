@@ -46,9 +46,18 @@ routePlanSystemDecoder =
         |> required "y" Decode.int
 
 
+{-| transitHours is the time to fly between this hop's system and its jump
+shadow - the same figure whether departing (for the origin) or arriving (for
+every other stop), since it depends only on that world's diameter and the
+ship's M-drive. elapsedAvgHours is the running total from the start of the
+journey through this system; for the origin that's just its own transit time,
+since nothing else has happened yet.
+-}
 type alias Hop =
     { system : RoutePlanSystem
     , distance : Int
+    , transitHours : Float
+    , elapsedAvgHours : Float
     }
 
 
@@ -57,6 +66,8 @@ hopDecoder =
     Decode.succeed Hop
         |> required "system" routePlanSystemDecoder
         |> required "distance" Decode.int
+        |> required "transit_hours" Decode.float
+        |> required "elapsed_avg_hours" Decode.float
 
 
 {-| The from/to endpoint as returned by the `plan` endpoint - just enough to
@@ -86,6 +97,13 @@ type alias RoutePlanResult =
     , hops : List Hop
     , totalDistance : Maybe Int
     , parsecDistance : Maybe Int
+    , totalJumpAvgHours : Maybe Float
+    , totalJumpMinHours : Maybe Float
+    , totalJumpMaxHours : Maybe Float
+    , totalTransitHours : Maybe Float
+    , totalAvgHours : Maybe Float
+    , totalMinHours : Maybe Float
+    , totalMaxHours : Maybe Float
     }
 
 
@@ -101,6 +119,13 @@ routePlanResultDecoder =
         |> required "hops" (Decode.list hopDecoder)
         |> required "total_distance" (Decode.nullable Decode.int)
         |> required "parsec_distance" (Decode.nullable Decode.int)
+        |> required "total_jump_avg_hours" (Decode.nullable Decode.float)
+        |> required "total_jump_min_hours" (Decode.nullable Decode.float)
+        |> required "total_jump_max_hours" (Decode.nullable Decode.float)
+        |> required "total_transit_hours" (Decode.nullable Decode.float)
+        |> required "total_avg_hours" (Decode.nullable Decode.float)
+        |> required "total_min_hours" (Decode.nullable Decode.float)
+        |> required "total_max_hours" (Decode.nullable Decode.float)
 
 
 type alias TravelZoneOption =
@@ -152,6 +177,8 @@ hopCodec =
     Codec.object Hop
         |> Codec.field "system" .system routePlanSystemCodec
         |> Codec.field "distance" .distance Codec.int
+        |> Codec.field "transit_hours" .transitHours Codec.float
+        |> Codec.field "elapsed_avg_hours" .elapsedAvgHours Codec.float
         |> Codec.buildObject
 
 
@@ -186,6 +213,13 @@ routePlanResultCodec =
         |> Codec.field "hops" .hops (Codec.list hopCodec)
         |> Codec.field "total_distance" .totalDistance (Codec.nullable Codec.int)
         |> Codec.field "parsec_distance" .parsecDistance (Codec.nullable Codec.int)
+        |> Codec.field "total_jump_avg_hours" .totalJumpAvgHours (Codec.nullable Codec.float)
+        |> Codec.field "total_jump_min_hours" .totalJumpMinHours (Codec.nullable Codec.float)
+        |> Codec.field "total_jump_max_hours" .totalJumpMaxHours (Codec.nullable Codec.float)
+        |> Codec.field "total_transit_hours" .totalTransitHours (Codec.nullable Codec.float)
+        |> Codec.field "total_avg_hours" .totalAvgHours (Codec.nullable Codec.float)
+        |> Codec.field "total_min_hours" .totalMinHours (Codec.nullable Codec.float)
+        |> Codec.field "total_max_hours" .totalMaxHours (Codec.nullable Codec.float)
         |> Codec.buildObject
 
 
@@ -199,12 +233,13 @@ storedRoutePlanCodec =
 
 {-| Query params for `GET api/route_plan`.
 -}
-planQuery : { fromId : Int, toId : Int, jumpRange : Int, refueling : String, excludedTravelZoneIds : List Int } -> List Url.Builder.QueryParameter
-planQuery { fromId, toId, jumpRange, refueling, excludedTravelZoneIds } =
+planQuery : { fromId : Int, toId : Int, jumpRange : Int, refueling : String, excludedTravelZoneIds : List Int, mDrive : Int } -> List Url.Builder.QueryParameter
+planQuery { fromId, toId, jumpRange, refueling, excludedTravelZoneIds, mDrive } =
     Url.Builder.int "from_id" fromId
         :: Url.Builder.int "to_id" toId
         :: Url.Builder.int "jump_range" jumpRange
         :: Url.Builder.string "refueling" refueling
+        :: Url.Builder.int "m_drive" mDrive
         :: List.map (\id -> Url.Builder.int "excluded_travel_zone_ids[]" id) excludedTravelZoneIds
 
 
@@ -219,9 +254,10 @@ saveBody :
     , toId : Int
     , excludedTravelZoneIds : List Int
     , systemIds : List Int
+    , mDrive : Int
     }
     -> Encode.Value
-saveBody { name, colour, jumpRange, refueling, fromId, toId, excludedTravelZoneIds, systemIds } =
+saveBody { name, colour, jumpRange, refueling, fromId, toId, excludedTravelZoneIds, systemIds, mDrive } =
     Encode.object
         [ ( "name", Encode.string name )
         , ( "colour", Encode.string colour )
@@ -231,4 +267,5 @@ saveBody { name, colour, jumpRange, refueling, fromId, toId, excludedTravelZoneI
         , ( "to_id", Encode.int toId )
         , ( "excluded_travel_zone_ids", Encode.list Encode.int excludedTravelZoneIds )
         , ( "system_ids", Encode.list Encode.int systemIds )
+        , ( "m_drive", Encode.int mDrive )
         ]

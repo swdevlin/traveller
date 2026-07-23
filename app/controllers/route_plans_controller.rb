@@ -9,6 +9,7 @@ class RoutePlansController < ApplicationController
     @refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
     @excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
     @travel_zones             = TravelZone.ordered
+    @m_drive                  = params[:m_drive].presence&.to_i&.clamp(1, 6) || 1
 
     return unless @from_system && @to_system
 
@@ -28,6 +29,13 @@ class RoutePlansController < ApplicationController
     if @plan
       @total_distance   = @plan.hops.sum(&:distance)
       @parsec_distance  = planner.parsec_distance(@from_system, @to_system)
+
+      ids            = @plan.hops.map { |h| h.system.id }
+      systems_by_id  = StarSystem.where(id: ids).includes(:main_world).index_by(&:id)
+      ordered        = @plan.hops.map { |h| systems_by_id[h.system.id] }
+      timing         = RouteTiming.new(m_drive: @m_drive)
+      @hop_timings   = timing.timings_for(ordered)
+      @route_total   = timing.total(@hop_timings)
     end
     render :create
   end
@@ -52,7 +60,8 @@ class RoutePlansController < ApplicationController
       refueling:                params[:refueling].presence_in(JumpRoute::REFUELING),
       excluded_travel_zone_ids: Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?),
       from_star_system_id:      params[:from_id].to_i.nonzero?,
-      to_star_system_id:        params[:to_id].to_i.nonzero?
+      to_star_system_id:        params[:to_id].to_i.nonzero?,
+      m_drive:                  params[:m_drive].presence&.to_i&.clamp(1, 6)
     )
     pairs.each do |from_id, to_id|
       JumpRouteLink.create!(

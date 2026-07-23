@@ -26,7 +26,25 @@
         <div class='shrink-0'>
           <%= render 'application/subsection', title: 'Path' %>
           <% if systems.any? %>
-            <div class='table-card'>
+            <div class='mb-2 text-sm flex gap-4'>
+              <span>
+                <span class='text-fg-muted text-xs uppercase tracking-wider'>Total Time</span>
+                <span class='font-semibold text-fg ml-1'>
+                  <%= format_duration_range(@route_total[:total_min_hours], @route_total[:total_avg_hours], @route_total[:total_max_hours]) %>
+                </span>
+              </span>
+              <span>
+                <span class='text-fg-muted text-xs uppercase tracking-wider'>Jump Time</span>
+                <span class='font-semibold text-fg ml-1'>
+                  <%= format_duration_range(@route_total[:jump_min_hours], @route_total[:jump_avg_hours], @route_total[:jump_max_hours]) %>
+                </span>
+              </span>
+              <span>
+                <span class='text-fg-muted text-xs uppercase tracking-wider'>Transit Time</span>
+                <span class='font-semibold text-fg ml-1'><%= format_duration_hours(@route_total[:transit_hours]) %></span>
+              </span>
+            </div>
+            <div class='table-card no-row-dividers'>
               <div class='table-scroll'>
                 <table>
                   <thead>
@@ -34,6 +52,8 @@
                       <th class='text-right w-12'>#</th>
                       <th>System</th>
                       <th>UWP</th>
+                      <th class='text-right'>Transit Time (one-way)</th>
+                      <th class='text-right'>Elapsed</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -44,6 +64,12 @@
                           <%= render 'star_systems/system_link', star_system: sys %>
                         </td>
                         <td class='font-mono'><%= sys.main_world_uwp %></td>
+                        <td class='text-right tabular-nums text-fg-muted'>
+                          <%= format_duration_hours(@hop_timings[i].transit_hours) %>
+                        </td>
+                        <td class='text-right tabular-nums text-fg-muted'>
+                          <%= format_duration_hours(@hop_timings[i].elapsed_avg_hours) %>
+                        </td>
                       </tr>
                     <% end %>
                   </tbody>
@@ -63,7 +89,25 @@
     <% else %>
       <%= render 'application/subsection', title: 'Path' %>
       <% if systems.any? %>
-        <div class='table-card'>
+        <div class='mb-2 text-sm flex gap-4'>
+          <span>
+            <span class='text-fg-muted text-xs uppercase tracking-wider'>Total Time</span>
+            <span class='font-semibold text-fg ml-1'>
+              <%= format_duration_range(@route_total[:total_min_hours], @route_total[:total_avg_hours], @route_total[:total_max_hours]) %>
+            </span>
+          </span>
+          <span>
+            <span class='text-fg-muted text-xs uppercase tracking-wider'>Jump Time</span>
+            <span class='font-semibold text-fg ml-1'>
+              <%= format_duration_range(@route_total[:jump_min_hours], @route_total[:jump_avg_hours], @route_total[:jump_max_hours]) %>
+            </span>
+          </span>
+          <span>
+            <span class='text-fg-muted text-xs uppercase tracking-wider'>Transit Time</span>
+            <span class='font-semibold text-fg ml-1'><%= format_duration_hours(@route_total[:transit_hours]) %></span>
+          </span>
+        </div>
+        <div class='table-card no-row-dividers'>
           <div class='table-scroll'>
             <table>
               <thead>
@@ -71,6 +115,8 @@
                   <th class='text-right w-12'>#</th>
                   <th>System</th>
                   <th>UWP</th>
+                  <th class='text-right'>Transit Time (one-way)</th>
+                  <th class='text-right'>Elapsed</th>
                 </tr>
               </thead>
               <tbody>
@@ -81,6 +127,12 @@
                       <%= render 'star_systems/system_link', star_system: sys %>
                     </td>
                     <td class='font-mono'><%= sys.main_world_uwp %></td>
+                    <td class='text-right tabular-nums text-fg-muted'>
+                      <%= format_duration_hours(@hop_timings[i].transit_hours) %>
+                    </td>
+                    <td class='text-right tabular-nums text-fg-muted'>
+                      <%= format_duration_hours(@hop_timings[i].elapsed_avg_hours) %>
+                    </td>
                   </tr>
                 <% end %>
               </tbody>

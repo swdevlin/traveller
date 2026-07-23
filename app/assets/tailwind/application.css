@@ -1120,6 +1120,11 @@
     @apply divide-y divide-outline bg-panel-muted;
   }
 
+  .table-card.no-row-dividers table,
+  .table-card.no-row-dividers tbody {
+    @apply divide-y-0;
+  }
+
   .table-card tbody tr {
     @apply transition hover:bg-table-hover;
   }

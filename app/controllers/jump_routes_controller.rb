@@ -14,6 +14,10 @@ class JumpRoutesController < ApplicationController
         records: [@jump_route],
         associations: { from_star_system: { parsec: :sector }, to_star_system: { parsec: :sector } }
       ).call
+
+      timing        = RouteTiming.new(m_drive: @jump_route.m_drive || 1)
+      @hop_timings  = timing.timings_for(@jump_route.ordered_systems)
+      @route_total  = timing.total(@hop_timings)
     end
     @show_map = @jump_route.fits_in_sector?
     if @show_map

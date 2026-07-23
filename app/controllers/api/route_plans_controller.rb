@@ -19,6 +19,7 @@ class Api::RoutePlansController < Api::BaseController
     jump_range               = params[:jump_range].presence&.to_i || 2
     refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
     excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
+    m_drive                  = params[:m_drive].presence&.to_i&.clamp(1, 6) || 1
 
     planner = RoutePlanner.new(
       from_id:                  from_system.id,
@@ -30,6 +31,17 @@ class Api::RoutePlansController < Api::BaseController
     )
     plan = planner.plan
 
+    hop_timings  = nil
+    route_total  = nil
+    if plan
+      ids           = plan.hops.map { |h| h.system.id }
+      systems_by_id = StarSystem.where(id: ids).includes(:main_world).index_by(&:id)
+      ordered       = plan.hops.map { |h| systems_by_id[h.system.id] }
+      timing        = RouteTiming.new(m_drive: m_drive)
+      hop_timings   = timing.timings_for(ordered)
+      route_total   = timing.total(hop_timings)
+    end
+
     render json: {
       found:                     plan.present?,
       from:                      system_json(from_system),
@@ -37,9 +49,17 @@ class Api::RoutePlansController < Api::BaseController
       jump_range:                jump_range,
       refueling:                 refueling,
       excluded_travel_zone_ids:  excluded_travel_zone_ids,
-      hops:                      plan ? plan.hops.map { |hop| hop_json(hop) } : [],
+      m_drive:                   m_drive,
+      hops:                      plan ? plan.hops.each_with_index.map { |hop, i| hop_json(hop, hop_timings[i]) } : [],
       total_distance:            plan ? plan.hops.sum(&:distance) : nil,
-      parsec_distance:           plan ? planner.parsec_distance(from_system, to_system) : nil
+      parsec_distance:           plan ? planner.parsec_distance(from_system, to_system) : nil,
+      total_jump_avg_hours:      route_total&.fetch(:jump_avg_hours),
+      total_jump_min_hours:      route_total&.fetch(:jump_min_hours),
+      total_jump_max_hours:      route_total&.fetch(:jump_max_hours),
+      total_transit_hours:       route_total&.fetch(:transit_hours),
+      total_avg_hours:           route_total&.fetch(:total_avg_hours),
+      total_min_hours:           route_total&.fetch(:total_min_hours),
+      total_max_hours:           route_total&.fetch(:total_max_hours)
     }
   end
 
@@ -58,7 +78,8 @@ class Api::RoutePlansController < Api::BaseController
       refueling:                params[:refueling].presence_in(JumpRoute::REFUELING),
       excluded_travel_zone_ids: Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?),
       from_star_system_id:      params[:from_id].to_i.nonzero?,
-      to_star_system_id:        params[:to_id].to_i.nonzero?
+      to_star_system_id:        params[:to_id].to_i.nonzero?,
+      m_drive:                  params[:m_drive].presence&.to_i&.clamp(1, 6)
     )
 
     ActiveRecord::Base.transaction do
@@ -89,7 +110,7 @@ class Api::RoutePlansController < Api::BaseController
     { id: system.id, name: system.name }
   end
 
-  def hop_json(hop)
+  def hop_json(hop, timing)
     {
       system: {
         id:        hop.system.id,
@@ -98,7 +119,9 @@ class Api::RoutePlansController < Api::BaseController
         x:         hop.system.x,
         y:         hop.system.y
       },
-      distance: hop.distance
+      distance:          hop.distance,
+      transit_hours:     timing.transit_hours,
+      elapsed_avg_hours: timing.elapsed_avg_hours
     }
   end
 

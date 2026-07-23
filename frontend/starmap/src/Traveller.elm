@@ -5095,6 +5095,7 @@ routePlanFormConfig model =
     { hostConfig = model.hostConfig
     , isReferee = model.isReferee
     , travelZoneOptions = model.travelZoneOptions
+    , mDrive = model.ship |> Maybe.andThen .mDrive
     }
 
 
@@ -8365,7 +8366,11 @@ update msg ( time, model ) =
                     ( withTime model, Browser.Navigation.load (fallbackSectorsUrl model.hostConfig) )
 
         OpenRoutePlanner ->
-            ( withTime { model | routePlanForm = Just (RoutePlanForm.init (routePlanFormConfig model)) }, Cmd.none )
+            let
+                ( formModel, formCmd ) =
+                    RoutePlanForm.init (routePlanFormConfig model)
+            in
+            ( withTime { model | routePlanForm = Just formModel }, Cmd.map RoutePlanFormMsg formCmd )
 
         DownloadedTravelZones (Ok zones) ->
             ( withTime { model | travelZoneOptions = zones }, Cmd.none )

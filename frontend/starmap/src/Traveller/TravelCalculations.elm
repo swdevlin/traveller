@@ -1,6 +1,8 @@
 module Traveller.TravelCalculations exposing
     ( auToKMs
     , calcDistance2F
+    , formatDurationHours
+    , formatDurationRange
     , kmToAu
     , safeJumpTimeFromShadow
     , secondsToDaysWatches
@@ -137,6 +139,66 @@ travelTimeHoursDays secs =
                 totalHours - days * 24
         in
         String.fromInt days ++ "d " ++ String.fromInt hours ++ "h"
+
+
+{-| Format an hours duration as minutes/hours+minutes/weeks+days+hours,
+matching the Rails `RouteTimingHelper#format_duration_hours` formatter used
+for route-planning jump/transit times.
+-}
+formatDurationHours : Float -> String
+formatDurationHours hours =
+    let
+        totalMinutes =
+            round (hours * 60)
+    in
+    if totalMinutes < 60 then
+        String.fromInt totalMinutes ++ "m"
+
+    else
+        let
+            totalHours =
+                totalMinutes // 60
+
+            remainingMinutes =
+                totalMinutes - (totalHours * 60)
+        in
+        if totalHours < 24 then
+            String.fromInt totalHours ++ "h " ++ String.fromInt remainingMinutes ++ "m"
+
+        else
+            let
+                weeks =
+                    totalHours // 168
+
+                days =
+                    modBy 168 totalHours // 24
+
+                hoursRemainder =
+                    modBy 24 totalHours
+
+                weekPart =
+                    if weeks > 0 then
+                        [ String.fromInt weeks ++ "w" ]
+
+                    else
+                        []
+
+                dayPart =
+                    if days > 0 then
+                        [ String.fromInt days ++ "d" ]
+
+                    else
+                        []
+            in
+            String.join " " (weekPart ++ dayPart ++ [ String.fromInt hoursRemainder ++ "h" ])
+
+
+{-| Format an average duration with a symmetric plus-or-minus range, matching
+the Rails `RouteTimingHelper#format_duration_range` formatter.
+-}
+formatDurationRange : { min : Float, avg : Float, max : Float } -> String
+formatDurationRange { min, avg, max } =
+    formatDurationHours avg ++ " (±" ++ formatDurationHours ((max - min) / 2) ++ ")"
 
 
 {-| Calculate 2D distance between two stellar points

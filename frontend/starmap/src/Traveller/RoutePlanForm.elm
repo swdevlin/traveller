@@ -12,6 +12,7 @@ a `Cmd Msg` and the parent wires it in with `Cmd.map`.
 
 -}
 
+import Browser.Dom
 import HostConfig exposing (HostConfig)
 import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
@@ -20,6 +21,7 @@ import Http
 import Json.Decode as JsDecode
 import RemoteData exposing (RemoteData(..))
 import Set exposing (Set)
+import Task
 import Traveller.RoutePlan as RoutePlan
     exposing
         ( RoutePlanEndpoint
@@ -27,13 +29,22 @@ import Traveller.RoutePlan as RoutePlan
         , RoutePlanSystemResult
         , TravelZoneOption
         )
+import Traveller.TravelCalculations as TravelCalc
 import Url.Builder
+
+
+{-| DOM id of the "From" input, focused when the modal opens.
+-}
+fromInputId : String
+fromInputId =
+    "route-plan-from-input"
 
 
 type alias Config =
     { hostConfig : HostConfig
     , isReferee : Bool
     , travelZoneOptions : List TravelZoneOption
+    , mDrive : Maybe Int
     }
 
 
@@ -77,6 +88,7 @@ type alias Model =
     , jumpRange : Int
     , refueling : String
     , excludedZoneIds : Set Int
+    , mDrive : Int
     , planResult : RemoteData Http.Error RoutePlanResult
     , saveName : String
     , saveColour : String
@@ -84,18 +96,21 @@ type alias Model =
     }
 
 
-init : Config -> Model
-init _ =
-    { fromPicker = emptyPicker
-    , toPicker = emptyPicker
-    , jumpRange = 2
-    , refueling = "any"
-    , excludedZoneIds = Set.empty
-    , planResult = NotAsked
-    , saveName = ""
-    , saveColour = "#E87040"
-    , saveState = NotAsked
-    }
+init : Config -> ( Model, Cmd Msg )
+init config =
+    ( { fromPicker = emptyPicker
+      , toPicker = emptyPicker
+      , jumpRange = 2
+      , refueling = "any"
+      , excludedZoneIds = Set.empty
+      , mDrive = Maybe.withDefault 1 config.mDrive
+      , planResult = NotAsked
+      , saveName = ""
+      , saveColour = "#E87040"
+      , saveState = NotAsked
+      }
+    , Task.attempt (\_ -> NoOp) (Browser.Dom.focus fromInputId)
+    )
 
 
 type Msg
@@ -111,6 +126,7 @@ type Msg
     | PickTo RoutePlanSystemResult
     | CloseToDropdown
     | SetJumpRange Int
+    | SetMDrive Int
     | SetRefueling String
     | ToggleExcludedZone Int
     | SubmitPlan
@@ -226,6 +242,9 @@ update config msg model =
         SetJumpRange jumpRange ->
             ( clearPlan { model | jumpRange = jumpRange }, Cmd.none )
 
+        SetMDrive mDrive ->
+            ( clearPlan { model | mDrive = mDrive }, Cmd.none )
+
         SetRefueling refueling ->
             ( clearPlan { model | refueling = refueling }, Cmd.none )
 
@@ -250,6 +269,7 @@ update config msg model =
                         , jumpRange = model.jumpRange
                         , refueling = model.refueling
                         , excludedTravelZoneIds = Set.toList model.excludedZoneIds
+                        , mDrive = model.mDrive
                         }
                     )
 
@@ -279,6 +299,7 @@ update config msg model =
                             , toId = to.id
                             , excludedTravelZoneIds = Set.toList model.excludedZoneIds
                             , systemIds = List.map (.system >> .id) planResult.hops
+                            , mDrive = model.mDrive
                             }
                         )
 
@@ -341,7 +362,7 @@ sendSystemsRequest ( urlRoot, urlPath ) query toMsg =
 
 sendPlanRequest :
     HostConfig
-    -> { fromId : Int, toId : Int, jumpRange : Int, refueling : String, excludedTravelZoneIds : List Int }
+    -> { fromId : Int, toId : Int, jumpRange : Int, refueling : String, excludedTravelZoneIds : List Int, mDrive : Int }
     -> Cmd Msg
 sendPlanRequest ( urlRoot, urlPath ) params =
     Http.request
@@ -369,6 +390,7 @@ sendSaveRequest :
         , toId : Int
         , excludedTravelZoneIds : List Int
         , systemIds : List Int
+        , mDrive : Int
         }
     -> Cmd Msg
 sendSaveRequest ( urlRoot, urlPath ) params =
@@ -403,7 +425,7 @@ view config model =
         ]
         [ Html.div
             [ HtmlAttrs.class "starmap-glass-panel"
-            , HtmlAttrs.style "width" "420px"
+            , HtmlAttrs.style "width" "min(760px, 94vw)"
             , HtmlAttrs.style "max-height" "85vh"
             , HtmlAttrs.style "overflow-y" "auto"
             , HtmlAttrs.style "border-radius" "6px"
@@ -413,7 +435,7 @@ view config model =
             [ viewHeader
             , viewPickerField "From" model.fromPicker SetFromQuery PickFrom CloseFromDropdown
             , viewPickerField "To" model.toPicker SetToQuery PickTo CloseToDropdown
-            , viewJumpRange model.jumpRange
+            , viewJumpRangeAndMDrive model.jumpRange model.mDrive
             , viewRefueling model.refueling
             , viewTravelZones config.travelZoneOptions model.excludedZoneIds
             , viewSubmit model
@@ -469,19 +491,19 @@ viewPickerField label picker onQuery onPick onClose =
         [ HtmlAttrs.style "margin-bottom" "12px", HtmlAttrs.style "position" "relative" ]
         [ fieldLabel label
         , Html.input
-            [ HtmlAttrs.type_ "text"
-            , HtmlAttrs.value picker.query
-            , HtmlAttrs.placeholder "Search for a system…"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "box-sizing" "border-box"
-            , HtmlAttrs.style "font-size" "13px"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            , HtmlAttrs.style "background-color" "var(--color-panel)"
-            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
-            , HtmlAttrs.style "border-radius" "4px"
-            , HtmlAttrs.style "padding" "6px"
-            , HtmlEvents.onInput onQuery
-            , HtmlEvents.stopPropagationOn "keydown"
+            ([ HtmlAttrs.type_ "text"
+             , HtmlAttrs.value picker.query
+             , HtmlAttrs.placeholder "Search for a system…"
+             , HtmlAttrs.style "width" "100%"
+             , HtmlAttrs.style "box-sizing" "border-box"
+             , HtmlAttrs.style "font-size" "13px"
+             , HtmlAttrs.style "color" "var(--color-fg-bright)"
+             , HtmlAttrs.style "background-color" "var(--color-panel)"
+             , HtmlAttrs.style "border" "1px solid var(--color-outline)"
+             , HtmlAttrs.style "border-radius" "4px"
+             , HtmlAttrs.style "padding" "6px"
+             , HtmlEvents.onInput onQuery
+             , HtmlEvents.stopPropagationOn "keydown"
                 (JsDecode.field "key" JsDecode.string
                     |> JsDecode.map
                         (\key ->
@@ -492,7 +514,14 @@ viewPickerField label picker onQuery onPick onClose =
                                 ( NoOp, True )
                         )
                 )
-            ]
+             ]
+                ++ (if label == "From" then
+                        [ HtmlAttrs.id fromInputId ]
+
+                    else
+                        []
+                   )
+            )
             []
         , if picker.dropdownOpen then
             viewPickerDropdown picker onPick onClose
@@ -555,12 +584,25 @@ viewPickerResultRow onPick result =
         ]
 
 
+viewJumpRangeAndMDrive : Int -> Int -> Html Msg
+viewJumpRangeAndMDrive jumpRange mDrive =
+    Html.div
+        [ HtmlAttrs.style "display" "grid"
+        , HtmlAttrs.style "grid-template-columns" "1fr 1fr"
+        , HtmlAttrs.style "gap" "12px"
+        , HtmlAttrs.style "margin-bottom" "12px"
+        ]
+        [ viewJumpRange jumpRange
+        , viewMDrive mDrive
+        ]
+
+
 viewJumpRange : Int -> Html Msg
 viewJumpRange jumpRange =
-    Html.div [ HtmlAttrs.style "margin-bottom" "12px" ]
+    Html.div []
         [ fieldLabel "Jump Range"
         , Html.select
-            [ HtmlAttrs.style "width" "110px"
+            [ HtmlAttrs.style "width" "100%"
             , HtmlAttrs.style "font-size" "13px"
             , HtmlAttrs.style "color" "var(--color-fg-bright)"
             , HtmlAttrs.style "background-color" "var(--color-panel)"
@@ -574,6 +616,30 @@ viewJumpRange jumpRange =
                     (\n ->
                         Html.option [ HtmlAttrs.value (String.fromInt n), HtmlAttrs.selected (n == jumpRange) ]
                             [ Html.text ("J-" ++ String.fromInt n) ]
+                    )
+            )
+        ]
+
+
+viewMDrive : Int -> Html Msg
+viewMDrive mDrive =
+    Html.div []
+        [ fieldLabel "M-Drive"
+        , Html.select
+            [ HtmlAttrs.style "width" "100%"
+            , HtmlAttrs.style "font-size" "13px"
+            , HtmlAttrs.style "color" "var(--color-fg-bright)"
+            , HtmlAttrs.style "background-color" "var(--color-panel)"
+            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
+            , HtmlAttrs.style "border-radius" "4px"
+            , HtmlAttrs.style "padding" "4px 8px"
+            , HtmlEvents.onInput (\s -> SetMDrive (String.toInt s |> Maybe.withDefault mDrive))
+            ]
+            (List.range 1 6
+                |> List.map
+                    (\n ->
+                        Html.option [ HtmlAttrs.value (String.fromInt n), HtmlAttrs.selected (n == mDrive) ]
+                            [ Html.text (String.fromInt n) ]
                     )
             )
         ]
@@ -704,24 +770,17 @@ viewFoundRoute config model result =
             max 0 (List.length result.hops - 1)
     in
     Html.div []
-        [ Html.div
-            [ HtmlAttrs.style "display" "flex"
-            , HtmlAttrs.style "gap" "16px"
-            , HtmlAttrs.style "font-size" "12px"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            , HtmlAttrs.style "margin-bottom" "8px"
+        [ viewStatRow
+            [ ( "Jumps", String.fromInt jumps )
+            , ( "Jump Distance", String.fromInt (Maybe.withDefault 0 result.totalDistance) )
+            , ( "Parsec Distance", String.fromInt (Maybe.withDefault 0 result.parsecDistance) )
             ]
-            [ Html.span [] [ Html.text (String.fromInt jumps ++ " jump" ++ pluralSuffix jumps) ]
-            , Html.span [] [ Html.text (String.fromInt (Maybe.withDefault 0 result.totalDistance) ++ " pc jump distance") ]
-            , Html.span [] [ Html.text (String.fromInt (Maybe.withDefault 0 result.parsecDistance) ++ " pc direct") ]
+        , viewStatRow
+            [ ( "Total Time", viewTotalTimeText result )
+            , ( "Jump Time", viewTotalJumpTimeText result )
+            , ( "Transit Time", viewTotalTransitTimeText result )
             ]
-        , Html.div
-            [ HtmlAttrs.style "display" "flex"
-            , HtmlAttrs.style "flex-direction" "column"
-            , HtmlAttrs.style "gap" "2px"
-            , HtmlAttrs.style "margin-bottom" "12px"
-            ]
-            (List.map viewHopRow result.hops)
+        , viewHopTable result.hops
         , if config.isReferee then
             viewSaveForm model
 
@@ -730,28 +789,164 @@ viewFoundRoute config model result =
         ]
 
 
-pluralSuffix : Int -> String
-pluralSuffix n =
-    if n == 1 then
-        ""
-
-    else
-        "s"
-
-
-viewHopRow : RoutePlan.Hop -> Html Msg
-viewHopRow hop =
+viewStatRow : List ( String, String ) -> Html Msg
+viewStatRow stats =
     Html.div
-        [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "justify-content" "space-between"
-        , HtmlAttrs.style "font-size" "13px"
-        , HtmlAttrs.style "color" "var(--color-fg)"
-        , HtmlAttrs.style "padding" "3px 6px"
-        , HtmlAttrs.style "border-radius" "3px"
-        , HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 8%, transparent)"
+        [ HtmlAttrs.style "display" "grid"
+        , HtmlAttrs.style "grid-template-columns" ("repeat(" ++ String.fromInt (List.length stats) ++ ", 1fr)")
+        , HtmlAttrs.style "gap" "8px 16px"
+        , HtmlAttrs.style "text-align" "center"
+        , HtmlAttrs.style "margin-bottom" "10px"
         ]
-        [ Html.span [] [ Html.text hop.system.name ]
-        , Html.span [ HtmlAttrs.style "color" "var(--color-fg-muted)" ] [ Html.text hop.system.hexLabel ]
+        (List.map viewStatTile stats)
+
+
+viewStatTile : ( String, String ) -> Html Msg
+viewStatTile ( label, value ) =
+    Html.div []
+        [ Html.div
+            [ HtmlAttrs.style "font-size" "10px"
+            , HtmlAttrs.style "text-transform" "uppercase"
+            , HtmlAttrs.style "letter-spacing" "0.08em"
+            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+            , HtmlAttrs.style "margin-bottom" "2px"
+            ]
+            [ Html.text label ]
+        , Html.div
+            [ HtmlAttrs.style "font-size" "13px"
+            , HtmlAttrs.style "font-weight" "600"
+            , HtmlAttrs.style "color" "var(--color-fg-bright)"
+            ]
+            [ Html.text value ]
+        ]
+
+
+viewTotalTimeText : RoutePlanResult -> String
+viewTotalTimeText result =
+    case ( result.totalMinHours, result.totalAvgHours, result.totalMaxHours ) of
+        ( Just min, Just avg, Just max ) ->
+            TravelCalc.formatDurationRange { min = min, avg = avg, max = max }
+
+        _ ->
+            "—"
+
+
+viewTotalJumpTimeText : RoutePlanResult -> String
+viewTotalJumpTimeText result =
+    case ( result.totalJumpMinHours, result.totalJumpAvgHours, result.totalJumpMaxHours ) of
+        ( Just min, Just avg, Just max ) ->
+            TravelCalc.formatDurationRange { min = min, avg = avg, max = max }
+
+        _ ->
+            "—"
+
+
+viewTotalTransitTimeText : RoutePlanResult -> String
+viewTotalTransitTimeText result =
+    case result.totalTransitHours of
+        Just hours ->
+            TravelCalc.formatDurationHours hours
+
+        Nothing ->
+            "—"
+
+
+viewHopTable : List RoutePlan.Hop -> Html Msg
+viewHopTable hops =
+    let
+        lastIndex =
+            List.length hops - 1
+    in
+    Html.table
+        [ HtmlAttrs.style "width" "100%"
+        , HtmlAttrs.style "border-collapse" "collapse"
+        , HtmlAttrs.style "font-size" "13px"
+        , HtmlAttrs.style "margin-bottom" "12px"
+        ]
+        [ Html.thead []
+            [ Html.tr
+                [ HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
+                ]
+                [ hopHeaderCell "right" "Jump"
+                , hopHeaderCell "left" "System"
+                , hopHeaderCell "right" "Transit Time (one-way)"
+                , hopHeaderCell "right" "Elapsed"
+                ]
+            ]
+        , Html.tbody []
+            (List.indexedMap (viewHopTableRow lastIndex) hops)
+        ]
+
+
+hopHeaderCell : String -> String -> Html Msg
+hopHeaderCell align label =
+    Html.th
+        [ HtmlAttrs.style "text-align" align
+        , HtmlAttrs.style "padding" "0 8px 6px 8px"
+        , HtmlAttrs.style "font-size" "11px"
+        , HtmlAttrs.style "text-transform" "uppercase"
+        , HtmlAttrs.style "letter-spacing" "0.05em"
+        , HtmlAttrs.style "color" "var(--color-fg-muted)"
+        , HtmlAttrs.style "white-space" "nowrap"
+        ]
+        [ Html.text label ]
+
+
+viewHopTableRow : Int -> Int -> RoutePlan.Hop -> Html Msg
+viewHopTableRow lastIndex index hop =
+    let
+        isEndpoint =
+            index == 0 || index == lastIndex
+
+        rowColour =
+            if isEndpoint then
+                "var(--color-highlight)"
+
+            else
+                "var(--color-fg)"
+    in
+    Html.tr
+        [ HtmlAttrs.style "border-bottom" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
+        , HtmlAttrs.style "color" rowColour
+        ]
+        [ Html.td
+            [ HtmlAttrs.style "text-align" "right"
+            , HtmlAttrs.style "padding" "6px 8px"
+            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+            , HtmlAttrs.style "white-space" "nowrap"
+            ]
+            [ Html.text
+                (if index > 0 then
+                    "J-" ++ String.fromInt hop.distance
+
+                 else
+                    ""
+                )
+            ]
+        , Html.td
+            [ HtmlAttrs.style "padding" "6px 8px"
+            ]
+            [ Html.div [] [ Html.text hop.system.name ]
+            , Html.div
+                [ HtmlAttrs.style "font-size" "11px"
+                , HtmlAttrs.style "color" "var(--color-fg-muted)"
+                ]
+                [ Html.text hop.system.hexLabel ]
+            ]
+        , Html.td
+            [ HtmlAttrs.style "text-align" "right"
+            , HtmlAttrs.style "padding" "6px 8px"
+            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+            , HtmlAttrs.style "white-space" "nowrap"
+            ]
+            [ Html.text (TravelCalc.formatDurationHours hop.transitHours) ]
+        , Html.td
+            [ HtmlAttrs.style "text-align" "right"
+            , HtmlAttrs.style "padding" "6px 8px"
+            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+            , HtmlAttrs.style "white-space" "nowrap"
+            ]
+            [ Html.text (TravelCalc.formatDurationHours hop.elapsedAvgHours) ]
         ]
 
 

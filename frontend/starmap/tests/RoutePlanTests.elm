@@ -19,12 +19,22 @@ foundJson =
       "refueling": "wilderness",
       "excluded_travel_zone_ids": [],
       "hops": [
-        { "system": { "id": 1, "name": "Alpha", "hex_label": "0101", "x": 0, "y": 0 }, "distance": 0 },
-        { "system": { "id": 2, "name": "Beta", "hex_label": "0102", "x": 1, "y": 0 }, "distance": 1 },
-        { "system": { "id": 3, "name": "Gamma", "hex_label": "0103", "x": 2, "y": 0 }, "distance": 1 }
+        { "system": { "id": 1, "name": "Alpha", "hex_label": "0101", "x": 0, "y": 0 }, "distance": 0,
+          "transit_hours": 1.5, "elapsed_avg_hours": 1.5 },
+        { "system": { "id": 2, "name": "Beta", "hex_label": "0102", "x": 1, "y": 0 }, "distance": 1,
+          "transit_hours": 2.5, "elapsed_avg_hours": 173.0 },
+        { "system": { "id": 3, "name": "Gamma", "hex_label": "0103", "x": 2, "y": 0 }, "distance": 1,
+          "transit_hours": 3.5, "elapsed_avg_hours": 348.0 }
       ],
       "total_distance": 2,
-      "parsec_distance": 2
+      "parsec_distance": 2,
+      "total_jump_avg_hours": 338.0,
+      "total_jump_min_hours": 308.0,
+      "total_jump_max_hours": 368.0,
+      "total_transit_hours": 10.0,
+      "total_avg_hours": 348.0,
+      "total_min_hours": 318.0,
+      "total_max_hours": 378.0
     }
     """
 
@@ -41,7 +51,14 @@ notFoundJson =
       "excluded_travel_zone_ids": [7],
       "hops": [],
       "total_distance": null,
-      "parsec_distance": null
+      "parsec_distance": null,
+      "total_jump_avg_hours": null,
+      "total_jump_min_hours": null,
+      "total_jump_max_hours": null,
+      "total_transit_hours": null,
+      "total_avg_hours": null,
+      "total_min_hours": null,
+      "total_max_hours": null
     }
     """
 
@@ -60,6 +77,17 @@ routePlanResultDecoderTests =
                             , \r -> Expect.equal 3 (List.length r.hops)
                             , \r -> Expect.equal (Just 2) r.totalDistance
                             , \r -> Expect.equal (Just 2) r.parsecDistance
+                            , \r -> Expect.equal (Just 338.0) r.totalJumpAvgHours
+                            , \r -> Expect.equal (Just 308.0) r.totalJumpMinHours
+                            , \r -> Expect.equal (Just 368.0) r.totalJumpMaxHours
+                            , \r -> Expect.equal (Just 10.0) r.totalTransitHours
+                            , \r -> Expect.equal (Just 348.0) r.totalAvgHours
+                            , \r -> Expect.equal (Just 318.0) r.totalMinHours
+                            , \r -> Expect.equal (Just 378.0) r.totalMaxHours
+                            , \r -> Expect.equal (Just 1.5) (List.head r.hops |> Maybe.map .transitHours)
+                            , \r -> Expect.equal (Just 1.5) (List.head r.hops |> Maybe.map .elapsedAvgHours)
+                            , \r -> Expect.equal (Just 2.5) (List.drop 1 r.hops |> List.head |> Maybe.map .transitHours)
+                            , \r -> Expect.equal (Just 173.0) (List.drop 1 r.hops |> List.head |> Maybe.map .elapsedAvgHours)
                             ]
                             result
 
@@ -74,6 +102,7 @@ routePlanResultDecoderTests =
                             , \r -> Expect.equal [] r.hops
                             , \r -> Expect.equal Nothing r.totalDistance
                             , \r -> Expect.equal Nothing r.parsecDistance
+                            , \r -> Expect.equal Nothing r.totalAvgHours
                             , \r -> Expect.equal [ 7 ] r.excludedTravelZoneIds
                             ]
                             result

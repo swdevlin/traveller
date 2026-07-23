@@ -3,7 +3,7 @@
 class RoutePlanner
   include HexDistance
 
-  SystemNode = Struct.new(:id, :name, :x, :y, :gas_giant_count, :starport_code, :hex_label, :travel_zone_id, :known, :survey_index, keyword_init: true)
+  SystemNode = Struct.new(:id, :name, :x, :y, :gas_giant_count, :starport_code, :hex_label, :sector_id, :travel_zone_id, :known, :survey_index, keyword_init: true)
   Hop        = Struct.new(:system, :distance, keyword_init: true)
   RoutePlan  = Struct.new(:hops, keyword_init: true)
 
@@ -52,6 +52,7 @@ class RoutePlanner
     sql = <<~SQL
       SELECT ss.id, ss.name, p.x, p.y, ss.gas_giant_count, ss.travel_zone_id, ss.known, ss.survey_index,
              so.data->>'starport_code' AS starport_code,
+             sec.id AS sector_id,
              sec.name || ' ' ||
                LPAD((p.x - sec.x * 32 + 1)::text, 2, '0') ||
                LPAD((sec.y * 40 - p.y + 1)::text, 2, '0') AS hex_label
@@ -71,6 +72,7 @@ class RoutePlanner
         gas_giant_count: row['gas_giant_count'].to_i,
         starport_code:   row['starport_code'],
         hex_label:       row['hex_label'],
+        sector_id:       row['sector_id'].to_i,
         travel_zone_id:  row['travel_zone_id']&.to_i,
         known:           row['known'],
         survey_index:    row['survey_index'].to_i

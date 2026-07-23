@@ -49,8 +49,8 @@
       </div>
     </div>
 
-    <%# Ship + Jump range %>
-    <div class='grid grid-cols-2 gap-4'>
+    <%# Ship + Jump range + M-Drive %>
+    <div class='grid grid-cols-3 gap-4'>
       <div>
         <label class='edit-label'>Ship</label>
         <select name='ship_id'
@@ -60,7 +60,8 @@
           <option value=''>— select a ship —</option>
           <% @ships.each do |ship| %>
             <option value='<%= ship.id %>'
-                    data-jump-drive='<%= ship.jump_drive %>'>
+                    data-jump-drive='<%= ship.jump_drive %>'
+                    data-m-drive='<%= ship.m_drive %>'>
               <%= ship.name %> (J-<%= ship.jump_drive %>)
             </option>
           <% end %>
@@ -75,6 +76,18 @@
                 class='w-full edit-base mt-2'>
           <% (1..6).each do |n| %>
             <option value='<%= n %>' <%= 'selected' if @jump_range == n %>><%= n %></option>
+          <% end %>
+        </select>
+      </div>
+
+      <div>
+        <label class='edit-label'>M-Drive</label>
+        <select name='m_drive'
+                data-route-plan-target='mDrive'
+                data-action='change->route-plan#mDriveChanged'
+                class='w-full edit-base mt-2'>
+          <% (1..6).each do |n| %>
+            <option value='<%= n %>' <%= 'selected' if @m_drive == n %>><%= n %></option>
           <% end %>
         </select>
       </div>
