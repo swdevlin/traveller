@@ -28,6 +28,10 @@ proxy:
   healthcheck:
     path: /up
     interval: 2
+  # kamal-proxy's default max_request_body is 40MB, which silently rejects larger
+  # rulebook PDF uploads before they ever reach Rails (no trace in the app logs).
+  buffering:
+    max_request_body: 200_000_000
   run:
     http_port: 3025
     https_port: 3026
