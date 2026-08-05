@@ -1,0 +1,59 @@
+<% content_for :title, 'Rulebook Search' %>
+<% content_for :page_kicker, 'Reference Manual' %>
+<% content_for :page_title, 'Rulebook Search' %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-4'>
+    <%= form_with url: rulebook_search_path,
+                  method: :get,
+                  data: { turbo_frame: 'rulebook-search-results', controller: 'autosubmit', autosubmit_delay_value: 250 },
+                  class: 'flex flex-col gap-3' do %>
+      <div class='flex flex-col gap-3 sm:flex-row sm:items-center'>
+        <div class='relative flex-1'>
+          <i class='fa-regular fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted'></i>
+          <%= text_field_tag :q, @query,
+                             placeholder: 'Search every rulebook, e.g. "jump drive"',
+                             autocomplete: 'off',
+                             data: { controller: 'autofocus', action: 'input->autosubmit#queue' },
+                             class: 'input w-full pl-9' %>
+        </div>
+
+        <%= submit_tag 'Search', class: 'btn btn-primary' %>
+      </div>
+
+      <div class='flex flex-wrap items-center gap-3'>
+        <i class='fa-regular fa-filter text-fg-muted text-sm'></i>
+
+        <%= select_tag :rulebook_ids,
+                       options_for_select([['All rulebooks', nil]] + Rulebook.searchable.order(:title).pluck(:title, :id),
+                                          params[:rulebook_ids]),
+                       class: 'input',
+                       data: { action: 'change->autosubmit#queue' } %>
+
+        <%= select_tag :editions,
+                       options_for_select([['All editions', nil]] + Rulebook.searchable.distinct.order(:edition).pluck(:edition).compact,
+                                          params[:editions]),
+                       class: 'input',
+                       data: { action: 'change->autosubmit#queue' } %>
+
+        <%= select_tag :categories,
+                       options_for_select([['All categories', nil]] + Rulebook.categories.keys.map { |c| [c.humanize, c] },
+                                          params[:categories]),
+                       class: 'input',
+                       data: { action: 'change->autosubmit#queue' } %>
+
+        <label class='flex items-center gap-2 text-xs text-fg-muted'>
+          Min rank
+          <%= number_field_tag :minimum_rank, @minimum_rank,
+                               step: 0.1, min: 0, placeholder: 'none',
+                               class: 'input w-24',
+                               data: { action: 'input->autosubmit#queue' } %>
+        </label>
+      </div>
+    <% end %>
+
+    <turbo-frame id='rulebook-search-results'>
+      <%= render 'results', groups: @groups, query: @query, minimum_rank: @minimum_rank %>
+    </turbo-frame>
+  </div>
+<% end %>

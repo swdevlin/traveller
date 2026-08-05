@@ -3,6 +3,10 @@
 A site to manage a Traveller Universe. Initial version is for Deepnight campaigns and for referees building their
 own charted space. It is intended to eventually support Drinax campaigns and charted space.
 
+## Documentation
+
+* [Rulebook search](docs/rulebooks.md) — importing rulebooks, page numbering, and search
+
 ## To Do
 * Add Button to create all deepnight sectors
   * create with configuration for each sector

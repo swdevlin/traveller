@@ -1,0 +1,17 @@
+<% content_for :title, "#{@rulebook.title} — Page Mapping" %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, "#{@rulebook.title} — Page Mapping" %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Page mapping</p>
+    </div>
+
+    <%= render 'mapping_table', pages: @pages, pagy: @pagy, rulebook: @rulebook %>
+  </div>
+
+  <div class='pt-4'>
+    <%= render 'application/back_button', path: admin_rulebook_path(@rulebook), label: @rulebook.title %>
+  </div>
+<% end %>

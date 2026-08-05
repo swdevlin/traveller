@@ -16,6 +16,19 @@ Rails.application.routes.draw do
 
   mount MissionControl::Jobs::Engine, at: '/jobs'
 
+  namespace :admin do
+    resources :rulebooks do
+      member do
+        post :import
+        post :rebuild_search_vectors
+        patch :toggle_searchable
+      end
+      resources :rulebook_pages, only: %i[index show update] do
+        collection { get :mapping }
+      end
+    end
+  end
+
   # Campaign-scoped routes — all prefixed with /c/:campaign_slug
   scope '/c/:campaign_slug' do
     get '/', to: redirect { |params, _req| "/c/#{params[:campaign_slug]}/sectors" }, as: :campaign_root
@@ -59,6 +72,7 @@ Rails.application.routes.draw do
       post 'route_plan/save',    to: 'route_plans#save',    defaults: { format: :json }
       get  'route_plan/systems', to: 'route_plans#systems', defaults: { format: :json }
       resources :travel_zones, only: :index, defaults: { format: :json }
+      get 'rulebooks/search', to: '/rulebook_search#index', as: :rulebook_search, defaults: { format: :json }
     end
 
     resources :jump_logs
@@ -217,6 +231,13 @@ Rails.application.routes.draw do
     post '/languages/generate', to: 'languages#generate', as: :generate_languages
     get  '/languages/word',     to: 'languages#word',     as: :language_word
     get '/data-cores', to: 'data_cores#index', as: :data_cores
+
+    get 'library/search',      to: 'rulebook_search#index', as: :rulebook_search
+    get 'library/search/more', to: 'rulebook_search#more',  as: :more_rulebook_search
+
+    get   'library', to: 'library#index', as: :library
+    patch 'library/:rulebook_id/toggle_enabled',           to: 'library#toggle_enabled',           as: :toggle_enabled_library
+    patch 'library/:rulebook_id/toggle_player_searchable', to: 'library#toggle_player_searchable', as: :toggle_player_searchable_library
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight
       post :assign_builds

@@ -1,0 +1,12 @@
+<%# locals: groups, query, minimum_rank %>
+<% if query.blank? %>
+  <%= render 'empty_state' %>
+<% elsif groups.empty? %>
+  <%= render 'no_results', query: query %>
+<% else %>
+  <div class='space-y-4'>
+    <% groups.each do |group| %>
+      <%= render 'group', group: group, query: query, minimum_rank: minimum_rank %>
+    <% end %>
+  </div>
+<% end %>

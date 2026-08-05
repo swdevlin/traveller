@@ -96,6 +96,7 @@ import Traveller.Route as Route exposing (Route, RouteList)
 import Traveller.RoutePlan as RoutePlan
 import Traveller.RoutePlanForm as RoutePlanForm
 import Traveller.Sector exposing (Sector, SectorDict, codec, sectorKey)
+import Traveller.RulebookSearch as RulebookSearch
 import Traveller.Ship exposing (Ship)
 import Traveller.ShipTraffic as ShipTraffic
 import Traveller.Sidebar
@@ -815,6 +816,7 @@ type alias ModelData =
     , jumpRouteLayerEditor : Maybe JumpRouteLayerEditor.Model
     , pendingDeleteJumpRouteId : Maybe Int
     , hiddenJumpRouteIds : Set.Set Int
+    , rulebookSearch : RulebookSearch.Model
     }
 
 
@@ -929,6 +931,7 @@ type Msg
     | DeletedJumpRouteLayer Int (Result Http.Error ())
     | JumpRouteLayerEditorMsg JumpRouteLayerEditor.Msg
     | DownloadedJumpRouteLayers (Result Http.Error (List JumpRouteLayer.Route))
+    | RulebookSearchMsg RulebookSearch.Msg
 
 
 type JourneyMsg
@@ -1526,6 +1529,7 @@ init viewport settings key hostConfig referee =
             , jumpRouteLayerEditor = Nothing
             , pendingDeleteJumpRouteId = Nothing
             , hiddenJumpRouteIds = initialHiddenJumpRouteIds
+            , rulebookSearch = RulebookSearch.init
             }
     in
     ( ( Time.millisToPosix 0
@@ -4862,6 +4866,14 @@ viewStatusRowHtml model =
             else
                 []
 
+        rulebookSearchIcon =
+            [ navIcon
+                { title = "Reference"
+                , icon = "fa-regular fa-book"
+                , onClick = RulebookSearchMsg RulebookSearch.ToggleOpen
+                }
+            ]
+
         displaySettingsGear =
             if model.viewMode == HexMap then
                 [ navIcon { title = "Map display settings", icon = "fa-regular fa-gear", onClick = ToggleDisplaySettings } ]
@@ -5026,6 +5038,7 @@ viewStatusRowHtml model =
          , viewModeIcon FullJourney "fa-map"
          ]
             ++ backToRailsButton
+            ++ rulebookSearchIcon
             ++ viewSearchField model
             ++ extras
             ++ [ mapAreaText ]
@@ -6098,6 +6111,11 @@ view ( time, model ) =
          ]
             ++ objectAnalysisLayers
             ++ [ Element.htmlAttribute <| HtmlAttrs.class ""
+               , if model.rulebookSearch.isOpen then
+                    Element.inFront <| Element.html (Html.map RulebookSearchMsg (RulebookSearch.view model.rulebookSearch))
+
+                 else
+                    Element.htmlAttribute <| HtmlAttrs.class ""
                , case ( model.showTravelTable, model.selectedSystem ) of
                     ( True, Just solarSystem ) ->
                         Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
@@ -8504,6 +8522,13 @@ update msg ( time, model ) =
 
         DownloadedJumpRouteLayers (Err _) ->
             ( withTime model, Cmd.none )
+
+        RulebookSearchMsg subMsg ->
+            let
+                ( subModel, subCmd ) =
+                    RulebookSearch.update model.hostConfig subMsg model.rulebookSearch
+            in
+            ( withTime { model | rulebookSearch = subModel }, Cmd.map RulebookSearchMsg subCmd )
 
         RoutePlanFormMsg subMsg ->
             case model.routePlanForm of

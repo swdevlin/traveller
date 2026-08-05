@@ -1,0 +1,59 @@
+<% content_for :title, 'Library' %>
+
+<%= render 'help/page', title: 'Library' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Rulebooks are uploaded once into a global catalog shared across every campaign. The
+      Library lists every rulebook in that catalog and lets this campaign's referee choose
+      which of those books this campaign actually uses. A book must be enabled here before it
+      appears in this campaign's rulebook search.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Title / Category / Edition</dt>
+          <dd class='mt-1 text-fg'>
+            Metadata describing the rulebook, set by the administrator who imported it.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Enabled</dt>
+          <dd class='mt-1 text-fg'>
+            Whether this campaign uses the book. When on, the referee can find it in rulebook
+            search. Turning it off also clears
+            <span class='font-semibold text-fg-bright'>Player Searchable</span> for that book.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Player Searchable</dt>
+          <dd class='mt-1 text-fg'>
+            Of the enabled books, which are also visible to players — anonymous, not-logged-in
+            visitors. This app has no separate player-account system; "not logged in" is the
+            player role. A book can't be player-searchable without also being enabled;
+            switching this on enables the book automatically if it wasn't already.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Not Seeing a Book?</p>
+      <p class='text-fg'>
+        Only rulebooks an administrator has marked <span class='font-mono text-fg-bright'>Searchable</span>
+        and finished importing appear here. If a book you expect is missing, ask an
+        administrator to check its status in the rulebook catalog.
+      </p>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0804LB
+    </div>
+
+  </div>
+<% end %>

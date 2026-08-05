@@ -22,6 +22,7 @@ ActiveRecord::Tasks::DatabaseTasks.singleton_class.prepend(EnsureSharedExtension
 require_relative '../db/seed_data/trade_codes'
 require_relative 'test_helpers/session_test_helper'
 require_relative 'test_helpers/authenticated_integration_test'
+require_relative 'test_helpers/stub_new_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 

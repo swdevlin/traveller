@@ -1,0 +1,36 @@
+core:
+  title: Core Rulebook
+  short_title: Core
+  edition: '2nd'
+  publication_year: 2021
+  category: rulebook
+  status: ready
+  searchable: true
+  page_number_offset: -2
+  header_footer_patterns: []
+
+hidden:
+  title: Hidden Sourcebook
+  short_title: Hidden
+  category: supplement
+  status: ready
+  searchable: false
+  page_number_offset: 0
+  header_footer_patterns: []
+
+failed_import:
+  title: Broken Book
+  category: adventure
+  status: failed
+  searchable: true
+  page_number_offset: 0
+  import_error: 'pdftotext failed on page 1'
+  header_footer_patterns: []
+
+pending_import:
+  title: Not Yet Imported
+  category: setting
+  status: pending
+  searchable: true
+  page_number_offset: 0
+  header_footer_patterns: []

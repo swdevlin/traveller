@@ -1,0 +1,7 @@
+<% content_for :title, "Edit #{@rulebook.title}" %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, "Edit #{@rulebook.title}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', rulebook: @rulebook %>
+<% end %>

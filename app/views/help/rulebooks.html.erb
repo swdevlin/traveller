@@ -1,0 +1,161 @@
+<% content_for :title, 'Rulebooks' %>
+
+<%= render 'help/page', title: 'Rulebooks' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      The rulebook registry is the global catalog of imported PDFs, shared across every
+      campaign. Adding a book here makes it available for a campaign's referee to enable from
+      that campaign's Library page — it does not, by itself, make the book searchable by anyone.
+      Administrator access only.
+    </p>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Registry</p>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Filter</dt>
+          <dd class='mt-1 text-fg'>
+            Narrows the list by title or short title as you type.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Status</dt>
+          <dd class='mt-1 text-fg'>
+            The state of the most recent import attempt.
+          </dd>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li><span class='font-semibold text-fg-bright'>Pending</span> — created, import not yet started.</li>
+            <li><span class='font-semibold text-fg-bright'>Processing</span> — the import job is extracting and indexing pages.</li>
+            <li><span class='font-semibold text-fg-bright'>Ready</span> — import finished successfully; pages are searchable.</li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Failed</span> — the import did not complete. The book's
+              show page displays the diagnostic error. A book is never left looking Ready with
+              only some of its pages imported.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Searchable</dt>
+          <dd class='mt-1 text-fg'>
+            A global, admin-only kill switch, separate from any campaign's own per-book
+            Enabled toggle. Turning this off removes the book from every campaign's search
+            immediately and stops it appearing as an option to enable on any Library page — but
+            does not delete the book or its imported pages.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Creating a Rulebook</p>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>PDF</dt>
+          <dd class='mt-1 text-fg'>
+            Required when creating a rulebook. Saving the form queues the import as a background
+            job immediately, using the uploaded file. The upload itself is never retained —
+            it's deleted from the server once the import job finishes, whether it succeeds or
+            fails. Only extracted page text and metadata are stored afterward, so keep the
+            source PDF in your own archive.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>PDF Page Offset</dt>
+          <dd class='mt-1 text-fg'>
+            A PDF's internal page index almost never matches the number printed on the page —
+            covers, blank pages, and roman-numeral front matter all shift things. The offset is
+            <span class='font-mono text-fg-bright'>PDF page − printed page</span>, so:
+          </dd>
+          <div class='mt-3 rounded-2xl border border-outline bg-panel-muted p-4 font-mono text-sm text-fg'>
+            printed page = PDF page − offset
+          </div>
+          <div class='mt-3'>
+            <p class='text-fg'>
+              To find the right value: open the PDF, find any page where you can read the
+              printed page number, and note its PDF page index. For example, if PDF page 8 is
+              printed as page 3, the offset is <span class='font-mono text-fg-bright'>8 − 3 = 5</span>.
+              Get this right before importing — it determines the default printed page number
+              for every page that doesn't have an explicit override.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Header/Footer Patterns</dt>
+          <dd class='mt-1 text-fg'>
+            One regular expression per line, matched against each page's extracted text and
+            stripped before it's indexed for search. Extraction is often noisy — repeated
+            headers/footers, page numbers bleeding into the text, purchaser watermarks — and
+            these patterns clean that up.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Managing an Existing Rulebook</p>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Start Import</dt>
+          <dd class='mt-1 text-fg'>
+            Uploads a fresh PDF and reprocesses the book, replacing its previously imported
+            pages. This always reprocesses — even a byte-identical re-upload of the current file
+            — so it's how you force a reimport after an extractor change or edited header/footer
+            patterns. The book's ID never changes across reimports.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Rebuild Search Vectors</dt>
+          <dd class='mt-1 text-fg'>
+            Re-runs text normalisation and re-indexes every already-extracted page without
+            re-reading the PDF. Use this after editing Header/Footer Patterns — the raw extracted
+            text is always kept separately from the cleaned, searchable text specifically so
+            normalisation can be redone without a full reimport.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Edit</dt>
+          <dd class='mt-1 text-fg'>
+            Changes metadata, the page offset, header/footer patterns, and the Searchable flag.
+            Does not itself trigger a reimport or a search-vector rebuild — use the buttons above
+            for that.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Delete</dt>
+          <dd class='mt-1 text-fg'>
+            Permanently removes the rulebook and all its imported pages. This cannot be undone.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Page Numbering</p>
+      <p class='text-fg'>
+        Not every page in a book fits the offset cleanly — covers, inserted maps, and renumbered
+        sections need manual handling. Use the
+        <%= link_to 'page mapping', help_page_path('rulebook_pages'), class: 'no-underline hover:underline hover:underline-offset-2' %>
+        table, linked from a rulebook's show page, to correct individual pages.
+      </p>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0804RB
+    </div>
+
+  </div>
+<% end %>

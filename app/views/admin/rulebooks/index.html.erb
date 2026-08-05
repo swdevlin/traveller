@@ -1,0 +1,42 @@
+<% content_for :title, 'Rulebooks' %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, 'Rulebooks' %>
+
+<%= render 'application/page' do %>
+  <div class='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2'>
+    <%= form_with url: admin_rulebooks_path,
+                  method: :get,
+                  data: { controller: 'autosubmit', autosubmit_delay_value: 250 },
+                  class: 'flex items-center gap-2' do %>
+      <%= text_field_tag :q, params[:q],
+                         placeholder: 'Filter rulebooks…',
+                         autocomplete: 'off',
+                         data: { controller: 'autofocus', action: 'input->autosubmit#queue' },
+                         class: 'input w-56' %>
+
+      <% if params[:q].present? %>
+        <%= link_to 'Clear', admin_rulebooks_path, class: 'btn' %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Rulebook registry</p>
+
+      <div class='actions'>
+        <%= link_to new_admin_rulebook_path, class: 'btn-header' do %>
+          <i class='fa-regular fa-plus'></i>
+          Add
+        <% end %>
+      </div>
+    </div>
+
+    <turbo-frame id='admin-rulebooks-table'
+                 data-controller='ui-updates'
+                 data-ui-updates-event-value='rulebook_updated'
+                 data-ui-updates-src-value='<%= admin_rulebooks_path(q: params[:q]) %>'>
+      <%= render 'table', rulebooks: @rulebooks, pagy: @pagy %>
+    </turbo-frame>
+  </div>
+<% end %>

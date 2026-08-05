@@ -1,0 +1,8 @@
+<%# locals: segments %>
+<% segments.each do |segment| %>
+  <% if segment.highlighted %>
+    <mark class='bg-transparent font-semibold text-highlight'><%= segment.text %></mark>
+  <% else %>
+    <%= segment.text %>
+  <% end %>
+<% end %>

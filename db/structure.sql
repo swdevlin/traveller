@@ -199,6 +199,40 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
+-- Name: campaign_rulebooks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.campaign_rulebooks (
+    id bigint NOT NULL,
+    rulebook_id bigint NOT NULL,
+    enabled boolean DEFAULT false NOT NULL,
+    player_searchable boolean DEFAULT false NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT campaign_rulebooks_player_searchable_implies_enabled CHECK (((NOT player_searchable) OR enabled))
+);
+
+
+--
+-- Name: campaign_rulebooks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.campaign_rulebooks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: campaign_rulebooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.campaign_rulebooks_id_seq OWNED BY public.campaign_rulebooks.id;
+
+
+--
 -- Name: campaigns; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -649,6 +683,87 @@ CREATE SEQUENCE public.regions_id_seq
 --
 
 ALTER SEQUENCE public.regions_id_seq OWNED BY public.regions.id;
+
+
+--
+-- Name: rulebook_pages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.rulebook_pages (
+    id bigint NOT NULL,
+    rulebook_id bigint NOT NULL,
+    pdf_page_number integer NOT NULL,
+    printed_page_number_override integer,
+    printed_page_unnumbered boolean DEFAULT false NOT NULL,
+    heading character varying,
+    body text,
+    normalized_body text,
+    search_vector tsvector GENERATED ALWAYS AS ((setweight(to_tsvector('english'::regconfig, (COALESCE(heading, ''::character varying))::text), 'A'::"char") || setweight(to_tsvector('english'::regconfig, COALESCE(normalized_body, ''::text)), 'B'::"char"))) STORED,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT rulebook_pages_override_xor_unnumbered CHECK ((NOT (printed_page_unnumbered AND (printed_page_number_override IS NOT NULL))))
+);
+
+
+--
+-- Name: rulebook_pages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.rulebook_pages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: rulebook_pages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.rulebook_pages_id_seq OWNED BY public.rulebook_pages.id;
+
+
+--
+-- Name: rulebooks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.rulebooks (
+    id bigint NOT NULL,
+    title character varying NOT NULL,
+    short_title character varying,
+    edition character varying,
+    publication_year integer,
+    category character varying DEFAULT 'rulebook'::character varying NOT NULL,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    searchable boolean DEFAULT true NOT NULL,
+    page_number_offset integer DEFAULT 0 NOT NULL,
+    file_checksum character varying,
+    imported_at timestamp(6) without time zone,
+    import_error text,
+    header_footer_patterns jsonb DEFAULT '[]'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: rulebooks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.rulebooks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: rulebooks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.rulebooks_id_seq OWNED BY public.rulebooks.id;
 
 
 --
@@ -1252,6 +1367,13 @@ ALTER TABLE ONLY public.allegiances ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: campaign_rulebooks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.campaign_rulebooks ALTER COLUMN id SET DEFAULT nextval('public.campaign_rulebooks_id_seq'::regclass);
+
+
+--
 -- Name: campaigns id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1333,6 +1455,20 @@ ALTER TABLE ONLY public.region_parsecs ALTER COLUMN id SET DEFAULT nextval('publ
 --
 
 ALTER TABLE ONLY public.regions ALTER COLUMN id SET DEFAULT nextval('public.regions_id_seq'::regclass);
+
+
+--
+-- Name: rulebook_pages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rulebook_pages ALTER COLUMN id SET DEFAULT nextval('public.rulebook_pages_id_seq'::regclass);
+
+
+--
+-- Name: rulebooks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rulebooks ALTER COLUMN id SET DEFAULT nextval('public.rulebooks_id_seq'::regclass);
 
 
 --
@@ -1481,6 +1617,14 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 
 --
+-- Name: campaign_rulebooks campaign_rulebooks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.campaign_rulebooks
+    ADD CONSTRAINT campaign_rulebooks_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: campaigns campaigns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1574,6 +1718,22 @@ ALTER TABLE ONLY public.region_parsecs
 
 ALTER TABLE ONLY public.regions
     ADD CONSTRAINT regions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rulebook_pages rulebook_pages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rulebook_pages
+    ADD CONSTRAINT rulebook_pages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rulebooks rulebooks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rulebooks
+    ADD CONSTRAINT rulebooks_pkey PRIMARY KEY (id);
 
 
 --
@@ -1768,6 +1928,13 @@ CREATE UNIQUE INDEX index_allegiances_on_code ON public.allegiances USING btree 
 
 
 --
+-- Name: index_campaign_rulebooks_on_rulebook_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_campaign_rulebooks_on_rulebook_id ON public.campaign_rulebooks USING btree (rulebook_id);
+
+
+--
 -- Name: index_campaigns_on_referee_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1926,6 +2093,48 @@ CREATE INDEX index_regions_on_allegiance_id ON public.regions USING btree (alleg
 --
 
 CREATE UNIQUE INDEX index_regions_on_external_source_and_external_key ON public.regions USING btree (external_source, external_key) WHERE ((external_source IS NOT NULL) AND (external_key IS NOT NULL));
+
+
+--
+-- Name: index_rulebook_pages_on_rulebook_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rulebook_pages_on_rulebook_id ON public.rulebook_pages USING btree (rulebook_id);
+
+
+--
+-- Name: index_rulebook_pages_on_rulebook_id_and_pdf_page_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_rulebook_pages_on_rulebook_id_and_pdf_page_number ON public.rulebook_pages USING btree (rulebook_id, pdf_page_number);
+
+
+--
+-- Name: index_rulebook_pages_on_search_vector; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rulebook_pages_on_search_vector ON public.rulebook_pages USING gin (search_vector);
+
+
+--
+-- Name: index_rulebooks_on_file_checksum; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rulebooks_on_file_checksum ON public.rulebooks USING btree (file_checksum);
+
+
+--
+-- Name: index_rulebooks_on_searchable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rulebooks_on_searchable ON public.rulebooks USING btree (searchable);
+
+
+--
+-- Name: index_rulebooks_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_rulebooks_on_status ON public.rulebooks USING btree (status);
 
 
 --
@@ -2408,6 +2617,14 @@ ALTER TABLE ONLY public.jump_logs
 
 
 --
+-- Name: rulebook_pages fk_rails_f63f7ff305; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rulebook_pages
+    ADD CONSTRAINT fk_rails_f63f7ff305 FOREIGN KEY (rulebook_id) REFERENCES public.rulebooks(id) ON DELETE CASCADE;
+
+
+--
 -- Name: parsecs fk_rails_f6eeaa3b05; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2430,6 +2647,10 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260804110400'),
+('20260803210300'),
+('20260803210200'),
+('20260803210100'),
 ('20260722190812'),
 ('20260720143309'),
 ('20260719020000'),

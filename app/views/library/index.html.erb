@@ -1,0 +1,61 @@
+<% content_for :title, 'Library' %>
+<% content_for :page_kicker, 'System Configuration' %>
+<% content_for :page_title, 'Library' %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-banner'>
+      <p>Rulebook catalog</p>
+    </div>
+
+    <turbo-frame id='library-table'
+                 data-controller='ui-updates'
+                 data-ui-updates-event-value='rulebook_updated'
+                 data-ui-updates-src-value='<%= library_path %>'>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Title</th>
+          <th scope='col'>Category</th>
+          <th scope='col'>Edition</th>
+          <th scope='col'>Enabled</th>
+          <th scope='col'>Player Searchable</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @rulebooks.each do |rulebook| %>
+          <% campaign_rulebook = @campaign_rulebooks[rulebook.id] %>
+          <tr>
+            <td><%= rulebook.title %></td>
+            <td><span class='pill'><%= rulebook.category.humanize %></span></td>
+            <td><%= rulebook.edition %></td>
+            <td>
+              <%= form_with url: toggle_enabled_library_path(rulebook_id: rulebook.id), method: :patch do %>
+                <button type='submit'
+                        role='switch'
+                        aria-checked='<%= campaign_rulebook&.enabled? %>'
+                        class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= campaign_rulebook&.enabled? ? "bg-toggle-on" : "bg-toggle-off" %>'>
+                  <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= campaign_rulebook&.enabled? ? "translate-x-5 bg-toggle-knob-on" : "translate-x-0 bg-toggle-knob-off" %>'></span>
+                </button>
+              <% end %>
+            </td>
+            <td>
+              <%= form_with url: toggle_player_searchable_library_path(rulebook_id: rulebook.id), method: :patch do %>
+                <button type='submit'
+                        role='switch'
+                        aria-checked='<%= campaign_rulebook&.player_searchable? %>'
+                        class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= campaign_rulebook&.player_searchable? ? "bg-toggle-on" : "bg-toggle-off" %>'>
+                  <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= campaign_rulebook&.player_searchable? ? "translate-x-5 bg-toggle-knob-on" : "translate-x-0 bg-toggle-knob-off" %>'></span>
+                </button>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+    </turbo-frame>
+  </div>
+<% end %>

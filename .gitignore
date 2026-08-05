@@ -51,3 +51,6 @@
 /vendor/bundle
 /frontend/starmap/node_modules/
 /frontend/starmap/elm-stuff/
+
+# Local dev venv for the rulebook PDF extractor (production uses a pinned venv baked into the image)
+/.venv-rulebooks

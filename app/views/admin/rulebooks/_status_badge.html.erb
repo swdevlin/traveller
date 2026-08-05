@@ -1,0 +1,12 @@
+<%# locals: rulebook %>
+<% badge_class =
+     case rulebook.status
+     when 'ready'
+       'border-notice-outline bg-notice-bg text-notice-fg'
+     when 'processing', 'pending'
+       'border-warning/50 bg-warning/10 text-fg-bright'
+     when 'failed'
+       'border-danger-outline bg-danger-bg text-danger-fg'
+     end
+%>
+<span class='pill <%= badge_class %>'><%= rulebook.status.humanize %></span>

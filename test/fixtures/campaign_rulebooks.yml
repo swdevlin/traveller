@@ -1,0 +1,14 @@
+core_enabled:
+  rulebook: core
+  enabled: true
+  player_searchable: true
+
+hidden_enabled:
+  rulebook: hidden
+  enabled: true
+  player_searchable: true
+
+pending_enabled:
+  rulebook: pending_import
+  enabled: true
+  player_searchable: true

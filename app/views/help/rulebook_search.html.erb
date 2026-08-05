@@ -1,0 +1,74 @@
+<% content_for :title, 'Rulebook Search' %>
+
+<%= render 'help/page', title: 'Rulebook Search' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Search across every rulebook this campaign has enabled and get back a ranked list of
+      books, printed page numbers, and highlighted excerpts. The referee sees results from every
+      enabled book; a player — anonymous, not-logged-in visitors, since this app has no separate
+      player-account system — sees only the subset of enabled books also marked
+      <span class='font-semibold text-fg-bright'>Player Searchable</span> on the
+      <%= link_to 'Library', help_page_path('library'), class: 'no-underline hover:underline hover:underline-offset-2' %>
+      page.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Search field</dt>
+          <dd class='mt-1 text-fg'>
+            Enter a word or short phrase, e.g. <span class='font-mono text-fg-bright'>jump drive</span>.
+            Results update automatically as you type, after a short pause. Matches are found
+            against the cleaned, searchable text extracted from each rulebook — not the exact
+            wording of your query, so results include grammatical variants of your search terms.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Rulebook / Edition / Category filters</dt>
+          <dd class='mt-1 text-fg'>
+            Narrow results to a specific book, edition, or category. Only enabled — and, for
+            players, player-searchable — rulebooks appear in these lists.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Min rank</dt>
+          <dd class='mt-1 text-fg'>
+            Optional relevance threshold. Each match is scored, and results below this score are
+            excluded. Leave blank to see every match regardless of relevance. Useful for cutting
+            off weak, incidental matches on a common word.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Results</dt>
+          <dd class='mt-1 text-fg'>
+            Results are grouped by rulebook, ordered by that book's strongest match, and
+            collapsed by default — click a book's title to expand it. Within a book, each hit
+            shows the page it was found on, a relevance score, and a highlighted excerpt of the
+            matching text. A page showing
+            <span class='font-mono text-fg-bright'>Unnumbered page</span> has no real printed
+            page number — a cover, a blank page, or similar — and is identified by its position
+            in the PDF instead.
+          </dd>
+          <div class='mt-3'>
+            <p class='text-fg'>
+              Only the first few hits per book are shown initially. If a book has more matches
+              than that, an ellipsis appears at the bottom of its result group — click it to load
+              the rest.
+            </p>
+          </div>
+        </div>
+
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0804RS
+    </div>
+
+  </div>
+<% end %>

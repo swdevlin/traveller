@@ -1,0 +1,22 @@
+<%# locals: rulebook, page %>
+<%= form_with url: admin_rulebook_rulebook_page_path(rulebook, page), method: :patch, class: 'contents' do |form| %>
+  <div class='space-y-2'>
+    <%= render 'application/form_errors', errors: page.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :heading do %>
+      <%= form.text_field :heading, class: 'edit-base w-100' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :printed_page_number_override, field_label: 'Printed Page Override' do %>
+      <%= form.number_field :printed_page_number_override, class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :printed_page_unnumbered, field_label: 'Unnumbered' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :printed_page_unnumbered, checked: page.printed_page_unnumbered? %>
+    <% end %>
+
+    <div class='pt-2'>
+      <%= form.submit 'Save', class: 'btn btn-primary' %>
+    </div>
+  </div>
+<% end %>

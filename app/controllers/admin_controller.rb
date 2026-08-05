@@ -13,10 +13,15 @@ class AdminController < ApplicationController
   optional_authentication
 
   before_action :require_admin
+  before_action :set_noindex
 
   private
 
   def require_admin
     head :not_found unless Current.user&.admin?
+  end
+
+  def set_noindex
+    @noindex = true
   end
 end

@@ -1,0 +1,37 @@
+<% content_for :title, "#{@rulebook.title} — PDF page #{@page.pdf_page_number}" %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, "#{@rulebook.title} — PDF page #{@page.pdf_page_number}" %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <div>
+      <%= render 'application/subsection', title: 'Page Numbering' %>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block', label: 'PDF Page', value: @page.pdf_page_number %>
+        <%= render 'application/data_block', label: 'Default Printed Page', value: @page.pdf_page_number - @rulebook.page_number_offset %>
+        <%= render 'application/data_block', label: 'Effective Printed Page', value: @page.effective_printed_page_label %>
+      </div>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Override' %>
+      <%= render 'form', rulebook: @rulebook, page: @page %>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Extracted Text (raw)' %>
+      <pre class='whitespace-pre-wrap text-xs font-mono text-fg-muted bg-panel-muted rounded-2xl border border-outline p-4 max-h-96 overflow-y-auto'><%= @page.body %></pre>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Normalized Text (searchable)' %>
+      <pre class='whitespace-pre-wrap text-xs font-mono text-fg bg-panel-muted rounded-2xl border border-outline p-4 max-h-96 overflow-y-auto'><%= @page.normalized_body %></pre>
+    </div>
+
+    <div class='pt-2'>
+      <%= render 'application/back_button',
+                 path: mapping_admin_rulebook_rulebook_pages_path(@rulebook),
+                 label: 'Page Mapping' %>
+    </div>
+  </div>
+<% end %>

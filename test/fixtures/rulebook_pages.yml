@@ -1,0 +1,49 @@
+core_page_starships:
+  rulebook: core
+  pdf_page_number: 1
+  heading: Starships
+  body: |
+    CORE RULEBOOK
+
+    Chapter 3: Starships
+
+    Every starship requires a jump drive to travel faster than light.
+    The jump drive consumes fuel proportional to jump distance and hull tonnage.
+  normalized_body: |
+    Chapter 3: Starships
+
+    Every starship requires a jump drive to travel faster than light.
+    The jump drive consumes fuel proportional to jump distance and hull tonnage.
+
+core_page_trade:
+  rulebook: core
+  pdf_page_number: 2
+  heading: Trade and Commerce
+  body: |
+    CORE RULEBOOK
+
+    Chapter 4: Trade and Commerce
+
+    Merchants travel between systems carrying freight and passengers.
+  normalized_body: |
+    Chapter 4: Trade and Commerce
+
+    Merchants travel between systems carrying freight and passengers.
+  printed_page_number_override: 99
+
+core_page_cover:
+  rulebook: core
+  pdf_page_number: 3
+  heading: Cover
+  body: 'Cover art placeholder'
+  normalized_body: 'Cover art placeholder'
+  printed_page_unnumbered: true
+
+hidden_page_one:
+  rulebook: hidden
+  pdf_page_number: 1
+  heading: Secret Jump Drive Variants
+  body: |
+    Secret rules about jump drive variants for the hidden sourcebook.
+  normalized_body: |
+    Secret rules about jump drive variants for the hidden sourcebook.

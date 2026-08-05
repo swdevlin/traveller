@@ -1,0 +1,158 @@
+# frozen_string_literal: true
+
+class RulebookSearch
+  ExcerptSegment = Struct.new(:text, :highlighted, keyword_init: true)
+  Hit            = Struct.new(:rulebook_page, :rank, :heading_segments, :excerpt_segments, keyword_init: true)
+  Group          = Struct.new(:rulebook, :total_matches, :hits, keyword_init: true)
+
+  TOTAL_ROW_LIMIT       = 200
+  DEFAULT_RULEBOOK_CAP  = 20
+  DEFAULT_PER_RULEBOOK  = 3
+  SEGMENT_START = "\u0001"
+  SEGMENT_STOP  = "\u0002"
+
+  # ts_rank_cd default weights are {D: 0.1, C: 0.2, B: 0.4, A: 1.0}. Halving the body
+  # ('B') weight to 0.2 gives heading ('A') matches more relative pull without the
+  # extreme cut (down around 0.05) that would be needed to make a single heading match
+  # always beat heavy body-text repetition outright.
+  RANK_WEIGHTS = '{0.1,0.2,0.2,1.0}'
+
+  def initialize(query:, referee:, rulebook_ids: nil, editions: nil, categories: nil, minimum_rank: nil,
+                 per_rulebook_limit: DEFAULT_PER_RULEBOOK, rulebook_cap: DEFAULT_RULEBOOK_CAP)
+    @query = query.to_s.strip
+    @referee = referee
+    # A <select> with nothing chosen submits an empty string, not an absent
+    # param — Array("").presence is [""] (non-empty), not nil, so blank
+    # entries must be rejected before checking presence or an empty-string
+    # filter value ends up bound against a bigint column.
+    @rulebook_ids = Array(rulebook_ids).reject(&:blank?).presence
+    @editions = Array(editions).reject(&:blank?).presence
+    @categories = Array(categories).reject(&:blank?).presence
+    @minimum_rank = minimum_rank.presence&.to_f
+    @per_rulebook_limit = per_rulebook_limit
+    @rulebook_cap = rulebook_cap
+  end
+
+  def call
+    return [] if @query.blank?
+
+    rows = execute_query
+    rows.group_by { |row| row['rulebook_id'] }
+        .values
+        .sort_by { |group_rows| -group_rows.first['rank'].to_f }
+        .first(@rulebook_cap)
+        .map { |group_rows| build_group(group_rows) }
+  end
+
+  private
+
+  # Conditions/params are built together as named (`:foo`) bind variables via
+  # ActiveRecord::Base.sanitize_sql_array, so @query can appear multiple times
+  # in the SQL (match predicate, rank, headline) and optional IN (...) filters
+  # can be added or omitted independently, all without manually tracking
+  # positional $1/$2/$3 placeholder numbers.
+  #
+  # `rulebooks`/`rulebook_pages` are explicitly schema-qualified as `public.*`.
+  # Rulebook/RulebookPage are apartment-excluded models, permanently pinned to
+  # their own connection on the public schema — but this query runs on the
+  # *shared*, tenant-switched connection (ActiveRecord::Base.connection), and
+  # every campaign schema has its own empty shadow copy of these two tables
+  # (created by the same migrations that created the real ones in public).
+  # An unqualified reference would silently resolve to that empty copy
+  # whenever this runs inside a campaign-scoped (tenant-switched) request,
+  # returning zero rows with no error. `campaign_rulebooks` is the opposite:
+  # it's an ordinary per-tenant table with no public-schema data of its own,
+  # so it must stay unqualified to resolve against whichever campaign schema
+  # is currently active.
+  def execute_query
+    conditions = [
+      'public.rulebooks.searchable = true',
+      "public.rulebooks.status = 'ready'",
+      'campaign_rulebooks.enabled = true',
+      'public.rulebook_pages.search_vector @@ websearch_to_tsquery(:dictionary, :query)'
+    ]
+    conditions << 'campaign_rulebooks.player_searchable = true' unless @referee
+
+    params = { dictionary: 'english', query: @query }
+
+    if @rulebook_ids
+      conditions << 'public.rulebooks.id IN (:rulebook_ids)'
+      params[:rulebook_ids] = @rulebook_ids
+    end
+
+    if @editions
+      conditions << 'public.rulebooks.edition IN (:editions)'
+      params[:editions] = @editions
+    end
+
+    if @categories
+      conditions << 'public.rulebooks.category IN (:categories)'
+      params[:categories] = @categories
+    end
+
+    if @minimum_rank
+      # Can't reference the `rank` SELECT-list alias here — Postgres doesn't
+      # allow that in WHERE — so the ts_rank_cd expression is repeated.
+      conditions << "ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query)) >= :minimum_rank"
+      params[:minimum_rank] = @minimum_rank
+    end
+
+    sql = <<~SQL
+      SELECT public.rulebook_pages.id, public.rulebook_pages.rulebook_id, public.rulebook_pages.pdf_page_number,
+             public.rulebook_pages.printed_page_number_override, public.rulebook_pages.printed_page_unnumbered,
+             public.rulebooks.title, public.rulebooks.short_title, public.rulebooks.edition, public.rulebooks.category,
+             public.rulebooks.page_number_offset,
+             ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query)) AS rank,
+             ts_headline(:dictionary, COALESCE(public.rulebook_pages.heading, ''), websearch_to_tsquery(:dictionary, :query),
+                         'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=20, MinWords=1') AS heading_headline,
+             ts_headline(:dictionary, public.rulebook_pages.normalized_body, websearch_to_tsquery(:dictionary, :query),
+                         'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=35, MinWords=15') AS headline,
+             COUNT(*) OVER (PARTITION BY public.rulebook_pages.rulebook_id) AS total_matches
+      FROM public.rulebook_pages
+      JOIN public.rulebooks ON public.rulebooks.id = public.rulebook_pages.rulebook_id
+      JOIN campaign_rulebooks ON campaign_rulebooks.rulebook_id = public.rulebooks.id
+      WHERE #{conditions.join(' AND ')}
+      ORDER BY rank DESC
+      LIMIT #{TOTAL_ROW_LIMIT}
+    SQL
+
+    sanitized = ActiveRecord::Base.sanitize_sql_array([sql, params])
+    ActiveRecord::Base.connection.exec_query(sanitized, 'RulebookSearch')
+  end
+
+  def build_group(rows)
+    first = rows.first
+    rulebook = Rulebook.new(
+      id: first['rulebook_id'],
+      title: first['title'],
+      short_title: first['short_title'],
+      edition: first['edition'],
+      category: first['category'],
+      page_number_offset: first['page_number_offset']
+    )
+
+    hits = rows.first(@per_rulebook_limit).map do |row|
+      page = RulebookPage.new(
+        pdf_page_number: row['pdf_page_number'],
+        printed_page_number_override: row['printed_page_number_override'],
+        printed_page_unnumbered: row['printed_page_unnumbered']
+      )
+      page.rulebook = rulebook
+
+      Hit.new(rulebook_page: page, rank: row['rank'].to_f,
+              heading_segments: split_headline(row['heading_headline']), excerpt_segments: split_headline(row['headline']))
+    end
+
+    Group.new(rulebook: rulebook, total_matches: first['total_matches'].to_i, hits: hits)
+  end
+
+  def split_headline(headline)
+    headline.to_s.split(/(#{SEGMENT_START}.*?#{SEGMENT_STOP})/m).reject(&:empty?).map do |chunk|
+      if chunk.start_with?(SEGMENT_START)
+        ExcerptSegment.new(text: chunk.delete_prefix(SEGMENT_START).delete_suffix(SEGMENT_STOP), highlighted: true)
+      else
+        ExcerptSegment.new(text: chunk, highlighted: false)
+      end
+    end
+  end
+end

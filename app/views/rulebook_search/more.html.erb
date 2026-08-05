@@ -1,0 +1,7 @@
+<turbo-frame id='rulebook-<%= @rulebook.id %>-more'>
+  <div class='divide-y divide-outline'>
+    <% @group.hits.drop(RulebookSearchController::RESULTS_PER_RULEBOOK).each do |hit| %>
+      <%= render 'hit', hit: hit %>
+    <% end %>
+  </div>
+</turbo-frame>

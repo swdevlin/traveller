@@ -1,0 +1,60 @@
+<% content_for :title, @rulebook.title %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, @rulebook.title %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <div class='flex items-center gap-3'>
+      <%= render 'status_badge', rulebook: @rulebook %>
+      <% if @rulebook.searchable? %>
+        <span class='pill'>Searchable</span>
+      <% else %>
+        <span class='pill'>Hidden from search</span>
+      <% end %>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Metadata' %>
+      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+        <%= render 'application/data_block', label: 'Title', value: @rulebook.title %>
+        <%= render 'application/data_block', label: 'Short Title', value: @rulebook.short_title %>
+        <%= render 'application/data_block', label: 'Edition', value: @rulebook.edition %>
+        <%= render 'application/data_block', label: 'Category', value: @rulebook.category.humanize %>
+        <%= render 'application/data_block', label: 'Publication Year', value: @rulebook.publication_year %>
+        <%= render 'application/data_block', label: 'PDF Page Offset', value: @rulebook.page_number_offset %>
+        <%= render 'application/data_block', label: 'Pages Imported', value: @rulebook.rulebook_pages.count %>
+        <%= render 'application/data_block', label: 'Imported At', value: @rulebook.imported_at&.strftime('%Y-%m-%d %H:%M') || '—' %>
+      </div>
+    </div>
+
+    <% if @rulebook.failed? && @rulebook.import_error.present? %>
+      <div>
+        <%= render 'application/subsection', title: 'Import Error' %>
+        <div class='callout callout-danger'>
+          <pre class='whitespace-pre-wrap text-xs font-mono text-danger-fg'><%= @rulebook.import_error %></pre>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= render 'application/subsection', title: 'Import' %>
+      <div class='space-y-3'>
+        <%= form_with url: import_admin_rulebook_path(@rulebook), method: :post, multipart: true, class: 'flex flex-col sm:flex-row gap-2' do %>
+          <%= file_field_tag :pdf_file, accept: '.pdf,application/pdf', required: true, class: 'flex-1 text-sm text-fg-muted file:btn file:mr-3' %>
+          <%= submit_tag 'Start Import', class: 'btn btn-primary' %>
+        <% end %>
+
+        <%= button_to 'Rebuild Search Vectors', rebuild_search_vectors_admin_rulebook_path(@rulebook), method: :post, class: 'btn' %>
+      </div>
+    </div>
+
+    <div class='pt-4 flex flex-col sm:flex-row gap-2'>
+      <%= link_to 'Edit', edit_admin_rulebook_path(@rulebook), class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= render 'application/back_button', path: admin_rulebooks_path, label: 'Rulebooks', class: 'w-full sm:w-auto' %>
+      <%= button_to 'Delete', admin_rulebook_path(@rulebook), method: :delete,
+                    form_class: 'w-full sm:w-auto inline-flex m-0',
+                    class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                    data: { turbo_confirm: 'Are you sure?' } %>
+    </div>
+  </div>
+<% end %>

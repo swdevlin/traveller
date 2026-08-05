@@ -1,0 +1,19 @@
+<%# locals: hit %>
+<div class='px-4 py-3'>
+  <div class='flex items-center gap-2 text-xs text-fg-muted'>
+    <i class='fa-regular fa-file-lines'></i>
+    <%= hit.rulebook_page.effective_printed_page_label %>
+    <span class='text-fg-muted/50'>·</span>
+    <span class='font-mono italic text-fg-muted' title='Relevance score'>rank <%= hit.rank.round(3) %></span>
+  </div>
+
+  <% if hit.heading_segments.present? %>
+    <p class='mt-1 text-xs font-semibold uppercase tracking-wide text-fg-muted'>
+      <%= render 'excerpt_segments', segments: hit.heading_segments %>
+    </p>
+  <% end %>
+
+  <p class='mt-1 text-sm text-fg leading-relaxed'>
+    <%= render 'excerpt_segments', segments: hit.excerpt_segments %>
+  </p>
+</div>

@@ -1,8 +1,9 @@
+<% collapsed = local_assigns.fetch(:collapsed, false) %>
 <div data-controller="collapsible" data-collapsible-collapse-class-value="hidden">
   <div class="table-card">
-    <div class="table-banner">
+    <div class="table-banner cursor-pointer select-none" data-action="click->collapsible#toggle">
       <p><%= title %></p>
-      <div class="actions">
+      <div class="actions" data-controller="stop-propagation" data-action="click->stop-propagation#stop">
         <% if local_assigns[:actions] %>
           <%= actions %>
         <% end %>
@@ -10,11 +11,11 @@
                 class='rounded-lg p-1 -mt-1 text-fg-muted hover:text-highlight hover:bg-panel-muted'
                 data-action="collapsible#toggle"
                 aria-label="Collapse/expand">
-          <i class="fa-regular fa-square-chevron-up" data-collapsible-target="icon"></i>
+          <i class="fa-regular <%= collapsed ? 'fa-square-chevron-down' : 'fa-square-chevron-up' %>" data-collapsible-target="icon"></i>
         </button>
       </div>
     </div>
-    <div data-collapsible-target="content">
+    <div data-collapsible-target="content" class="<%= 'hidden' if collapsed %>">
       <%= yield %>
     </div>
   </div>

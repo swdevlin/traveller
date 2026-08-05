@@ -1,0 +1,25 @@
+<%# locals: group, query, minimum_rank %>
+<% title = safe_join([
+  content_tag(:i, '', class: 'fa-regular fa-book mr-2'),
+  group.rulebook.title,
+  (content_tag(:span, group.rulebook.edition, class: 'pill ml-2') if group.rulebook.edition.present?)
+].compact) %>
+<% match_count = content_tag(:span, pluralize(group.total_matches, 'match', plural: 'matches'), class: 'text-xs text-fg-muted') %>
+
+<%= render 'application/collapsible_table_card', title: title, actions: match_count, collapsed: true do %>
+  <div class='divide-y divide-outline'>
+    <% group.hits.each do |hit| %>
+      <%= render 'hit', hit: hit %>
+    <% end %>
+  </div>
+
+  <% if group.total_matches > group.hits.size %>
+    <turbo-frame id='rulebook-<%= group.rulebook.id %>-more'
+                 src='<%= more_rulebook_search_path(rulebook_id: group.rulebook.id, q: query, minimum_rank: minimum_rank) %>'
+                 loading='lazy'>
+      <div class='p-3 text-center'>
+        <i class='fa-regular fa-ellipsis text-fg-muted'></i>
+      </div>
+    </turbo-frame>
+  <% end %>
+<% end %>

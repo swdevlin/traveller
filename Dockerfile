@@ -29,9 +29,16 @@ WORKDIR /rails
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips42 librsvg2-2 librsvg2-bin fontconfig sqlite3 && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips42 librsvg2-2 librsvg2-bin fontconfig sqlite3 python3 python3-venv && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Dedicated, pinned venv for the rulebook PDF extractor (libexec/extract_rulebook.py) —
+# isolated from the system interpreter, versions pinned in requirements-rulebooks.txt.
+COPY requirements-rulebooks.txt ./
+RUN python3 -m venv /opt/rulebook-extractor && \
+    /opt/rulebook-extractor/bin/pip install --no-cache-dir -r requirements-rulebooks.txt
+ENV RULEBOOK_PYTHON="/opt/rulebook-extractor/bin/python"
 
 # Install fonts for SVG rasterisation (Orbitron + JetBrains Mono + Inter)
 # Sources: google/fonts variable instances, JetBrains/JetBrainsMono, google/fonts inter

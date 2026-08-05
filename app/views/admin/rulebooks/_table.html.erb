@@ -1,0 +1,59 @@
+<%# locals: rulebooks, pagy %>
+<div class='table-scroll'>
+  <table>
+    <thead>
+    <tr>
+      <th scope='col'>Title</th>
+      <th scope='col'>Category</th>
+      <th scope='col'>Edition</th>
+      <th scope='col'>Status</th>
+      <th scope='col'>Searchable</th>
+      <th scope='col' class='text-right'>Pages</th>
+      <th scope='col' class='text-right'>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% rulebooks.each do |rulebook| %>
+      <tr class='cursor-pointer'
+          data-controller='row-link'
+          data-row-link-url-value='<%= admin_rulebook_path(rulebook) %>'
+          data-action='click->row-link#navigate'>
+        <td><%= rulebook.title %></td>
+        <td><span class='pill'><%= rulebook.category.humanize %></span></td>
+        <td><%= rulebook.edition %></td>
+        <td><%= render 'status_badge', rulebook: rulebook %></td>
+        <td>
+          <%= form_with url: toggle_searchable_admin_rulebook_path(rulebook), method: :patch, data: { turbo_confirm: false } do %>
+            <button type='submit'
+                    role='switch'
+                    aria-checked='<%= rulebook.searchable? %>'
+                    class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= rulebook.searchable? ? "bg-toggle-on" : "bg-toggle-off" %>'>
+              <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= rulebook.searchable? ? "translate-x-5 bg-toggle-knob-on" : "translate-x-0 bg-toggle-knob-off" %>'></span>
+            </button>
+          <% end %>
+        </td>
+        <td class='text-right'><%= rulebook.rulebook_pages.count %></td>
+        <td class='actions-cell'>
+          <div class='action-group'>
+            <%= link_to edit_admin_rulebook_path(rulebook), class: 'action', data: { turbo_frame: '_top' } do %>
+              <i class='fa-regular fa-pen-to-square'></i>
+            <% end %>
+
+            <%= button_to admin_rulebook_path(rulebook),
+                          method: :delete,
+                          class: 'action danger',
+                          data: { turbo_confirm: "Delete #{rulebook.title}?" } do %>
+              <i class='fa-regular fa-trash'></i>
+            <% end %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <div class='w-full pb-4'>
+    <%== pagy.series_nav %>
+  </div>
+</div>

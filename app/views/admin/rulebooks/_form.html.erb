@@ -1,0 +1,53 @@
+<%= form_with(model: rulebook, url: rulebook.persisted? ? admin_rulebook_path(rulebook) : admin_rulebooks_path,
+              multipart: true, class: 'contents', data: { controller: 'rulebook-form' }) do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: rulebook.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :title, required: true do %>
+      <%= form.text_field :title, class: 'edit-base w-100', data: { rulebook_form_target: 'titleField' } %>
+    <% end %>
+
+    <% if rulebook.new_record? %>
+      <%= render 'application/edit_field', form: form, attribute: :pdf_file, field_label: 'Rulebook PDF' do %>
+        <%= form.file_field :pdf_file, accept: '.pdf,application/pdf', required: true,
+                            class: 'w-full text-sm text-fg-muted file:btn file:mr-3',
+                            data: { rulebook_form_target: 'fileField', action: 'change->rulebook-form#populateFromFile' } %>
+      <% end %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :short_title do %>
+      <%= form.text_field :short_title, class: 'edit-base w-56', data: { rulebook_form_target: 'shortTitleField' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :edition do %>
+      <%= form.text_field :edition, class: 'edit-base w-40' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :publication_year do %>
+      <%= form.number_field :publication_year, class: 'edit-base w-32' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :category do %>
+      <%= form.select :category, options_for_select(Rulebook.categories.keys.map { |c| [c.humanize, c] }, rulebook.category), {}, class: 'edit-base' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :page_number_offset, field_label: 'PDF Page Offset (PDF page − printed page)' do %>
+      <%= form.number_field :page_number_offset, class: 'edit-base w-24' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :searchable do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :searchable, checked: rulebook.searchable? %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :header_footer_patterns,
+               field_label: 'Header/Footer Patterns (one regular expression per line)' do %>
+      <%= form.text_area :header_footer_patterns_raw, value: Array(rulebook.header_footer_patterns).join("\n"),
+                         rows: 4, class: 'edit-base w-full font-mono text-xs' %>
+    <% end %>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit rulebook.persisted? ? 'Update rulebook' : 'Create rulebook', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', rulebook.persisted? ? admin_rulebook_path(rulebook) : admin_rulebooks_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

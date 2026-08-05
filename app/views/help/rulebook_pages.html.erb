@@ -1,0 +1,118 @@
+<% content_for :title, 'Rulebook Page Mapping' %>
+
+<%= render 'help/page', title: 'Rulebook Page Mapping' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Every rulebook has a page offset that maps PDF page indices to printed page numbers by
+      simple subtraction — see the
+      <%= link_to 'Rulebooks', help_page_path('rulebooks'), class: 'no-underline hover:underline hover:underline-offset-2' %>
+      reference. Not every page fits that offset cleanly: covers, inserted maps, blank pages, and
+      renumbered sections all need manual handling. This page mapping table lets you spot-check
+      and correct pages individually. Administrator access only.
+    </p>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Mapping Table</p>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>PDF Page</dt>
+          <dd class='mt-1 text-fg'>
+            The page's position in the source PDF.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Default Printed Page</dt>
+          <dd class='mt-1 text-fg'>
+            The printed page number the rulebook's offset would produce for this page, before
+            any override.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Override</dt>
+          <dd class='mt-1 text-fg'>
+            Shows a badge if this page has an explicit override or is marked unnumbered;
+            otherwise blank, meaning the default printed page applies.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Effective Printed Page</dt>
+          <dd class='mt-1 text-fg'>
+            The page number actually shown to searchers — the override if set,
+            <span class='font-mono text-fg-bright'>Unnumbered page</span> if marked as such,
+            otherwise the default printed page.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Heading</dt>
+          <dd class='mt-1 text-fg'>
+            The heading detected on the page during extraction, if any.
+          </dd>
+        </div>
+
+      </dl>
+      <p class='mt-4 text-fg-muted'>
+        Click a row to open that page and correct it.
+      </p>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Correcting a Page</p>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Heading</dt>
+          <dd class='mt-1 text-fg'>
+            Overrides the heading detected during extraction.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Printed Page Override</dt>
+          <dd class='mt-1 text-fg'>
+            A specific printed page number for this page, independent of the rulebook's offset.
+            Use this where the offset gets a page wrong — an inserted map, a renumbered section.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Unnumbered</dt>
+          <dd class='mt-1 text-fg'>
+            Marks the page as having no real printed page number — a cover, a blank page, or
+            similar. Unnumbered pages show as
+            <span class='font-mono text-fg-bright'>Unnumbered page</span> in search results
+            instead of a number.
+          </dd>
+          <div class='mt-3'>
+            <p class='text-fg'>
+              A page can have a printed page override <span class='italic'>or</span> be marked
+              unnumbered, never both — the form and the database both enforce this.
+            </p>
+          </div>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Extracted Text</p>
+      <p class='text-fg'>
+        The raw text pulled from the PDF and the normalised text actually indexed for search are
+        shown side by side, for diagnosing why a page does or doesn't match a query. If
+        extraction picked up unwanted repeated headers, footers, or watermarks, fix that with
+        Header/Footer Patterns on the rulebook itself, then rebuild search vectors — no need to
+        reimport.
+      </p>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0804RP
+    </div>
+
+  </div>
+<% end %>

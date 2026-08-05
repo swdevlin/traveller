@@ -1,0 +1,39 @@
+<%# locals: pages, pagy, rulebook %>
+<div class='table-scroll'>
+  <table>
+    <thead>
+    <tr>
+      <th scope='col' class='text-right'>PDF Page</th>
+      <th scope='col' class='text-right'>Default Printed Page</th>
+      <th scope='col'>Override</th>
+      <th scope='col'>Effective Printed Page</th>
+      <th scope='col'>Heading</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% pages.each do |page| %>
+      <tr class='cursor-pointer'
+          data-controller='row-link'
+          data-row-link-url-value='<%= admin_rulebook_rulebook_page_path(rulebook, page) %>'
+          data-action='click->row-link#navigate'>
+        <td class='text-right font-mono'><%= page.pdf_page_number %></td>
+        <td class='text-right font-mono'><%= page.pdf_page_number - rulebook.page_number_offset %></td>
+        <td>
+          <% if page.printed_page_unnumbered? %>
+            <span class='pill'>Unnumbered</span>
+          <% elsif page.printed_page_number_override.present? %>
+            <span class='pill'><%= page.printed_page_number_override %></span>
+          <% end %>
+        </td>
+        <td class='font-mono'><%= page.effective_printed_page_label %></td>
+        <td><%= page.heading %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <div class='w-full pb-4'>
+    <%== pagy.series_nav %>
+  </div>
+</div>
