@@ -230,6 +230,7 @@ view model =
             , HtmlAttrs.style "display" "flex"
             , HtmlAttrs.style "flex-direction" "column"
             , HtmlAttrs.style "overflow-y" "auto"
+            , HtmlAttrs.style "white-space" "normal"
             ]
             [ viewHeader
             , viewSearchBox model.query
