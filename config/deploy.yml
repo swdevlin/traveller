@@ -89,6 +89,9 @@ env:
     # RAILS_LOG_LEVEL: debug
     GENERATOR_SERVICE_URL: http://host.docker.internal:3007
 
+    # Show the relevance score on rulebook search results (defaults to hidden in production).
+    SHOW_RULEBOOK_SEARCH_RANK: true
+
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.
 aliases:

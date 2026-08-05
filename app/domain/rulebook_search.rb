@@ -26,7 +26,7 @@ class RulebookSearch
 
   # Relevance floor, operator-configurable via ENV. Cuts off weak, incidental
   # matches on a common word.
-  MINIMUM_RANK = ENV.fetch('RULEBOOK_SEARCH_MINIMUM_RANK', '2.0').to_f
+  MINIMUM_RANK = ENV.fetch('RULEBOOK_SEARCH_MINIMUM_RANK', '0.1').to_f
 
   def initialize(query:, referee:, rulebook_ids: nil, categories: nil,
                  per_rulebook_limit: DEFAULT_PER_RULEBOOK, rulebook_cap: DEFAULT_RULEBOOK_CAP)
