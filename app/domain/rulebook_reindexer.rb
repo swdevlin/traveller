@@ -15,7 +15,8 @@ class RulebookReindexer
         # from the source PDF. A page imported before markdown-heading detection existed has
         # no `#`-style heading in its stored body, so a rerun must never null out a heading a
         # prior import already set — only ever add/replace with a newly-found one.
-        page.update!(heading: result.heading || page.heading, normalized_body: result.normalized_body)
+        page.update!(heading: result.heading || page.heading, normalized_body: result.normalized_body,
+                     item_lines: result.item_lines, bold_text: result.bold_text)
       end
     end
   end

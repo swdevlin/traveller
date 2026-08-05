@@ -139,4 +139,44 @@ class TextNormalizerTest < ActiveSupport::TestCase
     result = normalizer.call("CORE RULEBOOK\n\nSTARSHIPS\n\nSome body text.")
     assert_equal 'STARSHIPS', result.heading
   end
+
+  test 'captures a line with a credit cost token into item_lines' do
+    result = TextNormalizer.new.call("Laser Sniper 12 600m 5D+3 4 Cr9000 6 Cr250 Scope,\nOrdinary prose with no cost.")
+    assert_equal 'Laser Sniper 12 600m 5D+3 4 Cr9000 6 Cr250 Scope,', result.item_lines
+  end
+
+  test 'joins multiple item lines with a space' do
+    result = TextNormalizer.new.call("Laser Pistol 9 20m 3D 2 Cr2000 100 Cr1000 Zero-G\nStunner 8 5m 2D 0.5 Cr500 100 Cr200 Stun,")
+    assert_equal 'Laser Pistol 9 20m 3D 2 Cr2000 100 Cr1000 Zero-G Stunner 8 5m 2D 0.5 Cr500 100 Cr200 Stun,', result.item_lines
+  end
+
+  test 'item_lines is nil when no line has a credit cost token' do
+    result = TextNormalizer.new.call('Ordinary paragraph with no issues.')
+    assert_nil result.item_lines
+  end
+
+  test 'captures double-asterisk bold spans into bold_text' do
+    result = TextNormalizer.new.call('Plain text with a **critical rule** inside it.')
+    assert_equal 'critical rule', result.bold_text
+  end
+
+  test 'captures double-underscore bold spans into bold_text' do
+    result = TextNormalizer.new.call('Plain text with a __critical rule__ inside it.')
+    assert_equal 'critical rule', result.bold_text
+  end
+
+  test 'joins multiple bold spans with a space' do
+    result = TextNormalizer.new.call('The **Referee** decides. Consult the **Traveller Bestiary**.')
+    assert_equal 'Referee Traveller Bestiary', result.bold_text
+  end
+
+  test 'does not treat single-asterisk italics as bold' do
+    result = TextNormalizer.new.call('Some *italic* text with no bold.')
+    assert_nil result.bold_text
+  end
+
+  test 'bold_text is nil when there is no emphasis' do
+    result = TextNormalizer.new.call('Ordinary paragraph with no emphasis.')
+    assert_nil result.bold_text
+  end
 end

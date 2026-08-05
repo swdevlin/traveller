@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TextNormalizer
-  Result = Struct.new(:heading, :normalized_body, keyword_init: true)
+  Result = Struct.new(:heading, :normalized_body, :item_lines, :bold_text, keyword_init: true)
 
   PURCHASER_WATERMARK_PATTERNS = [
     /this (?:electronic )?copy .{0,80} is licensed to .+/i,
@@ -11,6 +11,12 @@ class TextNormalizer
 
   MARKDOWN_HEADING_LINE = /^\#{1,6}\s+(.+)$/
   MARKDOWN_EMPHASIS = /\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_/
+
+  # pymupdf4llm marks bold spans (detected from the PDF's own font flags/names, not
+  # guessed from context) with double markers — `**bold**` or `__bold__` — reserving
+  # single markers for italics. Matched against the raw markdown before
+  # strip_markdown_syntax removes the emphasis markers.
+  MARKDOWN_BOLD = /\*\*(.+?)\*\*|__(.+?)__/
   MARKDOWN_IMAGE = /!\[.*?\]\(.*?\)/
   MARKDOWN_HORIZONTAL_RULE = /^-{3,}\s*$/
   MARKDOWN_HEADING_PREFIX = /^\#{1,6}\s+/
@@ -30,6 +36,12 @@ class TextNormalizer
   # padded like this, so a gap this wide marks the boundary of the actual heading text.
   COLUMN_GAP = / {3,}/
 
+  # Equipment/weapon/armour stat-block table rows (e.g. "Laser Sniper 12 600m
+  # 5D+3 4 Cr9000 6 Cr250 Scope,") consistently list a credit cost, which
+  # ordinary prose almost never does — a reliable, cheap signal for "this
+  # line is an item entry" without needing to parse table structure.
+  ITEM_LINE_PATTERN = /Cr[\d,]+/
+
   def initialize(header_footer_patterns: [], rulebook_title: nil)
     @rulebook_patterns = Array(header_footer_patterns).filter_map { |pattern| safe_regexp(pattern) }
     @rulebook_title_key = normalize_for_comparison(rulebook_title)
@@ -39,14 +51,24 @@ class TextNormalizer
     text = raw_text.to_s.dup
     text = text.delete("\u0000")
     heading = extract_heading(text)
+    bold_text = extract_bold_text(text)
     text = strip_markdown_syntax(text)
     text = strip_patterns(text, PURCHASER_WATERMARK_PATTERNS)
     text = strip_patterns(text, @rulebook_patterns)
     text = repair_hyphenation(text)
-    Result.new(heading: heading, normalized_body: normalize_whitespace(text))
+    item_lines = extract_item_lines(text)
+    Result.new(heading: heading, normalized_body: normalize_whitespace(text), item_lines: item_lines, bold_text: bold_text)
   end
 
   private
+
+  def extract_bold_text(text)
+    text.to_s.scan(MARKDOWN_BOLD).flatten.compact.map(&:strip).reject(&:blank?).join(' ').presence
+  end
+
+  def extract_item_lines(text)
+    text.to_s.each_line.map(&:strip).select { |line| line.match?(ITEM_LINE_PATTERN) }.join(' ').presence
+  end
 
   def safe_regexp(pattern)
     Regexp.new(pattern)

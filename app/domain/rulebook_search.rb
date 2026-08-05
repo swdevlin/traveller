@@ -14,14 +14,21 @@ class RulebookSearch
   # ts_rank_cd default weights are {D: 0.1, C: 0.2, B: 0.4, A: 1.0}. Halving the body
   # ('B') weight to 0.2 gives heading ('A') matches more relative pull without the
   # extreme cut (down around 0.05) that would be needed to make a single heading match
-  # always beat heavy body-text repetition outright.
-  RANK_WEIGHTS = '{0.1,0.2,0.2,1.0}'
+  # always beat heavy body-text repetition outright. The 'C' zone holds item/stat-block
+  # lines (see TextNormalizer::ITEM_LINE_PATTERN) and the 'D' zone holds bold text (see
+  # TextNormalizer::MARKDOWN_BOLD) — both set to 1.0, matching the heading ('A') weight,
+  # since Postgres caps ts_rank_cd weights at 1.0, the maximum possible pull for either
+  # zone. An item's stat-block entry or an author's own emphasis are both treated as
+  # significant a match as a heading hit; each is also still counted once at body weight,
+  # since neither is removed from normalized_body, so a single item-line or bold match
+  # (1.0 + 0.2) ties a single heading-only match on equal footing.
+  RANK_WEIGHTS = '{1.0,1.0,0.2,1.0}'
 
   # Relevance floor, operator-configurable via ENV. Cuts off weak, incidental
   # matches on a common word.
   MINIMUM_RANK = ENV.fetch('RULEBOOK_SEARCH_MINIMUM_RANK', '2.0').to_f
 
-  def initialize(query:, referee:, rulebook_ids: nil, editions: nil, categories: nil,
+  def initialize(query:, referee:, rulebook_ids: nil, categories: nil,
                  per_rulebook_limit: DEFAULT_PER_RULEBOOK, rulebook_cap: DEFAULT_RULEBOOK_CAP)
     @query = query.to_s.strip
     @referee = referee
@@ -30,7 +37,6 @@ class RulebookSearch
     # entries must be rejected before checking presence or an empty-string
     # filter value ends up bound against a bigint column.
     @rulebook_ids = Array(rulebook_ids).reject(&:blank?).presence
-    @editions = Array(editions).reject(&:blank?).presence
     @categories = Array(categories).reject(&:blank?).presence
     @per_rulebook_limit = per_rulebook_limit
     @rulebook_cap = rulebook_cap
@@ -85,11 +91,6 @@ class RulebookSearch
     if @rulebook_ids
       conditions << 'public.rulebooks.id IN (:rulebook_ids)'
       params[:rulebook_ids] = @rulebook_ids
-    end
-
-    if @editions
-      conditions << 'public.rulebooks.edition IN (:editions)'
-      params[:editions] = @editions
     end
 
     if @categories

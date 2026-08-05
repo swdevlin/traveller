@@ -73,7 +73,7 @@ class Admin::RulebooksController < AdminController
 
   def rulebook_params
     params.expect(rulebook: [:title, :short_title, :edition, :publication_year, :category,
-                              :page_number_offset, :searchable, :header_footer_patterns_raw, :pdf_file])
+                              :page_number_offset, :searchable, :rank_modifier, :header_footer_patterns_raw, :pdf_file])
   end
 
   # The form submits header/footer patterns as one textarea, one pattern per line, rather

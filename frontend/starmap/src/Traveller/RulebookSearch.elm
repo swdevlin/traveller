@@ -420,6 +420,13 @@ viewHit hit =
             ]
             [ Html.i [ HtmlAttrs.class "fa-regular fa-file-lines", HtmlAttrs.style "margin-right" "6px" ] []
             , Html.text hit.printedPageLabel
+            , Html.span [ HtmlAttrs.style "opacity" "0.5", HtmlAttrs.style "margin" "0 4px" ] [ Html.text "·" ]
+            , Html.span
+                [ HtmlAttrs.style "font-family" "monospace"
+                , HtmlAttrs.style "font-style" "italic"
+                , HtmlAttrs.title "Relevance score"
+                ]
+                [ Html.text ("rank " ++ formatRank hit.rank) ]
             ]
         , if List.isEmpty hit.headingSegments then
             Html.text ""
@@ -442,6 +449,13 @@ viewHit hit =
             ]
             (List.map viewExcerptSegment hit.excerptSegments)
         ]
+
+
+{-| Matches Ruby's `Float#round(3)` used by the Rails search page.
+-}
+formatRank : Float -> String
+formatRank rank =
+    String.fromFloat (toFloat (round (rank * 1000)) / 1000)
 
 
 viewExcerptSegment : ExcerptSegment -> Html Msg

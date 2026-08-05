@@ -42,6 +42,8 @@ class RulebookImporter
       page.body = page_data.text
       page.heading = result.heading
       page.normalized_body = result.normalized_body
+      page.item_lines = result.item_lines
+      page.bold_text = result.bold_text
       page.save!
     rescue StandardError => e
       page_errors << "page #{page_data.page_number}: #{e.message}"

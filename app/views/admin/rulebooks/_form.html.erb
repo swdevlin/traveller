@@ -31,7 +31,7 @@
       <%= form.select :category, options_for_select(Rulebook.categories.keys.map { |c| [c.humanize, c] }, rulebook.category), {}, class: 'edit-base' %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :page_number_offset, field_label: 'PDF Page Offset (PDF page − printed page)' do %>
+    <%= render 'application/edit_field', form: form, attribute: :page_number_offset, field_label: 'PDF Page Offset' do %>
       <%= form.number_field :page_number_offset, class: 'edit-base w-24' %>
     <% end %>
 

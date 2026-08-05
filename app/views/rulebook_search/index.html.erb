@@ -30,12 +30,6 @@
                        class: 'input',
                        data: { action: 'change->autosubmit#queue' } %>
 
-        <%= select_tag :editions,
-                       options_for_select([['All editions', nil]] + Rulebook.searchable.distinct.order(:edition).pluck(:edition).compact,
-                                          params[:editions]),
-                       class: 'input',
-                       data: { action: 'change->autosubmit#queue' } %>
-
         <%= select_tag :categories,
                        options_for_select([['All categories', nil]] + Rulebook.categories.keys.map { |c| [c.humanize, c] },
                                           params[:categories]),

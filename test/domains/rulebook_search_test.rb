@@ -8,7 +8,7 @@ class RulebookSearchTest < ActiveSupport::TestCase
 
   test 'treats blank-string filter values the same as absent filters (e.g. an unselected <select>)' do
     assert_nothing_raised do
-      groups = RulebookSearch.new(query: 'jump drive', referee: true, rulebook_ids: [''], editions: [''], categories: ['']).call
+      groups = RulebookSearch.new(query: 'jump drive', referee: true, rulebook_ids: [''], categories: ['']).call
       assert_equal 1, groups.size
     end
   end
@@ -104,13 +104,6 @@ class RulebookSearchTest < ActiveSupport::TestCase
     assert_empty non_matching
   end
 
-  test 'filters by edition' do
-    rulebooks(:core).update!(edition: '2nd')
-
-    assert_equal 1, RulebookSearch.new(query: 'jump', referee: true, editions: ['2nd']).call.size
-    assert_empty RulebookSearch.new(query: 'jump', referee: true, editions: ['5th']).call
-  end
-
   test 'filters by category' do
     assert_equal 1, RulebookSearch.new(query: 'jump', referee: true, categories: ['rulebook']).call.size
     assert_empty RulebookSearch.new(query: 'jump', referee: true, categories: ['adventure']).call
@@ -131,6 +124,41 @@ class RulebookSearchTest < ActiveSupport::TestCase
 
     ranked_ids = group.hits.map { |hit| hit.rulebook_page.pdf_page_number }
     assert_equal [heading_page.pdf_page_number, body_page.pdf_page_number], ranked_ids
+  end
+
+  test 'ranks an item/stat-block line above incidental prose repetition' do
+    rulebook = rulebooks(:core)
+    # Each item-line occurrence contributes item weight 1.2 plus body weight 0.2 (item_lines
+    # duplicates rather than removes the line from normalized_body), so 5 occurrences ~= 7.0 —
+    # comfortably above MINIMUM_RANK. Each prose-only occurrence contributes body weight 0.2
+    # alone, so 11 occurrences (~2.2) also clears the floor but stays well below the item page.
+    item_words = (['unique_item_term'] * 5).join(' ')
+    item_page = rulebook.rulebook_pages.create!(pdf_page_number: 90, normalized_body: item_words, item_lines: item_words)
+
+    prose_words = 11.times.map { |i| "unique_item_term filler#{i}" }.join(' ')
+    prose_page = rulebook.rulebook_pages.create!(pdf_page_number: 91, normalized_body: prose_words)
+
+    group = RulebookSearch.new(query: 'unique_item_term', referee: true, rulebook_ids: [rulebook.id]).call.first
+
+    ranked_ids = group.hits.map { |hit| hit.rulebook_page.pdf_page_number }
+    assert_equal [item_page.pdf_page_number, prose_page.pdf_page_number], ranked_ids
+  end
+
+  test 'ranks a bold match above incidental prose repetition' do
+    rulebook = rulebooks(:core)
+    # Same shape as the item-line ranking test above: bold weight 1.0 plus body weight 0.2
+    # (bold_text duplicates rather than removes the span from normalized_body), so 5
+    # occurrences ~= 6.0 — comfortably above MINIMUM_RANK and above the prose-only page.
+    bold_words = (['unique_bold_term'] * 5).join(' ')
+    bold_page = rulebook.rulebook_pages.create!(pdf_page_number: 92, normalized_body: bold_words, bold_text: bold_words)
+
+    prose_words = 11.times.map { |i| "unique_bold_term filler#{i}" }.join(' ')
+    prose_page = rulebook.rulebook_pages.create!(pdf_page_number: 93, normalized_body: prose_words)
+
+    group = RulebookSearch.new(query: 'unique_bold_term', referee: true, rulebook_ids: [rulebook.id]).call.first
+
+    ranked_ids = group.hits.map { |hit| hit.rulebook_page.pdf_page_number }
+    assert_equal [bold_page.pdf_page_number, prose_page.pdf_page_number], ranked_ids
   end
 
   test 'excerpt segments mark matched terms as highlighted and everything else as plain' do

@@ -698,9 +698,11 @@ CREATE TABLE public.rulebook_pages (
     heading character varying,
     body text,
     normalized_body text,
-    search_vector tsvector GENERATED ALWAYS AS ((setweight(to_tsvector('english'::regconfig, (COALESCE(heading, ''::character varying))::text), 'A'::"char") || setweight(to_tsvector('english'::regconfig, COALESCE(normalized_body, ''::text)), 'B'::"char"))) STORED,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    item_lines text,
+    bold_text text,
+    search_vector tsvector GENERATED ALWAYS AS ((((setweight(to_tsvector('english'::regconfig, (COALESCE(heading, ''::character varying))::text), 'A'::"char") || setweight(to_tsvector('english'::regconfig, COALESCE(item_lines, ''::text)), 'C'::"char")) || setweight(to_tsvector('english'::regconfig, COALESCE(bold_text, ''::text)), 'D'::"char")) || setweight(to_tsvector('english'::regconfig, COALESCE(normalized_body, ''::text)), 'B'::"char"))) STORED,
     CONSTRAINT rulebook_pages_override_xor_unnumbered CHECK ((NOT (printed_page_unnumbered AND (printed_page_number_override IS NOT NULL))))
 );
 
@@ -737,7 +739,7 @@ CREATE TABLE public.rulebooks (
     category character varying DEFAULT 'rulebook'::character varying NOT NULL,
     status character varying DEFAULT 'pending'::character varying NOT NULL,
     searchable boolean DEFAULT true NOT NULL,
-    page_number_offset integer DEFAULT 0 NOT NULL,
+    page_number_offset integer DEFAULT 1 NOT NULL,
     file_checksum character varying,
     imported_at timestamp(6) without time zone,
     import_error text,
@@ -2648,6 +2650,9 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260805180000'),
+('20260805170600'),
+('20260805170516'),
 ('20260805130923'),
 ('20260804110400'),
 ('20260803210300'),

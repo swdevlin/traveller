@@ -13,7 +13,6 @@ class RulebookSearchController < ApplicationController
       query: @query,
       referee: Current.user.present?,
       rulebook_ids: Array(params[:rulebook_ids]).presence,
-      editions: Array(params[:editions]).presence,
       categories: Array(params[:categories]).presence,
       per_rulebook_limit: per_rulebook_limit_param
     ).call
