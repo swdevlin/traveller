@@ -17,7 +17,11 @@ class RulebookSearch
   # always beat heavy body-text repetition outright.
   RANK_WEIGHTS = '{0.1,0.2,0.2,1.0}'
 
-  def initialize(query:, referee:, rulebook_ids: nil, editions: nil, categories: nil, minimum_rank: nil,
+  # Relevance floor, operator-configurable via ENV. Cuts off weak, incidental
+  # matches on a common word.
+  MINIMUM_RANK = ENV.fetch('RULEBOOK_SEARCH_MINIMUM_RANK', '2.0').to_f
+
+  def initialize(query:, referee:, rulebook_ids: nil, editions: nil, categories: nil,
                  per_rulebook_limit: DEFAULT_PER_RULEBOOK, rulebook_cap: DEFAULT_RULEBOOK_CAP)
     @query = query.to_s.strip
     @referee = referee
@@ -28,7 +32,6 @@ class RulebookSearch
     @rulebook_ids = Array(rulebook_ids).reject(&:blank?).presence
     @editions = Array(editions).reject(&:blank?).presence
     @categories = Array(categories).reject(&:blank?).presence
-    @minimum_rank = minimum_rank.presence&.to_f
     @per_rulebook_limit = per_rulebook_limit
     @rulebook_cap = rulebook_cap
   end
@@ -69,11 +72,15 @@ class RulebookSearch
       'public.rulebooks.searchable = true',
       "public.rulebooks.status = 'ready'",
       'campaign_rulebooks.enabled = true',
-      'public.rulebook_pages.search_vector @@ websearch_to_tsquery(:dictionary, :query)'
+      'public.rulebook_pages.search_vector @@ websearch_to_tsquery(:dictionary, :query)',
+      # Can't reference the `rank` SELECT-list alias here — Postgres doesn't allow
+      # that in WHERE — so the ts_rank_cd + rank_modifier expression is repeated.
+      "(ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query)) " \
+      '+ public.rulebooks.rank_modifier) >= :minimum_rank'
     ]
     conditions << 'campaign_rulebooks.player_searchable = true' unless @referee
 
-    params = { dictionary: 'english', query: @query }
+    params = { dictionary: 'english', query: @query, minimum_rank: MINIMUM_RANK }
 
     if @rulebook_ids
       conditions << 'public.rulebooks.id IN (:rulebook_ids)'
@@ -90,19 +97,13 @@ class RulebookSearch
       params[:categories] = @categories
     end
 
-    if @minimum_rank
-      # Can't reference the `rank` SELECT-list alias here — Postgres doesn't
-      # allow that in WHERE — so the ts_rank_cd expression is repeated.
-      conditions << "ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query)) >= :minimum_rank"
-      params[:minimum_rank] = @minimum_rank
-    end
-
     sql = <<~SQL
       SELECT public.rulebook_pages.id, public.rulebook_pages.rulebook_id, public.rulebook_pages.pdf_page_number,
              public.rulebook_pages.printed_page_number_override, public.rulebook_pages.printed_page_unnumbered,
              public.rulebooks.title, public.rulebooks.short_title, public.rulebooks.edition, public.rulebooks.category,
              public.rulebooks.page_number_offset,
-             ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query)) AS rank,
+             ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query))
+               + public.rulebooks.rank_modifier AS rank,
              ts_headline(:dictionary, COALESCE(public.rulebook_pages.heading, ''), websearch_to_tsquery(:dictionary, :query),
                          'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=20, MinWords=1') AS heading_headline,
              ts_headline(:dictionary, public.rulebook_pages.normalized_body, websearch_to_tsquery(:dictionary, :query),

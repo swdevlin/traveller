@@ -743,7 +743,8 @@ CREATE TABLE public.rulebooks (
     import_error text,
     header_footer_patterns jsonb DEFAULT '[]'::jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    rank_modifier numeric(4,2) DEFAULT 0.0 NOT NULL
 );
 
 
@@ -2647,6 +2648,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260805130923'),
 ('20260804110400'),
 ('20260803210300'),
 ('20260803210200'),

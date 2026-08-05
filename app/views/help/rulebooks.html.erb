@@ -97,6 +97,17 @@
           </dd>
         </div>
 
+        <div>
+          <dt class='font-semibold text-fg-bright'>Search Rank Modifier</dt>
+          <dd class='mt-1 text-fg'>
+            Added directly to every search hit's relevance score for this book, before the
+            minimum-relevance cutoff is applied. Defaults to 0, which changes nothing. Useful
+            for books like FAQs or errata, where a correction's matching text is short enough
+            that it would otherwise never clear the cutoff — a positive modifier lets its
+            matches surface anyway. Negative values push a book's matches down instead.
+          </dd>
+        </div>
+
       </dl>
     </div>
 

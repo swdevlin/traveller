@@ -13,19 +13,17 @@ class RulebookSearchTest < ActiveSupport::TestCase
     end
   end
 
-  test 'minimum_rank filters out hits scoring below the threshold' do
-    unfiltered = RulebookSearch.new(query: 'jump drive', referee: true).call
-    rank = unfiltered.first.hits.first.rank
+  test 'MINIMUM_RANK filters out hits scoring below the fixed threshold' do
+    rulebook = rulebooks(:core)
+    rulebook.rulebook_pages.create!(pdf_page_number: 80,
+                                     heading: 'unique_threshold_term unique_threshold_term unique_threshold_term',
+                                     normalized_body: 'irrelevant')
+    rulebook.rulebook_pages.create!(pdf_page_number: 81, normalized_body: 'unique_threshold_term appears once')
 
-    assert_equal 1, RulebookSearch.new(query: 'jump drive', referee: true, minimum_rank: rank - 0.001).call.size
-    assert_empty RulebookSearch.new(query: 'jump drive', referee: true, minimum_rank: rank + 0.001).call
-  end
+    group = RulebookSearch.new(query: 'unique_threshold_term', referee: true, rulebook_ids: [rulebook.id]).call.first
 
-  test 'a blank minimum_rank behaves like no filter at all' do
-    unfiltered = RulebookSearch.new(query: 'jump drive', referee: true).call
-    blank_filter = RulebookSearch.new(query: 'jump drive', referee: true, minimum_rank: '').call
-
-    assert_equal unfiltered.size, blank_filter.size
+    assert_equal 1, group.hits.size
+    assert_operator group.hits.first.rank, :>=, RulebookSearch::MINIMUM_RANK
   end
 
   test 'finds matches by term, grouped by rulebook' do
@@ -120,10 +118,14 @@ class RulebookSearchTest < ActiveSupport::TestCase
 
   test 'ranks heading matches above ordinary body matches' do
     rulebook = rulebooks(:core)
-    heading_page = rulebook.rulebook_pages.create!(pdf_page_number: 50, heading: 'unique_rank_term',
+    # Both pages must individually clear MINIMUM_RANK to appear at all: three heading
+    # occurrences (rank 3.0) vs. twelve body-only occurrences (rank 2.4) — comfortably
+    # above the 2.0 floor on both sides, while still keeping heading > body.
+    heading_page = rulebook.rulebook_pages.create!(pdf_page_number: 50,
+                                                    heading: 'unique_rank_term unique_rank_term unique_rank_term',
                                                     normalized_body: 'unrelated content')
     body_page = rulebook.rulebook_pages.create!(pdf_page_number: 51, heading: 'Other',
-                                                 normalized_body: 'discusses unique_rank_term in passing')
+                                                 normalized_body: (['unique_rank_term'] * 12).join(' ') + ' discussed in passing')
 
     group = RulebookSearch.new(query: 'unique_rank_term', referee: true, rulebook_ids: [rulebook.id]).call.first
 
@@ -147,13 +149,21 @@ class RulebookSearchTest < ActiveSupport::TestCase
     assert_equal 'Starships', hit.heading_segments.map(&:text).join
     assert(hit.heading_segments.none?(&:highlighted))
 
-    heading_match = RulebookSearch.new(query: 'starships', referee: true, rulebook_ids: [rulebook.id]).call.first.hits.first
-    assert_includes heading_match.heading_segments.select(&:highlighted).map(&:text), 'Starships'
+    # A single heading occurrence (rank 1.0) sits below MINIMUM_RANK, so the heading is
+    # repeated to clear the floor while still exercising heading-match highlighting.
+    rulebook.rulebook_pages.create!(pdf_page_number: 71,
+                                     heading: 'headingmatchterm headingmatchterm headingmatchterm',
+                                     normalized_body: 'unrelated content')
+    heading_match = RulebookSearch.new(query: 'headingmatchterm', referee: true, rulebook_ids: [rulebook.id]).call.first.hits.first
+    assert_includes heading_match.heading_segments.select(&:highlighted).map(&:text), 'headingmatchterm'
   end
 
   test 'heading segments are empty for a page with no heading' do
     rulebook = rulebooks(:core)
-    rulebook.rulebook_pages.create!(pdf_page_number: 70, normalized_body: 'unique_headingless_term appears here')
+    # A single body-only occurrence (rank 0.2) sits below MINIMUM_RANK, so the term is
+    # repeated with filler between each mention to clear the floor.
+    padded_body = 12.times.map { |i| "unique_headingless_term filler#{i}" }.join(' ')
+    rulebook.rulebook_pages.create!(pdf_page_number: 70, normalized_body: padded_body)
 
     hit = RulebookSearch.new(query: 'unique_headingless_term', referee: true, rulebook_ids: [rulebook.id]).call.first.hits.first
     assert_empty hit.heading_segments
@@ -169,8 +179,11 @@ class RulebookSearchTest < ActiveSupport::TestCase
 
   test 'total_matches reflects all matching pages even when hits are capped by per_rulebook_limit' do
     rulebook = rulebooks(:core)
+    # A single occurrence (rank 0.2) sits below MINIMUM_RANK, so each page repeats the
+    # term, with filler between each mention, to clear the floor.
     3.times do |i|
-      rulebook.rulebook_pages.create!(pdf_page_number: 60 + i, normalized_body: 'unique_cap_term appears here')
+      padded_body = 12.times.map { |n| "unique_cap_term filler#{n}" }.join(' ')
+      rulebook.rulebook_pages.create!(pdf_page_number: 60 + i, normalized_body: padded_body)
     end
 
     group = RulebookSearch.new(query: 'unique_cap_term', referee: true, per_rulebook_limit: 1).call.first

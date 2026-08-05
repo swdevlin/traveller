@@ -1,4 +1,4 @@
-<%# locals: group, query, minimum_rank %>
+<%# locals: group, query %>
 <% title = safe_join([
   content_tag(:i, '', class: 'fa-regular fa-book mr-2'),
   group.rulebook.title,
@@ -15,7 +15,7 @@
 
   <% if group.total_matches > group.hits.size %>
     <turbo-frame id='rulebook-<%= group.rulebook.id %>-more'
-                 src='<%= more_rulebook_search_path(rulebook_id: group.rulebook.id, q: query, minimum_rank: minimum_rank) %>'
+                 src='<%= more_rulebook_search_path(rulebook_id: group.rulebook.id, q: query) %>'
                  loading='lazy'>
       <div class='p-3 text-center'>
         <i class='fa-regular fa-ellipsis text-fg-muted'></i>

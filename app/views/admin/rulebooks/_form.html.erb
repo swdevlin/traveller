@@ -39,6 +39,11 @@
       <%= render 'application/boolean_toggle', form: form, attribute: :searchable, checked: rulebook.searchable? %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :rank_modifier,
+               field_label: 'Search Rank Modifier' do %>
+      <%= form.number_field :rank_modifier, step: 0.01, class: 'edit-base w-32' %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :header_footer_patterns,
                field_label: 'Header/Footer Patterns (one regular expression per line)' do %>
       <%= form.text_area :header_footer_patterns_raw, value: Array(rulebook.header_footer_patterns).join("\n"),
@@ -46,7 +51,7 @@
     <% end %>
 
     <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit rulebook.persisted? ? 'Update rulebook' : 'Create rulebook', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= form.submit rulebook.persisted? ? 'Update rulebook' : 'Create Core', class: 'w-full sm:w-auto btn btn-primary' %>
       <%= link_to 'Cancel', rulebook.persisted? ? admin_rulebook_path(rulebook) : admin_rulebooks_path, class: 'w-full sm:w-auto btn' %>
     </div>
   </div>

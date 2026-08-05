@@ -21,6 +21,7 @@ class Rulebook < ApplicationRecord
 
   validates :title, presence: true
   validates :page_number_offset, numericality: { only_integer: true }
+  validates :rank_modifier, numericality: true
   validate :header_footer_patterns_are_valid_regexes
 
   scope :searchable, -> { where(searchable: true, status: 'ready') }

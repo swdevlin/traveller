@@ -41,19 +41,11 @@
                                           params[:categories]),
                        class: 'input',
                        data: { action: 'change->autosubmit#queue' } %>
-
-        <label class='flex items-center gap-2 text-xs text-fg-muted'>
-          Min rank
-          <%= number_field_tag :minimum_rank, @minimum_rank,
-                               step: 0.1, min: 0, placeholder: 'none',
-                               class: 'input w-24',
-                               data: { action: 'input->autosubmit#queue' } %>
-        </label>
       </div>
     <% end %>
 
     <turbo-frame id='rulebook-search-results'>
-      <%= render 'results', groups: @groups, query: @query, minimum_rank: @minimum_rank %>
+      <%= render 'results', groups: @groups, query: @query %>
     </turbo-frame>
   </div>
 <% end %>

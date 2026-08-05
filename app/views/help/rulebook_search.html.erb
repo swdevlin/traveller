@@ -35,21 +35,12 @@
         </div>
 
         <div>
-          <dt class='font-semibold text-fg-bright'>Min rank</dt>
-          <dd class='mt-1 text-fg'>
-            Optional relevance threshold. Each match is scored, and results below this score are
-            excluded. Leave blank to see every match regardless of relevance. Useful for cutting
-            off weak, incidental matches on a common word.
-          </dd>
-        </div>
-
-        <div>
           <dt class='font-semibold text-fg-bright'>Results</dt>
           <dd class='mt-1 text-fg'>
             Results are grouped by rulebook, ordered by that book's strongest match, and
             collapsed by default — click a book's title to expand it. Within a book, each hit
-            shows the page it was found on, a relevance score, and a highlighted excerpt of the
-            matching text. A page showing
+            shows the page it was found on and a highlighted excerpt of the matching text.
+            Weak, incidental matches on a common word are excluded automatically. A page showing
             <span class='font-mono text-fg-bright'>Unnumbered page</span> has no real printed
             page number — a cover, a blank page, or similar — and is identified by its position
             in the PDF instead.

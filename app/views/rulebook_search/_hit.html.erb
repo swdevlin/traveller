@@ -3,8 +3,10 @@
   <div class='flex items-center gap-2 text-xs text-fg-muted'>
     <i class='fa-regular fa-file-lines'></i>
     <%= hit.rulebook_page.effective_printed_page_label %>
-    <span class='text-fg-muted/50'>·</span>
-    <span class='font-mono italic text-fg-muted' title='Relevance score'>rank <%= hit.rank.round(3) %></span>
+    <% if Rails.application.config.x.show_rulebook_search_rank %>
+      <span class='text-fg-muted/50'>·</span>
+      <span class='font-mono italic text-fg-muted' title='Relevance score'>rank <%= hit.rank.round(3) %></span>
+    <% end %>
   </div>
 
   <% if hit.heading_segments.present? %>

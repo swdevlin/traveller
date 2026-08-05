@@ -12,10 +12,18 @@ class RulebookSearchFlowTest < ActionDispatch::IntegrationTest
     @response.body.scan(%r{<mark[^>]*>#{term}</mark>}).size
   end
 
+  # A single occurrence of a term scores well below RulebookSearch::MINIMUM_RANK, so
+  # fixtures that need to clear the fixed floor repeat the term — spread apart with
+  # filler words so ts_headline's MaxFragments=1 excerpt still only ever highlights one
+  # occurrence, keeping highlighted_occurrences assertions meaningful.
+  def padded_match_body(term, occurrences: 12)
+    occurrences.times.map { |i| "#{term} #{(1..40).map { |n| "filler#{i}_#{n}" }.join(' ')}" }.join(' . ')
+  end
+
   test 'searching renders results, and the show-more frame reveals additional hits beyond the initial page' do
     rulebook = rulebooks(:core)
     4.upto(7) do |n|
-      rulebook.rulebook_pages.create!(pdf_page_number: n, normalized_body: 'wibblewobble appears on this page')
+      rulebook.rulebook_pages.create!(pdf_page_number: n, normalized_body: padded_match_body('wibblewobble'))
     end
 
     get rulebook_search_url, params: { q: 'wibblewobble' }
@@ -30,27 +38,25 @@ class RulebookSearchFlowTest < ActionDispatch::IntegrationTest
     assert_equal 1, highlighted_occurrences('wibblewobble')
   end
 
-  test 'minimum_rank is respected by the lazy-loaded "show more" frame, not just the initial page' do
+  test 'the fixed rank threshold is applied consistently on the initial page and the lazy-loaded "show more" frame' do
     rulebook = rulebooks(:core)
-    # Heading matches (tsvector weight A) rank higher than body-only matches (weight B).
-    5.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 10 + i, heading: 'distincttestterm', normalized_body: 'irrelevant') }
+    # Well above MINIMUM_RANK (rank 3.0): heading match repeated three times.
+    5.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 10 + i, heading: 'distincttestterm distincttestterm distincttestterm', normalized_body: 'irrelevant') }
+    # Well below MINIMUM_RANK (rank 0.2): a single body-only mention.
     2.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 20 + i, normalized_body: 'distincttestterm appears once') }
 
-    unfiltered = RulebookSearch.new(query: 'distincttestterm', referee: true, rulebook_ids: [rulebook.id]).call.first
-    ranks = unfiltered.hits.map(&:rank).sort
-    # A threshold strictly between the low body-only ranks and the high heading ranks:
-    # keeps the 5 heading hits, excludes the 2 body-only hits.
-    threshold = (ranks[1] + ranks[2]) / 2.0
-
-    get rulebook_search_url, params: { q: 'distincttestterm', minimum_rank: threshold }
+    get rulebook_search_url, params: { q: 'distincttestterm' }
     assert_response :success
+    # Only the 5 heading hits clear the floor; RESULTS_PER_RULEBOOK (3) show inline.
+    assert_equal 3, @response.body.scan(/rank \d+\.\d+/).size
     assert_includes @response.body, "rulebook-#{rulebook.id}-more"
 
-    get more_rulebook_search_url, params: { rulebook_id: rulebook.id, q: 'distincttestterm', minimum_rank: threshold }
+    get more_rulebook_search_url, params: { rulebook_id: rulebook.id, q: 'distincttestterm' }
     assert_response :success
     rendered_ranks = @response.body.scan(/rank ([\d.]+)/).flatten.map(&:to_f)
-    assert rendered_ranks.present?
-    assert rendered_ranks.all? { |r| r >= threshold }, "expected all rendered ranks >= #{threshold}, got #{rendered_ranks}"
+    # The remaining 2 of the 5 qualifying heading hits — never the 2 body-only ones.
+    assert_equal 2, rendered_ranks.size
+    assert rendered_ranks.all? { |r| r >= RulebookSearch::MINIMUM_RANK }, "expected all rendered ranks >= #{RulebookSearch::MINIMUM_RANK}, got #{rendered_ranks}"
   end
 
   test 'an unauthenticated player can search, then the referee can hide a rulebook from the campaign entirely' do

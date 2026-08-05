@@ -7,13 +7,23 @@ core_page_starships:
 
     Chapter 3: Starships
 
-    Every starship requires a jump drive to travel faster than light.
-    The jump drive consumes fuel proportional to jump distance and hull tonnage.
+    Every starship requires a jump drive to travel faster than light. The jump drive
+    consumes fuel proportional to jump distance and hull tonnage. Without a jump drive,
+    a hull cannot make a jump. Every jump drive must be maintained; a fouled jump drive
+    strands the vessel between systems. A jump drive is rated by jump number, and a
+    higher-rated jump drive draws more power per jump. No two shipyards install a jump
+    drive quite the same way, and a mismatched jump drive can shake a hull apart. A
+    well-tuned jump drive lasts decades; a neglected jump drive fails mid-transit.
   normalized_body: |
     Chapter 3: Starships
 
-    Every starship requires a jump drive to travel faster than light.
-    The jump drive consumes fuel proportional to jump distance and hull tonnage.
+    Every starship requires a jump drive to travel faster than light. The jump drive
+    consumes fuel proportional to jump distance and hull tonnage. Without a jump drive,
+    a hull cannot make a jump. Every jump drive must be maintained; a fouled jump drive
+    strands the vessel between systems. A jump drive is rated by jump number, and a
+    higher-rated jump drive draws more power per jump. No two shipyards install a jump
+    drive quite the same way, and a mismatched jump drive can shake a hull apart. A
+    well-tuned jump drive lasts decades; a neglected jump drive fails mid-transit.
 
 core_page_trade:
   rulebook: core
@@ -44,6 +54,12 @@ hidden_page_one:
   pdf_page_number: 1
   heading: Secret Jump Drive Variants
   body: |
-    Secret rules about jump drive variants for the hidden sourcebook.
+    Secret rules about jump drive variants for the hidden sourcebook. A modified jump drive
+    behaves differently from a standard jump drive under these house rules. No two black-market
+    jump drive conversions behave alike, and a black-market jump drive voids the warranty. A
+    smuggler's jump drive is rarely registered, and an unregistered jump drive draws suspicion.
   normalized_body: |
-    Secret rules about jump drive variants for the hidden sourcebook.
+    Secret rules about jump drive variants for the hidden sourcebook. A modified jump drive
+    behaves differently from a standard jump drive under these house rules. No two black-market
+    jump drive conversions behave alike, and a black-market jump drive voids the warranty. A
+    smuggler's jump drive is rarely registered, and an unregistered jump drive draws suspicion.
