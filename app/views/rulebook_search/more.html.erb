@@ -3,5 +3,8 @@
     <% @group.hits.drop(RulebookSearchController::RESULTS_PER_RULEBOOK).each do |hit| %>
       <%= render 'hit', hit: hit %>
     <% end %>
+    <% @group.low_relevance_hits.drop(RulebookSearchController::RESULTS_PER_RULEBOOK).each do |hit| %>
+      <%= render 'hit', hit: hit, low_relevance: true %>
+    <% end %>
   </div>
 </turbo-frame>

@@ -38,25 +38,30 @@ class RulebookSearchFlowTest < ActionDispatch::IntegrationTest
     assert_equal 1, highlighted_occurrences('wibblewobble')
   end
 
-  test 'the fixed rank threshold is applied consistently on the initial page and the lazy-loaded "show more" frame' do
+  test 'the relevant/low-relevance split is applied consistently on the initial page and the lazy-loaded "show more" frame' do
     rulebook = rulebooks(:core)
-    # Well above MINIMUM_RANK (rank 3.0): heading match repeated three times.
+    # Well above RELEVANT_RANK_THRESHOLD (rank 3.0): heading match repeated three times.
     5.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 10 + i, heading: 'distincttestterm distincttestterm distincttestterm', normalized_body: 'irrelevant') }
-    # Well below MINIMUM_RANK (rank 0.2): a single body-only mention.
+    # Above MINIMUM_RANK but below RELEVANT_RANK_THRESHOLD (rank 0.2): a single body-only mention.
     2.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 20 + i, normalized_body: 'distincttestterm appears once') }
 
     get rulebook_search_url, params: { q: 'distincttestterm' }
     assert_response :success
-    # Only the 5 heading hits clear the floor; RESULTS_PER_RULEBOOK (3) show inline.
-    assert_equal 3, @response.body.scan(/rank \d+\.\d+/).size
+    # RESULTS_PER_RULEBOOK (3) of the 5 relevant heading hits, plus both low-relevance
+    # body hits (only 2 exist, under the same per-bucket cap) — both buckets render
+    # server-side; the low-relevance ones are CSS-hidden by default.
+    assert_equal 5, @response.body.scan(/rank \d+\.\d+/).size
+    assert_equal 2, @response.body.scan('data-low-relevance-hit').size
     assert_includes @response.body, "rulebook-#{rulebook.id}-more"
 
     get more_rulebook_search_url, params: { rulebook_id: rulebook.id, q: 'distincttestterm' }
     assert_response :success
     rendered_ranks = @response.body.scan(/rank ([\d.]+)/).flatten.map(&:to_f)
-    # The remaining 2 of the 5 qualifying heading hits — never the 2 body-only ones.
+    # The remaining 2 of the 5 qualifying relevant heading hits — the 2 low-relevance
+    # body-only hits were already fully shown inline, so "more" adds nothing for them.
     assert_equal 2, rendered_ranks.size
-    assert rendered_ranks.all? { |r| r >= RulebookSearch::MINIMUM_RANK }, "expected all rendered ranks >= #{RulebookSearch::MINIMUM_RANK}, got #{rendered_ranks}"
+    assert rendered_ranks.all? { |r| r >= RulebookSearch::RELEVANT_RANK_THRESHOLD },
+           "expected all 'more' ranks >= #{RulebookSearch::RELEVANT_RANK_THRESHOLD}, got #{rendered_ranks}"
   end
 
   test 'an unauthenticated player can search, then the referee can hide a rulebook from the campaign entirely' do

@@ -26,6 +26,52 @@ class RulebookSearchTest < ActiveSupport::TestCase
     assert_operator group.hits.first.rank, :>=, RulebookSearch::MINIMUM_RANK
   end
 
+  test 'RELEVANT_RANK_THRESHOLD splits fetched hits into relevant and low-relevance buckets' do
+    rulebook = rulebooks(:core)
+    relevant_page = rulebook.rulebook_pages.create!(pdf_page_number: 85,
+                                                      heading: 'unique_split_term unique_split_term unique_split_term',
+                                                      normalized_body: 'irrelevant')
+    low_relevance_page = rulebook.rulebook_pages.create!(pdf_page_number: 86, normalized_body: 'unique_split_term appears once')
+
+    group = RulebookSearch.new(query: 'unique_split_term', referee: true, rulebook_ids: [rulebook.id]).call.first
+
+    assert_equal 2, group.total_matches
+    assert_equal 1, group.relevant_matches
+    assert_equal [relevant_page.pdf_page_number], group.hits.map { |hit| hit.rulebook_page.pdf_page_number }
+    assert_equal [low_relevance_page.pdf_page_number], group.low_relevance_hits.map { |hit| hit.rulebook_page.pdf_page_number }
+    assert_operator group.hits.first.rank, :>=, RulebookSearch::RELEVANT_RANK_THRESHOLD
+    assert_operator group.low_relevance_hits.first.rank, :<, RulebookSearch::RELEVANT_RANK_THRESHOLD
+  end
+
+  test 'a rulebook whose matches are all below the relevance threshold still appears, with an empty hits bucket' do
+    rulebook = rulebooks(:core)
+    rulebook.rulebook_pages.create!(pdf_page_number: 87, normalized_body: 'unique_lowonly_term appears once')
+
+    group = RulebookSearch.new(query: 'unique_lowonly_term', referee: true, rulebook_ids: [rulebook.id]).call.first
+
+    assert group.present?
+    assert_equal 0, group.relevant_matches
+    assert_equal 1, group.total_matches
+    assert_empty group.hits
+    assert_equal 1, group.low_relevance_hits.size
+  end
+
+  test 'both buckets are capped independently by per_rulebook_limit, at both the default and "more" size' do
+    rulebook = rulebooks(:core)
+    3.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 100 + i, heading: 'unique_cap2_term unique_cap2_term unique_cap2_term', normalized_body: 'irrelevant') }
+    3.times { |i| rulebook.rulebook_pages.create!(pdf_page_number: 110 + i, normalized_body: 'unique_cap2_term appears once') }
+
+    group = RulebookSearch.new(query: 'unique_cap2_term', referee: true, rulebook_ids: [rulebook.id], per_rulebook_limit: 2).call.first
+    assert_equal 3, group.relevant_matches
+    assert_equal 6, group.total_matches
+    assert_equal 2, group.hits.size
+    assert_equal 2, group.low_relevance_hits.size
+
+    more_group = RulebookSearch.new(query: 'unique_cap2_term', referee: true, rulebook_ids: [rulebook.id], per_rulebook_limit: 100).call.first
+    assert_equal 3, more_group.hits.size
+    assert_equal 3, more_group.low_relevance_hits.size
+  end
+
   test 'finds matches by term, grouped by rulebook' do
     groups = RulebookSearch.new(query: 'jump drive', referee: true).call
 

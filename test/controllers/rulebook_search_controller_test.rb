@@ -96,6 +96,18 @@ class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
     assert_operator excerpt_text.length, :<, rulebook_pages(:core_page_starships).body.length
   end
 
+  test 'JSON response includes relevant_matches and low_relevance_hits alongside the existing fields' do
+    get rulebook_search_url(format: :json), params: { q: 'jump drive' }
+    assert_response :success
+
+    body = JSON.parse(@response.body)
+    group = body.first
+    assert group.key?('relevant_matches')
+    assert_kind_of Integer, group['relevant_matches']
+    assert group.key?('low_relevance_hits')
+    assert_kind_of Array, group['low_relevance_hits']
+  end
+
   test 'filters by category via the api endpoint' do
     get api_rulebook_search_url, params: { q: 'jump', categories: 'adventure' }
     body = JSON.parse(@response.body)

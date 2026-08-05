@@ -4,16 +4,28 @@
   group.rulebook.title,
   (content_tag(:span, group.rulebook.edition, class: 'pill ml-2') if group.rulebook.edition.present?)
 ].compact) %>
-<% match_count = content_tag(:span, pluralize(group.total_matches, 'match', plural: 'matches'), class: 'text-xs text-fg-muted') %>
+<% hidden_count = group.total_matches - group.relevant_matches %>
+<% match_count = safe_join([
+  content_tag(:span, class: 'text-xs text-fg-muted', data: { relevance_label: 'default' }) do
+    safe_join([pluralize(group.relevant_matches, 'match', plural: 'matches'), ' · ',
+               pluralize(hidden_count, 'low-relevance match', plural: 'low-relevance matches'), ' hidden'])
+  end,
+  content_tag(:span, class: 'text-xs text-fg-muted', data: { relevance_label: 'expanded' }) do
+    safe_join([pluralize(group.relevant_matches, 'relevant match', plural: 'relevant matches'), ' · ', group.total_matches, ' total'])
+  end
+]) %>
 
 <%= render 'application/collapsible_table_card', title: title, actions: match_count, collapsed: true do %>
   <div class='divide-y divide-outline'>
     <% group.hits.each do |hit| %>
       <%= render 'hit', hit: hit %>
     <% end %>
+    <% group.low_relevance_hits.each do |hit| %>
+      <%= render 'hit', hit: hit, low_relevance: true %>
+    <% end %>
   </div>
 
-  <% if group.total_matches > group.hits.size %>
+  <% if group.total_matches > group.hits.size + group.low_relevance_hits.size %>
     <turbo-frame id='rulebook-<%= group.rulebook.id %>-more'
                  src='<%= more_rulebook_search_path(rulebook_id: group.rulebook.id, q: query) %>'
                  loading='lazy'>

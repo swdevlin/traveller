@@ -26,6 +26,7 @@ import Http
 import Json.Decode as JsDecode
 import RemoteData exposing (RemoteData(..))
 import Set exposing (Set)
+import Traveller.ToggleSwitch as ToggleSwitch
 import Url.Builder
 
 
@@ -72,7 +73,9 @@ type alias RulebookGroup =
     , edition : Maybe String
     , category : String
     , totalMatches : Int
+    , relevantMatches : Int
     , hits : List RulebookHit
+    , lowRelevanceHits : List RulebookHit
     }
 
 
@@ -85,7 +88,9 @@ groupCodec =
         |> Codec.field "edition" .edition (Codec.maybe Codec.string)
         |> Codec.field "category" .category Codec.string
         |> Codec.field "total_matches" .totalMatches Codec.int
+        |> Codec.field "relevant_matches" .relevantMatches Codec.int
         |> Codec.field "hits" .hits (Codec.list hitCodec)
+        |> Codec.field "low_relevance_hits" .lowRelevanceHits (Codec.list hitCodec)
         |> Codec.buildObject
 
 
@@ -98,6 +103,7 @@ type alias Model =
     , query : String
     , results : RemoteData Http.Error (List RulebookGroup)
     , expandedRulebookIds : Set Int
+    , includeLowRelevance : Bool
     }
 
 
@@ -109,6 +115,7 @@ init =
     , query = ""
     , results = NotAsked
     , expandedRulebookIds = Set.empty
+    , includeLowRelevance = False
     }
 
 
@@ -122,6 +129,7 @@ type Msg
     | RunSearch
     | SearchResultsReceived (Result Http.Error (List RulebookGroup))
     | ToggleGroup Int
+    | ToggleIncludeLowRelevance
 
 
 {-| Fetched with a slightly larger per-rulebook limit than the Rails HTML page's
@@ -165,6 +173,9 @@ update hostConfig msg model =
                         Set.insert rulebookId
             in
             ( { model | expandedRulebookIds = toggle model.expandedRulebookIds }, Cmd.none )
+
+        ToggleIncludeLowRelevance ->
+            ( { model | includeLowRelevance = not model.includeLowRelevance }, Cmd.none )
 
 
 sendSearchRequest : HostConfig -> String -> Cmd Msg
@@ -222,7 +233,8 @@ view model =
             ]
             [ viewHeader
             , viewSearchBox model.query
-            , viewResults model.expandedRulebookIds model.results
+            , viewRelevanceToggle model.includeLowRelevance
+            , viewResults model.includeLowRelevance model.expandedRulebookIds model.results
             ]
 
 
@@ -298,8 +310,23 @@ viewSearchBox query =
         ]
 
 
-viewResults : Set Int -> RemoteData Http.Error (List RulebookGroup) -> Html Msg
-viewResults expandedRulebookIds results =
+viewRelevanceToggle : Bool -> Html Msg
+viewRelevanceToggle includeLowRelevance =
+    Html.div
+        [ HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "8px"
+        , HtmlAttrs.style "padding" "0 12px 12px 12px"
+        ]
+        [ ToggleSwitch.view ToggleSwitch.Small includeLowRelevance (Html.Events.onClick ToggleIncludeLowRelevance)
+        , Html.span
+            [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            [ Html.text "Include low-relevance matches" ]
+        ]
+
+
+viewResults : Bool -> Set Int -> RemoteData Http.Error (List RulebookGroup) -> Html Msg
+viewResults includeLowRelevance expandedRulebookIds results =
     Html.div
         [ HtmlAttrs.style "padding" "0 12px 12px 12px"
         , HtmlAttrs.style "display" "flex"
@@ -320,7 +347,7 @@ viewResults expandedRulebookIds results =
                 [ viewHint "No matches. Try different terms." ]
 
             Success groups ->
-                List.map (viewGroup expandedRulebookIds) groups
+                List.map (viewGroup includeLowRelevance expandedRulebookIds) groups
         )
 
 
@@ -334,11 +361,36 @@ viewHint message =
         [ Html.text message ]
 
 
-viewGroup : Set Int -> RulebookGroup -> Html Msg
-viewGroup expandedRulebookIds group =
+viewGroup : Bool -> Set Int -> RulebookGroup -> Html Msg
+viewGroup includeLowRelevance expandedRulebookIds group =
     let
         isExpanded =
             Set.member group.rulebookId expandedRulebookIds
+
+        hiddenCount =
+            group.totalMatches - group.relevantMatches
+
+        matchCountText =
+            if includeLowRelevance then
+                String.fromInt group.relevantMatches
+                    ++ " relevant match"
+                    ++ pluralSuffix group.relevantMatches
+                    ++ " · "
+                    ++ String.fromInt group.totalMatches
+                    ++ " total"
+
+            else
+                String.fromInt group.relevantMatches
+                    ++ " match"
+                    ++ pluralSuffix group.relevantMatches
+                    ++ " · "
+                    ++ String.fromInt hiddenCount
+                    ++ " low-relevance match"
+                    ++ pluralSuffix hiddenCount
+                    ++ " hidden"
+
+        hitsToShow =
+            group.hits ++ (if includeLowRelevance then group.lowRelevanceHits else [])
     in
     Html.div
         [ HtmlAttrs.style "border" "1px solid var(--color-outline)"
@@ -377,7 +429,7 @@ viewGroup expandedRulebookIds group =
                 ]
                 [ Html.span
                     [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
-                    [ Html.text (String.fromInt group.totalMatches ++ " match" ++ pluralSuffix group.totalMatches) ]
+                    [ Html.text matchCountText ]
                 , Html.i
                     [ HtmlAttrs.class
                         (if isExpanded then
@@ -391,7 +443,7 @@ viewGroup expandedRulebookIds group =
                 ]
             ]
         , if isExpanded then
-            Html.div [] (List.map viewHit group.hits)
+            Html.div [] (List.map viewHit hitsToShow)
 
           else
             Html.text ""

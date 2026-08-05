@@ -1,5 +1,6 @@
-<%# locals: hit %>
-<div class='px-4 py-3'>
+<%# locals: hit, low_relevance %>
+<% low_relevance = local_assigns.fetch(:low_relevance, false) %>
+<%= content_tag :div, class: 'px-4 py-3', data: { low_relevance_hit: low_relevance || nil } do %>
   <div class='flex items-center gap-2 text-xs text-fg-muted'>
     <i class='fa-regular fa-file-lines'></i>
     <%= hit.rulebook_page.effective_printed_page_label %>
@@ -18,4 +19,4 @@
   <p class='mt-1 text-sm text-fg leading-relaxed'>
     <%= render 'excerpt_segments', segments: hit.excerpt_segments %>
   </p>
-</div>
+<% end %>

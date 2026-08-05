@@ -1216,6 +1216,27 @@
     @apply h-px flex-1 bg-outline;
   }
 
+  /* Rulebook search's "include low-relevance matches" toggle is purely
+     client-side: the server always fetches both tiers, and this pure-CSS
+     `:has()` rule decides which is visible so the checkbox never triggers
+     a page reload. */
+  .rulebook-search-page [data-low-relevance-hit],
+  .rulebook-search-page [data-relevance-label='expanded'] {
+    display: none;
+  }
+
+  .rulebook-search-page:has(#include_low_relevance:checked) [data-low-relevance-hit] {
+    display: block;
+  }
+
+  .rulebook-search-page:has(#include_low_relevance:checked) [data-relevance-label='default'] {
+    display: none;
+  }
+
+  .rulebook-search-page:has(#include_low_relevance:checked) [data-relevance-label='expanded'] {
+    display: inline;
+  }
+
   .spec-dl {
     @apply space-y-4;
   }

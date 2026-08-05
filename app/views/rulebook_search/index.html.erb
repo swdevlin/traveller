@@ -1,9 +1,9 @@
-<% content_for :title, 'Rulebook Search' %>
+<% content_for :title, 'Information Retrieval System' %>
 <% content_for :page_kicker, 'Reference Manual' %>
-<% content_for :page_title, 'Rulebook Search' %>
+<% content_for :page_title, 'Information Retrieval System' %>
 
 <%= render 'application/page' do %>
-  <div class='space-y-4'>
+  <div class='space-y-4 rulebook-search-page'>
     <%= form_with url: rulebook_search_path,
                   method: :get,
                   data: { turbo_frame: 'rulebook-search-results', controller: 'autosubmit', autosubmit_delay_value: 250 },
@@ -37,6 +37,23 @@
                        data: { action: 'change->autosubmit#queue' } %>
       </div>
     <% end %>
+
+    <div data-controller='boolean-toggle' class='flex items-center gap-3'>
+      <%= check_box_tag :include_low_relevance, '1', false,
+                         id: 'include_low_relevance',
+                         class: 'sr-only',
+                         data: { boolean_toggle_target: 'checkbox' } %>
+      <button type='button'
+              role='switch'
+              aria-checked='false'
+              data-action='boolean-toggle#toggle'
+              data-boolean-toggle-target='button'
+              class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-toggle-off'>
+        <span data-boolean-toggle-target='indicator'
+              class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out translate-x-0 bg-toggle-knob-off'></span>
+      </button>
+      <span class='text-sm text-fg-muted'>Include low-relevance matches</span>
+    </div>
 
     <turbo-frame id='rulebook-search-results'>
       <%= render 'results', groups: @groups, query: @query %>

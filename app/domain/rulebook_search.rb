@@ -3,7 +3,7 @@
 class RulebookSearch
   ExcerptSegment = Struct.new(:text, :highlighted, keyword_init: true)
   Hit            = Struct.new(:rulebook_page, :rank, :heading_segments, :excerpt_segments, keyword_init: true)
-  Group          = Struct.new(:rulebook, :total_matches, :hits, keyword_init: true)
+  Group          = Struct.new(:rulebook, :total_matches, :relevant_matches, :hits, :low_relevance_hits, keyword_init: true)
 
   TOTAL_ROW_LIMIT       = 200
   DEFAULT_RULEBOOK_CAP  = 20
@@ -27,6 +27,13 @@ class RulebookSearch
   # Relevance floor, operator-configurable via ENV. Cuts off weak, incidental
   # matches on a common word.
   MINIMUM_RANK = ENV.fetch('RULEBOOK_SEARCH_MINIMUM_RANK', '0.1').to_f
+
+  # Bar for a match to count as "relevant" rather than merely fetched.
+  # Operator-configurable via ENV, same pattern as MINIMUM_RANK. Matches at
+  # or above this rank are shown by default; matches between MINIMUM_RANK
+  # and this threshold are fetched but hidden behind the "include
+  # low-relevance matches" toggle.
+  RELEVANT_RANK_THRESHOLD = ENV.fetch('RULEBOOK_SEARCH_RELEVANT_RANK', '1.0').to_f
 
   def initialize(query:, referee:, rulebook_ids: nil, categories: nil,
                  per_rulebook_limit: DEFAULT_PER_RULEBOOK, rulebook_cap: DEFAULT_RULEBOOK_CAP)
@@ -86,7 +93,7 @@ class RulebookSearch
     ]
     conditions << 'campaign_rulebooks.player_searchable = true' unless @referee
 
-    params = { dictionary: 'english', query: @query, minimum_rank: MINIMUM_RANK }
+    params = { dictionary: 'english', query: @query, minimum_rank: MINIMUM_RANK, relevant_threshold: RELEVANT_RANK_THRESHOLD }
 
     if @rulebook_ids
       conditions << 'public.rulebooks.id IN (:rulebook_ids)'
@@ -99,22 +106,26 @@ class RulebookSearch
     end
 
     sql = <<~SQL
-      SELECT public.rulebook_pages.id, public.rulebook_pages.rulebook_id, public.rulebook_pages.pdf_page_number,
-             public.rulebook_pages.printed_page_number_override, public.rulebook_pages.printed_page_unnumbered,
-             public.rulebooks.title, public.rulebooks.short_title, public.rulebooks.edition, public.rulebooks.category,
-             public.rulebooks.page_number_offset,
-             ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query))
-               + public.rulebooks.rank_modifier AS rank,
-             ts_headline(:dictionary, COALESCE(public.rulebook_pages.heading, ''), websearch_to_tsquery(:dictionary, :query),
-                         'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=20, MinWords=1') AS heading_headline,
-             ts_headline(:dictionary, public.rulebook_pages.normalized_body, websearch_to_tsquery(:dictionary, :query),
-                         'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=35, MinWords=15') AS headline,
-             COUNT(*) OVER (PARTITION BY public.rulebook_pages.rulebook_id) AS total_matches
-      FROM public.rulebook_pages
-      JOIN public.rulebooks ON public.rulebooks.id = public.rulebook_pages.rulebook_id
-      JOIN campaign_rulebooks ON campaign_rulebooks.rulebook_id = public.rulebooks.id
-      WHERE #{conditions.join(' AND ')}
-      ORDER BY rank DESC
+      SELECT sub.*,
+             COUNT(*) OVER (PARTITION BY sub.rulebook_id) AS total_matches,
+             COUNT(*) FILTER (WHERE sub.rank >= :relevant_threshold) OVER (PARTITION BY sub.rulebook_id) AS relevant_matches
+      FROM (
+        SELECT public.rulebook_pages.id, public.rulebook_pages.rulebook_id, public.rulebook_pages.pdf_page_number,
+               public.rulebook_pages.printed_page_number_override, public.rulebook_pages.printed_page_unnumbered,
+               public.rulebooks.title, public.rulebooks.short_title, public.rulebooks.edition, public.rulebooks.category,
+               public.rulebooks.page_number_offset,
+               ts_rank_cd('#{RANK_WEIGHTS}', public.rulebook_pages.search_vector, websearch_to_tsquery(:dictionary, :query))
+                 + public.rulebooks.rank_modifier AS rank,
+               ts_headline(:dictionary, COALESCE(public.rulebook_pages.heading, ''), websearch_to_tsquery(:dictionary, :query),
+                           'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=20, MinWords=1') AS heading_headline,
+               ts_headline(:dictionary, public.rulebook_pages.normalized_body, websearch_to_tsquery(:dictionary, :query),
+                           'StartSel=#{SEGMENT_START}, StopSel=#{SEGMENT_STOP}, MaxFragments=1, MaxWords=35, MinWords=15') AS headline
+        FROM public.rulebook_pages
+        JOIN public.rulebooks ON public.rulebooks.id = public.rulebook_pages.rulebook_id
+        JOIN campaign_rulebooks ON campaign_rulebooks.rulebook_id = public.rulebooks.id
+        WHERE #{conditions.join(' AND ')}
+      ) sub
+      ORDER BY sub.rank DESC
       LIMIT #{TOTAL_ROW_LIMIT}
     SQL
 
@@ -133,19 +144,29 @@ class RulebookSearch
       page_number_offset: first['page_number_offset']
     )
 
-    hits = rows.first(@per_rulebook_limit).map do |row|
-      page = RulebookPage.new(
-        pdf_page_number: row['pdf_page_number'],
-        printed_page_number_override: row['printed_page_number_override'],
-        printed_page_unnumbered: row['printed_page_unnumbered']
-      )
-      page.rulebook = rulebook
+    # `rows` arrives ORDER BY rank DESC from execute_query; #partition
+    # preserves that order in both resulting arrays.
+    relevant_rows, low_relevance_rows = rows.partition { |row| row['rank'].to_f >= RELEVANT_RANK_THRESHOLD }
 
-      Hit.new(rulebook_page: page, rank: row['rank'].to_f,
-              heading_segments: split_headline(row['heading_headline']), excerpt_segments: split_headline(row['headline']))
-    end
+    Group.new(
+      rulebook: rulebook,
+      total_matches: first['total_matches'].to_i,
+      relevant_matches: first['relevant_matches'].to_i,
+      hits: relevant_rows.first(@per_rulebook_limit).map { |row| build_hit(row, rulebook) },
+      low_relevance_hits: low_relevance_rows.first(@per_rulebook_limit).map { |row| build_hit(row, rulebook) }
+    )
+  end
 
-    Group.new(rulebook: rulebook, total_matches: first['total_matches'].to_i, hits: hits)
+  def build_hit(row, rulebook)
+    page = RulebookPage.new(
+      pdf_page_number: row['pdf_page_number'],
+      printed_page_number_override: row['printed_page_number_override'],
+      printed_page_unnumbered: row['printed_page_unnumbered']
+    )
+    page.rulebook = rulebook
+
+    Hit.new(rulebook_page: page, rank: row['rank'].to_f,
+            heading_segments: split_headline(row['heading_headline']), excerpt_segments: split_headline(row['headline']))
   end
 
   def split_headline(headline)

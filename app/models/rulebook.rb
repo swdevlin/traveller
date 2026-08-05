@@ -13,9 +13,7 @@ class Rulebook < ApplicationRecord
     supplement: 'supplement',
     adventure: 'adventure',
     setting: 'setting',
-    vehicle_handbook: 'vehicle_handbook',
     alien_module: 'alien_module',
-    referee_screen: 'referee_screen',
     other: 'other'
   }, validate: true, prefix: true
 
