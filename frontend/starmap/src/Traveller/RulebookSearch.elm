@@ -386,8 +386,6 @@ viewGroup includeLowRelevance expandedRulebookIds group =
                     ++ pluralSuffix group.relevantMatches
                     ++ " · "
                     ++ String.fromInt hiddenCount
-                    ++ " low-relevance match"
-                    ++ pluralSuffix hiddenCount
                     ++ " hidden"
 
         hitsToShow =
