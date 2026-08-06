@@ -107,12 +107,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libvips
 
+      - name: Install pinned PyMuPDF extractor venv
+        run: |
+          python3 -m venv .venv-rulebooks
+          .venv-rulebooks/bin/pip install --no-cache-dir -r requirements-rulebooks.txt
+
       - name: Run tests
         env:
           RAILS_ENV: test
           DB_HOST: localhost
           DB_USER: postgres
           DB_PASSWORD: postgres
+          RULEBOOK_PYTHON: ${{ github.workspace }}/.venv-rulebooks/bin/python
         run: bin/rails db:test:prepare test
 
   system-test:
