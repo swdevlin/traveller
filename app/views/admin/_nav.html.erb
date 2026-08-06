@@ -1,0 +1,16 @@
+<% admin_tools = [
+     ['Dashboard', admin_root_path, 'admin/dashboard'],
+     ['Rulebooks', admin_rulebooks_path, 'admin/rulebooks']
+   ] %>
+
+<nav class='pb-2'>
+  <ul class='flex items-center gap-6 font-medium'>
+    <% admin_tools.each do |label, path, tool_controller_path| %>
+      <% active = controller_path.start_with?(tool_controller_path) %>
+      <li>
+        <%= link_to label, path,
+                    class: "no-underline hover:underline hover:underline-offset-2 #{active ? 'text-highlight' : 'text-fg hover:text-highlight'}" %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

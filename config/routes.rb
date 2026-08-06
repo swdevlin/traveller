@@ -17,6 +17,8 @@ Rails.application.routes.draw do
   mount MissionControl::Jobs::Engine, at: '/jobs'
 
   namespace :admin do
+    root to: 'dashboard#index'
+
     resources :rulebooks do
       member do
         post :import

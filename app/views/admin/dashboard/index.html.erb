@@ -1,0 +1,59 @@
+<% content_for :title, 'Dashboard' %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, 'Dashboard' %>
+
+<%= render 'application/page' do %>
+  <%= render 'admin/nav' %>
+
+  <div class='space-y-6'>
+    <%= render 'application/subsection', title: 'Campaigns' %>
+
+    <div class='grid grid-cols-2 gap-4 sm:grid-cols-5'>
+      <%= render 'application/data_block', label: 'Total', value: @campaign_count %>
+      <% @campaigns_by_type.sort_by { |_type, count| -count }.each do |type, count| %>
+        <%= render 'application/data_block', label: type.humanize, value: count %>
+      <% end %>
+      <%= render 'application/data_block', label: 'Referees', value: @referee_count %>
+    </div>
+
+    <div class='grid grid-cols-2 gap-4 sm:grid-cols-5'>
+      <%= render 'application/data_block', label: 'New this week', value: @campaigns_created_this_week %>
+      <%= render 'application/data_block', label: 'New this month', value: @campaigns_created_this_month %>
+    </div>
+
+    <div class='table-card'>
+      <div class='table-banner'>
+        <p>Campaign registry</p>
+      </div>
+
+      <div class='table-scroll'>
+        <table>
+          <thead>
+          <tr>
+            <th scope='col'>Name</th>
+            <th scope='col'>Referee</th>
+            <th scope='col'>Type</th>
+            <th scope='col' class='text-right'>Sectors</th>
+            <th scope='col' class='text-right'>Star systems</th>
+            <th scope='col'>Created</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <% @campaigns.each do |row| %>
+            <% campaign = row[:campaign] %>
+            <tr>
+              <td><%= campaign.name %></td>
+              <td><%= campaign.referee.email_address %></td>
+              <td><span class='pill'><%= campaign.campaign_type.humanize %></span></td>
+              <td class='text-right'><%= row[:sector_count] || 'n/a' %></td>
+              <td class='text-right'><%= row[:star_system_count] || 'n/a' %></td>
+              <td><%= campaign.created_at.to_fs(:long) %></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>
