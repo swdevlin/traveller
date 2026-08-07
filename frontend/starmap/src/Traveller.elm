@@ -217,7 +217,7 @@ cometSI =
 
 
 consoleTitleHeight =
-    62
+    0
 
 
 toEHexChar : Int -> String
@@ -4685,15 +4685,13 @@ viewSearchField model =
             ]
             [ Html.input
                 [ HtmlAttrs.type_ "text"
+                , HtmlAttrs.class "starmap-navbar-search"
                 , HtmlAttrs.value model.searchState.query
                 , HtmlAttrs.placeholder "Search… [/]"
-                , HtmlAttrs.style "width" "220px"
+                , HtmlAttrs.style "width" "200px"
                 , HtmlAttrs.style "font-size" "13px"
-                , HtmlAttrs.style "color" "var(--color-fg-bright)"
-                , HtmlAttrs.style "background-color" "var(--color-panel)"
-                , HtmlAttrs.style "border" "1px solid var(--color-outline)"
                 , HtmlAttrs.style "border-radius" "4px"
-                , HtmlAttrs.style "padding" "6px"
+                , HtmlAttrs.style "padding" "4px 10px"
                 , Html.Events.onInput SearchInput
                 , Html.Events.stopPropagationOn "keydown"
                     (JsDecode.field "key" JsDecode.string
@@ -4851,10 +4849,7 @@ viewStatusRowHtml model =
         extras =
             case model.viewMode of
                 HexMap ->
-                    [ navIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)) }
-                    , navIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)) }
-                    , navIcon { title = "Refresh map", icon = "fa-regular fa-refresh", onClick = RefreshMap }
-                    , if displayModeLabel /= "" then
+                    [ if displayModeLabel /= "" then
                         Html.span [ HtmlAttrs.style "color" navIconColour, HtmlAttrs.style "font-size" "12px" ] [ Html.text displayModeLabel ]
 
                       else
@@ -4862,9 +4857,21 @@ viewStatusRowHtml model =
                     ]
 
                 FullJourney ->
-                    [ navIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = JourneyMsg (Zoom ZoomIn) }
-                    , navIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = JourneyMsg (Zoom ZoomOut) }
+                    [ navbarIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = JourneyMsg (Zoom ZoomIn) }
+                    , navbarIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = JourneyMsg (Zoom ZoomOut) }
                     ]
+
+        navbarIcon : { title : String, icon : String, onClick : Msg } -> Html Msg
+        navbarIcon opts =
+            Html.span
+                [ HtmlAttrs.class "starmap-navbar-icon"
+                , HtmlAttrs.style "cursor" "pointer"
+                , HtmlAttrs.style "display" "inline-flex"
+                , HtmlAttrs.style "align-items" "center"
+                , HtmlAttrs.title opts.title
+                , Html.Events.onClick opts.onClick
+                ]
+                [ faIcon opts.icon 16 ]
 
         viewModeIcon : ViewMode -> String -> Html Msg
         viewModeIcon targetMode iconName =
@@ -4878,17 +4885,12 @@ viewStatusRowHtml model =
 
                     else
                         "fa-thin"
-
-                colour =
-                    if isActive then
-                        navIconColour
-
-                    else
-                        "var(--color-fg-muted)"
             in
             Html.span
-                [ HtmlAttrs.class "starmap-icon-hover"
-                , HtmlAttrs.style "color" colour
+                [ HtmlAttrs.classList
+                    [ ( "starmap-navbar-icon", True )
+                    , ( "is-active", isActive )
+                    ]
                 , HtmlAttrs.style "cursor" "pointer"
                 , HtmlAttrs.style "display" "inline-flex"
                 , HtmlAttrs.style "align-items" "center"
@@ -4898,13 +4900,13 @@ viewStatusRowHtml model =
 
         backToRailsButton =
             if model.isReferee then
-                [ navIcon { title = "Return to Rails app", icon = "fa-regular fa-house", onClick = GoToRailsApp } ]
+                [ navbarIcon { title = "Return to Rails app", icon = "fa-regular fa-house", onClick = GoToRailsApp } ]
 
             else
                 []
 
         rulebookSearchIcon =
-            [ navIcon
+            [ navbarIcon
                 { title = "Reference"
                 , icon = "fa-regular fa-book"
                 , onClick = RulebookSearchMsg RulebookSearch.ToggleOpen
@@ -4913,7 +4915,7 @@ viewStatusRowHtml model =
 
         displaySettingsGear =
             if model.viewMode == HexMap then
-                [ navIcon { title = "Map display settings", icon = "fa-regular fa-gear", onClick = ToggleDisplaySettings } ]
+                [ navbarIcon { title = "Map display settings", icon = "fa-regular fa-gear", onClick = ToggleDisplaySettings } ]
 
             else
                 []
@@ -4922,8 +4924,7 @@ viewStatusRowHtml model =
             [ Html.div [ HtmlAttrs.style "position" "relative" ]
                 [ Html.span
                     [ HtmlAttrs.id "starmap-theme-toggle"
-                    , HtmlAttrs.class "starmap-icon-hover"
-                    , HtmlAttrs.style "color" navIconColour
+                    , HtmlAttrs.class "starmap-navbar-icon"
                     , HtmlAttrs.style "cursor" "pointer"
                     , HtmlAttrs.style "display" "inline-flex"
                     , HtmlAttrs.style "align-items" "center"
@@ -4944,8 +4945,7 @@ viewStatusRowHtml model =
                 [ Html.div [ HtmlAttrs.style "position" "relative" ]
                     [ Html.span
                         [ HtmlAttrs.id "starmap-highlight-toggle"
-                        , HtmlAttrs.class "starmap-icon-hover"
-                        , HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.class "starmap-navbar-icon"
                         , HtmlAttrs.style "cursor" "pointer"
                         , HtmlAttrs.style "display" "inline-flex"
                         , HtmlAttrs.style "align-items" "center"
@@ -4969,8 +4969,7 @@ viewStatusRowHtml model =
                 [ Html.div [ HtmlAttrs.style "position" "relative" ]
                     [ Html.span
                         [ HtmlAttrs.id "starmap-jump-route-layers-toggle"
-                        , HtmlAttrs.class "starmap-icon-hover"
-                        , HtmlAttrs.style "color" navIconColour
+                        , HtmlAttrs.class "starmap-navbar-icon"
                         , HtmlAttrs.style "cursor" "pointer"
                         , HtmlAttrs.style "display" "inline-flex"
                         , HtmlAttrs.style "align-items" "center"
@@ -4991,41 +4990,20 @@ viewStatusRowHtml model =
 
         mapAreaSpacer =
             Html.div [ HtmlAttrs.style "flex" "1" ] []
-
-        shipLocationDisplay =
-            case model.viewMode of
-                HexMap ->
-                    [ Html.div
-                        [ HtmlAttrs.style "color" navIconColour
-                        , HtmlAttrs.style "font-size" "14px"
-                        , HtmlAttrs.style "display" "flex"
-                        , HtmlAttrs.style "align-items" "center"
-                        , HtmlAttrs.style "gap" "5px"
-                        , HtmlAttrs.style "cursor" "pointer"
-                        , HtmlAttrs.class "starmap-icon-hover"
-                        , Html.Events.onClick JumpToShip
-                        ]
-                        [ Html.text (model.ship |> Maybe.map .name |> Maybe.withDefault "Ship")
-                        , faIcon "fa-regular fa-crosshairs-simple" 16
-                        , Html.text
-                            (universalHexLabelMaybe model.sectors model.currentAddress
-                                |> Maybe.withDefault "???"
-                            )
-                        ]
-                    ]
-
-                FullJourney ->
-                    []
     in
     Html.div
-        [ HtmlAttrs.style "display" "flex"
+        [ HtmlAttrs.class "starmap-navbar"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "0"
+        , HtmlAttrs.style "left" "0"
+        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "align-items" "center"
         , HtmlAttrs.style "gap" "8px"
-        , HtmlAttrs.style "width" "100%"
-        , HtmlAttrs.style "padding" "4px 8px 10px 0"
+        , HtmlAttrs.style "padding" "6px 12px"
         ]
         ([ Html.span
-            [ HtmlAttrs.style "font-size" "20px", HtmlAttrs.style "color" navIconColour, HtmlAttrs.style "padding-left" "8px" ]
+            [ HtmlAttrs.style "font-size" "16px", HtmlAttrs.style "color" navIconColour, HtmlAttrs.style "padding-left" "8px" ]
             [ Html.text model.campaignName ]
          , viewModeIcon HexMap "fa-hexagon"
          , viewModeIcon FullJourney "fa-map"
@@ -5035,7 +5013,6 @@ viewStatusRowHtml model =
             ++ viewSearchField model
             ++ extras
             ++ [ mapAreaSpacer ]
-            ++ shipLocationDisplay
             ++ highlightRulesIcon
             ++ jumpRouteLayersIcon
             ++ themeSwatchIcon
@@ -6003,6 +5980,44 @@ viewHoverTooltip model =
             Html.text ""
 
 
+{-| A small floating toolbar for map viewport actions (zoom, reset, centre on
+ship), positioned as HTML chrome over the map like `viewMapRangeOverlay` and
+`viewHoverTooltip`, so it stays fixed in the viewport rather than panning or
+scaling with the map.
+-}
+viewMapToolbar : ModelData -> Html Msg
+viewMapToolbar model =
+    let
+        shipLocationLabel =
+            universalHexLabelMaybe model.sectors model.currentAddress
+
+        centreOnShipTitle =
+            case shipLocationLabel of
+                Just label ->
+                    "Centre on ship • " ++ label
+
+                Nothing ->
+                    "Centre on ship"
+    in
+    Html.div
+        [ HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "52px"
+        , HtmlAttrs.style "left" "12px"
+        , HtmlAttrs.style "display" "inline-flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "6px"
+        , HtmlAttrs.style "border-radius" "6px"
+        , HtmlAttrs.style "padding" "6px 8px"
+        , HtmlAttrs.style "z-index" "20"
+        ]
+        [ navIcon { title = "Zoom in", icon = "fa-regular fa-magnifying-glass-plus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale * 1.1)) }
+        , navIcon { title = "Zoom out", icon = "fa-regular fa-magnifying-glass-minus", onClick = SetHexSize (clamp minHexSize maxHexSize (model.hexScale / 1.1)) }
+        , navIcon { title = "Reset view", icon = "fa-regular fa-refresh", onClick = RefreshMap }
+        , navIcon { title = centreOnShipTitle, icon = "fa-regular fa-crosshairs-simple", onClick = JumpToShip }
+        ]
+
+
 humanizeTypeName : String -> String
 humanizeTypeName name =
     name
@@ -6274,31 +6289,35 @@ view ( time, model ) =
                         Element.htmlAttribute <| HtmlAttrs.class ""
                ]
         )
-        [ column [ width fill, Element.alignTop ]
-            [ viewStatusRow model
-            , el
-                [ Element.alignTop
-                , width fill
-                , if model.sidebarOpen then
-                    Element.inFront sidebarOverlay
+        [ el
+            [ Element.alignTop
+            , width fill
+            , Element.inFront (viewStatusRow model)
+            , if model.sidebarOpen then
+                Element.inFront sidebarOverlay
 
-                  else
+              else
+                Element.htmlAttribute <| HtmlAttrs.class ""
+            , case model.viewMode of
+                HexMap ->
+                    Element.inFront (Element.html (viewMapRangeOverlay model))
+
+                FullJourney ->
                     Element.htmlAttribute <| HtmlAttrs.class ""
-                , case model.viewMode of
-                    HexMap ->
-                        Element.inFront (Element.html (viewMapRangeOverlay model))
+            , case model.viewMode of
+                HexMap ->
+                    Element.inFront (Element.html (viewHoverTooltip model))
 
-                    FullJourney ->
-                        Element.htmlAttribute <| HtmlAttrs.class ""
-                , case model.viewMode of
-                    HexMap ->
-                        Element.inFront (Element.html (viewHoverTooltip model))
+                FullJourney ->
+                    Element.htmlAttribute <| HtmlAttrs.class ""
+            , case model.viewMode of
+                HexMap ->
+                    Element.inFront (Element.html (viewMapToolbar model))
 
-                    FullJourney ->
-                        Element.htmlAttribute <| HtmlAttrs.class ""
-                ]
-                contentColumn
+                FullJourney ->
+                    Element.htmlAttribute <| HtmlAttrs.class ""
             ]
+            contentColumn
         , Element.html <| errorDialog model.newSolarSystemErrors
         ]
 

@@ -256,7 +256,6 @@ view model =
         , div
             [ Html.Attributes.style "height" "100vh"
             , Html.Attributes.style "overflow" "hidden"
-            , Html.Attributes.style "padding-top" "8px"
             ]
             [ elmUiHackLayout
             , case model.travellerModel of

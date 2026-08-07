@@ -1579,6 +1579,37 @@
   border: 1px solid var(--color-outline);
 }
 
+.starmap-navbar {
+  z-index: 30;
+  background-color: color-mix(in srgb, var(--color-nav-bar) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-outline) 40%, transparent);
+}
+
+.starmap-navbar-icon {
+  color: var(--color-fg-muted);
+}
+.starmap-navbar-icon:hover,
+.starmap-navbar-icon.is-active {
+  color: var(--color-fg-bright);
+}
+
+.starmap-navbar-search {
+  background-color: var(--color-panel-muted);
+  border: 1px solid color-mix(in srgb, var(--color-outline) 50%, transparent);
+  color: var(--color-fg);
+}
+.starmap-navbar-search::placeholder {
+  color: var(--color-fg-muted);
+}
+.starmap-navbar-search:focus {
+  background-color: var(--color-panel-muted);
+  border-color: var(--color-outline);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-highlight) 40%, transparent);
+  outline: none;
+}
+
 .starmap-search-result:hover,
 .starmap-display-option:hover {
   background-color: color-mix(in srgb, var(--color-outline) 10%, transparent);
