@@ -4292,6 +4292,61 @@ universalHexLabelMaybe sectors hexAddress =
         |> Maybe.map (\sector -> sector.name ++ " " ++ HexAddress.hexLabel hexAddress)
 
 
+{-| The hex addresses of the upper-left and lower-right corners of the
+currently visible map viewport, in universal hex-space.
+-}
+mapRangeEndpoints : ModelData -> ( HexAddress, HexAddress )
+mapRangeEndpoints model =
+    let
+        svgWidth =
+            model.viewport.viewport.viewport.width
+
+        svgHeight =
+            model.viewport.viewport.viewport.height - consoleTitleHeight
+
+        ( ulPX, ulPY ) =
+            calcVisualOrigin model.hexScale
+                { col = model.hexRect.upperLeftHex.x
+                , row = model.hexRect.upperLeftHex.y
+                }
+
+        vbx =
+            toFloat ulPX + model.panOffset.x
+
+        vby =
+            toFloat ulPY + model.panOffset.y
+    in
+    ( pixelToHexAddress model.hexScale vbx vby
+    , pixelToHexAddress model.hexScale (vbx + svgWidth) (vby + svgHeight)
+    )
+
+
+{-| Formats the visible map range as e.g. "Last Prospect 0420 → 1830", or
+"Last Prospect 0420 → Darkling 1830" when the two corners fall in different
+named sectors.
+-}
+mapRangeText : SectorDict -> HexAddress -> HexAddress -> String
+mapRangeText sectors first last =
+    let
+        sectorNameFor addr =
+            Dict.get (HexAddress.toSectorKey <| HexAddress.toSectorAddress addr) sectors
+                |> Maybe.map .name
+    in
+    case ( sectorNameFor first, sectorNameFor last ) of
+        ( Just firstName, Just lastName ) ->
+            if firstName == lastName then
+                firstName ++ " " ++ HexAddress.hexLabel first ++ " → " ++ HexAddress.hexLabel last
+
+            else
+                firstName ++ " " ++ HexAddress.hexLabel first ++ " → " ++ lastName ++ " " ++ HexAddress.hexLabel last
+
+        _ ->
+            -- one or both corners have no known sector — keep the original full-label format
+            (universalHexLabelMaybe sectors first |> Maybe.withDefault "???")
+                ++ " – "
+                ++ (universalHexLabelMaybe sectors last |> Maybe.withDefault "???")
+
+
 errorDialog : List ( Http.Error, String ) -> Html Msg
 errorDialog httpErrors =
     let
@@ -4952,52 +5007,8 @@ viewStatusRowHtml model =
             else
                 []
 
-        mapAreaText =
-            case model.viewMode of
-                HexMap ->
-                    Html.div
-                        [ HtmlAttrs.style "flex" "1"
-                        , HtmlAttrs.style "text-align" "center"
-                        , HtmlAttrs.style "color" navIconColour
-                        , HtmlAttrs.style "font-size" "14px"
-                        ]
-                        [ Html.text <|
-                            let
-                                svgWidth =
-                                    model.viewport.viewport.viewport.width
-
-                                svgHeight =
-                                    model.viewport.viewport.viewport.height - consoleTitleHeight
-
-                                ( ulPX, ulPY ) =
-                                    calcVisualOrigin model.hexScale
-                                        { col = model.hexRect.upperLeftHex.x
-                                        , row = model.hexRect.upperLeftHex.y
-                                        }
-
-                                vbx =
-                                    toFloat ulPX + model.panOffset.x
-
-                                vby =
-                                    toFloat ulPY + model.panOffset.y
-
-                                first =
-                                    pixelToHexAddress model.hexScale vbx vby
-
-                                last =
-                                    pixelToHexAddress model.hexScale (vbx + svgWidth) (vby + svgHeight)
-                            in
-                            (universalHexLabelMaybe model.sectors first
-                                |> Maybe.withDefault "???"
-                            )
-                                ++ " – "
-                                ++ (universalHexLabelMaybe model.sectors last
-                                        |> Maybe.withDefault "???"
-                                   )
-                        ]
-
-                FullJourney ->
-                    Html.div [ HtmlAttrs.style "flex" "1" ] []
+        mapAreaSpacer =
+            Html.div [ HtmlAttrs.style "flex" "1" ] []
 
         shipLocationDisplay =
             case model.viewMode of
@@ -5041,7 +5052,7 @@ viewStatusRowHtml model =
             ++ rulebookSearchIcon
             ++ viewSearchField model
             ++ extras
-            ++ [ mapAreaText ]
+            ++ [ mapAreaSpacer ]
             ++ shipLocationDisplay
             ++ highlightRulesIcon
             ++ jumpRouteLayersIcon
@@ -5900,6 +5911,33 @@ viewHexMap model =
         |> Element.html
 
 
+{-| A small translucent label pinned to the bottom-centre of the map area,
+showing the visible hex range. Positioned as HTML chrome over the map (not an
+SVG node), so it stays fixed to the viewport rather than panning/zooming with
+the map coordinate system.
+-}
+viewMapRangeOverlay : ModelData -> Html Msg
+viewMapRangeOverlay model =
+    let
+        ( first, last ) =
+            mapRangeEndpoints model
+    in
+    Html.div
+        [ HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "bottom" "12px"
+        , HtmlAttrs.style "left" "50%"
+        , HtmlAttrs.style "transform" "translateX(-50%)"
+        , HtmlAttrs.style "border-radius" "6px"
+        , HtmlAttrs.style "padding" "6px 12px"
+        , HtmlAttrs.style "font-size" "12px"
+        , HtmlAttrs.style "color" "var(--color-fg-muted)"
+        , HtmlAttrs.style "white-space" "nowrap"
+        , HtmlAttrs.style "pointer-events" "none"
+        ]
+        [ Html.text (mapRangeText model.sectors first last) ]
+
+
 humanizeTypeName : String -> String
 humanizeTypeName name =
     name
@@ -6181,6 +6219,12 @@ view ( time, model ) =
 
                   else
                     Element.htmlAttribute <| HtmlAttrs.class ""
+                , case model.viewMode of
+                    HexMap ->
+                        Element.inFront (Element.html (viewMapRangeOverlay model))
+
+                    FullJourney ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
                 ]
                 contentColumn
             ]
