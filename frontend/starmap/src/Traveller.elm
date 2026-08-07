@@ -746,6 +746,7 @@ type alias ModelData =
     , dragMode : DragMode
     , sectors : SectorDict
     , hoveringHex : Maybe HexAddress
+    , hoveringHexAnchor : Maybe ( Float, Float )
     , selectedHex : Maybe HexAddress
     , selectedSystem : Maybe SolarSystem
     , sidebarHoverText : Maybe String
@@ -843,7 +844,7 @@ type Msg
     | FetchedSolarSystem (Result Http.Error SolarSystem)
     | DownloadedSectors ( RequestEntry, String ) (Result Http.Error (List Sector))
     | DownloadedRegions ( RequestEntry, String ) (Result Http.Error (List Region))
-    | HoveringHex HexAddress
+    | HoveringHex HexAddress ( Float, Float )
     | ViewingHex HexAddress
     | GotViewport Browser.Dom.Viewport
     | GotHexMapViewport (Result Browser.Dom.Error Browser.Dom.Viewport)
@@ -1229,6 +1230,15 @@ maxHexSizeForBackgroundNames =
     70
 
 
+{-| Hex size at and above which individual hexes already render their own
+system name and hex address labels directly on the map, making the hover
+tooltip redundant.
+-}
+minHexSizeToHideHoverTooltip : Float
+minHexSizeToHideHoverTooltip =
+    38
+
+
 defaultHorizontalHexes : Int
 defaultHorizontalHexes =
     30
@@ -1457,6 +1467,7 @@ init viewport settings key hostConfig referee =
             , requestHistory = requestHistory
             , dragMode = NoDragging
             , hoveringHex = Nothing
+            , hoveringHexAnchor = Nothing
             , selectedHex = Nothing
             , selectedSystem = Nothing
             , sidebarHoverText = Nothing
@@ -1613,7 +1624,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
                 [ Svg.text childSvgTxt ]
     in
     Svg.g
-        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        [ SvgEvents.on "mouseover" (mouseMoveDecoder (HoveringHex hexAddress))
         , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
@@ -1692,7 +1703,7 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIs
             (otherDetail /= Nothing) && (isReferee || surveyIndex >= cometSI || anyKnown)
     in
     Svg.g
-        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        [ SvgEvents.on "mouseover" (mouseMoveDecoder (HoveringHex hexAddress))
         , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -2244,7 +2255,7 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
             HexAddress hexAddrX hexAddrY
     in
     Svg.g
-        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        [ SvgEvents.on "mouseover" (mouseMoveDecoder (HoveringHex hexAddress))
         , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , -- listens for the JS 'mousedown' event and then runs the `downDecoder` on the JS Event, returning the Msg
           SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
@@ -3009,7 +3020,7 @@ viewHexLoading hx hy x y size hexColour =
                 [ Svg.text "·" ]
     in
     Svg.g
-        [ SvgEvents.onMouseOver (HoveringHex hexAddress)
+        [ SvgEvents.on "mouseover" (mouseMoveDecoder (HoveringHex hexAddress))
         , SvgEvents.on "mouseup" <| mouseUpDecoder (\pos ctrlKey -> MapMouseUp (Just hexAddress) pos ctrlKey)
         , SvgEvents.on "mousedown" <| mouseDownDecoder MapMouseDown
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
@@ -4848,35 +4859,6 @@ viewStatusRowHtml model =
 
                       else
                         Html.text ""
-                    , Html.span
-                        [ HtmlAttrs.style "color" navIconColour
-                        , HtmlAttrs.style "font-family" "monospace"
-                        , HtmlAttrs.style "font-size" "14px"
-                        , HtmlAttrs.style "min-width" "10px"
-                        ]
-                        [ case model.hoveringHex of
-                            Just hoveringHex ->
-                                let
-                                    hexLabel =
-                                        universalHexLabel model.sectors hoveringHex
-
-                                    displayText =
-                                        case Dict.get (HexAddress.toKey hoveringHex) model.solarSystems of
-                                            Just (LoadedSolarSystem system) ->
-                                                if system.name /= "" then
-                                                    system.name ++ " (" ++ hexLabel ++ ")"
-
-                                                else
-                                                    hexLabel
-
-                                            _ ->
-                                                hexLabel
-                                in
-                                Html.text displayText
-
-                            Nothing ->
-                                Html.text ""
-                        ]
                     ]
 
                 FullJourney ->
@@ -5938,6 +5920,89 @@ viewMapRangeOverlay model =
         [ Html.text (mapRangeText model.sectors first last) ]
 
 
+{-| A small tooltip anchored beside the currently hovered hex, showing its
+system name (if any) and sector/hex label. Positioned as HTML chrome over the
+map using the client-space anchor captured when the pointer entered the hex,
+so it stays put while the pointer moves within that hex rather than tracking
+the cursor continuously.
+-}
+viewHoverTooltip : ModelData -> Html Msg
+viewHoverTooltip model =
+    case ( model.hoveringHex, model.hoveringHexAnchor ) of
+        ( Just hoveringHex, Just ( anchorX, anchorY ) ) ->
+            if model.hexScale >= minHexSizeToHideHoverTooltip then
+                Html.text ""
+
+            else
+                let
+                    hexLabel =
+                        universalHexLabel model.sectors hoveringHex
+
+                    maybeSystemName =
+                        case Dict.get (HexAddress.toKey hoveringHex) model.solarSystems of
+                            Just (LoadedSolarSystem system) ->
+                                if system.name /= "" then
+                                    Just system.name
+
+                                else
+                                    Nothing
+
+                            _ ->
+                                Nothing
+
+                    windowWidth =
+                        model.viewport.viewport.viewport.width
+
+                    windowHeight =
+                        model.viewport.viewport.viewport.height
+
+                    margin =
+                        12
+
+                    estimatedWidth =
+                        220
+
+                    estimatedHeight =
+                        56
+
+                    horizontalStyle =
+                        if anchorX + margin + estimatedWidth > windowWidth then
+                            HtmlAttrs.style "right" (String.fromFloat (windowWidth - anchorX + margin) ++ "px")
+
+                        else
+                            HtmlAttrs.style "left" (String.fromFloat (anchorX + margin) ++ "px")
+
+                    verticalStyle =
+                        if anchorY - margin - estimatedHeight < 0 then
+                            HtmlAttrs.style "top" (String.fromFloat (anchorY + margin) ++ "px")
+
+                        else
+                            HtmlAttrs.style "bottom" (String.fromFloat (windowHeight - anchorY + margin) ++ "px")
+                in
+                Html.div
+                    [ HtmlAttrs.class "starmap-glass-panel"
+                    , HtmlAttrs.style "position" "fixed"
+                    , horizontalStyle
+                    , verticalStyle
+                    , HtmlAttrs.style "border-radius" "6px"
+                    , HtmlAttrs.style "padding" "6px 10px"
+                    , HtmlAttrs.style "pointer-events" "none"
+                    , HtmlAttrs.style "z-index" "50"
+                    ]
+                    (case maybeSystemName of
+                        Just systemName ->
+                            [ Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-bright)" ] [ Html.text systemName ]
+                            , Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "margin-top" "4px" ] [ Html.text hexLabel ]
+                            ]
+
+                        Nothing ->
+                            [ Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ] [ Html.text hexLabel ] ]
+                    )
+
+        _ ->
+            Html.text ""
+
+
 humanizeTypeName : String -> String
 humanizeTypeName name =
     name
@@ -6222,6 +6287,12 @@ view ( time, model ) =
                 , case model.viewMode of
                     HexMap ->
                         Element.inFront (Element.html (viewMapRangeOverlay model))
+
+                    FullJourney ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+                , case model.viewMode of
+                    HexMap ->
+                        Element.inFront (Element.html (viewHoverTooltip model))
 
                     FullJourney ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -7494,8 +7565,8 @@ update msg ( time, model ) =
             , Cmd.none
             )
 
-        HoveringHex hoveringHex ->
-            ( withTime { model | hoveringHex = Just hoveringHex }, Cmd.none )
+        HoveringHex hoveringHex anchor ->
+            ( withTime { model | hoveringHex = Just hoveringHex, hoveringHexAnchor = Just anchor }, Cmd.none )
 
         GotViewport viewport ->
             let
@@ -7905,7 +7976,7 @@ update msg ( time, model ) =
                     ( withTime model, Cmd.none )
 
         MapMouseLeave ->
-            ( withTime { model | hoveringHex = Nothing, dragMode = NoDragging }, Cmd.none )
+            ( withTime { model | hoveringHex = Nothing, hoveringHexAnchor = Nothing, dragMode = NoDragging }, Cmd.none )
 
         ClearAllErrors ->
             ( withTime { model | newSolarSystemErrors = [], oldSolarSystemErrors = model.newSolarSystemErrors ++ model.oldSolarSystemErrors }, Cmd.none )
