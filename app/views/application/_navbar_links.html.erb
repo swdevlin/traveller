@@ -1,0 +1,37 @@
+<% if current_campaign %>
+  <li data-tour-step="nav-jumps"><%= link_to 'Jumps', jump_logs_path, class: 'hover:text-highlight hover:underline hover:underline-offset-2' %></li>
+  <li data-tour-step="nav-route">
+    <%= link_to new_route_plan_path(from_id: @route_from_system&.id),
+                class: 'hover:text-highlight hover:underline hover:underline-offset-2 no-underline' do %>
+      <i class='fa-regular fa-route'></i> Route
+    <% end %>
+  </li>
+<% end %>
+
+<li data-tour-step="nav-resources" class='relative' data-controller='dropdown'>
+  <button data-action='dropdown#toggle'
+          class='inline-flex items-center gap-1 hover:text-highlight cursor-pointer bg-transparent border-0 p-0 font-medium'>
+    Resources
+    <i class='fa-regular fa-chevron-down text-xs'></i>
+  </button>
+
+  <div data-dropdown-target='menu'
+       class='hidden absolute left-0 mt-2 w-48 rounded-lg border border-outline bg-dropdown shadow-xl z-50'>
+    <% if current_campaign %>
+      <%= link_to 'Reference', rulebook_search_path,
+                  class: 'flex items-center px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight no-underline first:rounded-t-lg' %>
+    <% end %>
+
+    <%= link_to 'https://wiki.travellerrpg.com', target: '_blank', rel: 'noopener',
+                class: 'flex items-center justify-between px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight no-underline first:rounded-t-lg' do %>
+      Encyclopedia
+      <i class='fa-regular fa-arrow-up-right-from-square text-xs text-fg-muted'></i>
+    <% end %>
+
+    <%= link_to 'https://travellermap.com', target: '_blank', rel: 'noopener',
+                class: 'flex items-center justify-between px-4 py-2 text-sm text-fg hover:bg-dropdown-hover hover:text-highlight no-underline last:rounded-b-lg' do %>
+      Charted Space
+      <i class='fa-regular fa-arrow-up-right-from-square text-xs text-fg-muted'></i>
+    <% end %>
+  </div>
+</li>

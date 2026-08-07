@@ -25,11 +25,6 @@ journeys:
       title: "Search"
       body: "Search for planets, subsectors, or sectors"
 
-    - name: nav_astrogation
-      target: nav-astrogation
-      title: "Sectors"
-      body: "Display the sectors"
-
     - name: nav_jumps
       target: nav-jumps
       title: "Jumps"
@@ -45,20 +40,10 @@ journeys:
       title: "Route"
       body: "Plot a route between two systems. Routes can be saved and rendered on maps."
 
-    - name: nav_reference
-      target: nav-reference
-      title: "Reference"
-      body: "Display a partial index of Traveller books. Very much a work in progress."
-
-    - name: nav_encyclopedia
-      target: nav-encyclopedia
-      title: "Traveller Wiki"
-      body: "Jump to the Traveller wiki."
-
-    - name: nav_charted_space
-      target: nav-charted-space
-      title: "Traveller Map"
-      body: "Jump to TravellerMap. If you are viewing a sector that is in charted space, traveller map will be centered on the sector."
+    - name: nav_resources
+      target: nav-resources
+      title: "Resources"
+      body: "Reference displays a partial index of Traveller books (very much a work in progress). Traveller Wiki and Traveller Map jump to external sites — Traveller Map will be centered on the sector you're viewing, if it's in charted space."
 
     - name: nav_campaign
       target: nav-campaign
