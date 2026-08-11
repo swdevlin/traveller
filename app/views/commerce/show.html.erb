@@ -1,0 +1,110 @@
+<% content_for :title, 'Commerce' %>
+<% content_for :page_kicker, 'Astrogation Computer' %>
+<% content_for :page_title, 'Commerce' %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <%= form_with url: commerce_path, method: :get, class: 'space-y-6' do %>
+      <input type='hidden' name='tab' value='<%= @tab %>'>
+
+      <div data-controller='tabs' data-tabs-default-value='<%= @tab %>' data-tabs-storage-key-value='commerce_tabs'
+           class='grid grid-cols-1 gap-6 lg:grid-cols-[1fr_2fr] lg:items-start'>
+        <div class='space-y-6'>
+          <%# From system %>
+          <div data-controller='system-search'
+               data-system-search-search-url-value='<%= search_star_systems_path %>'
+               <% if tab_system_data_url %>data-system-search-system-data-url-value='<%= tab_system_data_url %>'<% end %>
+               data-system-search-auto-submit-value='true'>
+            <label class='edit-label'>From</label>
+            <input type='text'
+                   placeholder='Search for a system…'
+                   autocomplete='off'
+                   data-system-search-target='input'
+                   data-action='input->system-search#search'
+                   value='<%= @from_system ? (@from_system.name.presence || "#{@from_system.parsec.sector.name} #{@from_system.parsec.hex_code}") : "" %>'
+                   class='w-full edit-base mt-2'>
+            <input type='hidden'
+                   name='from_id'
+                   value='<%= @from_system&.id %>'
+                   data-system-search-target='idField'>
+            <div data-system-search-target='dropdown'
+                 class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+              <ul data-system-search-target='list'></ul>
+            </div>
+            <div data-system-search-target='systemData'></div>
+          </div>
+
+          <%# To system %>
+          <div data-controller='system-search'
+               data-system-search-search-url-value='<%= search_star_systems_path %>'
+               <% if tab_system_data_url %>data-system-search-system-data-url-value='<%= tab_system_data_url %>'<% end %>
+               data-system-search-auto-submit-value='true'>
+            <label class='edit-label'>To</label>
+            <input type='text'
+                   placeholder='Search for a system…'
+                   autocomplete='off'
+                   data-system-search-target='input'
+                   data-action='input->system-search#search'
+                   value='<%= @to_system ? (@to_system.name.presence || "#{@to_system.parsec.sector.name} #{@to_system.parsec.hex_code}") : "" %>'
+                   class='w-full edit-base mt-2'>
+            <input type='hidden'
+                   name='to_id'
+                   value='<%= @to_system&.id %>'
+                   data-system-search-target='idField'>
+            <div data-system-search-target='dropdown'
+                 class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden'>
+              <ul data-system-search-target='list'></ul>
+            </div>
+            <div data-system-search-target='systemData'></div>
+          </div>
+
+          <% if @map_svg %>
+            <div id='commerce-map' class='overflow-auto' data-controller='hex-stream'>
+              <div style='zoom: 0.75; line-height: 0;'>
+                <%= @map_svg.html_safe %>
+              </div>
+            </div>
+          <% elsif @from_system && @to_system %>
+            <div class='rounded-lg border border-outline p-4 text-sm text-fg-muted'>
+              Origin and destination are too far apart to display on a single map.
+            </div>
+          <% end %>
+        </div>
+
+        <div class='space-y-6'>
+          <div class='uwp-tab-bar'>
+            <button type='button' class='uwp-tab-btn uwp-tab-inactive' data-tabs-target='tab' data-tab='passage'
+                    data-action='click->tabs#switch'>
+              <span class='uwp-tab-label text-xs'>Passage</span>
+            </button>
+            <button type='button' class='uwp-tab-btn uwp-tab-inactive' data-tabs-target='tab' data-tab='freight'
+                    data-action='click->tabs#switch'>
+              <span class='uwp-tab-label text-xs'>Freight</span>
+            </button>
+            <button type='button' class='uwp-tab-btn uwp-tab-inactive' data-tabs-target='tab' data-tab='mail'
+                    data-action='click->tabs#switch'>
+              <span class='uwp-tab-label text-xs'>Mail</span>
+            </button>
+            <button type='button' class='uwp-tab-btn uwp-tab-inactive' data-tabs-target='tab' data-tab='trade'
+                    data-action='click->tabs#switch'>
+              <span class='uwp-tab-label text-xs'>Speculative Trade</span>
+            </button>
+          </div>
+
+          <div data-tabs-target='panel' data-tab='passage' class='hidden'>
+            <%= render 'passage_tab' %>
+          </div>
+          <div data-tabs-target='panel' data-tab='freight' class='hidden'>
+            <%= render 'freight_tab' %>
+          </div>
+          <div data-tabs-target='panel' data-tab='mail' class='hidden'>
+            <%= render 'mail_tab' %>
+          </div>
+          <div data-tabs-target='panel' data-tab='trade' class='hidden'>
+            <%= render 'trade_tab' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

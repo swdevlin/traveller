@@ -1,0 +1,51 @@
+<% content_for :title, 'Trade Goods' %>
+<% content_for :page_kicker, 'Reference Manual' %>
+<% content_for :page_title, 'Trade Goods' %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <p class='text-fg-muted'>
+      Base Price is the only campaign-editable value on the Speculative Trade goods table — availability,
+      tons dice and Purchase/Sale DMs are fixed sourcebook data (Core Rulebook, p.244-245).
+    </p>
+
+    <%= form_with model: current_campaign, url: trade_goods_path, method: :patch do %>
+      <div class='table-card'>
+        <div class='table-banner'>
+          <p>Base prices</p>
+        </div>
+
+        <div class='table-scroll'>
+          <table>
+            <thead>
+              <tr>
+                <th scope='col'>Good</th>
+                <th scope='col'>Category</th>
+                <th scope='col'>Availability</th>
+                <th scope='col'>Base Price</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @rows.each do |row| %>
+                <tr>
+                  <td><%= row[:name] %></td>
+                  <td><%= trade_good_category_label(row[:category]) %></td>
+                  <td><%= trade_availability_label(row[:availability]) %></td>
+                  <td class='text-right'>
+                    <%= number_field_tag "campaign[trade_good_base_prices][#{row[:d66]}]", row[:price],
+                                          class: 'edit-base w-32 text-right', step: row[:price_step] %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class='pt-4'>
+        <%= submit_tag 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

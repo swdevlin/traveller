@@ -117,9 +117,9 @@
 
       <%= render 'application/boolean_toggle',
                  form: form,
-                 attribute: :tracks_survey_index,
-                 checked: @campaign.tracks_survey_index?,
-                 label: 'Track Survey Index' %>
+                 attribute: :exploration,
+                 checked: @campaign.exploration?,
+                 label: 'Exploration Mode' %>
 
       <%= render 'application/subsection', title: 'System Generation' %>
 
@@ -256,6 +256,122 @@
                         WordGenerator.languages.map { |l| [l.to_s.capitalize, l.to_s] },
                         { selected: @campaign.default_language, include_blank: '— None —' },
                         { class: 'edit-base' } %>
+      <% end %>
+
+      <%= render 'application/subsection', title: 'Passenger Traffic' %>
+
+      <%
+        dms = PassengerTrafficDms.for(@campaign)
+        passenger_dm_groups = [
+          ['Starport', %w[A B C D E X].map { |c| [:"starport_#{c.downcase}", c] }],
+          ['Travel Zone', [[:zone_amber, 'Amber'], [:zone_red, 'Red']]],
+          ['Journey', [[:high_passenger, 'High passage'], [:low_passenger, 'Low passage'],
+                       [:per_parsec, 'Each parsec after first']]]
+        ]
+      %>
+      <div class='grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4'>
+        <%= render 'campaign_settings/dm_box', title: 'Population' do %>
+          <% (1..12).each do |n| %>
+            <div class='flex items-center justify-between gap-3'>
+              <span class='text-sm text-fg-muted'><%= n <= 1 ? '≤1' : n %></span>
+              <%= number_field_tag 'campaign[passenger_dm_population][]', dms[:population][n <= 1 ? 0 : n - 1],
+                                    class: 'edit-base w-20 text-right', step: 1 %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% passenger_dm_groups.each do |title, fields| %>
+          <%= render 'campaign_settings/dm_box', title: title do %>
+            <% fields.each do |key, field_label| %>
+              <%= render 'campaign_settings/dm_field_row', form: form, attribute: :"passenger_dm_#{key}",
+                                                            value: dms[key], field_label: field_label %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render 'application/subsection', title: 'Freight Traffic' %>
+
+      <%
+        freight_dms = FreightTrafficDms.for(@campaign)
+        freight_dm_groups = [
+          ['Starport', %w[A B C D E X].map { |c| [:"starport_#{c.downcase}", c] }],
+          ['Travel Zone', [[:zone_amber, 'Amber'], [:zone_red, 'Red']]],
+          ['Cargo', [[:major_cargo, 'Major cargo'], [:incidental_cargo, 'Incidental cargo'],
+                     [:per_parsec, 'Each parsec after first']]]
+        ]
+      %>
+      <div class='grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4'>
+        <%= render 'campaign_settings/dm_box', title: 'Population' do %>
+          <% (1..12).each do |n| %>
+            <div class='flex items-center justify-between gap-3'>
+              <span class='text-sm text-fg-muted'><%= n <= 1 ? '≤1' : n %></span>
+              <%= number_field_tag 'campaign[freight_dm_population][]', freight_dms[:population][n <= 1 ? 0 : n - 1],
+                                    class: 'edit-base w-20 text-right', step: 1 %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <%= render 'campaign_settings/dm_box', title: 'Tech Level' do %>
+          <% (0..16).each do |n| %>
+            <div class='flex items-center justify-between gap-3'>
+              <span class='text-sm text-fg-muted'><%= n %></span>
+              <%= number_field_tag 'campaign[freight_dm_tech_level][]', freight_dms[:tech_level][n],
+                                    class: 'edit-base w-20 text-right', step: 1 %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% freight_dm_groups.each do |title, fields| %>
+          <%= render 'campaign_settings/dm_box', title: title do %>
+            <% fields.each do |key, field_label| %>
+              <%= render 'campaign_settings/dm_field_row', form: form, attribute: :"freight_dm_#{key}",
+                                                            value: freight_dms[key], field_label: field_label %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render 'application/subsection', title: 'Mail' %>
+
+      <%
+        mail_dms = MailTrafficDms.for(@campaign)
+        mail_dm_groups = [
+          ['Freight Traffic DM', [[:freight_dm_very_low, '-10 or less'], [:freight_dm_low, '-9 to -5'],
+                                   [:freight_dm_average, '-4 to +4'], [:freight_dm_high, '5 to 9'],
+                                   [:freight_dm_very_high, '10 or more']]],
+          ['Situational', [[:ship_armed, 'Ship is armed'], [:low_tech_world, 'Origin world TL 5 or less']]]
+        ]
+      %>
+      <div class='grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4'>
+        <% mail_dm_groups.each do |title, fields| %>
+          <%= render 'campaign_settings/dm_box', title: title do %>
+            <% fields.each do |key, field_label| %>
+              <%= render 'campaign_settings/dm_field_row', form: form, attribute: :"mail_dm_#{key}",
+                                                            value: mail_dms[key], field_label: field_label %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render 'application/subsection', title: 'Speculative Trade' %>
+
+      <%= render 'application/edit_field', form: form, attribute: :local_broker_level, field_label: 'Local Broker Level' do %>
+        <%= form.number_field :local_broker_level,
+                              value: @campaign.local_broker_level_value,
+                              class: 'edit-base sm:w-24 w-20',
+                              min: 0,
+                              max: 4,
+                              step: 1 %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :local_broker_fee_percentage, field_label: 'Local Broker Fee %' do %>
+        <%= form.number_field :local_broker_fee_percentage,
+                              value: number_with_precision(@campaign.local_broker_fee_percentage_value, precision: 2, strip_insignificant_zeros: true),
+                              class: 'edit-base sm:w-24 w-20',
+                              min: 0,
+                              max: 100,
+                              step: 1 %>
       <% end %>
 
       <div class='pt-2 flex flex-col sm:flex-row gap-2'>

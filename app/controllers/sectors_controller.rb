@@ -256,7 +256,7 @@ class SectorsController < ApplicationController
   # GET /sectors/new
   def new
     @sector = Sector.new
-    @sector.default_build_spec = current_campaign.deepnight_revelation? ? BASIC_BUILD_SPEC : SETTLED_BUILD_SPEC
+    @sector.default_build_spec = current_campaign.exploration? ? BASIC_BUILD_SPEC : SETTLED_BUILD_SPEC
   end
 
   def clear

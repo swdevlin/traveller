@@ -19,7 +19,7 @@ class JumpLogsController < ApplicationController
   # GET /jump_logs/new
   def new
     @jump_log = JumpLog.new(ship_id: params[:ship_id])
-    @jump_log.destination_survey_index = 10 if current_campaign.tracks_survey_index?
+    @jump_log.destination_survey_index = 10 if current_campaign.exploration?
     scope = params[:ship_id].present? ? JumpLog.where(ship_id: params[:ship_id]) : JumpLog
     last = scope.includes(to_parsec: :sector).order(sequence: :desc, id: :desc).first
     @map_url = api_map_path(helpers.jump_chart_viewport(last.to_parsec)) if last&.to_parsec
@@ -28,7 +28,7 @@ class JumpLogsController < ApplicationController
 
   # GET /jump_logs/1/edit
   def edit
-    if current_campaign.tracks_survey_index?
+    if current_campaign.exploration?
       @jump_log.destination_survey_index = @jump_log.to_parsec&.star_systems&.first&.survey_index ||
                                            @jump_log.to_parsec&.survey_index
     end

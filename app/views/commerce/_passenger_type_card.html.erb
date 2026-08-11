@@ -1,0 +1,21 @@
+<%# locals: label:, result: %>
+<div class='rounded-lg border border-outline p-4 space-y-3'>
+  <%= render 'application/data_block', label: label, value: pluralize(result[:passengers], 'passenger') %>
+
+  <div class='text-xs text-fg-muted'>Total DM: <%= format('%+d', result[:qualifying_roll][:dm]) %></div>
+
+  <% if result[:modifiers].any? %>
+    <div class='text-xs text-fg-muted space-y-0.5'>
+      <% result[:modifiers].each do |modifier| %>
+        <div><%= passenger_modifier_description(modifier) %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class='text-xs font-mono text-fg-muted space-y-0.5 pt-2 border-t border-outline'>
+    <div>Qualifying: <%= passenger_roll_description(result[:qualifying_roll]) %></div>
+    <% if result[:count_roll] %>
+      <div>Count: <%= passenger_roll_description(result[:count_roll]) %></div>
+    <% end %>
+  </div>
+</div>

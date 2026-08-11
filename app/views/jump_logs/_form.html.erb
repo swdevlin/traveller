@@ -80,7 +80,7 @@
          data-parsec-select-url-value='<%= api_parsecs_path %>'>
       <%= hidden_field_tag 'jump_log[to_parsec_id]', jump_log.to_parsec_id,
                            data: { parsec_select_target: 'hiddenId' } %>
-      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 13rem<%= ' 5rem' if current_campaign.tracks_survey_index? %>'>
+      <div class='grid gap-x-2 gap-y-2' style='grid-template-columns: 13rem 13rem<%= ' 5rem' if current_campaign.exploration? %>'>
         <%# Labels row %>
         <div class='flex items-center gap-4'>
           <span class='edit-label'>To</span>
@@ -91,7 +91,7 @@
                                  action: 'change->jump-form#misjumpChanged' } %>
         </div>
         <div></div>
-        <% if current_campaign.tracks_survey_index? %>
+        <% if current_campaign.exploration? %>
           <%= form.label :destination_survey_index, 'Survey Index', class: 'edit-label whitespace-nowrap' %>
         <% end %>
         <%# Fields row %>
@@ -113,7 +113,7 @@
                        disabled: jump_log.to_parsec_id.blank?,
                        class: 'edit-base w-full',
                        data: { parsec_select_target: 'hex', action: 'change->parsec-select#hexChanged' } %>
-        <% if current_campaign.tracks_survey_index? %>
+        <% if current_campaign.exploration? %>
           <%= form.number_field :destination_survey_index, min: 0, max: 12,
                                 class: 'edit-base w-full' %>
         <% end %>

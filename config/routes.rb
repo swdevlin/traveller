@@ -73,6 +73,14 @@ Rails.application.routes.draw do
       get  'route_plan',         to: 'route_plans#plan',    defaults: { format: :json }
       post 'route_plan/save',    to: 'route_plans#save',    defaults: { format: :json }
       get  'route_plan/systems', to: 'route_plans#systems', defaults: { format: :json }
+      get  'passenger_traffic',        to: 'passenger_traffic#calculate', defaults: { format: :json }
+      get  'passenger_traffic/system', to: 'passenger_traffic#system',    defaults: { format: :json }
+      get  'freight_traffic',        to: 'freight_traffic#calculate', defaults: { format: :json }
+      get  'freight_traffic/system', to: 'freight_traffic#system',    defaults: { format: :json }
+      get  'mail_traffic',        to: 'mail_traffic#calculate', defaults: { format: :json }
+      get  'mail_traffic/system', to: 'mail_traffic#system',    defaults: { format: :json }
+      get  'trade_goods/availability', to: 'trade_goods#availability', defaults: { format: :json }
+      get  'trade_goods/prices',       to: 'trade_goods#prices',       defaults: { format: :json }
       resources :travel_zones, only: :index, defaults: { format: :json }
       get 'rulebooks/search', to: '/rulebook_search#index', as: :rulebook_search, defaults: { format: :json }
     end
@@ -122,6 +130,8 @@ Rails.application.routes.draw do
         post 'import_t5'
       end
     end
+
+    resource :trade_goods, only: %i[edit update]
 
     resources :stellar_objects do
       member do
@@ -229,6 +239,7 @@ Rails.application.routes.draw do
         delete :clear
       end
     end
+    resource :commerce, only: [:show], controller: 'commerce'
     get  '/languages',          to: 'languages#index',    as: :languages
     post '/languages/generate', to: 'languages#generate', as: :generate_languages
     get  '/languages/word',     to: 'languages#word',     as: :language_word

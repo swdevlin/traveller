@@ -1,0 +1,194 @@
+<% content_for :title, 'Commerce' %>
+
+<%= render 'help/page', title: 'Commerce' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Generates traffic between two star systems. Choose an origin and destination once, then
+      switch between the Passage, Freight, Mail, and Speculative Trade tabs — each keeps its own
+      inputs and results. A map of the route is shown alongside the tabs when the two systems are
+      close enough together to fit on one.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>From / To</dt>
+          <dd class='mt-1 text-fg'>
+            Origin and destination star systems, chosen by search. Shared by every tab. Each
+            system's UWP, trade codes, and travel zone are shown beneath the relevant field on
+            every tab, alongside the individual DMs that field contributes to that tab's result.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Passage</p>
+
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Skill Effect / Steward / Other DM</dt>
+          <dd class='mt-1 text-fg'>
+            Manual inputs feeding the passenger calculation. Defaults for these can be set
+            campaign-wide in <span class='font-mono text-fg-bright'>Settings → Campaign → Passenger
+            Traffic</span>.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Departure Board</dt>
+          <dd class='mt-1 text-fg'>
+            Generates passenger traffic and shows a Low/Basic/Middle/High card for each passage
+            class.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Passenger cards</dt>
+          <dd class='mt-1 text-fg'>
+            Each card shows the number of passengers found, the total DM applied and its
+            individual components, and the qualifying and count results behind the total. Counts
+            are not capped to a world's population, so the UWP shown beside each system is there
+            for the referee to judge plausibility against.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Freight</p>
+
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Skill Effect / Other DM</dt>
+          <dd class='mt-1 text-fg'>
+            Manual inputs feeding the freight calculation. Defaults for these can be set
+            campaign-wide in <span class='font-mono text-fg-bright'>Settings → Campaign → Freight
+            Traffic</span>.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Cargo Manifest</dt>
+          <dd class='mt-1 text-fg'>
+            Generates freight traffic and shows an Incidental/Minor/Major card for each cargo lot
+            size.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Lot cards</dt>
+          <dd class='mt-1 text-fg'>
+            Each card shows the number of lots found, the total tonnage, the total DM applied and
+            its individual components, and the results behind the total.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Mail</p>
+
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Ship Armed / Naval-Scout Rank / SOC DM / Other DM</dt>
+          <dd class='mt-1 text-fg'>
+            Manual inputs feeding the mail calculation, alongside the Freight DM already computed
+            for the same route on the Freight tab. Defaults for these can be set campaign-wide in
+            <span class='font-mono text-fg-bright'>Settings → Campaign → Mail</span>.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Mail Manifest</dt>
+          <dd class='mt-1 text-fg'>
+            Determines whether mail is available and shows the result — how many containers were
+            offered and the values and DMs behind it.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-xs uppercase tracking-[0.22em] text-highlight mb-4'>Speculative Trade</p>
+
+      <dl class='space-y-6'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Re-Survey Market</dt>
+          <dd class='mt-1 text-fg'>
+            Generates a fresh Goods Available list at the origin world. The list otherwise stays
+            stable across page reloads — only this button generates a new one.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Goods Available</dt>
+          <dd class='mt-1 text-fg'>
+            The origin world's generated goods list, shown as a table of Good, Category, Tons, and
+            Base Price. Population and trade codes used to build the list are shown above the
+            table.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Skill Effect, Broker Skill, Other DM</dt>
+          <dd class='mt-1 text-fg'>
+            Manual inputs applied to every good in one pass — <span class='font-mono text-fg-bright'>Skill
+            Effect</span> is the Traveller's own Broker check, <span class='font-mono text-fg-bright'>Broker
+            Skill</span> is the counterpart's (the supplier's when purchasing, the buyer's when
+            selling), and <span class='font-mono text-fg-bright'>Other DM</span> covers any further
+            situational factor. Purchase and Sale each have their own set of these fields.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Local Broker</dt>
+          <dd class='mt-1 text-fg'>
+            Toggle to hire a local broker instead of using the Traveller's own Skill Effect. While
+            on, <span class='font-mono text-fg-bright'>Skill Effect</span> is replaced by
+            <span class='font-mono text-fg-bright'>Level</span> and <span class='font-mono text-fg-bright'>Fee
+            %</span> fields, pre-filled from the campaign's defaults but editable per transaction.
+            Defaults can be set campaign-wide in
+            <span class='font-mono text-fg-bright'>Settings → Campaign → Speculative Trade</span>.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Negotiate Purchase Prices / Negotiate Sale Prices</dt>
+          <dd class='mt-1 text-fg'>
+            Generates a price for every good and adds a Purchase Price (or Sale Price) column to
+            its table. Purchase prices apply to the Goods Available table; Sale generates a price
+            for every priceable good in its own table, since the Travellers may be selling cargo
+            bought anywhere, not only goods found at the origin.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Illegal goods and Exotics</dt>
+          <dd class='mt-1 text-fg'>
+            This tool does not model finding a supplier or a black market, so illegal goods are
+            generated and priced the same as any other good — the referee should judge legality,
+            smuggling consequences, and Law Level narratively. Exotics are shown as a find with no
+            tons or price.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Referee-tunable Base Prices</dt>
+          <dd class='mt-1 text-fg'>
+            Only Base Price is campaign-overridable — availability, tons, and Purchase/Sale DMs are
+            fixed sourcebook data. Override prices under
+            <span class='font-mono text-fg-bright'>Data Cores → Trade Goods</span>, not Campaign
+            Settings.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0810CM
+    </div>
+
+  </div>
+<% end %>

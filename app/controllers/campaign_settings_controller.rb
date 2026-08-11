@@ -68,6 +68,13 @@ class CampaignSettingsController < ApplicationController
   private
 
   def campaign_settings_params
-    params.expect(campaign: [:name, :campaign_type, :sector_source, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :default_language, :date_format])
+    scalar_passenger_dm_settings = Campaign::PASSENGER_DM_SETTINGS - [:passenger_dm_population]
+    scalar_freight_dm_settings = Campaign::FREIGHT_DM_SETTINGS - [:freight_dm_population, :freight_dm_tech_level]
+
+    params.expect(campaign: [:name, :campaign_type, :sector_source, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :default_language, :date_format,
+                              :local_broker_level, :local_broker_fee_percentage,
+                              *scalar_passenger_dm_settings, { passenger_dm_population: [] },
+                              *scalar_freight_dm_settings, { freight_dm_population: [], freight_dm_tech_level: [] },
+                              *Campaign::MAIL_DM_SETTINGS])
   end
 end

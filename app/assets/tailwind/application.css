@@ -1580,6 +1580,9 @@
 }
 
 .starmap-navbar {
+  /* Fixed floor so other floating chrome (map toolbar, sidebar header) can reliably
+     clear it instead of guessing at its intrinsic content height. */
+  min-height: 40px;
   z-index: 30;
   background-color: color-mix(in srgb, var(--color-nav-bar) 85%, transparent);
   backdrop-filter: blur(12px);

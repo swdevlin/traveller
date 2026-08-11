@@ -12,12 +12,20 @@
     <%= render 'application/data_block', label: 'Facilities', value: starport[:facilities] %>
   </div>
 
-  <% if stellar_object.importance.present? %>
-    <%= link_to 'Generate Daily Traffic',
-                daily_traffic_stellar_object_path(stellar_object),
-                class: 'btn btn-secondary btn-sm',
-                data: { turbo_frame: 'modal' } %>
-  <% end %>
+  <div class='flex flex-wrap gap-2'>
+    <% if stellar_object.importance.present? %>
+      <%= link_to 'Generate Daily Traffic',
+                  daily_traffic_stellar_object_path(stellar_object),
+                  class: 'btn btn-secondary btn-sm',
+                  data: { turbo_frame: 'modal' } %>
+    <% end %>
+
+    <% if stellar_object.star_system %>
+      <%= link_to 'Commerce',
+                  commerce_path(from_id: stellar_object.star_system.id),
+                  class: 'btn btn-secondary btn-sm' %>
+    <% end %>
+  </div>
 
   <% if stellar_object.world_trade_number.present? || stellar_object.total_gwp.present? %>
     <%= render 'application/subsection', title: 'Economics' %>

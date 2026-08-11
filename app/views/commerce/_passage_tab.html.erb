@@ -1,0 +1,49 @@
+<div class='space-y-6 pt-4'>
+  <div class='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+    <div>
+      <div class='edit-label'>From</div>
+      <%= render 'system_dms', system: @from_system, modifiers: @from_passage_modifiers,
+                 modifier_description: method(:passenger_modifier_description) %>
+    </div>
+    <div>
+      <div class='edit-label'>To</div>
+      <%= render 'system_dms', system: @to_system, modifiers: @to_passage_modifiers,
+                 modifier_description: method(:passenger_modifier_description) %>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-3 gap-3'>
+    <div>
+      <label class='edit-label'>Skill Effect</label>
+      <input type='number' name='passage_broker_effect' value='<%= @passage_broker_effect %>' class='w-full edit-base mt-2'>
+    </div>
+    <div>
+      <label class='edit-label'>Steward</label>
+      <input type='number' name='passage_chief_steward_skill' value='<%= @passage_chief_steward_skill %>' class='w-full edit-base mt-2'>
+    </div>
+    <div>
+      <label class='edit-label'>Other DM</label>
+      <input type='number' name='passage_referee_modifier' value='<%= @passage_referee_modifier %>' class='w-full edit-base mt-2'>
+    </div>
+  </div>
+
+  <div>
+    <button type='submit' class='w-full sm:w-auto btn btn-primary'>Departure Board</button>
+  </div>
+
+  <% if @passage_calculator %>
+    <%= render 'application/subsection', title: 'Passenger Traffic' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+      <%= render 'passenger_type_card', label: 'Low',    result: @passage_calculator.results[:low] %>
+      <%= render 'passenger_type_card', label: 'Basic',  result: @passage_calculator.results[:basic] %>
+      <%= render 'passenger_type_card', label: 'Middle', result: @passage_calculator.results[:middle] %>
+      <%= render 'passenger_type_card', label: 'High',   result: @passage_calculator.results[:high] %>
+    </div>
+
+    <p class='text-xs text-fg-muted'>
+      Passenger counts are not automatically capped to a world's population — the referee should
+      judge whether the roll is plausible given the population shown above.
+    </p>
+  <% end %>
+</div>

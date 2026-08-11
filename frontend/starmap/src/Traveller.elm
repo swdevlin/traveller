@@ -61,6 +61,7 @@ import Traveller.AnalysisDetail
         )
 import Traveller.Atmosphere exposing (atmosphereDescription, atmosphereDescriptionEx, atmosphereHazardDescription)
 import Traveller.City exposing (CitiesPage, citiesPageDecoder)
+import Traveller.CommerceForm as CommerceForm
 import Traveller.Government as Government
 import Traveller.HexAddress as HexAddress exposing (HexAddress, SectorHexAddress, createFromStarSystem, shiftAddressBy, toSectorAddress, toUniversalAddress)
 import Traveller.HexGeometry
@@ -102,6 +103,7 @@ import Traveller.ShipTraffic as ShipTraffic
 import Traveller.Sidebar
     exposing
         ( SidebarMsgs
+        , sidebarWidth
         , viewSidebarColumn
         )
 import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
@@ -810,6 +812,7 @@ type alias ModelData =
     , nextRuleId : Int
     , pendingDeleteRuleId : Maybe String
     , routePlanForm : Maybe RoutePlanForm.Model
+    , commerceForm : Maybe CommerceForm.Model
     , activeRoutePlan : Maybe RoutePlan.StoredRoutePlan
     , travelZoneOptions : List RoutePlan.TravelZoneOption
     , jumpRouteLayers : List JumpRouteLayer.Route
@@ -922,6 +925,8 @@ type Msg
     | SurveyOverlayMutated (Result Http.Error ())
     | OpenRoutePlanner
     | RoutePlanFormMsg RoutePlanForm.Msg
+    | OpenCommerce
+    | CommerceFormMsg CommerceForm.Msg
     | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
     | ToggleJumpRouteLayersMenu
     | ToggleJumpRouteLayerHidden Int
@@ -1533,6 +1538,7 @@ init viewport settings key hostConfig referee =
             , nextRuleId = 1
             , pendingDeleteRuleId = Nothing
             , routePlanForm = Nothing
+            , commerceForm = Nothing
             , activeRoutePlan = initialActiveRoutePlan
             , travelZoneOptions = []
             , jumpRouteLayers = []
@@ -5082,6 +5088,11 @@ routePlanFormConfig model =
     }
 
 
+commerceFormConfig : ModelData -> CommerceForm.Config
+commerceFormConfig model =
+    { hostConfig = model.hostConfig }
+
+
 jumpRouteLayerEditorConfig : ModelData -> JumpRouteLayerEditor.Config
 jumpRouteLayerEditorConfig model =
     { hostConfig = model.hostConfig }
@@ -5998,12 +6009,19 @@ viewMapToolbar model =
 
                 Nothing ->
                     "Centre on ship"
+
+        leftOffset =
+            if model.sidebarOpen then
+                sidebarWidth + 12
+
+            else
+                12
     in
     Html.div
         [ HtmlAttrs.class "starmap-glass-panel"
         , HtmlAttrs.style "position" "absolute"
         , HtmlAttrs.style "top" "52px"
-        , HtmlAttrs.style "left" "12px"
+        , HtmlAttrs.style "left" (String.fromInt leftOffset ++ "px")
         , HtmlAttrs.style "display" "inline-flex"
         , HtmlAttrs.style "align-items" "center"
         , HtmlAttrs.style "gap" "6px"
@@ -6097,6 +6115,7 @@ view ( time, model ) =
             , closeSidebar = CloseSidebar
             , toggleTravelTable = ToggleTravelTable
             , openShipTraffic = OpenShipTraffic
+            , openCommerce = OpenCommerce
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
             }
@@ -6278,6 +6297,12 @@ view ( time, model ) =
                , case model.routePlanForm of
                     Just formModel ->
                         Element.inFront <| Element.map RoutePlanFormMsg (Element.html (RoutePlanForm.view (routePlanFormConfig model) formModel))
+
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.commerceForm of
+                    Just formModel ->
+                        Element.inFront <| Element.map CommerceFormMsg (Element.html (CommerceForm.view (commerceFormConfig model) formModel))
 
                     Nothing ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -8524,6 +8549,22 @@ update msg ( time, model ) =
             in
             ( withTime { model | routePlanForm = Just formModel }, Cmd.map RoutePlanFormMsg formCmd )
 
+        OpenCommerce ->
+            let
+                initialFrom =
+                    model.selectedSystem
+                        |> Maybe.map
+                            (\sys ->
+                                { id = sys.id
+                                , name = sys.name |> Maybe.withDefault (sys.sectorName ++ " " ++ HexAddress.hexLabel sys.address)
+                                }
+                            )
+
+                ( formModel, formCmd ) =
+                    CommerceForm.init (commerceFormConfig model) initialFrom
+            in
+            ( withTime { model | commerceForm = Just formModel }, Cmd.map CommerceFormMsg formCmd )
+
         DownloadedTravelZones (Ok zones) ->
             ( withTime { model | travelZoneOptions = zones }, Cmd.none )
 
@@ -8705,6 +8746,23 @@ update msg ( time, model ) =
                                     RoutePlanForm.update (routePlanFormConfig model) subMsg formModel
                             in
                             ( withTime { model | routePlanForm = Just newForm }, Cmd.map RoutePlanFormMsg formCmd )
+
+        CommerceFormMsg subMsg ->
+            case model.commerceForm of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just formModel ->
+                    case subMsg of
+                        CommerceForm.Cancel ->
+                            ( withTime { model | commerceForm = Nothing }, Cmd.none )
+
+                        _ ->
+                            let
+                                ( newForm, formCmd ) =
+                                    CommerceForm.update (commerceFormConfig model) subMsg formModel
+                            in
+                            ( withTime { model | commerceForm = Just newForm }, Cmd.map CommerceFormMsg formCmd )
 
         ToggleHexmap ->
             update

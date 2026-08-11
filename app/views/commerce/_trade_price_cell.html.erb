@@ -1,0 +1,8 @@
+<%# locals: calculator: %>
+<div><%= number_to_currency(calculator.result[:net_price_per_ton], unit: 'Cr', precision: 0) %></div>
+<div class='text-fg-muted'>
+  <%= calculator.result[:percent] %>% · DM <%= format('%+d', calculator.result[:qualifying_roll][:dm]) %>
+  <% if calculator.result[:fee_percentage].positive? %>
+    · Broker fee <%= number_with_precision(calculator.result[:fee_percentage], precision: 2, strip_insignificant_zeros: true) %>%
+  <% end %>
+</div>

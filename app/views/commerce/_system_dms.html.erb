@@ -1,0 +1,13 @@
+<%# locals: system:, modifiers:, modifier_description: %>
+<% if system %>
+  <div class='mt-2 text-xs text-fg-muted space-y-0.5'>
+    <div class='font-mono text-fg'><%= system.main_world_uwp || '—' %></div>
+    <div>
+      <%= system.trade_codes_string.presence || '—' %>
+      <% if system.travel_zone %> · <%= system.travel_zone.code %> Zone<% end %>
+    </div>
+    <% modifiers.each do |modifier| %>
+      <div><%= modifier_description.call(modifier) %></div>
+    <% end %>
+  </div>
+<% end %>

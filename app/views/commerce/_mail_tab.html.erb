@@ -1,0 +1,59 @@
+<div class='space-y-6 pt-4'>
+  <div class='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+    <div>
+      <div class='edit-label'>From</div>
+      <%= render 'system_dms', system: @from_system, modifiers: @from_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+    <div>
+      <div class='edit-label'>To</div>
+      <%= render 'system_dms', system: @to_system, modifiers: @to_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-3 sm:grid-cols-4'>
+    <div class='flex items-center gap-3' data-controller='boolean-toggle'>
+      <%= check_box_tag :mail_ship_armed, '1', @mail_ship_armed,
+                         class: 'sr-only',
+                         data: { boolean_toggle_target: 'checkbox' } %>
+      <button type='button'
+              role='switch'
+              aria-checked='<%= @mail_ship_armed %>'
+              data-action='boolean-toggle#toggle'
+              data-boolean-toggle-target='button'
+              class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= @mail_ship_armed ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+        <span data-boolean-toggle-target='indicator'
+              class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= @mail_ship_armed ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
+      </button>
+      <span class='edit-label'>Ship Armed</span>
+    </div>
+    <div>
+      <label class='edit-label'>Naval/Scout Rank</label>
+      <input type='number' name='mail_naval_or_scout_rank' value='<%= @mail_naval_or_scout_rank %>' class='w-full edit-base mt-2'>
+    </div>
+    <div>
+      <label class='edit-label'>SOC DM</label>
+      <input type='number' name='mail_soc_dm' value='<%= @mail_soc_dm %>' class='w-full edit-base mt-2'>
+    </div>
+    <div>
+      <label class='edit-label'>Other DM</label>
+      <input type='number' name='mail_referee_modifier' value='<%= @mail_referee_modifier %>' class='w-full edit-base mt-2'>
+    </div>
+  </div>
+
+  <div>
+    <button type='submit' class='w-full sm:w-auto btn btn-primary'>Mail Manifest</button>
+  </div>
+
+  <% if @mail_calculator %>
+    <%= render 'application/subsection', title: 'Mail' %>
+
+    <%= render 'mail_result_card', calculator: @mail_calculator %>
+
+    <p class='text-xs text-fg-muted'>
+      Mail containers take up five tons of space each and are priced at a flat rate that does not
+      scale with distance — the Travellers must take all containers offered or none at all.
+    </p>
+  <% end %>
+</div>

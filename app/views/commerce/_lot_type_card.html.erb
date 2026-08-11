@@ -1,0 +1,27 @@
+<%# locals: label:, result: %>
+<div class='rounded-lg border border-outline p-4 space-y-3'>
+  <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'><%= label %></div>
+
+  <% if result[:lot_size_rolls].any? %>
+    <div class='text-sm text-fg space-y-0.5'>
+      <% freight_lot_size_summary(result[:lot_size_rolls]).each do |line| %>
+        <div><%= line %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class='text-xs text-fg-muted'>
+    <%= pluralize(result[:lots], 'lot') %> for <%= pluralize(result[:total_tons], 'ton') %>
+  </div>
+
+  <div class='text-xs text-fg-muted space-y-0.5 pt-2 border-t border-outline'>
+    <div>Total DM: <%= format('%+d', result[:qualifying_roll][:dm]) %></div>
+    <% result[:modifiers].each do |modifier| %>
+      <div><%= freight_modifier_description(modifier) %></div>
+    <% end %>
+    <div class='font-mono'>Qualifying: <%= freight_roll_description(result[:qualifying_roll]) %></div>
+    <% if result[:lots_roll] %>
+      <div class='font-mono'>Lots: <%= freight_roll_description(result[:lots_roll]) %></div>
+    <% end %>
+  </div>
+</div>

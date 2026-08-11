@@ -15,4 +15,9 @@ class HelpControllerTest < AuthenticatedIntegrationTest
     get help_page_url('star_system_build_specification')
     assert_response :success
   end
+
+  test 'should get commerce_show' do
+    get help_page_url('commerce_show')
+    assert_response :success
+  end
 end

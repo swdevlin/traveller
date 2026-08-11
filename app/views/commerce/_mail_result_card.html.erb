@@ -1,0 +1,24 @@
+<%# locals: calculator: %>
+<% result = calculator.result %>
+<div class='rounded-lg border border-outline p-4 space-y-3'>
+  <% if result[:available] %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <%= render 'application/data_block', label: 'Containers', value: result[:containers] %>
+      <%= render 'application/data_block', label: 'Tonnage', value: pluralize(result[:total_tons], 'ton') %>
+      <%= render 'application/data_block', label: 'Payment', value: number_to_currency(result[:total_payment], unit: 'Cr', precision: 0) %>
+    </div>
+  <% else %>
+    <div class='text-sm text-fg-muted'>No mail is available for this route.</div>
+  <% end %>
+
+  <div class='text-xs text-fg-muted space-y-0.5 pt-2 border-t border-outline'>
+    <div>Total DM: <%= format('%+d', result[:qualifying_roll][:dm]) %></div>
+    <% calculator.modifiers.each do |modifier| %>
+      <div><%= mail_modifier_description(modifier) %></div>
+    <% end %>
+    <div class='font-mono'>Qualifying: <%= mail_roll_description(result[:qualifying_roll]) %></div>
+    <% if result[:containers_roll] %>
+      <div class='font-mono'>Containers: <%= mail_roll_description(result[:containers_roll]) %></div>
+    <% end %>
+  </div>
+</div>

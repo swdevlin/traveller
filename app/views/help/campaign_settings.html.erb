@@ -68,18 +68,23 @@
         </div>
 
         <div>
-          <dt class='font-semibold text-fg-bright'>Track Survey Index</dt>
+          <dt class='font-semibold text-fg-bright'>Exploration Mode</dt>
           <dd class='mt-1 text-fg'>
-            When enabled, the jump log form includes a <span class='font-mono text-fg-bright'>Survey Index</span>
-            field. On saving a jump log, the survey index value is written to the destination
-            star system — or to the destination parsec directly if no system exists at that location.
+            Marks the campaign as exploration-driven rather than charted space. Two effects follow:
+            the jump log form gains a <span class='font-mono text-fg-bright'>Survey Index</span> field,
+            and newly created sectors default their build specification to
+            <span class='font-mono text-fg-bright'>surveyIndex: 3</span> (lightly surveyed) instead of
+            <span class='font-mono text-fg-bright'>surveyIndex: 10</span> (fully settled).
           </dd>
           <div class='mt-3'>
             <p class=' text-fg'>
-              The default value when logging a jump is <span class='font-mono text-fg-bright'>10</span>.
-              Valid range is <span class='font-mono text-fg-bright'>0–12</span>, corresponding to the
-              survey index scale used in the Deepnight Revelation sourcebook. This setting is enabled
-              automatically for Deepnight Revelation campaigns.
+              On saving a jump log, the survey index value is written to the destination star system —
+              or to the destination parsec directly if no system exists at that location. The default
+              value when logging a jump is <span class='font-mono text-fg-bright'>10</span>. Valid
+              range is <span class='font-mono text-fg-bright'>0–12</span>, corresponding to the survey
+              index scale used in the Deepnight Revelation sourcebook. This setting is enabled
+              automatically for Deepnight Revelation campaigns, but can be toggled independently for
+              any campaign type — a homebrew frontier-exploration campaign should enable it too.
             </p>
           </div>
         </div>
@@ -281,6 +286,109 @@
               updated with the new value.
             </p>
           </div>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Passenger Traffic</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Passenger Traffic DMs</dt>
+          <dd class='mt-1 text-fg'>
+            Adjusts the die modifiers used by the Passenger Traffic tool when determining how many
+            Low, Basic, Middle, and High passengers are seeking passage between two star systems.
+            Each field is pre-filled with, and overrides, the corresponding sourcebook value; clear
+            a field to fall back to the default.
+          </dd>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li><span class='font-semibold text-fg-bright'>Population ≤1 through 12</span> — applied for both the origin and destination world's population code, one DM per digit. Only ≤1, 6, 7 and 8+ are part of the original sourcebook design; the rest default to 0.</li>
+            <li><span class='font-semibold text-fg-bright'>Starport A / B / C / D / E / X</span> — applied for both the origin and destination world's starport code. C and D are not part of the original sourcebook design and default to 0.</li>
+            <li><span class='font-semibold text-fg-bright'>Amber Zone / Red Zone</span> — applied for both the origin and destination world's travel zone.</li>
+            <li><span class='font-semibold text-fg-bright'>Rolling for High / Rolling for Low</span> — applied only to the qualifying roll for that passenger type.</li>
+            <li><span class='font-semibold text-fg-bright'>Per Parsec Past First</span> — applied once for each parsec of distance beyond the first between the two systems.</li>
+          </ul>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Freight Traffic</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Freight Traffic DMs</dt>
+          <dd class='mt-1 text-fg'>
+            Adjusts the die modifiers used by the Freight Traffic tool when determining how many
+            Incidental, Minor, and Major cargo lots are available for shipment between two star
+            systems. Each field is pre-filled with, and overrides, the corresponding sourcebook
+            value; clear a field to fall back to the default.
+          </dd>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li><span class='font-semibold text-fg-bright'>Population ≤1 through 12</span> — applied for both the origin and destination world's population code, one DM per digit. Only ≤1, 6, 7 and 8+ are part of the original sourcebook design; the rest default to 0.</li>
+            <li><span class='font-semibold text-fg-bright'>Tech Level 0 through 16</span> — applied for both the origin and destination world's tech level digit, one DM per digit. Only ≤6 and 9+ are part of the original sourcebook design; the rest default to 0.</li>
+            <li><span class='font-semibold text-fg-bright'>Starport A / B / C / D / E / X</span> — applied for both the origin and destination world's starport code. C and D are not part of the original sourcebook design and default to 0.</li>
+            <li><span class='font-semibold text-fg-bright'>Amber Zone / Red Zone</span> — applied for both the origin and destination world's travel zone.</li>
+            <li><span class='font-semibold text-fg-bright'>Major Cargo / Incidental Cargo</span> — applied only to the qualifying roll for that cargo lot type.</li>
+            <li><span class='font-semibold text-fg-bright'>Per Parsec Past First</span> — applied once for each parsec of distance beyond the first between the two systems.</li>
+          </ul>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Mail</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Mail DMs</dt>
+          <dd class='mt-1 text-fg'>
+            Adjusts the die modifiers used by the Mail tool when determining whether mail is
+            available for shipment between two star systems. Each field is pre-filled with, and
+            overrides, the corresponding sourcebook value; clear a field to fall back to the
+            default.
+          </dd>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li><span class='font-semibold text-fg-bright'>Freight Traffic DM -10 or less through 10 or more</span> — one DM per tier of the Freight Traffic DM computed for the same pair of worlds (the same total shown on the Freight tab).</li>
+            <li><span class='font-semibold text-fg-bright'>Ship is armed</span> — applied when the Travellers' ship is armed.</li>
+            <li><span class='font-semibold text-fg-bright'>Origin world TL 5 or less</span> — applied when the origin world's tech level is 5 or less.</li>
+          </ul>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Speculative Trade</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Local Broker Level</dt>
+          <dd class='mt-1 text-fg'>
+            The campaign-wide default Broker skill level assumed for a hired local broker on the
+            Commerce tool's Speculative Trade tab, when the <span class='font-mono text-fg-bright'>Use
+            Local Broker</span> option is checked. The sourcebook rolls this randomly as
+            <span class='font-mono text-fg-bright'>2D/3</span> (2D6 divided by 3, rounded down); this
+            setting fixes it at a single default instead, editable per-transaction on the tab itself.
+            Defaults to <span class='font-mono text-fg-bright'>2</span>, the average result.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Local Broker Fee %</dt>
+          <dd class='mt-1 text-fg'>
+            The campaign-wide default flat fee, as a percentage of the transaction price, charged
+            by a hired local broker. Defaults to <span class='font-mono text-fg-bright'>10</span>,
+            per the sourcebook.
+          </dd>
         </div>
 
       </dl>

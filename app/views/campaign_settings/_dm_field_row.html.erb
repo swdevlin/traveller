@@ -1,0 +1,8 @@
+<%# locals: form:, attribute:, value:, field_label: %>
+<div class='flex items-center justify-between gap-3'>
+  <span class='text-sm text-fg-muted'><%= field_label %></span>
+  <div>
+    <%= form.number_field attribute, value: value, class: 'edit-base w-20 text-right', step: 1 %>
+    <%= render 'application/field_error', form: form, attribute: attribute %>
+  </div>
+</div>

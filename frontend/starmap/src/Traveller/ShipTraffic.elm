@@ -209,5 +209,5 @@ viewFrontierToggle msgs frontier =
             , Font.size 12
             , fontVar "--color-fg"
             ]
-            (text "Roll Again")
+            (text "Scan Again")
         ]

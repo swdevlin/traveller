@@ -1,0 +1,209 @@
+<div class='space-y-6 pt-4'>
+  <div class='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+    <div>
+      <div class='edit-label'>From</div>
+      <%= render 'system_dms', system: @from_system, modifiers: @from_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+    <div>
+      <div class='edit-label'>To</div>
+      <%= render 'system_dms', system: @to_system, modifiers: @to_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+  </div>
+
+  <input type='hidden' name='trade_seed' value='<%= @trade_seed %>'>
+
+  <div>
+    <button type='submit' name='trade_resurvey' value='1' class='w-full sm:w-auto btn btn-primary'>
+      Re-Survey Market
+    </button>
+  </div>
+
+  <% if @trade_availability %>
+    <%= render 'application/subsection', title: 'Goods Available' %>
+
+    <p class='text-xs text-fg-muted'>
+      Rolled at the origin world — Population <%= @trade_availability.population %>, trade codes
+      <%= @trade_availability.trade_codes.presence&.join(' ') || '—' %>. Skill Effect, Broker Skill and
+      Other DM apply the same to every good, so Purchase Price is rolled for the whole list at once.
+    </p>
+
+    <div class='flex flex-wrap items-center gap-x-5 gap-y-2' data-controller='trade-broker-toggle'>
+      <div class='flex items-center gap-2' data-controller='boolean-toggle'>
+        <%= check_box_tag :trade_purchase_use_broker, '1', @trade_purchase_use_broker,
+                           class: 'sr-only',
+                           data: { boolean_toggle_target: 'checkbox', trade_broker_toggle_target: 'checkbox',
+                                   action: 'change->trade-broker-toggle#sync' } %>
+        <button type='button'
+                role='switch'
+                aria-checked='<%= @trade_purchase_use_broker %>'
+                data-action='boolean-toggle#toggle'
+                data-boolean-toggle-target='button'
+                class='relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= @trade_purchase_use_broker ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+          <span data-boolean-toggle-target='indicator'
+                class='pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= @trade_purchase_use_broker ? 'translate-x-4 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
+        </button>
+        <label class='edit-label'>Local Broker</label>
+      </div>
+
+      <div data-trade-broker-toggle-target='skillEffect' class='flex items-center gap-2'>
+        <label class='edit-label'>Skill Effect</label>
+        <input type='number' name='trade_purchase_skill_effect' value='<%= @trade_purchase_skill_effect %>' class='edit-base w-[5.25rem]'>
+      </div>
+
+      <div data-trade-broker-toggle-target='brokerFields' class='flex items-center gap-2'>
+        <label class='edit-label'>Level</label>
+        <input type='number' name='trade_purchase_broker_level' value='<%= @trade_purchase_broker_level %>' class='edit-base w-[5.25rem]'>
+      </div>
+      <div data-trade-broker-toggle-target='brokerFields' class='flex items-center gap-2'>
+        <label class='edit-label'>Fee %</label>
+        <input type='number' name='trade_purchase_broker_fee_percentage'
+               value='<%= number_with_precision(@trade_purchase_broker_fee_percentage, precision: 2, strip_insignificant_zeros: true) %>'
+               class='edit-base w-[5.25rem]' step='1'>
+      </div>
+
+      <div class='flex items-center gap-2'>
+        <label class='edit-label'>Supplier Broker Skill</label>
+        <input type='number' name='trade_purchase_broker_skill' value='<%= @trade_purchase_broker_skill %>' class='edit-base w-[5.25rem]'>
+      </div>
+      <div class='flex items-center gap-2'>
+        <label class='edit-label'>Other DM</label>
+        <input type='number' name='trade_purchase_other_dm' value='<%= @trade_purchase_other_dm %>' class='edit-base w-[5.25rem]'>
+      </div>
+    </div>
+
+    <div>
+      <button type='submit' name='trade_purchase_submit' value='1' class='w-full sm:w-auto btn btn-primary'>
+        Negotiate Purchase Prices
+      </button>
+    </div>
+
+    <div class='table-card'>
+      <div class='table-scroll'>
+        <table>
+          <thead>
+            <tr>
+              <th scope='col'>Good</th>
+              <th scope='col'>Category</th>
+              <th scope='col' class='text-right'>Tons</th>
+              <th scope='col' class='text-right'>Base Price</th>
+              <% if @trade_purchase_results %>
+                <th scope='col' class='text-right'>Purchase Price</th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% @trade_availability.goods.each do |good| %>
+              <tr>
+                <td><%= good[:name] %></td>
+                <td><%= trade_good_category_label(good[:category]) %></td>
+                <td class='text-right'><%= good[:tons] || '—' %></td>
+                <td class='text-right'>
+                  <%= good[:base_price] ? number_to_currency(good[:base_price], unit: 'Cr', precision: 0) : '—' %>
+                </td>
+                <% if @trade_purchase_results %>
+                  <td class='text-right'>
+                    <% if (calculator = @trade_purchase_results[good[:d66]]) %>
+                      <%= render 'trade_price_cell', calculator: calculator %>
+                    <% else %>
+                      —
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <%= render 'application/subsection', title: 'Sale' %>
+
+    <p class='text-xs text-fg-muted'>
+      Rolled at the destination world for every good in the table — not limited to what was found at
+      the origin, since the Travellers may be selling cargo they picked up anywhere.
+    </p>
+
+    <div class='flex flex-wrap items-center gap-x-5 gap-y-2' data-controller='trade-broker-toggle'>
+      <div class='flex items-center gap-2' data-controller='boolean-toggle'>
+        <%= check_box_tag :trade_sale_use_broker, '1', @trade_sale_use_broker,
+                           class: 'sr-only',
+                           data: { boolean_toggle_target: 'checkbox', trade_broker_toggle_target: 'checkbox',
+                                   action: 'change->trade-broker-toggle#sync' } %>
+        <button type='button'
+                role='switch'
+                aria-checked='<%= @trade_sale_use_broker %>'
+                data-action='boolean-toggle#toggle'
+                data-boolean-toggle-target='button'
+                class='relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= @trade_sale_use_broker ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+          <span data-boolean-toggle-target='indicator'
+                class='pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= @trade_sale_use_broker ? 'translate-x-4 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
+        </button>
+        <label class='edit-label'>Local Broker</label>
+      </div>
+
+      <div data-trade-broker-toggle-target='skillEffect' class='flex items-center gap-2'>
+        <label class='edit-label'>Skill Effect</label>
+        <input type='number' name='trade_sale_skill_effect' value='<%= @trade_sale_skill_effect %>' class='edit-base w-[5.25rem]'>
+      </div>
+
+      <div data-trade-broker-toggle-target='brokerFields' class='flex items-center gap-2'>
+        <label class='edit-label'>Level</label>
+        <input type='number' name='trade_sale_broker_level' value='<%= @trade_sale_broker_level %>' class='edit-base w-[5.25rem]'>
+      </div>
+      <div data-trade-broker-toggle-target='brokerFields' class='flex items-center gap-2'>
+        <label class='edit-label'>Fee %</label>
+        <input type='number' name='trade_sale_broker_fee_percentage'
+               value='<%= number_with_precision(@trade_sale_broker_fee_percentage, precision: 2, strip_insignificant_zeros: true) %>'
+               class='edit-base w-[5.25rem]' step='1'>
+      </div>
+
+      <div class='flex items-center gap-2'>
+        <label class='edit-label'>Buyer Broker Skill</label>
+        <input type='number' name='trade_sale_broker_skill' value='<%= @trade_sale_broker_skill %>' class='edit-base w-[5.25rem]'>
+      </div>
+      <div class='flex items-center gap-2'>
+        <label class='edit-label'>Other DM</label>
+        <input type='number' name='trade_sale_other_dm' value='<%= @trade_sale_other_dm %>' class='edit-base w-[5.25rem]'>
+      </div>
+    </div>
+
+    <div>
+      <button type='submit' name='trade_sale_submit' value='1' class='w-full sm:w-auto btn btn-primary'>
+        Negotiate Sale Prices
+      </button>
+    </div>
+
+    <% if @trade_sale_results %>
+      <div class='table-card'>
+        <div class='table-scroll'>
+          <table>
+            <thead>
+              <tr>
+                <th scope='col'>Good</th>
+                <th scope='col'>Category</th>
+                <th scope='col' class='text-right'>Sale Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% TradeGoodsTable.priceable_d66_codes.each do |d66| %>
+                <% calculator = @trade_sale_results[d66] %>
+                <tr>
+                  <td><%= calculator.good[:name] %></td>
+                  <td><%= trade_good_category_label(calculator.good[:category]) %></td>
+                  <td class='text-right'><%= render 'trade_price_cell', calculator: calculator %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+
+    <p class='text-xs text-fg-muted'>
+      Illegal and exotic goods are not gated behind smuggling or black-market rules here — the referee
+      should judge legality and consequences narratively.
+    </p>
+  <% end %>
+</div>

@@ -1,0 +1,43 @@
+<div class='space-y-6 pt-4'>
+  <div class='grid grid-cols-1 gap-6 sm:grid-cols-2'>
+    <div>
+      <div class='edit-label'>From</div>
+      <%= render 'system_dms', system: @from_system, modifiers: @from_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+    <div>
+      <div class='edit-label'>To</div>
+      <%= render 'system_dms', system: @to_system, modifiers: @to_freight_modifiers,
+                 modifier_description: method(:freight_modifier_description) %>
+    </div>
+  </div>
+
+  <div class='grid grid-cols-2 gap-3'>
+    <div>
+      <label class='edit-label'>Skill Effect</label>
+      <input type='number' name='freight_broker_effect' value='<%= @freight_broker_effect %>' class='w-full edit-base mt-2'>
+    </div>
+    <div>
+      <label class='edit-label'>Other DM</label>
+      <input type='number' name='freight_referee_modifier' value='<%= @freight_referee_modifier %>' class='w-full edit-base mt-2'>
+    </div>
+  </div>
+
+  <div>
+    <button type='submit' class='w-full sm:w-auto btn btn-primary'>Cargo Manifest</button>
+  </div>
+
+  <% if @freight_calculator %>
+    <%= render 'application/subsection', title: 'Freight Traffic' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
+      <%= render 'lot_type_card', label: 'Incidental', result: @freight_calculator.results[:incidental] %>
+      <%= render 'lot_type_card', label: 'Minor',      result: @freight_calculator.results[:minor] %>
+      <%= render 'lot_type_card', label: 'Major',      result: @freight_calculator.results[:major] %>
+    </div>
+
+    <p class='text-xs text-fg-muted'>
+      A cargo lot cannot be broken up — it must be shipped in its entirety.
+    </p>
+  <% end %>
+</div>

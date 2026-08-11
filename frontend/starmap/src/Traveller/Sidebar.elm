@@ -129,11 +129,6 @@ centerY =
     HtmlAttrs.style "align-self" "center"
 
 
-alignRight : Html.Attribute msg
-alignRight =
-    HtmlAttrs.style "margin-left" "auto"
-
-
 pointerCursor : Html.Attribute msg
 pointerCursor =
     HtmlAttrs.style "cursor" "pointer"
@@ -227,6 +222,7 @@ type alias SidebarMsgs msg =
     , closeSidebar : msg
     , toggleTravelTable : msg
     , openShipTraffic : msg
+    , openCommerce : msg
     , setKnown : Bool -> msg
     , setSurveyIndex : Int -> msg
     }
@@ -609,18 +605,18 @@ viewSidebarColumn :
         }
     -> Html msg
 viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent } =
-    column [ width fill, spacing 4, centerX, height fill ]
-        [ row [ width fill, paddingXY 8 6 ]
-            [ el
-                [ alignRight
-                , Html.Events.onClick msgs.closeSidebar
-                , pointerCursor
-                , fontSize 14
-                , fontVar "--color-fg-muted"
-                ]
-                (text "✕")
+    column [ width fill, spacing 4, centerX, height fill, HtmlAttrs.style "position" "relative" ]
+        [ el
+            [ HtmlAttrs.style "position" "absolute"
+            , HtmlAttrs.style "top" "48px"
+            , HtmlAttrs.style "right" "8px"
+            , Html.Events.onClick msgs.closeSidebar
+            , pointerCursor
+            , fontSize 14
+            , fontVar "--color-fg-muted"
             ]
-        , column [ width fill, height fill, scrollY ]
+            (text "✕")
+        , column [ width fill, height fill, scrollY, paddingEach { zeroEach | top = 48 } ]
             [ case selectedHex of
                 Just viewingAddress ->
                     column [ paddingXY 0 4, width fill, centerX ]
@@ -692,17 +688,24 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                             , case selectedSystem of
                                 Just sys ->
                                     if isReferee && sys.mainWorldProfile /= Nothing then
-                                        el
+                                        row
                                             [ centerX
+                                            , spacing 8
                                             , paddingEach { zeroEach | top = 8 }
                                             ]
-                                            (viewSidebarButton
+                                            [ viewSidebarButton
                                                 { active = False
                                                 , icon = "fa-solid fa-rocket"
                                                 , label = "Ship Traffic"
                                                 , onClick = msgs.openShipTraffic
                                                 }
-                                            )
+                                            , viewSidebarButton
+                                                { active = False
+                                                , icon = "fa-solid fa-cart-shopping"
+                                                , label = "Commerce"
+                                                , onClick = msgs.openCommerce
+                                                }
+                                            ]
 
                                     else
                                         none

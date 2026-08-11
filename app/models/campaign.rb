@@ -14,12 +14,18 @@ class Campaign < ApplicationRecord
     deepnight_defaults: 'deepnight_defaults'
   }, prefix: :source
 
-  store_accessor :settings, :tracks_survey_index, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
-                            :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
-                            :default_language, :date_format
+  PASSENGER_DM_SETTINGS = PassengerTrafficDms::DEFAULTS.keys.map { |key| :"passenger_dm_#{key}" }.freeze
+  FREIGHT_DM_SETTINGS   = FreightTrafficDms::DEFAULTS.keys.map { |key| :"freight_dm_#{key}" }.freeze
+  MAIL_DM_SETTINGS      = MailTrafficDms::DEFAULTS.keys.map { |key| :"mail_dm_#{key}" }.freeze
 
-  def tracks_survey_index?
-    ActiveModel::Type::Boolean.new.cast(tracks_survey_index)
+  store_accessor :settings, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
+                            :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
+                            :default_language, :date_format, :trade_good_base_prices,
+                            :local_broker_level, :local_broker_fee_percentage,
+                            *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
+
+  def exploration?
+    ActiveModel::Type::Boolean.new.cast(exploration)
   end
 
   def allow_captive_government?
@@ -45,6 +51,14 @@ class Campaign < ApplicationRecord
 
   def max_tech_level_value
     max_tech_level.presence&.to_i || 16
+  end
+
+  def local_broker_level_value
+    local_broker_level.presence&.to_i || 2
+  end
+
+  def local_broker_fee_percentage_value
+    local_broker_fee_percentage.presence&.to_f || 10
   end
 
   def native_tech_level?
@@ -76,7 +90,7 @@ class Campaign < ApplicationRecord
   private
 
   def set_defaults
-    self.tracks_survey_index    = deepnight_revelation?
+    self.exploration            = deepnight_revelation?
     self.sophont_check          = charted_space? ? 'none' : 'standard'
     self.max_tech_level         = 16
     self.native_tech_level      = false
@@ -86,6 +100,8 @@ class Campaign < ApplicationRecord
     self.orbit_distance_display    = 'au'
     self.realisticStarDistribution = false
     self.date_format               = 'traveller'
+    self.local_broker_level        = 2
+    self.local_broker_fee_percentage = 10
   end
 
   def set_schema_name

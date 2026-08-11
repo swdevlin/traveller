@@ -7,6 +7,7 @@ module Traveller.RoutePlan exposing
     , StoredRoutePlan
     , TravelZoneOption
     , planQuery
+    , routePlanEndpointDecoder
     , routePlanResultDecoder
     , routePlanSystemResultDecoder
     , saveBody
