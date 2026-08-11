@@ -5,6 +5,43 @@ require_relative 'build_config_schema'
 class BuildConfigValidator
   attr_reader :errors, :config
 
+  def self.government_type_codes(raw)
+    return nil if raw.blank?
+
+    government_type_tokens(raw).filter_map { |t| HexDigit::HEX_DIGITS.index(t.strip.upcase) }
+  end
+
+  # Converts governmentTypes (and before/after governmentTypes) within a `populated` hash
+  # from a comma list/raw array into an integer array, in place. Handles both symbol-keyed
+  # (post deep_symbolize_keys) and string-keyed populated hashes.
+  def self.convert_populated_government_types!(populated)
+    return if populated.nil?
+
+    gt_key = populated.key?(:governmentTypes) ? :governmentTypes : 'governmentTypes'
+    region_keys = populated.key?(:before) || populated.key?(:after) ? %i[before after] : %w[before after]
+
+    populated[gt_key] = government_type_codes(populated[gt_key]) if populated[gt_key]
+
+    region_keys.each do |region_key|
+      region = populated[region_key]
+      next unless region.is_a?(Hash)
+
+      region[gt_key] = government_type_codes(region[gt_key]) if region[gt_key]
+    end
+  end
+
+  # YAML has no bareword string type: an unquoted, comma-separated, all-numeric list such as
+  # `governmentTypes: 1,2,5` is parsed by Psych as the *integer* 125 (commas are stripped as a
+  # legacy thousands separator), not the string "1,2,5" — the comma is gone by the time we see
+  # it, so a multi-digit integer here can only mean the referee needs to quote the value.
+  def self.government_type_tokens(raw)
+    case raw
+    when Array then raw.map(&:to_s)
+    when Integer then raw.to_s.length == 1 ? [raw.to_s] : []
+    else raw.to_s.split(',')
+    end
+  end
+
   def initialize(yaml_string)
     @yaml_string = yaml_string
     @errors = []
@@ -64,7 +101,28 @@ class BuildConfigValidator
     end.tap do |h|
       # Normalize chance to uppercase for case-insensitive matching
       h['type'] = h['type'].upcase if h['type'].is_a?(String)
+      normalize_populated_government_types(h['populated']) if h['populated'].is_a?(Hash)
     end
+  end
+
+  def normalize_populated_government_types(pop)
+    pop['governmentTypes'] = normalize_government_types(pop['governmentTypes']) if pop.key?('governmentTypes')
+
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      next unless pop[region].key?('governmentTypes')
+      pop[region]['governmentTypes'] = normalize_government_types(pop[region]['governmentTypes'])
+    end
+  end
+
+  def normalize_government_types(raw)
+    if raw.is_a?(Integer) && raw.to_s.length > 1
+      @errors << 'governmentTypes: quote comma-separated values, e.g. governmentTypes: "1,2,5" ' \
+                  '(YAML reads an unquoted numeric list as a single number)'
+      return []
+    end
+
+    self.class.government_type_tokens(raw).map(&:strip)
   end
 
   def validate_schema
@@ -143,6 +201,7 @@ class BuildConfigValidator
     validate_populated_demarcation
     validate_bases
     validate_languages
+    validate_government_types
 
     systems = Array(config['systems']) + Array(config['required'])
     systems.each_with_index do |sys, idx|
@@ -166,6 +225,7 @@ class BuildConfigValidator
     validate_populated_demarcation
     validate_bases
     validate_languages
+    validate_government_types
 
     validate_allegiance(config)
     validate_counts(config['counts'], config['counts'])
@@ -329,6 +389,36 @@ class BuildConfigValidator
         @errors << "unknown base '#{base}'"
       end
     end
+  end
+
+  def validate_government_types
+    return if @config['populated'].nil?
+    pop = @config['populated']
+
+    validate_government_types_list(pop['governmentTypes'])
+
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      validate_government_types_list(pop[region]['governmentTypes'])
+    end
+  end
+
+  def validate_government_types_list(codes)
+    return if codes.nil?
+
+    codes.each do |code|
+      numeric = government_type_code(code)
+      unless numeric && Government.exists?(code: numeric)
+        @errors << "unknown government type '#{code}'"
+      end
+    end
+  end
+
+  def government_type_code(code)
+    token = code.to_s.strip.upcase
+    return nil unless token.length == 1
+
+    HexDigit::HEX_DIGITS.index(token)
   end
 
   def validate_counts(counts, path)

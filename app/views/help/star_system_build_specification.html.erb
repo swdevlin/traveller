@@ -56,6 +56,7 @@ populated:
   populationDM:
   minPopulationCode:
   maxPopulationCode:
+  governmentTypes:
 rogues:</code></pre>
 
       </section>
@@ -435,7 +436,8 @@ rogues:</code></pre>
   minTechLevel:
   maxTechLevel:
   minPopulationCode:
-  maxPopulationCode:</code></pre>
+  maxPopulationCode:
+  governmentTypes:</code></pre>
         </div>
         <dl class='spec-dl lg:col-span-3'>
           <div>
@@ -461,6 +463,14 @@ rogues:</code></pre>
           <div>
             <dt>maxPopulationCode</dt>
             <dd>Maximum population for the primary world in the star system.</dd>
+          </div>
+
+          <div>
+            <dt>governmentTypes</dt>
+            <dd class="space-y-2">
+              <p>A comma-separated list of government type codes (0-F) that the generated main world is restricted to, e.g. <span class="yaml-tag">governmentTypes: 1,2,5,A,C,D</span>. If omitted, any government type may be generated.</p>
+              <p>If every code in the list is a digit (no letters), quote the value — <span class="yaml-tag">governmentTypes: "1,2,5"</span> — otherwise YAML reads it as the number 125 rather than a list.</p>
+            </dd>
           </div>
         </dl>
       </div>

@@ -32,6 +32,7 @@ class GenerateSubsectorJob < ApplicationJob
     config[:nativeTechLevel] = campaign&.native_tech_level? || false if config[:nativeTechLevel].nil?
     config[:allowCaptiveGovernment] = campaign.allow_captive_government? if config[:allowCaptiveGovernment].nil? && campaign
     config[:realisticStarDistribution] = campaign.realistic_star_distribution? if config[:realisticStarDistribution].nil? && campaign
+    BuildConfigValidator.convert_populated_government_types!(config[:populated])
 
     # The external generator knows nothing about rogues; pull them out of the
     # payload and create them locally after the systems are imported.

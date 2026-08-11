@@ -382,6 +382,7 @@ class StarSystemsController < ApplicationController
 
     rogue_entries = config.delete('rogues')
     config_bases  = config['bases']
+    BuildConfigValidator.convert_populated_government_types!(config['populated'])
     config.reverse_merge!(sophont_check_options)
     config.reverse_merge!(max_tech_level_options)
     config.reverse_merge!(native_tech_level_options)
@@ -486,6 +487,7 @@ class StarSystemsController < ApplicationController
       ) || {}
       @rogue_entries = config.delete('rogues')
       config_bases   = config['bases']
+      BuildConfigValidator.convert_populated_government_types!(config['populated'])
       config.reverse_merge!(sophont_check_options)
       config.reverse_merge!(max_tech_level_options)
       config.reverse_merge!(native_tech_level_options)

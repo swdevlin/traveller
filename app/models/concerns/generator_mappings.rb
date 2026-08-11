@@ -103,6 +103,14 @@ module GeneratorMappings
     end
   end
 
+  def self.build_government_from_generator(gov)
+    if gov.is_a?(Hash)
+      Governance.from_hash(gov)&.to_h || { 'code' => gov['code'] }
+    else
+      { 'code' => gov }
+    end
+  end
+
   def assign_data_from_generator(payload, merge: true)
     tech_level_payload = payload['techLevel']
     unless tech_level_payload.nil?
@@ -110,10 +118,10 @@ module GeneratorMappings
       self.data['tech_level'] = GeneratorMappings.build_tech_level_from_generator(tech_level_payload)
     end
 
-    government_code_payload = payload['governmentCode']
-    unless government_code_payload.nil?
+    government_payload = payload['government'] || payload['governmentCode']
+    unless government_payload.nil?
       self.data ||= {}
-      self.data['government'] = { 'code' => government_code_payload }
+      self.data['government'] = GeneratorMappings.build_government_from_generator(government_payload)
     end
 
     total_urban_population_payload = payload['totalUrbanPopulation']

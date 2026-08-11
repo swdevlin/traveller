@@ -99,6 +99,7 @@ PopulatedRegionSchema = Dry::Schema.Params do
   optional(:minPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
   optional(:maxPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
   optional(:populationDM).filled(:integer, gteq?: -12, lteq?: 12)
+  optional(:governmentTypes).array(:string).each(:filled?)
 end
 
 PopulatedSchema = Dry::Schema.Params do
@@ -114,6 +115,7 @@ PopulatedSchema = Dry::Schema.Params do
   optional(:minPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
   optional(:maxPopulationCode).filled(:integer, gteq?: 0, lteq?: 16)
   optional(:populationDM).filled(:integer, gteq?: -12, lteq?: 12)
+  optional(:governmentTypes).array(:string).each(:filled?)
 end
 
 SystemSchema = Dry::Schema.Params do

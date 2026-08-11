@@ -138,6 +138,189 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_includes validator.errors.join, 'type'
   end
 
+  # governmentTypes validation (nested under populated)
+  test 'governmentTypes accepts a comma list of known codes' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes: 1,2,A
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+    assert_equal %w[1 2 A], validator.config['populated']['governmentTypes']
+  end
+
+  test 'governmentTypes trims whitespace and is case insensitive' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes: 1, 2, a
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'governmentTypes rejects an unknown code' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes: 1,Z
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, "unknown government type 'Z'"
+  end
+
+  test 'governmentTypes rejects a multi-character token' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes:
+          - "1"
+          - "10"
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, "unknown government type '10'"
+  end
+
+  test 'governmentTypes accepts a real YAML array with bare numeric codes' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes:
+          - 1
+          - 2
+          - A
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'governmentTypes accepts a single bare digit' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes: 1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+    assert_equal ['1'], validator.config['populated']['governmentTypes']
+  end
+
+  test 'governmentTypes requires quoting an unquoted all-numeric comma list' do
+    # YAML parses "1,2" as the integer 12, not the string "1,2" — the comma is gone by the
+    # time this code sees it, so this must be caught explicitly rather than silently misread.
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        governmentTypes: 1,2
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'quote comma-separated values'
+  end
+
+  test 'governmentTypes in the before/after regions of a split population' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 3
+        before:
+          governmentTypes: "1,2"
+        after:
+          governmentTypes: 1,Z
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, "unknown government type 'Z'"
+    assert_equal %w[1 2], validator.config['populated']['before']['governmentTypes']
+  end
+
+  test 'governmentTypes is valid for a star system build config' do
+    yaml = <<~YAML
+      name: Test System
+      populated:
+        type: full
+        governmentTypes: 1,2,A
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'governmentTypes rejects an unknown code for a star system build config' do
+    yaml = <<~YAML
+      name: Test System
+      populated:
+        type: full
+        governmentTypes: Z
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, "unknown government type 'Z'"
+  end
+
+  test 'BuildConfigValidator.government_type_codes converts a comma string to integer codes' do
+    assert_equal [1, 2, 10, 12, 13], BuildConfigValidator.government_type_codes('1,2,A,C,D')
+  end
+
+  test 'BuildConfigValidator.government_type_codes converts an array to integer codes' do
+    assert_equal [1, 2, 10], BuildConfigValidator.government_type_codes(%w[1 2 A])
+  end
+
+  test 'BuildConfigValidator.government_type_codes converts a mixed-type array as YAML would produce it' do
+    assert_equal [1, 2, 10], BuildConfigValidator.government_type_codes([1, 2, 'A'])
+  end
+
+  test 'BuildConfigValidator.government_type_codes converts a single bare digit' do
+    assert_equal [1], BuildConfigValidator.government_type_codes(1)
+  end
+
+  test 'BuildConfigValidator.government_type_codes returns nil for blank input' do
+    assert_nil BuildConfigValidator.government_type_codes(nil)
+    assert_nil BuildConfigValidator.government_type_codes('')
+  end
+
+  test 'BuildConfigValidator.convert_populated_government_types! converts populated and before/after, string-keyed' do
+    populated = {
+      'type' => 'split-horizontal',
+      'governmentTypes' => '1,2,A',
+      'before' => { 'governmentTypes' => '1,2' },
+      'after' => { 'allegiance' => 'ImDr' }
+    }
+
+    BuildConfigValidator.convert_populated_government_types!(populated)
+
+    assert_equal [1, 2, 10], populated['governmentTypes']
+    assert_equal [1, 2], populated['before']['governmentTypes']
+    assert_not populated['after'].key?('governmentTypes')
+  end
+
+  test 'BuildConfigValidator.convert_populated_government_types! converts populated and before/after, symbol-keyed' do
+    populated = {
+      type: 'split-horizontal',
+      governmentTypes: '1,2,A',
+      before: { governmentTypes: '1,2' }
+    }
+
+    BuildConfigValidator.convert_populated_government_types!(populated)
+
+    assert_equal [1, 2, 10], populated[:governmentTypes]
+    assert_equal [1, 2], populated[:before][:governmentTypes]
+  end
+
+  test 'BuildConfigValidator.convert_populated_government_types! is a no-op for nil populated' do
+    assert_nothing_raised { BuildConfigValidator.convert_populated_government_types!(nil) }
+  end
+
   # Coordinate validation - x range (1-8)
   test 'coordinate x must be at least 1' do
     yaml = <<~YAML

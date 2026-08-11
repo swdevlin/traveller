@@ -200,6 +200,30 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
   end
 
+  test 'build configuration create converts governmentTypes comma list to an integer array' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    posted = nil
+    stub_request(:post, "#{base}/star_system")
+      .with { |req| posted = JSON.parse(req.body) }
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      populated:
+        type: full
+        governmentTypes: 1,2,A
+    YAML
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+    assert_equal [1, 2, 10], posted['populated']['governmentTypes']
+  end
+
   test 'build configuration create falls back to generator response bases when config has none' do
     base = Rails.application.config.x.generator_service
     body = JSON.parse(file_fixture('star_system_import_minimal.json').read)

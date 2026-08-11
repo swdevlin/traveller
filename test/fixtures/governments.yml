@@ -9,3 +9,8 @@ two:
   code: 2
   government_type: Code 2
   description: Code 2 government
+
+ten:
+  code: 10
+  government_type: Code 10
+  description: Code 10 government

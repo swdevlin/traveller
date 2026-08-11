@@ -61,6 +61,28 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert posted['systems'].none? { |s| s.key?('rogues') }
   end
 
+  test 'converts governmentTypes comma list to an integer array in the generator payload' do
+    system_parsec = create_parsec(5, 2)
+    system = JSON.parse(file_fixture('star_system_import_minimal.json').read).merge('x' => 5, 'y' => 2)
+    posted = nil
+    stub_subsector_generator([system]) { |req| posted = JSON.parse(req.body) }
+
+    definition = <<~YAML
+      type: STANDARD
+      populated:
+        type: full
+        governmentTypes: 1,2,5,A,C,D
+      systems:
+        - x: 5
+          y: 2
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    assert_not_nil system_parsec.star_systems.sole
+    assert_equal [1, 2, 5, 10, 12, 13], posted['populated']['governmentTypes']
+  end
+
   test 'config bases take precedence over generator response bases' do
     system_parsec = create_parsec(5, 2)
     system = JSON.parse(file_fixture('star_system_import_minimal.json').read)

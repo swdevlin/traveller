@@ -157,6 +157,7 @@ populated:</code></pre>
   minPopulationCode:
   maxPopulationCode:
   populationDM:
+  governmentTypes:
   demarcation:
   before:
     allegiance:
@@ -165,13 +166,15 @@ populated:</code></pre>
     minPopulationCode:
     maxPopulationCode:
     populationDM:
+    governmentTypes:
   after:
     allegiance:
     minTechLevel:
     maxTechLevel:
     minPopulationCode:
     maxPopulationCode:
-    populationDM:</code></pre>
+    populationDM:
+    governmentTypes:</code></pre>
         </div>
         <dl class='spec-dl lg:col-span-3'>
           <div>
@@ -215,6 +218,14 @@ populated:</code></pre>
           <div>
             <dt>populationDM</dt>
             <dd>DM applied to all population checks in the subsector.</dd>
+          </div>
+
+          <div>
+            <dt>governmentTypes</dt>
+            <dd class="space-y-2">
+              <p>A comma-separated list of government type codes (0-F) that generated main worlds are restricted to, e.g. <span class="yaml-tag">governmentTypes: 1,2,5,A,C,D</span>. If omitted, any government type may be generated. Can also be set independently within <span class="yaml-tag">before</span> and <span class="yaml-tag">after</span>.</p>
+              <p>If every code in the list is a digit (no letters), quote the value — <span class="yaml-tag">governmentTypes: "1,2,5"</span> — otherwise YAML reads it as the number 125 rather than a list.</p>
+            </dd>
           </div>
 
           <div>
