@@ -19,6 +19,9 @@ class MarkdownPresenterBase
   GOVERNMENT_AUTHORITY_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_AUTHORITY_DESCRIPTIONS
   GOVERNMENT_CENTRALISATION_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_CENTRALISATION_DESCRIPTIONS
   GOVERNMENT_STRUCTURE_DESCRIPTIONS = StellarObjectsHelper::GOVERNMENT_STRUCTURE_DESCRIPTIONS
+  NO_POPULATION_GOVERNMENT_MESSAGE = StellarObjectsHelper::NO_POPULATION_GOVERNMENT_MESSAGE
+  NO_POPULATION_LAW_LEVEL_MESSAGE = StellarObjectsHelper::NO_POPULATION_LAW_LEVEL_MESSAGE
+  NO_POPULATION_TECH_LEVEL_MESSAGE = StellarObjectsHelper::NO_POPULATION_TECH_LEVEL_MESSAGE
 
   def initialize(obj)
     @obj = obj
@@ -167,6 +170,10 @@ class MarkdownPresenterBase
     lines
   end
 
+  def message_section(title, message)
+    ["## #{title}", '', message, '']
+  end
+
   def physical_data_section
     rows = [
       ['Diameter', "#{@obj.size_code} — #{number_with_delimiter(@obj.diameter&.round)} km"],
@@ -266,6 +273,8 @@ class MarkdownPresenterBase
   end
 
   def government_section
+    return message_section('Government', NO_POPULATION_GOVERNMENT_MESSAGE) if @obj.no_government?
+
     governance = @obj.government
     return [] unless governance
 
@@ -292,6 +301,7 @@ class MarkdownPresenterBase
   end
 
   def law_level_section
+    return message_section('Law Level', NO_POPULATION_LAW_LEVEL_MESSAGE) if @obj.no_law_level?
     return [] unless @obj.law_level
 
     law_by_code = LawLevel.all.index_by(&:code)
@@ -321,6 +331,7 @@ class MarkdownPresenterBase
   end
 
   def tech_level_section
+    return message_section('Tech Level', NO_POPULATION_TECH_LEVEL_MESSAGE) if @obj.no_tech_level?
     return [] unless @obj.tech_level_code.present?
 
     tl = TechLevel.find_by(code: @obj.tech_level_code)

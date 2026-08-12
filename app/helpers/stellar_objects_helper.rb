@@ -410,6 +410,10 @@ module StellarObjectsHelper
     'D' => 'Demos', 'S' => 'Single Council', 'M' => 'Multiple Councils', 'R' => 'Ruler'
   }.freeze
 
+  NO_POPULATION_GOVERNMENT_MESSAGE = 'No government (population 0).'
+  NO_POPULATION_LAW_LEVEL_MESSAGE = 'No law level (population 0).'
+  NO_POPULATION_TECH_LEVEL_MESSAGE = 'No tech level (population 0).'
+
   CULTURE_TRAIT_DATA = [
     { code: 'D', label: 'Diversity',       getter: :population_diversity,       low_label: 'Monolithic',      high_label: 'Multicultural',  min: 1, max: 20, description: '' },
     { code: 'X', label: 'Xenophilia',      getter: :population_xenophilia,      low_label: 'Xenophobic',      high_label: 'Xenophilic',     min: 1, max: 17, description: '' },

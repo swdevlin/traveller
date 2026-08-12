@@ -42,26 +42,29 @@
                value: safe_join([tag.span(HexDigit.hex_digit(population_code.to_i), class: 'identifier-sm'), (population_code.to_i > 0 ? population_display(population_code, census_population) : nil)].compact, ' ') %>
   <% end %>
 
+  <% no_government = stellar_object.no_government? %>
+  <% no_law_level = stellar_object.no_law_level? %>
+  <% no_tech_level = stellar_object.no_tech_level? %>
+
   <% if government %>
     <%= render 'application/data_block',
                label: 'Government',
-               value: safe_join([tag.span(HexDigit.hex_digit(government.code), class: 'identifier-sm'), government.government_type], ' '),
+               value: no_government ? '—' : safe_join([tag.span(HexDigit.hex_digit(government.code), class: 'identifier-sm'), government.government_type], ' '),
                value_wrap_class: 'flex flex-wrap items-center gap-2' %>
   <% end %>
 
   <% if law_level %>
     <%= render 'application/data_block',
                label: 'Law Level',
-               value: safe_join([tag.span(HexDigit.hex_digit(law_level.code), class: 'identifier-sm'), law_level.weapons], ' '),
+               value: no_law_level ? '—' : safe_join([tag.span(HexDigit.hex_digit(law_level.code), class: 'identifier-sm'), law_level.weapons], ' '),
                value_wrap_class: 'flex flex-wrap items-center gap-2' %>
   <% end %>
 
   <% if tech_level_record %>
-    <% has_population = population_code.present? && population_code.to_i > 0 %>
-    <div class="<%= has_population ? 'col-span-2' : '' %>">
+    <div class="<%= no_tech_level ? '' : 'col-span-2' %>">
       <%= render 'application/data_block',
                  label: 'Tech Level',
-                 value: safe_join([tag.span(HexDigit.hex_digit(tech_level_record.code), class: 'identifier-sm'), has_population ? "#{tech_level_record.descriptor}; #{tech_level_record.short_description}" : nil].compact, ' '),
+                 value: no_tech_level ? '—' : safe_join([tag.span(HexDigit.hex_digit(tech_level_record.code), class: 'identifier-sm'), "#{tech_level_record.descriptor}; #{tech_level_record.short_description}"].compact, ' '),
                  value_wrap_class: 'flex flex-wrap items-center gap-2' %>
     </div>
   <% end %>

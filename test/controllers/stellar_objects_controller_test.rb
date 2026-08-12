@@ -67,6 +67,47 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@stellar_object)
   end
 
+  test 'government/law level/tech level tabs show population-zero message when population and those codes are all 0' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        population_code: 0, government_code: 0, law_level_code: 0, tech_level_code: 0
+      }
+    }
+    assert_redirected_to stellar_object_url(planet)
+
+    get stellar_object_url(planet)
+
+    assert_response :success
+    assert_select '.text-fg-muted', text: 'No government (population 0).'
+    assert_select '.text-fg-muted', text: 'No law level (population 0).'
+    assert_select '.text-fg-muted', text: 'No tech level (population 0).'
+    assert_select '.dg-subsection .label', text: 'Structure', count: 0
+    assert_select '.dg-subsection .label', text: 'Sub-Classifications', count: 0
+    assert_select '.dg-subsection .label', text: 'Capabilities', count: 0
+  end
+
+  test 'government/law level/tech level tabs show real values when population is 0 but field codes are present' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        population_code: 0, government_code: 1, law_level_code: 1, tech_level_code: 1
+      }
+    }
+    assert_redirected_to stellar_object_url(planet)
+
+    get stellar_object_url(planet)
+
+    assert_response :success
+    assert_select '.text-fg-muted', text: 'No government (population 0).', count: 0
+    assert_select '.text-fg-muted', text: 'No law level (population 0).', count: 0
+    assert_select '.text-fg-muted', text: 'No tech level (population 0).', count: 0
+    assert_includes response.body, 'Code 1 government'
+    assert_includes response.body, 'MyString'
+  end
+
   test 'population tab lists major cities highest population first' do
     planet = stellar_objects(:two)
 

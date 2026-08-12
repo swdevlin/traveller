@@ -56,12 +56,22 @@ class PlanetoidMarkdownPresenter < MarkdownPresenterBase
     end
     rows << ['Survival Req.', atmosphere_survival_requirement(atmosphere_code, tainted: atmosphere_tainted)]
     rows << ['Population', "#{HexDigit.hex_digit(population_code.to_i)} — #{population_display(population_code, census_population)}"] if population_code.present?
-    rows << ['Government', "#{HexDigit.hex_digit(government.code)} — #{government.government_type}"] if government
-    rows << ['Law Level', "#{HexDigit.hex_digit(law_level.code)} — #{law_level.weapons}"] if law_level
+    if @obj.no_government?
+      rows << ['Government', '—']
+    else
+      rows << ['Government', "#{HexDigit.hex_digit(government.code)} — #{government.government_type}"] if government
+    end
+    if @obj.no_law_level?
+      rows << ['Law Level', '—']
+    else
+      rows << ['Law Level', "#{HexDigit.hex_digit(law_level.code)} — #{law_level.weapons}"] if law_level
+    end
     if tl
       tl_value = "#{HexDigit.hex_digit(tl.code)} — #{tl.descriptor}"
-      tl_value += "; #{tl.short_description}" if population_code.present? && population_code.to_i > 0 && tl.short_description.present?
-      rows << ['Tech Level', tl_value]
+      tl_value += "; #{tl.short_description}" if !@obj.no_tech_level? && tl.short_description.present?
+      rows << ['Tech Level', @obj.no_tech_level? ? '—' : tl_value]
+    elsif @obj.no_tech_level?
+      rows << ['Tech Level', '—']
     end
     rows << ['Native Sophont', sophont_status]
 

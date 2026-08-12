@@ -1,4 +1,4 @@
-module Traveller.Population exposing (CultureTrait, Population(..), StellarPopulation, codec, concentration_rating_description, population, populationDescription)
+module Traveller.Population exposing (CultureTrait, Population(..), StellarPopulation, codec, concentration_rating_description, isNone, isNoneCode, population, populationDescription)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -151,6 +151,16 @@ population =
         , Parser.succeed BHigh |. Parser.symbol "B"
         , Parser.succeed CVeryHigh |. Parser.symbol "C"
         ]
+
+
+isNone : Population -> Bool
+isNone code =
+    code == ZeroNone
+
+
+isNoneCode : String -> Bool
+isNoneCode code =
+    code == "0"
 
 
 populationDescription : Population -> String

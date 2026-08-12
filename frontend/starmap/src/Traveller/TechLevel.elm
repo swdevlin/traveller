@@ -1,4 +1,4 @@
-module Traveller.TechLevel exposing (TechLevel, description, parser)
+module Traveller.TechLevel exposing (TechLevel, description, isNone, parser)
 
 {- Tech Level
    Technology Levels
@@ -114,6 +114,11 @@ parser =
         , Parser.succeed ThirtyRemoteTechnologyAge |. Parser.symbol "W"
         , Parser.succeed ThirtyOnePocketUniverseAge |. Parser.symbol "X"
         ]
+
+
+isNone : TechLevel -> Bool
+isNone code =
+    code == ZeroNeolithicAge
 
 
 description : TechLevel -> String

@@ -185,6 +185,9 @@ type alias AnalyisDetailPlanetoidData =
         , lawLevel : String
         , techLevel : String
         }
+    , noGovernment : Bool
+    , noLawLevel : Bool
+    , noTechLevel : Bool
     , cultureTrait : List CultureTraitItem
     , government :
         { type_ : String
@@ -973,6 +976,210 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
         ]
 
 
+viewGovernmentDetail : (Int -> String -> String) -> AnalyisDetailPlanetoidData -> Html msg
+viewGovernmentDetail show data =
+    if data.noGovernment then
+        column [ width fill ] [ textDisplay "Government" "No government (population 0)." ]
+
+    else
+        let
+            g =
+                data.government
+        in
+        column [ width fill ]
+            [ column groupAttrs
+                [ textDisplay "Government" <| show 44 data.social.government
+                , if g.description /= "" then
+                    textDisplay "Description" <| show 46 g.description
+
+                  else
+                    none
+                ]
+            , if g.judicial /= "" || g.executive /= "" || g.legislative /= "" then
+                column [ width fill ]
+                    [ viewSectionHeader "Structure"
+                    , column groupAttrs
+                        [ if g.judicial /= "" then
+                            textDisplay "Judicial" <| show 47 g.judicial
+
+                          else
+                            none
+                        , if g.executive /= "" then
+                            textDisplay "Executive" <| show 48 g.executive
+
+                          else
+                            none
+                        , if g.legislative /= "" then
+                            textDisplay "Legislative" <| show 49 g.legislative
+
+                          else
+                            none
+                        ]
+                    ]
+
+              else
+                none
+            , if g.authority /= "" || g.centralisation /= "" then
+                column [ width fill ]
+                    [ viewSectionHeader "Characteristics"
+                    , column groupAttrs
+                        [ if g.authority /= "" then
+                            textDisplay "Authority" <| show 50 g.authority
+
+                          else
+                            none
+                        , if g.centralisation /= "" then
+                            textDisplay "Centralisation" <| show 51 g.centralisation
+
+                          else
+                            none
+                        ]
+                    ]
+
+              else
+                none
+            ]
+
+
+viewLawLevelDetail : (Int -> String -> String) -> AnalyisDetailPlanetoidData -> Html msg
+viewLawLevelDetail show data =
+    if data.noLawLevel then
+        column [ width fill ] [ textDisplay "Law Level" "No law level (population 0)." ]
+
+    else
+        let
+            sc =
+                data.lawSubClassifications
+
+            ch =
+                data.lawCharacteristics
+        in
+        column [ width fill ]
+            [ column groupAttrs
+                [ textDisplay "Law Level" <| show 52 data.social.lawLevel
+                ]
+            , if sc.weaponsAndArmour /= "" || sc.criminalLaw /= "" || sc.economicLaw /= "" || sc.privateLaw /= "" || sc.personalRights /= "" then
+                column [ width fill ]
+                    [ viewSectionHeader "Sub-Classifications"
+                    , column groupAttrs
+                        [ if sc.weaponsAndArmour /= "" then
+                            textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
+
+                          else
+                            none
+                        , if sc.criminalLaw /= "" then
+                            textDisplay "Criminal Law" <| show 54 sc.criminalLaw
+
+                          else
+                            none
+                        , if sc.economicLaw /= "" then
+                            textDisplay "Economic Law" <| show 55 sc.economicLaw
+
+                          else
+                            none
+                        , if sc.privateLaw /= "" then
+                            textDisplay "Private Law" <| show 56 sc.privateLaw
+
+                          else
+                            none
+                        , if sc.personalRights /= "" then
+                            textDisplay "Personal Rights" <| show 57 sc.personalRights
+
+                          else
+                            none
+                        ]
+                    ]
+
+              else
+                none
+            , if ch.uniformity /= "" || ch.judicialSystem /= "" || ch.deathPenalty /= "" || ch.presumedInnocence /= "" || ch.econometricInfractionsAdministrative /= "" then
+                column [ width fill ]
+                    [ viewSectionHeader "Characteristics"
+                    , column groupAttrs
+                        [ if ch.uniformity /= "" then
+                            textDisplay "Law Uniformity" <| show 58 ch.uniformity
+
+                          else
+                            none
+                        , if ch.judicialSystem /= "" then
+                            textDisplay "Judicial System" <| show 59 ch.judicialSystem
+
+                          else
+                            none
+                        , if ch.deathPenalty /= "" then
+                            textDisplay "Death Penalty" <| show 60 ch.deathPenalty
+
+                          else
+                            none
+                        , if ch.presumedInnocence /= "" then
+                            textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
+
+                          else
+                            none
+                        , if ch.econometricInfractionsAdministrative /= "" then
+                            textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
+
+                          else
+                            none
+                        ]
+                    ]
+
+              else
+                none
+            ]
+
+
+viewTechLevelDetail : (Int -> String -> String) -> AnalyisDetailPlanetoidData -> Html msg
+viewTechLevelDetail show data =
+    if data.noTechLevel then
+        column [ width fill ] [ textDisplay "Tech Level" "No tech level (population 0)." ]
+
+    else
+        let
+            td =
+                data.techDetail
+
+            capDefs =
+                [ ( "Energy", td.energy, 65 )
+                , ( "Electronics", td.electronics, 66 )
+                , ( "Manufacturing", td.manufacturing, 67 )
+                , ( "Medical", td.medical, 68 )
+                , ( "Environmental", td.environmental, 69 )
+                , ( "Land Transport", td.land, 70 )
+                , ( "Water Transport", td.sea, 71 )
+                , ( "Air Transport", td.air, 72 )
+                , ( "Space Transport", td.space, 73 )
+                , ( "Personal Military", td.personalMilitary, 74 )
+                , ( "Heavy Military", td.heavyMilitary, 75 )
+                ]
+
+            hasCaps =
+                List.any (\( _, raw, _ ) -> raw /= "") capDefs
+        in
+        column [ width fill ]
+            [ column groupAttrs
+                [ textDisplay "Tech Level" <| show 63 data.social.techLevel
+                , if td.descriptor /= "" then
+                    textDisplay "Descriptor" <| show 64 td.descriptor
+
+                  else
+                    none
+                ]
+            , if hasCaps then
+                column [ width fill ]
+                    [ viewSectionHeader "Capabilities"
+                    , column groupAttrs
+                        (capDefs
+                            |> List.filter (\( _, raw, _ ) -> raw /= "")
+                            |> List.map (\( lbl, raw, idx ) -> textDisplay lbl (show idx raw))
+                        )
+                    ]
+
+              else
+                none
+            ]
+
+
 viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Html msg
 viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig citiesTabConfig data =
     let
@@ -1360,191 +1567,13 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                         ]
 
                 "gov" ->
-                    let
-                        g =
-                            data.government
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Government" <| show 44 data.social.government
-                            , if g.description /= "" then
-                                textDisplay "Description" <| show 46 g.description
-
-                              else
-                                none
-                            ]
-                        , if g.judicial /= "" || g.executive /= "" || g.legislative /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Structure"
-                                , column groupAttrs
-                                    [ if g.judicial /= "" then
-                                        textDisplay "Judicial" <| show 47 g.judicial
-
-                                      else
-                                        none
-                                    , if g.executive /= "" then
-                                        textDisplay "Executive" <| show 48 g.executive
-
-                                      else
-                                        none
-                                    , if g.legislative /= "" then
-                                        textDisplay "Legislative" <| show 49 g.legislative
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        , if g.authority /= "" || g.centralisation /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Characteristics"
-                                , column groupAttrs
-                                    [ if g.authority /= "" then
-                                        textDisplay "Authority" <| show 50 g.authority
-
-                                      else
-                                        none
-                                    , if g.centralisation /= "" then
-                                        textDisplay "Centralisation" <| show 51 g.centralisation
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewGovernmentDetail show data
 
                 "law" ->
-                    let
-                        sc =
-                            data.lawSubClassifications
-
-                        ch =
-                            data.lawCharacteristics
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Law Level" <| show 52 data.social.lawLevel
-                            ]
-                        , if sc.weaponsAndArmour /= "" || sc.criminalLaw /= "" || sc.economicLaw /= "" || sc.privateLaw /= "" || sc.personalRights /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Sub-Classifications"
-                                , column groupAttrs
-                                    [ if sc.weaponsAndArmour /= "" then
-                                        textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
-
-                                      else
-                                        none
-                                    , if sc.criminalLaw /= "" then
-                                        textDisplay "Criminal Law" <| show 54 sc.criminalLaw
-
-                                      else
-                                        none
-                                    , if sc.economicLaw /= "" then
-                                        textDisplay "Economic Law" <| show 55 sc.economicLaw
-
-                                      else
-                                        none
-                                    , if sc.privateLaw /= "" then
-                                        textDisplay "Private Law" <| show 56 sc.privateLaw
-
-                                      else
-                                        none
-                                    , if sc.personalRights /= "" then
-                                        textDisplay "Personal Rights" <| show 57 sc.personalRights
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        , if ch.uniformity /= "" || ch.judicialSystem /= "" || ch.deathPenalty /= "" || ch.presumedInnocence /= "" || ch.econometricInfractionsAdministrative /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Characteristics"
-                                , column groupAttrs
-                                    [ if ch.uniformity /= "" then
-                                        textDisplay "Law Uniformity" <| show 58 ch.uniformity
-
-                                      else
-                                        none
-                                    , if ch.judicialSystem /= "" then
-                                        textDisplay "Judicial System" <| show 59 ch.judicialSystem
-
-                                      else
-                                        none
-                                    , if ch.deathPenalty /= "" then
-                                        textDisplay "Death Penalty" <| show 60 ch.deathPenalty
-
-                                      else
-                                        none
-                                    , if ch.presumedInnocence /= "" then
-                                        textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
-
-                                      else
-                                        none
-                                    , if ch.econometricInfractionsAdministrative /= "" then
-                                        textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewLawLevelDetail show data
 
                 "tech" ->
-                    let
-                        td =
-                            data.techDetail
-
-                        -- (label, raw value, string index)
-                        capDefs =
-                            [ ( "Energy", td.energy, 65 )
-                            , ( "Electronics", td.electronics, 66 )
-                            , ( "Manufacturing", td.manufacturing, 67 )
-                            , ( "Medical", td.medical, 68 )
-                            , ( "Environmental", td.environmental, 69 )
-                            , ( "Land Transport", td.land, 70 )
-                            , ( "Water Transport", td.sea, 71 )
-                            , ( "Air Transport", td.air, 72 )
-                            , ( "Space Transport", td.space, 73 )
-                            , ( "Personal Military", td.personalMilitary, 74 )
-                            , ( "Heavy Military", td.heavyMilitary, 75 )
-                            ]
-
-                        hasCaps =
-                            List.any (\( _, raw, _ ) -> raw /= "") capDefs
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Tech Level" <| show 63 data.social.techLevel
-                            , if td.descriptor /= "" then
-                                textDisplay "Descriptor" <| show 64 td.descriptor
-
-                              else
-                                none
-                            ]
-                        , if hasCaps then
-                            column [ width fill ]
-                                [ viewSectionHeader "Capabilities"
-                                , column groupAttrs
-                                    (capDefs
-                                        |> List.filter (\( _, raw, _ ) -> raw /= "")
-                                        |> List.map (\( lbl, raw, idx ) -> textDisplay lbl (show idx raw))
-                                    )
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewTechLevelDetail show data
 
                 _ ->
                     column [ width fill ]
@@ -2274,190 +2303,13 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                         ]
 
                 "gov" ->
-                    let
-                        g =
-                            pd.government
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Government" <| show 44 pd.social.government
-                            , if g.description /= "" then
-                                textDisplay "Description" <| show 46 g.description
-
-                              else
-                                none
-                            ]
-                        , if g.judicial /= "" || g.executive /= "" || g.legislative /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Structure"
-                                , column groupAttrs
-                                    [ if g.judicial /= "" then
-                                        textDisplay "Judicial" <| show 47 g.judicial
-
-                                      else
-                                        none
-                                    , if g.executive /= "" then
-                                        textDisplay "Executive" <| show 48 g.executive
-
-                                      else
-                                        none
-                                    , if g.legislative /= "" then
-                                        textDisplay "Legislative" <| show 49 g.legislative
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        , if g.authority /= "" || g.centralisation /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Characteristics"
-                                , column groupAttrs
-                                    [ if g.authority /= "" then
-                                        textDisplay "Authority" <| show 50 g.authority
-
-                                      else
-                                        none
-                                    , if g.centralisation /= "" then
-                                        textDisplay "Centralisation" <| show 51 g.centralisation
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewGovernmentDetail show pd
 
                 "law" ->
-                    let
-                        sc =
-                            pd.lawSubClassifications
-
-                        ch =
-                            pd.lawCharacteristics
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Law Level" <| show 52 pd.social.lawLevel
-                            ]
-                        , if sc.weaponsAndArmour /= "" || sc.criminalLaw /= "" || sc.economicLaw /= "" || sc.privateLaw /= "" || sc.personalRights /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Sub-Classifications"
-                                , column groupAttrs
-                                    [ if sc.weaponsAndArmour /= "" then
-                                        textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
-
-                                      else
-                                        none
-                                    , if sc.criminalLaw /= "" then
-                                        textDisplay "Criminal Law" <| show 54 sc.criminalLaw
-
-                                      else
-                                        none
-                                    , if sc.economicLaw /= "" then
-                                        textDisplay "Economic Law" <| show 55 sc.economicLaw
-
-                                      else
-                                        none
-                                    , if sc.privateLaw /= "" then
-                                        textDisplay "Private Law" <| show 56 sc.privateLaw
-
-                                      else
-                                        none
-                                    , if sc.personalRights /= "" then
-                                        textDisplay "Personal Rights" <| show 57 sc.personalRights
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        , if ch.uniformity /= "" || ch.judicialSystem /= "" || ch.deathPenalty /= "" || ch.presumedInnocence /= "" || ch.econometricInfractionsAdministrative /= "" then
-                            column [ width fill ]
-                                [ viewSectionHeader "Characteristics"
-                                , column groupAttrs
-                                    [ if ch.uniformity /= "" then
-                                        textDisplay "Law Uniformity" <| show 58 ch.uniformity
-
-                                      else
-                                        none
-                                    , if ch.judicialSystem /= "" then
-                                        textDisplay "Judicial System" <| show 59 ch.judicialSystem
-
-                                      else
-                                        none
-                                    , if ch.deathPenalty /= "" then
-                                        textDisplay "Death Penalty" <| show 60 ch.deathPenalty
-
-                                      else
-                                        none
-                                    , if ch.presumedInnocence /= "" then
-                                        textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
-
-                                      else
-                                        none
-                                    , if ch.econometricInfractionsAdministrative /= "" then
-                                        textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
-
-                                      else
-                                        none
-                                    ]
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewLawLevelDetail show pd
 
                 "tech" ->
-                    let
-                        td =
-                            pd.techDetail
-
-                        capDefs =
-                            [ ( "Energy", td.energy, 65 )
-                            , ( "Electronics", td.electronics, 66 )
-                            , ( "Manufacturing", td.manufacturing, 67 )
-                            , ( "Medical", td.medical, 68 )
-                            , ( "Environmental", td.environmental, 69 )
-                            , ( "Land Transport", td.land, 70 )
-                            , ( "Water Transport", td.sea, 71 )
-                            , ( "Air Transport", td.air, 72 )
-                            , ( "Space Transport", td.space, 73 )
-                            , ( "Personal Military", td.personalMilitary, 74 )
-                            , ( "Heavy Military", td.heavyMilitary, 75 )
-                            ]
-
-                        hasCaps =
-                            List.any (\( _, raw, _ ) -> raw /= "") capDefs
-                    in
-                    column [ width fill ]
-                        [ column groupAttrs
-                            [ textDisplay "Tech Level" <| show 63 pd.social.techLevel
-                            , if td.descriptor /= "" then
-                                textDisplay "Descriptor" <| show 64 td.descriptor
-
-                              else
-                                none
-                            ]
-                        , if hasCaps then
-                            column [ width fill ]
-                                [ viewSectionHeader "Capabilities"
-                                , column groupAttrs
-                                    (capDefs
-                                        |> List.filter (\( _, raw, _ ) -> raw /= "")
-                                        |> List.map (\( lbl, raw, idx ) -> textDisplay lbl (show idx raw))
-                                    )
-                                ]
-
-                          else
-                            none
-                        ]
+                    viewTechLevelDetail show pd
 
                 _ ->
                     column [ width fill ]

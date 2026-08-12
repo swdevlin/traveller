@@ -1,4 +1,4 @@
-port module Traveller exposing (FacilityIcon, Model, ModelData, Msg(..), ThemeOption, init, subscriptions, update, view)
+port module Traveller exposing (FacilityIcon, Model, ModelData, Msg(..), ThemeOption, init, subscriptions, update, uwpBreakdown, view)
 
 import Browser.Dom
 import Browser.Events
@@ -91,7 +91,7 @@ import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
 import Traveller.MapLabel as MapLabel exposing (MapLabel)
 import Traveller.Parser exposing (UWP, hydrosphereDescription, sizeDescription, uwp)
-import Traveller.Population exposing (concentration_rating_description, populationDescription)
+import Traveller.Population as Population exposing (concentration_rating_description, isNone, populationDescription)
 import Traveller.Region as Region exposing (Region, RegionDict)
 import Traveller.Route as Route exposing (Route, RouteList)
 import Traveller.RoutePlan as RoutePlan
@@ -4249,9 +4249,27 @@ uwpBreakdown uwp =
     , ( "Atmosphere", atmosphereDescription uwp.atmosphere )
     , ( "Hydrosphere", hydrosphereDescription uwp.hydrosphere )
     , ( "Population", populationDescription uwp.population )
-    , ( "Government", Government.description uwp.government )
-    , ( "Law level", LawLevel.description uwp.lawLevel )
-    , ( "Tech level", TechLevel.description uwp.techLevel )
+    , ( "Government"
+      , if isNone uwp.population && Government.isNone uwp.government then
+            "—"
+
+        else
+            Government.description uwp.government
+      )
+    , ( "Law level"
+      , if isNone uwp.population && LawLevel.isNone uwp.lawLevel then
+            "—"
+
+        else
+            LawLevel.description uwp.lawLevel
+      )
+    , ( "Tech level"
+      , if isNone uwp.population && TechLevel.isNone uwp.techLevel then
+            "—"
+
+        else
+            TechLevel.description uwp.techLevel
+      )
     ]
 
 
@@ -8916,37 +8934,70 @@ update msg ( time, model ) =
                                         Nothing ->
                                             ""
 
+                                uwpChar i =
+                                    String.slice i (i + 1) pdata.uwp
+
+                                noPopulation =
+                                    uwpChar 4 == "0"
+
+                                noGovernment =
+                                    noPopulation && uwpChar 5 == "0"
+
+                                noLawLevel =
+                                    noPopulation && uwpChar 6 == "0"
+
+                                noTechLevel =
+                                    noPopulation && uwpChar 8 == "0"
+
+                                governmentDetail =
+                                    if noGovernment then
+                                        Nothing
+
+                                    else
+                                        pdata.governmentDetail
+
+                                lawLevelDetail =
+                                    if noLawLevel then
+                                        Nothing
+
+                                    else
+                                        pdata.lawLevelDetail
+
+                                techLevelDetail =
+                                    if noTechLevel then
+                                        Nothing
+
+                                    else
+                                        pdata.techLevelDetail
+
                                 govType =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .type_
                                         |> Maybe.withDefault ""
 
                                 govDescription =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .description
                                         |> Maybe.withDefault ""
 
                                 govStructure =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .structure
 
                                 govChars =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .characteristics
 
                                 lawSubs =
-                                    pdata.lawLevelDetail
+                                    lawLevelDetail
                                         |> Maybe.andThen .subClassifications
 
                                 lawChars =
-                                    pdata.lawLevelDetail
+                                    lawLevelDetail
                                         |> Maybe.andThen .characteristics
 
                                 tlDetail =
-                                    pdata.techLevelDetail
-
-                                uwpChar i =
-                                    String.slice i (i + 1) pdata.uwp
+                                    techLevelDetail
 
                                 withCode i accessor describer =
                                     case parsedUwp of
@@ -9053,24 +9104,27 @@ update msg ( time, model ) =
                                         , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
                                         , majorCities = pdata.population |> Maybe.andThen .majorCities
                                         , government =
-                                            if uwpChar 4 == "0" then
+                                            if noGovernment then
                                                 "—"
 
                                             else
                                                 withCode 5 .government Government.description
                                         , lawLevel =
-                                            if uwpChar 4 == "0" then
+                                            if noLawLevel then
                                                 "—"
 
                                             else
                                                 withCode 6 .lawLevel LawLevel.description
                                         , techLevel =
-                                            if uwpChar 4 == "0" then
+                                            if noTechLevel then
                                                 "—"
 
                                             else
                                                 withCode 8 .techLevel TechLevel.description
                                         }
+                                    , noGovernment = noGovernment
+                                    , noLawLevel = noLawLevel
+                                    , noTechLevel = noTechLevel
                                     , cultureTrait =
                                         pdata.population
                                             |> Maybe.map .cultureTrait
@@ -9206,34 +9260,67 @@ update msg ( time, model ) =
                                         Nothing ->
                                             ""
 
+                                noPopulation =
+                                    String.slice 4 5 pdata.uwp == "0"
+
+                                noGovernment =
+                                    noPopulation && String.slice 5 6 pdata.uwp == "0"
+
+                                noLawLevel =
+                                    noPopulation && String.slice 6 7 pdata.uwp == "0"
+
+                                noTechLevel =
+                                    noPopulation && String.slice 8 9 pdata.uwp == "0"
+
+                                governmentDetail =
+                                    if noGovernment then
+                                        Nothing
+
+                                    else
+                                        pdata.governmentDetail
+
+                                lawLevelDetail =
+                                    if noLawLevel then
+                                        Nothing
+
+                                    else
+                                        pdata.lawLevelDetail
+
+                                techLevelDetail =
+                                    if noTechLevel then
+                                        Nothing
+
+                                    else
+                                        pdata.techLevelDetail
+
                                 govType =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .type_
                                         |> Maybe.withDefault ""
 
                                 govDescription =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .description
                                         |> Maybe.withDefault ""
 
                                 govStructure =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .structure
 
                                 govChars =
-                                    pdata.governmentDetail
+                                    governmentDetail
                                         |> Maybe.andThen .characteristics
 
                                 lawSubs =
-                                    pdata.lawLevelDetail
+                                    lawLevelDetail
                                         |> Maybe.andThen .subClassifications
 
                                 lawChars =
-                                    pdata.lawLevelDetail
+                                    lawLevelDetail
                                         |> Maybe.andThen .characteristics
 
                                 tlDetail =
-                                    pdata.techLevelDetail
+                                    techLevelDetail
                             in
                             { uwp = pdata.uwp
                             , jumpShadowKm = pdata.jumpShadow
@@ -9332,24 +9419,27 @@ update msg ( time, model ) =
                                 , urbanizationPercentage = pdata.population |> Maybe.andThen .urbanizationPercentage
                                 , majorCities = pdata.population |> Maybe.andThen .majorCities
                                 , government =
-                                    if uwpChar 4 == "0" then
+                                    if noGovernment then
                                         "—"
 
                                     else
                                         withCode 5 .government Government.description
                                 , lawLevel =
-                                    if uwpChar 4 == "0" then
+                                    if noLawLevel then
                                         "—"
 
                                     else
                                         withCode 6 .lawLevel LawLevel.description
                                 , techLevel =
-                                    if uwpChar 4 == "0" then
+                                    if noTechLevel then
                                         "—"
 
                                     else
                                         withCode 8 .techLevel TechLevel.description
                                 }
+                            , noGovernment = noGovernment
+                            , noLawLevel = noLawLevel
+                            , noTechLevel = noTechLevel
                             , cultureTrait =
                                 pdata.population
                                     |> Maybe.map .cultureTrait

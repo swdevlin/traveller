@@ -137,6 +137,22 @@ module HasUwp
     population&.dig('code')
   end
 
+  def no_population?
+    !(population_code.present? && population_code.to_i > 0)
+  end
+
+  def no_government?
+    no_population? && !(government_code.present? && government_code.to_i > 0)
+  end
+
+  def no_law_level?
+    no_population? && !(law_level_code.present? && law_level_code.to_i > 0)
+  end
+
+  def no_tech_level?
+    no_population? && !(tech_level_code.present? && tech_level_code.to_i > 0)
+  end
+
   def population_code=(val)
     self.population = (population || {}).merge('code' => val.present? ? val.to_i : nil)
   end

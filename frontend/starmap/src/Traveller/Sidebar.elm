@@ -309,6 +309,18 @@ viewMainWorldProfile profile =
                 Err _ ->
                     "—"
 
+        noPopulation =
+            Population.isNoneCode (uwpChar 4)
+
+        noGovernment =
+            noPopulation && Population.isNoneCode (uwpChar 5)
+
+        noLawLevel =
+            noPopulation && Population.isNoneCode (uwpChar 6)
+
+        noTechLevel =
+            noPopulation && Population.isNoneCode (uwpChar 8)
+
         populationStr =
             case profile.censusPopulation of
                 Just census ->
@@ -387,9 +399,27 @@ viewMainWorldProfile profile =
         , profileFieldDisplay "Survival" profile.survivalRequirement
         , profileFieldDisplay "Atmosphere" (withUwp 2 .atmosphere Atmosphere.atmosphereDescription)
         , profileFieldDisplay "Population" populationStr
-        , profileFieldDisplay "Government" (withUwp 5 .government Government.description)
-        , profileFieldDisplay "Law Level" (withUwp 6 .lawLevel LawLevel.description)
-        , profileFieldDisplay "Tech Level" (withUwp 8 .techLevel TechLevel.description)
+        , profileFieldDisplay "Government"
+            (if noGovernment then
+                "—"
+
+             else
+                withUwp 5 .government Government.description
+            )
+        , profileFieldDisplay "Law Level"
+            (if noLawLevel then
+                "—"
+
+             else
+                withUwp 6 .lawLevel LawLevel.description
+            )
+        , profileFieldDisplay "Tech Level"
+            (if noTechLevel then
+                "—"
+
+             else
+                withUwp 8 .techLevel TechLevel.description
+            )
         , profileFieldDisplay "Sophonts" sophontStr
         ]
 

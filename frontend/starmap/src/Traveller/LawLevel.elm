@@ -1,4 +1,4 @@
-module Traveller.LawLevel exposing (LawLevel, description, parser)
+module Traveller.LawLevel exposing (LawLevel, description, isNone, parser)
 
 import Parser exposing ((|.), Parser)
 
@@ -48,6 +48,11 @@ parser =
         , Parser.succeed HExtremeLaw |. Parser.symbol "H"
         , Parser.succeed JExtremeLaw |. Parser.symbol "J"
         ]
+
+
+isNone : LawLevel -> Bool
+isNone code =
+    code == ZeroNoLaw
 
 
 description : LawLevel -> String

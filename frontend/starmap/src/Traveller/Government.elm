@@ -1,4 +1,4 @@
-module Traveller.Government exposing (Government, description, parser)
+module Traveller.Government exposing (Government, description, isNone, parser)
 
 import Parser exposing ((|.), Parser)
 
@@ -42,6 +42,11 @@ parser =
         , Parser.succeed EReligiousAutocracy |. Parser.symbol "E"
         , Parser.succeed FTotalitarianOligarchy |. Parser.symbol "F"
         ]
+
+
+isNone : Government -> Bool
+isNone code =
+    code == ZeroNoGovernmentStructure
 
 
 description : Government -> String

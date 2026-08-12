@@ -1,4 +1,6 @@
-<% if stellar_object.law_level %>
+<% if stellar_object.no_law_level? %>
+  <div class="text-fg-muted text-sm"><%= StellarObjectsHelper::NO_POPULATION_LAW_LEVEL_MESSAGE %></div>
+<% elsif stellar_object.law_level %>
   <% law_by_code = LawLevel.all.index_by(&:code) %>
   <% overall_law = law_by_code[stellar_object.law_level.code] %>
 
