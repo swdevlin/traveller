@@ -90,7 +90,7 @@ class Campaign < ApplicationRecord
   private
 
   def set_defaults
-    self.exploration            = deepnight_revelation?
+    self.exploration            = deepnight_revelation? if exploration.nil?
     self.sophont_check          = charted_space? ? 'none' : 'standard'
     self.max_tech_level         = 16
     self.native_tech_level      = false

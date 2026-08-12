@@ -4,10 +4,23 @@ export default class extends Controller {
   static targets = ["checkbox", "button", "indicator"];
 
   toggle() {
+    if (this.checkboxTarget.disabled) return;
     const checkbox = this.checkboxTarget;
     checkbox.checked = !checkbox.checked;
     this.#updateVisual(checkbox.checked);
     checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  set(checked) {
+    this.checkboxTarget.checked = checked;
+    this.#updateVisual(checked);
+  }
+
+  setDisabled(disabled) {
+    this.checkboxTarget.disabled = disabled;
+    this.buttonTarget.classList.toggle("opacity-50", disabled);
+    this.buttonTarget.classList.toggle("cursor-not-allowed", disabled);
+    this.buttonTarget.classList.toggle("cursor-pointer", !disabled);
   }
 
   submitForm() {

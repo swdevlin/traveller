@@ -17,6 +17,6 @@ class CampaignsController < ApplicationController
   private
 
   def campaign_params
-    params.expect(campaign: [:name, :slug, :campaign_type, :sector_source])
+    params.expect(campaign: [:name, :slug, :campaign_type, :sector_source, :exploration])
   end
 end

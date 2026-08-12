@@ -4,6 +4,7 @@
   checked_value    = local_assigns.fetch(:checked_value, '1')
   unchecked_value  = local_assigns.fetch(:unchecked_value, '0')
   extra_data       = local_assigns.fetch(:checkbox_data, {})
+  hint_text        = local_assigns.fetch(:hint, nil)
   btn_class        = checked ? 'bg-toggle-on' : 'bg-toggle-off'
   knob_class       = checked ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off'
 %>
@@ -31,6 +32,9 @@
     <%= toggle_html %>
     <span class='edit-label'><%= label_text %></span>
   </div>
+  <% if hint_text %>
+    <p class='text-xs text-fg-muted mt-1'><%= hint_text %></p>
+  <% end %>
 <% else %>
   <%= toggle_html %>
 <% end %>

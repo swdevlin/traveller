@@ -46,6 +46,7 @@
         <%= form.hidden_field :campaign_type,
                               data: {
                                 hint_select_target: 'input',
+                                campaign_form_target: 'campaignType',
                                 action: 'change->campaign-form#toggleSectorSource'
                               } %>
 
@@ -110,6 +111,16 @@
         </div>
       </div>
       <%= render 'application/field_error', form: form, attribute: :sector_source %>
+    </div>
+
+    <div data-campaign-form-target='explorationToggle'>
+      <%= render 'application/boolean_toggle',
+                 form: form,
+                 attribute: :exploration,
+                 checked: @campaign.exploration?,
+                 label: 'Exploration Campaign',
+                 hint: 'Enable exploration if the players are mostly travelling to uncharted systems. Disable exploration if players are mostly travelling in known space.' %>
+      <%= render 'application/field_error', form: form, attribute: :exploration %>
     </div>
 
     <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
