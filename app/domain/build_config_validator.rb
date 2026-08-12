@@ -197,6 +197,7 @@ class BuildConfigValidator
     validate_systems_exclusivity
     validate_populated_allegiance
     validate_populated_tech_level
+    validate_populated_law_level
     validate_populated_population
     validate_populated_demarcation
     validate_bases
@@ -221,6 +222,7 @@ class BuildConfigValidator
   def validate_star_system_business_rules
     validate_populated_allegiance
     validate_populated_tech_level
+    validate_populated_law_level
     validate_populated_population
     validate_populated_demarcation
     validate_bases
@@ -331,6 +333,16 @@ class BuildConfigValidator
     %w[before after].each do |region|
       next unless pop[region].is_a?(Hash)
       check_min_max(pop[region], 'minPopulationCode', 'maxPopulationCode', 'minPopulationCode must be less than or equal to maxPopulationCode')
+    end
+  end
+
+  def validate_populated_law_level
+    return if @config['populated'].nil?
+    pop = @config['populated']
+    check_min_max(pop, 'minLawLevel', 'maxLawLevel', 'minLawLevel must be less than or equal to maxLawLevel')
+    %w[before after].each do |region|
+      next unless pop[region].is_a?(Hash)
+      check_min_max(pop[region], 'minLawLevel', 'maxLawLevel', 'minLawLevel must be less than or equal to maxLawLevel')
     end
   end
 

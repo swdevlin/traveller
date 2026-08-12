@@ -1015,6 +1015,68 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_includes validator.errors.join, 'minTechLevel'
   end
 
+  test 'populated full type with minLawLevel and maxLawLevel is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: full
+        minLawLevel: 2
+        maxLawLevel: 10
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated minLawLevel and maxLawLevel set independently in before and after is valid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 2
+        before:
+          minLawLevel: 1
+        after:
+          minLawLevel: 5
+          maxLawLevel: 12
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'populated minLawLevel greater than maxLawLevel in before is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 5
+        before:
+          minLawLevel: 10
+          maxLawLevel: 5
+        after:
+          allegiance: null
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'minLawLevel'
+  end
+
+  test 'populated minLawLevel greater than maxLawLevel in after is invalid' do
+    yaml = <<~YAML
+      type: standard
+      populated:
+        type: split-horizontal
+        demarcation: 5
+        before:
+          allegiance: null
+        after:
+          minLawLevel: 12
+          maxLawLevel: 4
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'minLawLevel'
+  end
+
   test 'populated demarcation 8 is valid for split-vertical' do
     yaml = <<~YAML
       type: standard
