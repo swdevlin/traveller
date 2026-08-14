@@ -1,4 +1,6 @@
 class RulebookSearchController < ApplicationController
+  include TokenAuthenticatable
+
   optional_authentication only: %i[index more]
 
   RESULTS_PER_RULEBOOK = 3
@@ -11,7 +13,7 @@ class RulebookSearchController < ApplicationController
     @query = params[:q].to_s.strip
     @groups = RulebookSearch.new(
       query: @query,
-      referee: Current.user.present?,
+      referee: referee?,
       rulebook_ids: Array(params[:rulebook_ids]).presence,
       categories: Array(params[:categories]).presence,
       per_rulebook_limit: per_rulebook_limit_param
@@ -27,7 +29,7 @@ class RulebookSearchController < ApplicationController
     @rulebook = Rulebook.searchable.find(params[:rulebook_id])
     groups = RulebookSearch.new(
       query: params[:q],
-      referee: Current.user.present?,
+      referee: referee?,
       rulebook_ids: [@rulebook.id],
       per_rulebook_limit: MORE_RESULTS_PER_RULEBOOK
     ).call
@@ -44,5 +46,9 @@ class RulebookSearchController < ApplicationController
 
   def set_noindex
     @noindex = true
+  end
+
+  def referee?
+    Current.user.present? || authenticated_by_token?
   end
 end

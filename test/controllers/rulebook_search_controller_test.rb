@@ -67,6 +67,28 @@ class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, 'No matches'
   end
 
+  test 'a request with a valid campaign bearer token sees an enabled book that is not player-searchable' do
+    campaign_rulebooks(:core_enabled).update!(player_searchable: false)
+
+    get rulebook_search_url,
+        params: { q: 'jump drive' },
+        headers: { 'Authorization' => "Bearer #{campaigns(:one).api_token}" }
+
+    assert_response :success
+    assert_not_includes @response.body, 'No matches'
+  end
+
+  test 'a request with an invalid bearer token behaves like an anonymous player' do
+    campaign_rulebooks(:core_enabled).update!(player_searchable: false)
+
+    get rulebook_search_url,
+        params: { q: 'jump drive' },
+        headers: { 'Authorization' => 'Bearer not-the-real-token' }
+
+    assert_response :success
+    assert_includes @response.body, 'No matches'
+  end
+
   test 'JSON response includes every key even when short_title/edition are absent' do
     rulebooks(:core).update!(short_title: nil, edition: nil)
 

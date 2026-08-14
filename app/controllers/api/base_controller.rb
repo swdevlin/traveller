@@ -1,5 +1,6 @@
 class Api::BaseController < ActionController::API
   include ActionController::Cookies
+  include TokenAuthenticatable
 
   before_action :set_current_campaign
 
@@ -35,11 +36,6 @@ class Api::BaseController < ActionController::API
 
     Current.session = session
     true
-  end
-
-  def authenticated_by_token?
-    token = request.headers['Authorization']&.delete_prefix('Bearer ')
-    token.present? && ActiveSupport::SecurityUtils.secure_compare(token, Current.campaign.api_token.to_s)
   end
 
   def current_campaign
