@@ -102,10 +102,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install libvips
+      - name: Install libvips and rsvg-convert
         run: |
           sudo apt-get update
-          sudo apt-get install -y libvips
+          sudo apt-get install -y libvips librsvg2-bin
 
       - name: Install pinned PyMuPDF extractor venv
         run: |
@@ -148,10 +148,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install libvips
+      - name: Install libvips and rsvg-convert
         run: |
           sudo apt-get update
-          sudo apt-get install -y libvips
+          sudo apt-get install -y libvips librsvg2-bin
 
       - name: Run System Tests
         env:
