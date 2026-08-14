@@ -340,6 +340,202 @@ ALTER SEQUENCE public.facilities_id_seq OWNED BY public.facilities.id;
 
 
 --
+-- Name: faultline_error_contexts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.faultline_error_contexts (
+    id bigint NOT NULL,
+    error_occurrence_id bigint NOT NULL,
+    key character varying NOT NULL,
+    value text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: faultline_error_contexts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.faultline_error_contexts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: faultline_error_contexts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.faultline_error_contexts_id_seq OWNED BY public.faultline_error_contexts.id;
+
+
+--
+-- Name: faultline_error_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.faultline_error_groups (
+    id bigint NOT NULL,
+    fingerprint character varying NOT NULL,
+    exception_class character varying NOT NULL,
+    sanitized_message text NOT NULL,
+    file_path character varying,
+    line_number integer,
+    method_name character varying,
+    occurrences_count integer DEFAULT 0,
+    first_seen_at timestamp(6) without time zone,
+    last_seen_at timestamp(6) without time zone,
+    status character varying DEFAULT 'unresolved'::character varying,
+    resolved_at timestamp(6) without time zone,
+    last_notified_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    searchable tsvector GENERATED ALWAYS AS (to_tsvector('simple'::regconfig, (((((COALESCE(exception_class, ''::character varying))::text || ' '::text) || COALESCE(sanitized_message, ''::text)) || ' '::text) || (COALESCE(file_path, ''::character varying))::text))) STORED
+);
+
+
+--
+-- Name: faultline_error_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.faultline_error_groups_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: faultline_error_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.faultline_error_groups_id_seq OWNED BY public.faultline_error_groups.id;
+
+
+--
+-- Name: faultline_error_occurrences; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.faultline_error_occurrences (
+    id bigint NOT NULL,
+    error_group_id bigint NOT NULL,
+    exception_class character varying NOT NULL,
+    message text NOT NULL,
+    backtrace text,
+    request_method character varying,
+    request_url character varying,
+    request_params text,
+    request_headers text,
+    user_agent character varying,
+    ip_address character varying,
+    user_id bigint,
+    user_type character varying,
+    session_id character varying,
+    environment character varying,
+    hostname character varying,
+    process_id character varying,
+    local_variables json,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: faultline_error_occurrences_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.faultline_error_occurrences_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: faultline_error_occurrences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.faultline_error_occurrences_id_seq OWNED BY public.faultline_error_occurrences.id;
+
+
+--
+-- Name: faultline_request_profiles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.faultline_request_profiles (
+    id bigint NOT NULL,
+    request_trace_id bigint NOT NULL,
+    profile_data text NOT NULL,
+    mode character varying DEFAULT 'cpu'::character varying,
+    samples integer DEFAULT 0,
+    interval_ms double precision,
+    created_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: faultline_request_profiles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.faultline_request_profiles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: faultline_request_profiles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.faultline_request_profiles_id_seq OWNED BY public.faultline_request_profiles.id;
+
+
+--
+-- Name: faultline_request_traces; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.faultline_request_traces (
+    id bigint NOT NULL,
+    endpoint character varying NOT NULL,
+    http_method character varying NOT NULL,
+    path character varying,
+    status integer,
+    duration_ms double precision,
+    db_runtime_ms double precision,
+    view_runtime_ms double precision,
+    db_query_count integer DEFAULT 0,
+    created_at timestamp(6) without time zone NOT NULL,
+    spans json,
+    has_profile boolean DEFAULT false
+);
+
+
+--
+-- Name: faultline_request_traces_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.faultline_request_traces_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: faultline_request_traces_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.faultline_request_traces_id_seq OWNED BY public.faultline_request_traces.id;
+
+
+--
 -- Name: font_awesome_icons; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1398,6 +1594,41 @@ ALTER TABLE ONLY public.facilities ALTER COLUMN id SET DEFAULT nextval('public.f
 
 
 --
+-- Name: faultline_error_contexts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_contexts ALTER COLUMN id SET DEFAULT nextval('public.faultline_error_contexts_id_seq'::regclass);
+
+
+--
+-- Name: faultline_error_groups id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_groups ALTER COLUMN id SET DEFAULT nextval('public.faultline_error_groups_id_seq'::regclass);
+
+
+--
+-- Name: faultline_error_occurrences id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_occurrences ALTER COLUMN id SET DEFAULT nextval('public.faultline_error_occurrences_id_seq'::regclass);
+
+
+--
+-- Name: faultline_request_profiles id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_request_profiles ALTER COLUMN id SET DEFAULT nextval('public.faultline_request_profiles_id_seq'::regclass);
+
+
+--
+-- Name: faultline_request_traces id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_request_traces ALTER COLUMN id SET DEFAULT nextval('public.faultline_request_traces_id_seq'::regclass);
+
+
+--
 -- Name: font_awesome_icons id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1652,6 +1883,46 @@ ALTER TABLE ONLY public.facilities
 
 
 --
+-- Name: faultline_error_contexts faultline_error_contexts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_contexts
+    ADD CONSTRAINT faultline_error_contexts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: faultline_error_groups faultline_error_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_groups
+    ADD CONSTRAINT faultline_error_groups_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: faultline_error_occurrences faultline_error_occurrences_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_occurrences
+    ADD CONSTRAINT faultline_error_occurrences_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: faultline_request_profiles faultline_request_profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_request_profiles
+    ADD CONSTRAINT faultline_request_profiles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: faultline_request_traces faultline_request_traces_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_request_traces
+    ADD CONSTRAINT faultline_request_traces_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: font_awesome_icons font_awesome_icons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1868,6 +2139,13 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: idx_on_error_group_id_created_at_98b32c40ac; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_on_error_group_id_created_at_98b32c40ac ON public.faultline_error_occurrences USING btree (error_group_id, created_at);
+
+
+--
 -- Name: idx_on_from_star_system_id_to_star_system_id_90e126fb8d; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1970,6 +2248,104 @@ CREATE INDEX index_cities_on_stellar_object_id_and_population ON public.cities U
 --
 
 CREATE UNIQUE INDEX index_facilities_on_code ON public.facilities USING btree (code);
+
+
+--
+-- Name: index_faultline_error_contexts_on_error_occurrence_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_contexts_on_error_occurrence_id ON public.faultline_error_contexts USING btree (error_occurrence_id);
+
+
+--
+-- Name: index_faultline_error_contexts_on_error_occurrence_id_and_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_contexts_on_error_occurrence_id_and_key ON public.faultline_error_contexts USING btree (error_occurrence_id, key);
+
+
+--
+-- Name: index_faultline_error_groups_on_exception_class; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_groups_on_exception_class ON public.faultline_error_groups USING btree (exception_class);
+
+
+--
+-- Name: index_faultline_error_groups_on_fingerprint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_faultline_error_groups_on_fingerprint ON public.faultline_error_groups USING btree (fingerprint);
+
+
+--
+-- Name: index_faultline_error_groups_on_last_seen_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_groups_on_last_seen_at ON public.faultline_error_groups USING btree (last_seen_at);
+
+
+--
+-- Name: index_faultline_error_groups_on_searchable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_groups_on_searchable ON public.faultline_error_groups USING gin (searchable);
+
+
+--
+-- Name: index_faultline_error_groups_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_groups_on_status ON public.faultline_error_groups USING btree (status);
+
+
+--
+-- Name: index_faultline_error_occurrences_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_occurrences_on_created_at ON public.faultline_error_occurrences USING btree (created_at);
+
+
+--
+-- Name: index_faultline_error_occurrences_on_error_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_occurrences_on_error_group_id ON public.faultline_error_occurrences USING btree (error_group_id);
+
+
+--
+-- Name: index_faultline_error_occurrences_on_user_type_and_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_error_occurrences_on_user_type_and_user_id ON public.faultline_error_occurrences USING btree (user_type, user_id);
+
+
+--
+-- Name: index_faultline_request_profiles_on_request_trace_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_request_profiles_on_request_trace_id ON public.faultline_request_profiles USING btree (request_trace_id);
+
+
+--
+-- Name: index_faultline_request_traces_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_request_traces_on_created_at ON public.faultline_request_traces USING btree (created_at);
+
+
+--
+-- Name: index_faultline_request_traces_on_endpoint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_request_traces_on_endpoint ON public.faultline_request_traces USING btree (endpoint);
+
+
+--
+-- Name: index_faultline_request_traces_on_endpoint_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_faultline_request_traces_on_endpoint_and_created_at ON public.faultline_request_traces USING btree (endpoint, created_at);
 
 
 --
@@ -2556,6 +2932,14 @@ ALTER TABLE ONLY public.star_systems
 
 
 --
+-- Name: faultline_error_occurrences fk_rails_b811f86b1e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_occurrences
+    ADD CONSTRAINT fk_rails_b811f86b1e FOREIGN KEY (error_group_id) REFERENCES public.faultline_error_groups(id);
+
+
+--
 -- Name: star_systems fk_rails_ba603f6649; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2636,6 +3020,22 @@ ALTER TABLE ONLY public.parsecs
 
 
 --
+-- Name: faultline_request_profiles fk_rails_f75a033288; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_request_profiles
+    ADD CONSTRAINT fk_rails_f75a033288 FOREIGN KEY (request_trace_id) REFERENCES public.faultline_request_traces(id) ON DELETE CASCADE;
+
+
+--
+-- Name: faultline_error_contexts fk_rails_f7a9a7c9b1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.faultline_error_contexts
+    ADD CONSTRAINT fk_rails_f7a9a7c9b1 FOREIGN KEY (error_occurrence_id) REFERENCES public.faultline_error_occurrences(id);
+
+
+--
 -- Name: jump_routes fk_rails_fd61107ee6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2650,6 +3050,12 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260814195027'),
+('20260814195026'),
+('20260814195025'),
+('20260814195024'),
+('20260814195023'),
+('20260814195022'),
 ('20260808110857'),
 ('20260805180000'),
 ('20260805170600'),

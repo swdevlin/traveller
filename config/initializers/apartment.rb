@@ -5,7 +5,11 @@
 #
 Apartment.configure do |config|
   # Add any models that you do not want to be multi-tenanted, but remain in the global (public) namespace.
-  config.excluded_models = %w[ User Campaign Session FontAwesomeIcon Rulebook RulebookPage ]
+  config.excluded_models = %w[
+    User Campaign Session FontAwesomeIcon Rulebook RulebookPage
+    Faultline::ErrorGroup Faultline::ErrorOccurrence Faultline::ErrorContext
+    Faultline::RequestTrace Faultline::RequestProfile
+  ]
 
   config.tenant_names = lambda do
     if ActiveRecord::Base.connection.data_source_exists?('campaigns')

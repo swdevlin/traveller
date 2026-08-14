@@ -15,6 +15,16 @@ Rails.application.routes.draw do
   get 'up' => 'rails/health#show', as: :rails_health_check
 
   mount MissionControl::Jobs::Engine, at: '/jobs'
+  # Mounted at the top level (not inside `namespace :admin`) even though the
+  # path is under /admin/faultline: Faultline's own bundled views hardcode
+  # route helper calls like `faultline.error_groups_path`, which only exist
+  # when the engine's generated route-helper proxy is named plain "faultline"
+  # (Rails prefixes that proxy name with the enclosing namespace, e.g.
+  # "admin_faultline", if mounted inside `namespace :admin do...end`, which
+  # breaks those views). Admin-only access is enforced by Faultline's own
+  # `authenticate_with` config (config/initializers/faultline.rb), not by
+  # routing.
+  mount Faultline::Engine, at: '/admin/faultline'
 
   namespace :admin do
     root to: 'dashboard#index'
