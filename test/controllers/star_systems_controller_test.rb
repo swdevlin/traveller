@@ -37,6 +37,16 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'should get webp map' do
+    get map_star_system_url(@star_system, format: :webp)
+    assert_response :success
+  end
+
+  test 'should get png map' do
+    get map_star_system_url(@star_system, format: :png)
+    assert_response :success
+  end
+
   test 'main world details show the major cities table' do
     planet = stellar_objects(:two)
     planet.update_column(:star_system_id, @star_system.id)

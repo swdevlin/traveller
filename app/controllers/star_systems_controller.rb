@@ -3,6 +3,7 @@ require 'uri'
 require 'json'
 require 'yaml'
 require 'vips'
+require 'open3'
 
 class StarSystemsController < ApplicationController
   include ParentHex
@@ -292,16 +293,28 @@ class StarSystemsController < ApplicationController
 
   def cached_webp
     Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      image = Vips::Image.new_from_buffer(embed_svg_images(cached_svg), '')
-      image.webpsave_buffer
+      Vips::Image.new_from_buffer(rasterized_png, '').webpsave_buffer
     end
   end
 
   def cached_png
     Rails.cache.fetch("system_map_png/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      image = Vips::Image.new_from_buffer(embed_svg_images(cached_svg), '')
-      image.pngsave_buffer
+      rasterized_png
     end
+  end
+
+  # ActiveStorage globally disables libvips's "untrusted" loaders (including
+  # svgload) at boot via Vips.block_untrusted(true), even though this app
+  # never processes user-uploaded files through libvips. Rather than weaken
+  # that process-wide safety net, rasterize our own server-rendered SVG via
+  # the rsvg-convert CLI instead; PNG loading isn't blocked, so the result
+  # can still go through Vips for webp encoding.
+  def rasterized_png
+    svg = embed_svg_images(cached_svg)
+    png, status = Open3.capture2('rsvg-convert', '-f', 'png', stdin_data: svg, binmode: true)
+    raise "rsvg-convert failed (exit #{status.exitstatus}) for star system #{@star_system.id}" unless status.success?
+
+    png
   end
 
   def embed_svg_images(svg)
