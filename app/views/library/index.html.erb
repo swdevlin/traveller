@@ -3,6 +3,23 @@
 <% content_for :page_title, 'Library' %>
 
 <%= render 'application/page' do %>
+  <div class='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2'>
+    <%= form_with url: library_path,
+                  method: :get,
+                  data: { controller: 'autosubmit', autosubmit_delay_value: 250 },
+                  class: 'flex items-center gap-2' do %>
+      <%= select_tag :category,
+                     options_for_select([['All categories', nil]] + Rulebook.categories.keys.map { |c| [c.humanize, c] },
+                                        params[:category]),
+                     class: 'input',
+                     data: { action: 'change->autosubmit#queue' } %>
+
+      <% if params[:category].present? %>
+        <%= link_to 'Clear', library_path, class: 'btn' %>
+      <% end %>
+    <% end %>
+  </div>
+
   <div class='table-card'>
     <div class='table-banner'>
       <p>Rulebook catalog</p>
@@ -11,7 +28,7 @@
     <turbo-frame id='library-table'
                  data-controller='ui-updates'
                  data-ui-updates-event-value='rulebook_updated'
-                 data-ui-updates-src-value='<%= library_path %>'>
+                 data-ui-updates-src-value='<%= library_path(category: params[:category]) %>'>
     <div class='table-scroll'>
       <table>
         <thead>

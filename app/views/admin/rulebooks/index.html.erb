@@ -16,7 +16,13 @@
                          data: { controller: 'autofocus', action: 'input->autosubmit#queue' },
                          class: 'input w-56' %>
 
-      <% if params[:q].present? %>
+      <%= select_tag :category,
+                     options_for_select([['All categories', nil]] + Rulebook.categories.keys.map { |c| [c.humanize, c] },
+                                        params[:category]),
+                     class: 'input',
+                     data: { action: 'change->autosubmit#queue' } %>
+
+      <% if params[:q].present? || params[:category].present? %>
         <%= link_to 'Clear', admin_rulebooks_path, class: 'btn' %>
       <% end %>
     <% end %>
@@ -37,7 +43,7 @@
     <turbo-frame id='admin-rulebooks-table'
                  data-controller='ui-updates'
                  data-ui-updates-event-value='rulebook_updated'
-                 data-ui-updates-src-value='<%= admin_rulebooks_path(q: params[:q]) %>'>
+                 data-ui-updates-src-value='<%= admin_rulebooks_path(q: params[:q], category: params[:category]) %>'>
       <%= render 'table', rulebooks: @rulebooks, pagy: @pagy %>
     </turbo-frame>
   </div>

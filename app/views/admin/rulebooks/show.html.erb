@@ -40,7 +40,7 @@
       <%= render 'application/subsection', title: 'Import' %>
       <div class='space-y-3'>
         <%= form_with url: import_admin_rulebook_path(@rulebook), method: :post, multipart: true, class: 'flex flex-col sm:flex-row gap-2' do %>
-          <%= file_field_tag :pdf_file, accept: '.pdf,application/pdf', required: true, class: 'flex-1 text-sm text-fg-muted file:btn file:mr-3' %>
+          <%= render 'application/file_field', name: :pdf_file, accept: '.pdf,application/pdf', required: true, wrapper_class: 'flex-1' %>
           <%= submit_tag 'Start Import', class: 'btn btn-primary' %>
         <% end %>
 

@@ -1,0 +1,21 @@
+<%# locals: form: nil, attribute: nil, name: nil, accept: nil, required: false, compact: false, wrapper_class: nil, data: {} %>
+<%
+  # The `file:` variant only targets real Tailwind utilities, not custom `@layer components`
+  # classes — `file:btn` silently compiles to nothing, so `.btn`/`.btn-sm` are spelled out here
+  # as utilities instead of referenced by name.
+  button_base = 'file:inline-block file:rounded-md file:font-medium file:bg-button file:text-fg-bright ' \
+                'file:border file:border-button-outline hover:file:border-highlight file:cursor-pointer file:transition'
+  size_classes = local_assigns.fetch(:compact, false) ?
+    'text-xs file:px-2.5 file:py-1.5 file:text-xs file:mr-2' :
+    'text-sm file:px-3.5 file:py-2.5 file:mr-3'
+  classes = [local_assigns.fetch(:wrapper_class, nil), 'text-fg-muted cursor-pointer', button_base, size_classes].compact.join(' ')
+%>
+<% if local_assigns.fetch(:form, nil) %>
+  <%= form.file_field attribute, accept: local_assigns.fetch(:accept, nil),
+                       required: local_assigns.fetch(:required, false),
+                       class: classes, data: local_assigns.fetch(:data, {}) %>
+<% else %>
+  <%= file_field_tag name, accept: local_assigns.fetch(:accept, nil),
+                      required: local_assigns.fetch(:required, false),
+                      class: classes, data: local_assigns.fetch(:data, {}) %>
+<% end %>

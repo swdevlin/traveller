@@ -208,7 +208,7 @@
               <% end %>
               <%= form_with url: jump_route_jump_route_import_path(@jump_route),
                             multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
-                <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
+                <%= render 'application/file_field', form: f, attribute: :file, accept: '.csv', compact: true %>
                 <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
               <% end %>
             </div>
@@ -259,7 +259,7 @@
           <% end %>
           <%= form_with url: jump_route_jump_route_import_path(@jump_route),
                         multipart: true, class: 'inline-flex items-center gap-2' do |f| %>
-            <%= f.file_field :file, accept: '.csv', class: 'text-xs text-fg-muted' %>
+            <%= render 'application/file_field', form: f, attribute: :file, accept: '.csv', compact: true %>
             <%= f.submit 'Import CSV', class: 'btn btn-sm' %>
           <% end %>
         </div>

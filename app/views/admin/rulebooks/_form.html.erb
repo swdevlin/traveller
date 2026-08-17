@@ -9,9 +9,9 @@
 
     <% if rulebook.new_record? %>
       <%= render 'application/edit_field', form: form, attribute: :pdf_file, field_label: 'Rulebook PDF' do %>
-        <%= form.file_field :pdf_file, accept: '.pdf,application/pdf', required: true,
-                            class: 'w-full text-sm text-fg-muted file:btn file:mr-3',
-                            data: { rulebook_form_target: 'fileField', action: 'change->rulebook-form#populateFromFile' } %>
+        <%= render 'application/file_field', form: form, attribute: :pdf_file, accept: '.pdf,application/pdf', required: true,
+                   wrapper_class: 'w-full',
+                   data: { rulebook_form_target: 'fileField', action: 'change->rulebook-form#populateFromFile' } %>
       <% end %>
     <% end %>
 

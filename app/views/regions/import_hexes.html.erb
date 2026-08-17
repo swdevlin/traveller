@@ -45,8 +45,7 @@
     <%= form_with url: upload_hexes_region_path(@region), multipart: true, class: 'space-y-4' do |f| %>
       <div>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>CSV File</div>
-        <%= f.file_field :csv_file, accept: '.csv',
-                         class: 'w-full text-sm text-fg-muted file:btn file:mr-3' %>
+        <%= render 'application/file_field', form: f, attribute: :csv_file, accept: '.csv', wrapper_class: 'w-full' %>
       </div>
       <div class='flex justify-end'>
         <%= f.submit 'Upload', class: 'btn btn-primary' %>

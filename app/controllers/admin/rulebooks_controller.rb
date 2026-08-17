@@ -7,6 +7,7 @@ class Admin::RulebooksController < AdminController
       q = "%#{params[:q].to_s.strip.downcase}%"
       scope = scope.where('LOWER(title) LIKE ? OR LOWER(short_title) LIKE ?', q, q)
     end
+    scope = scope.where(category: params[:category]) if params[:category].present?
     @pagy, @rulebooks = pagy(scope, limit: 20, params: request.query_parameters)
   end
 

@@ -1,6 +1,7 @@
 class LibraryController < ApplicationController
   def index
     @rulebooks = Rulebook.searchable.order(:title)
+    @rulebooks = @rulebooks.where(category: params[:category]) if params[:category].present?
     # Rulebook and CampaignRulebook live on different AR connections (Rulebook
     # is apartment-excluded, pinned to the public schema); a .joins across them
     # would build one SQL statement resolved entirely on one connection, with
