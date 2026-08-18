@@ -47,9 +47,9 @@ module StellarObjectsHelper
   def starport_fuel_cost_display(stellar_object)
     tooltip = if stellar_object.refined_fuel_cost.blank? && stellar_object.unrefined_fuel_cost.present?
                 UNREFINED_FUEL_ONLY_TOOLTIP
-              else
+    else
                 FUEL_COST_TOOLTIP
-              end
+    end
 
     tag.span(starport_fuel_cost_summary(stellar_object), title: tooltip, class: 'cursor-help')
   end
