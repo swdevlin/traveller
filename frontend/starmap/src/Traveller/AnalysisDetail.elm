@@ -428,19 +428,29 @@ starportCredits maybeValue =
             "—"
 
 
-{-| Refined first, then unrefined — unlabelled, see the Fuel Cost tooltip.
+{-| Refined first, then unrefined — unlabelled, see the Fuel Cost tooltip. A
+missing grade shows as a dash in its own position rather than being dropped,
+so a single remaining figure can't be misread as the other grade.
 -}
 starportFuelCostString : Maybe Int -> Maybe Int -> String
 starportFuelCostString refined unrefined =
-    let
-        parts =
-            [ refined, unrefined ] |> List.filterMap (Maybe.map (\v -> "Cr" ++ String.fromInt v))
-    in
-    if List.isEmpty parts then
+    if refined == Nothing && unrefined == Nothing then
         "—"
 
     else
-        String.join " · " parts
+        starportCredits refined ++ " · " ++ starportCredits unrefined
+
+
+{-| Tooltip for starportFuelCostString — explains why refined fuel shows as a
+dash (the starport sells unrefined fuel only) when that's the reason for it.
+-}
+starportFuelCostTooltip : Maybe Int -> Maybe Int -> String
+starportFuelCostTooltip refined unrefined =
+    if refined == Nothing && unrefined /= Nothing then
+        "unrefined fuel only"
+
+    else
+        "refined · unrefined"
 
 
 textDisplay : String -> String -> Html msg
@@ -1428,7 +1438,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                         , textDisplay "Berthing" <| show 80 (starportCredits data.starport.berthingCost)
                         , textDisplayAttrs "Fuel Cost"
                             (show 81 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
-                            [ HtmlAttrs.title "refined · unrefined", HtmlAttrs.style "cursor" "help" ]
+                            [ HtmlAttrs.title (starportFuelCostTooltip data.starport.refinedFuelCost data.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
                         ]
 
                 "physical" ->
@@ -2189,7 +2199,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                         , textDisplay "Berthing" <| show 80 (starportCredits pd.starport.berthingCost)
                         , textDisplayAttrs "Fuel Cost"
                             (show 81 (starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost))
-                            [ HtmlAttrs.title "refined · unrefined", HtmlAttrs.style "cursor" "help" ]
+                            [ HtmlAttrs.title (starportFuelCostTooltip pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
                         ]
 
                 "physical" ->

@@ -25,19 +25,33 @@ module StellarObjectsHelper
   end
 
   FUEL_COST_TOOLTIP = 'refined · unrefined'
+  UNREFINED_FUEL_ONLY_TOOLTIP = 'unrefined fuel only'
 
   # Plain-text figures, refined first then unrefined — used wherever the tooltip
   # from starport_fuel_cost_display isn't wanted (e.g. inside another safe_join).
+  # A grade that isn't sold shows as a dash in its position rather than being
+  # dropped, so the remaining figure can't be mistaken for the other grade.
   def starport_fuel_cost_summary(stellar_object)
-    costs = [stellar_object.refined_fuel_cost, stellar_object.unrefined_fuel_cost].compact
-    costs.any? ? costs.map { |cost| format_credits(cost) }.join(' · ') : '—'
+    refined = stellar_object.refined_fuel_cost
+    unrefined = stellar_object.unrefined_fuel_cost
+    return '—' if refined.blank? && unrefined.blank?
+
+    [format_credits(refined), format_credits(unrefined)].join(' · ')
   end
 
   # Same figures as starport_fuel_cost_summary, wrapped with a tooltip
   # explaining the refined/unrefined order — there's no dedicated help page
-  # for every view this can appear on (e.g. the star system show page).
+  # for every view this can appear on (e.g. the star system show page). When
+  # the dash stands in for refined fuel specifically, the tooltip explains that
+  # the starport sells unrefined fuel only instead.
   def starport_fuel_cost_display(stellar_object)
-    tag.span(starport_fuel_cost_summary(stellar_object), title: FUEL_COST_TOOLTIP, class: 'cursor-help')
+    tooltip = if stellar_object.refined_fuel_cost.blank? && stellar_object.unrefined_fuel_cost.present?
+                UNREFINED_FUEL_ONLY_TOOLTIP
+              else
+                FUEL_COST_TOOLTIP
+              end
+
+    tag.span(starport_fuel_cost_summary(stellar_object), title: tooltip, class: 'cursor-help')
   end
 
   def starport_costs_summary(stellar_object)

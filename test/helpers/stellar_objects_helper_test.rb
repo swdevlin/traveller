@@ -162,14 +162,34 @@ class StellarObjectsHelperTest < ActionView::TestCase
     assert_equal 'Cr500 · Cr100', starport_fuel_cost_summary(planet)
   end
 
-  test 'starport_fuel_cost_summary shows a single figure when refined is absent' do
+  test 'starport_fuel_cost_summary shows a dash in the refined position when refined is absent' do
     planet = TerrestrialPlanet.new(unrefined_fuel_cost: 100)
-    assert_equal 'Cr100', starport_fuel_cost_summary(planet)
+    assert_equal '— · Cr100', starport_fuel_cost_summary(planet)
   end
 
   test 'starport_fuel_cost_summary returns a dash when neither fuel grade is sold' do
     planet = TerrestrialPlanet.new
     assert_equal '—', starport_fuel_cost_summary(planet)
+  end
+
+  # starport_fuel_cost_display tooltip tests
+
+  test 'starport_fuel_cost_display uses the unrefined-fuel-only tooltip when refined is absent' do
+    planet = TerrestrialPlanet.new(unrefined_fuel_cost: 100)
+    expected = '<span title="unrefined fuel only" class="cursor-help">— · Cr100</span>'
+    assert_equal expected, starport_fuel_cost_display(planet).to_s
+  end
+
+  test 'starport_fuel_cost_display uses the generic tooltip when both grades are sold' do
+    planet = TerrestrialPlanet.new(refined_fuel_cost: 500, unrefined_fuel_cost: 100)
+    expected = '<span title="refined · unrefined" class="cursor-help">Cr500 · Cr100</span>'
+    assert_equal expected, starport_fuel_cost_display(planet).to_s
+  end
+
+  test 'starport_fuel_cost_display uses the generic tooltip when neither grade is sold' do
+    planet = TerrestrialPlanet.new
+    expected = '<span title="refined · unrefined" class="cursor-help">—</span>'
+    assert_equal expected, starport_fuel_cost_display(planet).to_s
   end
 
   # starport_costs_summary tests

@@ -383,18 +383,25 @@ viewMainWorldProfile profile =
         creditsStr =
             Maybe.map (\v -> "Cr" ++ String.fromInt v) >> Maybe.withDefault "—"
 
+        fuelFigure =
+            Maybe.map (\v -> "Cr" ++ String.fromInt v) >> Maybe.withDefault "—"
+
         fuelCostStr =
             -- Unlabelled, refined first then unrefined — see the Fuel Cost help entry.
-            [ profile.refinedFuelCost, profile.unrefinedFuelCost ]
-                |> List.filterMap (Maybe.map (\v -> "Cr" ++ String.fromInt v))
-                |> String.join " · "
-                |> (\s ->
-                        if String.isEmpty s then
-                            "—"
+            -- A missing grade shows as a dash in its own position rather than being
+            -- dropped, so a single remaining figure can't be misread as the other grade.
+            if profile.refinedFuelCost == Nothing && profile.unrefinedFuelCost == Nothing then
+                "—"
 
-                        else
-                            s
-                   )
+            else
+                fuelFigure profile.refinedFuelCost ++ " · " ++ fuelFigure profile.unrefinedFuelCost
+
+        fuelCostTooltip =
+            if profile.refinedFuelCost == Nothing && profile.unrefinedFuelCost /= Nothing then
+                "unrefined fuel only"
+
+            else
+                "refined · unrefined"
 
         profileHeader title =
             row
@@ -421,7 +428,7 @@ viewMainWorldProfile profile =
         , profileFieldDisplay "Berthing Cost" (creditsStr profile.berthingCost)
         , profileFieldDisplayAttrs "Fuel Cost"
             fuelCostStr
-            [ HtmlAttrs.title "refined · unrefined"
+            [ HtmlAttrs.title fuelCostTooltip
             , HtmlAttrs.style "cursor" "help"
             ]
         , profileFieldDisplay "Gravity" gravityStr

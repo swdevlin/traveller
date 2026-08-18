@@ -9,6 +9,9 @@ image: radiofreewaba/traveller
 ssh:
   user: <%= ENV["KAMAL_SSH_USER"] %>
 
+# Give slow-migrating boots room to pass the /up healthcheck before kamal-proxy gives up.
+deploy_timeout: 600
+
 # Deploy to these servers.
 servers:
   web:
