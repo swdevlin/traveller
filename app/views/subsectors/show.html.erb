@@ -13,11 +13,9 @@
                 edit_subsector_path(@subsector),
                 class: 'w-full sm:w-auto btn btn-primary' %>
 
-    <%= button_to 'Load Defaults',
-                  load_defaults_subsector_path(@subsector),
-                  method: :post,
-                  class: 'w-full sm:w-auto btn',
-                  data: @subsector.build.present? ? { turbo_confirm: 'This will replace the current build configuration. Continue?' } : {} %>
+    <%= link_to 'Load Build Default',
+                defaults_source_subsector_path(@subsector),
+                class: 'w-full sm:w-auto btn' %>
 
     <%= link_to 'Populate',
                 populate_subsector_path(@subsector),

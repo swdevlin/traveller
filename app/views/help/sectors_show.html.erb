@@ -101,6 +101,7 @@
               <ul class='mt-2 space-y-1 list-disc list-inside text-fg-muted'>
                 <li>TravellerMap &mdash; uses official Traveller Map data.</li>
                 <li>Deepnight Books &mdash; uses Deepnight Books source data.</li>
+                <li>Uploaded &mdash; derived from an uploaded T5 Tab Delimited file.</li>
                 <li>Homebrew &mdash; uses a custom build specification.</li>
                 <li>Default &mdash; uses the campaign default build specification.</li>
                 <li>Not configured &mdash; no specification is set; generation is unavailable.</li>
@@ -113,6 +114,15 @@
       <div>
         <p class='text-sm font-semibold text-highlight mb-2'>Page Actions</p>
         <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Load Build Default</dt>
+            <dd class='mt-1 text-fg'>
+              Opens the build default loader to replace every subsector's build configuration
+              from TravellerMap, Deepnight, or an uploaded T5 file. See
+              <%= link_to 'Load Build Default', help_page_path('sectors_defaults_source'), class: 'no-underline hover:underline hover:underline-offset-2' %>
+              for details.
+            </dd>
+          </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Populate</dt>
             <dd class='mt-1 text-fg'>Triggers generation of star systems across all subsectors using each subsector&rsquo;s build specification. Only empty parsecs receive new systems; existing content is preserved.</dd>

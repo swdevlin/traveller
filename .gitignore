@@ -54,3 +54,5 @@
 
 # Local dev venv for the rulebook PDF extractor (production uses a pinned venv baked into the image)
 /.venv-rulebooks
+bin/deploy
+bin/announce_release

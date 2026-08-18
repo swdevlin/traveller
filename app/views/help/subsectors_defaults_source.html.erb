@@ -1,0 +1,42 @@
+<% content_for :title, 'Load Build Default' %>
+
+<%= render 'help/page', title: 'Load Build Default' do %>
+  <div class='space-y-6'>
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Sources</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>TravellerMap / Deepnight Revelation</dt>
+          <dd class='mt-1 text-fg'>
+            Replaces this subsector's build plan with one from the sector's default
+            source &mdash; TravellerMap (fetched live) if the sector was imported from
+            Traveller Map, or the bundled Deepnight Books source data if that's available
+            for this sector. Only the source that applies to this sector is offered.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Upload T5 File</dt>
+          <dd class='mt-1 text-fg'>
+            Derives a build plan from an uploaded
+            <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
+            sector data file scoped to this subsector&rsquo;s hexes; each row becomes a
+            fixed system placement in the build plan.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Overview</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Current Build</dt>
+          <dd class='mt-1 text-fg'>
+            Shows this subsector's existing build source, if any, and the build plan YAML
+            itself. This is what gets replaced by whichever source is chosen above.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+<% end %>

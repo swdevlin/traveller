@@ -19,7 +19,7 @@
       <%= select_tag :category,
                      options_for_select([['All categories', nil]] + Rulebook.categories.keys.map { |c| [c.humanize, c] },
                                         params[:category]),
-                     class: 'input',
+                     class: 'input w-40',
                      data: { action: 'change->autosubmit#queue' } %>
 
       <% if params[:q].present? || params[:category].present? %>

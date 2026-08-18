@@ -26,6 +26,10 @@
                   class: 'w-full sm:w-auto btn',
                   data: { turbo_confirm: confirm_msg, tour_step: 'sector-clear' } %>
 
+    <%= link_to 'Load Build Default',
+                defaults_source_sector_path(@sector),
+                class: 'w-full sm:w-auto btn' %>
+
     <% if @sector.source == 'traveller_map' %>
       <%= button_to 'Refresh Jump Routes',
                     import_jump_routes_sector_path(@sector),

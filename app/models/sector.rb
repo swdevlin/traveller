@@ -6,7 +6,7 @@ class Sector < ApplicationRecord
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
-  attr_accessor :skip_subsector_creation, :default_build_spec
+  attr_accessor :skip_subsector_creation, :default_build_spec, :t5_build_specs
   after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
@@ -23,6 +23,13 @@ class Sector < ApplicationRecord
 
   def traveller_map_url
     "https://travellermap.com/go/#{name.tr(' ', '+')}"
+  end
+
+  def default_build_source
+    return 'traveller_map' if source == 'traveller_map'
+    return 'deepnight' if DeepnightDefaults.available?(self)
+
+    nil
   end
 
   def universal_coordinates
@@ -105,7 +112,8 @@ class Sector < ApplicationRecord
       sx = (index % 4) + 1
       sy = (index / 4) + 1
       subsector_name = subsector_names&.dig(letter, 'Name')
-      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name, default_build_spec)
+      letter_spec = t5_build_specs&.dig(letter)
+      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name, letter_spec || default_build_spec, letter_spec ? 'uploaded' : 'default')
     end
   end
 

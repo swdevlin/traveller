@@ -139,6 +139,48 @@ class SubsectorTest < ActiveSupport::TestCase
     assert Allegiance.exists?(code: 'BB')
   end
 
+  test 'load_t5_defaults! sets build and build_source from uploaded T5 text' do
+    subsector = subsectors(:subsector_3_1) # letter C, matching the fixture's hex range
+    text = file_fixture('t5_tab_subsector.txt').read
+
+    subsector.load_t5_defaults!(text)
+
+    config = YAML.safe_load(subsector.build)
+    assert_equal 'uploaded', subsector.build_source
+    assert_equal 32, config['systems'].length
+    assert_equal 'Efate', config['systems'].first['name']
+  end
+
+  test 'load_t5_defaults! leaves build untouched when the file has no rows' do
+    @subsector.build = nil
+    @subsector.load_t5_defaults!("Hex\tName\n")
+
+    assert_nil @subsector.build
+    assert_nil @subsector.build_source
+  end
+
+  test 'load_t5_defaults! ignores rows outside this subsector\'s hexes' do
+    text = file_fixture('t5_tab_subsector.txt').read # scoped to subsector C (hexes 1705-2410)
+
+    @subsector.load_t5_defaults!(text) # @subsector is letter A
+
+    assert_nil @subsector.build
+    assert_nil @subsector.build_source
+  end
+
+  test 'load_t5_defaults! only includes rows matching this subsector\'s letter from a mixed file' do
+    text = file_fixture('t5_tab_sector.txt').read # spans all 16 subsectors
+
+    @subsector.load_t5_defaults!(text) # @subsector is letter A
+
+    assert_equal 'uploaded', @subsector.build_source
+    assert_match(/Zeycude/, @subsector.build)
+    assert_no_match(/Condyole/, @subsector.build)
+
+    plan = YAML.safe_load(@subsector.build)
+    assert_equal 24, plan['systems'].size
+  end
+
   test 'apply_deepnight_defaults! skips null allegiances in before and after regions' do
     data = YAML.safe_load(<<~YAML)
       name: Test Sector

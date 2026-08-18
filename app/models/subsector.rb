@@ -128,6 +128,24 @@ class Subsector < ApplicationRecord
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
   end
 
+  def letter
+    (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
+  end
+
+  BUILD_SOURCE_LABELS = {
+    'traveller_map' => 'TravellerMap',
+    'deepnight_books' => 'Deepnight Books',
+    'uploaded' => 'Uploaded',
+    'homebrew' => 'Homebrew',
+    'default' => 'Default'
+  }.freeze
+
+  def build_source_label
+    return 'Not configured' if build.blank?
+
+    BUILD_SOURCE_LABELS.fetch(build_source, 'Configured')
+  end
+
   def load_deepnight_defaults!
     data = deepnight_sector_data
     return unless data
@@ -136,8 +154,7 @@ class Subsector < ApplicationRecord
   end
 
   def apply_deepnight_defaults!(data)
-    index = (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
-    entry = data['subsectors']&.find { |s| s['index'] == index }
+    entry = data['subsectors']&.find { |s| s['index'] == letter }
     return unless entry
 
     self.name = entry['name']
@@ -154,15 +171,25 @@ class Subsector < ApplicationRecord
   end
 
   def load_travellermap_defaults!
-    letter = (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
-    traveller_map = TravellerMap.new
-    systems = traveller_map.fetch_subsector_systems(sector.x, sector.y, letter)
+    systems = TravellerMap.new.fetch_subsector_systems(sector.x, sector.y, letter)
     return if systems.empty?
 
-    traveller_map.ensure_allegiances(systems)
-    traveller_map.ensure_travel_zones(systems)
-    self.build = traveller_map.systems_to_build_plan(systems)
+    parser = T5TabDelimitedParser.new(systems)
+    parser.ensure_allegiances
+    parser.ensure_travel_zones
+    self.build = parser.build_plan
     self.build_source = 'traveller_map'
+  end
+
+  def load_t5_defaults!(text)
+    parser = T5TabDelimitedParser.parse(text)
+    return if parser.systems.empty?
+
+    plan = parser.build_plans_by_subsector[letter]
+    return if plan.nil?
+
+    self.build = plan
+    self.build_source = 'uploaded'
   end
 
   private

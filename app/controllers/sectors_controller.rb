@@ -32,7 +32,12 @@ class SectorsController < ApplicationController
   end
 
   def load_defaults
-    source = params[:source].presence || 'traveller_map'
+    source = @sector.default_build_source
+
+    unless source
+      return redirect_to sector_path(@sector), alert: 'No default build source is configured for this sector.'
+    end
+
     count = 0
 
     @sector.subsectors.each do |subsector|
@@ -56,6 +61,32 @@ class SectorsController < ApplicationController
     else
       redirect_to sector_path(@sector),
                   alert: "No #{label.downcase} found for this sector."
+    end
+  end
+
+  def upload_t5
+    file = params[:t5_file]
+    unless file.present?
+      return redirect_to sector_path(@sector), alert: 'Please choose a T5 Tab Delimited file.'
+    end
+
+    parser = T5TabDelimitedParser.parse(file.read)
+    plans = parser.build_plans_by_subsector
+
+    count = 0
+    @sector.subsectors.each do |subsector|
+      plan = plans[subsector.letter]
+      next unless plan
+
+      subsector.build = plan
+      subsector.build_source = 'uploaded'
+      count += 1 if subsector.save
+    end
+
+    if count > 0
+      redirect_to sector_path(@sector), notice: "T5 defaults loaded for #{count} #{'subsector'.pluralize(count)}."
+    else
+      redirect_to sector_path(@sector), alert: 'No systems found in the uploaded file.'
     end
   end
 
@@ -119,7 +150,8 @@ class SectorsController < ApplicationController
   end
 
   def defaults_source
-    @deepnight_defaults_available = DeepnightDefaults.available?(@sector)
+    @default_build_source = @sector.default_build_source
+    @subsectors = @sector.subsectors.order(:y, :x)
   end
 
   def map
@@ -274,6 +306,14 @@ class SectorsController < ApplicationController
   def create
     @sector = Sector.new(sector_params)
 
+    if params[:t5_file].present?
+      parser = T5TabDelimitedParser.parse(params[:t5_file].read)
+      if parser.systems.present?
+        survey_index = extract_survey_index(sector_params[:default_build_spec])
+        @sector.t5_build_specs = parser.build_plans_by_subsector(survey_index: survey_index)
+      end
+    end
+
     respond_to do |format|
       if @sector.save
         if @sector.source == 'traveller_map'
@@ -381,5 +421,11 @@ class SectorsController < ApplicationController
 
     def job_priority(sector, subsector)
       sector.x.abs * 1000 + sector.y.abs * 10 +  subsector.y + subsector.x
+    end
+
+    def extract_survey_index(yaml_text)
+      YAML.safe_load(yaml_text.to_s, permitted_classes: [], permitted_symbols: [], aliases: false)&.dig('surveyIndex')
+    rescue Psych::SyntaxError
+      nil
     end
 end

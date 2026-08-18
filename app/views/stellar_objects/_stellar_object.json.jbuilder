@@ -16,10 +16,12 @@ deep_snake = ->(val) {
 }
 stellar_object.data&.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
 
-star_system = StarSystem.find_by(id: stellar_object.star_system_id)
-parsec = stellar_object.parsec || star_system&.parsec
-subsector = parsec&.subsector
-sector = parsec&.sector
+render_context = local_assigns[:render_context] || {}
+
+star_system = render_context[:star_system] || StarSystem.find_by(id: stellar_object.star_system_id)
+parsec = render_context[:parsec] || stellar_object.parsec || star_system&.parsec
+subsector = render_context[:subsector] || parsec&.subsector
+sector = render_context[:sector] || parsec&.sector
 
 json.hex parsec&.hex_code
 json.star_system_name star_system&.display_name
@@ -60,5 +62,5 @@ json.star_system_map_url signed_map_url(map_star_system_path(star_system)) if st
 json.url stellar_object_url(stellar_object, format: :json)
 
 if stellar_object.is_a?(HasUwp)
-  json.partial! 'stellar_objects/uwp_details', stellar_object: stellar_object
+  json.partial! 'stellar_objects/uwp_details', stellar_object: stellar_object, render_context: render_context
 end

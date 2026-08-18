@@ -3,7 +3,7 @@
 class CreateSubsectorJob < ApplicationJob
   queue_as :default
 
-  def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil)
+  def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil, build_source = 'default')
     sector = Sector.find(sector_id)
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
 
@@ -30,7 +30,7 @@ class CreateSubsectorJob < ApplicationJob
       subsector.load_deepnight_defaults!
       subsector.save!
     elsif default_build_spec.present?
-      subsector.update!(build: default_build_spec, build_source: 'default')
+      subsector.update!(build: default_build_spec, build_source: build_source)
     end
 
     ActionCable.server.broadcast(
@@ -71,12 +71,12 @@ class CreateSubsectorJob < ApplicationJob
   end
 
   def import_from_traveller_map(sector, subsector, letter)
-    traveller_map = TravellerMap.new
-    systems = traveller_map.fetch_subsector_systems(sector.x, sector.y, letter)
+    systems = TravellerMap.new.fetch_subsector_systems(sector.x, sector.y, letter)
     return if systems.empty?
 
-    traveller_map.ensure_allegiances(systems)
-    traveller_map.ensure_travel_zones(systems)
-    subsector.update!(build: traveller_map.systems_to_build_plan(systems))
+    parser = T5TabDelimitedParser.new(systems)
+    parser.ensure_allegiances
+    parser.ensure_travel_zones
+    subsector.update!(build: parser.build_plan)
   end
 end

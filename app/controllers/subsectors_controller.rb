@@ -51,11 +51,40 @@ class SubsectorsController < ApplicationController
   end
 
   def load_defaults
-    @subsector.load_travellermap_defaults!
+    source = @subsector.sector.default_build_source
+
+    unless source
+      return redirect_to subsector_path(@subsector), alert: 'No default build source is configured for this sector.'
+    end
+
+    if source == 'deepnight'
+      @subsector.load_deepnight_defaults!
+    else
+      @subsector.load_travellermap_defaults!
+    end
+
     if @subsector.build.present? && @subsector.save
       redirect_to subsector_path(@subsector), notice: 'Defaults loaded.'
     else
       redirect_to subsector_path(@subsector), alert: 'No defaults found for this sector.'
+    end
+  end
+
+  def defaults_source
+    @default_build_source = @subsector.sector.default_build_source
+  end
+
+  def upload_t5
+    file = params[:t5_file]
+    unless file.present?
+      return redirect_to subsector_path(@subsector), alert: 'Please choose a T5 Tab Delimited file.'
+    end
+
+    @subsector.load_t5_defaults!(file.read)
+    if @subsector.build.present? && @subsector.save
+      redirect_to subsector_path(@subsector), notice: 'T5 file loaded.'
+    else
+      redirect_to subsector_path(@subsector), alert: 'No systems found in the uploaded file.'
     end
   end
 

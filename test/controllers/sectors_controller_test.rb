@@ -23,6 +23,22 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to sector_url(Sector.last)
   end
 
+  test 'should create sector with an uploaded T5 file' do
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_sector.txt'), 'text/plain')
+
+    assert_difference('Sector.count') do
+      post sectors_url, params: {
+        sector: {
+          abbreviation: @sector.abbreviation, name: @sector.name, x: 13, y: 13,
+          default_build_spec: SectorsController::SETTLED_BUILD_SPEC
+        },
+        t5_file: file
+      }
+    end
+
+    assert_redirected_to sector_url(Sector.last)
+  end
+
   test 'should show sector' do
     get sector_url(@sector)
     assert_response :success
@@ -44,6 +60,70 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     end
 
     assert_redirected_to sectors_url
+  end
+
+  test 'defaults_source shows no default source block when the sector has none' do
+    get defaults_source_sector_url(@sector)
+    assert_response :success
+    assert_no_match(/Pulls subsector data from TravellerMap/, response.body)
+    assert_no_match(/Campaign-tuned presets/, response.body)
+  end
+
+  test 'defaults_source offers TravellerMap when the sector was imported from Traveller Map' do
+    @sector.update!(source: 'traveller_map')
+    get defaults_source_sector_url(@sector)
+    assert_response :success
+    assert_match(/Pulls subsector data from TravellerMap/, response.body)
+    assert_no_match(/Campaign-tuned presets/, response.body)
+  end
+
+  test 'defaults_source offers Deepnight when bundled data is available for the sector' do
+    sector = Sector.create!(name: 'Deepnight Sector', x: -10, y: -1, abbreviation: 'DN', skip_subsector_creation: true)
+    get defaults_source_sector_url(sector)
+    assert_response :success
+    assert_match(/Campaign-tuned presets/, response.body)
+    assert_no_match(/Pulls subsector data from TravellerMap/, response.body)
+  end
+
+  test 'load_defaults redirects with alert when the sector has no default build source' do
+    post load_defaults_sector_url(@sector)
+    assert_redirected_to sector_url(@sector)
+    assert_match(/No default build source/, flash[:alert])
+  end
+
+  test 'load_defaults loads Deepnight defaults into subsectors when that is the default source' do
+    sector = Sector.create!(name: 'Deepnight Sector', x: -10, y: -1, abbreviation: 'DN', skip_subsector_creation: true)
+    subsector_a = Subsector.create!(sector: sector, name: 'Sub A', x: 1, y: 1)
+
+    post load_defaults_sector_url(sector)
+
+    assert_redirected_to sector_url(sector)
+    assert_match(/Deepnight defaults loaded/, flash[:notice])
+    subsector_a.reload
+    assert_equal 'deepnight_books', subsector_a.build_source
+  end
+
+  test 'upload_t5 loads defaults into matching subsectors' do
+    subsector_a = subsectors(:subsector_1_1) # letter A
+    subsector_b = subsectors(:subsector_2_1) # letter B
+
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_sector.txt'), 'text/plain')
+
+    post upload_t5_sector_url(@sector), params: { t5_file: file }
+
+    assert_redirected_to sector_url(@sector)
+    subsector_a.reload
+    subsector_b.reload
+    assert_equal 'uploaded', subsector_a.build_source
+    assert_match(/Zeycude/, subsector_a.build)
+    assert_equal 'uploaded', subsector_b.build_source
+    assert_match(/Condyole/, subsector_b.build)
+  end
+
+  test 'upload_t5 redirects with alert when no file given' do
+    post upload_t5_sector_url(@sector)
+    assert_redirected_to sector_url(@sector)
+    assert_match(/choose a T5/, flash[:alert])
   end
 
   test 'import_jump_routes creates jump routes and links on success' do

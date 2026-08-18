@@ -1,10 +1,15 @@
-gov       = stellar_object.government_code.present? ? Government.find_by(code: stellar_object.government_code) : nil
-law_index = LawLevel.all.index_by(&:code)
+render_context = local_assigns[:render_context] || {}
+
+governments_by_code = render_context[:governments_by_code] || Government.all.index_by(&:code)
+tech_levels_by_code = render_context[:tech_levels_by_code] || TechLevel.all.index_by(&:code)
+
+gov       = stellar_object.government_code.present? ? governments_by_code[stellar_object.government_code] : nil
+law_index = render_context[:law_levels_by_code] || LawLevel.all.index_by(&:code)
 tl_code      = stellar_object.tech_level_code
-tl_main      = tl_code.present? ? TechLevel.find_by(code: tl_code) : nil
+tl_main      = tl_code.present? ? tech_levels_by_code[tl_code] : nil
 tl_data      = stellar_object.data&.dig('tech_level') || {}
 tl_cap_codes = tl_data.values.grep(Integer).uniq
-tl_index     = TechLevel.where(code: tl_cap_codes).index_by(&:code)
+tl_index     = tech_levels_by_code
 
 sp_code = stellar_object.starport_code.presence || 'X'
 sp      = StellarObjectsHelper::STARPORT_DATA[sp_code] || StellarObjectsHelper::STARPORT_DATA['X']
@@ -82,7 +87,10 @@ json.hydrographics do
   end
 end
 
-json.city_count stellar_object.cities.count if stellar_object.respond_to?(:cities)
+if stellar_object.respond_to?(:cities)
+  city_counts = render_context[:city_counts_by_stellar_object_id]
+  json.city_count city_counts ? city_counts.fetch(stellar_object.id, 0) : stellar_object.cities.count
+end
 
 pop_code = stellar_object.population_code
 json.population do

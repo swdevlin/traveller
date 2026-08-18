@@ -144,6 +144,10 @@ class StarSystem < ApplicationRecord
     "#{parsec.sector.name} #{parsec.hex_code}"
   end
 
+  def city_counts_by_stellar_object_id
+    City.joins(:stellar_object).where(stellar_objects: { star_system_id: id }).group(:stellar_object_id).count
+  end
+
   private
 
   def main_world_must_be_in_system

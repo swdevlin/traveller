@@ -1,3 +1,5 @@
+render_context = local_assigns[:render_context]
+
 json.colour                   star.colour
 json.stellar_class            star.stellar_class
 json.stellar_type             star.stellar_type
@@ -31,7 +33,7 @@ json.safe_jump_time star.safe_jump_time
 companion = star.companion
 if companion
   json.companion do
-    json.partial! 'api/star_body', star: companion
+    json.partial! 'api/star_body', star: companion, render_context: render_context
   end
 else
   json.companion nil
@@ -43,11 +45,11 @@ all_objects = (star.stellar_objects.reject { |o| o.is_a?(Moon) } + star.secondar
 json.stellar_objects all_objects do |obj|
   if obj.is_a?(Star)
     json.type 'Star'
-    json.partial! 'api/star_body', star: obj
+    json.partial! 'api/star_body', star: obj, render_context: render_context
   else
-    json.partial! 'stellar_objects/stellar_object', stellar_object: obj
+    json.partial! 'stellar_objects/stellar_object', stellar_object: obj, render_context: render_context
     json.moons obj.moons do |m|
-      json.partial! 'stellar_objects/stellar_object', stellar_object: m
+      json.partial! 'stellar_objects/stellar_object', stellar_object: m, render_context: render_context
     end
   end
 end

@@ -209,6 +209,8 @@ Rails.application.routes.draw do
         post :generate,  as: :generate
         get  :star_systems_table
         post :load_defaults
+        get  :defaults_source
+        post :upload_t5
         match :derive_build, via: %i[post patch]
         get :map
         get :strategic_map
@@ -232,6 +234,7 @@ Rails.application.routes.draw do
         post :clear
         post :generate,  as: :generate
         post :load_defaults
+        post :upload_t5
         post :import_jump_routes
         get  :defaults_source
         get  :map

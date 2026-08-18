@@ -952,7 +952,8 @@
   .btn {
     @apply inline-block rounded-md px-3.5 py-2.5 font-medium text-center
     bg-button text-fg-bright border border-button-outline
-    hover:border-highlight mr-2 cursor-pointer no-underline hover:no-underline transition;
+    hover:border-highlight mr-2 cursor-pointer no-underline hover:no-underline transition
+    disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:hover:border-button-outline;
   }
 
   .btn-primary {

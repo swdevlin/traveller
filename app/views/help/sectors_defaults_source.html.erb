@@ -1,0 +1,45 @@
+<% content_for :title, 'Load Build Default' %>
+
+<%= render 'help/page', title: 'Load Build Default' do %>
+  <div class='space-y-6'>
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Sources</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>TravellerMap / Deepnight Revelation</dt>
+          <dd class='mt-1 text-fg'>
+            Bulk-loads a build specification into every subsector in this sector, from the
+            sector's default source &mdash; TravellerMap (fetched live, subsector by
+            subsector) if the sector was imported from Traveller Map, or the bundled
+            Deepnight Books source data if that's available for this sector. Only the
+            source that applies to this sector is offered. Subsectors with no matching
+            data for the chosen source are left unchanged.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Upload T5 File</dt>
+          <dd class='mt-1 text-fg'>
+            Derives build specifications from an uploaded
+            <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
+            sector data file, using its 4-digit hex codes to split rows across the 16
+            subsectors. Subsectors with no matching rows in the file are left unchanged.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>Overview</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Current Build, by Subsector</dt>
+          <dd class='mt-1 text-fg'>
+            A table of all 16 subsectors, showing whether each already has a build
+            configuration and, if so, where it came from. Loading a new default above
+            overwrites every subsector with matching data in this list.
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+<% end %>

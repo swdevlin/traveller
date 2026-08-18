@@ -2,13 +2,8 @@
 <% errors = form.object.errors[attribute] %>
 <div>
   <div class='flex items-end justify-between gap-3'>
-    <div>
-      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
-        Build plan
-      </div>
-      <div class='mt-1 text-lg font-semibold text-fg-muted'>
-        YAML input
-      </div>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
+      Build plan
     </div>
 
     <%= link_to 'Build spec reference',

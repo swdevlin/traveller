@@ -1,4 +1,4 @@
-<%= form_with(model: sector, class: "contents") do |form| %>
+<%= form_with(model: sector, class: "contents", multipart: true) do |form| %>
   <div class='space-y-6 pb-10'>
     <% base_errors = sector.errors.where(:base) %>
     <% if base_errors.any? %>
@@ -51,7 +51,24 @@
           <span class='edit-label'>Settled space</span>
         </label>
 
+        <% if current_campaign.homebrew? %>
+          <div class='mt-4'>
+            <div class='edit-label'>T5 Tab Delimited File (optional)</div>
+            <p class='text-xs text-fg-muted mt-1'>
+              Upload a whole-sector
+              <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
+              file to seed each subsector&rsquo;s build configuration individually, overriding the build plan below. Survey index still comes from Settled space above.
+            </p>
+            <%= render 'application/file_field',
+                       name: 't5_file', accept: '.txt,.tab', wrapper_class: 'w-full mt-2',
+                       data: { 'settled-build-target': 'fileInput', action: 'change->settled-build#toggleFileLock' } %>
+          </div>
+        <% end %>
+
         <div class='mt-4' data-tour-step='sector-build-plan'>
+          <p data-settled-build-target='fileLockNotice' class='hidden text-xs text-fg-muted mb-1'>
+            Locked &mdash; overridden by the uploaded T5 file above.
+          </p>
           <%= render 'application/build_config',
                      form: form,
                      attribute: :default_build_spec,

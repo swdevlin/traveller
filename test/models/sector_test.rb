@@ -39,6 +39,21 @@ class SectorTest < ActiveSupport::TestCase
     assert sector.valid?
   end
 
+  test 'default_build_source is traveller_map when the sector was imported from Traveller Map' do
+    sector = Sector.new(source: 'traveller_map', x: 1, y: 1)
+    assert_equal 'traveller_map', sector.default_build_source
+  end
+
+  test 'default_build_source is deepnight when bundled data exists for the coordinates' do
+    sector = Sector.new(x: -10, y: -1)
+    assert_equal 'deepnight', sector.default_build_source
+  end
+
+  test 'default_build_source is nil when neither Traveller Map nor Deepnight data applies' do
+    sector = Sector.new(x: 1, y: 1)
+    assert_nil sector.default_build_source
+  end
+
   def stub_metadata(x, y, status: 200, body: nil)
     stub_request(:get, "https://travellermap.com/api/metadata?sx=#{x}&sy=#{-y}")
       .to_return(status: status, body: body || { 'Subsectors' => [] }.to_json)

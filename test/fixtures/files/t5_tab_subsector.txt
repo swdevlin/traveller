@@ -1,0 +1,33 @@
+Sector	SS	Hex	Name	UWP	Bases	Remarks	Zone	PBG	Allegiance	Stars	{Ix}	(Ex)	[Cx]	Nobility	W	RU
+Spin	C	1705	Efate	A646930-D	NW	Hi In An Ht		800	ImDd	F8 V	{ 5 }	(B8H+1)	[4E18]	BEf	8	1496
+Spin	C	1706	Alell	B56789C-A		Ri Pa Ph Pz	A	210	ImDd	M1 V M7 V	{ 3 }	(B7C+5)	[BB8D]	BcCe	6	4620
+Spin	C	1802	Yres	BAC6773-9		Fl		335	ImDd	G5 V	{ 1 }	(H6A-2)	[4826]	B	13	-2040
+Spin	C	1803	Menorb	C652998-7		Hi Po		310	ImDd	K2 V	{ 0 }	(B89+1)	[9957]	BE	7	792
+Spin	C	1805	Uakye	B439598-D		Ni Ht		320	ImDd	M3 V	{ 1 }	(945+1)	[565D]	B	12	180
+Spin	C	1806	Whanga	E676126-7		Lo		224	ImDd	G1 V M1 V	{ -3 }	(300-4)	[1146]	B	14	-12
+Spin	C	1807	Knorbes	E888765-2		Ag Ri An Re Lt		834	ImDd	G3 V	{ 0 }	(965-2)	[5731]	BC	15	-540
+Spin	C	1808	Forboldn	D893614-5		Ni Lt		312	ImDd	G0 V	{ -3 }	(851-5)	[4333]	B	14	-200
+Spin	C	1809	Ruie	C776977-7		Hi In Pz Di(Daccamites)	A	701	NaHu	G5 V	{ 1 }	(B8A+1)	[9A57]		8	880
+Spin	C	1810	Jenghe	C799663-9	S	Ni O:1910		323	ImDd	M0 V	{ -1 }	(D53-4)	[3526]	B	11	-780
+Spin	C	1903	Pixie	A100103-D	N	Lo Va An Px Ht		901	ImDd	K1 V M0 V	{ 1 }	(401-2)	[122A]	B	14	-8
+Spin	C	1904	Boughene	A8B3531-D	S	Fl Ni An Ht		601	ImDd	M1 V	{ 1 }	(845-3)	[1619]	B	13	-480
+Spin	C	1909	Hefry	C200423-7	S	Ni Va		320	ImDd	K6 II M2 V	{ -2 }	(631-5)	[1224]	B	13	-90
+Spin	C	1910	Regina	A788899-C	NS	Ri Pa Ph An Cp (Amindii)2 Varg0 Asla0 Sa Ht		703	ImDd	F7 V BD M3 V	{ 4 }	(D7E+5)	[9C6D]	BcCeF	9	6370
+Spin	C	2005	Feri	B584879-B	S	Ri Pa Ph		620	ImDd	G4 V M3 V	{ 3 }	(C7D+4)	[9B6C]	BcCe	14	4368
+Spin	C	2007	Roup	C77A9A9-7	S	Hi In Wa Pz	A	323	ImDd	F9 V	{ 1 }	(B8A+2)	[AA68]	BE	14	1760
+Spin	C	2106	Pscias	X555423-2		Ni Pa Fo Lt	R	501	ImDd	K5 V	{ -3 }	(631-5)	[1121]		14	-90
+Spin	C	2110	Yori	C560757-A		De Ri An (Zhurphani)6 RsB		713	ImDd	F1 V	{ 2 }	(D6B+2)	[795A]	BC	15	1716
+Spin	C	2201	Dentus	C979500-A	S	Ni		920	ImDd	M2 V	{ 0 }	(944-4)	[1515]	B	10	-576
+Spin	C	2202	Kinorb	A663659-8		Ni Ri		622	ImDd	G7 V	{ 0 }	(C54+1)	[7669]	BC	7	240
+Spin	C	2204	Beck's World	D88349D-4		Ni An Da Lt	A	701	ImDd	K0 V M2 V	{ -3 }	(631+1)	[8198]	B	10	18
+Spin	C	2205	Enope	C411988-7		Hi Ic In Na		600	ImDd	K6 V M5 V	{ 1 }	(B8A+1)	[9A57]	BE	8	880
+Spin	C	2207	Wochiers	EAC28CC-9		Fl He Ph Pz	A	703	ImDd	F0 V	{ -1 }	(D78+2)	[B78C]	Be	16	1456
+Spin	C	2303	Yorbund	C7C6503-9		Fl Ni		220	ImDd	M3 V	{ -1 }	(943-4)	[2426]	B	9	-432
+Spin	C	2306	Shionthy	C000742-8		As Na Va An Pi Fo	R	714	ImDd	F6 V	{ -1 }	(E67-5)	[3614]		14	-2940
+Spin	C	2308	Algine	X766977-4		Hi Ga Pr Fo Lt	R	723	ImDd	G9 V	{ -1 }	(B86-1)	[9854]		11	-528
+Spin	C	2309	Yurst	E7B4643-8		Fl Ni (Ursty)		824	ImDd	K9 V	{ -3 }	(E51-5)	[3325]	B	13	-350
+Spin	C	2402	Heya	B687745-5		Ag Ga Ri Lt		734	ImDd	K6 III M3 V	{ 2 }	(969+1)	[5933]	BC	16	486
+Spin	C	2405	Keng	E5718CA-5		He Ph Pi Pz Lt	A	812	ImDd	G5 V M9 V	{ -2 }	(A75+1)	[A677]	BDe	6	350
+Spin	C	2406	Moughas	CA5A588-B		Ni Oc		801	ImDd	K9 V M9 V	{ 0 }	(844+1)	[555B]	B	13	128
+Spin	C	2408	Rethe	E430AA8-8		De Hi Na Po		323	ImDd	G7 V	{ -1 }	(H98-1)	[A958]	BE	11	-1224
+Spin	C	2410	Inthe	B575776-9	NS	Ag An Pi		423	ImDd	F8 V	{ 3 }	(E6C+2)	[6A48]	BCD	8	2016

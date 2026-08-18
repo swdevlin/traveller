@@ -4,10 +4,7 @@
 
 <%= render 'application/page' do %>
   <div class='space-y-6'>
-    <div class='flex items-center justify-between'>
-      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>IISS Registry</div>
-      <%= link_to 'Field guide', help_page_path('sectors_new'), class: 'link-traveller text-xs' %>
-    </div>
+    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>IISS Registry</div>
     <h1 class='text-2xl font-header text-highlight'>New sector</h1>
 
     <%= render 'form', sector: @sector %>

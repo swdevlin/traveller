@@ -1,4 +1,4 @@
-<% content_for :title, "Load Build Default, #{@sector.name}" %>
+<% content_for :title, "Load Build Default, #{@subsector.name}" %>
 
 <%= render 'application/page' do %>
   <div class='space-y-6'>
@@ -7,10 +7,11 @@
         Load Build Default
       </div>
       <div class='mt-1 text-2xl font-header text-highlight'>
-        <%= @sector.name %>
+        <%= link_to @subsector.name, subsector_path(@subsector), class: 'hover:underline underline-offset-4' %>,
+        <%= link_to @subsector.sector.name, sector_path(@subsector.sector), class: 'hover:underline underline-offset-4' %>
       </div>
       <p class='mt-2 text-sm text-fg leading-relaxed'>
-        Select the source for subsector build configurations.
+        Select the source for this subsector's build configuration.
       </p>
     </div>
 
@@ -25,15 +26,15 @@
             </div>
           </div>
           <div class='ml-auto shrink-0'>
-            <%= button_to load_defaults_sector_path(@sector),
+            <%= button_to 'Load',
+                          load_defaults_subsector_path(@subsector),
                           method: :post,
                           class: 'btn btn-primary',
                           data: {
                             controller: 'busy',
-                            action: 'turbo:submit-start@window->busy#start turbo:submit-end@window->busy#stop'
-                          } do %>
-              Load
-            <% end %>
+                            action: 'turbo:submit-start@window->busy#start turbo:submit-end@window->busy#stop',
+                            turbo_confirm: @subsector.build.present? ? 'This will replace the current build configuration. Continue?' : nil
+                          }.compact %>
           </div>
         </div>
 
@@ -48,15 +49,15 @@
             </div>
           </div>
           <div class='ml-auto shrink-0'>
-            <%= button_to load_defaults_sector_path(@sector),
+            <%= button_to 'Load',
+                          load_defaults_subsector_path(@subsector),
                           method: :post,
                           class: 'btn btn-primary',
                           data: {
                             controller: 'busy',
-                            action: 'turbo:submit-start@window->busy#start turbo:submit-end@window->busy#stop'
-                          } do %>
-              Load
-            <% end %>
+                            action: 'turbo:submit-start@window->busy#start turbo:submit-end@window->busy#stop',
+                            turbo_confirm: @subsector.build.present? ? 'This will replace the current build configuration. Continue?' : nil
+                          }.compact %>
           </div>
         </div>
 
@@ -68,11 +69,11 @@
         <div class='min-w-0 flex-1'>
           <div class='font-semibold text-fg-bright'>Upload T5 File</div>
           <div class='text-sm text-fg mb-3'>
-            Derives build specifications from an uploaded
+            Sets the build plan from an uploaded
             <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
-            sector data file, splitting rows across the 16 subsectors by hex.
+            sector data file scoped to this subsector&rsquo;s hexes. This replaces the current build plan.
           </div>
-          <%= form_with url: upload_t5_sector_path(@sector), multipart: true, class: 'flex items-center gap-3', data: { controller: 'file-select' } do |f| %>
+          <%= form_with url: upload_t5_subsector_path(@subsector), multipart: true, class: 'flex items-center gap-3', data: { controller: 'file-select' } do |f| %>
             <%= render 'application/file_field', name: 't5_file', accept: '.txt,.tab', compact: true,
                        data: { file_select_target: 'input', action: 'change->file-select#toggle' } %>
             <%= f.submit 'Upload', class: 'btn btn-primary shrink-0', disabled: true,
@@ -86,44 +87,25 @@
       </div>
     </div>
 
-    <div class='table-card'>
-      <div class='table-banner'>
-        <p>Current build, by subsector</p>
+    <div class='space-y-3'>
+      <div class='flex items-center justify-between gap-3'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Current build</div>
+        <% if @subsector.build.present? %>
+          <span class='text-green-400 text-sm'>
+            <i class='fa-regular fa-circle-check mr-1'></i><%= @subsector.build_source_label %>
+          </span>
+        <% else %>
+          <span class='text-fg-muted text-sm'>
+            <i class='fa-regular fa-circle-minus mr-1'></i>Not configured
+          </span>
+        <% end %>
       </div>
 
-      <div class='table-scroll'>
-        <table>
-          <thead>
-          <tr>
-            <th scope='col'>Subsector</th>
-            <th scope='col'>Build</th>
-          </tr>
-          </thead>
-
-          <tbody>
-          <% @subsectors.each do |subsector| %>
-            <tr>
-              <td>
-                <%= link_to subsector_path(subsector), class: 'hover:underline underline-offset-4' do %>
-                  <%= subsector.letter %> &mdash; <%= subsector.name %>
-                <% end %>
-              </td>
-              <td class='whitespace-nowrap'>
-                <% if subsector.build.present? %>
-                  <span class='text-green-400'>
-                    <i class='fa-regular fa-circle-check mr-1'></i><%= subsector.build_source_label %>
-                  </span>
-                <% else %>
-                  <span class='text-fg-muted'>
-                    <i class='fa-regular fa-circle-minus mr-1'></i>Not configured
-                  </span>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-          </tbody>
-        </table>
-      </div>
+      <% if @subsector.build.present? %>
+        <textarea readonly rows='12'
+                  aria-label='Current build plan YAML'
+                  class='font-mono edit-base w-full resize-y opacity-80 cursor-not-allowed'><%= @subsector.build %></textarea>
+      <% end %>
     </div>
   </div>
 <% end %>

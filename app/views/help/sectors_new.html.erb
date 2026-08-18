@@ -51,9 +51,28 @@
           </dd>
         </div>
         <div>
+          <dt class='font-semibold text-fg-bright'>T5 Tab Delimited File</dt>
+          <dd class='mt-1 text-fg'>
+            <div class='space-y-2'>
+              <p>Homebrew campaigns only. Optionally upload a whole-sector
+                <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
+                file to seed each of the 16 subsectors with its own build plan, derived from the systems that fall
+                within its hexes.
+              </p>
+              <p>While a file is attached, it takes precedence over the Build plan field below for system
+                placement &mdash; the field becomes read-only to reflect this. Survey index still applies from
+                Settled space above, to every subsector, regardless of the uploaded file. Subsectors with no
+                matching rows in the file fall back to the build plan below.
+              </p>
+            </div>
+          </dd>
+        </div>
+        <div>
           <dt class='font-semibold text-fg-bright'>Build plan</dt>
           <dd class='mt-1 text-fg'>
-            YAML configuration applied to every subsector when the sector is created. You can customise it here before committing.
+            YAML configuration applied to every subsector when the sector is created. You can customise it here
+            before committing, unless a T5 Tab Delimited file is attached above, in which case it is locked and
+            the uploaded file&rsquo;s data is used instead.
             See the <%= link_to 'build specification reference', help_page_path('subsector_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for the full schema.
           </dd>
         </div>

@@ -25,4 +25,104 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     patch subsector_url(@subsector), params: { subsector: { name: @subsector.name, x: @subsector.x, y: @subsector.y } }
     assert_redirected_to subsector_url(@subsector)
   end
+
+  test 'should get defaults_source' do
+    get defaults_source_subsector_url(@subsector)
+    assert_response :success
+  end
+
+  test 'defaults_source shows no default source block when the sector has none' do
+    get defaults_source_subsector_url(@subsector)
+    assert_response :success
+    assert_no_match(/Pulls subsector data from TravellerMap/, response.body)
+    assert_no_match(/Campaign-tuned presets/, response.body)
+  end
+
+  test 'defaults_source offers TravellerMap when the sector was imported from Traveller Map' do
+    @sector.update!(source: 'traveller_map')
+    get defaults_source_subsector_url(@subsector)
+    assert_response :success
+    assert_match(/Pulls subsector data from TravellerMap/, response.body)
+    assert_no_match(/Campaign-tuned presets/, response.body)
+  end
+
+  test 'defaults_source offers Deepnight when bundled data is available for the sector' do
+    sector = Sector.create!(name: 'Deepnight Sector', x: -10, y: -1, abbreviation: 'DN', skip_subsector_creation: true)
+    subsector = Subsector.create!(sector: sector, name: 'Sub A', x: 1, y: 1)
+
+    get defaults_source_subsector_url(subsector)
+
+    assert_response :success
+    assert_match(/Campaign-tuned presets/, response.body)
+    assert_no_match(/Pulls subsector data from TravellerMap/, response.body)
+  end
+
+  test 'load_defaults redirects with alert when the sector has no default build source' do
+    post load_defaults_subsector_url(@subsector)
+    assert_redirected_to subsector_url(@subsector)
+    assert_match(/No default build source/, flash[:alert])
+  end
+
+  test 'load_defaults loads TravellerMap defaults when that is the sector default source' do
+    @sector.update!(source: 'traveller_map')
+    stub_request(:get, 'https://travellermap.com/api/sec?sx=1&sy=-1&type=TabDelimited&subsector=A')
+      .to_return(status: 200, body: File.read(file_fixture('t5_tab_subsector.txt')))
+
+    post load_defaults_subsector_url(@subsector)
+
+    assert_redirected_to subsector_url(@subsector)
+    assert_equal 'Defaults loaded.', flash[:notice]
+    @subsector.reload
+    assert_equal 'traveller_map', @subsector.build_source
+  end
+
+  test 'load_defaults loads Deepnight defaults when that is the sector default source' do
+    sector = Sector.create!(name: 'Deepnight Sector', x: -10, y: -1, abbreviation: 'DN', skip_subsector_creation: true)
+    subsector = Subsector.create!(sector: sector, name: 'Sub A', x: 1, y: 1)
+
+    post load_defaults_subsector_url(subsector)
+
+    assert_redirected_to subsector_url(subsector)
+    assert_equal 'Defaults loaded.', flash[:notice]
+    subsector.reload
+    assert_equal 'deepnight_books', subsector.build_source
+  end
+
+  test 'upload_t5 sets build from an uploaded file' do
+    subsector = subsectors(:subsector_3_1) # letter C, matching the fixture's hex range
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_subsector.txt'), 'text/plain')
+
+    post upload_t5_subsector_url(subsector), params: { t5_file: file }
+
+    assert_redirected_to subsector_url(subsector)
+    subsector.reload
+    assert_equal 'uploaded', subsector.build_source
+    assert_match(/Efate/, subsector.build)
+  end
+
+  test 'upload_t5 redirects with alert when no file given' do
+    post upload_t5_subsector_url(@subsector)
+    assert_redirected_to subsector_url(@subsector)
+    assert_match(/choose a T5/, flash[:alert])
+  end
+
+  test 'upload_t5 redirects with alert when the file has no systems' do
+    file = Rack::Test::UploadedFile.new(StringIO.new("Hex\tName\n"), 'text/plain', original_filename: 'subsector.txt')
+
+    post upload_t5_subsector_url(@subsector), params: { t5_file: file }
+
+    assert_redirected_to subsector_url(@subsector)
+    assert_match(/No systems found/, flash[:alert])
+  end
+
+  test 'upload_t5 redirects with alert when the file has no rows for this subsector' do
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_subsector.txt'), 'text/plain') # subsector C hexes
+
+    post upload_t5_subsector_url(@subsector), params: { t5_file: file } # @subsector is letter A
+
+    assert_redirected_to subsector_url(@subsector)
+    assert_match(/No systems found/, flash[:alert])
+    @subsector.reload
+    assert_nil @subsector.build_source
+  end
 end
