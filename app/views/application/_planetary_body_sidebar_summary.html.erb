@@ -20,6 +20,8 @@
                label: 'Starport',
                value: safe_join([tag.span(starport_code, class: 'identifier-sm'), starport_summary(starport_code)].compact, ' '),
                value_wrap_class: 'flex flex-wrap items-center gap-2' %>
+    <%= render 'application/data_block', label: 'Berthing Cost', value: format_credits(stellar_object.berthing_cost) %>
+    <%= render 'application/data_block', label: 'Fuel Cost', value: starport_fuel_cost_display(stellar_object) %>
   <% end %>
 
   <%= render 'application/data_block',

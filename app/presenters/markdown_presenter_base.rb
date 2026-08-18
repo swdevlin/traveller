@@ -135,7 +135,10 @@ class MarkdownPresenterBase
     rows = [
       ['Starport', "#{code} — #{starport[:quality]}"],
       ['Fuel', starport[:fuel]],
-      ['Facilities', starport[:facilities]]
+      ['Facilities', starport[:facilities]],
+      ['Berthing Cost', format_credits(@obj.respond_to?(:berthing_cost) ? @obj.berthing_cost : nil)],
+      ['Refined Fuel Cost', format_credits(@obj.respond_to?(:refined_fuel_cost) ? @obj.refined_fuel_cost : nil)],
+      ['Unrefined Fuel Cost', format_credits(@obj.respond_to?(:unrefined_fuel_cost) ? @obj.unrefined_fuel_cost : nil)]
     ]
     rows << ['World Trade Number', @obj.world_trade_number] if @obj.respond_to?(:world_trade_number) && @obj.world_trade_number.present?
     rows << ['Importance', format_importance(@obj.importance)] if @obj.respond_to?(:importance) && @obj.importance.present?
@@ -385,6 +388,12 @@ class MarkdownPresenterBase
     return nil if value.nil?
 
     number_to_human(value, units: { thousand: 'K', million: 'M', billion: 'B', trillion: 'Tr' }, precision: 2)
+  end
+
+  def format_credits(value)
+    return '—' if value.nil?
+
+    number_to_currency(value, unit: 'Cr', precision: 0)
   end
 
   def atmosphere_survival_requirement(code, tainted: false)

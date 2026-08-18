@@ -22,6 +22,9 @@ type alias MainWorldProfile =
     , censusPopulation : Maybe Int
     , survivalRequirement : String
     , jumpShadow : Maybe Float
+    , berthingCost : Maybe Int
+    , refinedFuelCost : Maybe Int
+    , unrefinedFuelCost : Maybe Int
     }
 
 
@@ -137,6 +140,9 @@ mainWorldProfileCodec =
         |> Codec.field "census_population" .censusPopulation (Codec.nullable Codec.int)
         |> Codec.field "survival_requirement" .survivalRequirement Codec.string
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
+        |> Codec.field "berthing_cost" .berthingCost (Codec.nullable Codec.int)
+        |> Codec.field "refined_fuel_cost" .refinedFuelCost (Codec.nullable Codec.int)
+        |> Codec.field "unrefined_fuel_cost" .unrefinedFuelCost (Codec.nullable Codec.int)
         |> Codec.buildObject
 
 

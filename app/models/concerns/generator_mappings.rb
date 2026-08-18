@@ -160,6 +160,7 @@ module GeneratorMappings
 
     self.data ||= {}
     self.data = merge ? self.data.merge(mapped) : mapped
+    assign_starport_costs if respond_to?(:starport_code)
     self
   end
 end

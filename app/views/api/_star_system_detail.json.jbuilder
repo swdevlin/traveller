@@ -28,6 +28,9 @@ if mw
       tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.tainted?
     )
     json.jump_shadow mw.effective_jump_shadow_km
+    json.berthing_cost mw.respond_to?(:berthing_cost) ? mw.berthing_cost : nil
+    json.refined_fuel_cost mw.respond_to?(:refined_fuel_cost) ? mw.refined_fuel_cost : nil
+    json.unrefined_fuel_cost mw.respond_to?(:unrefined_fuel_cost) ? mw.unrefined_fuel_cost : nil
   end
 else
   json.main_world nil

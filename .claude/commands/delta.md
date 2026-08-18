@@ -33,4 +33,10 @@ Add a new release note entry for today's changes.
    - Do not include the date in the body — it comes from the front matter
    - The content should read like a 1960s computer manual, technical, and have a sci-fi feel to it
 
-4. **Confirm** — show the user the file content and ask if they'd like any changes before finishing
+4. **Draft a Bluesky post**
+   - Write a short summary of the delta (diff) suitable for posting to Bluesky
+   - Plain language, not the 1960s-manual voice — keep it a straightforward summary, not a blow-by-blow of every detail
+   - Stay well under Bluesky's 300-character limit
+   - If there are multiple unrelated changes, summarise the headline one(s) rather than listing every change
+
+5. **Confirm** — show the user the release note file content and the Bluesky post, and ask if they'd like any changes before finishing

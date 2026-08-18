@@ -144,4 +144,50 @@ class StellarObjectsHelperTest < ActionView::TestCase
   test 'population_display returns nil when both census population and code are absent' do
     assert_nil population_display(nil, nil)
   end
+
+  # format_credits tests
+
+  test 'format_credits returns a dash for nil' do
+    assert_equal '—', format_credits(nil)
+  end
+
+  test 'format_credits formats a value with the Cr unit' do
+    assert_equal 'Cr500', format_credits(500)
+  end
+
+  # starport_fuel_cost_summary tests
+
+  test 'starport_fuel_cost_summary shows refined cost first, then unrefined, unlabelled' do
+    planet = TerrestrialPlanet.new(refined_fuel_cost: 500, unrefined_fuel_cost: 100)
+    assert_equal 'Cr500 · Cr100', starport_fuel_cost_summary(planet)
+  end
+
+  test 'starport_fuel_cost_summary shows a single figure when refined is absent' do
+    planet = TerrestrialPlanet.new(unrefined_fuel_cost: 100)
+    assert_equal 'Cr100', starport_fuel_cost_summary(planet)
+  end
+
+  test 'starport_fuel_cost_summary returns a dash when neither fuel grade is sold' do
+    planet = TerrestrialPlanet.new
+    assert_equal '—', starport_fuel_cost_summary(planet)
+  end
+
+  # starport_costs_summary tests
+
+  test 'starport_costs_summary puts berthing and fuel on separate lines' do
+    planet = TerrestrialPlanet.new(berthing_cost: 6000, refined_fuel_cost: 500, unrefined_fuel_cost: 100)
+    expected = 'Berthing Cr6,000<br>Fuel <span title="refined · unrefined" class="cursor-help">Cr500 · Cr100</span>'
+    assert_equal expected, starport_costs_summary(planet).to_s
+  end
+
+  test 'starport_costs_summary shows a dash fuel line when no fuel is sold' do
+    planet = TerrestrialPlanet.new(berthing_cost: 50)
+    expected = 'Berthing Cr50<br>Fuel <span title="refined · unrefined" class="cursor-help">—</span>'
+    assert_equal expected, starport_costs_summary(planet).to_s
+  end
+
+  test 'starport_costs_summary returns a single dash when there is no starport service at all' do
+    planet = TerrestrialPlanet.new
+    assert_equal '—', starport_costs_summary(planet)
+  end
 end

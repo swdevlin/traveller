@@ -48,6 +48,9 @@ class TerrestrialPlanetMarkdownPresenter < MarkdownPresenterBase
     if @obj.starport_code.present?
       starport = StellarObjectsHelper::STARPORT_DATA[@obj.starport_code]
       rows << ['Starport', "#{@obj.starport_code} — #{starport[:quality]}; #{starport[:fuel]}; #{starport[:facilities]}"] if starport
+      rows << ['Berthing Cost', format_credits(@obj.berthing_cost)]
+      rows << ['Refined Fuel Cost', format_credits(@obj.refined_fuel_cost)]
+      rows << ['Unrefined Fuel Cost', format_credits(@obj.unrefined_fuel_cost)]
     end
     rows << ['Gravity', "#{fmt(@obj.gravity, 2)} g"] if @obj.gravity.present?
     if @obj.temperature.present?

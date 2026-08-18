@@ -16,6 +16,30 @@
                       class: 'edit-base' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :berthing_cost, field_label: 'Berthing Cost' do %>
+      <%= form.number_field :berthing_cost,
+                            value: stellar_object.berthing_cost,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :refined_fuel_cost, field_label: 'Refined Fuel Cost' do %>
+      <%= form.number_field :refined_fuel_cost,
+                            value: stellar_object.refined_fuel_cost,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :unrefined_fuel_cost, field_label: 'Unrefined Fuel Cost' do %>
+      <%= form.number_field :unrefined_fuel_cost,
+                            value: stellar_object.unrefined_fuel_cost,
+                            class: 'edit-base sm:w-28 w-24',
+                            step: 1,
+                            min: 0 %>
+    <% end %>
+
     <% if star %>
       <div class='flex items-center gap-2 pt-2'>
         <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital Data</div>

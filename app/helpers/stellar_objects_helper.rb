@@ -18,6 +18,39 @@ module StellarObjectsHelper
     parts.join('; ')
   end
 
+  def format_credits(value)
+    return '—' if value.blank?
+
+    number_to_currency(value, unit: 'Cr', precision: 0)
+  end
+
+  FUEL_COST_TOOLTIP = 'refined · unrefined'
+
+  # Plain-text figures, refined first then unrefined — used wherever the tooltip
+  # from starport_fuel_cost_display isn't wanted (e.g. inside another safe_join).
+  def starport_fuel_cost_summary(stellar_object)
+    costs = [stellar_object.refined_fuel_cost, stellar_object.unrefined_fuel_cost].compact
+    costs.any? ? costs.map { |cost| format_credits(cost) }.join(' · ') : '—'
+  end
+
+  # Same figures as starport_fuel_cost_summary, wrapped with a tooltip
+  # explaining the refined/unrefined order — there's no dedicated help page
+  # for every view this can appear on (e.g. the star system show page).
+  def starport_fuel_cost_display(stellar_object)
+    tag.span(starport_fuel_cost_summary(stellar_object), title: FUEL_COST_TOOLTIP, class: 'cursor-help')
+  end
+
+  def starport_costs_summary(stellar_object)
+    return '—' if stellar_object.berthing_cost.blank? && stellar_object.refined_fuel_cost.blank? && stellar_object.unrefined_fuel_cost.blank?
+
+    safe_join([
+      "Berthing #{format_credits(stellar_object.berthing_cost)}",
+      tag.br,
+      'Fuel ',
+      starport_fuel_cost_display(stellar_object)
+    ])
+  end
+
   def gas_giant_size_description(code)
     GasGiant::SIZES[code] || code
   end

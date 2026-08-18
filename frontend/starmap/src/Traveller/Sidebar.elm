@@ -198,9 +198,17 @@ accentHeadingColour =
 
 profileFieldDisplay : String -> String -> Html msg
 profileFieldDisplay lbl val =
+    profileFieldDisplayAttrs lbl val []
+
+
+{-| Like `profileFieldDisplay`, but with extra attributes on the value —
+e.g. a `title` tooltip for a field with no dedicated help page to explain it.
+-}
+profileFieldDisplayAttrs : String -> String -> List (Html.Attribute msg) -> Html msg
+profileFieldDisplayAttrs lbl val extraAttrs =
     row [ width fill, paddingEach { zeroEach | top = 3 } ]
         [ el [ fixedFlex 80, fontVar "--color-fg-muted", fontSize 11, bold, alignTop ] (text lbl)
-        , Html.p [ HtmlAttrs.style "margin" "0", growFlex, shrinkable, fontSize 12, alignTop, fontVar "--color-fg-bright" ] [ text val ]
+        , Html.p ([ HtmlAttrs.style "margin" "0", growFlex, shrinkable, fontSize 12, alignTop, fontVar "--color-fg-bright" ] ++ extraAttrs) [ text val ]
         ]
 
 
@@ -372,6 +380,22 @@ viewMainWorldProfile profile =
             else
                 "None"
 
+        creditsStr =
+            Maybe.map (\v -> "Cr" ++ String.fromInt v) >> Maybe.withDefault "—"
+
+        fuelCostStr =
+            -- Unlabelled, refined first then unrefined — see the Fuel Cost help entry.
+            [ profile.refinedFuelCost, profile.unrefinedFuelCost ]
+                |> List.filterMap (Maybe.map (\v -> "Cr" ++ String.fromInt v))
+                |> String.join " · "
+                |> (\s ->
+                        if String.isEmpty s then
+                            "—"
+
+                        else
+                            s
+                   )
+
         profileHeader title =
             row
                 [ width fill
@@ -394,6 +418,12 @@ viewMainWorldProfile profile =
         ]
         [ profileHeader "Main World Profile"
         , profileFieldDisplay "Starport" (spCode ++ " – " ++ spQuality)
+        , profileFieldDisplay "Berthing Cost" (creditsStr profile.berthingCost)
+        , profileFieldDisplayAttrs "Fuel Cost"
+            fuelCostStr
+            [ HtmlAttrs.title "refined · unrefined"
+            , HtmlAttrs.style "cursor" "help"
+            ]
         , profileFieldDisplay "Gravity" gravityStr
         , profileFieldDisplay "Temperature" tempStr
         , profileFieldDisplay "Survival" profile.survivalRequirement

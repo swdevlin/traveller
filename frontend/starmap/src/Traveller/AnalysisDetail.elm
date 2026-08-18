@@ -175,6 +175,9 @@ type alias AnalyisDetailPlanetoidData =
         , quality : String
         , fuel : String
         , facilities : String
+        , berthingCost : Maybe Int
+        , refinedFuelCost : Maybe Int
+        , unrefinedFuelCost : Maybe Int
         }
     , social :
         { population : String
@@ -415,12 +418,45 @@ valueAttrs =
     ]
 
 
+starportCredits : Maybe Int -> String
+starportCredits maybeValue =
+    case maybeValue of
+        Just value ->
+            "Cr" ++ String.fromInt value
+
+        Nothing ->
+            "—"
+
+
+{-| Refined first, then unrefined — unlabelled, see the Fuel Cost tooltip.
+-}
+starportFuelCostString : Maybe Int -> Maybe Int -> String
+starportFuelCostString refined unrefined =
+    let
+        parts =
+            [ refined, unrefined ] |> List.filterMap (Maybe.map (\v -> "Cr" ++ String.fromInt v))
+    in
+    if List.isEmpty parts then
+        "—"
+
+    else
+        String.join " · " parts
+
+
 textDisplay : String -> String -> Html msg
 textDisplay lbl val =
+    textDisplayAttrs lbl val []
+
+
+{-| Like `textDisplay`, but with extra attributes on the value — e.g. a
+`title` tooltip for a field with no dedicated help page to explain it.
+-}
+textDisplayAttrs : String -> String -> List (Html.Attribute msg) -> Html msg
+textDisplayAttrs lbl val extraAttrs =
     row
         [ width fill, paddingEach { zeroEach | top = 5 } ]
         [ el (fixedFlex 150 :: headerAttrs) (text lbl)
-        , el (growFlex :: shrinkable :: valueAttrs) (monospaceText val)
+        , el (growFlex :: shrinkable :: valueAttrs ++ extraAttrs) (monospaceText val)
         ]
 
 
@@ -1321,11 +1357,13 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                    , data.techDetail.personalMilitary
                    , data.techDetail.heavyMilitary
                    ]
-                -- 76–79: starport tab
+                -- 76–81: starport tab
                 ++ [ data.starport.code
                    , data.starport.quality
                    , data.starport.fuel
                    , data.starport.facilities
+                   , starportCredits data.starport.berthingCost
+                   , starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost
                    ]
 
         counts =
@@ -1382,16 +1420,15 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                     column groupAttrs
                         [ textDisplay "Starport Class" <| show 76 data.starport.code
                         , textDisplay "Quality" <| show 77 data.starport.quality
-                        , if data.starport.fuel /= "None" then
-                            textDisplay "Fuel" <| show 78 data.starport.fuel
-
-                          else
-                            none
                         , if data.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 79 data.starport.facilities
 
                           else
                             none
+                        , textDisplay "Berthing" <| show 80 (starportCredits data.starport.berthingCost)
+                        , textDisplayAttrs "Fuel Cost"
+                            (show 81 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
+                            [ HtmlAttrs.title "refined · unrefined", HtmlAttrs.style "cursor" "help" ]
                         ]
 
                 "physical" ->
@@ -2090,11 +2127,13 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                    , pd.techDetail.personalMilitary
                    , pd.techDetail.heavyMilitary
                    ]
-                -- 76–79: starport tab
+                -- 76–81: starport tab
                 ++ [ pd.starport.code
                    , pd.starport.quality
                    , pd.starport.fuel
                    , pd.starport.facilities
+                   , starportCredits pd.starport.berthingCost
+                   , starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost
                    ]
 
         counts =
@@ -2142,16 +2181,15 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                     column groupAttrs
                         [ textDisplay "Starport Class" <| show 76 pd.starport.code
                         , textDisplay "Quality" <| show 77 pd.starport.quality
-                        , if pd.starport.fuel /= "None" then
-                            textDisplay "Fuel" <| show 78 pd.starport.fuel
-
-                          else
-                            none
                         , if pd.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 79 pd.starport.facilities
 
                           else
                             none
+                        , textDisplay "Berthing" <| show 80 (starportCredits pd.starport.berthingCost)
+                        , textDisplayAttrs "Fuel Cost"
+                            (show 81 (starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost))
+                            [ HtmlAttrs.title "refined · unrefined", HtmlAttrs.style "cursor" "help" ]
                         ]
 
                 "physical" ->

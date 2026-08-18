@@ -57,6 +57,15 @@
             <dt class='font-semibold text-fg-bright'>Starport</dt>
             <dd class='mt-1 text-fg'>Class of the primary port facility (A–E, X for none).</dd>
           </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Berthing Cost, Refined Fuel Cost, Unrefined Fuel Cost</dt>
+            <dd class='mt-1 text-fg'>
+              Assigned automatically on import per the starport class berthing-cost table (WBH p. 257):
+              1D×Cr1000/Cr500/Cr100/Cr10 for Class A/B/C/D respectively, none for Class E or X. Refined
+              fuel defaults to Cr500 where sold (Class A/B); unrefined fuel defaults to Cr100 where sold
+              (Class A–D). Leave blank for none. Edit directly to override the assigned values.
+            </dd>
+          </div>
         </dl>
       </div>
 

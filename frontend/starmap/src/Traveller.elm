@@ -9177,24 +9177,31 @@ update msg ( time, model ) =
                                         , heavyMilitary = tlDetail |> Maybe.andThen .heavyMilitary |> fmtTechCap
                                         }
                                     , starport =
+                                        let
+                                            costs =
+                                                { berthingCost = pdata.berthingCost
+                                                , refinedFuelCost = pdata.refinedFuelCost
+                                                , unrefinedFuelCost = pdata.unrefinedFuelCost
+                                                }
+                                        in
                                         case spCode of
                                             "A" ->
-                                                { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair" }
+                                                { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                             "B" ->
-                                                { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair" }
+                                                { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                             "C" ->
-                                                { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair" }
+                                                { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                             "D" ->
-                                                { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair" }
+                                                { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                             "E" ->
-                                                { code = "E", quality = "Frontier", fuel = "None", facilities = "None" }
+                                                { code = "E", quality = "Frontier", fuel = "None", facilities = "None", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                             _ ->
-                                                { code = "X", quality = "No Starport", fuel = "None", facilities = "None" }
+                                                { code = "X", quality = "No Starport", fuel = "None", facilities = "None", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
                                     }
                             in
                             { planet = planet
@@ -9495,25 +9502,31 @@ update msg ( time, model ) =
                                 let
                                     spCode =
                                         String.slice 0 1 pdata.uwp
+
+                                    costs =
+                                        { berthingCost = pdata.berthingCost
+                                        , refinedFuelCost = pdata.refinedFuelCost
+                                        , unrefinedFuelCost = pdata.unrefinedFuelCost
+                                        }
                                 in
                                 case spCode of
                                     "A" ->
-                                        { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair" }
+                                        { code = "A", quality = "Excellent", fuel = "Refined fuel", facilities = "Shipyard (all), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                     "B" ->
-                                        { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair" }
+                                        { code = "B", quality = "Good", fuel = "Refined fuel", facilities = "Shipyard (spacecraft), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                     "C" ->
-                                        { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair" }
+                                        { code = "C", quality = "Routine", fuel = "Unrefined fuel", facilities = "Shipyard (small craft), Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                     "D" ->
-                                        { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair" }
+                                        { code = "D", quality = "Poor", fuel = "Unrefined fuel", facilities = "Limited Repair", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                     "E" ->
-                                        { code = "E", quality = "Frontier", fuel = "None", facilities = "None" }
+                                        { code = "E", quality = "Frontier", fuel = "None", facilities = "None", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
 
                                     _ ->
-                                        { code = "X", quality = "No Starport", fuel = "None", facilities = "None" }
+                                        { code = "X", quality = "No Starport", fuel = "None", facilities = "None", berthingCost = costs.berthingCost, refinedFuelCost = costs.refinedFuelCost, unrefinedFuelCost = costs.unrefinedFuelCost }
                             }
                     in
                     case stellarObject of

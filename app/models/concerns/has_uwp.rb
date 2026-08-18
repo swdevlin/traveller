@@ -334,6 +334,52 @@ module HasUwp
     self.data = (data || {}).merge('starport_code' => val.presence)
   end
 
+  BERTHING_COST_TABLE = {
+    'A' => { dice: 1, multiplier: 1000, fuel: :refined },
+    'B' => { dice: 1, multiplier: 500,  fuel: :refined },
+    'C' => { dice: 1, multiplier: 100,  fuel: :unrefined },
+    'D' => { dice: 1, multiplier: 10,   fuel: :unrefined },
+    'E' => { dice: 0, multiplier: 0,    fuel: :none },
+    'X' => { dice: 0, multiplier: 0,    fuel: :none }
+  }.freeze
+
+  DEFAULT_REFINED_FUEL_COST = 500
+  DEFAULT_UNREFINED_FUEL_COST = 100
+
+  def berthing_cost
+    data&.dig('berthing_cost')
+  end
+
+  def berthing_cost=(val)
+    self.data = (data || {}).merge('berthing_cost' => val.presence)
+  end
+
+  def refined_fuel_cost
+    data&.dig('refined_fuel_cost')
+  end
+
+  def refined_fuel_cost=(val)
+    self.data = (data || {}).merge('refined_fuel_cost' => val.presence)
+  end
+
+  def unrefined_fuel_cost
+    data&.dig('unrefined_fuel_cost')
+  end
+
+  def unrefined_fuel_cost=(val)
+    self.data = (data || {}).merge('unrefined_fuel_cost' => val.presence)
+  end
+
+  # Assigns berthing/fuel costs from the starport class per the standard
+  # Traveller berthing-cost table (WBH p. 257). Berthing cost is rolled;
+  # fuel costs are flat defaults, present only when that fuel grade is sold.
+  def assign_starport_costs(roller: DiceRoller.new)
+    entry = BERTHING_COST_TABLE.fetch(starport_code, BERTHING_COST_TABLE['X'])
+    self.berthing_cost = entry[:dice].zero? ? nil : roller.roll(n: entry[:dice], d: 6, note: 'Berthing cost') * entry[:multiplier]
+    self.refined_fuel_cost = entry[:fuel] == :refined ? DEFAULT_REFINED_FUEL_COST : nil
+    self.unrefined_fuel_cost = entry[:fuel] == :none ? nil : DEFAULT_UNREFINED_FUEL_COST
+  end
+
   def tech_level_code = tech_level&.code
 
   def tech_level_code=(val)
@@ -434,6 +480,7 @@ module HasUwp
         :law_level_private_law, :law_level_personal_rights, :law_level_uniformity, :law_level_judicial_system,
         :law_level_death_penalty, :law_level_presumed_innocence, :law_level_econometric_infractions_administrative,
         :starport_code,
+        :berthing_cost, :refined_fuel_cost, :unrefined_fuel_cost,
         :tech_level_code,
         :tech_level_electronics, :tech_level_energy, :tech_level_land, :tech_level_sea,
         :tech_level_air, :tech_level_space, :tech_level_personal_military, :tech_level_heavy_military,
