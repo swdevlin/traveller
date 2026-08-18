@@ -9087,10 +9087,13 @@ update msg ( time, model ) =
                                         , habitability = habitabilityDescription pdata.habitabilityRating
                                         , sophonts =
                                             if pdata.nativeSophont then
-                                                "Yes"
+                                                "Extant"
+
+                                            else if pdata.extinctSophont then
+                                                "Extinct"
 
                                             else
-                                                "No"
+                                                "None"
                                         }
                                     , social =
                                         { population =
@@ -9397,10 +9400,13 @@ update msg ( time, model ) =
                                 , habitability = habitabilityDescription pdata.habitabilityRating
                                 , sophonts =
                                     if pdata.nativeSophont then
-                                        "Yes"
+                                        "Extant"
+
+                                    else if pdata.extinctSophont then
+                                        "Extinct"
 
                                     else
-                                        "No"
+                                        "None"
                                 }
                             , social =
                                 let
