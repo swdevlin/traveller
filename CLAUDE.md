@@ -38,7 +38,7 @@ bin/rails db:seed
 
 ## Pre-push Hooks
 
-Overcommit runs on pre-push: RuboCop, Rails tests, and Brakeman. Pre-commit hooks are disabled.
+Overcommit runs on pre-push: RuboCop, Rails tests, Brakeman, and bundler-audit. Pre-commit hooks are disabled.
 
 ## schema.rb GIN Indexes
 

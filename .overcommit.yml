@@ -37,6 +37,10 @@ PrePush:
   Brakeman:
     enabled: true
     command: ["bash", "-lc", "bundle exec brakeman"]
+  BundlerAudit:
+    enabled: true
+    description: "Run bundler-audit"
+    command: ["bash", "-lc", "bundle exec bundler-audit check --update"]
 
 #PostCheckout:
 #  ALL: # Special hook name that customizes all hooks of this type
