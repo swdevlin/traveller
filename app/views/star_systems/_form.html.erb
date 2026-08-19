@@ -46,6 +46,11 @@
         checked: f.object.locked?, label: 'Locked' %>
 
   <div>
+    <%= f.label :reference_url, 'Reference link', class: 'block text-sm font-semibold mb-1' %>
+    <%= f.text_field :reference_url, class: 'w-full edit-base' %>
+  </div>
+
+  <div>
     <%= f.label :notes, 'Observations', class: 'block text-sm font-semibold mb-1' %>
     <%= f.text_area :notes, rows: 6, class: 'w-full edit-base' %>
   </div>

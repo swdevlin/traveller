@@ -5,6 +5,11 @@
     <%= render 'application/name_generator_field', form: form %>
 
     <div class='edit-row-notes'>
+      <div class='edit-label'>Reference link</div>
+      <%= form.text_field :reference_url, class: 'edit-base mt-2 w-full' %>
+    </div>
+
+    <div class='edit-row-notes'>
       <div class='edit-label'>Observations</div>
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
     </div>

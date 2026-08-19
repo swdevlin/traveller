@@ -130,6 +130,18 @@ module GeneratorMappings
       self.data['total_urban_population'] = total_urban_population_payload
     end
 
+    periapsis_payload = payload['periapsis']
+    unless periapsis_payload.nil?
+      self.data ||= {}
+      self.data['periapsis'] = periapsis_payload
+    end
+
+    apoapsis_payload = payload['apoapsis']
+    unless apoapsis_payload.nil?
+      self.data ||= {}
+      self.data['apoapsis'] = apoapsis_payload
+    end
+
     mapped = self.class.mapped_data_from_generator(payload)
 
     self.diameter = payload['diameter']

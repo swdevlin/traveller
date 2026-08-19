@@ -1,0 +1,31 @@
+<% content_for :title, 'Star System Edit' %>
+
+<%= render 'help/page', title: 'Star System Edit' do %>
+  <div class='space-y-6'>
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Fields</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Allegiance</dt>
+            <dd class='mt-1 text-fg'>Type-ahead search by allegiance code or name.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Reference Link</dt>
+            <dd class='mt-1 text-fg'>
+              Overrides the auto-generated Traveller Wiki entry for this system. Leave blank to use the automatic
+              link (charted-space campaigns only) or to hide the field entirely (other campaign types). See the
+              Star System Survey help page for where this is displayed, including to players.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Locked</dt>
+            <dd class='mt-1 text-fg'>Preserves this system untouched during subsector regeneration, and disables the Replace action on the survey page.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0619YE
+      </div>
+  </div>
+<% end %>

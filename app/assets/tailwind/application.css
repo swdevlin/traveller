@@ -1335,8 +1335,12 @@
     @apply no-underline hover:underline hover:underline-offset-2 hover:text-fg-bright;
   }
 
+  .uwp-breadcrumb-current {
+    @apply text-fg-bright font-medium;
+  }
+
   .uwp-breadcrumb-sep {
-    @apply text-fg-muted;
+    @apply text-fg-muted/60 mx-1;
   }
 
   .callout {

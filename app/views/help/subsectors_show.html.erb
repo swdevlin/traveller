@@ -1,0 +1,58 @@
+<% content_for :title, 'Subsector Survey' %>
+
+<%= render 'help/page', title: 'Subsector Survey' do %>
+  <div class='space-y-6'>
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Overview</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Populated</dt>
+            <dd class='mt-1 text-fg'>Shown only when the campaign setting is enabled.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Library Data</dt>
+            <dd class='mt-1 text-fg'>
+              Reference link for this subsector. Enter a link on the subsector&rsquo;s edit form to override it; if
+              left blank, a Traveller Wiki entry is generated automatically for charted-space campaigns. Hidden
+              entirely when there is no link to display. Referee-only; not shown to players.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Observations</dt>
+            <dd class='mt-1 text-fg'>Collapsible free-text field. Accepts CommonMark markdown. Toggle with the chevron button.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Sidebar</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Subsector Map</dt>
+            <dd class='mt-1 text-fg'>
+              Chevrons navigate to neighbouring subsectors. The clipboard icon copies a public, no-login-required
+              link to this subsector&rsquo;s map, for sharing with players.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Page Actions</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Populate</dt>
+            <dd class='mt-1 text-fg'>Only fills empty parsecs; existing star systems and rogues are left untouched.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Clear</dt>
+            <dd class='mt-1 text-fg'>Removes every star system and rogue stellar object in this subsector. Cannot be undone.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0619SS
+      </div>
+  </div>
+<% end %>

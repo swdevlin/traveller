@@ -992,7 +992,8 @@ CREATE TABLE public.sectors (
     updated_at timestamp(6) without time zone NOT NULL,
     x integer,
     y integer,
-    language character varying
+    language character varying,
+    reference_url character varying
 );
 
 
@@ -1202,7 +1203,8 @@ CREATE TABLE public.star_systems (
     travel_zone_id bigint,
     language character varying,
     build_config text,
-    known boolean DEFAULT false NOT NULL
+    known boolean DEFAULT false NOT NULL,
+    reference_url character varying
 );
 
 
@@ -1334,7 +1336,8 @@ CREATE TABLE public.subsectors (
     x integer NOT NULL,
     y integer NOT NULL,
     build_source character varying,
-    language character varying
+    language character varying,
+    reference_url character varying
 );
 
 
@@ -3050,6 +3053,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260819193234'),
 ('20260818130118'),
 ('20260814195027'),
 ('20260814195026'),

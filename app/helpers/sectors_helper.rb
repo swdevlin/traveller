@@ -29,12 +29,15 @@ module SectorsHelper
     end
   end
 
-  def traveller_wiki_link(sector)
-    link_to sector.wiki_link,
+  def traveller_wiki_link(sector, campaign)
+    url = safe_external_url(sector.effective_reference_url(campaign))
+    return nil unless url
+
+    link_to url,
             target: '_blank',
             rel: 'noopener',
-            title: 'Traveller Wiki',
-            aria: { label: "#{sector.name} on Traveller Wiki" },
+            title: 'Reference',
+            aria: { label: "#{sector.name} reference link" },
             class: 'text-slate-400 hover:text-traveller-red no-underline hover:underline transition-colors' do
       tag.i(class: 'fa-regular fa-book-open', aria: { hidden: true })
     end

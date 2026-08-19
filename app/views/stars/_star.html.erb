@@ -82,7 +82,10 @@
           <%= render 'application/data_block', label: 'AU', value: number_with_precision(star.au, precision: 2, strip_insignificant_zeros: true) %>
         <% end %>
         <%= render 'application/data_block', label: 'Period', value: format_period(star.period) %>
+        <%= render 'application/data_block', label: 'Inclination', value: "#{number_with_precision(star.inclination, precision: 2, strip_insignificant_zeros: true)}°" %>
         <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(star.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
+        <%= render 'application/data_block', label: 'Periapsis', value: number_with_precision(star.periapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
+        <%= render 'application/data_block', label: 'Apoapsis', value: number_with_precision(star.apoapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
       </div>
     </div>
   <% end %>

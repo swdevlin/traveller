@@ -86,6 +86,8 @@ type alias AnalyisDetailGasGiantData =
         , period : String
         , inclination : String
         , eccentricity : String
+        , periapsis : String
+        , apoapsis : String
         , mass : String
         , diameter : String
         , axialTilt : String
@@ -131,6 +133,8 @@ type alias AnalyisDetailPlanetoidData =
         , period : String
         , inclination : String
         , eccentricity : String
+        , periapsis : String
+        , apoapsis : String
         , mass : String
         , density : String
         , gravity : String
@@ -1034,9 +1038,9 @@ viewGovernmentDetail show data =
         in
         column [ width fill ]
             [ column groupAttrs
-                [ textDisplay "Government" <| show 44 data.social.government
+                [ textDisplay "Government" <| show 46 data.social.government
                 , if g.description /= "" then
-                    textDisplay "Description" <| show 46 g.description
+                    textDisplay "Description" <| show 48 g.description
 
                   else
                     none
@@ -1046,17 +1050,17 @@ viewGovernmentDetail show data =
                     [ viewSectionHeader "Structure"
                     , column groupAttrs
                         [ if g.judicial /= "" then
-                            textDisplay "Judicial" <| show 47 g.judicial
+                            textDisplay "Judicial" <| show 49 g.judicial
 
                           else
                             none
                         , if g.executive /= "" then
-                            textDisplay "Executive" <| show 48 g.executive
+                            textDisplay "Executive" <| show 50 g.executive
 
                           else
                             none
                         , if g.legislative /= "" then
-                            textDisplay "Legislative" <| show 49 g.legislative
+                            textDisplay "Legislative" <| show 51 g.legislative
 
                           else
                             none
@@ -1070,12 +1074,12 @@ viewGovernmentDetail show data =
                     [ viewSectionHeader "Characteristics"
                     , column groupAttrs
                         [ if g.authority /= "" then
-                            textDisplay "Authority" <| show 50 g.authority
+                            textDisplay "Authority" <| show 52 g.authority
 
                           else
                             none
                         , if g.centralisation /= "" then
-                            textDisplay "Centralisation" <| show 51 g.centralisation
+                            textDisplay "Centralisation" <| show 53 g.centralisation
 
                           else
                             none
@@ -1102,34 +1106,34 @@ viewLawLevelDetail show data =
         in
         column [ width fill ]
             [ column groupAttrs
-                [ textDisplay "Law Level" <| show 52 data.social.lawLevel
+                [ textDisplay "Law Level" <| show 54 data.social.lawLevel
                 ]
             , if sc.weaponsAndArmour /= "" || sc.criminalLaw /= "" || sc.economicLaw /= "" || sc.privateLaw /= "" || sc.personalRights /= "" then
                 column [ width fill ]
                     [ viewSectionHeader "Sub-Classifications"
                     , column groupAttrs
                         [ if sc.weaponsAndArmour /= "" then
-                            textDisplay "Weapons & Armour" <| show 53 sc.weaponsAndArmour
+                            textDisplay "Weapons & Armour" <| show 55 sc.weaponsAndArmour
 
                           else
                             none
                         , if sc.criminalLaw /= "" then
-                            textDisplay "Criminal Law" <| show 54 sc.criminalLaw
+                            textDisplay "Criminal Law" <| show 56 sc.criminalLaw
 
                           else
                             none
                         , if sc.economicLaw /= "" then
-                            textDisplay "Economic Law" <| show 55 sc.economicLaw
+                            textDisplay "Economic Law" <| show 57 sc.economicLaw
 
                           else
                             none
                         , if sc.privateLaw /= "" then
-                            textDisplay "Private Law" <| show 56 sc.privateLaw
+                            textDisplay "Private Law" <| show 58 sc.privateLaw
 
                           else
                             none
                         , if sc.personalRights /= "" then
-                            textDisplay "Personal Rights" <| show 57 sc.personalRights
+                            textDisplay "Personal Rights" <| show 59 sc.personalRights
 
                           else
                             none
@@ -1143,27 +1147,27 @@ viewLawLevelDetail show data =
                     [ viewSectionHeader "Characteristics"
                     , column groupAttrs
                         [ if ch.uniformity /= "" then
-                            textDisplay "Law Uniformity" <| show 58 ch.uniformity
+                            textDisplay "Law Uniformity" <| show 60 ch.uniformity
 
                           else
                             none
                         , if ch.judicialSystem /= "" then
-                            textDisplay "Judicial System" <| show 59 ch.judicialSystem
+                            textDisplay "Judicial System" <| show 61 ch.judicialSystem
 
                           else
                             none
                         , if ch.deathPenalty /= "" then
-                            textDisplay "Death Penalty" <| show 60 ch.deathPenalty
+                            textDisplay "Death Penalty" <| show 62 ch.deathPenalty
 
                           else
                             none
                         , if ch.presumedInnocence /= "" then
-                            textDisplay "Presumed Innocence" <| show 61 ch.presumedInnocence
+                            textDisplay "Presumed Innocence" <| show 63 ch.presumedInnocence
 
                           else
                             none
                         , if ch.econometricInfractionsAdministrative /= "" then
-                            textDisplay "Econometric Infractions Admin." <| show 62 ch.econometricInfractionsAdministrative
+                            textDisplay "Econometric Infractions Admin." <| show 64 ch.econometricInfractionsAdministrative
 
                           else
                             none
@@ -1186,17 +1190,17 @@ viewTechLevelDetail show data =
                 data.techDetail
 
             capDefs =
-                [ ( "Energy", td.energy, 65 )
-                , ( "Electronics", td.electronics, 66 )
-                , ( "Manufacturing", td.manufacturing, 67 )
-                , ( "Medical", td.medical, 68 )
-                , ( "Environmental", td.environmental, 69 )
-                , ( "Land Transport", td.land, 70 )
-                , ( "Water Transport", td.sea, 71 )
-                , ( "Air Transport", td.air, 72 )
-                , ( "Space Transport", td.space, 73 )
-                , ( "Personal Military", td.personalMilitary, 74 )
-                , ( "Heavy Military", td.heavyMilitary, 75 )
+                [ ( "Energy", td.energy, 67 )
+                , ( "Electronics", td.electronics, 68 )
+                , ( "Manufacturing", td.manufacturing, 69 )
+                , ( "Medical", td.medical, 70 )
+                , ( "Environmental", td.environmental, 71 )
+                , ( "Land Transport", td.land, 72 )
+                , ( "Water Transport", td.sea, 73 )
+                , ( "Air Transport", td.air, 74 )
+                , ( "Space Transport", td.space, 75 )
+                , ( "Personal Military", td.personalMilitary, 76 )
+                , ( "Heavy Military", td.heavyMilitary, 77 )
                 ]
 
             hasCaps =
@@ -1204,9 +1208,9 @@ viewTechLevelDetail show data =
         in
         column [ width fill ]
             [ column groupAttrs
-                [ textDisplay "Tech Level" <| show 63 data.social.techLevel
+                [ textDisplay "Tech Level" <| show 65 data.social.techLevel
                 , if td.descriptor /= "" then
-                    textDisplay "Descriptor" <| show 64 td.descriptor
+                    textDisplay "Descriptor" <| show 66 td.descriptor
 
                   else
                     none
@@ -1232,28 +1236,28 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
         firstTabIndex =
             case safeTab of
                 "starport" ->
-                    76
+                    78
 
                 "physical" ->
-                    7
+                    9
 
                 "atmo" ->
-                    17
+                    19
 
                 "hydro" ->
-                    23
+                    25
 
                 "pop" ->
-                    26
+                    28
 
                 "gov" ->
-                    44
+                    46
 
                 "law" ->
-                    52
+                    54
 
                 "tech" ->
-                    63
+                    65
 
                 _ ->
                     0
@@ -1290,7 +1294,11 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             , data.physical.inclination
             , data.physical.eccentricity
 
-            -- 7–16: physical tab
+            -- 7–8: orbital tab (periapsis/apoapsis)
+            , data.physical.periapsis
+            , data.physical.apoapsis
+
+            -- 9–18: physical tab
             , data.physical.sizeCode
             , data.physical.diameter
             , data.physical.mass
@@ -1302,7 +1310,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             , data.physical.albedo
             , data.physical.greenhouse
 
-            -- 17–22: atmo tab
+            -- 19–24: atmo tab
             , data.atmosphere.type_
             , data.atmosphere.bar
             , data.atmosphere.hazardCode
@@ -1310,12 +1318,12 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             , data.atmosphere.taint.severity
             , data.atmosphere.taint.persistence
 
-            -- 23–25: hydro tab
+            -- 25–27: hydro tab
             , data.hydrographics.percentage
             , data.hydrographics.liquid
             , data.hydrographics.surfaceDistribution
 
-            -- 26–35: pop tab
+            -- 28–37: pop tab
             , data.social.population
             , data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault ""
             , data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault ""
@@ -1327,9 +1335,9 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             , data.life.habitability
             , data.life.sophonts
             ]
-                -- 36–43: culture (8 fixed slots)
+                -- 38–45: culture (8 fixed slots)
                 ++ cultureLabels
-                -- 44–51: gov tab
+                -- 46–53: gov tab
                 ++ [ data.social.government
                    , data.government.type_
                    , data.government.description
@@ -1339,7 +1347,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                    , data.government.authority
                    , data.government.centralisation
                    ]
-                -- 52–62: law tab
+                -- 54–64: law tab
                 ++ [ data.social.lawLevel
                    , data.lawSubClassifications.weaponsAndArmour
                    , data.lawSubClassifications.criminalLaw
@@ -1352,7 +1360,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                    , data.lawCharacteristics.presumedInnocence
                    , data.lawCharacteristics.econometricInfractionsAdministrative
                    ]
-                -- 63–75: tech tab
+                -- 65–77: tech tab
                 ++ [ data.social.techLevel
                    , data.techDetail.descriptor
                    , data.techDetail.energy
@@ -1367,7 +1375,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                    , data.techDetail.personalMilitary
                    , data.techDetail.heavyMilitary
                    ]
-                -- 76–81: starport tab
+                -- 78–83: starport tab
                 ++ [ data.starport.code
                    , data.starport.quality
                    , data.starport.fuel
@@ -1428,16 +1436,16 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
 
                 "starport" ->
                     column groupAttrs
-                        [ textDisplay "Starport Class" <| show 76 data.starport.code
-                        , textDisplay "Quality" <| show 77 data.starport.quality
+                        [ textDisplay "Starport Class" <| show 78 data.starport.code
+                        , textDisplay "Quality" <| show 79 data.starport.quality
                         , if data.starport.facilities /= "None" then
-                            textDisplay "Facilities" <| show 79 data.starport.facilities
+                            textDisplay "Facilities" <| show 81 data.starport.facilities
 
                           else
                             none
-                        , textDisplay "Berthing" <| show 80 (starportCredits data.starport.berthingCost)
+                        , textDisplay "Berthing" <| show 82 (starportCredits data.starport.berthingCost)
                         , textDisplayAttrs "Fuel Cost"
-                            (show 81 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
+                            (show 83 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
                             [ HtmlAttrs.title (starportFuelCostTooltip data.starport.refinedFuelCost data.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
                         ]
 
@@ -1446,11 +1454,11 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                         [ viewSectionHeader "Physical Data"
                         , row (spacing 40 :: groupAttrs)
                             [ column [ alignTop ]
-                                [ textDisplayMedium ("Diameter (" ++ show 7 data.physical.sizeCode ++ ")") <| show 8 data.physical.diameter
+                                [ textDisplayMedium ("Diameter (" ++ show 9 data.physical.sizeCode ++ ")") <| show 10 data.physical.diameter
                                 , textDisplayMedium "Mass" <|
                                     let
                                         m =
-                                            show 9 data.physical.mass
+                                            show 11 data.physical.mass
                                     in
                                     if m == "—" || m == "" then
                                         m
@@ -1460,33 +1468,33 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 , textDisplayMedium "Density" <|
                                     let
                                         d =
-                                            show 10 data.physical.density
+                                            show 12 data.physical.density
                                     in
                                     if d == "—" || d == "" then
                                         d
 
                                     else
                                         d ++ " ☉"
-                                , textDisplayMedium "Gravity (G)" <| show 11 data.physical.gravity
+                                , textDisplayMedium "Gravity (G)" <| show 13 data.physical.gravity
                                 ]
                             ]
                         , viewSectionHeader "Environmental Data"
                         , row (spacing 40 :: groupAttrs)
                             [ column [ alignTop ]
-                                [ textDisplayNarrow "Temperature" <| show 12 data.physical.meanTemperature
-                                , textDisplayNarrow "Rotation" <| show 13 data.physical.rotation
-                                , textDisplayNarrow "Axial Tilt" <| show 14 data.physical.axialTilt
-                                , textDisplayNarrow "Albedo" <| show 15 data.physical.albedo
-                                , textDisplayNarrow "Greenhouse" <| show 16 data.physical.greenhouse
+                                [ textDisplayNarrow "Temperature" <| show 14 data.physical.meanTemperature
+                                , textDisplayNarrow "Rotation" <| show 15 data.physical.rotation
+                                , textDisplayNarrow "Axial Tilt" <| show 16 data.physical.axialTilt
+                                , textDisplayNarrow "Albedo" <| show 17 data.physical.albedo
+                                , textDisplayNarrow "Greenhouse" <| show 18 data.physical.greenhouse
                                 ]
                             ]
                         ]
 
                 "atmo" ->
                     column groupAttrs
-                        [ textDisplay "Type" <| show 17 data.atmosphere.type_
-                        , textDisplay "BAR" <| show 18 data.atmosphere.bar
-                        , textDisplay "Hazard Code" <| show 19 data.atmosphere.hazardCode
+                        [ textDisplay "Type" <| show 19 data.atmosphere.type_
+                        , textDisplay "BAR" <| show 20 data.atmosphere.bar
+                        , textDisplay "Hazard Code" <| show 21 data.atmosphere.hazardCode
                         , row [ width fill ]
                             [ el
                                 [ fontVar "--color-fg-muted"
@@ -1499,22 +1507,22 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                               <|
                                 text "Taint"
                             , column [ width fill ]
-                                [ taintTextDisplay "Subtype" <| show 20 data.atmosphere.taint.subtype
-                                , taintTextDisplay "Severity" <| show 21 data.atmosphere.taint.severity
-                                , taintTextDisplay "Persistence" <| show 22 data.atmosphere.taint.persistence
+                                [ taintTextDisplay "Subtype" <| show 22 data.atmosphere.taint.subtype
+                                , taintTextDisplay "Severity" <| show 23 data.atmosphere.taint.severity
+                                , taintTextDisplay "Persistence" <| show 24 data.atmosphere.taint.persistence
                                 ]
                             ]
                         ]
 
                 "hydro" ->
                     column groupAttrs
-                        [ textDisplay "Percentage" <| show 23 data.hydrographics.percentage
+                        [ textDisplay "Percentage" <| show 25 data.hydrographics.percentage
                         , if data.hydrographics.liquid /= "" then
-                            textDisplay "Liquid" <| show 24 data.hydrographics.liquid
+                            textDisplay "Liquid" <| show 26 data.hydrographics.liquid
 
                           else
                             none
-                        , textDisplay "Surface Distribution" <| show 25 data.hydrographics.surfaceDistribution
+                        , textDisplay "Surface Distribution" <| show 27 data.hydrographics.surfaceDistribution
                         ]
 
                 "pop" ->
@@ -1523,7 +1531,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             List.take 4 data.cultureTrait
                                 |> List.indexedMap
                                     (\i ct ->
-                                        if show (36 + i) ct.label /= "" then
+                                        if show (38 + i) ct.label /= "" then
                                             viewCultureGauge ct
 
                                         else
@@ -1534,7 +1542,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             List.drop 4 data.cultureTrait
                                 |> List.indexedMap
                                     (\i ct ->
-                                        if show (40 + i) ct.label /= "" then
+                                        if show (42 + i) ct.label /= "" then
                                             viewCultureGauge ct
 
                                         else
@@ -1544,11 +1552,11 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                     column [ width fill ]
                         [ viewSectionHeader "Population"
                         , column groupAttrs
-                            [ textDisplay "Population" <| show 26 data.social.population
+                            [ textDisplay "Population" <| show 28 data.social.population
                             , textDisplay "Concentration Rating"
                                 (let
                                     s =
-                                        show 27 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 29 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.concentrationRating == Nothing then
@@ -1563,7 +1571,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             , textDisplay "Urbanisation %"
                                 (let
                                     s =
-                                        show 28 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 30 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.urbanizationPercentage == Nothing then
@@ -1578,7 +1586,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             , textDisplay "Major Cities"
                                 (let
                                     s =
-                                        show 29 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 31 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.majorCities == Nothing then
@@ -1593,12 +1601,12 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             ]
                         , viewSectionHeader "Life"
                         , column groupAttrs
-                            [ textDisplay "Biomass" <| show 30 data.life.biomass
-                            , textDisplay "Biocomplexity" <| show 31 data.life.biocomplexity
-                            , textDisplay "Biodiversity" <| show 32 data.life.biodiversity
-                            , textDisplay "Compatibility" <| show 33 data.life.compatibility
-                            , textDisplay "Habitability" <| show 34 data.life.habitability
-                            , textDisplay "Sophonts" <| show 35 data.life.sophonts
+                            [ textDisplay "Biomass" <| show 32 data.life.biomass
+                            , textDisplay "Biocomplexity" <| show 33 data.life.biocomplexity
+                            , textDisplay "Biodiversity" <| show 34 data.life.biodiversity
+                            , textDisplay "Compatibility" <| show 35 data.life.compatibility
+                            , textDisplay "Habitability" <| show 36 data.life.habitability
+                            , textDisplay "Sophonts" <| show 37 data.life.sophonts
                             ]
                         , if isReferee && not (List.isEmpty data.cultureTrait) then
                             column [ width fill ]
@@ -1633,6 +1641,8 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                                 , textDisplayNarrow "Retrograde" <| show 4 data.orbital.retrograde
                                 , textDisplayNarrow "Inclination" <| show 5 data.physical.inclination
                                 , textDisplayNarrow "Eccentricity" <| show 6 data.physical.eccentricity
+                                , textDisplayNarrow "Periapsis" <| show 7 data.physical.periapsis
+                                , textDisplayNarrow "Apoapsis" <| show 8 data.physical.apoapsis
                                 ]
                             ]
                         , viewJumpShadowTable data.jumpShadowKm
@@ -1650,7 +1660,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
         firstTabIndex =
             case safeTab of
                 "physical" ->
-                    4
+                    6
 
                 _ ->
                     0
@@ -1674,6 +1684,8 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
             , data.physical.period
             , data.physical.inclination
             , data.physical.eccentricity
+            , data.physical.periapsis
+            , data.physical.apoapsis
             , data.physical.mass
             , data.physical.diameter
             , data.physical.axialTilt
@@ -1706,19 +1718,18 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
                             [ textDisplayMedium "Mass" <|
                                 let
                                     m =
-                                        show 4 data.physical.mass
+                                        show 6 data.physical.mass
                                 in
                                 if m == "—" || m == "" then
                                     m
 
                                 else
                                     m ++ " ☉"
-                            , textDisplayMedium "Diameter (km)" <| show 5 data.physical.diameter
-                            , textDisplayMedium "Axial Tilt" <| show 6 data.physical.axialTilt
+                            , textDisplayMedium "Diameter (km)" <| show 7 data.physical.diameter
+                            , textDisplayMedium "Axial Tilt" <| show 8 data.physical.axialTilt
                             ]
                         , column [ alignTop ]
-                            [ textDisplayNarrow "Moons" <| show 7 data.physical.moons
-                            , textDisplayNarrow "Rings" <| show 8 data.physical.hasRing
+                            [ textDisplayNarrow "Rings" <| show 10 data.physical.hasRing
                             ]
                         ]
 
@@ -1733,6 +1744,8 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
                                 , textDisplayNarrow "Period (yrs)" <| show 1 data.physical.period
                                 , textDisplayNarrow "Inclination" <| show 2 data.physical.inclination
                                 , textDisplayNarrow "Eccentricity" <| show 3 data.physical.eccentricity
+                                , textDisplayNarrow "Periapsis" <| show 4 data.physical.periapsis
+                                , textDisplayNarrow "Apoapsis" <| show 5 data.physical.apoapsis
                                 ]
                             ]
                         , viewJumpShadowTable data.jumpShadowKm
@@ -2003,28 +2016,28 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
         firstTabIndex =
             case safeTab of
                 "starport" ->
-                    76
+                    78
 
                 "physical" ->
-                    7
+                    9
 
                 "atmo" ->
-                    17
+                    19
 
                 "hydro" ->
-                    23
+                    25
 
                 "pop" ->
-                    26
+                    28
 
                 "gov" ->
-                    44
+                    46
 
                 "law" ->
-                    52
+                    54
 
                 "tech" ->
-                    63
+                    65
 
                 _ ->
                     0
@@ -2060,7 +2073,11 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
             , pd.physical.inclination
             , pd.physical.eccentricity
 
-            -- 7–16: physical tab (belt composition replaces planet physical; padded to 10 slots)
+            -- 7–8: orbital tab (periapsis/apoapsis)
+            , pd.physical.periapsis
+            , pd.physical.apoapsis
+
+            -- 9–18: physical tab (belt composition replaces planet physical; padded to 10 slots)
             , data.composition.mType
             , data.composition.sType
             , data.composition.cType
@@ -2072,7 +2089,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
             , ""
             , ""
 
-            -- 17–22: atmo tab
+            -- 19–24: atmo tab
             , pd.atmosphere.type_
             , pd.atmosphere.bar
             , pd.atmosphere.hazardCode
@@ -2080,12 +2097,12 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
             , pd.atmosphere.taint.severity
             , pd.atmosphere.taint.persistence
 
-            -- 23–25: hydro tab
+            -- 25–27: hydro tab
             , pd.hydrographics.percentage
             , pd.hydrographics.liquid
             , pd.hydrographics.surfaceDistribution
 
-            -- 26–35: pop tab
+            -- 28–37: pop tab
             , pd.social.population
             , pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault ""
             , pd.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault ""
@@ -2097,9 +2114,9 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
             , pd.life.habitability
             , pd.life.sophonts
             ]
-                -- 36–43: culture (8 fixed slots)
+                -- 38–45: culture (8 fixed slots)
                 ++ cultureLabels
-                -- 44–51: gov tab
+                -- 46–53: gov tab
                 ++ [ pd.social.government
                    , pd.government.type_
                    , pd.government.description
@@ -2109,7 +2126,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                    , pd.government.authority
                    , pd.government.centralisation
                    ]
-                -- 52–62: law tab
+                -- 54–64: law tab
                 ++ [ pd.social.lawLevel
                    , pd.lawSubClassifications.weaponsAndArmour
                    , pd.lawSubClassifications.criminalLaw
@@ -2122,7 +2139,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                    , pd.lawCharacteristics.presumedInnocence
                    , pd.lawCharacteristics.econometricInfractionsAdministrative
                    ]
-                -- 63–75: tech tab
+                -- 65–77: tech tab
                 ++ [ pd.social.techLevel
                    , pd.techDetail.descriptor
                    , pd.techDetail.energy
@@ -2137,7 +2154,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                    , pd.techDetail.personalMilitary
                    , pd.techDetail.heavyMilitary
                    ]
-                -- 76–81: starport tab
+                -- 78–83: starport tab
                 ++ [ pd.starport.code
                    , pd.starport.quality
                    , pd.starport.fuel
@@ -2189,16 +2206,16 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
 
                 "starport" ->
                     column groupAttrs
-                        [ textDisplay "Starport Class" <| show 76 pd.starport.code
-                        , textDisplay "Quality" <| show 77 pd.starport.quality
+                        [ textDisplay "Starport Class" <| show 78 pd.starport.code
+                        , textDisplay "Quality" <| show 79 pd.starport.quality
                         , if pd.starport.facilities /= "None" then
-                            textDisplay "Facilities" <| show 79 pd.starport.facilities
+                            textDisplay "Facilities" <| show 81 pd.starport.facilities
 
                           else
                             none
-                        , textDisplay "Berthing" <| show 80 (starportCredits pd.starport.berthingCost)
+                        , textDisplay "Berthing" <| show 82 (starportCredits pd.starport.berthingCost)
                         , textDisplayAttrs "Fuel Cost"
-                            (show 81 (starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost))
+                            (show 83 (starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost))
                             [ HtmlAttrs.title (starportFuelCostTooltip pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
                         ]
 
@@ -2206,24 +2223,24 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                     column [ width fill ]
                         [ viewSectionHeader "Belt Composition"
                         , column groupAttrs
-                            [ textDisplay "Metallic" <| show 7 data.composition.mType
-                            , textDisplay "Stony" <| show 8 data.composition.sType
-                            , textDisplay "Carbonaceous" <| show 9 data.composition.cType
-                            , textDisplay "Other" <| show 10 data.composition.oType
+                            [ textDisplay "Metallic" <| show 9 data.composition.mType
+                            , textDisplay "Stony" <| show 10 data.composition.sType
+                            , textDisplay "Carbonaceous" <| show 11 data.composition.cType
+                            , textDisplay "Other" <| show 12 data.composition.oType
                             ]
                         , viewSectionHeader "Belt Data"
                         , column groupAttrs
-                            [ textDisplay "Resource Rating" <| show 11 data.belt.resourceRating
-                            , textDisplay "Bulk" <| show 12 data.belt.bulk
-                            , textDisplay "Span" <| show 13 data.belt.span
+                            [ textDisplay "Resource Rating" <| show 13 data.belt.resourceRating
+                            , textDisplay "Bulk" <| show 14 data.belt.bulk
+                            , textDisplay "Span" <| show 15 data.belt.span
                             ]
                         ]
 
                 "atmo" ->
                     column groupAttrs
-                        [ textDisplay "Type" <| show 17 pd.atmosphere.type_
-                        , textDisplay "BAR" <| show 18 pd.atmosphere.bar
-                        , textDisplay "Hazard Code" <| show 19 pd.atmosphere.hazardCode
+                        [ textDisplay "Type" <| show 19 pd.atmosphere.type_
+                        , textDisplay "BAR" <| show 20 pd.atmosphere.bar
+                        , textDisplay "Hazard Code" <| show 21 pd.atmosphere.hazardCode
                         , row [ width fill ]
                             [ el
                                 [ fontVar "--color-fg-muted"
@@ -2236,22 +2253,22 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                               <|
                                 text "Taint"
                             , column [ width fill ]
-                                [ taintTextDisplay "Subtype" <| show 20 pd.atmosphere.taint.subtype
-                                , taintTextDisplay "Severity" <| show 21 pd.atmosphere.taint.severity
-                                , taintTextDisplay "Persistence" <| show 22 pd.atmosphere.taint.persistence
+                                [ taintTextDisplay "Subtype" <| show 22 pd.atmosphere.taint.subtype
+                                , taintTextDisplay "Severity" <| show 23 pd.atmosphere.taint.severity
+                                , taintTextDisplay "Persistence" <| show 24 pd.atmosphere.taint.persistence
                                 ]
                             ]
                         ]
 
                 "hydro" ->
                     column groupAttrs
-                        [ textDisplay "Percentage" <| show 23 pd.hydrographics.percentage
+                        [ textDisplay "Percentage" <| show 25 pd.hydrographics.percentage
                         , if pd.hydrographics.liquid /= "" then
-                            textDisplay "Liquid" <| show 24 pd.hydrographics.liquid
+                            textDisplay "Liquid" <| show 26 pd.hydrographics.liquid
 
                           else
                             none
-                        , textDisplay "Surface Distribution" <| show 25 pd.hydrographics.surfaceDistribution
+                        , textDisplay "Surface Distribution" <| show 27 pd.hydrographics.surfaceDistribution
                         ]
 
                 "pop" ->
@@ -2260,7 +2277,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             List.take 4 pd.cultureTrait
                                 |> List.indexedMap
                                     (\i ct ->
-                                        if show (36 + i) ct.label /= "" then
+                                        if show (38 + i) ct.label /= "" then
                                             viewCultureGauge ct
 
                                         else
@@ -2271,7 +2288,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             List.drop 4 pd.cultureTrait
                                 |> List.indexedMap
                                     (\i ct ->
-                                        if show (40 + i) ct.label /= "" then
+                                        if show (42 + i) ct.label /= "" then
                                             viewCultureGauge ct
 
                                         else
@@ -2281,11 +2298,11 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                     column [ width fill ]
                         [ viewSectionHeader "Population"
                         , column groupAttrs
-                            [ textDisplay "Population" <| show 26 pd.social.population
+                            [ textDisplay "Population" <| show 28 pd.social.population
                             , textDisplay "Concentration Rating"
                                 (let
                                     s =
-                                        show 27 (pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 29 (pd.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if pd.social.concentrationRating == Nothing then
@@ -2300,7 +2317,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             , textDisplay "Urbanisation %"
                                 (let
                                     s =
-                                        show 28 (pd.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 30 (pd.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if pd.social.urbanizationPercentage == Nothing then
@@ -2315,7 +2332,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             , textDisplay "Major Cities"
                                 (let
                                     s =
-                                        show 29 (pd.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 31 (pd.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if pd.social.majorCities == Nothing then
@@ -2330,12 +2347,12 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                             ]
                         , viewSectionHeader "Life"
                         , column groupAttrs
-                            [ textDisplay "Biomass" <| show 30 pd.life.biomass
-                            , textDisplay "Biocomplexity" <| show 31 pd.life.biocomplexity
-                            , textDisplay "Biodiversity" <| show 32 pd.life.biodiversity
-                            , textDisplay "Compatibility" <| show 33 pd.life.compatibility
-                            , textDisplay "Habitability" <| show 34 pd.life.habitability
-                            , textDisplay "Sophonts" <| show 35 pd.life.sophonts
+                            [ textDisplay "Biomass" <| show 32 pd.life.biomass
+                            , textDisplay "Biocomplexity" <| show 33 pd.life.biocomplexity
+                            , textDisplay "Biodiversity" <| show 34 pd.life.biodiversity
+                            , textDisplay "Compatibility" <| show 35 pd.life.compatibility
+                            , textDisplay "Habitability" <| show 36 pd.life.habitability
+                            , textDisplay "Sophonts" <| show 37 pd.life.sophonts
                             ]
                         , if isReferee && not (List.isEmpty pd.cultureTrait) then
                             column [ width fill ]
@@ -2370,6 +2387,8 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
                                 , textDisplayNarrow "Retrograde" <| show 4 pd.orbital.retrograde
                                 , textDisplayNarrow "Inclination" <| show 5 pd.physical.inclination
                                 , textDisplayNarrow "Eccentricity" <| show 6 pd.physical.eccentricity
+                                , textDisplayNarrow "Periapsis" <| show 7 pd.physical.periapsis
+                                , textDisplayNarrow "Apoapsis" <| show 8 pd.physical.apoapsis
                                 ]
                             ]
                         , viewJumpShadowTable pd.jumpShadowKm

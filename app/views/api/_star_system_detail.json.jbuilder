@@ -4,6 +4,7 @@ json.map_url signed_map_url(map_star_system_path(star_system))
 player_visible = @is_referee || star_system.known? || star_system.survey_index >= 10
 
 json.known star_system.known?
+json.reference_url player_visible ? star_system.effective_reference_url(current_campaign) : nil
 json.bases(player_visible ? star_system.facilities.to_a.sort_by(&:code) : []) do |facility|
   json.code facility.code
   json.name facility.name

@@ -1,6 +1,12 @@
 <% content_for :title, "Subsector #{@subsector.name}" %>
 <% sector = @subsector.sector %>
 
+<%
+  hierarchy = []
+  hierarchy << [sector.name, sector_path(sector)] if sector
+%>
+<%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
 <% content_for :page_kicker, 'IISS Class I Subsector Survey' %>
 <% content_for :page_title do %>
   <%= @subsector.name %><span class='text-fg-muted'>, <%= sector.name %></span>
@@ -43,30 +49,18 @@
      data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
   <%= render 'application/two_column_page' do %>
     <div class='space-y-6'>
-      <div class='grid grid-cols-1 gap-4 sm:grid-cols-3'>
-        <%= render 'application/data_block',
-                   label: 'Sector',
-                   value: link_to(sector.name,
-                                  sector_path(sector),
-                                  class: 'hover:underline underline-offset-4') %>
-
-        <%= render 'application/data_block',
-                   label: 'Library data',
-                   value: (
-                     if (u = safe_external_url(@subsector.wiki_link))
-                       link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
-                               class: 'hover:underline underline-offset-4')
-                     else
-                       content_tag(:span, 'Undocumented', class: 'text-fg-muted')
-                     end
-                   ) %>
-      </div>
-
       <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
         <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
         <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
         <% if show_population_count? %>
           <%= render 'application/data_block', label: 'Populated', value: @populated_system_count %>
+        <% end %>
+
+        <% if (reference_url = safe_external_url(@subsector.effective_reference_url(current_campaign))) %>
+          <%= render 'application/data_block',
+                     label: 'Library data',
+                     value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
+                                    class: 'hover:underline underline-offset-4') %>
         <% end %>
       </div>
 

@@ -4,16 +4,14 @@
     <%= sector.x %>/<%= sector.y %>
   </div>
 
-  <div>
-    <p>
-      <strong>Library data:</strong>
-      <% unless sector.wiki_link.nil? %>
-        <%= link_to "Traveller Wiki", sector.wiki_link, target: "_blank", rel: "noopener", class: "link-traveller" %>
-      <% else %>
-        <span>Undocumented</span>
-      <% end %>
-    </p>
-  </div>
+  <% if (reference_url = safe_external_url(sector.effective_reference_url(current_campaign))) %>
+    <div>
+      <p>
+        <strong>Library data:</strong>
+        <%= link_to "Reference", reference_url, target: "_blank", rel: "noopener", class: "link-traveller" %>
+      </p>
+    </div>
+  <% end %>
 
   <div>
     <p>

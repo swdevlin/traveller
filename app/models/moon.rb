@@ -68,13 +68,13 @@ class Moon < StellarObject
       planet_remaining = planet.jump_shadow - moon_to_planet_km
       best = { km: planet_remaining, source: planet } if planet_remaining > best[:km]
 
-      cumulative_distance_km = moon_to_planet_km + (planet.au || 0) * StellarConstants::AU_TO_KM
+      cumulative_distance_km = moon_to_planet_km + planet.orbit_distance_from_parent_km
 
       star = planet.orbiting
       while star.present?
         star_remaining = star.jump_shadow - cumulative_distance_km
         best = { km: star_remaining, source: star } if star_remaining > best[:km]
-        cumulative_distance_km += (star.au || 0) * StellarConstants::AU_TO_KM
+        cumulative_distance_km += star.orbit_distance_from_parent_km
         star = star.orbiting
       end
 

@@ -1,6 +1,7 @@
 class Sector < ApplicationRecord
   include Discard::Model
   include ClearableParsecs
+  include HasReferenceUrl
   validates :x, :y, presence: true
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   has_many :subsectors, dependent: :destroy
@@ -15,10 +16,6 @@ class Sector < ApplicationRecord
 
   def effective_language(campaign)
     language.presence || campaign.default_language.presence
-  end
-
-  def wiki_link
-    "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
   end
 
   def traveller_map_url
@@ -65,6 +62,10 @@ class Sector < ApplicationRecord
   end
 
   private
+
+  def default_reference_url
+    "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
+  end
 
   def coordinates_unique_with_link
     return if x.blank? || y.blank?

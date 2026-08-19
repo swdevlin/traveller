@@ -1,5 +1,6 @@
 class Subsector < ApplicationRecord
   include ClearableParsecs
+  include HasReferenceUrl
 
   normalizes *attribute_names, with: -> { it.presence }
 
@@ -124,10 +125,6 @@ class Subsector < ApplicationRecord
       .distinct
   end
 
-  def wiki_link
-    "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
-  end
-
   def letter
     (('A'.ord) + (y - 1) * 4 + (x - 1)).chr
   end
@@ -193,6 +190,10 @@ class Subsector < ApplicationRecord
   end
 
   private
+
+  def default_reference_url
+    "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Subsector"
+  end
 
   def deepnight_sector_data
     path = Rails.root.join('db', 'data', 'sector_defaults', "#{sector.x}_#{sector.y}.yaml")

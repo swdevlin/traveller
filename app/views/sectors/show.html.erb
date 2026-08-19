@@ -115,16 +115,12 @@
                    end
                  ) %>
 
-      <%= render 'application/data_block',
-                 label: 'Library data',
-                 value: (
-                   if (u = safe_external_url(@sector.wiki_link))
-                     link_to('Traveller Wiki', u, target: '_blank', rel: 'noopener',
-                             class: 'hover:underline underline-offset-4')
-                   else
-                     tag.span('Undocumented', class: 'text-fg-muted')
-                   end
-                 ) %>
+      <% if (reference_url = safe_external_url(@sector.effective_reference_url(current_campaign))) %>
+        <%= render 'application/data_block',
+                   label: 'Library data',
+                   value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
+                                  class: 'hover:underline underline-offset-4') %>
+      <% end %>
     </div>
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>

@@ -39,6 +39,8 @@ json.orbit_position do
   json.x stellar_object.orbit_x || 0.0
   json.y stellar_object.orbit_y || 0.0
 end
+json.periapsis stellar_object.periapsis
+json.apoapsis stellar_object.apoapsis
 json.orbit_type stellar_object.orbit_type if stellar_object.respond_to?(:orbit_type)
 json.is_moon stellar_object.is_a?(Moon)
 json.orbiting_name stellar_object.orbiting&.display_name

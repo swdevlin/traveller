@@ -8869,6 +8869,8 @@ update msg ( time, model ) =
                                 , period = rnd 2 (ggdata.period / 365.25)
                                 , inclination = rnd 0 ggdata.inclination ++ "°"
                                 , eccentricity = rnd 2 ggdata.eccentricity
+                                , periapsis = rnd 2 ggdata.periapsis ++ " au"
+                                , apoapsis = rnd 2 ggdata.apoapsis ++ " au"
                                 , mass = rndm 2 0 ggdata.mass
                                 , diameter = format { usLocale | decimals = Exact 0, thousandSeparator = " " } ggdata.diameter
                                 , axialTilt = rnd 2 ggdata.axialTilt ++ "°"
@@ -9034,6 +9036,8 @@ update msg ( time, model ) =
                                         , period = rnd 2 (pdata.period / 365.25)
                                         , inclination = rnd 0 pdata.inclination ++ "°"
                                         , eccentricity = rnd 2 pdata.eccentricity
+                                        , periapsis = rnd 2 pdata.periapsis ++ " au"
+                                        , apoapsis = rnd 2 pdata.apoapsis ++ " au"
                                         , mass = "—"
                                         , density = "—"
                                         , gravity = "—"
@@ -9347,6 +9351,8 @@ update msg ( time, model ) =
                                             "—"
                                 , inclination = rnd 0 pdata.inclination ++ "°"
                                 , eccentricity = rnd 2 pdata.eccentricity
+                                , periapsis = rnd 2 pdata.periapsis ++ " au"
+                                , apoapsis = rnd 2 pdata.apoapsis ++ " au"
                                 , mass = rndm 2 0 pdata.mass
                                 , density = rndm 2 0 pdata.density
                                 , gravity = rndm 2 0 pdata.gravity

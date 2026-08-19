@@ -9,8 +9,8 @@
 
 <%
   hierarchy = []
-  hierarchy << [sector.name, sector_path(sector)] if sector
-  hierarchy << [subsector.name, subsector_path(subsector)] if subsector
+  hierarchy << [parsec.display_name, sector_path(sector)] if sector
+  hierarchy << [parsec.subsector_display_name, subsector_path(subsector)] if subsector
   hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
   hierarchy << [parent.display_name, stellar_object_path(parent)] if parent
 

@@ -27,6 +27,8 @@ json.orbit_position do
   json.x star.orbit_x || 0.0
   json.y star.orbit_y || 0.0
 end
+json.periapsis                star.periapsis
+json.apoapsis                 star.apoapsis
 json.orbit_type star.orbiting_id.nil? ? 0 : 1
 json.safe_jump_time star.safe_jump_time
 

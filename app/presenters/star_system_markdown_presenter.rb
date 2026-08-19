@@ -1,8 +1,9 @@
 class StarSystemMarkdownPresenter
   include ActionView::Helpers::NumberHelper
 
-  def initialize(star_system)
+  def initialize(star_system, campaign)
     @sys = star_system
+    @campaign = campaign
   end
 
   def render
@@ -30,6 +31,9 @@ class StarSystemMarkdownPresenter
       fields << "**Travel Zone:** #{tz.name} (#{tz.code})"
     end
     fields << "**Trade Codes:** #{@sys.trade_codes_string}" if @sys.trade_codes_string.present?
+    if (ref = @sys.effective_reference_url(@campaign)).present?
+      fields << "**Library Data:** #{ref}"
+    end
     fields << "**Facilities:** #{@sys.facilities_string}" if @sys.facilities_string.present?
     fields
   end

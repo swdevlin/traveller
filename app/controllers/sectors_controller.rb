@@ -416,7 +416,7 @@ class SectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def sector_params
-      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language, :default_build_spec])
+      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language, :default_build_spec, :reference_url])
     end
 
     def job_priority(sector, subsector)

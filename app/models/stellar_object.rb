@@ -136,7 +136,7 @@ class StellarObject < ApplicationRecord
 
       best = { km: jump_shadow, source: nil }
 
-      object_distance_km = (au || 0) * StellarConstants::AU_TO_KM
+      object_distance_km = orbit_distance_from_parent_km
       star = orbiting
       cumulative_distance_km = object_distance_km
 
@@ -144,7 +144,7 @@ class StellarObject < ApplicationRecord
       best = { km: star_remaining, source: star } if star_remaining > best[:km]
 
       while star.orbiting.present?
-        cumulative_distance_km += (star.au || 0) * StellarConstants::AU_TO_KM
+        cumulative_distance_km += star.orbit_distance_from_parent_km
         star = star.orbiting
         ancestor_remaining = (star.jump_shadow || 0) - cumulative_distance_km
         best = { km: ancestor_remaining, source: star } if ancestor_remaining > best[:km]

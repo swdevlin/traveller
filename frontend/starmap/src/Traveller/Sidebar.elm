@@ -212,6 +212,27 @@ profileFieldDisplayAttrs lbl val extraAttrs =
         ]
 
 
+{-| Like `profileFieldDisplay`, but the value is an external link.
+-}
+profileFieldLinkDisplay : String -> String -> String -> Html msg
+profileFieldLinkDisplay lbl linkText url =
+    row [ width fill, paddingEach { zeroEach | top = 3 } ]
+        [ el [ fixedFlex 80, fontVar "--color-fg-muted", fontSize 11, bold, alignTop ] (text lbl)
+        , Html.a
+            [ HtmlAttrs.href url
+            , HtmlAttrs.target "_blank"
+            , HtmlAttrs.rel "noopener"
+            , HtmlAttrs.style "margin" "0"
+            , growFlex
+            , shrinkable
+            , fontSize 12
+            , alignTop
+            , fontVar "--color-fg-bright"
+            ]
+            [ text linkText ]
+        ]
+
+
 
 -- ── SIDEBAR ──────────────────────────────────────────────────────────────────
 
@@ -616,6 +637,13 @@ viewSystemDetailsSidebar msgs solarSystem opts =
         , if opts.isReferee || solarSystem.known || solarSystem.surveyIndex >= 10 then
             column [ width fill ]
                 [ viewBasesList solarSystem.bases
+                , case solarSystem.referenceUrl of
+                    Just url ->
+                        column [ width fill, paddingXY 8 4 ]
+                            [ profileFieldLinkDisplay "Library Data" "Reference" url ]
+
+                    Nothing ->
+                        none
                 , case solarSystem.mainWorldProfile of
                     Just profile ->
                         column [ width fill ]

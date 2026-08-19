@@ -1,4 +1,6 @@
 class StarSystem < ApplicationRecord
+  include HasReferenceUrl
+
   attr_accessor :build
 
   normalizes *(attribute_names - %w[native_sophont extinct_sophont known]), with: -> { it.presence }
@@ -149,6 +151,15 @@ class StarSystem < ApplicationRecord
   end
 
   private
+
+  def default_reference_url
+    return nil if name.blank?
+
+    sector = parsec&.sector
+    return nil unless sector
+
+    "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_(world)?sector=#{ERB::Util.url_encode(sector.name)}&hex=#{parsec.hex_code}"
+  end
 
   def main_world_must_be_in_system
     return unless main_world

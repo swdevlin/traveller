@@ -935,7 +935,7 @@ class SubsectorsController < ApplicationController
   end
 
   def subsector_params
-    params.expect(subsector: [:name, :x, :y, :notes, :build, :language])
+    params.expect(subsector: [:name, :x, :y, :notes, :build, :language, :reference_url])
   end
 
   def subsector_generate_params

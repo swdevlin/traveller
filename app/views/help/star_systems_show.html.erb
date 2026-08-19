@@ -1,0 +1,78 @@
+<% content_for :title, 'Star System Survey' %>
+
+<%= render 'help/page', title: 'Star System Survey' do %>
+  <div class='space-y-6'>
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Overview</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Library Data</dt>
+            <dd class='mt-1 text-fg'>
+              Reference link for this star system. Enter a link on the edit form to override it; if left blank, a
+              Traveller Wiki entry is generated automatically for charted-space campaigns. Hidden entirely when
+              there is no link to display. Unlike every other field on this page, this one <strong>is</strong> shown
+              to players &mdash; it appears in the interactive starmap sidebar once the system is known or
+              surveyed, the same conditions described under Player Visibility below.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Travel Zone, Survey Index, Locked</dt>
+            <dd class='mt-1 text-fg'>Each saves immediately on change &mdash; there is no separate save button for these three fields.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Locked</dt>
+            <dd class='mt-1 text-fg'>A locked system is preserved untouched when its subsector is regenerated or when this system is replaced &mdash; the <strong>Replace</strong> button is disabled while locked.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Known</dt>
+            <dd class='mt-1 text-fg'>Referee-only toggle. Marks the system as known to players regardless of survey index &mdash; see Player Visibility below.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Player Visibility</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Interactive Starmap</dt>
+            <dd class='mt-1 text-fg'>
+              This Rails page is referee-only. Players instead view systems through the interactive starmap
+              (shared via a public map link). There, a system&rsquo;s bases, trade codes, main world profile, and
+              Library Data reference link are only revealed once the system is <strong>Known</strong> or its
+              <strong>Survey Index</strong> is 10 or higher &mdash; otherwise players see only the bare hex.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Page Actions</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Replace</dt>
+            <dd class='mt-1 text-fg'>Regenerates this system from scratch. Disabled while the system is locked.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Social Characteristics</dt>
+            <dd class='mt-1 text-fg'>Only offered when the system has no populated world yet.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Copy Public Map Link</dt>
+            <dd class='mt-1 text-fg'>Clipboard icon above the Jump Route Links panel &mdash; copies a signed, no-login-required link to this system&rsquo;s position on the interactive starmap, for sharing with players.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Copy As Markdown</dt>
+            <dd class='mt-1 text-fg'>Markdown icon beside the page buttons &mdash; copies a full CommonMark write-up of this system to the clipboard.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Delete</dt>
+            <dd class='mt-1 text-fg'>Permanently removes the star system and everything in it. Requires confirmation. Cannot be undone.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 0619SY
+      </div>
+  </div>
+<% end %>

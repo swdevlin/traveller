@@ -77,6 +77,12 @@
       </div>
     <% end %>
 
+    <div>
+      <%= render 'application/edit_field', form: form, attribute: :reference_url, field_label: 'Reference link' do %>
+        <%= form.text_field :reference_url, class: 'edit-base w-full' %>
+      <% end %>
+    </div>
+
     <div class='edit-row-notes' data-tour-step='sector-observations'>
       <div class='edit-label'>Observations</div>
       <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>

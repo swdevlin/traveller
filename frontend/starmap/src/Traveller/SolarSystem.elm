@@ -47,6 +47,7 @@ type alias SolarSystem =
     , known : Bool
     , bases : List BaseFacility
     , tradeCodes : List String
+    , referenceUrl : Maybe String
     }
 
 
@@ -71,6 +72,7 @@ type alias RawSolarSystem =
     , known : Bool
     , bases : List BaseFacility
     , tradeCodes : List String
+    , referenceUrl : Maybe String
     }
 
 
@@ -101,6 +103,7 @@ rawToFinal rawSolarSystem =
         , known = rawSolarSystem.known
         , bases = rawSolarSystem.bases
         , tradeCodes = rawSolarSystem.tradeCodes
+        , referenceUrl = rawSolarSystem.referenceUrl
         }
 
 
@@ -126,6 +129,7 @@ finalToRaw solarSystem =
     , known = solarSystem.known
     , bases = solarSystem.bases
     , tradeCodes = solarSystem.tradeCodes
+    , referenceUrl = solarSystem.referenceUrl
     }
 
 
@@ -178,4 +182,5 @@ rawCodec =
         |> Codec.field "known" .known Codec.bool
         |> Codec.field "bases" .bases (Codec.list baseFacilityCodec)
         |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
+        |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
         |> Codec.buildObject

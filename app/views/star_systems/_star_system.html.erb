@@ -14,24 +14,15 @@
 <div id="<%= dom_id star_system %>" class="space-y-4">
   <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
     <%= render 'application/data_block',
-               label: 'Subsector',
-               value: link_to(star_system.parsec.subsector.name,
-                              subsector_path(star_system.parsec.subsector),
-                              class: 'hover:underline underline-offset-4') %>
-
-    <%= render 'application/data_block',
-               label: 'Sector',
-               value: link_to(
-                 star_system.parsec.sector.name,
-                 sector_path(star_system.parsec.sector),
-                 class: 'hover:underline underline-offset-4'
-               ),
-               value_wrap_class: 'flex flex-wrap items-center gap-2',
-               suffix: tag.span(star_system.parsec.hex_code, class: 'identifier') %>
-
-    <%= render 'application/data_block',
                label: 'Allegiance',
                value: allegiance_value %>
+
+    <% if (reference_url = safe_external_url(star_system.effective_reference_url(current_campaign))) %>
+      <%= render 'application/data_block',
+                 label: 'Library data',
+                 value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
+                                class: 'hover:underline underline-offset-4') %>
+    <% end %>
 
     <%= form_with model: star_system, url: star_system_path(star_system), method: :patch do |f| %>
       <div class='min-w-0'>

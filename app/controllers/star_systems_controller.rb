@@ -30,7 +30,7 @@ class StarSystemsController < ApplicationController
       format.html
       format.json
       format.md do
-        presenter = StarSystemMarkdownPresenter.new(@star_system)
+        presenter = StarSystemMarkdownPresenter.new(@star_system, current_campaign)
         render plain: presenter.render, content_type: 'text/markdown'
       end
     end
@@ -527,7 +527,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_edit_params
-    params.expect(star_system: [:name, :notes, :allegiance_id, :travel_zone_id, :survey_index, :locked, :known])
+    params.expect(star_system: [:name, :notes, :allegiance_id, :travel_zone_id, :survey_index, :locked, :known, :reference_url])
   end
 
   def sophont_check_options

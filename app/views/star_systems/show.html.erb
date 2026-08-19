@@ -2,6 +2,13 @@
 <% subsector = parsec&.subsector %>
 <% sector = subsector&.sector %>
 
+<%
+  hierarchy = []
+  hierarchy << [parsec.display_name, sector_path(sector)] if sector
+  hierarchy << [parsec.subsector_display_name, subsector_path(subsector)] if subsector
+%>
+<%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
 <%= content_for :title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
 <%= content_for :page_kicker, 'IISS Class III Survey' %>
 <%= content_for :page_title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>

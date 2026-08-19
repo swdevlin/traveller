@@ -95,6 +95,8 @@ type alias SharedPData =
     , orbitPosition : StellarPoint
     , inclination : Float
     , eccentricity : Float
+    , periapsis : Float
+    , apoapsis : Float
     , effectiveHZCODeviation : Float
     , size : String
     , orbit : Float
@@ -186,6 +188,8 @@ type alias GasGiantData =
     { orbitPosition : StellarPoint
     , inclination : Float
     , eccentricity : Float
+    , periapsis : Float
+    , apoapsis : Float
     , effectiveHZCODeviation : Float
     , code : String
     , diameter : Float
@@ -209,6 +213,8 @@ type alias PlanetoidBeltData =
     { orbitPosition : StellarPoint
     , inclination : Float
     , eccentricity : Float
+    , periapsis : Float
+    , apoapsis : Float
     , effectiveHZCODeviation : Float
     , orbit : Float
     , mType : Float
@@ -252,6 +258,8 @@ type alias InnerStarData =
     { orbitPosition : StellarPoint
     , inclination : Float
     , eccentricity : Float
+    , periapsis : Float
+    , apoapsis : Float
     , effectiveHZCODeviation : Float
     , stellarClass : String
     , stellarType : String
@@ -298,6 +306,7 @@ type alias StellarOrbit =
     , orbit : Float
     , au : Float
     , orbitSequence : String
+    , eccentricity : Float
     }
 
 
@@ -329,6 +338,7 @@ extractStellarOrbit orbit =
     , orbit = orbit.orbit
     , au = orbit.au
     , orbitSequence = orbit.orbitSequence
+    , eccentricity = orbit.eccentricity
     }
 
 
@@ -446,10 +456,12 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp id_ cityCount_ berthCost refFuel unrefFuel ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp id_ cityCount_ berthCost refFuel unrefFuel ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
+            , periapsis = peri
+            , apoapsis = apo
             , effectiveHZCODeviation = hzco
             , orbit = orb
             , mType = mt
@@ -491,6 +503,8 @@ codecPlanetoidBeltData =
         |> Codec.field "orbit_position" .orbitPosition Point.codec
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
+        |> Codec.field "periapsis" .periapsis Codec.float
+        |> Codec.field "apoapsis" .apoapsis Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
         |> Codec.field "orbit" .orbit Codec.float
         |> Codec.field "m_type" .mType Codec.float
@@ -545,10 +559,12 @@ codecPlanetoidBeltData =
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ->
+        (\pos inc ecc peri apo hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
+            , periapsis = peri
+            , apoapsis = apo
             , effectiveHZCODeviation = hzco
             , code = code_
             , diameter = diam
@@ -570,6 +586,8 @@ codecGasGiantData =
         |> Codec.field "orbit_position" .orbitPosition Point.codec
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
+        |> Codec.field "periapsis" .periapsis Codec.float
+        |> Codec.field "apoapsis" .apoapsis Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
         |> Codec.field "code" .code Codec.string
         |> Codec.field "diameter" .diameter Codec.float
@@ -711,11 +729,13 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
+            , periapsis = peri
+            , apoapsis = apo
             , effectiveHZCODeviation = hzco
             , size = sz
             , orbit = orb
@@ -766,6 +786,8 @@ codecSharedPData =
         |> Codec.field "orbit_position" .orbitPosition Point.codec
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
+        |> Codec.field "periapsis" .periapsis Codec.float
+        |> Codec.field "apoapsis" .apoapsis Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
         |> Codec.field "size_code"
             .size
@@ -869,6 +891,8 @@ codecStarData =
         |> Codec.field "orbit_position" .orbitPosition Point.codec
         |> Codec.field "inclination" .inclination Codec.float
         |> Codec.field "eccentricity" .eccentricity Codec.float
+        |> Codec.field "periapsis" .periapsis Codec.float
+        |> Codec.field "apoapsis" .apoapsis Codec.float
         |> Codec.field "effective_hzco_deviation" .effectiveHZCODeviation Codec.float
         |> Codec.field "stellar_class" .stellarClass Codec.string
         |> Codec.field "stellar_type" .stellarType Codec.string

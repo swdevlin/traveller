@@ -23,6 +23,10 @@ class Parsec < ApplicationRecord
     "#{sector.name} (#{hex_code})"
   end
 
+  def subsector_display_name
+    "#{subsector.name} (#{subsector_hex_code})"
+  end
+
   def subsector
     ul = sector.upper_left
     hx = (x - ul.x)

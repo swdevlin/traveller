@@ -43,6 +43,7 @@ type alias ChildNode =
     , yKm : Float
     , au : Float
     , orbit : Float
+    , eccentricity : Float
     , syntheticIndex : Maybe Int
     }
 
@@ -102,6 +103,7 @@ buildChildren surveyIndex maybeCompanion stellarObjects =
             , yKm = orbit.orbitPosition.y
             , au = orbit.au
             , orbit = orbit.orbit
+            , eccentricity = orbit.eccentricity
             , syntheticIndex = Nothing
             }
 
@@ -194,6 +196,8 @@ type alias ProjectedChild =
     { node : StarSystemMap.MapNode
     , auDist : Float
     , pixelR : Float
+    , au : Float
+    , eccentricity : Float
     }
 
 
@@ -223,6 +227,20 @@ positions strictly increasing, so ranked order can never invert).
 gapAdjustmentFactor : Float
 gapAdjustmentFactor =
     0.5
+
+
+{-| Caps how far an orbit ring's ellipse can stretch beyond its object's own
+schematic ring radius (`pixelR`) when eccentricity is high and the object's
+real generated position happens to sit near its true periapsis (where the
+recovered ellipse is largest). Without this, a handful of real systems with
+`eccentricity` approaching 1 would draw ellipses that swallow several
+neighbouring rings. Tunable; not derived from any game rule. In the rare
+clamped case the object sits fractionally off its drawn ring rather than
+exactly on it.
+-}
+maxOrbitStretch : Float
+maxOrbitStretch =
+    3
 
 
 {-| Radial pixel position for each of the core children (sorted ascending
@@ -393,6 +411,8 @@ projectChild centerX centerY pixelR showNames child =
     { node = node
     , auDist = auDist
     , pixelR = pixelR
+    , au = child.au
+    , eccentricity = child.eccentricity
     }
 
 
@@ -561,18 +581,99 @@ viewMap onSelectObject mapWidth mapHeight showNames primaryStarData children =
             :: orbitMapStyle
             :: (jumpShadowElements
                     ++ orbitRingElements
-                    ++ [ renderMapNode onSelectObject { node = starNode, auDist = 0, pixelR = 0 } ]
+                    ++ [ renderMapNode onSelectObject { node = starNode, auDist = 0, pixelR = 0, au = 0, eccentricity = 0 } ]
                     ++ childElements
                )
         )
 
 
+{-| The orbit ring's ellipse geometry, recovered from the object's real
+generated data rather than assumed. The generator (`assignPosition`) places
+each object at a random true point on its real ellipse — star at one focus,
+oriented by a random `longitudeOfPeriapsis` — but only the resulting
+Cartesian position (`theta`/`r`, via `xKm`/`yKm`) survives; the periapsis
+angle itself is never persisted.
+
+Since `r` as a function of true anomaly and `r` as a function of the
+generator's eccentric anomaly describe the same real ellipse, the periapsis
+direction can be recovered exactly from `theta`, `r`, `a` (`au`) and `e`
+(`eccentricity`) via the orbit's polar equation, rather than guessed. The
+result is then uniformly rescaled (same factor in every direction) so the
+object's own already-plotted ring position (`pixelR`, `theta`) sits exactly
+on the drawn ellipse — this preserves the real ellipse's shape/orientation,
+only changing its overall size to fit this map's rank-based (not
+real-AU-scaled) ring radius.
+
+`maxOrbitStretch` bounds the pixel size for the rare high-eccentricity case
+where the object's real position happens to sit near periapsis (where the
+recovered ellipse is largest).
+-}
+orbitEllipse : Float -> Float -> Float -> Float -> Float -> { rx : Float, ry : Float, rotationDeg : Float, offsetX : Float, offsetY : Float }
+orbitEllipse theta r a e pixelR =
+    let
+        eccentricity =
+            clamp 0 0.95 e
+
+        cosNu =
+            if eccentricity > 1.0e-6 then
+                clamp -1 1 (((a * (1 - eccentricity ^ 2)) / r - 1) / eccentricity)
+
+            else
+                1
+
+        nu =
+            acos cosNu
+
+        periapsisDir =
+            theta - nu
+
+        aPxRaw =
+            pixelR * (1 + eccentricity * cosNu) / (1 - eccentricity ^ 2)
+
+        aPx =
+            min aPxRaw (maxOrbitStretch * pixelR)
+
+        bPx =
+            aPx * sqrt (1 - eccentricity ^ 2)
+
+        cPx =
+            aPx * eccentricity
+    in
+    { rx = aPx
+    , ry = bPx
+    , rotationDeg = periapsisDir * 180 / pi
+    , offsetX = -cPx * cos periapsisDir
+    , offsetY = -cPx * sin periapsisDir
+    }
+
+
 renderOrbitRing : Float -> Float -> ProjectedChild -> Svg msg
 renderOrbitRing centerX centerY projectedChild =
-    Svg.circle
-        [ SA.cx (String.fromFloat centerX)
-        , SA.cy (String.fromFloat centerY)
-        , SA.r (String.fromFloat projectedChild.pixelR)
+    let
+        theta =
+            atan2 (projectedChild.node.y - centerY) (projectedChild.node.x - centerX)
+
+        r =
+            projectedChild.auDist
+
+        a =
+            max projectedChild.au 0.01
+
+        geometry =
+            orbitEllipse theta r a projectedChild.eccentricity projectedChild.pixelR
+
+        cx =
+            centerX + geometry.offsetX
+
+        cy =
+            centerY + geometry.offsetY
+    in
+    Svg.ellipse
+        [ SA.cx (String.fromFloat cx)
+        , SA.cy (String.fromFloat cy)
+        , SA.rx (String.fromFloat geometry.rx)
+        , SA.ry (String.fromFloat geometry.ry)
+        , SA.transform ("rotate(" ++ String.fromFloat geometry.rotationDeg ++ " " ++ String.fromFloat cx ++ " " ++ String.fromFloat cy ++ ")")
         , SA.fill "none"
         , SA.stroke "var(--color-outline)"
         , SA.strokeWidth "1"
