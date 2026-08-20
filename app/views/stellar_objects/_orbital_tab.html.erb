@@ -51,8 +51,13 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <%= render 'application/data_block', label: 'Inclination', value: "#{number_with_precision(stellar_object.inclination, precision: 2, strip_insignificant_zeros: true)}°" %>
       <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(stellar_object.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
-      <%= render 'application/data_block', label: 'Periapsis', value: number_with_precision(stellar_object.periapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
-      <%= render 'application/data_block', label: 'Apoapsis', value: number_with_precision(stellar_object.apoapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
+      <% if is_moon %>
+        <%= render 'application/data_block', label: 'Periapsis', value: number_with_delimiter(stellar_object.periapsis.round), suffix: 'km' %>
+        <%= render 'application/data_block', label: 'Apoapsis', value: number_with_delimiter(stellar_object.apoapsis.round), suffix: 'km' %>
+      <% else %>
+        <%= render 'application/data_block', label: 'Periapsis', value: number_with_precision(stellar_object.periapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
+        <%= render 'application/data_block', label: 'Apoapsis', value: number_with_precision(stellar_object.apoapsis, precision: 2, strip_insignificant_zeros: true), suffix: 'au' %>
+      <% end %>
     </div>
   <% end %>
 

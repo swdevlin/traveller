@@ -19,6 +19,18 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'show renders periapsis and apoapsis in whole-number km for a moon' do
+    @gas_giant.update!(star_system: @star_system)
+    @moon.data = @moon.data.merge('periapsis' => 1234.5, 'apoapsis' => 5678.9)
+    @moon.save!
+
+    get stellar_object_url(@moon)
+
+    assert_response :success
+    assert_match(/1,235/, response.body)
+    assert_match(/5,679/, response.body)
+  end
+
   # test 'should create stellar_object' do
   #   assert_difference('StellarObject.count', +1) do
   #     post stellar_objects_url, params: {

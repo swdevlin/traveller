@@ -96,8 +96,7 @@ class MarkdownPresenterBase
     rows << ['Retrograde', @obj.retrograde ? 'Yes' : 'No'] if @obj.respond_to?(:retrograde)
     rows << ['Inclination', "#{fmt(@obj.inclination, 2)}°"] if @obj.respond_to?(:inclination)
     rows << ['Eccentricity', fmt(@obj.eccentricity, 2)] if @obj.respond_to?(:eccentricity)
-    rows << ['Periapsis', "#{fmt(@obj.periapsis, 2)} au"] if @obj.respond_to?(:periapsis)
-    rows << ['Apoapsis', "#{fmt(@obj.apoapsis, 2)} au"] if @obj.respond_to?(:apoapsis)
+    rows.concat(periapsis_apoapsis_rows)
     if @obj.respond_to?(:tidal_lock_target) && @obj.tidal_lock_target
       rows << ['Tidally Locked', @obj.tidal_lock_target.display_name]
     end
@@ -110,6 +109,13 @@ class MarkdownPresenterBase
       rows << ['Belt', belt.display_name] if belt
     end
     table_section('Orbital Data', rows)
+  end
+
+  def periapsis_apoapsis_rows
+    rows = []
+    rows << ['Periapsis', "#{fmt(@obj.periapsis, 2)} au"] if @obj.respond_to?(:periapsis)
+    rows << ['Apoapsis', "#{fmt(@obj.apoapsis, 2)} au"] if @obj.respond_to?(:apoapsis)
+    rows
   end
 
   def jump_shadow_section

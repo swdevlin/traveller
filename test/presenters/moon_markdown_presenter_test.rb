@@ -33,4 +33,15 @@ class MoonMarkdownPresenterTest < ActiveSupport::TestCase
     assert_includes markdown, 'Law Level | 1 — MyString'
     assert_includes markdown, 'Tech Level | 1 —'
   end
+
+  test 'renders periapsis and apoapsis in whole-number km, not au' do
+    moon = moons(:orbiting_gas_giant)
+    moon.data = moon.data.merge('periapsis' => 1234.5, 'apoapsis' => 5678.9)
+    moon.save!
+
+    markdown = MoonMarkdownPresenter.new(moon).render
+
+    assert_includes markdown, 'Periapsis | 1,235 km'
+    assert_includes markdown, 'Apoapsis | 5,679 km'
+  end
 end

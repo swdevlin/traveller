@@ -9351,8 +9351,18 @@ update msg ( time, model ) =
                                             "—"
                                 , inclination = rnd 0 pdata.inclination ++ "°"
                                 , eccentricity = rnd 2 pdata.eccentricity
-                                , periapsis = rnd 2 pdata.periapsis ++ " au"
-                                , apoapsis = rnd 2 pdata.apoapsis ++ " au"
+                                , periapsis =
+                                    if pdata.isMoon then
+                                        format { usLocale | decimals = Exact 0, thousandSeparator = " " } pdata.periapsis ++ " km"
+
+                                    else
+                                        rnd 2 pdata.periapsis ++ " au"
+                                , apoapsis =
+                                    if pdata.isMoon then
+                                        format { usLocale | decimals = Exact 0, thousandSeparator = " " } pdata.apoapsis ++ " km"
+
+                                    else
+                                        rnd 2 pdata.apoapsis ++ " au"
                                 , mass = rndm 2 0 pdata.mass
                                 , density = rndm 2 0 pdata.density
                                 , gravity = rndm 2 0 pdata.gravity

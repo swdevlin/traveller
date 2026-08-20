@@ -1,6 +1,13 @@
 class MoonMarkdownPresenter < MarkdownPresenterBase
   private
 
+  def periapsis_apoapsis_rows
+    [
+      ['Periapsis', "#{number_with_delimiter(@obj.periapsis.round)} km"],
+      ['Apoapsis', "#{number_with_delimiter(@obj.apoapsis.round)} km"]
+    ]
+  end
+
   def jump_shadow_section
     distance = @obj.effective_jump_shadow_km
     return [] if distance.nil? || distance <= 0

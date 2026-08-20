@@ -678,7 +678,7 @@ renderOrbitRing centerX centerY projectedChild =
         , SA.stroke "var(--color-outline)"
         , SA.strokeWidth "1"
         , SA.strokeDasharray "2 3"
-        , SA.opacity "0.6"
+        , SA.opacity "0.85"
         ]
         []
 
