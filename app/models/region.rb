@@ -1,4 +1,6 @@
 class Region < ApplicationRecord
+  include HasWorldStatistics
+
   has_many :region_parsecs, dependent: :destroy
   has_many :parsecs, through: :region_parsecs
   has_many :sectors, -> { distinct }, through: :parsecs
@@ -63,5 +65,28 @@ class Region < ApplicationRecord
 
   def fill_parsecs
     region_parsecs.where(kind: 'fill')
+  end
+
+  def systems_scope
+    StarSystem.where(parsec_id: region_parsec_ids)
+  end
+
+  def worlds_scope
+    StellarObject.where(star_system_id: systems_scope.select(:id), type: StellarObject::POPULATED_WORLD_TYPES).populated
+  end
+
+  # All worlds per allegiance (uninhabited included), with the populated subset noted alongside.
+  def allegiance_world_counts
+    all_worlds = StellarObject.where(star_system_id: systems_scope.select(:id), type: StellarObject::POPULATED_WORLD_TYPES)
+    totals     = all_worlds.where.not(allegiance_id: nil).group(:allegiance_id).count
+    populated  = all_worlds.populated.where.not(allegiance_id: nil).group(:allegiance_id).count
+
+    totals.keys.index_with { |id| { total: totals[id], populated: populated.fetch(id, 0) } }
+  end
+
+  private
+
+  def region_parsec_ids
+    region_parsecs.pluck(:parsec_id)
   end
 end

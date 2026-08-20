@@ -33,6 +33,13 @@ class AllegiancesController < ApplicationController
   def show
     position = Allegiance.where('code < ?', @allegiance.code).count + 1
     @page = (position + 9) / 10
+
+    @governments_by_code  = Government.all.index_by(&:code)
+    @law_levels_by_code   = LawLevel.all.index_by(&:code)
+    @tech_levels_by_code  = TechLevel.all.index_by(&:code)
+    @travel_zones_by_id   = TravelZone.all.index_by(&:id)
+    @facilities_by_id     = Facility.all.index_by(&:id)
+    @trade_codes_by_id    = TradeCode.all.index_by(&:id)
   end
 
   # PATCH /allegiances/1/toggle_known

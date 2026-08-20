@@ -5,6 +5,15 @@
 <%= render 'application/page' do %>
   <%= render @allegiance %>
 
+  <%= render 'application/world_statistics',
+             stats: @allegiance,
+             governments_by_code: @governments_by_code,
+             law_levels_by_code: @law_levels_by_code,
+             tech_levels_by_code: @tech_levels_by_code,
+             travel_zones_by_id: @travel_zones_by_id,
+             facilities_by_id: @facilities_by_id,
+             trade_codes_by_id: @trade_codes_by_id %>
+
   <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
   <%= render 'application/back_button',
              path: allegiances_path(page: @page),

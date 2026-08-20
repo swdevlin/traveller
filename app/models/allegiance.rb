@@ -1,4 +1,6 @@
 class Allegiance < ApplicationRecord
+  include HasWorldStatistics
+
   HEX_COLOUR_REGEX = /\A#[0-9a-fA-F]{6}\z/
 
   before_validation { self.background_colour = nil if background_colour.blank? }
@@ -16,4 +18,12 @@ class Allegiance < ApplicationRecord
   # before_destroy runs before dependent: :nullify clears the association.
   before_destroy        { star_systems.touch_all }
   after_commit(on: :update) { star_systems.touch_all }
+
+  def systems_scope
+    star_systems
+  end
+
+  def worlds_scope
+    stellar_objects.where(type: StellarObject::POPULATED_WORLD_TYPES).populated
+  end
 end

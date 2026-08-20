@@ -1,7 +1,65 @@
 require 'test_helper'
 
 class AllegianceTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  test 'has no systems or worlds when nothing is assigned to it' do
+    allegiance = Allegiance.create!(code: 'stat-empty', name: 'Empty Allegiance')
+
+    assert_equal 0, allegiance.number_of_systems
+    assert_equal 0, allegiance.number_of_populated_worlds
+    assert_equal 0, allegiance.total_population
+    assert_equal 0, allegiance.worlds_with_known_census_count
+    assert_nil allegiance.highest_population_world
+    assert_nil allegiance.highest_tech_level_world
+    assert_empty allegiance.lowest_tech_level_worlds
+    assert_empty allegiance.tech_level_histogram
+    assert_empty allegiance.government_histogram
+    assert_empty allegiance.law_level_histogram
+  end
+
+  test 'aggregates systems, population, and tech level worlds' do
+    allegiance = Allegiance.create!(code: 'stat-full', name: 'Full Allegiance')
+    other_allegiance = Allegiance.create!(code: 'stat-other', name: 'Other Allegiance')
+
+    sector = Sector.create!(x: 9001, y: 9001, skip_subsector_creation: true)
+    parsec = Parsec.create!(x: 9001, y: 9001, sector: sector)
+    star_system = StarSystem.create!(parsec: parsec, allegiance: allegiance)
+    star = Star.create!(name: 'Primary', star_system: star_system, parsec: parsec, type: 'Star')
+
+    high_pop = create_world(star: star, allegiance: allegiance, name: 'Highpop',
+                             population_code: 9, census_population: 4_000_000_000, tech_level_code: 8)
+    create_world(star: star, allegiance: allegiance, name: 'Lowpop',
+                 population_code: 3, tech_level_code: 2)
+    create_world(star: star, allegiance: allegiance, name: 'Tied Low A',
+                 population_code: 4, tech_level_code: 1)
+    create_world(star: star, allegiance: allegiance, name: 'Tied Low B',
+                 population_code: 5, tech_level_code: 1)
+    create_world(star: star, allegiance: other_allegiance, name: 'Not Ours',
+                 population_code: 9, tech_level_code: 15)
+    create_world(star: star, allegiance: allegiance, name: 'Uninhabited', population_code: 0)
+
+    assert_equal 1, allegiance.number_of_systems
+    assert_equal 4, allegiance.number_of_populated_worlds
+    assert_equal 4_000_000_000, allegiance.total_population
+    assert_equal 1, allegiance.worlds_with_known_census_count
+
+    assert_equal high_pop, allegiance.highest_population_world
+    assert_equal 8, allegiance.highest_tech_level_world.tech_level_code
+
+    assert_equal ['Tied Low A', 'Tied Low B'], allegiance.lowest_tech_level_worlds.map(&:name).sort
+
+    assert_equal({ 1 => 2, 2 => 1, 8 => 1 }, allegiance.tech_level_histogram)
+  end
+
+  private
+
+  def create_world(star:, allegiance:, name:, population_code:, tech_level_code: nil, census_population: nil)
+    planet = TerrestrialPlanet.new(name: name, orbiting: star, allegiance: allegiance, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = population_code
+    planet.tech_level_code = tech_level_code if tech_level_code
+    planet.population = planet.population.merge('censusPopulation' => census_population) if census_population
+    planet.save!
+    planet
+  end
 end

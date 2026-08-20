@@ -10,6 +10,14 @@ class RegionsController < ApplicationController
   def show
     rank = Region.order(:name).where('name < ?', @region.name).count
     @regions_list_page = (rank / 20) + 1
+
+    @governments_by_code  = Government.all.index_by(&:code)
+    @law_levels_by_code   = LawLevel.all.index_by(&:code)
+    @tech_levels_by_code  = TechLevel.all.index_by(&:code)
+    @allegiances_by_id    = Allegiance.all.index_by(&:id)
+    @travel_zones_by_id   = TravelZone.all.index_by(&:id)
+    @facilities_by_id     = Facility.all.index_by(&:id)
+    @trade_codes_by_id    = TradeCode.all.index_by(&:id)
   end
 
   def new
