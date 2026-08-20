@@ -5,7 +5,7 @@ require 'dry-schema'
 ORBIT_TYPES = %w[hzco inner outer habitable warm cold].freeze
 BODY_ORBIT_TYPES = %w[inner warm hzco cold outer habitable].freeze
 
-UWP_CODE = /\A[0-9A-Z][0-9A-G]{6}-[0-9A-H]\z/i
+UWP_CODE = /\A[0-9A-Z][0-9A-H]{6}-[0-9A-H]\z/i
 UWP_LABELS = [
   'terrestrial',
   'small gas giant',
