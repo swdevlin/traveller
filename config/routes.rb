@@ -119,6 +119,7 @@ Rails.application.routes.draw do
         get  :import_hexes
         post :upload_hexes
         get  :download_csv
+        get  :statistics
       end
     end
 
@@ -162,6 +163,7 @@ Rails.application.routes.draw do
       end
       member do
         patch 'toggle_known'
+        get   'statistics'
       end
     end
 

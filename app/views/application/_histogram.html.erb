@@ -1,0 +1,22 @@
+<% bars = local_assigns.fetch(:bars, []) %>
+<% label_width_class = local_assigns.fetch(:label_width_class, 'w-40') %>
+<% if bars.blank? %>
+  <div class='text-sm text-fg-muted'>No data</div>
+<% else %>
+  <% max_count = bars.map { |b| b[:count] }.max %>
+  <div class='space-y-2'>
+    <% bars.each do |bar| %>
+      <div class='flex items-center gap-3'>
+        <div class='<%= label_width_class %> shrink-0 truncate text-sm text-fg'>
+          <%= bar[:href] ? link_to(bar[:label], bar[:href], class: 'no-underline hover:underline') : bar[:label] %>
+        </div>
+        <div class='h-2 flex-1 rounded-full bg-gauge-line/20'>
+          <div class='h-2 rounded-full bg-highlight' style='width: <%= gauge_position_percent(bar[:count], min: 0, max: max_count) %>%'></div>
+        </div>
+        <div class='w-16 shrink-0 text-right text-sm text-fg-muted'>
+          <%= bar[:count] %><% if bar[:sublabel] %> <span class='text-xs'>(<%= bar[:sublabel] %>)</span><% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

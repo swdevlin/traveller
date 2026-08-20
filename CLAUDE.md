@@ -40,18 +40,6 @@ bin/rails db:seed
 
 Overcommit runs on pre-push: RuboCop, Rails tests, Brakeman, and bundler-audit. Pre-commit hooks are disabled.
 
-## schema.rb GIN Indexes
-
-After running `db:migrate`, Rails regenerates `schema.rb` and strips the `opclass:` from the three trigram GIN indexes. Before running tests (or pushing), check that these three index lines include `opclass: :gin_trgm_ops`:
-
-```ruby
-t.index ["name"], name: "index_sectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
-t.index ["name"], name: "index_star_systems_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
-t.index ["name"], name: "index_subsectors_on_name_trgm", using: :gin, opclass: :gin_trgm_ops
-```
-
-Without `opclass: :gin_trgm_ops`, `db:test:load_schema` fails with `PG::UndefinedObject` because `pg_trgm` lives in the `shared_extensions` schema.
-
 ## Architecture
 
 ### Data Hierarchy

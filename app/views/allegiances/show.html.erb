@@ -5,6 +5,10 @@
 <%= render 'application/page' do %>
   <%= render @allegiance %>
 
+  <turbo-frame id="<%= dom_id(@allegiance, :statistics) %>" src="<%= statistics_allegiance_path(@allegiance) %>" target="_top">
+    <%= render 'application/statistics_loading' %>
+  </turbo-frame>
+
   <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
   <%= render 'application/back_button',
              path: allegiances_path(page: @page),

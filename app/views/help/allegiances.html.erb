@@ -1,0 +1,62 @@
+<% content_for :title, 'Allegiances' %>
+
+<%= render 'help/page', title: 'Allegiances' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      Allegiances identify the political entities — empires, consulates, federations, and the
+      like — that star systems and worlds owe fealty to. A system and its worlds are assigned an
+      allegiance independently, so a border system can carry worlds loyal to different powers.
+    </p>
+
+    <div>
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Code</dt>
+          <dd class='mt-1 text-fg'>
+            The allegiance's short identifying code, as used on the starmap and in UWP data
+            (e.g. <span class='font-mono text-fg-bright'>3eIm</span> for the Third Imperium).
+            Must be unique.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>
+            The allegiance's full display name.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Legacy Code</dt>
+          <dd class='mt-1 text-fg'>
+            An older or alternate code carried over from imported data, kept for reference
+            alongside the current code.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Colour</dt>
+          <dd class='mt-1 text-fg'>
+            Background and border colours used to render the allegiance's territory on the
+            starmap.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Statistics</dt>
+          <dd class='mt-1 text-fg'>
+            Statistics are calculated from all star systems that owe fealty to this allegiance.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0819AL
+    </div>
+
+  </div>
+<% end %>

@@ -3,6 +3,7 @@ require 'set'
 class StellarObject < ApplicationRecord
   SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F G H J K L M].freeze
   WORLD_COUNT_TYPES = %w[TerrestrialPlanet PlanetoidBelt GasGiant].freeze
+  POPULATED_WORLD_TYPES = %w[TerrestrialPlanet Moon PlanetoidBelt Planetoid].freeze
   STI_TYPES = %w[
     Comet
     GasCloud
@@ -57,6 +58,7 @@ class StellarObject < ApplicationRecord
   BY_SIZE_SQL = Arel.sql("array_position(ARRAY['0','S','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','J','K','L','M']::text[], size_code)")
 
   scope :by_size, -> { order(BY_SIZE_SQL) }
+  scope :populated, -> { where("(data -> 'population' ->> 'code')::integer > 0") }
 
   def size_description
     StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]

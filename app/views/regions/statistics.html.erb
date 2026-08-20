@@ -1,0 +1,13 @@
+<turbo-frame id="<%= dom_id(@region, :statistics) %>" target="_top">
+  <%= render 'application/world_statistics',
+             stats: @region,
+             governments_by_code: @governments_by_code,
+             law_levels_by_code: @law_levels_by_code,
+             tech_levels_by_code: @tech_levels_by_code,
+             travel_zones_by_id: @travel_zones_by_id,
+             facilities_by_id: @facilities_by_id,
+             trade_codes_by_id: @trade_codes_by_id %>
+
+  <%= render 'application/subsection', title: 'Worlds by Allegiance' %>
+  <%= render 'application/histogram', bars: allegiance_histogram_bars(@region, @allegiances_by_id) %>
+</turbo-frame>

@@ -125,8 +125,12 @@
       </div>
       <div class='px-4 py-3 text-sm text-fg-muted'>
         <%= pluralize(@region.border_parsecs_ordered.count, 'border hex') %>,
-        <%= pluralize(@region.fill_parsecs.count, 'fill hex') %>
+        <%= pluralize(@region.region_parsecs.count, 'total hex') %>
       </div>
     </div>
+
+    <turbo-frame id="<%= dom_id(@region, :statistics) %>" src="<%= statistics_region_path(@region) %>" target="_top">
+      <%= render 'application/statistics_loading' %>
+    </turbo-frame>
   </div>
 <% end %>
