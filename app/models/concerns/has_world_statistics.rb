@@ -33,14 +33,6 @@ module HasWorldStatistics
       .first
   end
 
-  def lowest_tech_level_worlds
-    scope = worlds_scope.where("(data -> 'tech_level' ->> 'code') IS NOT NULL")
-    min_code = scope.minimum(Arel.sql("(data -> 'tech_level' ->> 'code')::integer"))
-    return StellarObject.none if min_code.nil?
-
-    scope.where("(data -> 'tech_level' ->> 'code')::integer = ?", min_code).order(:name)
-  end
-
   def tech_level_histogram
     worlds_scope
       .where("(data -> 'tech_level' ->> 'code') IS NOT NULL")

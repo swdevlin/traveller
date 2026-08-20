@@ -10,7 +10,6 @@ class AllegianceTest < ActiveSupport::TestCase
     assert_equal 0, allegiance.worlds_with_known_census_count
     assert_nil allegiance.highest_population_world
     assert_nil allegiance.highest_tech_level_world
-    assert_empty allegiance.lowest_tech_level_worlds
     assert_empty allegiance.tech_level_histogram
     assert_empty allegiance.government_histogram
     assert_empty allegiance.law_level_histogram
@@ -25,17 +24,21 @@ class AllegianceTest < ActiveSupport::TestCase
     star_system = StarSystem.create!(parsec: parsec, allegiance: allegiance)
     star = Star.create!(name: 'Primary', star_system: star_system, parsec: parsec, type: 'Star')
 
-    high_pop = create_world(star: star, allegiance: allegiance, name: 'Highpop',
+    other_parsec = Parsec.create!(x: 9001, y: 9002, sector: sector)
+    other_star_system = StarSystem.create!(parsec: other_parsec, allegiance: other_allegiance)
+    other_star = Star.create!(name: 'Other Primary', star_system: other_star_system, parsec: other_parsec, type: 'Star')
+
+    high_pop = create_world(star: star, allegiance: nil, name: 'Highpop',
                              population_code: 9, census_population: 4_000_000_000, tech_level_code: 8)
-    create_world(star: star, allegiance: allegiance, name: 'Lowpop',
+    create_world(star: star, allegiance: nil, name: 'Lowpop',
                  population_code: 3, tech_level_code: 2)
-    create_world(star: star, allegiance: allegiance, name: 'Tied Low A',
+    create_world(star: star, allegiance: nil, name: 'Tied Low A',
                  population_code: 4, tech_level_code: 1)
-    create_world(star: star, allegiance: allegiance, name: 'Tied Low B',
+    create_world(star: star, allegiance: nil, name: 'Tied Low B',
                  population_code: 5, tech_level_code: 1)
-    create_world(star: star, allegiance: other_allegiance, name: 'Not Ours',
+    create_world(star: other_star, allegiance: nil, name: 'Not Ours',
                  population_code: 9, tech_level_code: 15)
-    create_world(star: star, allegiance: allegiance, name: 'Uninhabited', population_code: 0)
+    create_world(star: star, allegiance: nil, name: 'Uninhabited', population_code: 0)
 
     assert_equal 1, allegiance.number_of_systems
     assert_equal 4, allegiance.number_of_populated_worlds
@@ -45,9 +48,22 @@ class AllegianceTest < ActiveSupport::TestCase
     assert_equal high_pop, allegiance.highest_population_world
     assert_equal 8, allegiance.highest_tech_level_world.tech_level_code
 
-    assert_equal ['Tied Low A', 'Tied Low B'], allegiance.lowest_tech_level_worlds.map(&:name).sort
-
     assert_equal({ 1 => 2, 2 => 1, 8 => 1 }, allegiance.tech_level_histogram)
+  end
+
+  test 'finds worlds via star system allegiance when stellar objects have no allegiance_id of their own' do
+    allegiance = Allegiance.create!(code: 'stat-via-system', name: 'Via System Allegiance')
+
+    sector = Sector.create!(x: 9002, y: 9002, skip_subsector_creation: true)
+    parsec = Parsec.create!(x: 9002, y: 9002, sector: sector)
+    star_system = StarSystem.create!(parsec: parsec, allegiance: allegiance)
+    star = Star.create!(name: 'Primary', star_system: star_system, parsec: parsec, type: 'Star')
+
+    create_world(star: star, allegiance: nil, name: 'Unlinked Pop',
+                 population_code: 9, tech_level_code: 8)
+
+    assert_equal 1, allegiance.number_of_populated_worlds
+    assert_equal({ 8 => 1 }, allegiance.tech_level_histogram)
   end
 
   private

@@ -23,6 +23,8 @@ module Traveller
 
     config.autoload_lib(ignore: %w[assets tasks])
 
+    config.solid_queue.clear_finished_jobs_after = 1.month
+
     Rails.autoloaders.main.collapse(Rails.root.join('app/domain/word_generators'))
 
     # Configuration for the application, engines, and railties goes here.

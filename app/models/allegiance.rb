@@ -24,6 +24,6 @@ class Allegiance < ApplicationRecord
   end
 
   def worlds_scope
-    stellar_objects.where(type: StellarObject::POPULATED_WORLD_TYPES).populated
+    StellarObject.where(star_system_id: systems_scope.select(:id), type: StellarObject::POPULATED_WORLD_TYPES).populated
   end
 end

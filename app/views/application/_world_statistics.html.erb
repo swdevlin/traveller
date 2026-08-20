@@ -1,6 +1,5 @@
 <% highest_population = stats.highest_population_world %>
 <% highest_tech_level = stats.highest_tech_level_world %>
-<% lowest_tech_level_worlds = stats.lowest_tech_level_worlds.to_a %>
 <% populated_worlds = stats.number_of_populated_worlds %>
 
 <div class='space-y-6'>
@@ -24,11 +23,6 @@
                label: 'Highest Tech Level World',
                value: highest_tech_level ? link_to(highest_tech_level.name, stellar_object_path(highest_tech_level), class: 'no-underline hover:underline') : '—',
                suffix: (highest_tech_level ? tag.span(HexDigit.hex_digit(highest_tech_level.tech_level_code), class: 'identifier-sm ml-2') : nil) %>
-
-    <%= render 'application/data_block',
-               label: 'Lowest Tech Level Worlds',
-               value: lowest_tech_level_worlds.any? ? safe_join(lowest_tech_level_worlds.map { |world| link_to(world.name, stellar_object_path(world), class: 'no-underline hover:underline') }, ', ') : '—',
-               suffix: (lowest_tech_level_worlds.any? ? tag.span(HexDigit.hex_digit(lowest_tech_level_worlds.first.tech_level_code), class: 'identifier-sm ml-2') : nil) %>
   </div>
 
   <div class='grid grid-cols-1 gap-6 lg:grid-cols-2'>

@@ -1,0 +1,64 @@
+/*
+ * Reskins the mounted Mission Control Jobs engine (Bulma 1.x) to match the
+ * app's dark Tailwind palette (app/assets/tailwind/application.css).
+ * Bulma 1.x exposes its whole scheme as CSS custom properties, and ships a
+ * built-in dark theme activated by [data-theme=dark] (set on <html> in the
+ * overridden layout). Rather than fighting Bulma with selector overrides,
+ * we retint its H/S/L variables — this keeps hover states, .is-light
+ * variants, and derived tones (which Bulma computes from these) correct.
+ */
+
+:root {
+  /* neutral scheme (backgrounds, borders, body text) -> app's navy/slate */
+  --bulma-scheme-h: 222;
+  --bulma-scheme-s: 32%;
+  --bulma-text-h: 222deg;
+  --bulma-text-s: 32%;
+
+  /* links -> app highlight red */
+  --bulma-link-h: 2deg;
+  --bulma-link-s: 100%;
+  --bulma-link-l: 44%;
+
+  /* primary (in-progress jobs) -> app button-primary orange */
+  --bulma-primary-h: 27deg;
+  --bulma-primary-s: 72%;
+  --bulma-primary-l: 54%;
+
+  /* danger (failed jobs) -> app highlight/danger red */
+  --bulma-danger-h: 2deg;
+  --bulma-danger-s: 100%;
+  --bulma-danger-l: 44%;
+
+  /* warning (blocked jobs) -> app amber */
+  --bulma-warning-h: 38deg;
+  --bulma-warning-s: 92%;
+  --bulma-warning-l: 50%;
+
+  /* success (finished jobs) -> app notice emerald */
+  --bulma-success-h: 160deg;
+  --bulma-success-s: 84%;
+  --bulma-success-l: 39%;
+
+  /* info (scheduled jobs) -> sky blue, kept distinct from the rest */
+  --bulma-info-h: 198deg;
+  --bulma-info-s: 93%;
+  --bulma-info-l: 60%;
+
+  --bulma-family-primary: 'Exo 2', system-ui, sans-serif;
+  --bulma-family-code: 'JetBrains Mono', monospace;
+}
+
+.title, .subtitle {
+  font-family: 'Orbitron', var(--bulma-family-primary);
+  letter-spacing: 0.04em;
+}
+
+.mc-back-link {
+  color: var(--bulma-text) !important;
+  text-decoration: none;
+}
+
+.mc-back-link:hover {
+  color: var(--bulma-link) !important;
+}
