@@ -149,8 +149,8 @@
                 })
               ].compact),
               safe_join(['Highest tech level ', (@sector_highest_tech_level_code ? HexDigit.hex_digit(@sector_highest_tech_level_code) : '—')]),
-              pluralize(@rogue_count, 'rogue'),
-              pluralize(@allegiance_count, 'allegiance')
+              pluralize(@allegiance_count, 'allegiance'),
+              pluralize(@rogue_count, 'rogue')
             ], ' · ') %>
           </span>
           <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>

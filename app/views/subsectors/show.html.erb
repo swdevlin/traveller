@@ -85,8 +85,8 @@
                   })
                 ].compact) : nil),
                 (show_population_count? ? safe_join(['Highest tech level ', (@subsector_highest_tech_level_code ? HexDigit.hex_digit(@subsector_highest_tech_level_code) : '—')]) : nil),
-                pluralize(@rogue_count, 'rogue'),
-                pluralize(@allegiance_count, 'allegiance')
+                pluralize(@allegiance_count, 'allegiance'),
+                pluralize(@rogue_count, 'rogue')
               ].compact, ' · ') %>
             </span>
             <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>

@@ -13,7 +13,7 @@
                   class: 'flex flex-col items-center gap-0.5 text-fg-muted hover:text-fg-bright no-underline',
                   title: coreward_sub.name do %>
         <i class='fa-solid fa-chevron-up text-xs'></i>
-        <span class='text-[10px] uppercase tracking-wider'>Coreward</span>
+        <span class='text-[10px] uppercase tracking-wider'><%= coreward_sub.name.presence || 'Coreward' %></span>
       <% end %>
     <% else %>
       <span class='flex flex-col items-center gap-0.5 text-fg-muted'>
@@ -58,7 +58,7 @@
         <%= link_to subsector_path(spinward_sub),
                     class: 'text-fg-muted hover:text-fg-bright no-underline',
                     title: spinward_sub.name do %>
-          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl] rotate-180'>Spinward</span>
+          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl] rotate-180'><%= spinward_sub.name.presence || 'Spinward' %></span>
         <% end %>
       <% else %>
         <span class='text-fg-muted text-[10px] uppercase tracking-wider [writing-mode:vertical-rl] rotate-180'>Spinward</span>
@@ -80,7 +80,7 @@
         <%= link_to subsector_path(trailing_sub),
                     class: 'text-fg-muted hover:text-fg-bright no-underline',
                     title: trailing_sub.name do %>
-          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl]'>Trailing</span>
+          <span class='text-[10px] uppercase tracking-wider [writing-mode:vertical-rl]'><%= trailing_sub.name.presence || 'Trailing' %></span>
         <% end %>
       <% else %>
         <span class='text-fg-muted text-[10px] uppercase tracking-wider [writing-mode:vertical-rl]'>Trailing</span>
@@ -106,7 +106,7 @@
                   class: 'flex flex-col items-center gap-0.5 text-fg-muted hover:text-fg-bright no-underline',
                   title: rimward_sub.name do %>
         <i class='fa-solid fa-chevron-down text-xs'></i>
-        <span class='text-[10px] uppercase tracking-wider'>Rimward</span>
+        <span class='text-[10px] uppercase tracking-wider'><%= rimward_sub.name.presence || 'Rimward' %></span>
       <% end %>
     <% else %>
       <span class='flex flex-col items-center gap-0.5 text-fg-muted'>
