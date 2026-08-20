@@ -2,6 +2,7 @@ class Sector < ApplicationRecord
   include Discard::Model
   include ClearableParsecs
   include HasReferenceUrl
+  include HasWorldStatistics
   validates :x, :y, presence: true
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   has_many :subsectors, dependent: :destroy
@@ -59,6 +60,14 @@ class Sector < ApplicationRecord
       .where(parsecs: { sector_id: id })
       .where.not(allegiances: { id: nil })
       .distinct
+  end
+
+  def systems_scope
+    StarSystem.where(parsec_id: parsecs.select(:id))
+  end
+
+  def worlds_scope
+    StellarObject.where(star_system_id: systems_scope.select(:id), type: StellarObject::POPULATED_WORLD_TYPES).populated
   end
 
   private

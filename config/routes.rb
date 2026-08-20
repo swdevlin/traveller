@@ -221,6 +221,7 @@ Rails.application.routes.draw do
         get :tech_level_map
         get :habitability_map
         get :government_map
+        get :statistics
       end
       resources :rogues, only: %i[new create index destroy]
       resources :star_systems, only: %i[new create index destroy]
@@ -241,6 +242,7 @@ Rails.application.routes.draw do
         get  :defaults_source
         get  :map
         get  :poster
+        get  :statistics
       end
       resources :rogues, only: %i[index new create destroy]
       resources :star_systems, only: %i[new create index destroy]

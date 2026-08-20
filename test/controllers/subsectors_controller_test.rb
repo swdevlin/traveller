@@ -16,6 +16,45 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'statistics renders the world statistics partial without a layout' do
+    get statistics_subsector_url(@subsector)
+    assert_response :success
+    assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(@subsector, :statistics)}"
+  end
+
+  test 'show includes the highest population world in the summary line when the campaign shows population' do
+    campaigns(:one).update!(campaign_type: 'homebrew')
+
+    sector = Sector.create!(name: 'Population Test Sector', x: 9041, y: 9041, skip_subsector_creation: true)
+    subsector = Subsector.create!(sector: sector, name: 'Sub A', x: 1, y: 1)
+    ul, = subsector.universal_coordinates
+    parsec = Parsec.create!(sector: sector, x: ul.x, y: ul.y)
+    system = StarSystem.create!(parsec: parsec)
+    star = Star.create!(name: 'Star', star_system: system, parsec: parsec, type: 'Star')
+
+    planet = TerrestrialPlanet.new(name: 'Musal', orbiting: star, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = 9
+    planet.save!
+    planet.population = planet.population.merge('censusPopulation' => 29_400_000_000)
+    planet.save!
+
+    get subsector_url(subsector)
+
+    assert_response :success
+    assert_select 'a', text: 'Musal'
+  end
+
+  test 'show hides population figures when the campaign does not show population' do
+    campaigns(:one).update!(campaign_type: 'charted_space')
+
+    get subsector_url(@subsector)
+
+    assert_response :success
+    assert_no_match(/populated/, response.body)
+  end
+
   test 'should get edit' do
     get edit_subsector_url(@subsector)
     assert_response :success

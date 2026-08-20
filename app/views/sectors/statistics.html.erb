@@ -1,0 +1,11 @@
+<turbo-frame id="<%= dom_id(@sector, :statistics) %>" target="_top">
+  <%= render 'application/world_statistics',
+             stats: @sector,
+             show_totals: false,
+             governments_by_code: @governments_by_code,
+             law_levels_by_code: @law_levels_by_code,
+             tech_levels_by_code: @tech_levels_by_code,
+             travel_zones_by_id: @travel_zones_by_id,
+             facilities_by_id: @facilities_by_id,
+             trade_codes_by_id: @trade_codes_by_id %>
+</turbo-frame>

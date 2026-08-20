@@ -123,12 +123,47 @@
       <% end %>
     </div>
 
-    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
-      <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
-      <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
-    </div>
-
     <%= render 'application/observation_block', notes: @sector.notes %>
+
+    <div>
+      <%= render 'application/subsection', title: 'Sector Statistics' %>
+
+      <div data-controller='collapsible' data-collapsible-collapse-class-value='hidden'>
+        <div class='flex w-full items-center justify-between gap-3 cursor-pointer select-none text-sm text-fg-muted hover:text-fg-bright transition-colors'
+             data-action='click->collapsible#toggle'>
+          <span>
+            <%= safe_join([
+              pluralize(@star_system_count, 'system'),
+              "#{@populated_world_count} populated",
+              safe_join([
+                abbreviated_population(@sector_total_population.to_i),
+                ' population',
+                (@sector_highest_population_world && content_tag(:span, data: { controller: 'stop-propagation', action: 'click->stop-propagation#stop' }) {
+                  safe_join([
+                    ' (',
+                    link_to(@sector_highest_population_world.name, stellar_object_path(@sector_highest_population_world), class: 'no-underline hover:underline'),
+                    ' ',
+                    (@sector_highest_population_world.census_population.present? ? abbreviated_population(@sector_highest_population_world.census_population) : population_range(@sector_highest_population_world.population_code)),
+                    ')'
+                  ])
+                })
+              ].compact),
+              safe_join(['Highest tech level ', (@sector_highest_tech_level_code ? HexDigit.hex_digit(@sector_highest_tech_level_code) : '—')]),
+              pluralize(@rogue_count, 'rogue'),
+              pluralize(@allegiance_count, 'allegiance')
+            ], ' · ') %>
+          </span>
+          <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>
+        </div>
+
+        <div data-collapsible-target='content' class='hidden mt-4'>
+          <turbo-frame id='<%= dom_id(@sector, :statistics) %>'
+                       src='<%= statistics_sector_path(@sector) %>'>
+            <%= render 'application/statistics_loading' %>
+          </turbo-frame>
+        </div>
+      </div>
+    </div>
 
     <turbo-frame id='sector-subsectors-table'
                  data-controller='ui-updates'

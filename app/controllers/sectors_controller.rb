@@ -126,10 +126,27 @@ class SectorsController < ApplicationController
         .where(orbiting_id: nil)
         .count
 
+    @populated_world_count = @sector.number_of_populated_worlds
+    @sector_total_population = @sector.total_population
+    @sector_highest_tech_level_code = @sector.highest_tech_level_world&.tech_level_code
+    @sector_highest_population_world = @sector.highest_population_world
+    @allegiance_count = @sector.get_allegiances.count
+
     position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
     @page = (position + 9) / 10
     ul = @sector.upper_left
     @starmap_center = [ul.x + 16, ul.y - 20]
+  end
+
+  def statistics
+    @governments_by_code  = Government.all.index_by(&:code)
+    @law_levels_by_code   = LawLevel.all.index_by(&:code)
+    @tech_levels_by_code  = TechLevel.all.index_by(&:code)
+    @travel_zones_by_id   = TravelZone.all.index_by(&:id)
+    @facilities_by_id     = Facility.all.index_by(&:id)
+    @trade_codes_by_id    = TradeCode.all.index_by(&:id)
+
+    render layout: false
   end
 
   def new_from_traveller_map

@@ -1,6 +1,7 @@
 class Subsector < ApplicationRecord
   include ClearableParsecs
   include HasReferenceUrl
+  include HasWorldStatistics
 
   normalizes *attribute_names, with: -> { it.presence }
 
@@ -65,6 +66,14 @@ class Subsector < ApplicationRecord
   def parsecs
     ul, lr = universal_coordinates
     Parsec.where(x: ul.x..lr.x, y: lr.y..ul.y)
+  end
+
+  def systems_scope
+    star_systems_scope
+  end
+
+  def worlds_scope
+    StellarObject.where(star_system_id: systems_scope.select(:id), type: StellarObject::POPULATED_WORLD_TYPES).populated
   end
 
   def rogues

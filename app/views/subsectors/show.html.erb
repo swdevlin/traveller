@@ -49,23 +49,57 @@
      data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
   <%= render 'application/two_column_page' do %>
     <div class='space-y-6'>
-      <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
-        <%= render 'application/data_block', label: 'Star Systems', value: @star_system_count %>
-        <%= render 'application/data_block', label: 'Rogues', value: @rogue_count %>
-        <% if show_population_count? %>
-          <%= render 'application/data_block', label: 'Populated', value: @populated_system_count %>
-        <% end %>
-
-        <% if (reference_url = safe_external_url(@subsector.effective_reference_url(current_campaign))) %>
+      <% if (reference_url = safe_external_url(@subsector.effective_reference_url(current_campaign))) %>
+        <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
           <%= render 'application/data_block',
                      label: 'Library data',
                      value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
                                     class: 'hover:underline underline-offset-4') %>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
 
       <%= render 'application/observation_block',
                  notes: @subsector.notes %>
+
+      <div>
+        <%= render 'application/subsection', title: 'Subsector Statistics' %>
+
+        <div data-controller='collapsible' data-collapsible-collapse-class-value='hidden'>
+          <div class='flex w-full items-center justify-between gap-3 cursor-pointer select-none text-sm text-fg-muted hover:text-fg-bright transition-colors'
+               data-action='click->collapsible#toggle'>
+            <span>
+              <%= safe_join([
+                pluralize(@star_system_count, 'system'),
+                (show_population_count? ? "#{@populated_system_count} populated" : nil),
+                (show_population_count? ? safe_join([
+                  abbreviated_population(@subsector_total_population.to_i),
+                  ' population',
+                  (@subsector_highest_population_world && content_tag(:span, data: { controller: 'stop-propagation', action: 'click->stop-propagation#stop' }) {
+                    safe_join([
+                      ' (',
+                      link_to(@subsector_highest_population_world.name, stellar_object_path(@subsector_highest_population_world), class: 'no-underline hover:underline'),
+                      ' ',
+                      (@subsector_highest_population_world.census_population.present? ? abbreviated_population(@subsector_highest_population_world.census_population) : population_range(@subsector_highest_population_world.population_code)),
+                      ')'
+                    ])
+                  })
+                ].compact) : nil),
+                (show_population_count? ? safe_join(['Highest tech level ', (@subsector_highest_tech_level_code ? HexDigit.hex_digit(@subsector_highest_tech_level_code) : '—')]) : nil),
+                pluralize(@rogue_count, 'rogue'),
+                pluralize(@allegiance_count, 'allegiance')
+              ].compact, ' · ') %>
+            </span>
+            <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>
+          </div>
+
+          <div data-collapsible-target='content' class='hidden mt-4'>
+            <turbo-frame id='<%= dom_id(@subsector, :statistics) %>'
+                         src='<%= statistics_subsector_path(@subsector) %>'>
+              <%= render 'application/statistics_loading' %>
+            </turbo-frame>
+          </div>
+        </div>
+      </div>
 
       <turbo-frame id="<%= dom_id(@subsector, :star_systems) %>"
                    src="<%= star_systems_table_subsector_path(@subsector) %>"

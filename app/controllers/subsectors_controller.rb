@@ -18,6 +18,22 @@ class SubsectorsController < ApplicationController
     ul, = @subsector.universal_coordinates
     @starmap_center = [ul.x + 4, ul.y - 5]
     @star_systems = @subsector.star_systems.includes(:parsec, :allegiance, :travel_zone, :main_world, stars: [])
+
+    @allegiance_count = @subsector.allegiances.count
+    @subsector_total_population = @subsector.total_population
+    @subsector_highest_tech_level_code = @subsector.highest_tech_level_world&.tech_level_code
+    @subsector_highest_population_world = @subsector.highest_population_world
+  end
+
+  def statistics
+    @governments_by_code  = Government.all.index_by(&:code)
+    @law_levels_by_code   = LawLevel.all.index_by(&:code)
+    @tech_levels_by_code  = TechLevel.all.index_by(&:code)
+    @travel_zones_by_id   = TravelZone.all.index_by(&:id)
+    @facilities_by_id     = Facility.all.index_by(&:id)
+    @trade_codes_by_id    = TradeCode.all.index_by(&:id)
+
+    render layout: false
   end
 
   # GET /subsectors/1/edit

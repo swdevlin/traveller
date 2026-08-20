@@ -1,29 +1,20 @@
-<% highest_population = stats.highest_population_world %>
-<% highest_tech_level = stats.highest_tech_level_world %>
 <% populated_worlds = stats.number_of_populated_worlds %>
+<% show_totals = local_assigns.fetch(:show_totals, true) %>
 
 <div class='space-y-6'>
-  <%= render 'application/subsection', title: 'Statistics' %>
-  <div class='grid grid-cols-1 gap-6 sm:grid-cols-4'>
-    <%= render 'application/data_block', label: 'Systems', value: stats.number_of_systems %>
+  <% if show_totals %>
+    <%= render 'application/subsection', title: 'Statistics' %>
+    <div class='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+      <%= render 'application/data_block', label: 'Systems', value: stats.number_of_systems %>
 
-    <%= render 'application/data_block', label: 'Populated Worlds', value: populated_worlds %>
+      <%= render 'application/data_block', label: 'Populated Worlds', value: populated_worlds %>
 
-    <%= render 'application/data_block',
-               label: 'Total Population',
-               value: populated_worlds.positive? ? abbreviated_population(stats.total_population.to_i) : '—',
-               suffix: (populated_worlds.positive? ? tag.div("#{stats.worlds_with_known_census_count} of #{populated_worlds} worlds have a known census", class: 'mt-1 text-xs italic text-fg-muted') : nil) %>
-
-    <%= render 'application/data_block',
-               label: 'Highest Population World',
-               value: highest_population ? link_to(highest_population.name, stellar_object_path(highest_population), class: 'no-underline hover:underline') : '—',
-               suffix: (highest_population ? (highest_population.census_population.present? ? abbreviated_population(highest_population.census_population) : population_range(highest_population.population_code)) : nil) %>
-
-    <%= render 'application/data_block',
-               label: 'Highest Tech Level World',
-               value: highest_tech_level ? link_to(highest_tech_level.name, stellar_object_path(highest_tech_level), class: 'no-underline hover:underline') : '—',
-               suffix: (highest_tech_level ? tag.span(HexDigit.hex_digit(highest_tech_level.tech_level_code), class: 'identifier-sm ml-2') : nil) %>
-  </div>
+      <%= render 'application/data_block',
+                 label: 'Total Population',
+                 value: populated_worlds.positive? ? abbreviated_population(stats.total_population.to_i) : '—',
+                 suffix: (populated_worlds.positive? ? tag.div("#{stats.worlds_with_known_census_count} of #{populated_worlds} worlds have a known census", class: 'mt-1 text-xs italic text-fg-muted') : nil) %>
+    </div>
+  <% end %>
 
   <div class='grid grid-cols-1 gap-6 lg:grid-cols-2'>
     <div>

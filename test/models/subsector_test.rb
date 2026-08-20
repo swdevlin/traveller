@@ -205,4 +205,44 @@ class SubsectorTest < ActiveSupport::TestCase
 
     assert_equal count_before, Allegiance.count
   end
+
+  test 'systems_scope and worlds_scope only count this subsector, including populated worlds, population and tech level' do
+    sector = Sector.create!(x: 9040, y: 9040, skip_subsector_creation: true)
+    subsector = Subsector.create!(sector: sector, name: 'Sub A', x: 1, y: 1)
+    other_subsector = Subsector.create!(sector: sector, name: 'Sub B', x: 2, y: 1)
+
+    ul, = subsector.universal_coordinates
+    parsec = Parsec.create!(sector: sector, x: ul.x, y: ul.y)
+
+    other_ul, = other_subsector.universal_coordinates
+    other_parsec = Parsec.create!(sector: sector, x: other_ul.x, y: other_ul.y)
+
+    system = StarSystem.create!(parsec: parsec)
+    star = Star.create!(name: 'Star', star_system: system, parsec: parsec, type: 'Star')
+
+    populated = create_world(star: star, name: 'Populated', population_code: 5, tech_level_code: 12)
+    populated.population = populated.population.merge('censusPopulation' => 5_000_000)
+    populated.save!
+
+    other_system = StarSystem.create!(parsec: other_parsec)
+    other_star = Star.create!(name: 'Other Star', star_system: other_system, parsec: other_parsec, type: 'Star')
+    create_world(star: other_star, name: 'Other Populated', population_code: 8, tech_level_code: 15)
+
+    assert_equal 1, subsector.number_of_systems
+    assert_equal 1, subsector.number_of_populated_worlds
+    assert_equal 5_000_000, subsector.total_population
+    assert_equal 'Populated', subsector.highest_tech_level_world.name
+  end
+
+  private
+
+  def create_world(star:, name:, population_code:, tech_level_code: nil)
+    planet = TerrestrialPlanet.new(name: name, orbiting: star, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = population_code
+    planet.tech_level_code = tech_level_code
+    planet.save!
+    planet
+  end
 end

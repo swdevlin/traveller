@@ -129,4 +129,44 @@ class SectorTest < ActiveSupport::TestCase
     low_id, high_id = [system_a.id, system_b.id].sort
     assert JumpRouteLink.exists?(from_star_system_id: low_id, to_star_system_id: high_id)
   end
+
+  test 'systems_scope and worlds_scope only count this sector, including populated worlds, population and tech level' do
+    sector = Sector.create!(x: 9020, y: 9020, skip_subsector_creation: true)
+    other_sector = Sector.create!(x: 9021, y: 9020, skip_subsector_creation: true)
+
+    parsec = Parsec.create!(sector: sector, x: sector.x * 32, y: sector.y * 40)
+    other_parsec = Parsec.create!(sector: other_sector, x: other_sector.x * 32, y: other_sector.y * 40)
+
+    system = StarSystem.create!(parsec: parsec)
+    star = Star.create!(name: 'Star', star_system: system, parsec: parsec, type: 'Star')
+
+    populated = create_world(star: star, name: 'Populated', population_code: 5, tech_level_code: 12)
+    populated.population = populated.population.merge('censusPopulation' => 5_000_000)
+    populated.save!
+
+    create_world(star: star, name: 'Uninhabited', population_code: 0, tech_level_code: nil)
+
+    GasGiant.create!(name: 'Rogue', parsec: parsec)
+
+    other_system = StarSystem.create!(parsec: other_parsec)
+    other_star = Star.create!(name: 'Other Star', star_system: other_system, parsec: other_parsec, type: 'Star')
+    create_world(star: other_star, name: 'Other Populated', population_code: 8, tech_level_code: 15)
+
+    assert_equal 1, sector.number_of_systems
+    assert_equal 1, sector.number_of_populated_worlds
+    assert_equal 5_000_000, sector.total_population
+    assert_equal 'Populated', sector.highest_tech_level_world.name
+  end
+
+  private
+
+  def create_world(star:, name:, population_code:, tech_level_code: nil)
+    planet = TerrestrialPlanet.new(name: name, orbiting: star, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = population_code
+    planet.tech_level_code = tech_level_code
+    planet.save!
+    planet
+  end
 end

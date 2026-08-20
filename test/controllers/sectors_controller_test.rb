@@ -44,6 +44,32 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'statistics renders the world statistics partial without a layout' do
+    get statistics_sector_url(@sector)
+    assert_response :success
+    assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(@sector, :statistics)}"
+  end
+
+  test 'show includes the highest population world in the summary line' do
+    sector = Sector.create!(name: 'Population Test Sector', x: 9030, y: 9030, skip_subsector_creation: true)
+    parsec = Parsec.create!(sector: sector, x: sector.x * 32, y: sector.y * 40)
+    system = StarSystem.create!(parsec: parsec)
+    star = Star.create!(name: 'Star', star_system: system, parsec: parsec, type: 'Star')
+
+    planet = TerrestrialPlanet.new(name: 'Musal', orbiting: star, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = 9
+    planet.save!
+    planet.population = planet.population.merge('censusPopulation' => 29_400_000_000)
+    planet.save!
+
+    get sector_url(sector)
+
+    assert_response :success
+    assert_select 'a', text: 'Musal'
+  end
+
   test 'should get edit' do
     get edit_sector_url(@sector)
     assert_response :success
