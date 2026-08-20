@@ -334,8 +334,12 @@ class StarSystemsController < ApplicationController
   def create_empty_star_system(params)
     spectral_type = params['primary_spectral_type']
     dwarf_type = %w[BD D].include?(spectral_type)
+    brown_dwarf_type = Star::BROWN_DWARF_TYPES.include?(spectral_type)
 
-    if spectral_type.blank? || (!dwarf_type && (params['primary_spectral_subtype'].blank? || params['primary_luminosity'].blank?))
+    subtype_missing = !dwarf_type && params['primary_spectral_subtype'].blank?
+    luminosity_missing = !dwarf_type && !brown_dwarf_type && params['primary_luminosity'].blank?
+
+    if spectral_type.blank? || subtype_missing || luminosity_missing
       return StarSystem.new(star_system_params).tap do |so|
         so.errors.add(:base, 'Spectral type, subtype, and luminosity class must all be provided')
       end
@@ -343,6 +347,8 @@ class StarSystemsController < ApplicationController
 
     primary = if dwarf_type
       { 'type' => spectral_type }
+    elsif brown_dwarf_type
+      { 'type' => "#{spectral_type}#{params['primary_spectral_subtype']}" }
     else
       {
         'type' => "#{spectral_type}#{params['primary_spectral_subtype']}",
@@ -464,11 +470,16 @@ class StarSystemsController < ApplicationController
     when 'empty'
       spectral_type = create_params['primary_spectral_type']
       dwarf_type = %w[BD D].include?(spectral_type)
-      if spectral_type.blank? || (!dwarf_type && (create_params['primary_spectral_subtype'].blank? || create_params['primary_luminosity'].blank?))
+      brown_dwarf_type = Star::BROWN_DWARF_TYPES.include?(spectral_type)
+      subtype_missing = !dwarf_type && create_params['primary_spectral_subtype'].blank?
+      luminosity_missing = !dwarf_type && !brown_dwarf_type && create_params['primary_luminosity'].blank?
+      if spectral_type.blank? || subtype_missing || luminosity_missing
         return [nil, 'Spectral type, subtype, and luminosity class must all be provided']
       end
       primary = if dwarf_type
         { 'type' => spectral_type }
+      elsif brown_dwarf_type
+        { 'type' => "#{spectral_type}#{create_params['primary_spectral_subtype']}" }
       else
         { 'type' => "#{spectral_type}#{create_params['primary_spectral_subtype']}", 'class' => create_params['primary_luminosity'] }
       end
@@ -595,13 +606,6 @@ class StarSystemsController < ApplicationController
     nil
   end
 
-  def build_star_definition(sp, prefix)
-    {
-      type: "#{sp["#{prefix}_spectral_type"]}#{sp["#{prefix}_spectral_subtype"]}",
-      class: sp["#{prefix}_luminosity"]
-    }
-  end
-
   def spectral_type_valid(type)
     spectral_type_options.any? { |a| a.second == type }
   end
@@ -613,6 +617,7 @@ class StarSystemsController < ApplicationController
 
     fields = { type_key => sp[type_key], subtype_key => sp[subtype_key], luminosity_key => sp[luminosity_key] }
     missing = fields.select { |_, v| v.blank? }.keys
+    missing -= [luminosity_key] if Star::BROWN_DWARF_TYPES.include?(sp[type_key])
 
     if required && missing.any?
       label = prefix.titleize
@@ -645,6 +650,9 @@ class StarSystemsController < ApplicationController
     types = %w[O B A F G K M].map { |t| [t, t] }
     types << ['Brown Dwarf', 'BD']
     types << ['White Dwarf', 'D']
+    types << ['L Dwarf', 'L']
+    types << ['T Dwarf', 'T']
+    types << ['Y Dwarf', 'Y']
   end
 
   def jump_radius

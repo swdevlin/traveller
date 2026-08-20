@@ -47,7 +47,7 @@ end
 BaseStarSchema = Dry::Schema.Params do
   CLASS_TYPES = %w[Ia Ib II III IV V VI giant].freeze
   SPECIAL_TYPES = Star::SPECIAL_SPECTRAL_TYPES.keys.join('|')
-  SPECTRAL_TYPES = /\A(?:[OBAFGKM][0-9]|#{SPECIAL_TYPES})\z/
+  SPECTRAL_TYPES = /\A(?:[OBAFGKMLTY][0-9]|#{SPECIAL_TYPES})\z/
 
   required(:type).filled(:string, format?: SPECTRAL_TYPES)
 

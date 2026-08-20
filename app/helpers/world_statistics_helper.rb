@@ -64,6 +64,16 @@ module WorldStatisticsHelper
     end.sort_by(&:first).map(&:last)
   end
 
+  def allegiance_bars(stats, allegiances_by_id)
+    stats.allegiance_histogram.filter_map do |id, count|
+      record = allegiances_by_id[id]
+      next unless record
+
+      label = tag.span(record.code, class: 'identifier-sm', title: record.name)
+      { label: label, href: allegiance_path(record), count: count }
+    end.sort_by { |bar| -bar[:count] }
+  end
+
   def facility_bars(stats, facilities_by_id)
     stats.facility_histogram.filter_map do |id, count|
       record = facilities_by_id[id]

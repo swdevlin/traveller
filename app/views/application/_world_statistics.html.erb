@@ -51,5 +51,12 @@
       <%= render 'application/subsection', title: 'Trade Codes' %>
       <%= render 'application/histogram', bars: trade_code_bars(stats, trade_codes_by_id), label_width_class: 'w-10' %>
     </div>
+
+    <% if local_assigns.key?(:allegiances_by_id) %>
+      <div>
+        <%= render 'application/subsection', title: 'Systems by Allegiance' %>
+        <%= render 'application/histogram', bars: allegiance_bars(stats, allegiances_by_id), label_width_class: 'w-20' %>
+      </div>
+    <% end %>
   </div>
 </div>

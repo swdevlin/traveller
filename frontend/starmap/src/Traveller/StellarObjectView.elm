@@ -222,7 +222,7 @@ renderImage uwp maybeTemp =
             if List.member uwp gasGiantUwps then
                 "/images/gasgiant-small.png"
 
-            else if atmosphere == "B" || atmosphere == "C" then
+            else if atmosphere == "B" || atmosphere == "C" || atmosphere == "G" || atmosphere == "H" then
                 "/images/corrosivehellworld-small.png"
 
             else if hydrographics == "A" then

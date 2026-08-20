@@ -262,8 +262,11 @@ class BuildConfigValidator
     type  = star['type']
     klass = star['class']
 
-    unless Star::SPECIAL_SPECTRAL_TYPES.key?(type&.upcase)
-      @errors << "#{path}.class is required unless type is one of #{Star::SPECIAL_SPECTRAL_TYPES.keys.join(', ')}" if klass.nil?
+    no_class_required = Star::SPECIAL_SPECTRAL_TYPES.key?(type&.upcase) ||
+                         Star::BROWN_DWARF_TYPES.include?(type&.upcase&.slice(0, 1))
+    unless no_class_required
+      @errors << "#{path}.class is required unless type is one of #{Star::SPECIAL_SPECTRAL_TYPES.keys.join(', ')} " \
+                  "or a brown dwarf type (#{Star::BROWN_DWARF_TYPES.join(', ')})" if klass.nil?
     end
 
     # 3) Validate body orbit uniqueness

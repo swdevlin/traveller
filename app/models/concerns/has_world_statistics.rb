@@ -68,6 +68,10 @@ module HasWorldStatistics
     systems_scope.where.not(travel_zone_id: nil).group(:travel_zone_id).count
   end
 
+  def allegiance_histogram
+    systems_scope.where.not(allegiance_id: nil).group(:allegiance_id).count
+  end
+
   def facility_histogram
     StarSystemFacility.where(star_system_id: systems_scope.select(:id)).group(:facility_id).count
   end

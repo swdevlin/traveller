@@ -696,6 +696,28 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_includes validator.errors.join, 'density'
   end
 
+  # Star spectral type
+  test 'brown dwarf primary type with subtype and no class is valid' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: L5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'primary type requires class unless special or brown dwarf' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'class is required'
+  end
+
   # Config accessor
   # Body orbit validation
   test 'bodies with one orbit label is valid' do

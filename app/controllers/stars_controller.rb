@@ -71,6 +71,9 @@ class StarsController < ApplicationController
     @spectral_type_options = %w[O B A F G K M].map { |t| [t, t] }
     @spectral_type_options << ['Brown Dwarf', 'BD']
     @spectral_type_options << ['White Dwarf', 'D']
+    @spectral_type_options << ['L Dwarf', 'L']
+    @spectral_type_options << ['T Dwarf', 'T']
+    @spectral_type_options << ['Y Dwarf', 'Y']
 
     @spectral_subtype_options = (0..9).map { |n| [n.to_s, n] }
 

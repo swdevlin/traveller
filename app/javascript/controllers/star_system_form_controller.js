@@ -49,6 +49,7 @@ export default class extends Controller {
     if (!section) return
 
     const noSubtype = ['BD', 'D'].includes(select.value)
+    const noLuminosity = ['BD', 'D', 'L', 'T', 'Y'].includes(select.value)
     const subtypeSelect = section.querySelector('[data-role="spectral-subtype"]')
     const luminositySelect = section.querySelector('[data-role="luminosity"]')
 
@@ -57,8 +58,8 @@ export default class extends Controller {
       if (noSubtype) subtypeSelect.value = ''
     }
     if (luminositySelect) {
-      luminositySelect.disabled = noSubtype
-      if (noSubtype) luminositySelect.value = ''
+      luminositySelect.disabled = noLuminosity
+      if (noLuminosity) luminositySelect.value = ''
     }
   }
 
@@ -89,6 +90,11 @@ export default class extends Controller {
     if (!section) return false
 
     const typeSelect = section.querySelector('select:not([data-role])')
-    return typeSelect && ['BD', 'D'].includes(typeSelect.value)
+    if (!typeSelect) return false
+
+    const noSubtypeTypes = ['BD', 'D']
+    const noLuminosityTypes = ['BD', 'D', 'L', 'T', 'Y']
+    const types = role === 'spectral-subtype' ? noSubtypeTypes : noLuminosityTypes
+    return types.includes(typeSelect.value)
   }
 }

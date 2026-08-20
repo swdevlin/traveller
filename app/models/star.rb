@@ -12,6 +12,10 @@ class Star < StellarObject
     'AN' => 'Anomaly'
   }.freeze
 
+  # Brown dwarf spectral classes: take a numeric subtype like O/B/A/F/G/K/M
+  # (e.g. 'L5'), but have no luminosity class.
+  BROWN_DWARF_TYPES = %w[L T Y].freeze
+
   generator_data_map(
     stellar_class: 'stellarClass',
     stellar_type: 'stellarType',

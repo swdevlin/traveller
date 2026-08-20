@@ -393,6 +393,8 @@ planetarySize =
    ATM-D-T5-Fan-Andy-Bigwood 22-Oct-2019a.jpg    D (13)    Dense, high    Exotic, Unusual    2.5 or greater [3]    Typically no survival gear required under many conditions. Pressure at or below sea level is too great to support life but is breathable at higher altitudes.
    ATM-E-T5-Fan-Andy-Bigwood 22-Oct-2019a.jpg    E (14) †    Ellipsoid †    Exotic, Unusual    0.5 or less [4]    Typically no survival gear required under many conditions. The world’s surface is ellipsoidal, not spherical. Because the atmosphere remains spherical, surface atmospheric pressure ranges from very high at the middle to very low at the ends. Breathable bands may exist at some point within the range of pressure.
    ATM-F-T5-Fan-Andy-Bigwood 22-Oct-2019a.jpg    F (15) †    Thin, low †    Exotic, Unusual    varies    Typically no survival gear required under some conditions. This world is large and massive, with a thin atmosphere which settles to the lowest levels of the terrain. The atmosphere is un-breathable at most altitudes except the very low ones (…as in depressions or deep valleys).
+   G (16)    Gas, Helium    Exotic    varies    A helium-dominated atmosphere, unbreathable and pressure-hostile. Survival Gear: HEV Suit.
+   H (17)    Gas, Hydrogen    Exotic    varies    A hydrogen-dominated atmosphere. Survival Gear: Not Survivable.
    † - NOTE: In MgT and T5, Atm type E is "Thin, Low", and Atm type F is "Unusual", which includes (but is not limited to) Ellipsoidal atmospheres.
 
 -}

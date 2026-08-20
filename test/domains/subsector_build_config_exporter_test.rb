@@ -92,6 +92,16 @@ class SubsectorBuildConfigExporterTest < ActiveSupport::TestCase
     assert_nil primary['class']
   end
 
+  test 'exports brown dwarf spectral type with subtype but no class' do
+    system   = StarSystem.create!(parsec: @parsec, meta: {})
+    _primary = build_primary_star(system, type: 'L', subtype: 5, klass: nil)
+
+    primary = SubsectorBuildConfigExporter.new(@subsector).export['systems'].first['primary']
+
+    assert_equal 'L5', primary['type']
+    assert_nil primary['class']
+  end
+
   test 'exports near secondary star' do
     system    = StarSystem.create!(parsec: @parsec, meta: {})
     primary   = build_primary_star(system, type: 'G', subtype: 5, klass: 'V')
@@ -217,6 +227,18 @@ class SubsectorBuildConfigExporterTest < ActiveSupport::TestCase
   test 'exported config passes BuildConfigValidator' do
     system  = StarSystem.create!(parsec: @parsec, meta: {})
     primary = build_primary_star(system, type: 'G', subtype: 5, klass: 'V')
+    planet  = build_terrestrial_planet(primary, system, orbit: 3.0, uwp: 'A786865-B')
+    system.update!(main_world: planet)
+
+    yaml      = SubsectorBuildConfigExporter.new(@subsector).to_yaml
+    validator = BuildConfigValidator.new(yaml)
+
+    assert validator.valid?, "Expected valid but got: #{validator.errors.inspect}"
+  end
+
+  test 'exported config with brown dwarf primary passes BuildConfigValidator' do
+    system  = StarSystem.create!(parsec: @parsec, meta: {})
+    primary = build_primary_star(system, type: 'L', subtype: 5, klass: nil)
     planet  = build_terrestrial_planet(primary, system, orbit: 3.0, uwp: 'A786865-B')
     system.update!(main_world: planet)
 

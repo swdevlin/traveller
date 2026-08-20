@@ -324,7 +324,9 @@ module StellarObjectsHelper
     12 => 'HEV Suit',
     13 => 'None',
     14 => 'Respirator',
-    15 => 'Varies'
+    15 => 'Varies',
+    16 => 'HEV Suit',
+    17 => 'Not Survivable'
   }.freeze
 
   def atmosphere_survival_requirement(code, tainted: false)

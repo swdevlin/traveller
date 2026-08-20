@@ -27,7 +27,7 @@
 
   <div>
     <%= label_tag "star_system_#{prefix}_luminosity", 'Luminosity class', class: 'block text-sm font-semibold mb-1' %>
-    <% luminosity_disabled = disabled || %w[BD D].include?(params.dig(:star_system, "#{prefix}_spectral_type")) %>
+    <% luminosity_disabled = disabled || %w[BD D L T Y].include?(params.dig(:star_system, "#{prefix}_spectral_type")) %>
     <%= select_tag "star_system[#{prefix}_luminosity]",
                    options_for_select(@luminosity_options, params.dig(:star_system, "#{prefix}_luminosity")),
                    prompt: 'Select class',
