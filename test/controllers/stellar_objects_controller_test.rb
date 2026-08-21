@@ -91,6 +91,18 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@gas_giant)
   end
 
+  test 'orbit change triggers orbit mechanics recalculation' do
+    @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
+    base = Rails.application.config.x.generator_service
+    stub = stub_request(:post, "#{base}/orbit_mechanics")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: { 'primaryStar' => { 'orbitSequence' => 'A', 'stellarObjects' => [] } }.to_json)
+
+    patch stellar_object_url(@gas_giant), params: { stellar_object: { orbit: 2.5 } }
+
+    assert_requested stub
+    assert_redirected_to stellar_object_url(@gas_giant)
+  end
+
   test 'unrelated field change does not trigger orbit mechanics recalculation' do
     @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
     base = Rails.application.config.x.generator_service

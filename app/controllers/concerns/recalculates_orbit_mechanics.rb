@@ -6,7 +6,7 @@ module RecalculatesOrbitMechanics
   private
 
   def recalculate_orbit_mechanics_if_needed(object)
-    return unless object.saved_change_to_eccentricity? || object.saved_change_to_inclination?
+    return unless object.saved_change_to_eccentricity? || object.saved_change_to_inclination? || object.saved_change_to_orbit?
 
     star_system = object.star_system
     return unless star_system

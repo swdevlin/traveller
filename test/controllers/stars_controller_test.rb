@@ -21,6 +21,17 @@ class StarsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_url(@star)
   end
 
+  test 'orbit change triggers orbit mechanics recalculation' do
+    base = Rails.application.config.x.generator_service
+    stub = stub_request(:post, "#{base}/orbit_mechanics")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: { 'primaryStar' => { 'orbitSequence' => @star.orbit_sequence, 'stellarObjects' => [] } }.to_json)
+
+    patch star_url(@star), params: { star: { orbit: 2.5 } }
+
+    assert_requested stub
+    assert_redirected_to star_url(@star)
+  end
+
   test 'unrelated field change does not trigger orbit mechanics recalculation' do
     base = Rails.application.config.x.generator_service
     stub = stub_request(:post, "#{base}/orbit_mechanics")
