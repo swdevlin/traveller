@@ -690,7 +690,7 @@ viewSidebarColumn :
             | selectedHex : Maybe HexAddress
             , solarSystemStatus : Maybe String
             , sectors : SectorDict
-            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Color }
+            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Maybe Color }
             , selectedSystem : Maybe SolarSystem
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
@@ -825,8 +825,17 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                                                         False
                                         in
                                         if List.member viewingAddress region.hexes && not isAllegianceRegion then
+                                            let
+                                                colourAttrs =
+                                                    case region.colour of
+                                                        Just colour ->
+                                                            [ HtmlAttrs.style "color" (Color.toCssString colour) ]
+
+                                                        Nothing ->
+                                                            []
+                                            in
                                             text region.name
-                                                |> el [ fontSize 12, HtmlAttrs.style "color" (Color.toCssString region.colour), centerX ]
+                                                |> el (fontSize 12 :: centerX :: colourAttrs)
                                                 |> Just
 
                                         else

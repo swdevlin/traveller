@@ -9,7 +9,7 @@ import Traveller.HexAddress as HexAddress exposing (HexAddress)
 
 type alias Region =
     { id : Int
-    , colour : Color
+    , colour : Maybe Color
     , borderColour : Maybe Color
     , name : String
     , playerVisible : Bool
@@ -52,7 +52,7 @@ codec =
         |> Codec.field "label_x" (.labelPosition >> Maybe.map .x) (Codec.maybe Codec.int)
         |> Codec.field "label_y" (.labelPosition >> Maybe.map .y) (Codec.maybe Codec.int)
         |> Codec.field "id" .id Codec.int
-        |> Codec.field "colour" .colour codecColour
+        |> Codec.field "colour" .colour codecMaybeColour
         |> Codec.field "border_colour" .borderColour codecMaybeColour
         |> Codec.field "name" .name Codec.string
         |> Codec.field "player_visible" .playerVisible Codec.bool

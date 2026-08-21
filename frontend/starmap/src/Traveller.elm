@@ -7504,8 +7504,12 @@ update msg ( time, model ) =
 
                 parsecList : Region -> List ( String, Color )
                 parsecList region =
-                    List.map (\p -> ( HexAddress.toKey p, region.colour ))
-                        region.hexes
+                    case region.colour of
+                        Just colour ->
+                            List.map (\p -> ( HexAddress.toKey p, colour )) region.hexes
+
+                        Nothing ->
+                            []
 
                 regionDict =
                     List.foldl
@@ -7548,13 +7552,17 @@ update msg ( time, model ) =
             let
                 parsecList : Region -> List ( String, Color )
                 parsecList region =
-                    List.map (\p -> ( HexAddress.toKey p, region.colour ))
-                        region.hexes
+                    case region.colour of
+                        Just colour ->
+                            List.map (\p -> ( HexAddress.toKey p, colour )) region.hexes
+
+                        Nothing ->
+                            []
 
                 stub : Region
                 stub =
                     { id = 1
-                    , colour = Color.blue
+                    , colour = Just Color.blue
                     , borderColour = Nothing
                     , name = "Stub Hennlix Nebula"
                     , playerVisible = True
