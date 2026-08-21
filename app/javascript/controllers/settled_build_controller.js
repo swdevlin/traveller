@@ -22,9 +22,9 @@ export default class extends Controller {
     const yaml = this.checkboxTarget.checked ? this.settledYamlValue : this.basicYamlValue;
 
     // While a T5 file is attached it drives system placement (and any populated
-    // block), so only surveyIndex still applies from the Settled space toggle.
+    // block), so only defaultSI still applies from the Settled space toggle.
     this.textareaTarget.value = this.isFileLocked()
-      ? `surveyIndex: ${this.surveyIndexFrom(yaml)}\n`
+      ? `defaultSI: ${this.surveyIndexFrom(yaml)}\n`
       : yaml;
   }
 
@@ -33,7 +33,7 @@ export default class extends Controller {
   }
 
   surveyIndexFrom(yaml) {
-    const match = yaml.match(/surveyIndex:\s*(\d+)/);
+    const match = yaml.match(/defaultSI:\s*(\d+)/);
     return match ? match[1] : '';
   }
 }

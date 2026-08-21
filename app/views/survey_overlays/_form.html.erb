@@ -58,10 +58,16 @@
     <template data-survey-overlay-rule-target='conditionTemplate'>
       <div data-condition class='flex flex-wrap items-center gap-2 text-sm'>
         <select data-field data-action='change->survey-overlay-rule#fieldChanged' class='edit-base min-w-40'></select>
-        <select data-operator class='edit-base min-w-56'></select>
-        <label class='flex items-center gap-1 cursor-pointer'>
-          <input type='checkbox' data-negate class='accent-highlight'> Not
-        </label>
+        <select data-operator data-action='change->survey-overlay-rule#operatorChanged' class='edit-base min-w-56'></select>
+        <div class='flex items-center gap-2'>
+          <input type='checkbox' data-negate class='sr-only'>
+          <button type='button' data-negate-toggle data-action='survey-overlay-rule#toggleNegate'
+                  role='switch' aria-checked='false'
+                  class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-toggle-off'>
+            <span data-negate-indicator class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out translate-x-0 bg-toggle-knob-off'></span>
+          </button>
+          <span class='text-xs text-fg-muted'>Not</span>
+        </div>
         <div data-values-picker class='flex flex-wrap items-center gap-x-3 gap-y-1'></div>
         <button type='button' data-action='survey-overlay-rule#removeCondition'
                 class='text-danger-fg hover:text-white hover:bg-danger rounded p-1.5 cursor-pointer transition'

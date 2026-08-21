@@ -42,14 +42,14 @@
            data-settled-build-settled-yaml-value="<%= SectorsController::SETTLED_BUILD_SPEC %>"
            data-settled-build-basic-yaml-value="<%= SectorsController::BASIC_BUILD_SPEC %>"
            >
-        <label class='flex items-center gap-2 cursor-pointer' data-tour-step='sector-settled'>
-          <input type='checkbox'
-                 data-settled-build-target='checkbox'
-                 data-action='change->settled-build#toggle'
-                 class='rounded'
-                 <%= 'checked' if settled %> />
-          <span class='edit-label'>Settled space</span>
-        </label>
+        <div data-tour-step='sector-settled'>
+          <%= render 'application/boolean_toggle',
+                     form: form,
+                     attribute: :settled,
+                     checked: settled,
+                     label: 'Settled space',
+                     checkbox_data: { 'settled-build-target': 'checkbox', action: 'change->settled-build#toggle' } %>
+        </div>
 
         <% if current_campaign.homebrew? %>
           <div class='mt-4'>

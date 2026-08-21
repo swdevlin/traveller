@@ -291,7 +291,7 @@ class SectorsController < ApplicationController
 
   SETTLED_BUILD_SPEC = <<~YAML.freeze
     type: STANDARD
-    surveyIndex: 10
+    defaultSI: 10
     populated:
       type: full
       minTechLevel: 0
@@ -300,7 +300,7 @@ class SectorsController < ApplicationController
 
   BASIC_BUILD_SPEC = <<~YAML.freeze
     type: STANDARD
-    surveyIndex: 3
+    defaultSI: 3
   YAML
 
   # GET /sectors/new
@@ -442,7 +442,7 @@ class SectorsController < ApplicationController
     end
 
     def extract_survey_index(yaml_text)
-      YAML.safe_load(yaml_text.to_s, permitted_classes: [], permitted_symbols: [], aliases: false)&.dig('surveyIndex')
+      YAML.safe_load(yaml_text.to_s, permitted_classes: [], permitted_symbols: [], aliases: false)&.dig('defaultSI')
     rescue Psych::SyntaxError
       nil
     end

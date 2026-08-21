@@ -25,6 +25,13 @@ module WorldStatisticsHelper
     tag.span(text, title: number_with_delimiter(value))
   end
 
+  def total_population_display(stats)
+    return '—' unless stats.number_of_populated_worlds.positive?
+    return 'incomplete census data' unless stats.worlds_with_known_census_count.positive?
+
+    abbreviated_population(stats.total_population.to_i)
+  end
+
   def population_summary_fragment(stats, highest_population_world)
     total_text =
       if stats.worlds_with_known_census_count.positive?

@@ -56,19 +56,19 @@
   <% end %>
 
   <div class='justify-self-end flex items-center gap-4'>
-    <div class='ml-6'
-         data-controller='job-count'
-         data-job-count-schema-name-value='<%= current_campaign&.schema_name %>'>
-      <span class='inline-flex items-center gap-1 text-fg cursor-default'
-            data-job-count-target='container'
-            title='Background tasks'
-            hidden>
-        <i class='fa-regular fa-spinner-third fa-spin text-xs'></i>
-        <span class='text-xs' data-job-count-target='count'>0</span>
-      </span>
-    </div>
-
     <% if authenticated? %>
+      <div class='ml-6'
+           data-controller='job-count'
+           data-job-count-schema-name-value='<%= current_campaign&.schema_name %>'>
+        <span class='inline-flex items-center gap-1 text-fg cursor-default'
+              data-job-count-target='container'
+              title='Background tasks'
+              hidden>
+          <i class='fa-regular fa-spinner-third fa-spin text-xs'></i>
+          <span class='text-xs' data-job-count-target='count'>0</span>
+        </span>
+      </div>
+
       <% if current_campaign %>
         <div  data-tour-step="nav-campaign" class='relative' data-controller='dropdown'>
           <button data-action='dropdown#toggle'

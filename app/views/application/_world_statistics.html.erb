@@ -11,7 +11,7 @@
 
       <%= render 'application/data_block',
                  label: 'Total Population',
-                 value: populated_worlds.positive? ? abbreviated_population(stats.total_population.to_i) : '—',
+                 value: total_population_display(stats),
                  suffix: (populated_worlds.positive? ? tag.div("#{stats.worlds_with_known_census_count} of #{populated_worlds} worlds have a known census", class: 'mt-1 text-xs italic text-fg-muted') : nil) %>
     </div>
   <% end %>
