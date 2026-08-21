@@ -3,12 +3,6 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
-    - queues: "default"
-      threads: 3
-      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
-      polling_interval: 0.1
-    # Rulebook PDF imports run one at a time — each extraction is CPU-heavy enough that
-    # running several concurrently starves the box rather than finishing any of them faster.
     - queues: "rulebook_imports"
       threads: 1
       processes: 1
@@ -16,9 +10,29 @@ default: &default
 
 development:
   <<: *default
+  workers:
+    - queues: "default"
+      threads: 1
+      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      polling_interval: 0.5
+    - queues: "rulebook_imports"
+      threads: 1
+      processes: 1
+      polling_interval: 1.0
 
 test:
   <<: *default
 
 production:
   <<: *default
+  workers:
+    - queues: "default"
+      threads: 3
+      processes: <%= ENV.fetch("JOB_CONCURRENCY", 2) %>
+      polling_interval: 0.1
+    # Rulebook PDF imports run one at a time — each extraction is CPU-heavy enough that
+    # running several concurrently starves the box rather than finishing any of them faster.
+    - queues: "rulebook_imports"
+      threads: 1
+      processes: 1
+      polling_interval: 1.0
