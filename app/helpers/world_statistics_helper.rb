@@ -25,6 +25,27 @@ module WorldStatisticsHelper
     tag.span(text, title: number_with_delimiter(value))
   end
 
+  def population_summary_fragment(stats, highest_population_world)
+    total_text =
+      if stats.worlds_with_known_census_count.positive?
+        safe_join([abbreviated_population(stats.total_population.to_i), ' population'])
+      else
+        'incomplete census data'
+      end
+
+    highest_world_fragment = highest_population_world && content_tag(:span, data: { controller: 'stop-propagation', action: 'click->stop-propagation#stop' }) {
+      safe_join([
+        ' (',
+        link_to(highest_population_world.name, stellar_object_path(highest_population_world), class: 'no-underline hover:underline'),
+        ' ',
+        (highest_population_world.census_population.present? ? abbreviated_population(highest_population_world.census_population) : population_range(highest_population_world.population_code)),
+        ')'
+      ])
+    }
+
+    safe_join([total_text, highest_world_fragment].compact)
+  end
+
   def tech_level_bars(stats, tech_levels_by_code)
     stats.tech_level_histogram.reverse_each.map do |code, count|
       record = tech_levels_by_code[code]

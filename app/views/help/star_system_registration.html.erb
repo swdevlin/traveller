@@ -116,8 +116,8 @@
           </dl>
           <p>
             Additional zones may be defined under
-            <%= link_to 'Data Cores → Travel Zones', data_cores_path,
-                        class: 'hover:underline hover:underline-offset-2' %>.
+            <%= current_campaign ? link_to('Data Cores → Travel Zones', data_cores_path,
+                        class: 'hover:underline hover:underline-offset-2') : 'Data Cores → Travel Zones' %>.
             A zone can be assigned to any star system from its show or edit page, and is
             automatically set when importing from TravellerMap.
           </p>

@@ -7,24 +7,32 @@ class CreateSubsectorJob < ApplicationJob
     sector = Sector.find(sector_id)
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
 
-    name = if subsector_name.present?
-      subsector_name
-    elsif sector.source == 'manual' && (effective_lang = sector.effective_language(campaign)).present?
-      WordGenerator.new(language: effective_lang.to_sym).generate
+    subsector = sector.subsectors.find_by(x: x, y: y)
+
+    if subsector
+      create_parsecs(sector, subsector) unless subsector.parsecs.exists?
     else
-      letter
+      name = if subsector_name.present?
+        subsector_name
+      elsif sector.source == 'manual' && (effective_lang = sector.effective_language(campaign)).present?
+        WordGenerator.new(language: effective_lang.to_sym).generate
+      else
+        letter
+      end
+
+      subsector = sector.subsectors.create!(
+        x: x,
+        y: y,
+        abbreviation: letter,
+        name: name
+      )
+
+      create_parsecs(sector, subsector)
     end
 
-    subsector = sector.subsectors.create!(
-      x: x,
-      y: y,
-      abbreviation: letter,
-      name: name
-    )
-
-    create_parsecs(sector, subsector)
-
-    if sector.source == 'traveller_map'
+    if subsector.build.present?
+      # A retry after a prior attempt already assigned a build spec — leave it alone.
+    elsif sector.source == 'traveller_map'
       import_from_traveller_map(sector, subsector, letter)
     elsif sector.source == 'deepnight'
       subsector.load_deepnight_defaults!

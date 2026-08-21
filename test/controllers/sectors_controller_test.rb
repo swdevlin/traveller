@@ -70,6 +70,25 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_select 'a', text: 'Musal'
   end
 
+  test 'show reports incomplete census data instead of a misleading zero population' do
+    sector = Sector.create!(name: 'Census Test Sector', x: 9031, y: 9031, skip_subsector_creation: true)
+    parsec = Parsec.create!(sector: sector, x: sector.x * 32, y: sector.y * 40)
+    system = StarSystem.create!(parsec: parsec)
+    star = Star.create!(name: 'Star', star_system: system, parsec: parsec, type: 'Star')
+
+    planet = TerrestrialPlanet.new(name: 'Uncensused', orbiting: star, orbit: 1, size_code: '5')
+    planet.atmosphere_code = 6
+    planet.hydrographics_code = 5
+    planet.population_code = 10
+    planet.save!
+
+    get sector_url(sector)
+
+    assert_response :success
+    assert_match 'incomplete census data', response.body
+    assert_no_match '0 population', response.body
+  end
+
   test 'should get edit' do
     get edit_sector_url(@sector)
     assert_response :success

@@ -135,19 +135,7 @@
             <%= safe_join([
               pluralize(@star_system_count, 'system'),
               "#{@populated_world_count} populated",
-              safe_join([
-                abbreviated_population(@sector_total_population.to_i),
-                ' population',
-                (@sector_highest_population_world && content_tag(:span, data: { controller: 'stop-propagation', action: 'click->stop-propagation#stop' }) {
-                  safe_join([
-                    ' (',
-                    link_to(@sector_highest_population_world.name, stellar_object_path(@sector_highest_population_world), class: 'no-underline hover:underline'),
-                    ' ',
-                    (@sector_highest_population_world.census_population.present? ? abbreviated_population(@sector_highest_population_world.census_population) : population_range(@sector_highest_population_world.population_code)),
-                    ')'
-                  ])
-                })
-              ].compact),
+              population_summary_fragment(@sector, @sector_highest_population_world),
               safe_join(['Highest tech level ', (@sector_highest_tech_level_code ? HexDigit.hex_digit(@sector_highest_tech_level_code) : '—')]),
               pluralize(@allegiance_count, 'allegiance'),
               pluralize(@rogue_count, 'rogue')
