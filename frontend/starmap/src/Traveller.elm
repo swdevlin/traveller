@@ -1609,8 +1609,19 @@ hexAddressLabel x y size hexAddress hexColour =
             [ HexAddress.hexLabel hexAddress |> Svg.text ]
 
 
-viewHexEmpty : Int -> Int -> Int -> Int -> Float -> String -> String -> Svg Msg
-viewHexEmpty hx hy x y size childSvgTxt hexColour =
+{-| Bundles a hex's fill colour with the fade-decision flags into a single
+argument so the outer `Svg.Lazy.lazy7` call (see call sites) stays within
+`Svg.Lazy`'s 8-argument ceiling.
+-}
+type alias HexFillInfo =
+    { colour : String
+    , isRegionFill : Bool
+    , themeIsLight : Bool
+    }
+
+
+viewHexEmpty : Int -> Int -> Int -> Int -> Float -> String -> HexFillInfo -> Svg Msg
+viewHexEmpty hx hy x y size childSvgTxt fillInfo =
     let
         origin =
             ( toFloat x, toFloat y )
@@ -1624,7 +1635,7 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
                 , SvgAttrs.y <| String.fromInt y
                 , SvgAttrs.fontSize "10"
                 , SvgAttrs.textAnchor "middle"
-                , SvgAttrs.fill (hexTextColour hexColour)
+                , SvgAttrs.fill (hexTextColour fillInfo.colour)
                 , SvgAttrs.class "hex-scan"
                 ]
                 [ Svg.text childSvgTxt ]
@@ -1639,14 +1650,14 @@ viewHexEmpty hx hy x y size childSvgTxt hexColour =
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
         [ -- background hex
-          Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
-        , hexAddressLabel x y size hexAddress hexColour
+          Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) fillInfo.colour fillInfo.isRegionFill fillInfo.themeIsLight
+        , hexAddressLabel x y size hexAddress fillInfo.colour
         , childSvg
         ]
 
 
-viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> Bool -> RogueHexData -> Svg Msg
-viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIsLight { surveyIndex, objects } =
+viewHexRogue : HexAddress -> Int -> Int -> Float -> String -> Bool -> Maybe String -> Bool -> Bool -> RogueHexData -> Svg Msg
+viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIsLight isRegionFill { surveyIndex, objects } =
     let
         origin =
             ( toFloat x, toFloat y )
@@ -1716,7 +1727,7 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIs
         , SvgAttrs.style "cursor: pointer; user-select: none"
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
-        [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
+        [ Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour isRegionFill themeIsLight
         , hexAddressLabel x y size hexAddress hexColour
         , case ( showComet && size > 15, cometDetail ) of
             ( True, Just detail ) ->
@@ -1843,8 +1854,53 @@ renderPolyline points_ borderColour =
         []
 
 
-renderPolygon : String -> String -> Svg msg
-renderPolygon points_ fill =
+{-| SVG's `currentColor` on a gradient `<stop>` resolves via inheritance within
+the `<defs>` subtree the `<stop>` lives in — it is NOT picked up from the shape
+that references the gradient via `fill="url(#...)"`. So a per-colour fade needs
+a distinct `radialGradient` per colour (built in `viewHexes` as `fadeGradients`,
+keyed by this same id function) rather than one static gradient driven by
+`currentColor`.
+-}
+hexFadeGradientId : String -> String
+hexFadeGradientId colour =
+    "hex-fade-" ++ String.filter Char.isAlphaNum colour
+
+
+{-| Blends two "#RRGGBB" colours, `amount` of the way from `fromColour` to
+`toColour` (0 = fromColour, 1 = toColour). Used to build the fade gradient's
+stops as solid colours rather than alpha, since the page background behind
+the map SVG isn't guaranteed to equal `defaultBg` exactly (it's the themed
+`--color-bg`, not literally `#000000`/`#FFFFFF`) — alpha stops would reveal
+that mismatch instead of a clean fade to the hex's normal background.
+-}
+mixHex : String -> String -> Float -> String
+mixHex fromColour toColour amount =
+    let
+        toRgba hex =
+            Color.Convert.hexToColor hex
+                |> Result.withDefault (Color.rgb 0 0 0)
+                |> Color.toRgba
+
+        from =
+            toRgba fromColour
+
+        to =
+            toRgba toColour
+
+        mixChannel a b =
+            a + (b - a) * amount
+    in
+    Color.rgb (mixChannel from.red to.red) (mixChannel from.green to.green) (mixChannel from.blue to.blue)
+        |> Color.Convert.colorToHex
+
+
+{-| Region fills stay solid; every other special hex colour (current address,
+route, selected, allegiance, habitability) fades from full colour at the hex
+edge to the theme's normal hex background colour at the centre, via the
+per-colour gradients defined in `viewHexes`' `Svg.defs` (see `hexFadeGradientId`).
+-}
+renderPolygon : String -> String -> Bool -> Bool -> Svg msg
+renderPolygon points_ fill isRegionFill themeIsLight =
     let
         hexColour =
             if fill == currentAddressHexBg then
@@ -1859,10 +1915,24 @@ renderPolygon points_ fill =
 
             else
                 "#e5e5e5"
+
+        defaultBg =
+            if themeIsLight then
+                "#FFFFFF"
+
+            else
+                "#000000"
+
+        fillValue =
+            if isRegionFill || hexColour == defaultBg then
+                hexColour
+
+            else
+                "url(#" ++ hexFadeGradientId hexColour ++ ")"
     in
     Svg.polygon
         [ points points_
-        , SvgAttrs.fill hexColour
+        , SvgAttrs.fill fillValue
         , SvgAttrs.stroke strokeColour
         , SvgAttrs.strokeWidth "0.5"
         , SvgAttrs.pointerEvents "visiblePainted"
@@ -2241,6 +2311,7 @@ drawGasGiant themeIsLight iconX iconY size =
 type alias HexRenderOpts =
     { starSystem : StarSystem
     , hexColour : String
+    , isRegionFill : Bool
     , hexAddrX : Int
     , hexAddrY : Int
     , vox : Int
@@ -2255,7 +2326,7 @@ type alias HexRenderOpts =
 
 
 renderHexBg : HexRenderOpts -> Svg Msg
-renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
+renderHexBg { hexColour, isRegionFill, hexAddrX, hexAddrY, hexapointsStr, themeIsLight } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -2268,7 +2339,7 @@ renderHexBg { hexColour, hexAddrX, hexAddrY, hexapointsStr } =
         , SvgEvents.on "mousemove" <| mouseMoveDecoder MapMouseMove
         , SvgAttrs.style "cursor: pointer; user-select: none"
         ]
-        [ Svg.Lazy.lazy2 renderPolygon hexapointsStr hexColour ]
+        [ Svg.Lazy.lazy4 renderPolygon hexapointsStr hexColour isRegionFill themeIsLight ]
 
 
 viewBarRow : Float -> Float -> Float -> String -> Int -> String -> Svg Msg
@@ -2999,8 +3070,8 @@ allegianceColours =
         ]
 
 
-viewHexLoading : Int -> Int -> Int -> Int -> Float -> String -> Svg Msg
-viewHexLoading hx hy x y size hexColour =
+viewHexLoading : Int -> Int -> Int -> Int -> Float -> String -> Bool -> Bool -> Svg Msg
+viewHexLoading hx hy x y size hexColour isRegionFill themeIsLight =
     let
         origin =
             ( toFloat x, toFloat y )
@@ -3033,7 +3104,7 @@ viewHexLoading hx hy x y size hexColour =
         , SvgAttrs.style "cursor: pointer; user-select: none"
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
-        [ Svg.Lazy.lazy2 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour
+        [ Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour isRegionFill themeIsLight
         , hexAddressLabel x y size hexAddress hexColour
         , dot "hex-dot hex-dot-1" -spacing
         , dot "hex-dot hex-dot-2" 0
@@ -3048,6 +3119,7 @@ viewHex :
     -> Int
     -> Int
     -> String
+    -> Bool
     -> List ( Float, Float )
     -> Bool
     -> Maybe String
@@ -3055,13 +3127,13 @@ viewHex :
     -> DisplayMode
     -> Bool
     -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode themeIsLight =
+viewHex hexSize solarSystemDict hexAddress vox voy hexColour isRegionFill rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode themeIsLight =
     let
         remoteSolarSystem =
             Dict.get (HexAddress.toKey hexAddress) solarSystemDict
 
         viewEmptyHelper txt =
-            Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize txt hexColour
+            Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize txt { colour = hexColour, isRegionFill = isRegionFill, themeIsLight = themeIsLight }
     in
     case remoteSolarSystem of
         Just (LoadedSolarSystem loadedSystem) ->
@@ -3072,6 +3144,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
                 opts =
                     { starSystem = loadedSystem
                     , hexColour = hexColour
+                    , isRegionFill = isRegionFill
                     , hexAddrX = hexAddress.x
                     , hexAddrY = hexAddress.y
                     , vox = vox
@@ -3089,7 +3162,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             )
 
         Just LoadingSolarSystem ->
-            ( viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour
+            ( viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour isRegionFill themeIsLight
             , Svg.text ""
             )
 
@@ -3104,12 +3177,12 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour rawHexaPoints isRef
             )
 
         Just (LoadedRogueHex rogueData) ->
-            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData themeIsLight rogueData
+            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData themeIsLight isRegionFill rogueData
             , Svg.text ""
             )
 
         Just (FailedStarsSolarSystem _) ->
-            ( Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." "#aaaaaa"
+            ( Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." { colour = "#aaaaaa", isRegionFill = True, themeIsLight = themeIsLight }
             , Svg.text ""
             )
 
@@ -3661,13 +3734,16 @@ viewHexes config =
         mapLabelSvgs =
             hexRange |> List.filterMap renderMapLabel
 
-        computeHexColour : HexAddress -> String -> String
+        -- Returns ( colour, isRegionFill ) — isRegionFill marks colours that must
+        -- stay solid rather than take part in the edge-to-centre fade applied by
+        -- `renderPolygon`.
+        computeHexColour : HexAddress -> String -> ( String, Bool )
         computeHexColour hexAddr hexKey =
             if hexAddr == config.currentAddress then
-                currentAddressHexBg
+                ( currentAddressHexBg, False )
 
             else if config.showJumpLogFill && isOnRoute config.route hexAddr then
-                routeHexBg
+                ( routeHexBg, False )
 
             else
                 let
@@ -3684,19 +3760,19 @@ viewHexes config =
                 in
                 case regionFill of
                     Just color ->
-                        Color.Convert.colorToHex color
+                        ( Color.Convert.colorToHex color, True )
 
                     Nothing ->
                         case config.maybeSelectedHex of
                             Just selectedHex ->
                                 if selectedHex == hexAddr then
-                                    selectedHexBg
+                                    ( selectedHexBg, False )
 
                                 else
-                                    hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict
+                                    ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict, False )
 
                             Nothing ->
-                                hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict
+                                ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict, False )
 
         -- Survey Overlay's rule-highlight colour, rendered as its own SVG layer
         -- above the background-name watermark (see `keyedRuleOverlays`) rather
@@ -3718,6 +3794,67 @@ viewHexes config =
                 )
                 |> Maybe.map Color.Convert.colorToHex
 
+        defaultBg =
+            if config.themeIsLight then
+                "#FFFFFF"
+
+            else
+                "#000000"
+
+        -- Every colour that needs an edge-to-centre fade (see `renderPolygon`
+        -- and `keyedRuleOverlays`), deduplicated so we emit one `radialGradient`
+        -- per distinct colour rather than one per hex.
+        fadeColours : Set.Set String
+        fadeColours =
+            hexRange
+                |> List.foldl
+                    (\hexAddr acc ->
+                        let
+                            hexKey =
+                                HexAddress.toKey hexAddr
+
+                            ( rawColour, isRegionFill ) =
+                                computeHexColour hexAddr hexKey
+
+                            colour =
+                                if rawColour == currentAddressHexBg then
+                                    routeHexBg
+
+                                else
+                                    rawColour
+
+                            withHexColour =
+                                if not isRegionFill && colour /= defaultBg then
+                                    Set.insert colour acc
+
+                                else
+                                    acc
+                        in
+                        case ruleOverlayFill hexKey of
+                            Just overlayColour ->
+                                Set.insert overlayColour withHexColour
+
+                            Nothing ->
+                                withHexColour
+                    )
+                    Set.empty
+
+        fadeGradients : List (Svg Msg)
+        fadeGradients =
+            fadeColours
+                |> Set.toList
+                |> List.map
+                    (\colour ->
+                        Svg.radialGradient
+                            [ SvgAttrs.id (hexFadeGradientId colour), SvgAttrs.cx "50%", SvgAttrs.cy "50%", SvgAttrs.r "70%" ]
+                            [ Svg.stop [ SvgAttrs.offset "0%", SvgAttrs.stopColor (mixHex defaultBg colour 0.07) ] []
+                            , Svg.stop [ SvgAttrs.offset "35%", SvgAttrs.stopColor (mixHex defaultBg colour 0.1) ] []
+                            , Svg.stop [ SvgAttrs.offset "55%", SvgAttrs.stopColor (mixHex defaultBg colour 0.33) ] []
+                            , Svg.stop [ SvgAttrs.offset "75%", SvgAttrs.stopColor (mixHex defaultBg colour 0.67) ] []
+                            , Svg.stop [ SvgAttrs.offset "100%", SvgAttrs.stopColor colour ] []
+                            ]
+                    )
+
         viewSingleHex hexAddr =
             let
                 hexKey =
@@ -3727,7 +3864,7 @@ viewHexes config =
                     calcVisualOrigin config.hexSize
                         { row = hexAddr.y, col = hexAddr.x }
 
-                hexColour =
+                ( hexColour, isRegionFill ) =
                     computeHexColour hexAddr hexKey
             in
             ( hexAddr
@@ -3738,6 +3875,7 @@ viewHexes config =
                 vox
                 voy
                 hexColour
+                isRegionFill
                 config.rawHexaPoints
                 config.isReferee
                 config.rogueObjectPathData
@@ -3784,12 +3922,16 @@ viewHexes config =
                             ( vox, voy ) =
                                 calcVisualOrigin config.hexSize
                                     { row = hexAddr.y, col = hexAddr.x }
+
+                            ( hexColour, isRegionFill ) =
+                                computeHexColour hexAddr hexKey
                         in
                         case Dict.get hexKey config.solarSystemDict of
                             Just (LoadedSolarSystem loadedSystem) ->
                                 renderHexSystemLabels
                                     { starSystem = loadedSystem
-                                    , hexColour = computeHexColour hexAddr hexKey
+                                    , hexColour = hexColour
+                                    , isRegionFill = isRegionFill
                                     , hexAddrX = hexAddr.x
                                     , hexAddrY = hexAddr.y
                                     , vox = vox
@@ -3864,7 +4006,7 @@ viewHexes config =
                                                 ( hexKey
                                                 , Svg.polygon
                                                     [ SvgAttrs.points hexapointsStr
-                                                    , SvgAttrs.fill fillColour
+                                                    , SvgAttrs.fill ("url(#" ++ hexFadeGradientId fillColour ++ ")")
                                                     , SvgAttrs.pointerEvents "none"
                                                     ]
                                                     []
@@ -4186,12 +4328,14 @@ viewHexes config =
                                     (List.drop 1 coords)
                 in
                 [ Svg.defs []
-                    [ Svg.node "clipPath"
+                    ([ Svg.node "clipPath"
                         [ SvgAttrs.id "planet-hex-clip"
                         , HtmlAttrs.attribute "clipPathUnits" "objectBoundingBox"
                         ]
                         [ Svg.circle [ SvgAttrs.cx "0.5", SvgAttrs.cy "0.5", SvgAttrs.r "0.5" ] [] ]
-                    ]
+                     ]
+                        ++ fadeGradients
+                    )
                 ]
                     ++ [ keyedHexBackgrounds ]
                     ++ backgroundNameLabels

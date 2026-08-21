@@ -12,6 +12,13 @@ module SubsectorsHelper
   FONT_PARSEC_LABEL  = (FONT_SYSTEM_NAME * 1.5).round
   FONT_REGION_LABEL  = FONT_PARSEC_LABEL
 
+  # Edge-to-centre hex fade: mirrors the Elm starmap's `fadeGradients` radial
+  # gradient (offset% => amount mixed toward the hex's own colour), reaching the
+  # supplied colour in full at the hex edge. Region fills are excluded from this
+  # everywhere it's used — they stay solid.
+  HEX_FADE_DEFAULT_BG = '#ffffff'
+  HEX_FADE_STOPS = [[0, 0.07], [35, 0.10], [55, 0.33], [75, 0.67], [100, 1.0]].freeze
+
   STAR_COLOURS = {
     'Blue' => '#6495ED',
     'Blue White' => '#CAE1FF',
@@ -93,6 +100,28 @@ module SubsectorsHelper
 
   def star_fill_colour(colour_name)
     STAR_COLOURS[colour_name] || colour_name || '#FFD700'
+  end
+
+  def hex_fade_gradient_id(colour)
+    "hex-fade-#{colour.to_s.gsub(/[^0-9a-zA-Z]/, '')}"
+  end
+
+  # [[offset_percent, mixed_hex_colour], ...] for a `<radialGradient>`'s `<stop>`s.
+  def hex_fade_stops(colour)
+    HEX_FADE_STOPS.map { |offset, amount| [offset, mix_hex(HEX_FADE_DEFAULT_BG, colour, amount)] }
+  end
+
+  def mix_hex(from_hex, to_hex, amount)
+    from_rgb = hex_to_rgb(from_hex)
+    to_rgb = hex_to_rgb(to_hex)
+    mixed = from_rgb.zip(to_rgb).map { |f, t| (f + (t - f) * amount).round.clamp(0, 255) }
+    format('#%02x%02x%02x', *mixed)
+  end
+
+  def hex_to_rgb(hex)
+    digits = hex.to_s.delete('#')
+    digits = digits.chars.map { |c| c * 2 }.join if digits.length == 3
+    [digits[0..1], digits[2..3], digits[4..5]].map { |h| h.to_i(16) }
   end
 
   def regions_for_map(parsec_scope, ul, visible_col:, visible_row:, authenticated: true)

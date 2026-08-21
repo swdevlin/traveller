@@ -14,6 +14,34 @@
   ul                       = @ul
   valid_positions          = @valid_positions
 
+  # Layer 1a's hex fill colour, precomputed once so the render loop below and
+  # the fade-gradient defs agree exactly on what colour each hex gets.
+  bg_by_pos = {}
+  (1..cols).each do |col|
+    (1..rows).each do |row|
+      next if valid_positions && !valid_positions.include?([col, row])
+      next if highlight_pos == [col, row]
+
+      sys = systems_by_pos[[col, row]]
+      bg = sys&.allegiance&.background_colour
+      if (@map_mode == :heat || @show_heat_overlay) && (analysis = @strategic_by_pos&.[]([col, row]))
+        bg = analysis.heat_colour
+      elsif @map_mode == :habitability
+        bg = @habitability_colour_by_pos&.[]([col, row]) || @habitability_default_bg
+      elsif bg.blank? && sys && @map_mode != :strategic && @map_mode != :heat && !@show_heat_overlay
+        bg = SurveyOverlay.colour_for(sys, @enabled_survey_overlays || [])
+      end
+      bg_by_pos[[col, row]] = bg if bg.present?
+    end
+  end
+
+  # Every colour that needs an edge-to-centre fade — region fills (layer 1b)
+  # are deliberately excluded, they stay solid.
+  fade_colours = Set.new(bg_by_pos.values)
+  fade_colours << '#ffedd5' if jump_highlight_positions.any?
+  fade_colours << '#fef3c7' if highlight_pos
+  fade_colours << '#14532d' if @linked_positions&.any?
+
   if valid_positions&.any?
     all_centers = valid_positions.map { |c, r| hex_center(c, r) }
     all_centers << hex_center(*highlight_pos) if highlight_pos
@@ -63,6 +91,13 @@
     <clipPath id="map-viewport-clip">
       <rect x="<%= clip_rect[0] %>" y="<%= clip_rect[1] %>" width="<%= clip_rect[2] %>" height="<%= clip_rect[3] %>"/>
     </clipPath>
+    <% fade_colours.each do |colour| %>
+      <radialGradient id="<%= hex_fade_gradient_id(colour) %>" cx="50%" cy="50%" r="70%">
+        <% hex_fade_stops(colour).each do |offset, stop_colour| %>
+          <stop offset="<%= offset %>%" stop-color="<%= stop_colour %>"/>
+        <% end %>
+      </radialGradient>
+    <% end %>
   </defs>
 
   <style>
@@ -116,7 +151,9 @@
 
   <rect width="100%" height="100%" fill="<%= @poster_mode ? '#ffffff' : 'rgba(15, 23, 42, 0.7)' %>"/>
 
-  <%# Layer 1a: Hex fills — all backgrounds drawn first so no fill covers a neighbour's border %>
+  <%# Layer 1a: Hex fills (white base + click targets) — region fills and overlay
+      colours are drawn in the layers below, on top of this, so neither is diluted
+      by the other %>
   <g>
     <% (1..cols).each do |col| %>
       <% (1..rows).each do |row| %>
@@ -125,14 +162,6 @@
           next if highlight_pos == [col, row]
           cx, cy = hex_center(col, row)
           sys = systems_by_pos[[col, row]]
-          bg = sys&.allegiance&.background_colour
-          if (@map_mode == :heat || @show_heat_overlay) && (analysis = @strategic_by_pos&.[]([col, row]))
-            bg = analysis.heat_colour
-          elsif @map_mode == :habitability
-            bg = @habitability_colour_by_pos&.[]([col, row]) || @habitability_default_bg
-          elsif bg.blank? && sys && @map_mode != :strategic && @map_mode != :heat && !@show_heat_overlay
-            bg = SurveyOverlay.colour_for(sys, @enabled_survey_overlays || [])
-          end
           parsec_data = parsecs_by_pos[[col, row]]
           parsec_id = parsec_data&.fetch(:id)
           empty = sys.nil?
@@ -143,16 +172,18 @@
           </a>
         <% elsif !empty && @show_map_links && (@map_mode == :strategic || @map_mode == :resource || @map_mode == :heat || @map_mode == :habitability) && @hex_click_map.nil? %>
           <a href="<%= star_system_path(sys) %>" target="_top" class="clickable">
-            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+            <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
           </a>
         <% else %>
-          <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"<% if bg.present? %> style="fill:<%= bg %>"<% end %>/>
+          <polygon class="hex" points="<%= hex_polygon_points(cx, cy) %>"/>
         <% end %>
       <% end %>
     <% end %>
   </g>
 
-  <%# Layer 1b: Region fills %>
+  <%# Layer 1b: Region fills — sit above the plain white base but below layer 1b2's
+      overlay colours, so allegiance/heat/habitability/survey-overlay colours always
+      render undiluted over a region tint %>
   <% if region_fills_by_pos.any? %>
     <g opacity="0.35">
       <% region_fills_by_pos.each do |(col, row), entries| %>
@@ -162,12 +193,24 @@
     </g>
   <% end %>
 
+  <%# Layer 1b2: Overlay colours (allegiance/heat/habitability/survey-overlay) —
+      opaque, so they fully cover any region tint beneath rather than being diluted
+      by it %>
+  <% if bg_by_pos.any? %>
+    <g pointer-events="none">
+      <% bg_by_pos.each do |(col, row), bg| %>
+        <% cx, cy = hex_center(col, row) %>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:url(#<%= hex_fade_gradient_id(bg) %>)"/>
+      <% end %>
+    </g>
+  <% end %>
+
   <%# Layer 1c: Jump highlights %>
   <% if jump_highlight_positions.any? %>
     <g>
       <% jump_highlight_positions.each do |col, row| %>
         <% cx, cy = hex_center(col, row) %>
-        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:#ffedd5;stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:url(#<%= hex_fade_gradient_id('#ffedd5') %>);stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
       <% end %>
     </g>
   <% end %>
@@ -210,7 +253,7 @@
   <%# Layer 2: Highlighted hex %>
   <% if highlight_pos %>
     <% h_cx, h_cy = hex_center(*highlight_pos) %>
-    <polygon class="hex-highlight" points="<%= hex_polygon_points(h_cx, h_cy) %>"/>
+    <polygon class="hex-highlight" points="<%= hex_polygon_points(h_cx, h_cy) %>" style="fill:url(#<%= hex_fade_gradient_id('#fef3c7') %>)"/>
   <% end %>
 
   <%# Layer 2b: Linked positions (e.g. already-linked systems in network link modal) %>
@@ -219,7 +262,7 @@
       <% @linked_positions.each do |col, row| %>
         <% cx, cy = hex_center(col, row) %>
         <polygon points="<%= hex_polygon_points(cx, cy) %>"
-                 style="fill:#14532d;stroke:#22c55e;stroke-width:1.5;pointer-events:none" opacity="0.7"/>
+                 style="fill:url(#<%= hex_fade_gradient_id('#14532d') %>);stroke:#22c55e;stroke-width:1.5;pointer-events:none" opacity="0.7"/>
       <% end %>
     </g>
   <% end %>
