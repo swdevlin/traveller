@@ -6,6 +6,8 @@ class RegionChannel < ApplicationCable::Channel
       region = Region.find(params[:id])
       stream_for region
     end
+  rescue ActiveRecord::RecordNotFound
+    reject
   end
 
   def unsubscribed

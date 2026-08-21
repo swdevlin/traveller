@@ -7,7 +7,7 @@ export default class extends Controller {
 
   connect() {
     this.channel = createConsumer().subscriptions.create(
-      { channel: 'SubsectorChannel', id: this.subsectorIdValue },
+      { channel: 'UiUpdatesChannel' },
       {
         received: (data) => this.handleMessage(data)
       }
@@ -21,12 +21,10 @@ export default class extends Controller {
   }
 
   handleMessage(data) {
-    if (data.event === 'populating' || data.event === 'finished') {
-      this.#reloadFrame()
-    }
-    if (data.event === 'finished') {
-      this.#reloadMap()
-    }
+    if (data.event !== 'subsector_populated' || data.subsector_id !== this.subsectorIdValue) return
+
+    this.#reloadFrame()
+    this.#reloadMap()
   }
 
   #reloadFrame() {

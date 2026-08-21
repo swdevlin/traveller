@@ -25,6 +25,10 @@ class GeneratorService
     call_service('social_characteristics', payload)
   end
 
+  def compute_orbit_mechanics(payload)
+    call_service('orbit_mechanics', payload)
+  end
+
   def generate_stellar_object(klass, params: {})
     get_service(klass.name.underscore, params)
   end

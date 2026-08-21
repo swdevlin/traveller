@@ -1,4 +1,6 @@
 class StellarObjectsController < ApplicationController
+  include RecalculatesOrbitMechanics
+
   ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
 
   before_action :set_stellar_object, except: %i[index new create]
@@ -74,6 +76,7 @@ class StellarObjectsController < ApplicationController
   def update
     respond_to do |format|
       if @stellar_object.update(stellar_object_params)
+        recalculate_orbit_mechanics_if_needed(@stellar_object)
         format.html { redirect_to stellar_object_url(@stellar_object), notice: "#{@stellar_object.type.underscore.humanize} was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @stellar_object }
       else

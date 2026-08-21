@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StarsController < ApplicationController
+  include RecalculatesOrbitMechanics
+
   before_action :set_star, only: %i[ show edit update destroy ]
   rescue_from ActiveRecord::RecordNotFound, with: :star_not_found
 
@@ -34,6 +36,7 @@ class StarsController < ApplicationController
 
   def update
     if @star.update(star_params)
+      recalculate_orbit_mechanics_if_needed(@star)
       redirect_to star_path(@star), notice: 'Star was successfully updated.', status: :see_other
     else
       set_form_options

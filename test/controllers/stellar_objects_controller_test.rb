@@ -79,6 +79,40 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@stellar_object)
   end
 
+  test 'eccentricity change triggers orbit mechanics recalculation' do
+    @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
+    base = Rails.application.config.x.generator_service
+    stub = stub_request(:post, "#{base}/orbit_mechanics")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: { 'primaryStar' => { 'orbitSequence' => 'A', 'stellarObjects' => [] } }.to_json)
+
+    patch stellar_object_url(@gas_giant), params: { stellar_object: { eccentricity: 0.4 } }
+
+    assert_requested stub
+    assert_redirected_to stellar_object_url(@gas_giant)
+  end
+
+  test 'unrelated field change does not trigger orbit mechanics recalculation' do
+    @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
+    base = Rails.application.config.x.generator_service
+    stub = stub_request(:post, "#{base}/orbit_mechanics")
+
+    patch stellar_object_url(@gas_giant), params: { stellar_object: { name: 'Renamed giant' } }
+
+    assert_not_requested stub
+  end
+
+  test 'flash alert when orbit mechanics recalculation fails' do
+    @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
+    base = Rails.application.config.x.generator_service
+    stub_request(:post, "#{base}/orbit_mechanics")
+      .to_return(status: 400, headers: { 'Content-Type' => 'application/json' }, body: { error: 'bad tree' }.to_json)
+
+    patch stellar_object_url(@gas_giant), params: { stellar_object: { eccentricity: 0.4 } }
+
+    assert_redirected_to stellar_object_url(@gas_giant)
+    assert_match(/could not be recalculated/, flash[:alert].to_s)
+  end
+
   test 'government/law level/tech level tabs show population-zero message when population and those codes are all 0' do
     planet = stellar_objects(:two)
     patch stellar_object_url(planet), params: {
