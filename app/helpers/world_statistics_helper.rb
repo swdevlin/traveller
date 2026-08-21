@@ -36,7 +36,7 @@ module WorldStatisticsHelper
     highest_world_fragment = highest_population_world && content_tag(:span, data: { controller: 'stop-propagation', action: 'click->stop-propagation#stop' }) {
       safe_join([
         ' (',
-        link_to(highest_population_world.name, stellar_object_path(highest_population_world), class: 'no-underline hover:underline'),
+        link_to(highest_population_world.name.presence || 'unnamed system', stellar_object_path(highest_population_world), class: 'no-underline hover:underline'),
         ' ',
         (highest_population_world.census_population.present? ? abbreviated_population(highest_population_world.census_population) : population_range(highest_population_world.population_code)),
         ')'
