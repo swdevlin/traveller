@@ -65,6 +65,8 @@ class StarSystemImporter
         if @star_system.main_world.name.blank? && @star_system.name.present?
           @star_system.main_world.name = @star_system.name
           @star_system.main_world.save!
+        elsif @star_system.name.blank? && @star_system.main_world.name.present?
+          @star_system.name = @star_system.main_world.name
         end
       end
       @star_system.save!
@@ -126,6 +128,8 @@ class StarSystemImporter
           @star_system.main_world.name = resolve_main_world_name
           @star_system.main_world.language = main_world_language if main_world_language.present?
           @star_system.main_world.save!
+        elsif @star_system.name.blank?
+          @star_system.name = @star_system.main_world.name
         end
       end
       @star_system.save!

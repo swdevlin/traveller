@@ -189,6 +189,25 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 5, City.where(stellar_object_id: [planet.id, moon.id]).count
   end
 
+  test 'star system takes the main world name when the generator gave no system name' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_main_world_named.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    assert_equal 'Zrenh', star_system.main_world.name
+    assert_equal 'Zrenh', star_system.name
+  end
+
+  test 'reimport gives the star system the main world name when the generator gave no system name' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_main_world_named.json')))
+    star_system = @importer.import!(@parsec, data)
+
+    reimport_data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_main_world_named.json')))
+    star_system = @importer.reimport!(star_system, reimport_data)
+
+    assert_equal 'Zrenh', star_system.main_world.name
+    assert_equal 'Zrenh', star_system.name
+  end
+
   test 'planetoids are linked to their belt via planetoid_belt_id' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_planetoid.json')))
     star_system = @importer.import!(@parsec, data)
