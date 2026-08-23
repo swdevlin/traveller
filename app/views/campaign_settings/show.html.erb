@@ -94,6 +94,44 @@
                  value: @campaign.traveller_date_format? ? 'Traveller Standard' : 'ISO 8601' %>
     </div>
 
+    <%= render 'application/subsection', title: 'Map' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <% if @campaign.sector_capital_colour.present? %>
+        <%
+          sector_capital_swatch = %(<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#{@campaign.sector_capital_colour}" stroke="none"/></svg>).html_safe
+        %>
+        <%= render 'application/data_block',
+                   label: 'Sector Capital Colour',
+                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-fg-bright',
+                   value: sector_capital_swatch %>
+      <% else %>
+        <%= render 'application/data_block',
+                   label: 'Sector Capital Colour',
+                   value_style: :muted,
+                   value: 'Not set' %>
+      <% end %>
+
+      <% if @campaign.subsector_capital_colour.present? %>
+        <%
+          subsector_capital_swatch = %(<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#{@campaign.subsector_capital_colour}" stroke="none"/></svg>).html_safe
+        %>
+        <%= render 'application/data_block',
+                   label: 'Subsector Capital Colour',
+                   value_wrap_class: 'mt-2 flex flex-wrap items-center gap-3 text-fg-bright',
+                   value: subsector_capital_swatch %>
+      <% else %>
+        <%= render 'application/data_block',
+                   label: 'Subsector Capital Colour',
+                   value_style: :muted,
+                   value: 'Not set' %>
+      <% end %>
+
+      <%= render 'application/data_block',
+                 label: 'Hex Size',
+                 value: "#{(@campaign.hex_size.presence || 'medium').capitalize} (#{@campaign.hex_size_value}px)" %>
+    </div>
+
     <%= render 'application/subsection', title: 'Passenger Traffic' %>
 
     <%

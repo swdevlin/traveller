@@ -148,6 +148,17 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal [facilities(:two).code], star_system.facilities.pluck(:code)
   end
 
+  test 'main world trade codes from the generator become the star system trade codes' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_main_world_named.json')))
+    data['primaryStar']['stellarObjects'][0]['moons'][0]['tradeCodes'] =
+      [trade_codes(:tc2).code, trade_codes(:tc1).code]
+    star_system = @importer.import!(@parsec, data)
+
+    assert_equal %w[T1 T2], star_system.main_world.trade_codes.order(:code).pluck(:code)
+    assert_equal %w[T1 T2], star_system.trade_codes.order(:code).pluck(:code)
+    assert_equal 'T1 T2', star_system.trade_codes_string
+  end
+
   test 'cities are created from majorCityPopulations but left unnamed without a known language' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_cities.json')))
     star_system = @importer.import!(@parsec, data)

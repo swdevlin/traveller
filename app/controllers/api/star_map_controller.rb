@@ -8,7 +8,7 @@ class Api::StarMapController < Api::BaseController
 
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, :main_world, :trade_codes, :facilities)
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, :facilities, main_world: :trade_codes)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?

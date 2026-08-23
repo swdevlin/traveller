@@ -7,3 +7,11 @@ tc1:
 tc2:
   code: T2
   definition: "Fixture trade code 2"
+
+sector_capital:
+  code: Cs
+  definition: "Sector Capital"
+
+subsector_capital:
+  code: Cp
+  definition: "Subsector Capital"

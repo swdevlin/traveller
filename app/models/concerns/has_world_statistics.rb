@@ -77,6 +77,8 @@ module HasWorldStatistics
   end
 
   def trade_code_histogram
-    StarSystemTradeCode.where(star_system_id: systems_scope.select(:id)).group(:trade_code_id).count
+    StellarObjectTradeCode
+      .where(stellar_object_id: systems_scope.select(:main_world_id))
+      .group(:trade_code_id).count
   end
 end

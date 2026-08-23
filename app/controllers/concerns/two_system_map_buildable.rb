@@ -36,7 +36,7 @@ module TwoSystemMapBuildable
                              .load
 
     star_systems = StarSystem.where(parsec_id: viewport_parsecs.map(&:id))
-                             .includes(:parsec, :allegiance, :travel_zone, stars: [])
+                             .includes(:parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
                              .load
     systems_by_parsec_id = star_systems.index_by(&:parsec_id)
 

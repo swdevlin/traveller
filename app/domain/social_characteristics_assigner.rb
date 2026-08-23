@@ -81,7 +81,6 @@ class SocialCharacteristicsAssigner
 
   def update_trade_codes(so, codes)
     StellarObjectTradeCode.where(stellar_object: so).delete_all
-    StarSystemTradeCode.where(star_system: @star_system).delete_all
 
     return if codes.blank?
 
@@ -90,7 +89,6 @@ class SocialCharacteristicsAssigner
       next unless trade_code
 
       StellarObjectTradeCode.create!(stellar_object: so, trade_code: trade_code)
-      StarSystemTradeCode.create!(star_system: @star_system, trade_code: trade_code)
     end
   end
 

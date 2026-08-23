@@ -60,6 +60,14 @@ module GeneratorMappings
     end
     City.insert_all!(city_records) if city_records.any?
 
+    if moons_data.any? { |moon_data| Array(moon_data['tradeCodes']).present? }
+      trade_code_lookup = TradeCode.pluck(:code, :id).to_h
+      trade_code_records = moon_ids.each_with_index.flat_map do |moon_id, i|
+        GeneratorMappings.trade_code_records_for(moon_id, moons_data[i]['tradeCodes'], trade_code_lookup, now)
+      end
+      StellarObjectTradeCode.insert_all!(trade_code_records) if trade_code_records.any?
+    end
+
     tidal_lock_targets
   rescue => e
     Rails.logger.error("assign_moons failed: #{e.message} | payloads: #{moons.inspect}")
@@ -75,6 +83,20 @@ module GeneratorMappings
         'stellar_object_id' => stellar_object_id,
         'name' => language.present? ? WordGenerator.new(language: language.to_sym).generate : nil,
         'population' => population,
+        'created_at' => now,
+        'updated_at' => now
+      }
+    end
+  end
+
+  def self.trade_code_records_for(stellar_object_id, codes, trade_code_lookup, now)
+    Array(codes).uniq.filter_map do |code|
+      trade_code_id = trade_code_lookup[code]
+      next unless trade_code_id
+
+      {
+        'stellar_object_id' => stellar_object_id,
+        'trade_code_id' => trade_code_id,
         'created_at' => now,
         'updated_at' => now
       }

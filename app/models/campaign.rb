@@ -1,6 +1,8 @@
 require 'apartment/migrator'
 
 class Campaign < ApplicationRecord
+  include HasHexColour
+
   belongs_to :referee, class_name: 'User'
 
   enum :campaign_type, {
@@ -18,10 +20,13 @@ class Campaign < ApplicationRecord
   FREIGHT_DM_SETTINGS   = FreightTrafficDms::DEFAULTS.keys.map { |key| :"freight_dm_#{key}" }.freeze
   MAIL_DM_SETTINGS      = MailTrafficDms::DEFAULTS.keys.map { |key| :"mail_dm_#{key}" }.freeze
 
+  HEX_SIZES = { 'small' => 30, 'medium' => 40, 'large' => 50 }.freeze
+
   store_accessor :settings, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
                             :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
                             :default_language, :date_format, :trade_good_base_prices,
                             :local_broker_level, :local_broker_fee_percentage,
+                            :sector_capital_colour, :subsector_capital_colour, :hex_size,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
 
   def exploration?
@@ -61,6 +66,10 @@ class Campaign < ApplicationRecord
     local_broker_fee_percentage.presence&.to_f || 10
   end
 
+  def hex_size_value
+    HEX_SIZES.fetch(hex_size, HEX_SIZES.fetch('medium'))
+  end
+
   def native_tech_level?
     ActiveModel::Type::Boolean.new.cast(native_tech_level)
   end
@@ -82,6 +91,8 @@ class Campaign < ApplicationRecord
                    exclusion: { in: RESERVED_SLUGS, message: 'is reserved' },
                    format: { with: /\A[a-z0-9]([a-z0-9-]*[a-z0-9])?\z/, message: 'must contain only lowercase letters, numbers, and hyphens, and cannot start or end with a hyphen' },
                    if: -> { new_record? || slug_changed? }
+  validates_hex_colour :sector_capital_colour, :subsector_capital_colour, allow_blank: true
+  validates :hex_size, inclusion: { in: HEX_SIZES.keys }, allow_blank: true
 
   def token_for(path)
     OpenSSL::HMAC.hexdigest('SHA256', token_secret, path)
@@ -102,6 +113,7 @@ class Campaign < ApplicationRecord
     self.date_format               = 'traveller'
     self.local_broker_level        = 2
     self.local_broker_fee_percentage = 10
+    self.hex_size                  = 'medium'
   end
 
   def set_schema_name

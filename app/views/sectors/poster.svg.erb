@@ -203,6 +203,14 @@
     <%= add_legend_item(cursor, icon_svg, alleg.name) %>
   <% end %>
 
+  <!-- Capital name colours -->
+  <% @capital_legend_entries&.each do |entry| %>
+    <%
+      icon_svg = %(<circle cx="#{PosterHelper::LEGEND_ICON_SIZE / 2.0}" cy="0" r="#{legend_hex_r * 0.4}" fill="#{entry[:colour]}"/>)
+    %>
+    <%= add_legend_item(cursor, icon_svg, entry[:label]) %>
+  <% end %>
+
   <!-- Jump Routes -->
   <% @jump_routes_on_poster&.each do |net| %>
     <%

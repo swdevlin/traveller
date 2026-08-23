@@ -1,9 +1,9 @@
 class TravelZone < ApplicationRecord
-  HEX_COLOUR_REGEX = /\A#[0-9a-fA-F]{6}\z/
+  include HasHexColour
 
   validates :code,   presence: true, uniqueness: true
   validates :name,   presence: true
-  validates :colour, presence: true, format: { with: HEX_COLOUR_REGEX, message: 'must be a hex colour (#rrggbb)' }
+  validates_hex_colour :colour, presence: true
 
   has_many :star_systems, dependent: :nullify
 

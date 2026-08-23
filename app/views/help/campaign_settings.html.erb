@@ -246,6 +246,56 @@
     </div>
 
     <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>Map</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Sector Capital Colour</dt>
+          <dd class='mt-1 text-fg'>
+            Colours the name label of any star system whose main world carries the
+            <span class='font-semibold text-fg-bright'>Cs</span> (Sector Capital) trade code, on the
+            subsector map, sector map, poster, and interactive starmap. Leave blank to use the
+            default name colour. When set, a matching legend entry appears on the poster.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Subsector Capital Colour</dt>
+          <dd class='mt-1 text-fg'>
+            Colours the name label of any star system whose main world carries the
+            <span class='font-semibold text-fg-bright'>Cp</span> (Subsector Capital) trade code, the
+            same way as Sector Capital Colour above. If a world carries both trade codes, the
+            Sector Capital Colour takes precedence.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hex Size</dt>
+          <dd class='mt-1 text-fg'>
+            Controls the pixel size of hexes on the subsector map, sector map, poster, and
+            in-app viewport maps rendered by Rails.
+          </dd>
+          <ul class='mt-2 space-y-2 list-disc list-inside'>
+            <li>
+              <span class='font-semibold text-fg-bright'>Small</span>
+              — Compact hexes (30px), fitting more of the map on screen.
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Medium (default)</span>
+              — Standard hex size (40px).
+            </li>
+            <li>
+              <span class='font-semibold text-fg-bright'>Large</span>
+              — Larger hexes (50px), making icons and labels easier to read.
+            </li>
+          </ul>
+        </div>
+
+      </dl>
+    </div>
+
+    <div>
       <p class=' uppercase tracking-[0.22em] text-highlight mb-4'>API Access</p>
 
       <dl class='space-y-6'>

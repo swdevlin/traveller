@@ -4,6 +4,7 @@
   svg_width, svg_height = hex_map_svg_dimensions(cols, rows)
   hex_size   = effective_hex_size
   hex_height = hex_size * Math.sqrt(3)
+  system_name_font_size = hex_size <= Campaign::HEX_SIZES['small'] ? SubsectorsHelper::FONT_SYSTEM_NAME - 3 : SubsectorsHelper::FONT_SYSTEM_NAME
 
   parsecs_by_pos           = @parsecs_by_pos           || {}
   systems_by_pos           = @systems_by_pos           || {}
@@ -121,7 +122,7 @@
     .government-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_UWP %>px; fill: #555555; font-weight: bold; text-anchor: middle; }
     .government-captive { fill: #b45309; }
     .base-icon { fill: #333333; }
-    .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= SubsectorsHelper::FONT_SYSTEM_NAME %>px; fill: #333333; font-weight: bold; }
+    .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= system_name_font_size %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
     <% if @subsector_overlays %>
@@ -549,8 +550,14 @@
                 <%
                   pop_code = uwp&.[](4)
                   name_display = (pop_code && pop_code >= '9') ? star_system.name.upcase : star_system.name
+                  capital_colour =
+                    if star_system.sector_capital? && current_campaign&.sector_capital_colour.present?
+                      current_campaign.sector_capital_colour
+                    elsif star_system.subsector_capital? && current_campaign&.subsector_capital_colour.present?
+                      current_campaign.subsector_capital_colour
+                    end
                 %>
-                <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle">
+                <text class="system-name" x="<%= cx.round(2) %>" y="<%= (cy + hex_size * 0.78).round(2) %>" text-anchor="middle"<% if capital_colour %> style="fill:<%= capital_colour %>"<% end %>>
                   <%= name_display %>
                 </text>
               <% end %>

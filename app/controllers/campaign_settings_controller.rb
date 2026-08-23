@@ -73,6 +73,7 @@ class CampaignSettingsController < ApplicationController
 
     params.expect(campaign: [:name, :campaign_type, :sector_source, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :default_language, :date_format,
                               :local_broker_level, :local_broker_fee_percentage,
+                              :sector_capital_colour, :subsector_capital_colour, :hex_size,
                               *scalar_passenger_dm_settings, { passenger_dm_population: [] },
                               *scalar_freight_dm_settings, { freight_dm_population: [], freight_dm_tech_level: [] },
                               *Campaign::MAIL_DM_SETTINGS])

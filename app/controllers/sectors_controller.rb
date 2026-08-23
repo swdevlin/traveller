@@ -184,7 +184,7 @@ class SectorsController < ApplicationController
     @star_systems = StarSystem
       .joins(:parsec)
       .where(parsecs: { sector_id: @sector.id })
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, stars: [:companion])
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, stars: [:companion], main_world: :trade_codes)
 
     sector_parsec_subquery = @sector.parsecs.select(:id)
     max_updated = @star_systems.maximum(:updated_at)
@@ -215,7 +215,7 @@ class SectorsController < ApplicationController
       .maximum(:updated_at)
     auth_variant = authenticated? ? 'auth' : 'public'
     overlay_variant = "#{SurveyOverlay.maximum(:updated_at).to_i}-#{SurveyOverlay.count}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{overlay_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{current_campaign.updated_at.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{overlay_variant}"
 
     fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
     return if performed?
@@ -247,7 +247,7 @@ class SectorsController < ApplicationController
     @star_systems = StarSystem
       .joins(:parsec)
       .where(parsecs: { sector_id: @sector.id })
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, :main_world, stars: [:companion])
+      .includes({ parsec: { sector: :subsectors } }, :allegiance, stars: [:companion], main_world: :trade_codes)
 
     build_sector_map_data
 
@@ -258,6 +258,10 @@ class SectorsController < ApplicationController
       .where(parsecs: { sector_id: @sector.id })
       .distinct
       .ordered
+
+    @capital_legend_entries = []
+    @capital_legend_entries << { label: 'Sector Capital', colour: current_campaign.sector_capital_colour } if current_campaign&.sector_capital_colour.present?
+    @capital_legend_entries << { label: 'Subsector Capital', colour: current_campaign.subsector_capital_colour } if current_campaign&.subsector_capital_colour.present?
 
     neighbours = @sector.neighbours
 

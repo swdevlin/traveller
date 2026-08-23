@@ -120,7 +120,7 @@ class SubsectorsController < ApplicationController
 
   def map
     @show_map_links = authenticated?
-    @star_systems = @subsector.star_systems.includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [])
+    @star_systems = @subsector.star_systems.includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
 
     @cols = 8
     @rows = 10
@@ -265,7 +265,7 @@ class SubsectorsController < ApplicationController
     @hex_size          = 50
     @show_map_links    = authenticated?
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, :facilities, :trade_codes, stars: []
+      :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
 
     @cols = 8
@@ -372,7 +372,7 @@ class SubsectorsController < ApplicationController
     @hex_size          = 50
     @show_map_links    = authenticated?
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, :facilities, :trade_codes, stars: []
+      :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
 
     @cols = 8
@@ -478,7 +478,7 @@ class SubsectorsController < ApplicationController
     @hex_size  = 50
     @show_map_links = authenticated?
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, :facilities, :trade_codes, stars: []
+      :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
 
     @cols = 8
@@ -583,7 +583,7 @@ class SubsectorsController < ApplicationController
     @hex_size = 50
     @show_map_links = authenticated?
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, stars: []
+      :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
     )
 
     @cols = 8
@@ -685,7 +685,7 @@ class SubsectorsController < ApplicationController
     @hex_size = 50
     @show_map_links = authenticated?
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, stars: []
+      :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
     )
 
     @cols = 8
@@ -796,7 +796,7 @@ class SubsectorsController < ApplicationController
     @show_map_links = authenticated?
     @governments_by_code = Government.all.index_by(&:code)
     @star_systems = @subsector.star_systems.includes(
-      :parsec, :allegiance, :travel_zone, :main_world, stars: []
+      :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
     )
 
     @cols = 8

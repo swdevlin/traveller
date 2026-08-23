@@ -35,12 +35,8 @@ module SubsectorsHelper
     'Brown' => '#8B4513'
   }.freeze
 
-  def hex_grid_svg_dimensions
-    hex_map_svg_dimensions(8, 10)
-  end
-
   def effective_hex_size
-    @hex_size || HEX_SIZE
+    @hex_size || current_campaign&.hex_size_value || HEX_SIZE
   end
 
   def hex_map_svg_dimensions(cols, rows)

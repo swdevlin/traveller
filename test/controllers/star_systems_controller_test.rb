@@ -330,4 +330,35 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_system_url(@star_system)
     assert_equal [facilities(:one).code], @star_system.reload.facilities.pluck(:code)
   end
+
+  test 'update_trade_codes updates the main world trade codes, not the star system' do
+    planet = stellar_objects(:two)
+    planet.update_column(:star_system_id, @star_system.id)
+    @star_system.update_column(:main_world_id, planet.id)
+
+    post update_trade_codes_star_system_url(@star_system),
+      params: { trade_code_ids: [trade_codes(:tc1).id, trade_codes(:tc2).id] }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal [trade_codes(:tc1), trade_codes(:tc2)], planet.reload.trade_codes.order(:code).to_a
+    assert_equal [trade_codes(:tc1), trade_codes(:tc2)], @star_system.reload.trade_codes.order(:code).to_a
+  end
+
+  test 'edit_trade_codes redirects with an alert when the star system has no main world' do
+    @star_system.update_column(:main_world_id, nil)
+
+    get edit_trade_codes_star_system_url(@star_system)
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal 'Select a main world before editing trade codes.', flash[:alert]
+  end
+
+  test 'update_trade_codes redirects with an alert when the star system has no main world' do
+    @star_system.update_column(:main_world_id, nil)
+
+    post update_trade_codes_star_system_url(@star_system), params: { trade_code_ids: [trade_codes(:tc1).id] }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal 'Select a main world before editing trade codes.', flash[:alert]
+  end
 end

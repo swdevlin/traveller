@@ -1,5 +1,5 @@
 class SurveyOverlay < ApplicationRecord
-  HEX_COLOUR_REGEX = /\A#[0-9a-fA-F]{6}\z/
+  include HasHexColour
 
   def self.codes_up_to(max_code)
     HexDigit::HEX_DIGITS[0..max_code].chars
@@ -112,7 +112,7 @@ class SurveyOverlay < ApplicationRecord
   end
 
   validates :name, presence: true
-  validates :colour, presence: true, format: { with: HEX_COLOUR_REGEX, message: 'must be a hex colour (#rrggbb)' }
+  validates_hex_colour :colour, presence: true
   validate :rule_data_shape_is_valid
 
   before_validation :assign_position, on: :create

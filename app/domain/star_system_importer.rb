@@ -28,7 +28,6 @@ class StarSystemImporter
         .where(stellar_object_id: StellarObject.where(star_system_id: @star_system.id).select(:id))
         .delete_all
       StellarObject.where(star_system_id: @star_system.id).delete_all
-      StarSystemTradeCode.where(star_system_id: @star_system.id).delete_all
       StarSystemFacility.where(star_system_id: @star_system.id).delete_all
       @star_system.update_column(:main_world_id, nil)
 
@@ -39,7 +38,6 @@ class StarSystemImporter
       @star_system.allegiance   = allegiance_code ? find_or_create_allegiance(allegiance_code) : nil
       @star_system.save!
 
-      set_star_system_trade_codes(data['mainWorld']['tradeCodes']) unless data['mainWorld'].nil?
       set_star_system_facilities(data, config_bases)
 
       @deferred_belt_assignments = []
@@ -97,9 +95,6 @@ class StarSystemImporter
       end
       @star_system.save!
 
-      unless data['mainWorld'].nil?
-        set_star_system_trade_codes(data['mainWorld']['tradeCodes'])
-      end
       set_star_system_facilities(data, config_bases)
 
       @deferred_belt_assignments = []
@@ -188,20 +183,6 @@ class StarSystemImporter
   def find_or_create_allegiance(code)
     Allegiance.find_or_create_by!(code: code) do |a|
       a.name = code
-    end
-  end
-
-  def set_star_system_trade_codes(codes)
-    return if codes.nil?
-
-    codes.uniq.each do |code|
-      trade_code = TradeCode.find_by(code: code)
-      next unless trade_code
-
-      StarSystemTradeCode.find_or_create_by!(
-        star_system: @star_system,
-        trade_code: trade_code
-      )
     end
   end
 

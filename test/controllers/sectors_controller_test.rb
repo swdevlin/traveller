@@ -196,4 +196,27 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to sector_url(@sector)
     assert flash[:alert].present?
   end
+
+  test 'should get sector map' do
+    get map_sector_url(@sector)
+    assert_response :success
+  end
+
+  test 'should get poster with capital colours configured' do
+    campaigns(:one).update!(sector_capital_colour: '#ff0000', subsector_capital_colour: '#00ff00')
+
+    get poster_sector_url(@sector)
+
+    assert_response :success
+    assert_equal 'application/pdf', response.media_type
+  end
+
+  test 'should get poster with no capital colours configured' do
+    campaigns(:one).update!(sector_capital_colour: nil, subsector_capital_colour: nil)
+
+    get poster_sector_url(@sector)
+
+    assert_response :success
+    assert_equal 'application/pdf', response.media_type
+  end
 end

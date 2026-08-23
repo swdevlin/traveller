@@ -45,6 +45,8 @@ class StarmapsController < ApplicationController
       referee: Current.user.present?,
       campaignSlug: params[:campaign_slug],
       campaignName: Current.campaign&.name,
+      sectorCapitalColour: Current.campaign&.sector_capital_colour,
+      subsectorCapitalColour: Current.campaign&.subsector_capital_colour,
       ship: ship && { name: ship.name, jDrive: ship.jump_drive, mDrive: ship.m_drive },
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
       allSectorsMapUrl: all_sectors_map_url,

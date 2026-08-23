@@ -783,6 +783,8 @@ type alias ModelData =
     , selectedRogueObjects : Maybe (List RogueObjectDetail)
     , timeOpened : Time.Posix
     , campaignName : String
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
     , allSectorsMapUrl : Maybe String
     , sidebarOpen : Bool
     , jumpRouteLinks : List JumpRouteLink
@@ -1208,6 +1210,8 @@ type alias Flags =
     , highlightRules : JsDecode.Value
     , routePlan : JsDecode.Value
     , hiddenJumpRouteIds : JsDecode.Value
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
     }
 
 
@@ -1508,6 +1512,8 @@ init viewport settings key hostConfig referee =
             , selectedRogueObjects = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
+            , sectorCapitalColour = settings.sectorCapitalColour
+            , subsectorCapitalColour = settings.subsectorCapitalColour
             , ship = settings.ship
             , allSectorsMapUrl = settings.allSectorsMapUrl
             , displayMode = initialDisplayMode
@@ -2322,6 +2328,8 @@ type alias HexRenderOpts =
     , facilityIcons : Dict.Dict String FacilityIcon
     , displayMode : DisplayMode
     , themeIsLight : Bool
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
     }
 
 
@@ -3000,13 +3008,23 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
 
 
 renderHexSystemLabels : HexRenderOpts -> Svg Msg
-renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee } =
+renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee, sectorCapitalColour, subsectorCapitalColour } =
     let
         si =
             starSystem.surveyIndex
 
         showStar =
             si > 0
+
+        nameColour =
+            if List.member "Cs" starSystem.tradeCodes then
+                Maybe.withDefault (hexTextColour hexColour) sectorCapitalColour
+
+            else if List.member "Cp" starSystem.tradeCodes then
+                Maybe.withDefault (hexTextColour hexColour) subsectorCapitalColour
+
+            else
+                hexTextColour hexColour
     in
     if not showStar || size <= 25 then
         Svg.text ""
@@ -3040,7 +3058,7 @@ renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee } =
                     , SvgAttrs.textAnchor "middle"
                     , SvgAttrs.fontFamily "Oxanium"
                     , SvgAttrs.fontWeight "600"
-                    , SvgAttrs.fill (hexTextColour hexColour)
+                    , SvgAttrs.fill nameColour
                     ]
                     [ Svg.text starSystem.name ]
 
@@ -3112,49 +3130,56 @@ viewHexLoading hx hy x y size hexColour isRegionFill themeIsLight =
         ]
 
 
-viewHex :
-    Float
-    -> SolarSystemDict
-    -> HexAddress
-    -> Int
-    -> Int
-    -> String
-    -> Bool
-    -> List ( Float, Float )
-    -> Bool
-    -> Maybe String
-    -> Dict.Dict String FacilityIcon
-    -> DisplayMode
-    -> Bool
-    -> ( Svg Msg, Svg Msg )
-viewHex hexSize solarSystemDict hexAddress vox voy hexColour isRegionFill rawHexaPoints isReferee rogueObjectPathData facilityIcons displayMode themeIsLight =
+type alias ViewHexOpts =
+    { hexSize : Float
+    , solarSystemDict : SolarSystemDict
+    , hexAddress : HexAddress
+    , vox : Int
+    , voy : Int
+    , hexColour : String
+    , isRegionFill : Bool
+    , rawHexaPoints : List ( Float, Float )
+    , isReferee : Bool
+    , rogueObjectPathData : Maybe String
+    , facilityIcons : Dict.Dict String FacilityIcon
+    , displayMode : DisplayMode
+    , themeIsLight : Bool
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
+    }
+
+
+viewHex : ViewHexOpts -> ( Svg Msg, Svg Msg )
+viewHex options =
     let
         remoteSolarSystem =
-            Dict.get (HexAddress.toKey hexAddress) solarSystemDict
+            Dict.get (HexAddress.toKey options.hexAddress) options.solarSystemDict
 
         viewEmptyHelper txt =
-            Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize txt { colour = hexColour, isRegionFill = isRegionFill, themeIsLight = themeIsLight }
+            Svg.Lazy.lazy7 viewHexEmpty options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize txt { colour = options.hexColour, isRegionFill = options.isRegionFill, themeIsLight = options.themeIsLight }
     in
     case remoteSolarSystem of
         Just (LoadedSolarSystem loadedSystem) ->
             let
                 hexapointsStr =
-                    convertRawHexagonPoints ( toFloat vox, toFloat voy ) rawHexaPoints
+                    convertRawHexagonPoints ( toFloat options.vox, toFloat options.voy ) options.rawHexaPoints
 
                 opts =
                     { starSystem = loadedSystem
-                    , hexColour = hexColour
-                    , isRegionFill = isRegionFill
-                    , hexAddrX = hexAddress.x
-                    , hexAddrY = hexAddress.y
-                    , vox = vox
-                    , voy = voy
-                    , size = hexSize
+                    , hexColour = options.hexColour
+                    , isRegionFill = options.isRegionFill
+                    , hexAddrX = options.hexAddress.x
+                    , hexAddrY = options.hexAddress.y
+                    , vox = options.vox
+                    , voy = options.voy
+                    , size = options.hexSize
                     , hexapointsStr = hexapointsStr
-                    , isReferee = isReferee
-                    , facilityIcons = facilityIcons
-                    , displayMode = displayMode
-                    , themeIsLight = themeIsLight
+                    , isReferee = options.isReferee
+                    , facilityIcons = options.facilityIcons
+                    , displayMode = options.displayMode
+                    , themeIsLight = options.themeIsLight
+                    , sectorCapitalColour = options.sectorCapitalColour
+                    , subsectorCapitalColour = options.subsectorCapitalColour
                     }
             in
             ( Svg.Lazy.lazy renderHexBg opts
@@ -3162,7 +3187,7 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour isRegionFill rawHex
             )
 
         Just LoadingSolarSystem ->
-            ( viewHexLoading hexAddress.x hexAddress.y vox voy hexSize hexColour isRegionFill themeIsLight
+            ( viewHexLoading options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize options.hexColour options.isRegionFill options.themeIsLight
             , Svg.text ""
             )
 
@@ -3177,12 +3202,12 @@ viewHex hexSize solarSystemDict hexAddress vox voy hexColour isRegionFill rawHex
             )
 
         Just (LoadedRogueHex rogueData) ->
-            ( viewHexRogue hexAddress vox voy hexSize hexColour isReferee rogueObjectPathData themeIsLight isRegionFill rogueData
+            ( viewHexRogue options.hexAddress options.vox options.voy options.hexSize options.hexColour options.isReferee options.rogueObjectPathData options.themeIsLight options.isRegionFill rogueData
             , Svg.text ""
             )
 
         Just (FailedStarsSolarSystem _) ->
-            ( Svg.Lazy.lazy7 viewHexEmpty hexAddress.x hexAddress.y vox voy hexSize "Star Failed." { colour = "#aaaaaa", isRegionFill = True, themeIsLight = themeIsLight }
+            ( Svg.Lazy.lazy7 viewHexEmpty options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize "Star Failed." { colour = "#aaaaaa", isRegionFill = True, themeIsLight = options.themeIsLight }
             , Svg.text ""
             )
 
@@ -3685,6 +3710,8 @@ type alias ViewHexesConfig =
     , rogueObjectPathData : Maybe String
     , facilityIcons : Dict.Dict String FacilityIcon
     , displayMode : DisplayMode
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
     }
 
 
@@ -3869,19 +3896,22 @@ viewHexes config =
             in
             ( hexAddr
             , viewHex
-                config.hexSize
-                config.solarSystemDict
-                hexAddr
-                vox
-                voy
-                hexColour
-                isRegionFill
-                config.rawHexaPoints
-                config.isReferee
-                config.rogueObjectPathData
-                config.facilityIcons
-                config.displayMode
-                config.themeIsLight
+                { hexSize = config.hexSize
+                , solarSystemDict = config.solarSystemDict
+                , hexAddress = hexAddr
+                , vox = vox
+                , voy = voy
+                , hexColour = hexColour
+                , isRegionFill = isRegionFill
+                , rawHexaPoints = config.rawHexaPoints
+                , isReferee = config.isReferee
+                , rogueObjectPathData = config.rogueObjectPathData
+                , facilityIcons = config.facilityIcons
+                , displayMode = config.displayMode
+                , themeIsLight = config.themeIsLight
+                , sectorCapitalColour = config.sectorCapitalColour
+                , subsectorCapitalColour = config.subsectorCapitalColour
+                }
             )
     in
     hexRange
@@ -3942,6 +3972,8 @@ viewHexes config =
                                     , facilityIcons = config.facilityIcons
                                     , displayMode = config.displayMode
                                     , themeIsLight = config.themeIsLight
+                                    , sectorCapitalColour = config.sectorCapitalColour
+                                    , subsectorCapitalColour = config.subsectorCapitalColour
                                     }
 
                             _ ->
@@ -6039,6 +6071,8 @@ viewHexMap model =
         , rogueObjectPathData = model.rogueObjectPathData
         , facilityIcons = model.facilityIcons
         , displayMode = model.displayMode
+        , sectorCapitalColour = model.sectorCapitalColour
+        , subsectorCapitalColour = model.subsectorCapitalColour
         }
         |> Element.html
 

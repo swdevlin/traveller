@@ -1147,38 +1147,6 @@ ALTER SEQUENCE public.star_system_facilities_id_seq OWNED BY public.star_system_
 
 
 --
--- Name: star_system_trade_codes; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.star_system_trade_codes (
-    id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    star_system_id bigint NOT NULL,
-    trade_code_id bigint NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
-
-
---
--- Name: star_system_trade_codes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.star_system_trade_codes_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: star_system_trade_codes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.star_system_trade_codes_id_seq OWNED BY public.star_system_trade_codes.id;
-
-
---
 -- Name: star_systems; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1744,13 +1712,6 @@ ALTER TABLE ONLY public.star_system_facilities ALTER COLUMN id SET DEFAULT nextv
 
 
 --
--- Name: star_system_trade_codes id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.star_system_trade_codes ALTER COLUMN id SET DEFAULT nextval('public.star_system_trade_codes_id_seq'::regclass);
-
-
---
 -- Name: star_systems id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2062,14 +2023,6 @@ ALTER TABLE ONLY public.star_system_facilities
 
 
 --
--- Name: star_system_trade_codes star_system_trade_codes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.star_system_trade_codes
-    ADD CONSTRAINT star_system_trade_codes_pkey PRIMARY KEY (id);
-
-
---
 -- Name: star_systems star_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2153,13 +2106,6 @@ CREATE INDEX idx_on_error_group_id_created_at_98b32c40ac ON public.faultline_err
 --
 
 CREATE UNIQUE INDEX idx_on_from_star_system_id_to_star_system_id_90e126fb8d ON public.jump_route_links USING btree (from_star_system_id, to_star_system_id);
-
-
---
--- Name: idx_on_star_system_id_trade_code_id_9139c73bd8; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_on_star_system_id_trade_code_id_9139c73bd8 ON public.star_system_trade_codes USING btree (star_system_id, trade_code_id);
 
 
 --
@@ -2576,20 +2522,6 @@ CREATE UNIQUE INDEX index_star_system_facilities_on_star_system_id_and_facility_
 
 
 --
--- Name: index_star_system_trade_codes_on_star_system_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_star_system_trade_codes_on_star_system_id ON public.star_system_trade_codes USING btree (star_system_id);
-
-
---
--- Name: index_star_system_trade_codes_on_trade_code_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_star_system_trade_codes_on_trade_code_id ON public.star_system_trade_codes USING btree (trade_code_id);
-
-
---
 -- Name: index_star_systems_on_allegiance_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2903,22 +2835,6 @@ ALTER TABLE ONLY public.stellar_objects
 
 
 --
--- Name: star_system_trade_codes fk_rails_adaea6f0dc; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.star_system_trade_codes
-    ADD CONSTRAINT fk_rails_adaea6f0dc FOREIGN KEY (star_system_id) REFERENCES public.star_systems(id) ON DELETE CASCADE;
-
-
---
--- Name: star_system_trade_codes fk_rails_b2f2f3d56d; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.star_system_trade_codes
-    ADD CONSTRAINT fk_rails_b2f2f3d56d FOREIGN KEY (trade_code_id) REFERENCES public.trade_codes(id) ON DELETE CASCADE;
-
-
---
 -- Name: stellar_object_trade_codes fk_rails_b3294dfcc3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3053,6 +2969,8 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260822190453'),
+('20260822150000'),
 ('20260821195558'),
 ('20260819193234'),
 ('20260818130118'),

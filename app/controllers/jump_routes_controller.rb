@@ -184,7 +184,7 @@ class JumpRoutesController < ApplicationController
     star_systems = StarSystem
       .joins(:parsec)
       .where(parsecs: { x: min_x..max_x, y: min_y..max_y })
-      .includes(:parsec, :allegiance, :main_world, stars: [:companion])
+      .includes(:parsec, :allegiance, stars: [:companion], main_world: :trade_codes)
 
     @systems_by_pos = star_systems.each_with_object({}) do |sys, h|
       col = sys.parsec.x - @ul.x + 1

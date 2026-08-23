@@ -16,6 +16,29 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'map colours a sector capital system name when the campaign colour is set' do
+    campaigns(:one).update!(sector_capital_colour: '#ff0000')
+
+    ul, = @subsector.universal_coordinates
+    parsec = Parsec.create!(sector: @sector, x: ul.x + 3, y: ul.y - 3)
+    star_system = StarSystem.create!(name: 'Capitalis', parsec: parsec)
+    star = Star.create!(
+      star_system: star_system,
+      colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V'
+    )
+    main_world = TerrestrialPlanet.create!(
+      orbiting: star, orbit: 1.0,
+      size_code: '5', atmosphere_code: 6, hydrographics_code: 5
+    )
+    StellarObjectTradeCode.create!(stellar_object: main_world, trade_code: trade_codes(:sector_capital))
+    star_system.update!(main_world: main_world)
+
+    get map_subsector_url(@subsector)
+
+    assert_response :success
+    assert_match(/class="system-name"[^>]*style="fill:#ff0000"/, response.body)
+  end
+
   test 'statistics renders the world statistics partial without a layout' do
     get statistics_subsector_url(@subsector)
     assert_response :success

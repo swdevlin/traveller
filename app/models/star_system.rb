@@ -17,9 +17,7 @@ class StarSystem < ApplicationRecord
   has_many :stars, class_name: 'Star', foreign_key: :star_system_id, dependent: :destroy
   has_many :jump_route_links_as_from, class_name: 'JumpRouteLink', foreign_key: :from_star_system_id, dependent: :destroy
   has_many :jump_route_links_as_to, class_name: 'JumpRouteLink', foreign_key: :to_star_system_id, dependent: :destroy
-  has_many :star_system_trade_codes, dependent: :destroy
   has_many :star_system_facilities, dependent: :destroy
-  has_many :trade_codes, through: :star_system_trade_codes
   has_many :facilities, through: :star_system_facilities
 
   has_many :stellar_objects, through: :stars
@@ -45,6 +43,18 @@ class StarSystem < ApplicationRecord
 
   def age
     primary_star.age || ''
+  end
+
+  def trade_codes
+    main_world&.trade_codes || TradeCode.none
+  end
+
+  def sector_capital?
+    trade_codes.any? { |tc| tc.code == 'Cs' }
+  end
+
+  def subsector_capital?
+    trade_codes.any? { |tc| tc.code == 'Cp' }
   end
 
   def trade_codes_string

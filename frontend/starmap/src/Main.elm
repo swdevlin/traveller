@@ -83,6 +83,8 @@ type alias Flags =
     , highlightRules : Json.Decode.Value
     , routePlan : Json.Decode.Value
     , hiddenJumpRouteIds : Json.Decode.Value
+    , sectorCapitalColour : Maybe String
+    , subsectorCapitalColour : Maybe String
     }
 
 
@@ -219,6 +221,8 @@ update msg model =
                                 , highlightRules = model.flags.highlightRules
                                 , routePlan = model.flags.routePlan
                                 , hiddenJumpRouteIds = model.flags.hiddenJumpRouteIds
+                                , sectorCapitalColour = model.flags.sectorCapitalColour
+                                , subsectorCapitalColour = model.flags.subsectorCapitalColour
                                 }
                                 model.key
                                 model.hostConfig

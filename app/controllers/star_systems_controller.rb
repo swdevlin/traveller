@@ -108,12 +108,22 @@ class StarSystemsController < ApplicationController
   end
 
   def edit_trade_codes
+    unless @star_system.main_world
+      flash[:alert] = 'Select a main world before editing trade codes.'
+      redirect_to @star_system, status: :see_other
+      return
+    end
     @trade_codes = TradeCode.order(:code)
-    @current_ids = @star_system.trade_code_ids.to_set
+    @current_ids = @star_system.main_world.trade_code_ids.to_set
   end
 
   def update_trade_codes
-    @star_system.trade_code_ids = params[:trade_code_ids]&.reject(&:blank?)&.map(&:to_i) || []
+    unless @star_system.main_world
+      flash[:alert] = 'Select a main world before editing trade codes.'
+      redirect_to @star_system, status: :see_other
+      return
+    end
+    @star_system.main_world.trade_code_ids = params[:trade_code_ids]&.reject(&:blank?)&.map(&:to_i) || []
     redirect_to @star_system, status: :see_other
   end
 
@@ -731,7 +741,7 @@ class StarSystemsController < ApplicationController
                              .select { |p| [(p.q - center_q).abs, (p.r - center_r).abs, (p.s - center_s).abs].max <= radius }
 
     star_systems = StarSystem.where(parsec_id: viewport_parsecs.map(&:id))
-                             .includes(:parsec, :allegiance, :travel_zone, stars: [])
+                             .includes(:parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
                              .load
 
     systems_by_parsec_id = star_systems.index_by(&:parsec_id)

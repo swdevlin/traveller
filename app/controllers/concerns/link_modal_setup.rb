@@ -35,7 +35,7 @@ module LinkModalSetup
     viewport_parsec_ids = viewport_parsecs.map(&:id)
 
     star_systems = StarSystem.where(parsec_id: viewport_parsec_ids)
-                             .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [])
+                             .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
                              .load
 
     systems_by_parsec_id = star_systems.index_by(&:parsec_id)
