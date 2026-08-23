@@ -60,7 +60,7 @@ class StarSystemsController < ApplicationController
   end
 
   def edit_bases
-    @facilities = Facility.order(:code)
+    @facilities = Facility.order(:name)
     @current_ids = @star_system.facility_ids.to_set
   end
 
@@ -113,7 +113,7 @@ class StarSystemsController < ApplicationController
       redirect_to @star_system, status: :see_other
       return
     end
-    @trade_codes = TradeCode.order(:code)
+    @trade_codes = TradeCode.order(:definition)
     @current_ids = @star_system.main_world.trade_code_ids.to_set
   end
 

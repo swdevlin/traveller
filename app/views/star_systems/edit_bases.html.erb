@@ -6,19 +6,28 @@
       <% @facilities.each do |facility| %>
         <% selected = @current_ids.include?(facility.id) %>
 
-        <label class='flex items-center gap-3 rounded-lg border px-3 py-2.5 cursor-pointer transition
-                      <%= selected ? 'border-highlight bg-highlight/10' : 'border-outline bg-panel hover:border-highlight' %>'>
-          <input type='checkbox'
-                 name='facility_ids[]'
-                 value='<%= facility.id %>'
-                 <%= 'checked' if selected %>
-                 class='rounded border-outline bg-panel-muted text-highlight focus:ring-highlight/50 shrink-0'>
+        <div class='flex items-center gap-3 px-3 py-2.5'>
+          <div data-controller='boolean-toggle' class='flex-shrink-0'>
+            <%= check_box_tag 'facility_ids[]', facility.id, selected,
+                               multiple: true,
+                               class: 'sr-only',
+                               data: { boolean_toggle_target: 'checkbox' } %>
+            <button type='button'
+                    role='switch'
+                    aria-checked='<%= selected %>'
+                    data-action='boolean-toggle#toggle'
+                    data-boolean-toggle-target='button'
+                    class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= selected ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
+              <span data-boolean-toggle-target='indicator'
+                    class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= selected ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
+            </button>
+          </div>
 
           <div class='min-w-0'>
             <span class='identifier-sm'><%= facility.code %></span>
-            <div class='text-xs text-fg-muted mt-0.5 truncate'><%= facility.name %></div>
+            <div class='text-xs text-fg mt-0.5 truncate'><%= facility.name %></div>
           </div>
-        </label>
+        </div>
       <% end %>
     </div>
 
