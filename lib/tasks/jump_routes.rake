@@ -27,14 +27,14 @@ namespace :jump_routes do
            puts "#{system.name} (#{id}) has a nil population"
         end
 
-        if population_code > 8 or 'Cp' in trade_codes or 'Cs' in trade_codes 
+        if population_code > 8 or 'Cp' in trade_codes or 'Cs' in trade_codes
           jumps_per_day = 3
         else
           jumps_per_day = 1
         end
         xb = jumps_per_day * links
         spares = [population_code.to_i * links, 2].max
-        tenders += [(xb.to_f/4).ceil,1].max
+        tenders += [(xb.to_f/4).ceil, 1].max
         spare_xboats += spares
         xboats += xb
       end
