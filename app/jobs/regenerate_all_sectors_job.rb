@@ -3,12 +3,12 @@
 class RegenerateAllSectorsJob < ApplicationJob
   queue_as :default
 
-  def perform
+  def perform(exclude_visited: true)
     Subsector
       .with_build
       .kept_sector
       .find_each do |subsector|
-      next if subsector_visited?(subsector)
+      next if exclude_visited && subsector_visited?(subsector)
 
       sector = subsector.sector
       GenerateSubsectorJob

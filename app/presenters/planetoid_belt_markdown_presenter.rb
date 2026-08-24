@@ -24,6 +24,8 @@ class PlanetoidBeltMarkdownPresenter < MarkdownPresenterBase
     rows << ['Bulk', @obj.bulk] if @obj.bulk.present?
     rows << ['Span', fmt(@obj.span, 2)] if @obj.span.present?
     rows << ['Significant Bodies', @obj.significant_bodies.count]
+    rows << ['Native Sophont', @obj.native_sophont ? 'Yes' : 'No']
+    rows << ['Extinct Sophont', @obj.extinct_sophont ? 'Yes' : 'No']
     table_section('Belt Data', rows)
   end
 end

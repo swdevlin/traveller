@@ -40,14 +40,11 @@ class CampaignSettingsController < ApplicationController
     redirect_to campaign_settings_path, notice: 'Build script assignment queued.'
   end
 
-  def populate_all
-    PopulateAllSectorsJob.perform_later
-    redirect_to campaign_settings_path, notice: 'Sector population queued.'
-  end
-
   def regenerate_all
-    RegenerateAllSectorsJob.perform_later
-    redirect_to campaign_settings_path, notice: 'Sector regeneration queued. Visited parsecs will be preserved.'
+    exclude_visited = ActiveModel::Type::Boolean.new.cast(params[:exclude_visited])
+    RegenerateAllSectorsJob.perform_later(exclude_visited: exclude_visited)
+    notice = exclude_visited ? 'Sector regeneration queued. Visited parsecs will be preserved.' : 'Sector regeneration queued.'
+    redirect_to campaign_settings_path, notice: notice
   end
 
   def populate_empty

@@ -193,6 +193,16 @@
                             min: 0 %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
+            checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
+      <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
+            checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
       <%= form.select :government_code,
                       options_for_select(

@@ -130,6 +130,22 @@ class StellarObject < ApplicationRecord
     self.class.model_name.human
   end
 
+  # Safe defaults for STI subtypes that don't map these fields in their own
+  # generator_data_map, so generic "main world" code paths can call them on
+  # any StellarObject without a respond_to? guard. Subtypes that do map the
+  # field get a store_accessor method that overrides this default.
+  def native_sophont
+    false
+  end
+
+  def extinct_sophont
+    false
+  end
+
+  def gravity
+    nil
+  end
+
   private
 
   def compute_effective_jump_shadow

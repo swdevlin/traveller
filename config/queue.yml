@@ -12,8 +12,8 @@ development:
   <<: *default
   workers:
     - queues: "default"
-      threads: 1
-      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      threads: 3
+      processes: 1
       polling_interval: 0.5
     - queues: "rulebook_imports"
       threads: 1

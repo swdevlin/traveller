@@ -272,7 +272,6 @@ Rails.application.routes.draw do
     resource :campaign_settings, only: %i[show edit update], path: 'settings/campaign' do
       post :populate_deepnight
       post :assign_builds
-      post :populate_all
       post :populate_empty
       post :regenerate_all
       post :generate_all_sectors_map

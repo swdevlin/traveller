@@ -266,7 +266,6 @@
         <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
       <% end %>
 
-      <% confirm_msg = "This will generate star systems for #{pluralize(@subsector_count, 'subsector')} across #{pluralize(@sector_count, 'sector')}. Are you sure?" %>
       <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
       <%= button_to populate_empty_campaign_settings_path,
             method: :post,
@@ -276,21 +275,21 @@
         <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
       <% end %>
 
-      <%= button_to populate_all_campaign_settings_path,
+      <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Locked systems are always left untouched. Are you sure?" %>
+      <%= form_with url: regenerate_all_campaign_settings_path,
             method: :post,
-            class: 'w-full sm:w-auto btn',
-            disabled: @subsector_count.zero?,
-            data: { turbo_confirm: confirm_msg } do %>
-        <i class='fa-regular fa-stars mr-1.5'></i> Populate All Sectors
-      <% end %>
-
-      <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Any parsec the players have visited (via the jump log) and any locked systems will be left untouched. Are you sure?" %>
-      <%= button_to regenerate_all_campaign_settings_path,
-            method: :post,
-            class: 'w-full sm:w-auto btn',
-            disabled: @subsector_count.zero?,
-            data: { turbo_confirm: regenerate_confirm } do %>
-        <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
+            class: 'w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-2',
+            data: { turbo_confirm: regenerate_confirm } do |f| %>
+        <%= f.button type: 'submit',
+              class: 'w-full sm:w-auto btn',
+              disabled: @subsector_count.zero? do %>
+          <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
+        <% end %>
+        <%= render 'application/boolean_toggle',
+                   form: f,
+                   attribute: :exclude_visited,
+                   checked: true,
+                   label: 'Exclude visited subsectors' %>
       <% end %>
     </div>
   </div>

@@ -449,11 +449,14 @@
       <dl class='space-y-4 text-sm'>
 
         <div>
-          <dt class='font-semibold text-fg-bright'>Populate All Sectors</dt>
+          <dt class='font-semibold text-fg-bright'>Regenerate All Sectors</dt>
           <dd class='mt-1 text-fg'>
             Enqueues generation jobs for every subsector in the campaign that has a build
             configuration assigned, regardless of whether the sector already contains star systems.
-            Existing systems are replaced.
+            Existing systems are replaced. Locked systems are always left untouched. The
+            <span class='font-mono text-fg-bright'>Exclude visited subsectors</span> toggle next to
+            the button is on by default; while on, any subsector containing a parsec the players
+            have travelled to or from, per the jump log, is skipped entirely.
           </dd>
         </div>
 

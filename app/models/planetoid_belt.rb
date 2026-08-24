@@ -17,7 +17,7 @@ class PlanetoidBelt < StellarObject
       :name, :notes, :orbit, :inclination, :eccentricity,
       *uwp_attribute_names,
       data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
-             :temperature, :retrograde, :period]
+             :temperature, :retrograde, :period, :native_sophont, :extinct_sophont]
     ]
   end
 
@@ -50,6 +50,8 @@ class PlanetoidBelt < StellarObject
     law_level: 'lawLevel',
     starport_code: 'starPort',
     economics: 'economics',
+    extinct_sophont: 'extinctSophont',
+    native_sophont: 'nativeSophont',
   )
 
   private
@@ -72,6 +74,8 @@ class PlanetoidBelt < StellarObject
     self.resource_rating = resource_rating.to_i if resource_rating.present?
     self.bulk = bulk.to_i if bulk.present?
     self.retrograde = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(retrograde) || false
+    self.native_sophont = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(native_sophont) || false
+    self.extinct_sophont = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(extinct_sophont) || false
   end
 
   def composition_sums_to_100
