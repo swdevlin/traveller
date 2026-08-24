@@ -1,0 +1,90 @@
+<turbo-frame id='<%= dom_id(@jump_route, :statistics) %>' target='_top'>
+  <% unless @route_summary.number_of_jumps.zero? %>
+    <div class='flex items-center gap-2 flex-wrap mb-6'>
+      <% unless @jump_route.plotted? %>
+        <%= link_to new_jump_route_jump_route_import_path(@jump_route),
+                    class: 'btn-header',
+                    data: { turbo_frame: 'modal' } do %>
+          <i class='fa-regular fa-cloud-arrow-up'></i>
+          Import
+        <% end %>
+      <% end %>
+      <%= link_to (@jump_route.plotted? ? export_path_jump_route_path(@jump_route) : export_links_jump_route_path(@jump_route)),
+                  class: 'btn-header',
+                  data: { turbo: false } do %>
+        <i class='fa-regular fa-cloud-arrow-down'></i>
+        Export
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @route_summary.number_of_jumps.zero? %>
+    <%= render 'application/subsection', title: @jump_route.plotted? ? 'Path' : 'Links' %>
+    <p class='text-sm text-fg-muted mb-4'>
+      <% if @jump_route.plotted? %>
+        Path could not be resolved. Edit the route to recalculate.
+      <% else %>
+        No links defined yet. Import a CSV or add links from individual star systems.
+      <% end %>
+    </p>
+  <% elsif @show_detail %>
+    <% if @show_map && @map_svg %>
+      <div class='flex gap-6 items-start my-4'>
+        <div class='flex-1 min-w-0'>
+          <div class='mb-1 relative flex items-center justify-end h-9'>
+            <%= link_to map_jump_route_path(@jump_route),
+                        target: '_blank',
+                        rel: 'noopener',
+                        class: 'text-fg-muted hover:text-fg-bright',
+                        title: 'Open map in new tab' do %>
+              <i class='fa-regular fa-arrow-up-right-from-square'></i>
+            <% end %>
+          </div>
+          <div class='overflow-auto rounded-md'>
+            <%= @map_svg.html_safe %>
+          </div>
+        </div>
+        <div class='shrink-0'>
+          <%= render 'jump_routes/detail', jump_route: @jump_route %>
+        </div>
+      </div>
+    <% else %>
+      <%= render 'jump_routes/detail', jump_route: @jump_route %>
+    <% end %>
+  <% else %>
+    <%= render 'application/subsection', title: 'Route Summary' %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4 mb-6'>
+      <%= render 'application/data_block', label: 'Sectors', value: @route_summary.number_of_sectors %>
+      <%= render 'application/data_block', label: 'Systems', value: @route_summary.number_of_systems %>
+      <%= render 'application/data_block', label: 'Jumps', value: @route_summary.number_of_jumps %>
+      <%= render 'application/data_block', label: 'Total Distance', value: @route_summary.total_distance, suffix: ' parsecs' %>
+    </div>
+
+    <div class='grid grid-cols-1 gap-6 lg:grid-cols-2 mb-4'>
+      <div>
+  <%= render 'application/subsection', title: 'Jump Length' %>
+        <%= render 'application/histogram', bars: jump_length_bars(@route_summary.length_histogram) %>
+      </div>
+
+      <div>
+        <%= render 'application/subsection', title: 'Systems by Link Count' %>
+        <%= render 'application/histogram', bars: link_count_bars(@route_summary.link_count_histogram) %>
+      </div>
+
+      <div>
+        <%= render 'application/subsection', title: 'Starports' %>
+        <%= render 'application/histogram', bars: starport_bars(@route_summary) %>
+      </div>
+
+      <div>
+        <%= render 'application/subsection', title: 'Population' %>
+        <%= render 'application/histogram', bars: population_bars(@route_summary) %>
+      </div>
+
+      <div>
+        <%= render 'application/subsection', title: 'Bases' %>
+        <%= render 'application/histogram', bars: facility_bars(@route_summary, @facilities_by_id) %>
+      </div>
+    </div>
+  <% end %>
+</turbo-frame>

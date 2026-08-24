@@ -111,15 +111,15 @@
         <div class='actions'>
           <%= link_to import_hexes_region_path(@region),
                       class: 'btn-header',
-                      title: 'Upload CSV',
                       data: { turbo_frame: 'modal' } do %>
             <i class='fa-regular fa-cloud-arrow-up'></i>
+            Import
           <% end %>
           <%= link_to download_csv_region_path(@region),
                       class: 'btn-header',
-                      title: 'Download CSV',
                       data: { turbo: false } do %>
             <i class='fa-regular fa-cloud-arrow-down'></i>
+            Export
           <% end %>
         </div>
       </div>

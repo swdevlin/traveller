@@ -1,6 +1,7 @@
 json.array! @regions do |region|
   json.id             region.id
   json.name           region.name
+  json.label          region.label
   json.colour         region.colour&.delete_prefix('#')
   json.border_colour  region.border_colour&.delete_prefix('#')
   json.player_visible region.player_visible?

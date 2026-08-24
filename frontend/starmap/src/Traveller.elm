@@ -7563,12 +7563,21 @@ update msg ( time, model ) =
                         |> List.concat
                         |> Dict.fromList
 
+                nonBlank : String -> Maybe String
+                nonBlank str =
+                    if String.trim str == "" then
+                        Nothing
+
+                    else
+                        Just str
+
                 regionLabelDict : Dict.Dict String String
                 regionLabelDict =
                     List.filterMap
                         (\region ->
-                            region.labelPosition
-                                |> Maybe.map (\pos -> ( HexAddress.toKey pos, region.name ))
+                            Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
+                                region.labelPosition
+                                (region.label |> Maybe.andThen nonBlank)
                         )
                         visibleRegions
                         |> Dict.fromList
@@ -7599,6 +7608,7 @@ update msg ( time, model ) =
                     , colour = Just Color.blue
                     , borderColour = Nothing
                     , name = "Stub Hennlix Nebula"
+                    , label = Just "Stub Hennlix Nebula"
                     , playerVisible = True
                     , labelPosition = Just { x = -308, y = -104 }
                     , hexes =
@@ -7620,12 +7630,21 @@ update msg ( time, model ) =
                         |> List.concat
                         |> Dict.fromList
 
+                nonBlank : String -> Maybe String
+                nonBlank str =
+                    if String.trim str == "" then
+                        Nothing
+
+                    else
+                        Just str
+
                 regionLabelDict : Dict.Dict String String
                 regionLabelDict =
                     List.filterMap
                         (\region ->
-                            region.labelPosition
-                                |> Maybe.map (\pos -> ( HexAddress.toKey pos, region.name ))
+                            Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
+                                region.labelPosition
+                                (region.label |> Maybe.andThen nonBlank)
                         )
                         [ stub ]
                         |> Dict.fromList

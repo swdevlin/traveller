@@ -109,7 +109,9 @@
           <%= render 'derive_build_button', subsector: @subsector %>
 
           <div class='mt-2 flex flex-col sm:flex-row gap-2'>
-            <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?" %>
+            <% confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
+                               "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?"
+                             end %>
 
             <%= form.submit 'Generate',
                             class: 'w-full sm:w-auto btn btn-primary',

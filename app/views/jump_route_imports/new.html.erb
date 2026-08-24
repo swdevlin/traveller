@@ -1,0 +1,46 @@
+<%= modal(title: 'Import Links', padding: true, advance: false, overlay: false) do %>
+  <div class='space-y-6'>
+    <div class='space-y-2'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>CSV Format</div>
+      <p class='text-sm text-fg'>
+        Each row links two systems by name. Rows for already-linked or unresolved systems are skipped.
+      </p>
+      <table class='w-full text-sm font-mono'>
+        <thead>
+          <tr class='text-left text-xs uppercase tracking-[0.18em] text-fg-muted border-b border-outline'>
+            <th class='pb-2 pr-4'>Column</th>
+            <th class='pb-2'>Description</th>
+          </tr>
+        </thead>
+        <tbody class='text-fg divide-y divide-outline'>
+          <tr>
+            <td class='py-1.5 pr-4 text-highlight'>from_system</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Name of the origin star system</td>
+          </tr>
+          <tr>
+            <td class='py-1.5 pr-4 text-highlight'>to_system</td>
+            <td class='py-1.5 font-sans text-fg-muted'>Name of the destination star system</td>
+          </tr>
+        </tbody>
+      </table>
+      <%= link_to export_links_jump_route_path(@jump_route),
+                  class: 'inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg-bright transition no-underline',
+                  data: { turbo: false } do %>
+        <i class='fa-regular fa-file-csv'></i>
+        Download current CSV
+      <% end %>
+    </div>
+
+    <div class='h-px border-outline'></div>
+
+    <%= form_with url: jump_route_jump_route_import_path(@jump_route), multipart: true, class: 'space-y-4' do |f| %>
+      <div>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>CSV File</div>
+        <%= render 'application/file_field', form: f, attribute: :file, accept: '.csv', wrapper_class: 'w-full' %>
+      </div>
+      <div class='flex justify-end'>
+        <%= f.submit 'Upload', class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

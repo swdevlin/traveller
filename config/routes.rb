@@ -104,8 +104,9 @@ Rails.application.routes.draw do
         get :export_links
         get :export_path
         get :map
+        get :statistics
       end
-      resource :jump_route_import, only: %i[create]
+      resource :jump_route_import, only: %i[new create]
     end
 
     resources :ships do

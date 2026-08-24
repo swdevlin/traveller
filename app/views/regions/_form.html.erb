@@ -69,10 +69,8 @@
     </div>
   <% end %>
 
-  <div class='flex items-center gap-3'>
-    <%= form.check_box :player_visible, class: 'rounded' %>
-    <%= form.label :player_visible, 'Visible on player maps', class: 'text-sm font-semibold' %>
-  </div>
+  <%= render 'application/boolean_toggle', form: form, attribute: :player_visible,
+        checked: region.player_visible, label: 'Visible on player maps' %>
 
   <div>
     <%= form.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>

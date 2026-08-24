@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 class JumpRouteImportsController < ApplicationController
-  def create
-    @jump_route = JumpRoute.find(params[:jump_route_id])
+  before_action :set_jump_route
 
+  def new
+  end
+
+  def create
     unless params[:file].present?
       redirect_to jump_route_path(@jump_route), alert: 'No file selected.' and return
     end
@@ -19,6 +22,10 @@ class JumpRouteImportsController < ApplicationController
   end
 
   private
+
+  def set_jump_route
+    @jump_route = JumpRoute.find(params[:jump_route_id])
+  end
 
   def import_links(csv_text)
     require 'csv'

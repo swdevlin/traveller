@@ -8,25 +8,45 @@ class JumpRoutesController < ApplicationController
     @jump_routes = JumpRoute.ordered.includes(:jump_route_links)
   end
 
-  def show
-    if @jump_route.plotted?
-      ActiveRecord::Associations::Preloader.new(
-        records: [@jump_route],
-        associations: { from_star_system: { parsec: :sector }, to_star_system: { parsec: :sector } }
-      ).call
+  def show; end
 
+  def statistics
+    hops =
+      if @jump_route.plotted?
+        ActiveRecord::Associations::Preloader.new(
+          records: [@jump_route],
+          associations: { from_star_system: { parsec: :sector }, to_star_system: { parsec: :sector } }
+        ).call
+
+        @ordered_systems = @jump_route.ordered_systems
+        @ordered_systems.each_cons(2).map { |a, b| hop_from_systems(a, b) }
+      else
+        @links = @jump_route.jump_route_links
+          .includes(from_star_system: [:main_world, { parsec: :sector }],
+                    to_star_system: [:main_world, { parsec: :sector }])
+          .order(:id)
+        @links.map { |link| hop_from_systems(link.from_star_system, link.to_star_system) }
+      end
+    @route_summary = RouteSummary.new(hops)
+    @facilities_by_id = Facility.all.index_by(&:id)
+
+    @show_detail = @route_summary.number_of_jumps.positive? && @route_summary.number_of_jumps <= 12
+    return render layout: false unless @show_detail
+
+    if @jump_route.plotted?
       timing        = RouteTiming.new(m_drive: @jump_route.m_drive || 1)
-      @hop_timings  = timing.timings_for(@jump_route.ordered_systems)
+      @hop_timings  = timing.timings_for(@ordered_systems)
       @route_total  = timing.total(@hop_timings)
     end
+
     @show_map = @jump_route.fits_in_sector?
     if @show_map
       prepare_route_map
-      if @cols
-        @show_map_links = true
-        @map_svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
-      end
+      @show_map = @cols.present?
+      @map_svg  = render_to_string('shared/hex_map', formats: [:svg], layout: false) if @show_map
     end
+
+    render layout: false
   end
 
   def new
@@ -133,6 +153,21 @@ class JumpRoutesController < ApplicationController
   end
 
   private
+
+  def hop_from_systems(from, to)
+    RouteSummary::Hop.new(
+      from_coord: [from.parsec.x, from.parsec.y],
+      to_coord: [to.parsec.x, to.parsec.y],
+      from_sector_id: from.parsec.sector_id,
+      to_sector_id: to.parsec.sector_id,
+      from_system_id: from.id,
+      to_system_id: to.id,
+      from_starport: from.main_world_starport_code,
+      to_starport: to.main_world_starport_code,
+      from_population: from.main_world_population_code,
+      to_population: to.main_world_population_code
+    )
+  end
 
   def set_jump_route
     @jump_route = JumpRoute.find(params.expect(:id))

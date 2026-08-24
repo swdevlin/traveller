@@ -146,6 +146,14 @@ class StarSystem < ApplicationRecord
     main_world.respond_to?(:government_code) ? main_world.government_code : nil
   end
 
+  def main_world_starport_code
+    main_world.respond_to?(:starport_code) ? main_world.starport_code : nil
+  end
+
+  def main_world_population_code
+    main_world.respond_to?(:population_code) ? main_world.population_code : nil
+  end
+
   def pbg
     "#{HexDigit.hex_digit(terrestrial_count)}#{HexDigit.hex_digit(belt_count)}#{HexDigit.hex_digit(gas_giant_count)}"
   end

@@ -4,7 +4,7 @@ require 'json'
 require 'yaml'
 
 class GenerateSubsectorJob < ApplicationJob
-  queue_as :default
+  queue_as :subsector_creation
   self.log_arguments = false
 
   def perform(subsector_id, definition)

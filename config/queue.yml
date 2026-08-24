@@ -19,6 +19,10 @@ development:
       threads: 1
       processes: 1
       polling_interval: 1.0
+    - queues: "subsector_creation"
+      threads: 1
+      processes: 1
+      polling_interval: 1.0
 
 test:
   <<: *default
@@ -34,5 +38,9 @@ production:
     # running several concurrently starves the box rather than finishing any of them faster.
     - queues: "rulebook_imports"
       threads: 1
+      processes: 1
+      polling_interval: 1.0
+    - queues: "subsector_creation"
+      threads: 2
       processes: 1
       polling_interval: 1.0

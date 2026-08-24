@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CreateSubsectorJob < ApplicationJob
-  queue_as :default
+  queue_as :subsector_creation
 
   def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil, build_source = 'default')
     sector = Sector.find(sector_id)

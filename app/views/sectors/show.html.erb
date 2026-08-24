@@ -13,11 +13,13 @@
                 edit_sector_path(@sector),
                 class: 'w-full sm:w-auto btn btn-primary' %>
 
-    <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?" %>
+    <% populate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
+                                 "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?"
+                               end %>
     <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
       <%= form.submit 'Populate',
                       class: 'w-full sm:w-auto btn cursor-pointer',
-                      data: { turbo_confirm: confirm_msg, tour_step: 'sector-populate' } %>
+                      data: { turbo_confirm: populate_confirm_msg, tour_step: 'sector-populate' } %>
     <% end %>
 
     <%= button_to 'Clear',

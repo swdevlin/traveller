@@ -7,6 +7,11 @@ class JumpRouteImportsControllerTest < AuthenticatedIntegrationTest
     @sys_b      = star_systems(:in_two)
   end
 
+  test 'renders the import modal' do
+    get new_jump_route_jump_route_import_url(@jump_route)
+    assert_response :success
+  end
+
   test 'imports links from valid csv' do
     csv = "from_system,to_system\n#{@sys_a.name},#{@sys_b.name}\n"
     file = Rack::Test::UploadedFile.new(StringIO.new(csv), 'text/csv', original_filename: 'links.csv')

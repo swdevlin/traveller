@@ -28,6 +28,11 @@ class JumpRoutesControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'should get statistics' do
+    get statistics_jump_route_url(@jump_route)
+    assert_response :success
+  end
+
   test 'should get edit' do
     get edit_jump_route_url(@jump_route)
     assert_response :success
