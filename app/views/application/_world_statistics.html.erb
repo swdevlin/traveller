@@ -4,7 +4,7 @@
 <div class='space-y-6'>
   <% if show_totals %>
     <%= render 'application/subsection', title: 'Statistics' %>
-    <div class='grid grid-cols-1 gap-6 sm:grid-cols-3'>
+    <div class='grid grid-cols-1 gap-6 sm:grid-cols-4'>
       <%= render 'application/data_block', label: 'Systems', value: stats.number_of_systems %>
 
       <%= render 'application/data_block', label: 'Populated Worlds', value: populated_worlds %>
@@ -13,6 +13,8 @@
                  label: 'Total Population',
                  value: total_population_display(stats),
                  suffix: (populated_worlds.positive? ? tag.div("#{stats.worlds_with_known_census_count} of #{populated_worlds} worlds have a known census", class: 'mt-1 text-xs italic text-fg-muted') : nil) %>
+
+      <%= render 'application/data_block', label: 'Total GWP', value: number_to_human(stats.gwp) %>
     </div>
   <% end %>
 

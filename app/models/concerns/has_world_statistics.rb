@@ -9,6 +9,12 @@ module HasWorldStatistics
     worlds_scope.count
   end
 
+  def gwp
+    worlds_scope
+      .where("(data -> 'economics' ->> 'totalGWP') IS NOT NULL")
+      .sum(Arel.sql("(data -> 'economics' ->> 'totalGWP')::float"))
+  end
+
   def total_population
     worlds_scope
       .where("(data -> 'population' ->> 'censusPopulation') IS NOT NULL")
