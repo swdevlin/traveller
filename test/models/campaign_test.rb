@@ -98,4 +98,45 @@ class CampaignTest < ActiveSupport::TestCase
     assert_not campaign.valid?
     assert_includes campaign.errors[:hex_size], 'is not included in the list'
   end
+
+  # sector_source
+
+  test 'charted_space campaigns default sector_source to traveller_map on create' do
+    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+
+    assert_equal 'traveller_map', campaign.sector_source
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'charted_space campaigns with a blank sector_source pick it up on the next save' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'charted_space'
+    campaign.sector_source = nil
+
+    campaign.save!
+
+    assert_equal 'traveller_map', campaign.sector_source
+  end
+
+  test 'sector_source is left untouched for non-charted_space campaigns' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'homebrew'
+    campaign.sector_source = nil
+
+    campaign.save!
+
+    assert_nil campaign.sector_source
+  end
+
+  test 'sector_source is not overwritten once set' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'charted_space'
+    campaign.sector_source = 'deepnight_defaults'
+
+    campaign.save!
+
+    assert_equal 'deepnight_defaults', campaign.sector_source
+  end
 end

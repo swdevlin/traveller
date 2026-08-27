@@ -1,4 +1,43 @@
 namespace :jump_routes do
+  task :gas_giant_refuel, [:campaign, :route, :m_drive] => :environment do |_task, args|
+    extend ActionView::Helpers::NumberHelper
+    extend JumpShadowMath
+
+    campaign = Campaign.find_by!(slug: args[:campaign])
+    schema = "camp#{campaign.id}"
+    m_drive = args[:m_drive].to_i.clamp(0, 10)
+    Apartment::Tenant.switch(schema) do
+      jump_route = JumpRoute.find_by!(name: args[:route])
+      system_ids = jump_route.jump_route_links
+        .pluck(:from_star_system_id, :to_star_system_id)
+        .flatten
+        .uniq
+
+      systems = StarSystem.where(id: system_ids).index_by(&:id)
+      gas_giants_by_system = GasGiant
+        .where(star_system_id: system_ids)
+        .select { |gas_giant| gas_giant.diameter.present? }
+        .group_by(&:star_system_id)
+
+      rows = system_ids.map do |id|
+        nearest = gas_giants_by_system[id]&.min_by(&:effective_jump_shadow_km)
+        { system: systems[id], gas_giant: nearest }
+      end
+
+      with_giant, without_giant = rows.partition { |r| r[:gas_giant] }
+      with_giant.each { |r| r[:hours] = flip_burn_travel_time_hours(r[:gas_giant].effective_jump_shadow_km, m_drive) }
+      with_giant.sort_by! { |r| r[:hours] || Float::INFINITY }
+
+      puts "#{jump_route.name} - minimum gas giant jump safe time by system (#{m_drive}G m-drive)"
+      with_giant.each do |r|
+        puts "#{r[:system].name}: #{format_travel_time(r[:hours])} (#{r[:gas_giant].display_name}, #{r[:gas_giant].effective_jump_shadow_km.to_i} km)"
+      end
+      without_giant.sort_by { |r| r[:system].name }.each do |r|
+        puts "#{r[:system].name}: No gas giant"
+      end
+    end
+  end
+
   task :xboats, [:campaign, :route] => :environment do |_task, args|
     campaign = Campaign.find_by!(slug: args[:campaign])
     schema = "camp#{campaign.id}"

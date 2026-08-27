@@ -88,11 +88,13 @@ class T5TabDelimitedParser
       entry['surveyIndex'] = 3
     else
       entry['surveyIndex'] = 12
+      belts = pbg[1].to_i
+      gas_giants = pbg[2].to_i
       entry['counts'] = {
         'mainWorld' => { 'uwp' => sys['UWP'], 'orbit' => 'hzco', 'name' => sys['Name'] },
-        'terrestrialPlanets' => pbg[0].to_i,
-        'planetoidBelts' => pbg[1].to_i,
-        'gasGiants' => pbg[2].to_i
+        'terrestrialPlanets' => terrestrial_planet_count(sys['W'], pbg, belts, gas_giants),
+        'planetoidBelts' => belts,
+        'gasGiants' => gas_giants
       }
       stars = parse_stars(sys['Stars'])
       entry['primary'] = stars.first
@@ -114,6 +116,12 @@ class T5TabDelimitedParser
     entry['travelZone'] = sys['Zone'].presence
 
     entry.compact
+  end
+
+  def terrestrial_planet_count(worlds, pbg, belts, gas_giants)
+    return pbg[0].to_i if worlds.blank?
+
+    (worlds.to_i - gas_giants - belts - 1).clamp(0, 20)
   end
 
   def parse_stars(stars)

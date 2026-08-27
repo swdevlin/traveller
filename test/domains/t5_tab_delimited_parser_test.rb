@@ -168,14 +168,38 @@ class T5TabDelimitedParserTest < ActiveSupport::TestCase
     assert validator.valid?
   end
 
-  test 'PBG mapped to counts' do
+  test 'PBG belts and gas giants mapped to counts' do
     systems = [
-      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A' }
+      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A', 'W' => '10' }
+    ]
+    result = build_system_definition(systems.first)
+    assert_equal 0, result['counts']['planetoidBelts']
+    assert_equal 3, result['counts']['gasGiants']
+  end
+
+  test 'terrestrialPlanets derived from Worlds total minus mainworld, belts, and gas giants' do
+    systems = [
+      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A', 'W' => '10' }
+    ]
+    result = build_system_definition(systems.first)
+    # 10 worlds - 1 mainworld - 0 belts - 3 gas giants = 6
+    assert_equal 6, result['counts']['terrestrialPlanets']
+  end
+
+  test 'terrestrialPlanets falls back to PBG population digit when Worlds is blank' do
+    systems = [
+      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A', 'W' => nil }
     ]
     result = build_system_definition(systems.first)
     assert_equal 6, result['counts']['terrestrialPlanets']
-    assert_equal 0, result['counts']['planetoidBelts']
-    assert_equal 3, result['counts']['gasGiants']
+  end
+
+  test 'terrestrialPlanets is clamped to 20' do
+    systems = [
+      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '600', 'UWP' => 'B431721-A', 'W' => '99' }
+    ]
+    result = build_system_definition(systems.first)
+    assert_equal 20, result['counts']['terrestrialPlanets']
   end
 
   test 'Mainworld included in counts' do

@@ -74,6 +74,7 @@ class Campaign < ApplicationRecord
     ActiveModel::Type::Boolean.new.cast(native_tech_level)
   end
 
+  before_validation :default_sector_source
   before_create :set_defaults
   after_create :set_schema_name
   after_create_commit :create_tenant
@@ -99,6 +100,10 @@ class Campaign < ApplicationRecord
   end
 
   private
+
+  def default_sector_source
+    self.sector_source = 'traveller_map' if charted_space? && sector_source.blank?
+  end
 
   def set_defaults
     self.exploration            = deepnight_revelation? if exploration.nil?
