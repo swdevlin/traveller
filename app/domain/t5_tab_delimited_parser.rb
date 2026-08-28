@@ -91,7 +91,12 @@ class T5TabDelimitedParser
       belts = pbg[1].to_i
       gas_giants = pbg[2].to_i
       entry['counts'] = {
-        'mainWorld' => { 'uwp' => sys['UWP'], 'orbit' => 'hzco', 'name' => sys['Name'] },
+        'mainWorld' => {
+          'uwp' => sys['UWP'],
+          'orbit' => 'hzco',
+          'name' => sys['Name'],
+          'populationDigit' => pbg[0].to_i
+        },
         'terrestrialPlanets' => terrestrial_planet_count(sys['W'], pbg, belts, gas_giants),
         'planetoidBelts' => belts,
         'gasGiants' => gas_giants

@@ -211,6 +211,14 @@ class T5TabDelimitedParserTest < ActiveSupport::TestCase
     assert_equal 'hzco', result['counts']['mainWorld']['orbit']
   end
 
+  test 'Mainworld populationDigit taken from first PBG digit' do
+    systems = [
+      { 'Hex' => '0303', 'Name' => "World's End", 'PBG' => '603', 'UWP' => 'B431721-A' }
+    ]
+    result = build_system_definition(systems.first)
+    assert_equal 6, result['counts']['mainWorld']['populationDigit']
+  end
+
   test 'No bases is an empty array' do
     @systems.first['Bases'] = nil
     result = build_system_definition(@systems.first)

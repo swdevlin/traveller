@@ -498,7 +498,15 @@ viewSidebarJumpTable maybeKm =
                         [ 1, 2, 3, 4, 5, 6 ]
 
                     cell attrs child =
-                        el ([ width fill, paddingXY 0 3, centerX ] ++ attrs) child
+                        el
+                            ([ growFlex
+                             , paddingXY 0 3
+                             , HtmlAttrs.style "text-align" "center"
+                             , HtmlAttrs.style "white-space" "nowrap"
+                             ]
+                                ++ attrs
+                            )
+                            child
 
                     headerCell m =
                         cell
@@ -507,7 +515,7 @@ viewSidebarJumpTable maybeKm =
                             , bold
                             , HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
                             ]
-                            (el [ centerX ] (text ("M" ++ String.fromInt m)))
+                            (text ("M" ++ String.fromInt m))
 
                     timeCell m =
                         let
@@ -518,7 +526,7 @@ viewSidebarJumpTable maybeKm =
                                 TravelCalc.travelTimeHoursDays secs
                         in
                         cell [ fontSize 11, HtmlAttrs.class "font-mono" ]
-                            (el [ centerX ] (text t))
+                            (text t)
 
                     sectionRow title =
                         row

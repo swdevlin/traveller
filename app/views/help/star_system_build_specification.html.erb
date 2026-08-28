@@ -257,7 +257,8 @@ rogues:</code></pre>
     uwp: (required)
     orbit:
     name:
-    moon:</code></pre>
+    moon:
+    populationDigit:</code></pre>
           <p class='text-sm'>System density is detailed on page 8 in the <cite>Deepnight Revelation Referee Handbook</cite>.</p>
         </div>
 
@@ -314,6 +315,11 @@ rogues:</code></pre>
                   <dd>moon is a boolean value. If true, then the main world is a moon orbiting a
                     gas giant. gasGiants must be at least one for moon to be true.</dd>
                 </div>
+                <div>
+                  <dt>populationDigit</dt>
+                  <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
+                    code. Used by the generator as a hint toward the main world's population.</dd>
+                </div>
               </dl>
           </div>
         </dl>
@@ -335,7 +341,8 @@ rogues:</code></pre>
           <pre><code>mainWorld:
   uwp: (required)
   orbit:
-  name:</code></pre>
+  name:
+  populationDigit:</code></pre>
         </div>
 
         <dl class='spec-dl lg:col-span-3'>
@@ -364,6 +371,12 @@ rogues:</code></pre>
             <dt>name</dt>
             <dd>Optional name for the main world.</dd>
           </div>
+
+          <div>
+            <dt>populationDigit</dt>
+            <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
+              code. Used by the generator as a hint toward the main world's population.</dd>
+          </div>
         </dl>
       </div>
     </article>
@@ -382,7 +395,8 @@ rogues:</code></pre>
   - uwp
     orbit:
     name:
-    mainWorld:</code></pre>
+    mainWorld:
+    populationDigit:</code></pre>
         </div>
         <dl class='spec-dl lg:col-span-3'>
           <div>
@@ -419,6 +433,12 @@ rogues:</code></pre>
             <dt>mainWorld</dt>
             <dd>Boolean. When true, designates this body as the main world. Note this does not mean the world will be
             populated. An empty star system still has a main world, at least according to the IISS.</dd>
+          </div>
+
+          <div>
+            <dt>populationDigit</dt>
+            <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
+              code. Used by the generator as a hint toward this body's population, if it is the main world.</dd>
           </div>
         </dl>
       </div>

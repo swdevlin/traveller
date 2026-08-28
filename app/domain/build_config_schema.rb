@@ -21,6 +21,7 @@ MainWorldSchema = Dry::Schema.Params do
   required(:uwp).value(:string, format?: UWP_CODE)
   optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
   optional(:name).filled(:string)
+  optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
 end
 
 CoordinateSchema = Dry::Schema.Params do
@@ -41,6 +42,7 @@ CountsSchema = Dry::Schema.Params do
     optional(:name).filled(:string)
     optional(:language).filled(:string)
     optional(:moon).filled(:bool)
+    optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
   end
 end
 
@@ -63,6 +65,7 @@ BaseStarSchema = Dry::Schema.Params do
     optional(:name).filled(:string)
     optional(:language).filled(:string)
     optional(:mainWorld).filled(:bool)
+    optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
   end
 end
 

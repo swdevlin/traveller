@@ -603,6 +603,22 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
+  test 'counts with mainWorld populationDigit is valid' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            density: 5
+            mainWorld:
+              uwp: X674000-0
+              populationDigit: 6
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
   test 'counts with only partial explicit counts is invalid' do
     yaml = <<~YAML
       type: standard
@@ -1385,6 +1401,16 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid_for_star_system?
     assert_includes validator.errors.join, 'mainWorld'
+  end
+
+  test 'top-level mainWorld with populationDigit is valid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        populationDigit: 6
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
   end
 
   test 'top-level mainWorld with invalid orbit string is invalid' do

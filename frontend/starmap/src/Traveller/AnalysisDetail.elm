@@ -682,7 +682,13 @@ viewJumpShadowTable maybeKm =
 
                     cell attrs child =
                         el
-                            ([ width (px 46), paddingXY 0 4, HtmlAttrs.style "text-align" "center" ] ++ attrs)
+                            ([ growFlex
+                             , paddingXY 0 4
+                             , HtmlAttrs.style "text-align" "center"
+                             , HtmlAttrs.style "white-space" "nowrap"
+                             ]
+                                ++ attrs
+                            )
                             child
 
                     headerCell m =
