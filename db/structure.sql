@@ -271,6 +271,70 @@ ALTER SEQUENCE public.campaigns_id_seq OWNED BY public.campaigns.id;
 
 
 --
+-- Name: circular_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.circular_images (
+    id bigint NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: circular_images_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.circular_images_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: circular_images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.circular_images_id_seq OWNED BY public.circular_images.id;
+
+
+--
+-- Name: circulars; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.circulars (
+    id bigint CONSTRAINT blog_posts_id_not_null NOT NULL,
+    title character varying,
+    body text,
+    created_at timestamp(6) without time zone CONSTRAINT blog_posts_created_at_not_null NOT NULL,
+    updated_at timestamp(6) without time zone CONSTRAINT blog_posts_updated_at_not_null NOT NULL,
+    summary text,
+    published boolean DEFAULT false CONSTRAINT blog_posts_published_not_null NOT NULL
+);
+
+
+--
+-- Name: circulars_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.circulars_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: circulars_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.circulars_id_seq OWNED BY public.circulars.id;
+
+
+--
 -- Name: cities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1364,6 +1428,39 @@ ALTER SEQUENCE public.survey_overlays_id_seq OWNED BY public.survey_overlays.id;
 
 
 --
+-- Name: system_queries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.system_queries (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    rule_data jsonb DEFAULT '{}'::jsonb NOT NULL,
+    columns jsonb DEFAULT '[]'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: system_queries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.system_queries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: system_queries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.system_queries_id_seq OWNED BY public.system_queries.id;
+
+
+--
 -- Name: tech_levels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1548,6 +1645,20 @@ ALTER TABLE ONLY public.campaign_rulebooks ALTER COLUMN id SET DEFAULT nextval('
 --
 
 ALTER TABLE ONLY public.campaigns ALTER COLUMN id SET DEFAULT nextval('public.campaigns_id_seq'::regclass);
+
+
+--
+-- Name: circular_images id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.circular_images ALTER COLUMN id SET DEFAULT nextval('public.circular_images_id_seq'::regclass);
+
+
+--
+-- Name: circulars id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.circulars ALTER COLUMN id SET DEFAULT nextval('public.circulars_id_seq'::regclass);
 
 
 --
@@ -1747,6 +1858,13 @@ ALTER TABLE ONLY public.survey_overlays ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
+-- Name: system_queries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.system_queries ALTER COLUMN id SET DEFAULT nextval('public.system_queries_id_seq'::regclass);
+
+
+--
 -- Name: tech_levels id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1828,6 +1946,22 @@ ALTER TABLE ONLY public.campaign_rulebooks
 
 ALTER TABLE ONLY public.campaigns
     ADD CONSTRAINT campaigns_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: circular_images circular_images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.circular_images
+    ADD CONSTRAINT circular_images_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: circulars circulars_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.circulars
+    ADD CONSTRAINT circulars_pkey PRIMARY KEY (id);
 
 
 --
@@ -2063,6 +2197,14 @@ ALTER TABLE ONLY public.survey_overlays
 
 
 --
+-- Name: system_queries system_queries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.system_queries
+    ADD CONSTRAINT system_queries_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: tech_levels tech_levels_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2176,6 +2318,13 @@ CREATE INDEX index_campaigns_on_referee_id ON public.campaigns USING btree (refe
 --
 
 CREATE UNIQUE INDEX index_campaigns_on_slug ON public.campaigns USING btree (slug);
+
+
+--
+-- Name: index_circulars_on_published_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_circulars_on_published_and_created_at ON public.circulars USING btree (published, created_at);
 
 
 --
@@ -2969,6 +3118,11 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20260828155221'),
+('20260826031250'),
+('20260825235754'),
+('20260825234234'),
+('20260825213813'),
 ('20260822190453'),
 ('20260822150000'),
 ('20260821195558'),

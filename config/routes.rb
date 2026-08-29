@@ -131,6 +131,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :system_queries
+
     resources :tech_levels
     resources :governments
     resources :law_levels

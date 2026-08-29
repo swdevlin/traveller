@@ -5,7 +5,8 @@ export default class extends Controller {
   static values = { campaignSlug: String }
 
   connect() {
-    const mode = localStorage.getItem(this.modeKey()) || 'list';
+    const storedMode = localStorage.getItem(this.modeKey());
+    const mode = storedMode === 'chart' ? 'chart' : 'list';
     this.applyMode(mode);
 
     this.sectorsFrame = document.getElementById('sectors');
@@ -14,7 +15,7 @@ export default class extends Controller {
 
     if (mode === 'list') {
       this.maybeRestorePage();
-    } else {
+    } else if (mode === 'chart') {
       requestAnimationFrame(() => {
         this.fitChartToViewport();
         this.centerChart();
@@ -137,17 +138,20 @@ export default class extends Controller {
 
   applyMode(mode) {
     localStorage.setItem(this.modeKey(), mode);
-    const isList = mode === 'list';
-    this.listPanelTarget.classList.toggle('hidden', !isList);
-    this.chartPanelTarget.classList.toggle('hidden', isList);
-    this.listBtnTarget.classList.toggle('bg-panel-muted', isList);
-    this.listBtnTarget.classList.toggle('text-fg-bright', isList);
-    this.listBtnTarget.classList.toggle('text-fg-muted', !isList);
-    this.chartBtnTarget.classList.toggle('bg-panel-muted', !isList);
-    this.chartBtnTarget.classList.toggle('text-fg-bright', !isList);
-    this.chartBtnTarget.classList.toggle('text-fg-muted', isList);
-    document.body.classList.toggle('sectors-chart-mode', !isList);
-    this.syncTourSteps(isList);
+
+    const panels = { list: this.listPanelTarget, chart: this.chartPanelTarget };
+    const buttons = { list: this.listBtnTarget, chart: this.chartBtnTarget };
+
+    Object.entries(panels).forEach(([m, panel]) => panel.classList.toggle('hidden', m !== mode));
+    Object.entries(buttons).forEach(([m, button]) => {
+      const active = m === mode;
+      button.classList.toggle('bg-panel-muted', active);
+      button.classList.toggle('text-fg-bright', active);
+      button.classList.toggle('text-fg-muted', !active);
+    });
+
+    document.body.classList.toggle('sectors-chart-mode', mode === 'chart');
+    this.syncTourSteps(mode === 'list');
   }
 
   syncTourSteps(isList) {

@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Law Levels', law_levels_path]] %>
+
 <%= content_for :title, "law Level #{traveller_hex(@law_level.code)}" %>
 <%= content_for :page_kicker, "Law level" %>
 <%= content_for :page_title, "law Level #{traveller_hex(@law_level.code)}" %>
@@ -6,10 +9,6 @@
   <%= render @law_level %>
 
   <%= link_to "Edit", edit_law_level_path(@law_level), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: law_levels_path,
-             label: 'Law levels',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @law_level,
                 method: :delete,

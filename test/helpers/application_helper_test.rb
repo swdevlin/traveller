@@ -9,7 +9,7 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test 'current_theme_light? is false for a dark theme' do
-    cookies[:theme] = 'deepnight'
+    cookies[:theme] = 'vargr'
     assert_not current_theme_light?
   end
 

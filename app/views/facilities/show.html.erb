@@ -1,13 +1,12 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Bases', facilities_path]] %>
+
 <% content_for :title, @facility.name %>
 <% content_for :page_kicker, "Base Classification" %>
 <% content_for :page_title, @facility.name %>
 
 <%= content_for :page_buttons do %>
   <%= link_to "Edit", edit_facility_path(@facility), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: facilities_path,
-             label: 'Bases',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @facility,
                 method: :delete,

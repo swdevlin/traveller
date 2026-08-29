@@ -27,12 +27,13 @@ import Color exposing (Color)
 import Json.Decode as JsDecode
 import Json.Encode as Encode
 import Traveller.Region exposing (codecColour)
-import Traveller.SolarSystemStars exposing (StarSystem)
+import Traveller.SolarSystemStars exposing (StarSystem, StarTypeData, getStarTypeData)
 
 
 {-| Every field a highlight rule can be built from: the eight UWP components,
 the referee-only survey index and known state, the system's gas giant and
-planetoid belt counts, its native/extinct sophont flags, and its
+planetoid belt counts, its native/extinct sophont flags, its primary star's
+spectral type/luminosity class and total star count, and its
 allegiance/sector/subsector membership.
 -}
 type Field
@@ -53,6 +54,9 @@ type Field
     | Importance
     | Bases
     | BaseCount
+    | StarCount
+    | PrimaryStar
+    | PrimaryStarClass
     | Allegiance
     | Sector
     | Subsector
@@ -60,7 +64,7 @@ type Field
 
 allFields : List Field
 allFields =
-    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, Sector, Size, Starport, Subsector, SurveyIndex, TechLevel ]
+    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, PrimaryStar, PrimaryStarClass, Sector, Size, StarCount, Starport, Subsector, SurveyIndex, TechLevel ]
 
 
 {-| The (code, name) shape of a live, server-loaded option list - bases
@@ -137,6 +141,15 @@ fieldLabel field =
 
         BaseCount ->
             "Base Count"
+
+        StarCount ->
+            "Star Count"
+
+        PrimaryStar ->
+            "Primary Star"
+
+        PrimaryStarClass ->
+            "Primary Star Class"
 
         Allegiance ->
             "Allegiance"
@@ -217,6 +230,9 @@ operatorsFor field =
             [ Eq, OneOf ]
 
         Subsector ->
+            [ Eq, OneOf ]
+
+        PrimaryStar ->
             [ Eq, OneOf ]
 
         _ ->
@@ -344,6 +360,35 @@ fieldOptions field =
 
         BaseCount ->
             List.range 0 10 |> List.map (\n -> { code = String.fromInt n, label = String.fromInt n })
+
+        StarCount ->
+            List.range 1 8 |> List.map (\n -> { code = String.fromInt n, label = String.fromInt n })
+
+        PrimaryStar ->
+            ([ "O", "B", "A", "F", "G", "K", "M" ] |> List.map (\c -> { code = c, label = c }))
+                ++ [ { code = "L", label = "L Dwarf" }, { code = "T", label = "T Dwarf" }, { code = "Y", label = "Y Dwarf" } ]
+                ++ [ { code = "BD", label = "Brown Dwarf" }
+                   , { code = "D", label = "White Dwarf" }
+                   , { code = "BH", label = "Black Hole" }
+                   , { code = "PSR", label = "Pulsar" }
+                   , { code = "NS", label = "Neutron Star" }
+                   , { code = "NB", label = "Nebula" }
+                   , { code = "PS", label = "Protostar" }
+                   , { code = "AN", label = "Anomaly" }
+                   ]
+
+        PrimaryStarClass ->
+            [ { code = "0", label = "0 (Hypergiant)" }
+            , { code = "Ia", label = "Ia (Luminous supergiant)" }
+            , { code = "Iab", label = "Iab (Intermediate supergiant)" }
+            , { code = "Ib", label = "Ib (Less luminous supergiant)" }
+            , { code = "II", label = "II (Bright giant)" }
+            , { code = "III", label = "III (Giant)" }
+            , { code = "IV", label = "IV (Subgiant)" }
+            , { code = "V", label = "V (Main sequence)" }
+            , { code = "VI", label = "VI (Subdwarf)" }
+            , { code = "VII", label = "VII (White dwarf)" }
+            ]
 
         Bases ->
             []
@@ -480,6 +525,15 @@ uwpFieldAccessor field fields =
         BaseCount ->
             Nothing
 
+        StarCount ->
+            Nothing
+
+        PrimaryStar ->
+            Nothing
+
+        PrimaryStarClass ->
+            Nothing
+
         Allegiance ->
             Nothing
 
@@ -510,6 +564,22 @@ getFieldValue field system =
 
         BaseCount ->
             Just (String.fromInt (List.length system.baseCodes))
+
+        StarCount ->
+            let
+                starData =
+                    List.map getStarTypeData system.stars
+
+                companionCount =
+                    starData |> List.filter (\s -> s.companion /= Nothing) |> List.length
+            in
+            Just (String.fromInt (List.length starData + companionCount))
+
+        PrimaryStar ->
+            primaryStarData system |> Maybe.map .stellarType
+
+        PrimaryStarClass ->
+            primaryStarData system |> Maybe.map .stellarClass
 
         Bases ->
             Nothing
@@ -551,6 +621,19 @@ getFieldValue field system =
             system.mainWorldUwp
                 |> Maybe.andThen parseUwp
                 |> Maybe.andThen (uwpFieldAccessor field)
+
+
+{-| The primary star is the one entry in `system.stars` (the top-level
+list — tight-binary partners are nested inside `.companion` instead) that
+doesn't orbit anything. `Api::StarMapController#build_star_hash` encodes
+that as `au = 0` (its real `au` is `nil`, since it has no orbit).
+-}
+primaryStarData : StarSystem -> Maybe StarTypeData
+primaryStarData system =
+    system.stars
+        |> List.map getStarTypeData
+        |> List.filter (\s -> s.au == 0)
+        |> List.head
 
 
 
@@ -715,6 +798,15 @@ fieldToString field =
         BaseCount ->
             "base_count"
 
+        StarCount ->
+            "star_count"
+
+        PrimaryStar ->
+            "primary_star"
+
+        PrimaryStarClass ->
+            "primary_star_class"
+
         Allegiance ->
             "allegiance"
 
@@ -778,6 +870,15 @@ fieldFromString s =
 
         "base_count" ->
             Just BaseCount
+
+        "star_count" ->
+            Just StarCount
+
+        "primary_star" ->
+            Just PrimaryStar
+
+        "primary_star_class" ->
+            Just PrimaryStarClass
 
         "allegiance" ->
             Just Allegiance
