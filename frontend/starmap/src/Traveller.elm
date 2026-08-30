@@ -106,8 +106,8 @@ import Traveller.Sidebar
         , sidebarWidth
         , viewSidebarColumn
         )
-import Traveller.SolarSystem as SolarSystem exposing (SolarSystem)
-import Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
+import Traveller.StarSystemDetail as StarSystemDetail exposing (StarSystemDetail)
+import Traveller.StarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
 import Traveller.StarColour exposing (starColourRGB)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
@@ -402,7 +402,7 @@ type RequestNum
 
 {-| RequestEntry is a record of a request made to the server.
 
-Each time we call sendSolarSystemRequest we prep a RequestEntry and store it in
+Each time we call sendStarSystemRequest we prep a RequestEntry and store it in
 the ModelData.
 
 Then when we get a response back, we mark the request as complete and update
@@ -551,8 +551,8 @@ This is so we have less chance of getting the history out of sync with the
 entries, because this is the only way to construct a RequestEntry.
 
 -}
-prepNextRequest : ( SolarSystemDict, RequestHistory ) -> HexRect -> ( RequestEntry, ( SolarSystemDict, RequestHistory ) )
-prepNextRequest ( oldSolarSystemDict, requestHistory ) { upperLeftHex, lowerRightHex } =
+prepNextRequest : ( StarSystemDict, RequestHistory ) -> HexRect -> ( RequestEntry, ( StarSystemDict, RequestHistory ) )
+prepNextRequest ( oldStarSystemDict, requestHistory ) { upperLeftHex, lowerRightHex } =
     let
         requestNum =
             nextRequestNum requestHistory
@@ -564,7 +564,7 @@ prepNextRequest ( oldSolarSystemDict, requestHistory ) { upperLeftHex, lowerRigh
             , status = RemoteData.Loading
             }
 
-        newSolarSystemDict =
+        newStarSystemDict =
             HexAddress.between upperLeftHex lowerRightHex
                 |> List.foldl
                     (\hexAddr dict ->
@@ -574,30 +574,33 @@ prepNextRequest ( oldSolarSystemDict, requestHistory ) { upperLeftHex, lowerRigh
                         in
                         case Dict.get key dict of
                             Nothing ->
-                                Dict.insert key LoadingSolarSystem dict
+                                Dict.insert key LoadingStarSystem dict
 
                             Just _ ->
                                 dict
                     )
-                    oldSolarSystemDict
+                    oldStarSystemDict
     in
-    ( requestEntry, ( newSolarSystemDict, requestEntry :: requestHistory ) )
+    ( requestEntry, ( newStarSystemDict, requestEntry :: requestHistory ) )
 
 
 {-| Returns up to 2 tight bounding boxes covering only the hexes within hexRect
-that are not yet present in the dict.
+for which `isCovered` returns False.
 
 A straight pan reveals a single rectangular strip (1 rect). A diagonal drag
 reveals an L-shape, which splits into 2 non-overlapping rectangles: the new
 columns at full height and the new rows on the existing columns.
 
+`isCovered` is a membership predicate rather than a concrete dict/set so this
+is reusable for both the star-system dict (`\k -> Dict.member k dict`) and the
+regions/jump-route-links coverage sets (`\k -> Set.member k coverage`).
 -}
-missingHexRects : SolarSystemDict -> HexRect -> List HexRect
-missingHexRects dict { upperLeftHex, lowerRightHex } =
+missingHexRects : (HexKey -> Bool) -> HexRect -> List HexRect
+missingHexRects isCovered { upperLeftHex, lowerRightHex } =
     let
         missingHexes =
             HexAddress.between upperLeftHex lowerRightHex
-                |> List.filter (\h -> Dict.get (HexAddress.toKey h) dict == Nothing)
+                |> List.filter (\h -> not (isCovered (HexAddress.toKey h)))
     in
     case missingHexes of
         [] ->
@@ -676,22 +679,231 @@ missingHexRects dict { upperLeftHex, lowerRightHex } =
                 ]
 
 
-{-| Computes tight sub-rects for missing hexes, fires one request per rect, and
-returns the updated dict/history alongside a batched Cmd.
+{-| 16x20 = a 2x2 block of subsectors (one subsector is 8x10). Plain 8x10 tiles
+turned out finer than needed — plenty of headroom below the timeout with tiles
+4x the hex count, at 1/4 the request count.
 -}
-prepAndSendRequests : ( SolarSystemDict, RequestHistory ) -> HexRect -> HostConfig.HostConfig -> ( ( SolarSystemDict, RequestHistory ), Cmd Msg )
-prepAndSendRequests ( dict, history ) hexRect hostConfig =
-    missingHexRects dict hexRect
-        |> List.foldl
-            (\rect ( ( d, h ), cmds ) ->
-                let
-                    ( entry, ( d2, h2 ) ) =
-                        prepNextRequest ( d, h ) rect
-                in
-                ( ( d2, h2 ), sendSolarSystemRequest entry hostConfig :: sendRoguesRequest entry hostConfig :: sendMapLabelsRequest entry hostConfig :: cmds )
+tileColumns : Int
+tileColumns =
+    16
+
+
+tileRows : Int
+tileRows =
+    20
+
+
+{-| Floor division — Elm's `//` truncates toward zero, which is wrong once
+universal coordinates go negative (e.g. `-1 // 16 == 0`, but the hex at x=-1
+belongs to the tile column starting at -16, not 0).
+-}
+floorDiv : Int -> Int -> Int
+floorDiv a b =
+    (a - modBy b a) // b
+
+
+{-| Splits an arbitrary rect into pieces aligned to a universal grid
+(`tileColumns` wide, `tileRows` tall), each clipped to the original rect's
+bounds — so no piece is ever larger than one tile's worth of hexes, regardless
+of how big `rect` is. Every sector's origin is an exact multiple of 32 (x) / 40
+(y) (`Sector#upper_left`), and both are exact multiples of `tileColumns`/
+`tileRows`, so a grid aligned to the universal origin lands on the same
+boundaries in every sector — no need to know sector origins here.
+
+Bounds the worst-case cost of any single `sendStarSystemRequest`/
+`sendRoguesRequest`/`sendMapLabelsRequest` call to at most one tile's system
+count, however large the viewport/hex-size combination gets.
+-}
+splitIntoTiles : HexRect -> List HexRect
+splitIntoTiles { upperLeftHex, lowerRightHex } =
+    let
+        minX =
+            upperLeftHex.x
+
+        maxX =
+            lowerRightHex.x
+
+        minY =
+            lowerRightHex.y
+
+        maxY =
+            upperLeftHex.y
+
+        tileStartXs =
+            List.range (floorDiv minX tileColumns) (floorDiv maxX tileColumns)
+                |> List.map (\tx -> tx * tileColumns)
+
+        tileStartYs =
+            List.range (floorDiv minY tileRows) (floorDiv maxY tileRows)
+                |> List.map (\ty -> ty * tileRows)
+    in
+    tileStartXs
+        |> List.concatMap
+            (\tileMinX ->
+                tileStartYs
+                    |> List.map
+                        (\tileMinY ->
+                            { upperLeftHex = { x = max minX tileMinX, y = min maxY (tileMinY + tileRows - 1) }
+                            , lowerRightHex = { x = min maxX (tileMinX + tileColumns - 1), y = max minY tileMinY }
+                            }
+                        )
             )
-            ( ( dict, history ), [] )
-        |> Tuple.mapSecond Cmd.batch
+
+
+{-| Marks every hex in rect as covered in a coverage set. Used both to
+optimistically mark a rect covered the moment its fetch fires — mirroring
+`prepNextRequest`'s `LoadingStarSystem` placeholders, so a fast drag doesn't
+keep re-identifying the same in-flight rect as "missing" and firing duplicate
+requests — and to keep it marked on a successful response.
+-}
+markCovered : HexRect -> Set.Set HexKey -> Set.Set HexKey
+markCovered { upperLeftHex, lowerRightHex } coverage =
+    HexAddress.between upperLeftHex lowerRightHex
+        |> List.foldl (\h acc -> Set.insert (HexAddress.toKey h) acc) coverage
+
+
+{-| Removes rect's hexes from a coverage set. Used when a regions/jump-route-links
+request for that rect fails, so the next pan naturally retries it instead of
+treating it as permanently covered.
+-}
+unmarkCovered : HexRect -> Set.Set HexKey -> Set.Set HexKey
+unmarkCovered { upperLeftHex, lowerRightHex } coverage =
+    HexAddress.between upperLeftHex lowerRightHex
+        |> List.foldl (\h acc -> Set.remove (HexAddress.toKey h) acc) coverage
+
+
+{-| Client-side timeout for map-data fetches (star systems, rogues, map labels,
+regions, jump route links, sectors, routes, ...) — Rails/Puma has no
+server-side timeout at all, so this is the only thing that ever gives up on a
+slow request.
+-}
+mapDataRequestTimeoutMs : Float
+mapDataRequestTimeoutMs =
+    30000
+
+
+{-| Max star-system/rogues/map-labels tiles allowed in flight at once. A large
+viewport/hex-size combination can produce dozens of tiles (see
+`splitIntoTiles`) — firing them all at once just moves the
+`mapDataRequestTimeoutMs` risk from "one huge slow request" to "many small
+requests queued behind a handful of Puma threads for so long they approach the
+timeout anyway" (measured: 32 tiles fired at once against 8 threads took 19.7s
+to settle, worse than the single unbounded request it replaced). Queued tiles
+are released as in-flight ones complete — see `releaseNextStarSystemTile`.
+-}
+maxConcurrentStarSystemTiles : Int
+maxConcurrentStarSystemTiles =
+    6
+
+
+{-| The 3 requests always fired together for one star-system tile.
+-}
+starSystemTileCmds : RequestEntry -> DisplayMode -> HostConfig.HostConfig -> List (Cmd Msg)
+starSystemTileCmds entry displayMode hostConfig =
+    [ sendStarSystemRequest entry displayMode hostConfig
+    , sendRoguesRequest entry hostConfig
+    , sendMapLabelsRequest entry hostConfig
+    ]
+
+
+{-| The bits of Model threaded through `prepAndSendRequests` — one cache/coverage
+tracker per independently-fetched, viewport-scoped map layer, plus the
+star-system tile request queue (see `maxConcurrentStarSystemTiles`).
+-}
+type alias RequestState =
+    { starSystems : StarSystemDict
+    , requestHistory : RequestHistory
+    , regionsCoverage : Set.Set HexKey
+    , jumpRouteLinksCoverage : Set.Set HexKey
+    , pendingStarSystemTiles : List RequestEntry
+    , inFlightStarSystemTiles : Int
+    }
+
+
+{-| Computes tight sub-rects for missing hexes per layer (star systems,
+regions, jump route links each have their own notion of "already covered"),
+fires one request per missing rect per layer, and returns the updated
+dicts/coverage alongside a batched Cmd. Rogues and map labels ride along on
+star systems' sub-rects since they're always fetched together and merge
+additively already (no coverage tracking needed there).
+
+Star systems' missing rects are further split into subsector-sized tiles
+(`splitIntoTiles`) before firing, and throttled to
+`maxConcurrentStarSystemTiles` in flight — the rest queue in
+`pendingStarSystemTiles` and are released as in-flight ones complete.
+Regions/jump-route-links are cheap per-hex regardless of rect size, so they
+fire one request per missing rect as-is, untiled and unthrottled.
+-}
+prepAndSendRequests : RequestState -> HexRect -> DisplayMode -> HostConfig.HostConfig -> ( RequestState, Cmd Msg )
+prepAndSendRequests state hexRect displayMode hostConfig =
+    let
+        ( ( newStarSystems, newHistory ), reversedTileEntries ) =
+            missingHexRects (\k -> Dict.member k state.starSystems) hexRect
+                |> List.concatMap splitIntoTiles
+                |> List.foldl
+                    (\rect ( ( d, h ), entries ) ->
+                        let
+                            ( entry, ( d2, h2 ) ) =
+                                prepNextRequest ( d, h ) rect
+                        in
+                        ( ( d2, h2 ), entry :: entries )
+                    )
+                    ( ( state.starSystems, state.requestHistory ), [] )
+
+        capacity =
+            max 0 (maxConcurrentStarSystemTiles - state.inFlightStarSystemTiles)
+
+        ( toFireNow, toQueue ) =
+            List.Extra.splitAt capacity (List.reverse reversedTileEntries)
+
+        starSystemCmds =
+            List.concatMap (\entry -> starSystemTileCmds entry displayMode hostConfig) toFireNow
+
+        ( newRegionsCoverage, regionCmds ) =
+            missingHexRects (\k -> Set.member k state.regionsCoverage) hexRect
+                |> List.foldl
+                    (\rect ( coverage, cmds ) -> ( markCovered rect coverage, sendRegionRequest rect hostConfig :: cmds ))
+                    ( state.regionsCoverage, [] )
+
+        ( newJumpRouteLinksCoverage, jumpRouteLinkCmds ) =
+            missingHexRects (\k -> Set.member k state.jumpRouteLinksCoverage) hexRect
+                |> List.foldl
+                    (\rect ( coverage, cmds ) -> ( markCovered rect coverage, sendJumpRouteLinksRequest rect hostConfig :: cmds ))
+                    ( state.jumpRouteLinksCoverage, [] )
+    in
+    ( { starSystems = newStarSystems
+      , requestHistory = newHistory
+      , regionsCoverage = newRegionsCoverage
+      , jumpRouteLinksCoverage = newJumpRouteLinksCoverage
+      , pendingStarSystemTiles = state.pendingStarSystemTiles ++ toQueue
+      , inFlightStarSystemTiles = state.inFlightStarSystemTiles + List.length toFireNow
+      }
+    , Cmd.batch (starSystemCmds ++ regionCmds ++ jumpRouteLinkCmds)
+    )
+
+
+{-| Called whenever an in-flight star-system tile request completes (success
+or failure, so a failed tile doesn't permanently occupy its slot) — frees the
+slot and, if any tiles are queued, fires the next one(s) up to capacity again.
+-}
+releaseNextStarSystemTile : RequestState -> DisplayMode -> HostConfig.HostConfig -> ( RequestState, Cmd Msg )
+releaseNextStarSystemTile state displayMode hostConfig =
+    let
+        freedInFlight =
+            max 0 (state.inFlightStarSystemTiles - 1)
+
+        capacity =
+            max 0 (maxConcurrentStarSystemTiles - freedInFlight)
+
+        ( toFireNow, stillPending ) =
+            List.Extra.splitAt capacity state.pendingStarSystemTiles
+    in
+    ( { state
+        | pendingStarSystemTiles = stillPending
+        , inFlightStarSystemTiles = freedInFlight + List.length toFireNow
+      }
+    , Cmd.batch (List.concatMap (\entry -> starSystemTileCmds entry displayMode hostConfig) toFireNow)
+    )
 
 
 type ViewMode
@@ -711,6 +923,43 @@ type DisplayMode
     | ShowTechLevel
     | ShowHabitability
     | ShowGovernment
+
+
+displayModeToString : DisplayMode -> String
+displayModeToString mode =
+    case mode of
+        ShowStars ->
+            "Stars"
+
+        ShowMainWorld ->
+            "MainWorld"
+
+        ShowWTN ->
+            "WTN"
+
+        ShowGWP ->
+            "GWP"
+
+        ShowTradeCodes ->
+            "TradeCodes"
+
+        ShowImportance ->
+            "Importance"
+
+        ShowStrategic ->
+            "Strategic"
+
+        ShowResource ->
+            "Resource"
+
+        ShowTechLevel ->
+            "TechLevel"
+
+        ShowHabitability ->
+            "Habitability"
+
+        ShowGovernment ->
+            "Government"
 
 
 type RegionDisplay
@@ -740,17 +989,19 @@ type alias ModelData =
     , viewMode : ViewMode
     , journeyModel : JourneyModel
     , rawHexaPoints : List ( Float, Float )
-    , solarSystems : SolarSystemDict
-    , newSolarSystemErrors : List ( Http.Error, String )
-    , oldSolarSystemErrors : List ( Http.Error, String )
-    , lastSolarSystemError : Maybe Http.Error
+    , starSystems : StarSystemDict
+    , pendingStarSystemTiles : List RequestEntry
+    , inFlightStarSystemTiles : Int
+    , newStarSystemErrors : List ( Http.Error, String )
+    , oldStarSystemErrors : List ( Http.Error, String )
+    , lastStarSystemError : Maybe Http.Error
     , requestHistory : RequestHistory
     , dragMode : DragMode
     , sectors : SectorDict
     , hoveringHex : Maybe HexAddress
     , hoveringHexAnchor : Maybe ( Float, Float )
     , selectedHex : Maybe HexAddress
-    , selectedSystem : Maybe SolarSystem
+    , selectedSystem : Maybe StarSystemDetail
     , sidebarHoverText : Maybe String
     , viewport :
         { viewport : Browser.Dom.Viewport
@@ -767,6 +1018,7 @@ type alias ModelData =
     , hostConfig : HostConfig.HostConfig
     , route : RouteList
     , regions : RegionDict
+    , regionsCoverage : Set.Set HexKey
     , regionLabels : Dict.Dict String String
     , mapLabels : Dict.Dict String MapLabel
     , hexColours : Dict.Dict String Color
@@ -787,7 +1039,8 @@ type alias ModelData =
     , subsectorCapitalColour : Maybe String
     , allSectorsMapUrl : Maybe String
     , sidebarOpen : Bool
-    , jumpRouteLinks : List JumpRouteLink
+    , jumpRouteLinks : Dict.Dict Int JumpRouteLink
+    , jumpRouteLinksCoverage : Set.Set HexKey
     , rogueObjectPathData : Maybe String
     , facilityIcons : Dict.Dict String FacilityIcon
     , facilities : List HighlightRule.Option
@@ -842,13 +1095,13 @@ type ZoomType
 type Msg
     = NoOpMsg
     | Tick Time.Posix
-    | DownloadSolarSystems
+    | DownloadStarSystems
     | RefreshMap
-    | DownloadedSolarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
+    | DownloadedStarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
     | ClearAllErrors
-    | FetchedSolarSystem (Result Http.Error SolarSystem)
+    | FetchedStarSystemDetail (Result Http.Error StarSystemDetail)
     | DownloadedSectors ( RequestEntry, String ) (Result Http.Error (List Sector))
-    | DownloadedRegions ( RequestEntry, String ) (Result Http.Error (List Region))
+    | DownloadedRegions ( HexRect, String ) (Result Http.Error (List Region))
     | HoveringHex HexAddress ( Float, Float )
     | ViewingHex HexAddress
     | GotViewport Browser.Dom.Viewport
@@ -870,7 +1123,7 @@ type Msg
     | MapMouseMove ( Float, Float )
     | MapMouseLeave
     | DownloadedRoute ( RequestEntry, String ) (Result Http.Error (List Route))
-    | DownloadedJumpRouteLinks (Result Http.Error (List JumpRouteLink))
+    | DownloadedJumpRouteLinks ( HexRect, String ) (Result Http.Error (List JumpRouteLink))
     | SetHexSize Float
     | ToggleHexmap
     | SetViewMode ViewMode
@@ -1222,7 +1475,7 @@ defaultHexRectSize =
 
 minHexSize : Float
 minHexSize =
-    20
+    26
 
 
 maxHexSize : Float
@@ -1265,24 +1518,41 @@ init viewport settings key hostConfig referee =
         ( initSystemDict, initRequestHistory ) =
             ( Dict.empty, [] )
 
-        ( ( ssReqEntry, secReqEntry, routeReqEntry ), ( solarSystemDict, requestHistory ) ) =
-            prepNextRequest ( initSystemDict, initRequestHistory ) hexRect
-                |> -- build a new request entry for sector request
-                   (\( ssReqEntry_, oldSsDictAndReqHistory ) ->
-                        let
-                            ( newReqEntry, ssDictAndReqHistory ) =
-                                prepNextRequest oldSsDictAndReqHistory hexRect
-                        in
-                        ( ( ssReqEntry_, newReqEntry ), ssDictAndReqHistory )
-                   )
-                |> -- take the old ones and build a new one for route request
-                   (\( ( ssReqEntry_, secReqEntry_ ), oldSsDictAndReqHistory ) ->
+        -- Nothing is loaded yet, so missingHexRects against an empty dict correctly
+        -- treats the whole hexRect as missing — this is the same code path a pan
+        -- into fully-new territory takes, just for the initial viewport, so it gets
+        -- the same subsector tiling (bounds worst-case request cost) for free.
+        ( initState, initFetchCmds ) =
+            prepAndSendRequests
+                { starSystems = initSystemDict
+                , requestHistory = initRequestHistory
+                , regionsCoverage = Set.empty
+                , jumpRouteLinksCoverage = Set.empty
+                , pendingStarSystemTiles = []
+                , inFlightStarSystemTiles = 0
+                }
+                hexRect
+                initialDisplayMode
+                hostConfig
+
+        -- Sectors/routes aren't per-hex-scoped (sendSectorRequest's actual request
+        -- carries no bbox params), so they don't go through prepAndSendRequests —
+        -- just need distinct RequestEntrys threaded off its updated history.
+        ( ( secReqEntry, routeReqEntry ), ( starSystemDict, requestHistory ) ) =
+            prepNextRequest ( initState.starSystems, initState.requestHistory ) hexRect
+                |> (\( secReqEntry_, oldSsDictAndReqHistory ) ->
                         let
                             ( routeReqEntry_, ssDictAndReqHistory ) =
                                 prepNextRequest oldSsDictAndReqHistory hexRect
                         in
-                        ( ( ssReqEntry_, secReqEntry_, routeReqEntry_ ), ssDictAndReqHistory )
+                        ( ( secReqEntry_, routeReqEntry_ ), ssDictAndReqHistory )
                    )
+
+        -- A locally-stored hex size from before minHexSize/maxHexSize changed
+        -- (e.g. a saved value below the current minimum) would otherwise load
+        -- unclamped and only get corrected on the next zoom interaction.
+        initialHexSize =
+            clamp minHexSize maxHexSize settings.hexSize
 
         hexRect =
             let
@@ -1293,10 +1563,10 @@ init viewport settings key hostConfig referee =
                     viewport.viewport.height - consoleTitleHeight
 
                 deltaX =
-                    (hexmapWidth / hexWidth settings.hexSize |> ceiling) + 2
+                    (hexmapWidth / hexWidth initialHexSize |> ceiling) + 2
 
                 deltaY =
-                    (hexmapHeight / hexHeight settings.hexSize |> ceiling) + 2
+                    (hexmapHeight / hexHeight initialHexSize |> ceiling) + 2
 
                 upperLeftHex =
                     case settings.centerOn of
@@ -1465,14 +1735,16 @@ init viewport settings key hostConfig referee =
 
         model : ModelData
         model =
-            { hexScale = settings.hexSize
+            { hexScale = initialHexSize
             , viewMode = initialViewMode
             , journeyModel = journeyModel
-            , rawHexaPoints = rawHexagonPoints <| settings.hexSize
-            , solarSystems = solarSystemDict
-            , newSolarSystemErrors = []
-            , oldSolarSystemErrors = []
-            , lastSolarSystemError = Nothing
+            , rawHexaPoints = rawHexagonPoints <| initialHexSize
+            , starSystems = starSystemDict
+            , pendingStarSystemTiles = initState.pendingStarSystemTiles
+            , inFlightStarSystemTiles = initState.inFlightStarSystemTiles
+            , newStarSystemErrors = []
+            , oldStarSystemErrors = []
+            , lastStarSystemError = Nothing
             , requestHistory = requestHistory
             , dragMode = NoDragging
             , hoveringHex = Nothing
@@ -1497,6 +1769,7 @@ init viewport settings key hostConfig referee =
             , route = []
             , currentAddress = toUniversalAddress { sectorX = -10, sectorY = -2, x = 31, y = 24 }
             , regions = Dict.empty
+            , regionsCoverage = initState.regionsCoverage
             , regionLabels = Dict.empty
             , mapLabels = Dict.empty
             , hexColours = Dict.empty
@@ -1526,7 +1799,8 @@ init viewport settings key hostConfig referee =
             , showBackgroundNames = initialShowBackgroundNames
             , showJumpLogFill = initialShowJumpLogFill
             , sidebarOpen = False
-            , jumpRouteLinks = []
+            , jumpRouteLinks = Dict.empty
+            , jumpRouteLinksCoverage = initState.jumpRouteLinksCoverage
             , rogueObjectPathData = settings.rogueObjectPathData
             , facilityIcons = settings.facilityIcons |> List.map (\icon -> ( icon.code, icon )) |> Dict.fromList
             , facilities = settings.facilities |> List.sortBy .name
@@ -1559,13 +1833,9 @@ init viewport settings key hostConfig referee =
       , model
       )
     , Cmd.batch
-        [ sendSolarSystemRequest ssReqEntry model.hostConfig
-        , sendRoguesRequest ssReqEntry model.hostConfig
-        , sendMapLabelsRequest ssReqEntry model.hostConfig
+        [ initFetchCmds
         , sendSectorRequest secReqEntry model.hostConfig
-        , sendRegionRequest secReqEntry model.hostConfig -- Josh to fix later
         , sendRouteRequest routeReqEntry model.hostConfig
-        , sendJumpRouteLinksRequest model.hostConfig
         , sendTravelZonesRequest model.hostConfig
         , sendJumpRouteLayersRequest model.hostConfig
         , if referee then
@@ -3132,7 +3402,7 @@ viewHexLoading hx hy x y size hexColour isRegionFill themeIsLight =
 
 type alias ViewHexOpts =
     { hexSize : Float
-    , solarSystemDict : SolarSystemDict
+    , starSystemDict : StarSystemDict
     , hexAddress : HexAddress
     , vox : Int
     , voy : Int
@@ -3152,14 +3422,14 @@ type alias ViewHexOpts =
 viewHex : ViewHexOpts -> ( Svg Msg, Svg Msg )
 viewHex options =
     let
-        remoteSolarSystem =
-            Dict.get (HexAddress.toKey options.hexAddress) options.solarSystemDict
+        remoteStarSystem =
+            Dict.get (HexAddress.toKey options.hexAddress) options.starSystemDict
 
         viewEmptyHelper txt =
             Svg.Lazy.lazy7 viewHexEmpty options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize txt { colour = options.hexColour, isRegionFill = options.isRegionFill, themeIsLight = options.themeIsLight }
     in
-    case remoteSolarSystem of
-        Just (LoadedSolarSystem loadedSystem) ->
+    case remoteStarSystem of
+        Just (LoadedStarSystem loadedSystem) ->
             let
                 hexapointsStr =
                     convertRawHexagonPoints ( toFloat options.vox, toFloat options.voy ) options.rawHexaPoints
@@ -3186,12 +3456,12 @@ viewHex options =
             , Svg.Lazy.lazy renderHexContent opts
             )
 
-        Just LoadingSolarSystem ->
+        Just LoadingStarSystem ->
             ( viewHexLoading options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize options.hexColour options.isRegionFill options.themeIsLight
             , Svg.text ""
             )
 
-        Just (FailedSolarSystem _) ->
+        Just (FailedStarSystem _) ->
             ( viewEmptyHelper "Failed."
             , Svg.text ""
             )
@@ -3206,7 +3476,7 @@ viewHex options =
             , Svg.text ""
             )
 
-        Just (FailedStarsSolarSystem _) ->
+        Just (FailedStarsStarSystem _) ->
             ( Svg.Lazy.lazy7 viewHexEmpty options.hexAddress.x options.hexAddress.y options.vox options.voy options.hexSize "Star Failed." { colour = "#aaaaaa", isRegionFill = True, themeIsLight = options.themeIsLight }
             , Svg.text ""
             )
@@ -3274,17 +3544,17 @@ rogueResponseItemDecoder =
         (JsDecode.field "survey_index" JsDecode.int)
 
 
-type RemoteSolarSystem
-    = LoadedSolarSystem StarSystem
+type RemoteStarSystem
+    = LoadedStarSystem StarSystem
     | LoadedEmptyHex
     | LoadedRogueHex RogueHexData
-    | LoadingSolarSystem
-    | FailedStarsSolarSystem FallibleStarSystem
-    | FailedSolarSystem Http.Error
+    | LoadingStarSystem
+    | FailedStarsStarSystem FallibleStarSystem
+    | FailedStarSystem Http.Error
 
 
-type alias SolarSystemDict =
-    Dict.Dict String RemoteSolarSystem
+type alias StarSystemDict =
+    Dict.Dict String RemoteStarSystem
 
 
 type HorizontalOffsetDir
@@ -3637,8 +3907,8 @@ mapLabelSvg hexSize cx cy mapLabel =
             Svg.g [ SvgAttrs.pointerEvents "none" ] (iconSvg ++ [ textSvg ])
 
 
-hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> SolarSystemDict -> String
-hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict =
+hexBackgroundColour : DisplayMode -> Bool -> Bool -> String -> StarSystemDict -> String
+hexBackgroundColour displayMode themeIsLight referee hexKey starSystemDict =
     let
         defaultBg =
             if themeIsLight then
@@ -3648,10 +3918,10 @@ hexBackgroundColour displayMode themeIsLight referee hexKey solarSystemDict =
                 "#000000"
     in
     if referee then
-        case Dict.get hexKey solarSystemDict of
+        case Dict.get hexKey starSystemDict of
             Just rss ->
                 case rss of
-                    LoadedSolarSystem system ->
+                    LoadedStarSystem system ->
                         if displayMode == ShowHabitability then
                             habitabilityColour themeIsLight system.habitabilityRating
 
@@ -3685,7 +3955,7 @@ type alias ViewHexesConfig =
     , svgHeight : Float
     , maxAcross : Int
     , maxTall : Int
-    , solarSystemDict : SolarSystemDict
+    , starSystemDict : StarSystemDict
     , hexColours : HexColorDict
     , regionLabels : RegionLabelDict
     , regions : RegionDict
@@ -3796,10 +4066,10 @@ viewHexes config =
                                     ( selectedHexBg, False )
 
                                 else
-                                    ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict, False )
+                                    ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.starSystemDict, False )
 
                             Nothing ->
-                                ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.solarSystemDict, False )
+                                ( hexBackgroundColour config.displayMode config.themeIsLight config.isReferee hexKey config.starSystemDict, False )
 
         -- Survey Overlay's rule-highlight colour, rendered as its own SVG layer
         -- above the background-name watermark (see `keyedRuleOverlays`) rather
@@ -3808,11 +4078,11 @@ viewHexes config =
         ruleOverlayFill : String -> Maybe String
         ruleOverlayFill hexKey =
             HighlightRule.matchColour config.highlightRules
-                (Dict.get hexKey config.solarSystemDict
+                (Dict.get hexKey config.starSystemDict
                     |> Maybe.andThen
                         (\remote ->
                             case remote of
-                                LoadedSolarSystem system ->
+                                LoadedStarSystem system ->
                                     Just system
 
                                 _ ->
@@ -3897,7 +4167,7 @@ viewHexes config =
             ( hexAddr
             , viewHex
                 { hexSize = config.hexSize
-                , solarSystemDict = config.solarSystemDict
+                , starSystemDict = config.starSystemDict
                 , hexAddress = hexAddr
                 , vox = vox
                 , voy = voy
@@ -3956,8 +4226,8 @@ viewHexes config =
                             ( hexColour, isRegionFill ) =
                                 computeHexColour hexAddr hexKey
                         in
-                        case Dict.get hexKey config.solarSystemDict of
-                            Just (LoadedSolarSystem loadedSystem) ->
+                        case Dict.get hexKey config.starSystemDict of
+                            Just (LoadedStarSystem loadedSystem) ->
                                 renderHexSystemLabels
                                     { starSystem = loadedSystem
                                     , hexColour = hexColour
@@ -4249,7 +4519,7 @@ viewHexes config =
                                 Just
                                     (Svg.g
                                         [ SvgAttrs.stroke (Color.Convert.colorToHex colour)
-                                        , SvgAttrs.strokeWidth "2.5"
+                                        , SvgAttrs.strokeWidth "4.5"
                                         , SvgAttrs.strokeLinecap "round"
                                         , SvgAttrs.fill "none"
                                         , SvgAttrs.pointerEvents "none"
@@ -6046,7 +6316,7 @@ viewHexMap model =
         , svgHeight = svgHeight
         , maxAcross = maxAcross
         , maxTall = maxTall
-        , solarSystemDict = model.solarSystems
+        , starSystemDict = model.starSystems
         , hexColours = model.hexColours
         , regionLabels = model.regionLabels
         , regions = model.regions
@@ -6066,7 +6336,7 @@ viewHexMap model =
         , maybeSelectedHex = model.selectedHex
         , isReferee = model.isReferee
         , panOffset = model.panOffset
-        , jumpRouteLinks = model.jumpRouteLinks
+        , jumpRouteLinks = Dict.values model.jumpRouteLinks
         , hiddenJumpRouteIds = model.hiddenJumpRouteIds
         , rogueObjectPathData = model.rogueObjectPathData
         , facilityIcons = model.facilityIcons
@@ -6123,8 +6393,8 @@ viewHoverTooltip model =
                         universalHexLabel model.sectors hoveringHex
 
                     maybeSystemName =
-                        case Dict.get (HexAddress.toKey hoveringHex) model.solarSystems of
-                            Just (LoadedSolarSystem system) ->
+                        case Dict.get (HexAddress.toKey hoveringHex) model.starSystems of
+                            Just (LoadedStarSystem system) ->
                                 if system.name /= "" then
                                     Just system.name
 
@@ -6316,17 +6586,17 @@ view ( time, model ) =
             , setSurveyIndex = SetSurveyIndex
             }
 
-        solarSystemStatus =
+        starSystemStatus =
             case model.selectedHex of
                 Just viewingAddress ->
-                    case model.solarSystems |> Dict.get (HexAddress.toKey viewingAddress) of
-                        Just LoadingSolarSystem ->
+                    case model.starSystems |> Dict.get (HexAddress.toKey viewingAddress) of
+                        Just LoadingStarSystem ->
                             Just "Acquiring signal..."
 
-                        Just (FailedSolarSystem _) ->
+                        Just (FailedStarSystem _) ->
                             Just "failed."
 
-                        Just (FailedStarsSolarSystem _) ->
+                        Just (FailedStarsStarSystem _) ->
                             Just "decoding a star failed"
 
                         Nothing ->
@@ -6345,7 +6615,7 @@ view ( time, model ) =
 
         sidebarData =
             { selectedHex = model.selectedHex
-            , solarSystemStatus = solarSystemStatus
+            , starSystemStatus = starSystemStatus
             , sectors = model.sectors
             , regions = model.regions
             , selectedSystem = model.selectedSystem
@@ -6450,8 +6720,8 @@ view ( time, model ) =
                  else
                     Element.htmlAttribute <| HtmlAttrs.class ""
                , case ( model.showTravelTable, model.selectedSystem ) of
-                    ( True, Just solarSystem ) ->
-                        Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive solarSystem
+                    ( True, Just starSystemDetail ) ->
+                        Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive starSystemDetail
 
                     _ ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -6539,15 +6809,15 @@ view ( time, model ) =
                     Element.htmlAttribute <| HtmlAttrs.class ""
             ]
             contentColumn
-        , Element.html <| errorDialog model.newSolarSystemErrors
+        , Element.html <| errorDialog model.newStarSystemErrors
         ]
 
 
-sendSolarSystemRequest : RequestEntry -> HostConfig -> Cmd Msg
-sendSolarSystemRequest requestEntry hostConfig =
+sendStarSystemRequest : RequestEntry -> DisplayMode -> HostConfig -> Cmd Msg
+sendStarSystemRequest requestEntry displayMode hostConfig =
     let
-        solarSystemsDecoder : JsDecode.Decoder (List FallibleStarSystem)
-        solarSystemsDecoder =
+        starSystemsDecoder : JsDecode.Decoder (List FallibleStarSystem)
+        starSystemsDecoder =
             JsDecode.list fallibleStarSystemDecoder
 
         ( urlHostRoot, urlHostPath ) =
@@ -6561,6 +6831,7 @@ sendSolarSystemRequest requestEntry hostConfig =
                 , Url.Builder.int "uly" requestEntry.upperLeftHex.y
                 , Url.Builder.int "lrx" requestEntry.lowerRightHex.x
                 , Url.Builder.int "lry" requestEntry.lowerRightHex.y
+                , Url.Builder.string "display_mode" (displayModeToString displayMode)
                 ]
     in
     -- using Http.request instead of Http.get, to allow setting a timeout
@@ -6569,8 +6840,8 @@ sendSolarSystemRequest requestEntry hostConfig =
         , headers = []
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson (DownloadedSolarSystems ( requestEntry, url )) solarSystemsDecoder
-        , timeout = Just 15000
+        , expect = Http.expectJson (DownloadedStarSystems ( requestEntry, url )) starSystemsDecoder
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -6597,7 +6868,7 @@ sendRoguesRequest requestEntry hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson (DownloadedRogues url) (JsDecode.list rogueResponseItemDecoder)
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -6629,7 +6900,7 @@ sendMapLabelsRequest requestEntry hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson (DownloadedMapLabels url) mapLabelsDecoder
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -6698,19 +6969,19 @@ sendRouteRequest requestEntry hostConfig =
                 , url = url
                 , body = Http.emptyBody
                 , expect = Http.expectJson (DownloadedRoute ( requestEntry, url )) routeDecoder
-                , timeout = Just 15000
+                , timeout = Just mapDataRequestTimeoutMs
                 , tracker = Nothing
                 }
     in
     requestCmd
 
 
-fetchSingleSolarSystemRequest : HostConfig -> SectorHexAddress -> Cmd Msg
-fetchSingleSolarSystemRequest hostConfig hex =
+fetchStarSystemDetailRequest : HostConfig -> SectorHexAddress -> Cmd Msg
+fetchStarSystemDetailRequest hostConfig hex =
     let
-        solarSystemDecoder : JsDecode.Decoder SolarSystem
-        solarSystemDecoder =
-            SolarSystem.codec |> Codec.decoder
+        starSystemDetailDecoder : JsDecode.Decoder StarSystemDetail
+        starSystemDetailDecoder =
+            StarSystemDetail.codec |> Codec.decoder
 
         ( urlHostRoot, urlHostPath ) =
             hostConfig
@@ -6732,7 +7003,7 @@ fetchSingleSolarSystemRequest hostConfig hex =
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson FetchedSolarSystem solarSystemDecoder
+                , expect = Http.expectJson FetchedStarSystemDetail starSystemDetailDecoder
                 , timeout = Just 5000
                 , tracker = Nothing
                 }
@@ -7210,7 +7481,7 @@ updateJourney journeyMsg ( time, { journeyModel } as model ) =
                             in
                             let
                                 ( updatedModel, downloadCmds ) =
-                                    update DownloadSolarSystems ( time, newModel )
+                                    update DownloadStarSystems ( time, newModel )
                             in
                             ( updatedModel, Cmd.batch [ storeViewMode "HexMap", saveMapCoords newHexRect.upperLeftHex, savePanOffset { x = 0, y = 0 }, downloadCmds ] )
                     in
@@ -7331,33 +7602,60 @@ update msg ( time, model ) =
                             , saveHexSize newSize
                             )
                     in
-                    update DownloadSolarSystems (withTime newModel_)
+                    update DownloadStarSystems (withTime newModel_)
                         |> Tuple.mapSecond (\newestCmds -> Cmd.batch [ newCmds_, newestCmds ])
             in
             ( newModel, newCmds )
 
         RefreshMap ->
             let
-                clearedSolarSystems =
+                clearedStarSystems =
                     HexAddress.between model.hexRect.upperLeftHex model.hexRect.lowerRightHex
-                        |> List.foldl (\addr dict -> Dict.remove (HexAddress.toKey addr) dict) model.solarSystems
-            in
-            update DownloadSolarSystems (withTime { model | solarSystems = clearedSolarSystems })
+                        |> List.foldl (\addr dict -> Dict.remove (HexAddress.toKey addr) dict) model.starSystems
 
-        DownloadSolarSystems ->
+                clearedRegionsCoverage =
+                    unmarkCovered model.hexRect model.regionsCoverage
+
+                clearedJumpRouteLinksCoverage =
+                    unmarkCovered model.hexRect model.jumpRouteLinksCoverage
+            in
+            update DownloadStarSystems
+                (withTime
+                    { model
+                        | starSystems = clearedStarSystems
+                        , regionsCoverage = clearedRegionsCoverage
+                        , jumpRouteLinksCoverage = clearedJumpRouteLinksCoverage
+                    }
+                )
+
+        DownloadStarSystems ->
             let
-                ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
-                    prepAndSendRequests ( model.solarSystems, model.requestHistory ) model.hexRect model.hostConfig
+                ( newState, cmds ) =
+                    prepAndSendRequests
+                        { starSystems = model.starSystems
+                        , requestHistory = model.requestHistory
+                        , regionsCoverage = model.regionsCoverage
+                        , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                        , pendingStarSystemTiles = model.pendingStarSystemTiles
+                        , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                        }
+                        model.hexRect
+                        model.displayMode
+                        model.hostConfig
             in
             ( withTime
                 { model
-                    | requestHistory = newRequestHistory
-                    , solarSystems = newSolarSystemDict
+                    | requestHistory = newState.requestHistory
+                    , starSystems = newState.starSystems
+                    , regionsCoverage = newState.regionsCoverage
+                    , jumpRouteLinksCoverage = newState.jumpRouteLinksCoverage
+                    , pendingStarSystemTiles = newState.pendingStarSystemTiles
+                    , inFlightStarSystemTiles = newState.inFlightStarSystemTiles
                 }
             , cmds
             )
 
-        DownloadedSolarSystems ( requestEntry, url_ ) (Ok fallibleSolarSystems) ->
+        DownloadedStarSystems ( requestEntry, url_ ) (Ok fallibleStarSystems) ->
             let
                 rangeAsPairs =
                     HexAddress.between requestEntry.upperLeftHex requestEntry.lowerRightHex
@@ -7368,12 +7666,12 @@ update msg ( time, model ) =
                                         HexAddress.toKey addr
                                 in
                                 ( addrKey
-                                , case Dict.get addrKey sortedSolarSystems of
+                                , case Dict.get addrKey sortedStarSystems of
                                     Just system ->
                                         system
 
                                     Nothing ->
-                                        case Dict.get addrKey model.solarSystems of
+                                        case Dict.get addrKey model.starSystems of
                                             Just (LoadedRogueHex data) ->
                                                 LoadedRogueHex data
 
@@ -7386,11 +7684,11 @@ update msg ( time, model ) =
                     potentiallyNewErrors
                         |> List.filter
                             (\( newErr, errUrl ) ->
-                                List.member newErr (model.oldSolarSystemErrors |> List.map Tuple.first) |> not
+                                List.member newErr (model.oldStarSystemErrors |> List.map Tuple.first) |> not
                             )
 
-                ( sortedSolarSystems, potentiallyNewErrors ) =
-                    fallibleSolarSystems
+                ( sortedStarSystems, potentiallyNewErrors ) =
+                    fallibleStarSystems
                         |> List.foldl
                             (\fallibleSystem ( systems, errs ) ->
                                 let
@@ -7443,7 +7741,7 @@ update msg ( time, model ) =
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
-                                      , LoadedSolarSystem starSystem
+                                      , LoadedStarSystem starSystem
                                       )
                                         :: systems
                                     , errs
@@ -7451,7 +7749,7 @@ update msg ( time, model ) =
 
                                 else
                                     ( ( HexAddress.toKey fallibleSystem.address
-                                      , FailedStarsSolarSystem fallibleSystem
+                                      , FailedStarsStarSystem fallibleSystem
                                       )
                                         :: systems
                                     , (fallibleSystem.stars
@@ -7480,7 +7778,7 @@ update msg ( time, model ) =
                     , y = (model.hexRect.upperLeftHex.y + model.hexRect.lowerRightHex.y) // 2
                     }
 
-                solarSystemDict =
+                starSystemDict =
                     rangeAsPairs
                         |> Dict.fromList
                         |> (\newDict ->
@@ -7490,20 +7788,35 @@ update msg ( time, model ) =
                         |> evictDistantEntries viewportCentre model.hexRect
 
                 existingDict =
-                    model.solarSystems
+                    model.starSystems
 
                 newRequestHistory =
                     markRequestComplete requestEntry (RemoteData.Success ()) model.requestHistory
+
+                ( releasedState, releaseCmd ) =
+                    releaseNextStarSystemTile
+                        { starSystems = starSystemDict
+                        , requestHistory = newRequestHistory
+                        , regionsCoverage = model.regionsCoverage
+                        , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                        , pendingStarSystemTiles = model.pendingStarSystemTiles
+                        , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                        }
+                        model.displayMode
+                        model.hostConfig
             in
             ( withTime
                 { model
-                    | solarSystems = solarSystemDict
-                    , newSolarSystemErrors = newErrors ++ model.newSolarSystemErrors
-                    , requestHistory = newRequestHistory
+                    | starSystems = releasedState.starSystems
+                    , newStarSystemErrors = newErrors ++ model.newStarSystemErrors
+                    , requestHistory = releasedState.requestHistory
+                    , pendingStarSystemTiles = releasedState.pendingStarSystemTiles
+                    , inFlightStarSystemTiles = releasedState.inFlightStarSystemTiles
                 }
             , Cmd.batch
                 [ Browser.Dom.getViewportOf "hexmap"
                     |> Task.attempt GotHexMapViewport
+                , releaseCmd
                 ]
             )
 
@@ -7525,16 +7838,38 @@ update msg ( time, model ) =
             )
 
         DownloadedSectors ( requestEntry, url ) (Err err) ->
-            ( withTime { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
+            ( withTime { model | newStarSystemErrors = ( err, url ) :: model.newStarSystemErrors }, Cmd.none )
 
-        DownloadedRegions requestEntry (Ok regions) ->
+        DownloadedRegions ( _, _ ) (Ok regions) ->
             let
-                visibleRegions =
-                    if model.isReferee then
+                -- A region's hex/borderHex lists only ever grow: each response is
+                -- clipped to whatever bbox was requested, so a region seen across
+                -- multiple viewport fetches accumulates the union of every hex
+                -- we've seen it touch, rather than losing previously-seen ones.
+                mergeRegion : Region -> Maybe Region -> Region
+                mergeRegion incoming existing =
+                    case existing of
+                        Nothing ->
+                            incoming
+
+                        Just prior ->
+                            { incoming
+                                | hexes = List.Extra.uniqueBy HexAddress.toKey (prior.hexes ++ incoming.hexes)
+                                , borderHexes = List.Extra.uniqueBy HexAddress.toKey (prior.borderHexes ++ incoming.borderHexes)
+                            }
+
+                mergedRegions =
+                    List.foldl
+                        (\region acc -> Dict.insert region.id (mergeRegion region (Dict.get region.id acc)) acc)
+                        model.regions
                         regions
 
+                visibleRegions =
+                    if model.isReferee then
+                        Dict.values mergedRegions
+
                     else
-                        List.filter .playerVisible regions
+                        Dict.values mergedRegions |> List.filter .playerVisible
 
                 parsecList : Region -> List ( String, Color )
                 parsecList region =
@@ -7545,21 +7880,10 @@ update msg ( time, model ) =
                         Nothing ->
                             []
 
-                regionDict =
-                    List.foldl
-                        (\region acc ->
-                            Dict.insert region.id region acc
-                        )
-                        Dict.empty
-                        visibleRegions
-
                 hexColourDict : Dict.Dict String Color
                 hexColourDict =
-                    List.map
-                        (\region ->
-                            parsecList region
-                        )
-                        visibleRegions
+                    visibleRegions
+                        |> List.map parsecList
                         |> List.concat
                         |> Dict.fromList
 
@@ -7573,96 +7897,28 @@ update msg ( time, model ) =
 
                 regionLabelDict : Dict.Dict String String
                 regionLabelDict =
-                    List.filterMap
-                        (\region ->
-                            Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
-                                region.labelPosition
-                                (region.label |> Maybe.andThen nonBlank)
-                        )
-                        visibleRegions
+                    visibleRegions
+                        |> List.filterMap
+                            (\region ->
+                                Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
+                                    region.labelPosition
+                                    (region.label |> Maybe.andThen nonBlank)
+                            )
                         |> Dict.fromList
             in
             ( withTime
                 { model
-                    | regions = regionDict
+                    | regions = mergedRegions
                     , hexColours = hexColourDict
                     , regionLabels = regionLabelDict
                 }
             , Cmd.none
             )
 
-        DownloadedRegions ( requestEntry, url ) (Err err) ->
-            let
-                parsecList : Region -> List ( String, Color )
-                parsecList region =
-                    case region.colour of
-                        Just colour ->
-                            List.map (\p -> ( HexAddress.toKey p, colour )) region.hexes
-
-                        Nothing ->
-                            []
-
-                stub : Region
-                stub =
-                    { id = 1
-                    , colour = Just Color.blue
-                    , borderColour = Nothing
-                    , name = "Stub Hennlix Nebula"
-                    , label = Just "Stub Hennlix Nebula"
-                    , playerVisible = True
-                    , labelPosition = Just { x = -308, y = -104 }
-                    , hexes =
-                        [ { x = -308, y = -104 }
-                        , { x = -308, y = -105 }
-                        , { x = -307, y = -104 }
-                        , { x = -309, y = -104 }
-                        ]
-                    , borderHexes = []
-                    }
-
-                hexColourDict : Dict.Dict String Color
-                hexColourDict =
-                    List.map
-                        (\region ->
-                            parsecList region
-                        )
-                        [ stub ]
-                        |> List.concat
-                        |> Dict.fromList
-
-                nonBlank : String -> Maybe String
-                nonBlank str =
-                    if String.trim str == "" then
-                        Nothing
-
-                    else
-                        Just str
-
-                regionLabelDict : Dict.Dict String String
-                regionLabelDict =
-                    List.filterMap
-                        (\region ->
-                            Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
-                                region.labelPosition
-                                (region.label |> Maybe.andThen nonBlank)
-                        )
-                        [ stub ]
-                        |> Dict.fromList
-            in
-            ( withTime
-                { model
-                    | regions = Dict.fromList [ ( 1, stub ) ]
-                    , hexColours = hexColourDict
-                    , regionLabels = regionLabelDict
-                }
-            , Cmd.none
-            )
-
-        --let
-        --    _ =
-        --        Debug.log "Regions did not work" err
-        --in
-        --( { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
+        DownloadedRegions ( hexRect, _ ) (Err _) ->
+            -- Leave previously-accumulated regions alone; just un-mark this rect
+            -- as covered so the next pan over it naturally retries the fetch.
+            ( withTime { model | regionsCoverage = unmarkCovered hexRect model.regionsCoverage }, Cmd.none )
         DownloadedRoute ( requestEntry, url ) (Ok route) ->
             let
                 firstEntry =
@@ -7687,15 +7943,21 @@ update msg ( time, model ) =
                     )
 
         DownloadedRoute ( requestEntry, url ) (Err err) ->
-            ( withTime { model | newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors }, Cmd.none )
+            ( withTime { model | newStarSystemErrors = ( err, url ) :: model.newStarSystemErrors }, Cmd.none )
 
-        DownloadedJumpRouteLinks (Ok links) ->
-            ( withTime { model | jumpRouteLinks = links }, Cmd.none )
+        DownloadedJumpRouteLinks ( _, _ ) (Ok links) ->
+            let
+                newLinksById =
+                    links |> List.map (\link -> ( link.id, link )) |> Dict.fromList
+            in
+            ( withTime { model | jumpRouteLinks = Dict.union newLinksById model.jumpRouteLinks }, Cmd.none )
 
-        DownloadedJumpRouteLinks (Err _) ->
-            ( withTime model, Cmd.none )
+        DownloadedJumpRouteLinks ( hexRect, _ ) (Err _) ->
+            -- Leave previously-accumulated links alone; just un-mark this rect as
+            -- covered so the next pan over it naturally retries the fetch.
+            ( withTime { model | jumpRouteLinksCoverage = unmarkCovered hexRect model.jumpRouteLinksCoverage }, Cmd.none )
 
-        FetchedSolarSystem (Ok solarSystem) ->
+        FetchedStarSystemDetail (Ok starSystemDetail) ->
             if model.pendingCtrlNavigation then
                 let
                     ( _, pathParts ) =
@@ -7705,7 +7967,7 @@ update msg ( time, model ) =
                         List.take 2 pathParts |> String.join "/"
 
                     url =
-                        "/" ++ campaignPrefix ++ "/star_systems/" ++ String.fromInt solarSystem.id
+                        "/" ++ campaignPrefix ++ "/star_systems/" ++ String.fromInt starSystemDetail.id
                 in
                 ( withTime { model | pendingCtrlNavigation = False }
                 , navigateToUrl url
@@ -7718,10 +7980,10 @@ update msg ( time, model ) =
                             refereeSI
 
                         else
-                            solarSystem.surveyIndex
+                            starSystemDetail.surveyIndex
 
                     updatedSS =
-                        { solarSystem
+                        { starSystemDetail
                             | surveyIndex = si
                         }
                 in
@@ -7732,17 +7994,17 @@ update msg ( time, model ) =
                 , Cmd.none
                 )
 
-        FetchedSolarSystem (Err (Http.BadBody err)) ->
-            ( withTime { model | pendingCtrlNavigation = False, newSolarSystemErrors = model.newSolarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
+        FetchedStarSystemDetail (Err (Http.BadBody err)) ->
+            ( withTime { model | pendingCtrlNavigation = False, newStarSystemErrors = model.newStarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
 
-        FetchedSolarSystem (Err err) ->
+        FetchedStarSystemDetail (Err err) ->
             ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
 
         SetKnown known ->
             case model.selectedSystem of
-                Just solarSystem ->
-                    ( withTime { model | selectedSystem = Just { solarSystem | known = known } }
-                    , updateStarSystemKnown model.hostConfig solarSystem.id known
+                Just starSystemDetail ->
+                    ( withTime { model | selectedSystem = Just { starSystemDetail | known = known } }
+                    , updateStarSystemKnown model.hostConfig starSystemDetail.id known
                     )
 
                 Nothing ->
@@ -7750,27 +8012,27 @@ update msg ( time, model ) =
 
         SetSurveyIndex surveyIndex ->
             case model.selectedSystem of
-                Just solarSystem ->
-                    ( withTime { model | selectedSystem = Just { solarSystem | actualSurveyIndex = surveyIndex } }
-                    , updateStarSystemSurveyIndex model.hostConfig solarSystem.id surveyIndex
+                Just starSystemDetail ->
+                    ( withTime { model | selectedSystem = Just { starSystemDetail | actualSurveyIndex = surveyIndex } }
+                    , updateStarSystemSurveyIndex model.hostConfig starSystemDetail.id surveyIndex
                     )
 
                 Nothing ->
                     ( withTime model, Cmd.none )
 
         KnownSaved (Err err) ->
-            ( withTime { model | newSolarSystemErrors = ( err, "known" ) :: model.newSolarSystemErrors }, Cmd.none )
+            ( withTime { model | newStarSystemErrors = ( err, "known" ) :: model.newStarSystemErrors }, Cmd.none )
 
         KnownSaved (Ok ()) ->
             ( withTime model, Cmd.none )
 
         SurveyIndexSaved (Err err) ->
-            ( withTime { model | newSolarSystemErrors = ( err, "survey_index" ) :: model.newSolarSystemErrors }, Cmd.none )
+            ( withTime { model | newStarSystemErrors = ( err, "survey_index" ) :: model.newStarSystemErrors }, Cmd.none )
 
         SurveyIndexSaved (Ok ()) ->
             ( withTime model, Cmd.none )
 
-        DownloadedSolarSystems ( requestEntry, url ) (Err err) ->
+        DownloadedStarSystems ( requestEntry, url ) (Err err) ->
             let
                 newRequestHistory =
                     markRequestComplete requestEntry (RemoteData.Failure err) model.requestHistory
@@ -7785,33 +8047,33 @@ update msg ( time, model ) =
                                 in
                                 ( addrKey
                                 , Dict.get addrKey existingDict
-                                    |> (\maybeSolarsystem ->
-                                            case maybeSolarsystem of
-                                                Just LoadingSolarSystem ->
-                                                    FailedSolarSystem err
+                                    |> (\maybeStarSystem ->
+                                            case maybeStarSystem of
+                                                Just LoadingStarSystem ->
+                                                    FailedStarSystem err
 
                                                 Just LoadedEmptyHex ->
-                                                    FailedSolarSystem err
+                                                    FailedStarSystem err
 
-                                                Just (FailedSolarSystem _) ->
-                                                    FailedSolarSystem err
+                                                Just (FailedStarSystem _) ->
+                                                    FailedStarSystem err
 
-                                                Just (LoadedSolarSystem solarSystem) ->
-                                                    LoadedSolarSystem solarSystem
+                                                Just (LoadedStarSystem starSystem) ->
+                                                    LoadedStarSystem starSystem
 
-                                                Just (FailedStarsSolarSystem _) ->
-                                                    FailedSolarSystem err
+                                                Just (FailedStarsStarSystem _) ->
+                                                    FailedStarSystem err
 
                                                 Just (LoadedRogueHex data) ->
                                                     LoadedRogueHex data
 
                                                 Nothing ->
-                                                    FailedSolarSystem err
+                                                    FailedStarSystem err
                                        )
                                 )
                             )
 
-                solarSystemDict =
+                starSystemDict =
                     rangeAsPairs
                         |> Dict.fromList
                         |> (\newDict ->
@@ -7820,16 +8082,30 @@ update msg ( time, model ) =
                            )
 
                 existingDict =
-                    model.solarSystems
+                    model.starSystems
+
+                ( releasedState, releaseCmd ) =
+                    releaseNextStarSystemTile
+                        { starSystems = starSystemDict
+                        , requestHistory = newRequestHistory
+                        , regionsCoverage = model.regionsCoverage
+                        , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                        , pendingStarSystemTiles = model.pendingStarSystemTiles
+                        , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                        }
+                        model.displayMode
+                        model.hostConfig
             in
             ( withTime
                 { model
-                    | solarSystems = solarSystemDict
-                    , newSolarSystemErrors = ( err, url ) :: model.newSolarSystemErrors
-                    , lastSolarSystemError = Just err
-                    , requestHistory = newRequestHistory
+                    | starSystems = releasedState.starSystems
+                    , newStarSystemErrors = ( err, url ) :: model.newStarSystemErrors
+                    , lastStarSystemError = Just err
+                    , requestHistory = releasedState.requestHistory
+                    , pendingStarSystemTiles = releasedState.pendingStarSystemTiles
+                    , inFlightStarSystemTiles = releasedState.inFlightStarSystemTiles
                 }
-            , Cmd.none
+            , releaseCmd
             )
 
         HoveringHex hoveringHex anchor ->
@@ -7870,7 +8146,7 @@ update msg ( time, model ) =
                     newHexRect =
                         { upperLeftHex = model.hexRect.upperLeftHex, lowerRightHex = newLowerRight }
                 in
-                update DownloadSolarSystems (withTime { model | viewport = newViewport, hexRect = newHexRect })
+                update DownloadStarSystems (withTime { model | viewport = newViewport, hexRect = newHexRect })
 
             else
                 ( withTime { model | viewport = newViewport }, Cmd.none )
@@ -7889,11 +8165,11 @@ update msg ( time, model ) =
             let
                 focusedErrors : List ( Http.Error, String )
                 focusedErrors =
-                    Dict.get (HexAddress.toKey hexAddress) model.solarSystems
+                    Dict.get (HexAddress.toKey hexAddress) model.starSystems
                         |> Maybe.map
                             (\system ->
                                 case system of
-                                    FailedStarsSolarSystem fallibleSystem ->
+                                    FailedStarsStarSystem fallibleSystem ->
                                         fallibleSystem.stars
                                             |> List.filterMap
                                                 (\res ->
@@ -7920,10 +8196,10 @@ update msg ( time, model ) =
                     , selectedSystem = Nothing
                     , showTravelTable = False
                     , showShipTraffic = False
-                    , newSolarSystemErrors = focusedErrors
+                    , newStarSystemErrors = focusedErrors
                     , sidebarOpen = True
                 }
-            , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+            , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
             )
 
         ToggleTravelTable ->
@@ -7938,14 +8214,14 @@ update msg ( time, model ) =
 
         OpenShipTraffic ->
             case model.selectedSystem of
-                Just solarSystem ->
+                Just starSystemDetail ->
                     ( withTime
                         { model
                             | showShipTraffic = True
                             , shipTraffic = RemoteData.Loading
                             , shipTrafficFrontier = False
                         }
-                    , sendShipTrafficRequest model.hostConfig solarSystem.id False
+                    , sendShipTrafficRequest model.hostConfig starSystemDetail.id False
                     )
 
                 Nothing ->
@@ -7958,9 +8234,9 @@ update msg ( time, model ) =
 
         RerollShipTraffic ->
             case model.selectedSystem of
-                Just solarSystem ->
+                Just starSystemDetail ->
                     ( withTime model
-                    , sendShipTrafficRequest model.hostConfig solarSystem.id model.shipTrafficFrontier
+                    , sendShipTrafficRequest model.hostConfig starSystemDetail.id model.shipTrafficFrontier
                     )
 
                 Nothing ->
@@ -7972,9 +8248,9 @@ update msg ( time, model ) =
                     not model.shipTrafficFrontier
             in
             case model.selectedSystem of
-                Just solarSystem ->
+                Just starSystemDetail ->
                     ( withTime { model | shipTrafficFrontier = newFrontier }
-                    , sendShipTrafficRequest model.hostConfig solarSystem.id newFrontier
+                    , sendShipTrafficRequest model.hostConfig starSystemDetail.id newFrontier
                     )
 
                 Nothing ->
@@ -8012,7 +8288,7 @@ update msg ( time, model ) =
                     { x = 0, y = model.panOffset.y + yCompensation }
 
                 ( newModel, downloadCmds ) =
-                    update DownloadSolarSystems
+                    update DownloadStarSystems
                         (withTime { model | hexRect = newHexRect, panOffset = newPanOffset })
             in
             ( newModel
@@ -8067,7 +8343,7 @@ update msg ( time, model ) =
             if hexDeltaX /= 0 || hexDeltaY /= 0 then
                 let
                     ( updatedModel, downloadCmds ) =
-                        update DownloadSolarSystems newModel
+                        update DownloadStarSystems newModel
                 in
                 ( updatedModel, Cmd.batch [ saveMapCoords newHexRect.upperLeftHex, savePanOffset newPanOffset, downloadCmds ] )
 
@@ -8089,14 +8365,28 @@ update msg ( time, model ) =
                     in
                     if isDrag then
                         let
-                            ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
-                                prepAndSendRequests ( model.solarSystems, model.requestHistory ) model.hexRect model.hostConfig
+                            ( newState, cmds ) =
+                                prepAndSendRequests
+                                    { starSystems = model.starSystems
+                                    , requestHistory = model.requestHistory
+                                    , regionsCoverage = model.regionsCoverage
+                                    , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                                    , pendingStarSystemTiles = model.pendingStarSystemTiles
+                                    , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                                    }
+                                    model.hexRect
+                                    model.displayMode
+                                    model.hostConfig
                         in
                         ( withTime
                             { model
                                 | dragMode = NoDragging
-                                , requestHistory = newRequestHistory
-                                , solarSystems = newSolarSystemDict
+                                , requestHistory = newState.requestHistory
+                                , starSystems = newState.starSystems
+                                , regionsCoverage = newState.regionsCoverage
+                                , jumpRouteLinksCoverage = newState.jumpRouteLinksCoverage
+                                , pendingStarSystemTiles = newState.pendingStarSystemTiles
+                                , inFlightStarSystemTiles = newState.inFlightStarSystemTiles
                             }
                         , Cmd.batch [ savePanOffset model.panOffset, cmds ]
                         )
@@ -8110,13 +8400,13 @@ update msg ( time, model ) =
                                             | dragMode = NoDragging
                                             , pendingCtrlNavigation = True
                                         }
-                                    , fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                    , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                                 else
                                     let
                                         rogueObjects =
-                                            case Dict.get (HexAddress.toKey hexAddress) model.solarSystems of
+                                            case Dict.get (HexAddress.toKey hexAddress) model.starSystems of
                                                 Just (LoadedRogueHex data) ->
                                                     Just data.objects
 
@@ -8124,11 +8414,11 @@ update msg ( time, model ) =
                                                     Nothing
 
                                         focusedErrors =
-                                            Dict.get (HexAddress.toKey hexAddress) model.solarSystems
+                                            Dict.get (HexAddress.toKey hexAddress) model.starSystems
                                                 |> Maybe.map
                                                     (\system ->
                                                         case system of
-                                                            FailedStarsSolarSystem fallibleSystem ->
+                                                            FailedStarsStarSystem fallibleSystem ->
                                                                 fallibleSystem.stars
                                                                     |> List.filterMap
                                                                         (\res ->
@@ -8157,7 +8447,7 @@ update msg ( time, model ) =
                                             , showTravelTable = False
                                             , showShipTraffic = False
                                             , selectedRogueObjects = rogueObjects
-                                            , newSolarSystemErrors = focusedErrors
+                                            , newStarSystemErrors = focusedErrors
                                             , sidebarOpen = True
                                         }
                                     , case rogueObjects of
@@ -8165,7 +8455,7 @@ update msg ( time, model ) =
                                             Cmd.none
 
                                         Nothing ->
-                                            fetchSingleSolarSystemRequest model.hostConfig <| toSectorAddress hexAddress
+                                            fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                             Nothing ->
@@ -8246,7 +8536,7 @@ update msg ( time, model ) =
             ( withTime { model | hoveringHex = Nothing, hoveringHexAnchor = Nothing, dragMode = NoDragging }, Cmd.none )
 
         ClearAllErrors ->
-            ( withTime { model | newSolarSystemErrors = [], oldSolarSystemErrors = model.newSolarSystemErrors ++ model.oldSolarSystemErrors }, Cmd.none )
+            ( withTime { model | newStarSystemErrors = [], oldStarSystemErrors = model.newStarSystemErrors ++ model.oldStarSystemErrors }, Cmd.none )
 
         JumpToShip ->
             update (ZoomToHex model.currentAddress True) <| withTime model
@@ -8287,14 +8577,28 @@ update msg ( time, model ) =
                                 }
                     }
 
-                ( ( newSolarSystemDict, newRequestHistory ), cmds ) =
-                    prepAndSendRequests ( model.solarSystems, model.requestHistory ) newHexRect model.hostConfig
+                ( newState, cmds ) =
+                    prepAndSendRequests
+                        { starSystems = model.starSystems
+                        , requestHistory = model.requestHistory
+                        , regionsCoverage = model.regionsCoverage
+                        , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                        , pendingStarSystemTiles = model.pendingStarSystemTiles
+                        , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                        }
+                        newHexRect
+                        model.displayMode
+                        model.hostConfig
             in
             ( withTime
                 { model
                     | hexRect = newHexRect
-                    , requestHistory = newRequestHistory
-                    , solarSystems = newSolarSystemDict
+                    , requestHistory = newState.requestHistory
+                    , starSystems = newState.starSystems
+                    , regionsCoverage = newState.regionsCoverage
+                    , jumpRouteLinksCoverage = newState.jumpRouteLinksCoverage
+                    , pendingStarSystemTiles = newState.pendingStarSystemTiles
+                    , inFlightStarSystemTiles = newState.inFlightStarSystemTiles
                     , panOffset = { x = 0, y = 0 }
                 }
             , Cmd.batch
@@ -8317,7 +8621,7 @@ update msg ( time, model ) =
                 ( updatedModel, downloadCmds ) =
                     case targetMode of
                         HexMap ->
-                            update DownloadSolarSystems (withTime { model | viewMode = targetMode })
+                            update DownloadStarSystems (withTime { model | viewMode = targetMode })
 
                         FullJourney ->
                             ( withTime { model | viewMode = targetMode }, Cmd.none )
@@ -8326,44 +8630,36 @@ update msg ( time, model ) =
 
         SetDisplayMode mode ->
             let
-                modeString =
-                    case mode of
-                        ShowStars ->
-                            "Stars"
+                needsStrategic m =
+                    m == ShowStrategic || m == ShowResource
 
-                        ShowMainWorld ->
-                            "MainWorld"
+                -- Entries already in model.starSystems may have been fetched while a
+                -- non-strategic mode was active, so they're missing `strategic` data —
+                -- clear the current viewport and refetch so it backfills. The reverse
+                -- (switching away from Strategic/Resource) needs no action: leftover
+                -- strategic data sitting unused in the cache is harmless.
+                switchingIntoStrategic =
+                    needsStrategic mode && not (needsStrategic model.displayMode)
 
-                        ShowWTN ->
-                            "WTN"
+                clearedStarSystems =
+                    if switchingIntoStrategic then
+                        HexAddress.between model.hexRect.upperLeftHex model.hexRect.lowerRightHex
+                            |> List.foldl (\addr dict -> Dict.remove (HexAddress.toKey addr) dict) model.starSystems
 
-                        ShowGWP ->
-                            "GWP"
+                    else
+                        model.starSystems
 
-                        ShowTradeCodes ->
-                            "TradeCodes"
+                modelWithMode =
+                    { model | displayMode = mode, showMapDisplayDropdown = False, starSystems = clearedStarSystems }
 
-                        ShowImportance ->
-                            "Importance"
+                ( newModel, downloadCmds ) =
+                    if switchingIntoStrategic then
+                        update DownloadStarSystems (withTime modelWithMode)
 
-                        ShowStrategic ->
-                            "Strategic"
-
-                        ShowResource ->
-                            "Resource"
-
-                        ShowTechLevel ->
-                            "TechLevel"
-
-                        ShowHabitability ->
-                            "Habitability"
-
-                        ShowGovernment ->
-                            "Government"
+                    else
+                        ( withTime modelWithMode, Cmd.none )
             in
-            ( withTime { model | displayMode = mode, showMapDisplayDropdown = False }
-            , storeDisplayMode modeString
-            )
+            ( newModel, Cmd.batch [ storeDisplayMode (displayModeToString mode), downloadCmds ] )
 
         SetRegionDisplay mode ->
             let
@@ -8869,9 +9165,15 @@ update msg ( time, model ) =
                 { model
                     | jumpRouteLayers = List.filter (\r -> r.id /= routeId) model.jumpRouteLayers
                     , hiddenJumpRouteIds = newHidden
+                    -- A deleted layer's links must disappear, not linger from the
+                    -- accumulate-cache — invalidate and let the refetch below
+                    -- repopulate just the current viewport with fresh server truth.
+                    -- (Bypasses prepAndSendRequests, so mark coverage here too.)
+                    , jumpRouteLinks = Dict.empty
+                    , jumpRouteLinksCoverage = markCovered model.hexRect Set.empty
                 }
             , Cmd.batch
-                [ sendJumpRouteLinksRequest model.hostConfig
+                [ sendJumpRouteLinksRequest model.hexRect model.hostConfig
                 , storeHiddenJumpRouteIds (Codec.encodeToValue JumpRouteLayer.hiddenIdsCodec newHidden)
                 ]
             )
@@ -8902,8 +9204,14 @@ update msg ( time, model ) =
                                         )
                                         model.jumpRouteLayers
                             in
-                            ( withTime { model | jumpRouteLayerEditor = Nothing, jumpRouteLayers = newLayers }
-                            , sendJumpRouteLinksRequest model.hostConfig
+                            ( withTime
+                                { model
+                                    | jumpRouteLayerEditor = Nothing
+                                    , jumpRouteLayers = newLayers
+                                    , jumpRouteLinks = Dict.empty
+                                    , jumpRouteLinksCoverage = markCovered model.hexRect Set.empty
+                                }
+                            , sendJumpRouteLinksRequest model.hexRect model.hostConfig
                             )
 
                         _ ->
@@ -8939,8 +9247,13 @@ update msg ( time, model ) =
                             ( withTime { model | routePlanForm = Nothing }, Cmd.none )
 
                         RoutePlanForm.GotSaveResult (Ok _) ->
-                            ( withTime { model | routePlanForm = Nothing }
-                            , sendJumpRouteLinksRequest model.hostConfig
+                            ( withTime
+                                { model
+                                    | routePlanForm = Nothing
+                                    , jumpRouteLinks = Dict.empty
+                                    , jumpRouteLinksCoverage = markCovered model.hexRect Set.empty
+                                }
+                            , sendJumpRouteLinksRequest model.hexRect model.hostConfig
                             )
 
                         RoutePlanForm.GotPlanResult (Ok planResult) ->
@@ -9965,18 +10278,18 @@ update msg ( time, model ) =
                     Dict.toList grouped
                         |> List.filterMap
                             (\( key, data ) ->
-                                case Dict.get key model.solarSystems of
-                                    Just (LoadedSolarSystem _) ->
+                                case Dict.get key model.starSystems of
+                                    Just (LoadedStarSystem _) ->
                                         Nothing
 
                                     _ ->
                                         Just ( key, LoadedRogueHex data )
                             )
 
-                newSolarSystems =
-                    List.foldl (\( k, v ) d -> Dict.insert k v d) model.solarSystems newEntries
+                newStarSystems =
+                    List.foldl (\( k, v ) d -> Dict.insert k v d) model.starSystems newEntries
             in
-            ( withTime { model | solarSystems = newSolarSystems }, Cmd.none )
+            ( withTime { model | starSystems = newStarSystems }, Cmd.none )
 
         DownloadedRogues _ (Err _) ->
             ( withTime model, Cmd.none )
@@ -10018,14 +10331,15 @@ cacheLimit =
     500
 
 
-{-| Removes entries furthest from centre (Chebyshev distance) when the dict
-exceeds cacheLimit. Hexes currently inside hexRect are never evicted, regardless
-of distance, so visible content is never blanked mid-render.
+{-| Given the full list of currently-held keys, returns the subset that should
+be evicted: whichever are furthest from centre (Chebyshev distance), stopping
+once at most `limit` remain. A key currently inside hexRect is never evicted,
+regardless of distance, so visible content is never blanked mid-render.
 -}
-evictDistantEntries : HexAddress -> HexRect -> SolarSystemDict -> SolarSystemDict
-evictDistantEntries centre hexRect dict =
-    if Dict.size dict <= cacheLimit then
-        dict
+keysToEvict : Int -> HexAddress -> HexRect -> List HexKey -> List HexKey
+keysToEvict limit centre hexRect keys =
+    if List.length keys <= limit then
+        []
 
     else
         let
@@ -10048,15 +10362,32 @@ evictDistantEntries centre hexRect dict =
 
                     _ ->
                         0
-
-            keysToRemove =
-                Dict.keys dict
-                    |> List.filter (\k -> not (Dict.member k viewportKeys))
-                    |> List.sortBy chebyshevDistance
-                    |> List.reverse
-                    |> List.take (max 0 (Dict.size dict - cacheLimit))
         in
-        List.foldl Dict.remove dict keysToRemove
+        keys
+            |> List.filter (\k -> not (Dict.member k viewportKeys))
+            |> List.sortBy chebyshevDistance
+            |> List.reverse
+            |> List.take (max 0 (List.length keys - limit))
+
+
+{-| Removes entries furthest from centre (Chebyshev distance) when the dict
+exceeds cacheLimit. See `keysToEvict`.
+-}
+evictDistantEntries : HexAddress -> HexRect -> StarSystemDict -> StarSystemDict
+evictDistantEntries centre hexRect dict =
+    keysToEvict cacheLimit centre hexRect (Dict.keys dict)
+        |> List.foldl Dict.remove dict
+
+
+{-| Same eviction policy as `evictDistantEntries`, but for a bare coverage
+`Set` (used by regions/jump-route-links, which track "have we asked the
+server about this hex" separately from the small, naturally-bounded entity
+payload itself — see the module comment near `regionsCoverage`).
+-}
+evictCoverage : HexAddress -> HexRect -> Set.Set HexKey -> Set.Set HexKey
+evictCoverage centre hexRect coverage =
+    keysToEvict cacheLimit centre hexRect (Set.toList coverage)
+        |> List.foldl Set.remove coverage
 
 
 markRequestComplete : RequestEntry -> RemoteData Http.Error () -> RequestHistory -> RequestHistory
@@ -10097,15 +10428,15 @@ sendSectorRequest requestEntry hostConfig =
                 , url = url
                 , body = Http.emptyBody
                 , expect = Http.expectJson (DownloadedSectors ( requestEntry, url )) sectorDecoder
-                , timeout = Just 15000
+                , timeout = Just mapDataRequestTimeoutMs
                 , tracker = Nothing
                 }
     in
     requestCmd
 
 
-sendRegionRequest : RequestEntry -> HostConfig -> Cmd Msg
-sendRegionRequest requestEntry hostConfig =
+sendRegionRequest : HexRect -> HostConfig -> Cmd Msg
+sendRegionRequest hexRect hostConfig =
     let
         regionsDecoder : JsDecode.Decoder (List Region)
         regionsDecoder =
@@ -10119,7 +10450,11 @@ sendRegionRequest requestEntry hostConfig =
             Url.Builder.crossOrigin
                 urlHostRoot
                 (urlHostPath ++ [ "regions" ])
-                []
+                [ Url.Builder.int "ulx" hexRect.upperLeftHex.x
+                , Url.Builder.int "uly" hexRect.upperLeftHex.y
+                , Url.Builder.int "lrx" hexRect.lowerRightHex.x
+                , Url.Builder.int "lry" hexRect.lowerRightHex.y
+                ]
 
         requestCmd =
             Http.request
@@ -10127,16 +10462,16 @@ sendRegionRequest requestEntry hostConfig =
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson (DownloadedRegions ( requestEntry, url )) regionsDecoder
-                , timeout = Just 15000
+                , expect = Http.expectJson (DownloadedRegions ( hexRect, url )) regionsDecoder
+                , timeout = Just mapDataRequestTimeoutMs
                 , tracker = Nothing
                 }
     in
     requestCmd
 
 
-sendJumpRouteLinksRequest : HostConfig -> Cmd Msg
-sendJumpRouteLinksRequest hostConfig =
+sendJumpRouteLinksRequest : HexRect -> HostConfig -> Cmd Msg
+sendJumpRouteLinksRequest hexRect hostConfig =
     let
         ( urlHostRoot, urlHostPath ) =
             hostConfig
@@ -10145,15 +10480,19 @@ sendJumpRouteLinksRequest hostConfig =
             Url.Builder.crossOrigin
                 urlHostRoot
                 (urlHostPath ++ [ "jump_route_links" ])
-                []
+                [ Url.Builder.int "ulx" hexRect.upperLeftHex.x
+                , Url.Builder.int "uly" hexRect.upperLeftHex.y
+                , Url.Builder.int "lrx" hexRect.lowerRightHex.x
+                , Url.Builder.int "lry" hexRect.lowerRightHex.y
+                ]
     in
     Http.request
         { method = "GET"
         , headers = []
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson DownloadedJumpRouteLinks (JsDecode.list jumpRouteLinkDecoder)
-        , timeout = Just 15000
+        , expect = Http.expectJson (DownloadedJumpRouteLinks ( hexRect, url )) (JsDecode.list jumpRouteLinkDecoder)
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10176,7 +10515,7 @@ sendTravelZonesRequest hostConfig =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson DownloadedTravelZones (JsDecode.list RoutePlan.travelZoneOptionDecoder)
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10189,7 +10528,7 @@ sendJumpRouteLayersRequest ( urlHostRoot, urlHostPath ) =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "jump_routes" ]) []
         , body = Http.emptyBody
         , expect = Http.expectJson DownloadedJumpRouteLayers JumpRouteLayer.routesDecoder
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10206,7 +10545,7 @@ sendSurveyOverlaysRequest ( urlHostRoot, urlHostPath ) =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays" ]) []
         , body = Http.emptyBody
         , expect = Http.expectJson GotSurveyOverlays HighlightRule.apiRulesDecoder
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10223,7 +10562,7 @@ sendCreateSurveyOverlayRequest ( urlHostRoot, urlHostPath ) rule =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays" ]) []
         , body = Http.jsonBody (HighlightRule.apiRuleEncodeBody rule)
         , expect = Http.expectWhatever SurveyOverlayMutated
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10236,7 +10575,7 @@ sendUpdateSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id rule =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
         , body = Http.jsonBody (HighlightRule.apiRuleEncodeBody rule)
         , expect = Http.expectWhatever SurveyOverlayMutated
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10249,7 +10588,7 @@ sendDeleteSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
         , body = Http.emptyBody
         , expect = Http.expectWhatever SurveyOverlayMutated
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10262,7 +10601,7 @@ sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id moveUp =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id, moveAction moveUp ]) []
         , body = Http.emptyBody
         , expect = Http.expectWhatever SurveyOverlayMutated
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
 
@@ -10284,6 +10623,6 @@ sendDeleteJumpRouteRequest ( urlHostRoot, urlHostPath ) routeId =
         , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "jump_routes", String.fromInt routeId ]) []
         , body = Http.emptyBody
         , expect = Http.expectWhatever (DeletedJumpRouteLayer routeId)
-        , timeout = Just 15000
+        , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }

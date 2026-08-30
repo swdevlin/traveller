@@ -27,7 +27,7 @@ import Color exposing (Color)
 import Json.Decode as JsDecode
 import Json.Encode as Encode
 import Traveller.Region exposing (codecColour)
-import Traveller.SolarSystemStars exposing (StarSystem, StarTypeData, getStarTypeData)
+import Traveller.StarSystemStars exposing (StarSystem, StarTypeData, getStarTypeData)
 
 
 {-| Every field a highlight rule can be built from: the eight UWP components,

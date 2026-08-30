@@ -6,7 +6,7 @@ import Expect
 import Json.Encode as Encode
 import Test exposing (Test, describe)
 import Traveller.HighlightRule as HighlightRule exposing (Condition, Field(..), Operator(..))
-import Traveller.SolarSystemStars exposing (StarSystem, StarType, starTypeCodec)
+import Traveller.StarSystemStars exposing (StarSystem, StarType, starTypeCodec)
 
 
 baseSystem : StarSystem

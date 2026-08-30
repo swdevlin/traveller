@@ -9,3 +9,20 @@ two:
   region: two
   parsec: two
   kind: fill
+
+three:
+  region: one
+  parsec: three
+  kind: fill
+
+four:
+  region: one
+  parsec: four
+  kind: border
+  position: 1
+
+five:
+  region: one
+  parsec: five
+  kind: border
+  position: 2

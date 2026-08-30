@@ -25,7 +25,7 @@ import Round
 import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Svg.Events as SE
-import Traveller.SolarSystem exposing (SolarSystem)
+import Traveller.StarSystemDetail exposing (StarSystemDetail)
 import Traveller.StarColour exposing (starFillColour)
 import Traveller.StellarObject
     exposing
@@ -290,14 +290,14 @@ terrestrialImageName pdata =
 -- ── ENTRY POINT ──────────────────────────────────────────────────────────────
 
 
-viewStarSystemMap : StellarObjectMsgs msg -> SolarSystem -> Bool -> Maybe Int -> Html msg
-viewStarSystemMap msgs solarSystem isReferee mDrive =
+viewStarSystemMap : StellarObjectMsgs msg -> StarSystemDetail -> Bool -> Maybe Int -> Html msg
+viewStarSystemMap msgs starSystemDetail isReferee mDrive =
     let
         showNames =
-            isReferee || solarSystem.surveyIndex >= 10
+            isReferee || starSystemDetail.surveyIndex >= 10
 
         layout =
-            computeLayout showNames solarSystem
+            computeLayout showNames starSystemDetail
 
         w =
             String.fromFloat layout.svgWidth
@@ -326,20 +326,20 @@ viewStarSystemMap msgs solarSystem isReferee mDrive =
 -- ── LAYOUT ───────────────────────────────────────────────────────────────────
 
 
-computeLayout : Bool -> SolarSystem -> MapLayout
-computeLayout showNames solarSystem =
+computeLayout : Bool -> StarSystemDetail -> MapLayout
+computeLayout showNames starSystemDetail =
     let
         si =
-            solarSystem.surveyIndex
+            starSystemDetail.surveyIndex
 
         primary =
-            getInnerStarData solarSystem.primaryStar
+            getInnerStarData starSystemDetail.primaryStar
 
         primaryX =
             nestX 0
 
         primaryNode =
-            makeStarNode solarSystem.primaryStar primaryX topY
+            makeStarNode starSystemDetail.primaryStar primaryX topY
 
         ( compNodes, compEdges ) =
             layoutCompanion primary.companion primaryX topY
@@ -1050,6 +1050,6 @@ maybeToList m =
             []
 
 
-systemNodes : Bool -> SolarSystem -> List MapNode
-systemNodes showNames solarSystem =
-    (computeLayout showNames solarSystem).nodes
+systemNodes : Bool -> StarSystemDetail -> List MapNode
+systemNodes showNames starSystemDetail =
+    (computeLayout showNames starSystemDetail).nodes
