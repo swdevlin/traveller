@@ -42,6 +42,13 @@ class SystemQueryBuilder
     condition[:negate] ? scope.where.not(id: matching_ids) : scope.where(id: matching_ids)
   end
 
+  # `field` is request-controlled (see `SystemQuery`), so this dispatch is the security
+  # boundary for every `column` string built below: each branch must resolve to a
+  # hardcoded literal (or, for `uwp_json_relation`, a value passed through `quote`),
+  # never `field`/`values` interpolated directly. That invariant is why the raw-SQL
+  # `where("#{column} ...")` calls in `numeric_predicate`/`boolean_column_relation`/
+  # `ranked_text_relation` are safe despite Brakeman flagging them (see
+  # `config/brakeman.ignore`) — don't break it when adding a field.
   def field_relation(field, operator, values)
     case field
     when *UWP_JSON_FIELDS then uwp_json_relation(field, operator, values)

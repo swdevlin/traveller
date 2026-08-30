@@ -1,0 +1,189 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "0cfea53ace4d220d380e2cb660db14f6c735662a9a78fab4d2fc2de527a170ab",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 220,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} < ?\", numeric_values.first)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "315ad895bb2146bcf88edd6063e8f65032dcfaf0cfcb6e5e7cfd82dc88642bea",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 226,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} BETWEEN ? AND ?\", lo, hi)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "375c247ab8c00fc6b132bf099f66159c588cdbfc8da2cdddd94b0c37bfdb524e",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 222,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} > ?\", numeric_values.first)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "4d968d90fdcd7b356699bdd10e935c3b9e65d95c7f1642976e20f59c6fe69b2d",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 219,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} IN (?)\", numeric_values)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "55825986fa9adf2688ab1308562b82e2c697414978a2b0b75ac2a39824fd92fe",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 218,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} = ?\", numeric_values.first)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "5f2745de715a4b46b906887f3b9f7a70a66c4d8982294c8b5514f89d36d262ad",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 221,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} <= ?\", numeric_values.first)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "8299bdc273eeccd5ffdbdd40f983768259290e926e376cf102c3d193f89a5b16",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 202,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "StarSystem.where(\"#{column} = ?\", (values.first == \"true\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "boolean_column_relation"
+      },
+      "user_input": "column",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "b424c5da413e2f6e0b9896e5149f01640886d9d04ef493346b5b566c37646eb8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/domain/system_query_builder.rb",
+      "line": 223,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "scope.where(\"#{column} >= ?\", numeric_values.first)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SystemQueryBuilder",
+        "method": "numeric_predicate"
+      },
+      "user_input": "column",
+      "confidence": "Weak",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    }
+  ],
+  "brakeman_version": "8.0.6"
+}
