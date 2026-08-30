@@ -69,6 +69,7 @@ class SectorRouteImporter
         jump_route.name = "#{code} Jump Route"
         jump_route.route_type = 'network'
         jump_route.colour = '#6b7280'
+        jump_route.known = true
       end
     end
   end

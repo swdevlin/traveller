@@ -28,6 +28,7 @@ class SectorRouteImporterTest < ActiveSupport::TestCase
     jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'FlLe')
     assert jump_route
     assert_equal 'network', jump_route.route_type
+    assert jump_route.known?
     link = jump_route.jump_route_links.sole
     assert_equal [from.id, to.id].sort, [link.from_star_system_id, link.to_star_system_id]
   end
@@ -51,14 +52,17 @@ class SectorRouteImporterTest < ActiveSupport::TestCase
   test 'reuses an existing JumpRoute found by code even after the user renamed it' do
     build_star_system(@sector, '0101')
     build_star_system(@sector, '0202')
-    existing = JumpRoute.create!(name: 'My Renamed Route', route_type: 'network', travellermap_allegiance_code: 'As')
+    existing = JumpRoute.create!(name: 'My Renamed Route', route_type: 'network',
+                                  travellermap_allegiance_code: 'As', known: false)
     metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202', 'Allegiance' => 'As' }] }
 
     assert_no_difference -> { JumpRoute.count } do
       SectorRouteImporter.new(@sector, metadata).call
     end
 
+    existing.reload
     assert_equal existing, existing.jump_route_links.sole.jump_route
+    assert_not existing.known?
   end
 
   test 'skips a link that already exists, even under a different JumpRoute' do

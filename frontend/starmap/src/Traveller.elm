@@ -4471,72 +4471,76 @@ viewHexes config =
 
                     renderBorderRegion : Region -> Maybe (Svg Msg)
                     renderBorderRegion region =
-                        case region.borderColour of
-                            Nothing ->
-                                Nothing
+                        if not config.isReferee && not region.playerVisible then
+                            Nothing
 
-                            Just colour ->
-                                let
-                                    borderSet =
-                                        region.hexes
-                                            |> List.map HexAddress.toKey
-                                            |> Set.fromList
+                        else
+                            case region.borderColour of
+                                Nothing ->
+                                    Nothing
 
-                                    edgesFor : HexAddress -> List ( ( Float, Float ), ( Float, Float ) )
-                                    edgesFor hexAddr =
-                                        let
-                                            ( vox, voy ) =
-                                                calcVisualOrigin config.hexSize { row = hexAddr.y, col = hexAddr.x }
+                                Just colour ->
+                                    let
+                                        borderSet =
+                                            region.hexes
+                                                |> List.map HexAddress.toKey
+                                                |> Set.fromList
 
-                                            verts =
-                                                config.rawHexaPoints
-                                                    |> List.map (\( dx, dy ) -> ( toFloat vox + dx, toFloat voy + dy ))
+                                        edgesFor : HexAddress -> List ( ( Float, Float ), ( Float, Float ) )
+                                        edgesFor hexAddr =
+                                            let
+                                                ( vox, voy ) =
+                                                    calcVisualOrigin config.hexSize { row = hexAddr.y, col = hexAddr.x }
 
-                                            vertPairs =
-                                                case verts of
-                                                    first :: _ ->
-                                                        List.map2 Tuple.pair verts (List.drop 1 verts ++ [ first ])
+                                                verts =
+                                                    config.rawHexaPoints
+                                                        |> List.map (\( dx, dy ) -> ( toFloat vox + dx, toFloat voy + dy ))
 
-                                                    [] ->
+                                                vertPairs =
+                                                    case verts of
+                                                        first :: _ ->
+                                                            List.map2 Tuple.pair verts (List.drop 1 verts ++ [ first ])
+
+                                                        [] ->
+                                                            []
+
+                                                neighbours =
+                                                    hexEdgeNeighbours hexAddr
+                                            in
+                                            List.map2 Tuple.pair vertPairs neighbours
+                                                |> List.filterMap
+                                                    (\( edgePair, neighbour ) ->
+                                                        if Set.member (HexAddress.toKey neighbour) borderSet then
+                                                            Nothing
+
+                                                        else
+                                                            Just edgePair
+                                                    )
+
+                                        lines =
+                                            region.borderHexes |> List.concatMap edgesFor
+                                    in
+                                    Just
+                                        (Svg.g
+                                            [ SvgAttrs.stroke (Color.Convert.colorToHex colour)
+                                            , SvgAttrs.strokeWidth "4.5"
+                                            , SvgAttrs.strokeLinecap "round"
+                                            , SvgAttrs.fill "none"
+                                            , SvgAttrs.pointerEvents "none"
+                                            ]
+                                            (List.map
+                                                (\( ( x1, y1 ), ( x2, y2 ) ) ->
+                                                    Svg.line
+                                                        [ SvgAttrs.x1 (String.fromFloat x1)
+                                                        , SvgAttrs.y1 (String.fromFloat y1)
+                                                        , SvgAttrs.x2 (String.fromFloat x2)
+                                                        , SvgAttrs.y2 (String.fromFloat y2)
+                                                        ]
                                                         []
-
-                                            neighbours =
-                                                hexEdgeNeighbours hexAddr
-                                        in
-                                        List.map2 Tuple.pair vertPairs neighbours
-                                            |> List.filterMap
-                                                (\( edgePair, neighbour ) ->
-                                                    if Set.member (HexAddress.toKey neighbour) borderSet then
-                                                        Nothing
-
-                                                    else
-                                                        Just edgePair
                                                 )
-
-                                    lines =
-                                        region.borderHexes |> List.concatMap edgesFor
-                                in
-                                Just
-                                    (Svg.g
-                                        [ SvgAttrs.stroke (Color.Convert.colorToHex colour)
-                                        , SvgAttrs.strokeWidth "4.5"
-                                        , SvgAttrs.strokeLinecap "round"
-                                        , SvgAttrs.fill "none"
-                                        , SvgAttrs.pointerEvents "none"
-                                        ]
-                                        (List.map
-                                            (\( ( x1, y1 ), ( x2, y2 ) ) ->
-                                                Svg.line
-                                                    [ SvgAttrs.x1 (String.fromFloat x1)
-                                                    , SvgAttrs.y1 (String.fromFloat y1)
-                                                    , SvgAttrs.x2 (String.fromFloat x2)
-                                                    , SvgAttrs.y2 (String.fromFloat y2)
-                                                    ]
-                                                    []
+                                                lines
                                             )
-                                            lines
                                         )
-                                    )
 
                     regionBorderLines =
                         case config.regionDisplay of
