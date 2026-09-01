@@ -1,4 +1,14 @@
 namespace :jump_routes do
+  desc 'Marks all network (imported) jump routes as known to players, across every campaign'
+  task backfill_network_known: :environment do
+    Campaign.find_each do |campaign|
+      Apartment::Tenant.switch("camp#{campaign.id}") do
+        updated = JumpRoute.where(route_type: 'network', known: [nil, false]).update_all(known: true)
+        puts "#{campaign.slug}: marked #{updated} network route(s) as known"
+      end
+    end
+  end
+
   task :gas_giant_refuel, [:campaign, :route, :m_drive] => :environment do |_task, args|
     extend ActionView::Helpers::NumberHelper
     extend JumpShadowMath

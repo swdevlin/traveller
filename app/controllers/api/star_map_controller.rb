@@ -6,9 +6,18 @@ class Api::StarMapController < Api::BaseController
                    status: :bad_request
     end
 
+    # `main_world: :trade_codes` fully instantiates a StellarObject (large jsonb
+    # `data` column) per main world — only worth paying for when StrategicAnalysis
+    # needs the rest of that object's attributes (imports/resource units/law
+    # level/population stats aren't in the lean world_rows pluck below).
+    # trade_codes itself never needs it — see main_world_trade_codes.
+    needs_strategic = %w[Strategic Resource].include?(params[:display_mode])
+    associations = [{ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, :facilities]
+    associations << { main_world: :trade_codes } if needs_strategic
+
     systems = StarSystem
       .where(parsec: parsec_scope)
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, :facilities, main_world: :trade_codes)
+      .includes(*associations)
 
     ids = systems.map(&:id)
     return render json: [] if ids.empty?
@@ -21,6 +30,14 @@ class Api::StarMapController < Api::BaseController
     main_world_uwps = StellarObject
       .where(id: systems.map(&:main_world_id).compact)
       .pluck(:id, :uwp).to_h
+
+    main_world_trade_codes = StellarObjectTradeCode
+      .joins(:trade_code)
+      .where(stellar_object_id: main_world_ids)
+      .order('trade_codes.code')
+      .pluck(:stellar_object_id, 'trade_codes.code')
+      .group_by(&:first)
+      .transform_values { |rows| rows.map(&:last) }
 
     native_ids = StellarObject
       .where(star_system_id: ids)
@@ -87,7 +104,7 @@ class Api::StarMapController < Api::BaseController
       wtn         = player_visible ? wd&.at(2) : nil
       gwp         = player_visible ? wd&.at(3)&.round : nil
       importance  = player_visible ? wd&.at(4) : nil
-      trade_codes = player_visible ? ss.trade_codes.map(&:code) : []
+      trade_codes = player_visible ? (main_world_trade_codes[ss.main_world_id] || []) : []
       image       = player_visible ? compute_image_name(wd&.at(5), wd&.at(6), wd&.at(7), wd&.at(8), wd&.at(9)) : nil
       main_world_name = player_visible ? world_name : nil
       # Referee-only: unlike wtn/gwp/importance, habitability stays hidden even once known?/surveyed.
@@ -130,7 +147,7 @@ class Api::StarMapController < Api::BaseController
         importance:        importance,
         trade_codes:       trade_codes,
         bases:             player_visible ? ss.facilities.to_a.sort_by(&:code).map(&:code) : [],
-        strategic:         player_visible ? build_strategic_hash(ss) : nil,
+        strategic:         (player_visible && needs_strategic) ? build_strategic_hash(ss) : nil,
         travel_zone:       ss.travel_zone ? { code: ss.travel_zone.code, colour: ss.travel_zone.colour } : nil,
         stars:             (stars_by_system[ss.id] || []).map do |row|
           _, _, d, au, diameter, companion_id = row

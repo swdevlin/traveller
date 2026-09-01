@@ -8,15 +8,7 @@ json.array! @regions do |region|
   json.label_x        region.label_x
   json.label_y        region.label_y
 
-  all_parsecs = region.region_parsecs.map(&:parsec)
-  json.hexes all_parsecs do |parsec|
-    json.x parsec.x
-    json.y parsec.y
-  end
-
-  border_parsecs = region.border_parsecs_ordered.map(&:parsec)
-  json.border_hexes border_parsecs do |parsec|
-    json.x parsec.x
-    json.y parsec.y
-  end
+  visible = region.region_parsecs.select { |rp| @x_range.cover?(rp.parsec.x) && @y_range.cover?(rp.parsec.y) }
+  json.hexes visible.map { |rp| { x: rp.parsec.x, y: rp.parsec.y } }
+  json.border_hexes visible.select(&:border?).sort_by(&:position).map { |rp| { x: rp.parsec.x, y: rp.parsec.y } }
 end

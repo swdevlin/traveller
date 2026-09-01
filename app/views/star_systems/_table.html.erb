@@ -1,6 +1,7 @@
+<% columns = local_assigns[:columns] || StarSystem::TABLE_COLUMNS %>
 <div class='table-card mt-4'>
   <div class='table-banner'>
-    <p>Star systems</p>
+    <p><%= local_assigns[:banner_label] || 'Star systems' %></p>
 
     <div class='actions'>
       <% if local_assigns[:new_url].present? %>
@@ -16,17 +17,32 @@
     <table>
       <thead>
       <tr>
-        <th scope='col' class='w-20'>Location</th>
-        <th scope='col'>Name</th>
-        <th scope='col'>Bases</th>
-        <th scope='col'></th>
-        <th scope='col'>Statistics</th>
-        <th scope='col'>Trade codes</th>
-        <th scope='col'>Stars</th>
-        <th scope='col'>Allegiance</th>
-        <th scope='col'>Zone</th>
-        <th scope='col'><span class='tracking-[0.2em]'>PBG</span></th>
-        <th scope='col'>SI</th>
+        <% columns.each do |column| %>
+          <% case column %>
+          <% when 'sector_location' %>
+            <th scope='col'>Location</th>
+          <% when 'location' %>
+            <th scope='col' class='w-20'>Location</th>
+          <% when 'name' %>
+            <th scope='col'>Name</th>
+          <% when 'bases' %>
+            <th scope='col'>Bases</th>
+          <% when 'locked' %>
+            <th scope='col'></th>
+          <% when 'uwp' %>
+            <th scope='col'>UWP</th>
+          <% when 'trade_codes' %>
+            <th scope='col'>Trade codes</th>
+          <% when 'stars' %>
+            <th scope='col'>Stars</th>
+          <% when 'allegiance' %>
+            <th scope='col'>Allegiance</th>
+          <% when 'zone' %>
+            <th scope='col'>Zone</th>
+          <% when 'survey_index' %>
+            <th scope='col'>SI</th>
+          <% end %>
+        <% end %>
         <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
       </tr>
       </thead>
@@ -37,64 +53,72 @@
             data-controller='row-link'
             data-row-link-url-value='<%= star_system_path(star_system) %>'
             data-action='click->row-link#navigate'>
-          <td class='whitespace-nowrap'>
-            <%= star_system.parsec.subsector_hex_code %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.name %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.facilities_string %>
-          </td>
-
-          <td class='text-center'>
-            <% if star_system.locked? %>
-              <i class='fa-regular fa-lock' title='Locked'></i>
+          <% columns.each do |column| %>
+            <% case column %>
+            <% when 'sector_location' %>
+              <td class='whitespace-nowrap'>
+                <%= link_to "#{star_system.parsec.sector.name} #{star_system.parsec.hex_code}",
+                            subsector_path(star_system.parsec.subsector),
+                            class: 'no-underline hover:underline hover:underline-offset-2',
+                            data: { turbo_frame: '_top' } %>
+              </td>
+            <% when 'location' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.parsec.subsector_hex_code %>
+              </td>
+            <% when 'name' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.name %>
+              </td>
+            <% when 'bases' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.facilities_string %>
+              </td>
+            <% when 'locked' %>
+              <td class='text-center'>
+                <% if star_system.locked? %>
+                  <i class='fa-regular fa-lock' title='Locked'></i>
+                <% end %>
+              </td>
+            <% when 'uwp' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.main_world_uwp %>
+                <% if star_system.has_gas_giant? %>
+                  <i class='fa-regular fa-planet-ringed ml-1' title='Gas giant present'></i>
+                <% end %>
+                <% if star_system.native_sophont %>
+                  <i class='fa-regular fa-user-alien ml-1' title='Native sophont'></i>
+                <% end %>
+                <% if star_system.extinct_sophont %>
+                  <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
+                <% end %>
+              </td>
+            <% when 'trade_codes' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.trade_codes_string %>
+              </td>
+            <% when 'stars' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.table_description %>
+              </td>
+            <% when 'allegiance' %>
+              <td class='whitespace-nowrap'>
+                <% if star_system.allegiance %>
+                  <%= render 'allegiances/pill', allegiance: star_system.allegiance %>
+                <% end %>
+              </td>
+            <% when 'zone' %>
+              <td class='whitespace-nowrap'>
+                <% if (tz = star_system.travel_zone) %>
+                  <span class='pill'><%= tz.code %></span>
+                <% end %>
+              </td>
+            <% when 'survey_index' %>
+              <td class='whitespace-nowrap'>
+                <%= star_system.survey_index %>
+              </td>
             <% end %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.main_world_uwp %>
-            <% if star_system.native_sophont %>
-              <i class='fa-regular fa-user-alien ml-1' title='Native sophont'></i>
-            <% end %>
-            <% if star_system.extinct_sophont %>
-              <i class='fa-kit fa-light-user-alien-slash ml-1' title='Extinct sophont'></i>
-            <% end %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.trade_codes_string %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.table_description %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <% if star_system.allegiance %>
-              <%= render 'allegiances/pill', allegiance: star_system.allegiance %>
-            <% end %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <% if (tz = star_system.travel_zone) %>
-              <span class='pill'><%= tz.code %></span>
-            <% end %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <span class='tracking-[0.2em]'><%= star_system.pbg %></span>
-            <% if star_system.has_gas_giant? %>
-              <i class='fa-regular fa-planet-ringed'></i>
-            <% end %>
-          </td>
-
-          <td class='whitespace-nowrap'>
-            <%= star_system.survey_index %>
-          </td>
+          <% end %>
 
           <td class='actions-cell'>
             <div class='action-group'>

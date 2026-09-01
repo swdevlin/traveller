@@ -1,6 +1,9 @@
 class StarSystem < ApplicationRecord
   include HasReferenceUrl
 
+  # The columns shown on `star_systems/_table`. Order here drives render order in the table.
+  TABLE_COLUMNS = %w[location name bases locked uwp trade_codes stars allegiance zone survey_index].freeze
+
   attr_accessor :build
 
   normalizes *(attribute_names - %w[native_sophont extinct_sophont known]), with: -> { it.presence }

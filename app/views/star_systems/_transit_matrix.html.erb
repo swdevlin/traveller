@@ -6,7 +6,7 @@
       <div class='actions'>
         <select data-transit-speed-target='selector'
                 data-action='change->transit-speed#update'
-                class='rounded border border-outline bg-panel px-1 py-0.5 text-xs normal-case tracking-normal font-normal cursor-pointer w-15'>
+                class='rounded border border-outline bg-panel pl-1 pr-7 py-0.5 text-xs normal-case tracking-normal font-normal cursor-pointer w-15'>
           <% (1..10).each do |g| %>
             <option value='<%= g %>'><%= g %>G</option>
           <% end %>

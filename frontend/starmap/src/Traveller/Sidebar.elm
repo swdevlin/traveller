@@ -25,7 +25,7 @@ import Traveller.LawLevel as LawLevel
 import Traveller.Parser exposing (UWP, uwp)
 import Traveller.Population as Population
 import Traveller.Sector exposing (SectorDict)
-import Traveller.SolarSystem exposing (BaseFacility, MainWorldProfile, SolarSystem)
+import Traveller.StarSystemDetail exposing (BaseFacility, MainWorldProfile, StarSystemDetail)
 import Traveller.StarSystemMap exposing (viewStarSystemMap)
 import Traveller.StellarObject exposing (StellarObject)
 import Traveller.StellarObjectView exposing (StellarObjectMsgs)
@@ -563,8 +563,8 @@ so it matches the Rails "Survey Index"/"Known" fields pixel-for-pixel
 (`app/views/star_systems/_star_system.html.erb`, `app/views/star_systems/_known_toggle.html.erb`).
 
 -}
-viewSurveyControls : SidebarMsgs msg -> Bool -> SolarSystem -> Html msg
-viewSurveyControls msgs isReferee solarSystem =
+viewSurveyControls : SidebarMsgs msg -> Bool -> StarSystemDetail -> Html msg
+viewSurveyControls msgs isReferee starSystemDetail =
     if isReferee then
         Html.div [ HtmlAttrs.class "flex items-start gap-6 px-2 py-1" ]
             [ Html.div [ HtmlAttrs.class "min-w-0" ]
@@ -573,14 +573,14 @@ viewSurveyControls msgs isReferee solarSystem =
                     [ Html.select
                         [ HtmlAttrs.class "edit-base w-20 text-xs py-1 leading-normal"
                         , Html.Events.onInput
-                            (\str -> msgs.setSurveyIndex (String.toInt str |> Maybe.withDefault solarSystem.actualSurveyIndex))
+                            (\str -> msgs.setSurveyIndex (String.toInt str |> Maybe.withDefault starSystemDetail.actualSurveyIndex))
                         ]
                         (List.range 0 12
                             |> List.map
                                 (\i ->
                                     Html.option
                                         [ HtmlAttrs.value (String.fromInt i)
-                                        , HtmlAttrs.selected (i == solarSystem.actualSurveyIndex)
+                                        , HtmlAttrs.selected (i == starSystemDetail.actualSurveyIndex)
                                         ]
                                         [ Html.text (String.fromInt i) ]
                                 )
@@ -590,13 +590,13 @@ viewSurveyControls msgs isReferee solarSystem =
             , Html.div [ HtmlAttrs.class "min-w-0" ]
                 [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Known" ]
                 , Html.div [ HtmlAttrs.class "mt-2 flex items-center gap-3" ]
-                    [ ToggleSwitch.view ToggleSwitch.Regular solarSystem.known (Html.Events.onClick (msgs.setKnown (not solarSystem.known)))
+                    [ ToggleSwitch.view ToggleSwitch.Regular starSystemDetail.known (Html.Events.onClick (msgs.setKnown (not starSystemDetail.known)))
                     ]
                 ]
             ]
 
     else
-        el [ width fill, paddingXY 8 4 ] (profileFieldDisplay "Survey Index" (String.fromInt solarSystem.actualSurveyIndex))
+        el [ width fill, paddingXY 8 4 ] (profileFieldDisplay "Survey Index" (String.fromInt starSystemDetail.actualSurveyIndex))
 
 
 {-| Render the list of bases present in a system, each with its facility icon (if configured) and name.
@@ -630,10 +630,10 @@ viewBaseRow base =
 -}
 viewSystemDetailsSidebar :
     SidebarMsgs msg
-    -> SolarSystem
+    -> StarSystemDetail
     -> { isReferee : Bool, mDrive : Maybe Int, showTravelTable : Bool }
     -> Html msg
-viewSystemDetailsSidebar msgs solarSystem opts =
+viewSystemDetailsSidebar msgs starSystemDetail opts =
     let
         stellarObjectMsgs : StellarObjectMsgs msg
         stellarObjectMsgs =
@@ -641,27 +641,27 @@ viewSystemDetailsSidebar msgs solarSystem opts =
             }
     in
     column [ width fill, spacing 6 ]
-        [ viewSurveyControls msgs opts.isReferee solarSystem
-        , if opts.isReferee || solarSystem.known || solarSystem.surveyIndex >= 10 then
+        [ viewSurveyControls msgs opts.isReferee starSystemDetail
+        , if opts.isReferee || starSystemDetail.known || starSystemDetail.surveyIndex >= 10 then
             column [ width fill ]
-                [ viewBasesList solarSystem.bases
-                , case solarSystem.referenceUrl of
+                [ viewBasesList starSystemDetail.bases
+                , case starSystemDetail.referenceUrl of
                     Just url ->
                         column [ width fill, paddingXY 8 4 ]
                             [ profileFieldLinkDisplay "Library Data" "Reference" url ]
 
                     Nothing ->
                         none
-                , case solarSystem.mainWorldProfile of
+                , case starSystemDetail.mainWorldProfile of
                     Just profile ->
                         column [ width fill ]
                             [ viewMainWorldProfile profile
-                            , if List.isEmpty solarSystem.tradeCodes then
+                            , if List.isEmpty starSystemDetail.tradeCodes then
                                 none
 
                               else
                                 column [ width fill, paddingXY 8 4 ]
-                                    [ profileFieldDisplay "Trade Codes" (String.join " " solarSystem.tradeCodes) ]
+                                    [ profileFieldDisplay "Trade Codes" (String.join " " starSystemDetail.tradeCodes) ]
                             , viewSidebarJumpTable profile.jumpShadow
                             ]
 
@@ -671,7 +671,7 @@ viewSystemDetailsSidebar msgs solarSystem opts =
 
           else
             none
-        , viewStarSystemMap stellarObjectMsgs solarSystem opts.isReferee opts.mDrive
+        , viewStarSystemMap stellarObjectMsgs starSystemDetail opts.isReferee opts.mDrive
         , row [ centerX, spacing 8, paddingXY 0 4 ]
             [ viewSidebarButton
                 { active = opts.showTravelTable
@@ -685,7 +685,7 @@ viewSystemDetailsSidebar msgs solarSystem opts =
 
 {-| View the main sidebar column.
 
-The `solarSystemStatus` field should contain a status message for the selected hex,
+The `starSystemStatus` field should contain a status message for the selected hex,
 or Nothing if there's no status to display.
 
 The `isHexMapMode` and `isFullJourneyMode` fields indicate which view mode is active.
@@ -696,10 +696,10 @@ viewSidebarColumn :
     ->
         { a
             | selectedHex : Maybe HexAddress
-            , solarSystemStatus : Maybe String
+            , starSystemStatus : Maybe String
             , sectors : SectorDict
             , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Maybe Color }
-            , selectedSystem : Maybe SolarSystem
+            , selectedSystem : Maybe StarSystemDetail
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
             , mDrive : Maybe Int
@@ -707,7 +707,7 @@ viewSidebarColumn :
             , rogueContent : Maybe (Html msg)
         }
     -> Html msg
-viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent } =
+viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent } =
     column [ width fill, spacing 4, centerX, height fill, HtmlAttrs.style "position" "relative" ]
         [ el
             [ HtmlAttrs.style "position" "absolute"
@@ -723,7 +723,7 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
             [ case selectedHex of
                 Just viewingAddress ->
                     column [ paddingXY 0 4, width fill, centerX ]
-                        [ case solarSystemStatus of
+                        [ case starSystemStatus of
                             Just status ->
                                 el [ centerX, HtmlAttrs.class "status-scan" ] (text status)
 
@@ -858,10 +858,10 @@ viewSidebarColumn msgs { selectedHex, solarSystemStatus, sectors, regions, selec
                         [ text "Select hex in console to view parsec details."
                         ]
             , case selectedSystem of
-                Just solarSystem ->
+                Just starSystemDetail ->
                     Html.Lazy.lazy3 viewSystemDetailsSidebar
                         msgs
-                        solarSystem
+                        starSystemDetail
                         { isReferee = isReferee
                         , mDrive = mDrive
                         , showTravelTable = showTravelTable

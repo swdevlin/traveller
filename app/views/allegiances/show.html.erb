@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Allegiances', allegiances_path(page: @page)]] %>
+
 <% content_for :title, @allegiance.name %>
 <% content_for :page_kicker, "Allegiance Classification" %>
 <% content_for :page_title, @allegiance.name %>
@@ -11,10 +14,6 @@
 
   <div class="mt-5">
   <%= link_to "Edit", edit_allegiance_path(@allegiance), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: allegiances_path(page: @page),
-             label: 'Allegiances',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @allegiance,
                 method: :delete,

@@ -1,0 +1,70 @@
+<% content_for :title, 'Astrographic Index' %>
+<% content_for :page_kicker, 'IISS Survey Division' %>
+<% content_for :page_title, 'Astrographic Index' %>
+
+<%= render 'application/page' do %>
+  <turbo-frame id='system_queries'>
+    <div class='flex justify-end pb-2'>
+      <%= link_to new_system_query_path, class: 'btn-header', data: { turbo_frame: '_top' } do %>
+        <i class='fa-regular fa-plus'></i>
+        New Query
+      <% end %>
+    </div>
+
+    <div class='table-card'>
+      <div class='table-scroll'>
+        <table>
+          <thead>
+          <tr>
+            <th scope='col'>Name</th>
+            <th scope='col'>Filter Criteria</th>
+            <th scope='col' class='text-right'>Actions</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <% if @system_queries.any? %>
+            <% @system_queries.each do |system_query| %>
+              <tr class='cursor-pointer'
+                  data-controller='row-link'
+                  data-row-link-url-value='<%= system_query_path(system_query) %>'
+                  data-action='click->row-link#navigate'>
+                <td class='whitespace-nowrap'>
+                  <%= link_to system_query.name, system_query_path(system_query), class: 't-link', data: { turbo_frame: '_top' } %>
+                </td>
+
+                <td>
+                  <%= render 'system_queries/filter_criteria', system_query: system_query %>
+                </td>
+
+                <td class='actions-cell'>
+                  <div class='action-group'>
+                    <%= link_to edit_system_query_path(system_query), class: 'action', title: 'Edit', data: { turbo_frame: '_top' } do %>
+                      <i class='fa-regular fa-pen-to-square'></i>
+                    <% end %>
+
+                    <%= button_to system_query,
+                                  method: :delete,
+                                  class: 'action danger',
+                                  title: 'Delete',
+                                  data: { turbo_confirm: "Delete #{system_query.name}?" } do %>
+                      <i class='fa-regular fa-trash'></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan='3'>No saved queries yet.</td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class='w-full pb-4'>
+        <%== @pagy.series_nav %>
+      </div>
+    </div>
+  </turbo-frame>
+<% end %>

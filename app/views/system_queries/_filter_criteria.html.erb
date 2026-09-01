@@ -1,0 +1,16 @@
+<% if system_query.groups.any? %>
+  <div class='text-sm text-fg mb-2 space-y-0.5'>
+    <% system_query.groups.each_with_index do |group, group_index| %>
+      <div>
+        <% if group_index > 0 %>Or <% end %>
+        <% group.each_with_index do |condition, condition_index| %>
+          <% if condition_index > 0 %>and <% end %>
+          <span><%= SystemQuery.field_label(condition[:field]) %></span>
+          <% if condition[:negate] %>not <% end %>
+          <%= SystemQuery.operator_label(condition[:operator]) %>
+          <span class='font-mono'><%= Array(condition[:values]).join(', ') %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

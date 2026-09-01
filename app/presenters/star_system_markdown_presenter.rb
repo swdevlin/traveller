@@ -55,7 +55,6 @@ class StarSystemMarkdownPresenter
 
   def system_data_section
     rows = [
-      ['PBG', @sys.pbg],
       ['Age', "#{@sys.age} Gyr"],
       ['Gas Giants', @sys.gas_giant_count],
       ['Planetoid Belts', @sys.belt_count],

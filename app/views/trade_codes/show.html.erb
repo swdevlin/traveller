@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Trade Codes', trade_codes_path]] %>
+
 <% content_for :title, "#{@trade_code.code} Trade Code" %>
 <% content_for :page_kicker, "Trade Code Classification" %>
 <% content_for :page_title, @trade_code.definition %>
@@ -6,10 +9,6 @@
   <%= render @trade_code %>
 
   <%= link_to "Edit", edit_trade_code_path(@trade_code), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: trade_codes_path,
-             label: 'Trade codes',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @trade_code,
                 method: :delete,

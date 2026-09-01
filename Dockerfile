@@ -18,8 +18,14 @@ COPY frontend/starmap/elm.json frontend/starmap/package.json frontend/starmap/pa
 RUN npm ci
 
 COPY frontend/starmap ./
+# Two-pass terser minification after --optimize, per Elm's official asset-size
+# guide (https://github.com/elm/compiler/blob/master/hints/optimize.md) — the
+# first pass strips Elm-specific dead code terser can't otherwise see (the
+# F2-F9/A2-A9 wrapper calls), the second mangles names.
 RUN --mount=type=cache,target=/root/.elm \
-    npx elm make src/Main.elm --output=starmap.js --optimize
+    npx elm make src/Main.elm --output=starmap-unminified.js --optimize && \
+    npx terser starmap-unminified.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | \
+    npx terser --mangle --output starmap.js
 
 
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base

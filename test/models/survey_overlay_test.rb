@@ -246,7 +246,7 @@ class SurveyOverlayTest < ActiveSupport::TestCase
   FakeStarSystem = Struct.new(
     :main_world_uwp, :survey_index, :known, :gas_giant_count, :belt_count,
     :native_sophont, :extinct_sophont, :main_world_importance, :base_codes,
-    :allegiance, :parsec,
+    :allegiance, :parsec, :primary_star, :stars,
     keyword_init: true
   ) do
     def known?
@@ -261,13 +261,15 @@ class SurveyOverlayTest < ActiveSupport::TestCase
   FakeAllegiance = Struct.new(:code, keyword_init: true)
   FakeSubsector = Struct.new(:id, keyword_init: true)
   FakeParsec = Struct.new(:sector_id, :subsector, keyword_init: true)
+  FakeStar = Struct.new(:stellar_type, :stellar_class, keyword_init: true)
 
   def fake_star_system(**overrides)
     FakeStarSystem.new(
       {
         main_world_uwp: 'A788899-C', survey_index: 5, known: true, gas_giant_count: 2, belt_count: 1,
         native_sophont: false, extinct_sophont: false, main_world_importance: nil, base_codes: [],
-        allegiance: nil, parsec: FakeParsec.new(sector_id: 7, subsector: FakeSubsector.new(id: 3))
+        allegiance: nil, parsec: FakeParsec.new(sector_id: 7, subsector: FakeSubsector.new(id: 3)),
+        primary_star: FakeStar.new(stellar_type: 'G', stellar_class: 'V'), stars: [1]
       }.merge(overrides)
     )
   end
@@ -415,6 +417,27 @@ class SurveyOverlayTest < ActiveSupport::TestCase
 
     assert overlay.matches?(fake_star_system)
     assert_not overlay.matches?(fake_star_system(parsec: FakeParsec.new(sector_id: 7, subsector: nil)))
+  end
+
+  test 'matches? primary_star compares the primary star stellar_type' do
+    overlay = overlay_with(field: 'primary_star', operator: 'one_of', values: %w[G M])
+
+    assert overlay.matches?(fake_star_system(primary_star: FakeStar.new(stellar_type: 'M', stellar_class: 'V')))
+    assert_not overlay.matches?(fake_star_system(primary_star: FakeStar.new(stellar_type: 'K', stellar_class: 'V')))
+  end
+
+  test 'matches? primary_star_class ranks by luminosity, most to least luminous' do
+    overlay = overlay_with(field: 'primary_star_class', operator: 'gt', values: ['III'])
+
+    assert overlay.matches?(fake_star_system(primary_star: FakeStar.new(stellar_type: 'G', stellar_class: 'V')))
+    assert_not overlay.matches?(fake_star_system(primary_star: FakeStar.new(stellar_type: 'G', stellar_class: 'III')))
+  end
+
+  test 'matches? star_count supports numeric comparisons against the star list length' do
+    overlay = overlay_with(field: 'star_count', operator: 'eq', values: ['2'])
+
+    assert overlay.matches?(fake_star_system(stars: [1, 2]))
+    assert_not overlay.matches?(fake_star_system(stars: [1]))
   end
 
   test 'colour_for returns the colour of the first enabled, matching overlay in order' do

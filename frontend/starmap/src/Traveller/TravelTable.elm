@@ -18,7 +18,7 @@ import Html
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Json.Decode
-import Traveller.SolarSystem exposing (SolarSystem)
+import Traveller.StarSystemDetail exposing (StarSystemDetail)
 import Traveller.StarSystemMap exposing (MapNode, systemNodes)
 import Traveller.StellarObject exposing (getStellarOrbit)
 import Traveller.TravelCalculations exposing (calcDistance2F, travelTimeHoursDays, travelTimeInSeconds)
@@ -36,13 +36,13 @@ type alias Msgs msg =
     }
 
 
-view : Msgs msg -> Int -> SolarSystem -> Element msg
-view _ mDrive solarSystem =
-    viewGrid (systemNodes True solarSystem) mDrive
+view : Msgs msg -> Int -> StarSystemDetail -> Element msg
+view _ mDrive starSystemDetail =
+    viewGrid (systemNodes True starSystemDetail) mDrive
 
 
-viewModal : Msgs msg -> Int -> SolarSystem -> Element msg
-viewModal msgs mDrive solarSystem =
+viewModal : Msgs msg -> Int -> StarSystemDetail -> Element msg
+viewModal msgs mDrive starSystemDetail =
     el
         [ width fill
         , height fill
@@ -80,7 +80,7 @@ viewModal msgs mDrive solarSystem =
                 , Element.spacing 12
                 ]
                 [ viewMDriveSelector msgs mDrive
-                , view msgs mDrive solarSystem
+                , view msgs mDrive starSystemDetail
                 ]
             ]
 

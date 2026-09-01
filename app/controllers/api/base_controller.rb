@@ -42,17 +42,19 @@ class Api::BaseController < ActionController::API
     Current.campaign
   end
 
-  def parsecs_in_region
+  def viewport_bounds(pad: 0)
     if params[:sx].present? && params[:sy].present?
       sx = params[:sx].to_i
       sy = params[:sy].to_i
-      Parsec.where(x: (sx * 32)..(sx * 32 + 31), y: (sy * 40 - 39)..(sy * 40))
+      { x: (sx * 32 - pad)..(sx * 32 + 31 + pad), y: (sy * 40 - 39 - pad)..(sy * 40 + pad) }
     elsif params[:ulx].present? && params[:uly].present? && params[:lrx].present? && params[:lry].present?
-      Parsec.where(
-        x: params[:ulx].to_i..params[:lrx].to_i,
-        y: params[:lry].to_i..params[:uly].to_i
-      )
+      { x: (params[:ulx].to_i - pad)..(params[:lrx].to_i + pad), y: (params[:lry].to_i - pad)..(params[:uly].to_i + pad) }
     end
+  end
+
+  def parsecs_in_region
+    bounds = viewport_bounds
+    Parsec.where(x: bounds[:x], y: bounds[:y]) if bounds
   end
 
   def star_systems_in_region

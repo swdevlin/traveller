@@ -1,4 +1,4 @@
-module Traveller.SolarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, TravelZone, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
+module Traveller.StarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, TravelZone, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType, starSystemCodec, starTypeCodec)
 
 import Codec exposing (Codec)
 import Json.Decode as Decode exposing (Decoder)

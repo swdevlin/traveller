@@ -2,18 +2,14 @@
 
 class Api::JumpRouteLinksController < Api::BaseController
   def index
-    links = if parsecs_in_region
-              parsec_ids      = parsecs_in_region.select(:id)
-              star_system_ids = StarSystem.where(parsec_id: parsec_ids).select(:id)
-              JumpRouteLink.where(from_star_system_id: star_system_ids)
-                           .or(JumpRouteLink.where(to_star_system_id: star_system_ids))
-    else
-              JumpRouteLink.all
-    end
+    parsecs = parsecs_in_region
+    return render json: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' },
+                  status: :bad_request if parsecs.nil?
 
-    links = links.includes(:jump_route,
-                           from_star_system: :parsec,
-                           to_star_system: :parsec)
+    star_system_ids = StarSystem.where(parsec: parsecs).select(:id)
+    links = JumpRouteLink.where(from_star_system_id: star_system_ids)
+                         .or(JumpRouteLink.where(to_star_system_id: star_system_ids))
+                         .includes(:jump_route, from_star_system: :parsec, to_star_system: :parsec)
 
     render json: links.map { |link| serialize_link(link) }
   end

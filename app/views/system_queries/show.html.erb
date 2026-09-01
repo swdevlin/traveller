@@ -1,0 +1,37 @@
+<%= render 'stellar_objects/object_context', hierarchy: [['Astrographic Index', system_queries_path]] %>
+
+<% content_for :title, @system_query.name %>
+<% content_for :page_kicker, 'System Query' %>
+<% content_for :page_title, @system_query.name %>
+
+<%= render 'application/page' do %>
+  <turbo-frame id='system_queries'>
+    <div class='flex items-start justify-between gap-4 pb-2'>
+      <%= render 'system_queries/filter_criteria', system_query: @system_query %>
+
+      <div class='flex gap-2 shrink-0'>
+        <%= link_to edit_system_query_path(@system_query), class: 'btn btn-sm', data: { turbo_frame: '_top' } do %>
+          <i class='fa-regular fa-pen-to-square mr-1'></i>
+          Edit
+        <% end %>
+
+        <%= button_to @system_query,
+                      method: :delete,
+                      class: 'btn btn-sm btn-danger',
+                      data: { turbo_confirm: "Delete #{@system_query.name}?" } do %>
+          <i class='fa-regular fa-trash mr-1'></i>
+          Delete
+        <% end %>
+      </div>
+    </div>
+
+    <%= render 'star_systems/table',
+                star_systems: @star_systems,
+                columns: @system_query.display_columns,
+                banner_label: pluralize(@pagy.count, 'matching system') %>
+
+    <div class='w-full pt-4'>
+      <%== @pagy.series_nav %>
+    </div>
+  </turbo-frame>
+<% end %>

@@ -5,7 +5,8 @@
     "elm-review": "^2.12.0",
     "elm-tooling": "^1.15.0",
     "elm-watch": "^1.1.2",
-    "run-pty": "^5.0.0"
+    "run-pty": "^5.0.0",
+    "terser": "^5.51.2"
   },
   "scripts": {
     "dev": "run-pty % elm-watch hot % python ./server.py",

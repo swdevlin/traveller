@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Tech Levels', tech_levels_path]] %>
+
 <%= content_for :title, "Tech Level #{traveller_hex(@tech_level.code)}" %>
 <%= content_for :page_kicker, "Tech level" %>
 <%= content_for :page_title, "Tech Level #{traveller_hex(@tech_level.code)}" %>
@@ -6,10 +9,6 @@
   <%= render @tech_level %>
 
   <%= link_to "Edit", edit_tech_level_path(@tech_level), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: tech_levels_path,
-             label: 'Tech levels',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @tech_level,
                 method: :delete,

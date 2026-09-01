@@ -5,7 +5,7 @@ module ApplicationHelper
     'aslan' => { label: 'Aslan', light: false },
     'bwap' => { label: 'Bwap', light: true },
     'darrian' => { label: 'Darrian', light: true },
-    'deepnight' => { label: 'Deepnight', light: false },
+    'deepnight' => { label: 'Deepnight', light: true },
     'droyne' => { label: 'Droyne', light: false },
     'hiver' => { label: 'Hiver', light: false },
     'imperium' => { label: 'Imperium', light: false },

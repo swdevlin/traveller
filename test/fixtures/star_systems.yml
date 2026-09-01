@@ -19,3 +19,8 @@ hierarchy_system:
   name: Hierarchy Test System
   parsec: one
   meta: {}
+
+in_five:
+  name: In Five
+  parsec: five
+  meta: {}

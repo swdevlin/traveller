@@ -1,10 +1,12 @@
 module HighlightRuleTests exposing (..)
 
+import Codec
 import Color
 import Expect
+import Json.Encode as Encode
 import Test exposing (Test, describe)
 import Traveller.HighlightRule as HighlightRule exposing (Condition, Field(..), Operator(..))
-import Traveller.SolarSystemStars exposing (StarSystem)
+import Traveller.StarSystemStars exposing (StarSystem, StarType, starTypeCodec)
 
 
 baseSystem : StarSystem
@@ -39,6 +41,34 @@ baseSystem =
     , sectorId = 42
     , subsectorId = Just 7
     }
+
+
+{-| Builds a `StarType` fixture by round-tripping it through `starTypeCodec`,
+since `StarType` is an opaque wrapper with no exposed constructor - this is
+how the app itself ever gets one, decoding the API's `stars` payload.
+`au = 0` marks the primary star, per `Api::StarMapController#build_star_hash`'s
+`au || 0` convention.
+-}
+starWith : { au : Float, stellarType : String, stellarClass : String, companion : Maybe StarType } -> StarType
+starWith { au, stellarType, stellarClass, companion } =
+    let
+        encoded =
+            Encode.object
+                [ ( "au", Encode.float au )
+                , ( "stellar_subtype", Encode.null )
+                , ( "companion", companion |> Maybe.map (Codec.encoder starTypeCodec) |> Maybe.withDefault Encode.null )
+                , ( "stellar_type", Encode.string stellarType )
+                , ( "stellar_class", Encode.string stellarClass )
+                , ( "colour", Encode.null )
+                , ( "diameter", Encode.null )
+                ]
+    in
+    case Codec.decodeValue starTypeCodec encoded of
+        Ok star ->
+            star
+
+        Err error ->
+            Debug.todo ("invalid starWith test fixture: " ++ Debug.toString error)
 
 
 condition : Field -> Operator -> List String -> Condition
@@ -351,6 +381,104 @@ evaluateTests =
                         ruleFrom [ [ condition Subsector Eq [ "7" ] ] ]
                 in
                 Expect.equal False (HighlightRule.evaluate rule system)
+        ]
+
+
+primaryStarFieldOptionsTests : Test
+primaryStarFieldOptionsTests =
+    describe "fieldOptions"
+        [ Test.test "PrimaryStar includes normal spectral types and special types" <|
+            \_ ->
+                let
+                    codes =
+                        HighlightRule.fieldOptions PrimaryStar |> List.map .code
+                in
+                Expect.equal True (List.member "G" codes && List.member "BD" codes && List.member "AN" codes)
+        , Test.test "PrimaryStarClass includes the giant luminosity class" <|
+            \_ ->
+                let
+                    codes =
+                        HighlightRule.fieldOptions PrimaryStarClass |> List.map .code
+                in
+                Expect.equal True (List.member "III" codes)
+        , Test.test "StarCount options run from 1 to 8" <|
+            \_ ->
+                Expect.equal (List.map String.fromInt (List.range 1 8)) (HighlightRule.fieldOptions StarCount |> List.map .code)
+        ]
+
+
+primaryStarAndCountEvaluateTests : Test
+primaryStarAndCountEvaluateTests =
+    describe "evaluate - PrimaryStar / PrimaryStarClass / StarCount"
+        [ Test.test "PrimaryStar matches the stellar type of the au=0 star" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "M", stellarClass = "V", companion = Nothing } ] }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStar Eq [ "M" ] ] ]) system)
+        , Test.test "PrimaryStar ignores stars that aren't the primary (au /= 0)" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem
+                            | stars =
+                                [ starWith { au = 0, stellarType = "M", stellarClass = "V", companion = Nothing }
+                                , starWith { au = 12, stellarType = "G", stellarClass = "V", companion = Nothing }
+                                ]
+                        }
+                in
+                Expect.equal False (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStar Eq [ "G" ] ] ]) system)
+        , Test.test "PrimaryStar OneOf matches any listed spectral type" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "M", stellarClass = "V", companion = Nothing } ] }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStar OneOf [ "G", "M" ] ] ]) system)
+        , Test.test "PrimaryStarClass matches the primary's luminosity class" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "M", stellarClass = "III", companion = Nothing } ] }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStarClass Eq [ "III" ] ] ]) system)
+        , Test.test "PrimaryStarClass Gt matches a less luminous class than the target" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "G", stellarClass = "V", companion = Nothing } ] }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStarClass Gt [ "III" ] ] ]) system)
+        , Test.test "PrimaryStarClass Gt rejects a more luminous class than the target" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "B", stellarClass = "Ia", companion = Nothing } ] }
+                in
+                Expect.equal False (HighlightRule.evaluate (ruleFrom [ [ condition PrimaryStarClass Gt [ "III" ] ] ]) system)
+        , Test.test "StarCount counts each top-level star" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem
+                            | stars =
+                                [ starWith { au = 0, stellarType = "G", stellarClass = "V", companion = Nothing }
+                                , starWith { au = 40, stellarType = "M", stellarClass = "V", companion = Nothing }
+                                ]
+                        }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition StarCount Eq [ "2" ] ] ]) system)
+        , Test.test "StarCount adds one for each nested tight-binary companion" <|
+            \_ ->
+                let
+                    companion =
+                        starWith { au = 2, stellarType = "M", stellarClass = "V", companion = Nothing }
+
+                    system =
+                        { baseSystem | stars = [ starWith { au = 0, stellarType = "G", stellarClass = "V", companion = Just companion } ] }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition StarCount Eq [ "2" ] ] ]) system)
         ]
 
 

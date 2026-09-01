@@ -28,14 +28,18 @@
       <% if current_campaign %>
         <% starmap_params = @starmap_center ? { cx: @starmap_center[0], cy: @starmap_center[1] } : {} %>
         <div data-tour-step="nav-starmap" class='shrink-0 font-medium'>
-          <%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'hover:text-highlight hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %>
+          <%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'text-nav-fg hover:text-nav-hover hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %>
+        </div>
+
+        <div class='shrink-0 font-medium'>
+          <%= link_to 'Systems', system_queries_path, class: 'text-nav-fg hover:text-nav-hover hover:underline hover:underline-offset-2' %>
         </div>
       <% end %>
 
       <div class='lg:hidden' data-controller='dropdown'>
         <button data-action='dropdown#toggle'
                 aria-label='Open navigation menu'
-                class='inline-flex items-center text-link hover:text-highlight cursor-pointer bg-transparent border-0 p-0'>
+                class='inline-flex items-center text-nav-fg hover:text-nav-hover cursor-pointer bg-transparent border-0 p-0'>
           <i class='fa-regular fa-bars'></i>
         </button>
 
@@ -72,7 +76,7 @@
       <% if current_campaign %>
         <div  data-tour-step="nav-campaign" class='relative' data-controller='dropdown'>
           <button data-action='dropdown#toggle'
-                  class='inline-flex items-center gap-1 text-link hover:text-highlight cursor-pointer bg-transparent border-0 p-0 font-medium'>
+                  class='inline-flex items-center gap-1 text-nav-fg hover:text-nav-hover cursor-pointer bg-transparent border-0 p-0 font-medium'>
             Campaign
             <i class='fa-regular fa-chevron-down text-xs'></i>
           </button>
@@ -80,19 +84,19 @@
           <div data-dropdown-target='menu'
                class='hidden absolute right-0 mt-2 w-44 rounded-lg border border-outline bg-dropdown shadow-xl z-50'>
             <%= link_to campaign_settings_path,
-                        class: 'flex items-center px-4 py-2 text-sm text-link hover:bg-dropdown-hover hover:text-highlight no-underline rounded-t-lg' do %>
+                        class: 'flex items-center px-4 py-2 text-sm text-nav-fg hover:bg-dropdown-hover hover:text-nav-hover no-underline rounded-t-lg' do %>
               <i class='fa-regular fa-planet-ringed mr-2 w-4 text-center'></i>
               Settings
             <% end %>
 
             <%= link_to ships_path,
-                        class: 'flex items-center px-4 py-2 text-sm text-link hover:bg-dropdown-hover hover:text-highlight no-underline' do %>
+                        class: 'flex items-center px-4 py-2 text-sm text-nav-fg hover:bg-dropdown-hover hover:text-nav-hover no-underline' do %>
               <i class='fa-regular fa-rocket mr-2 w-4 text-center'></i>
               Ships
             <% end %>
 
             <%= link_to data_cores_path,
-                        class: 'flex items-center px-4 py-2 text-sm text-link hover:bg-dropdown-hover hover:text-highlight no-underline rounded-b-lg' do %>
+                        class: 'flex items-center px-4 py-2 text-sm text-nav-fg hover:bg-dropdown-hover hover:text-nav-hover no-underline rounded-b-lg' do %>
               <i class='fa-regular fa-database mr-2 w-4 text-center'></i>
               Data Cores
             <% end %>
@@ -103,7 +107,7 @@
       <div  data-tour-step="nav-theme" class='relative' data-controller='dropdown theme'>
         <button type='button'
                 data-action='dropdown#toggle'
-                class='inline-flex items-center text-link hover:text-highlight cursor-pointer bg-transparent border-0 p-0'
+                class='inline-flex items-center text-nav-fg hover:text-nav-hover cursor-pointer bg-transparent border-0 p-0'
                 title='Change theme'
                 aria-label='Change theme'>
           <i class='fa-regular fa-swatchbook'></i>
@@ -115,7 +119,7 @@
             <button type='button'
                     data-action='theme#set'
                     data-theme-value='<%= theme %>'
-                    class='w-full flex items-center justify-between px-4 py-2 text-sm text-link hover:bg-dropdown-hover hover:text-highlight <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if index == ApplicationHelper::THEMES.size - 1 %>'>
+                    class='w-full flex items-center justify-between px-4 py-2 text-sm text-nav-fg hover:bg-dropdown-hover hover:text-nav-hover <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if index == ApplicationHelper::THEMES.size - 1 %>'>
               <span><%= info[:label] %></span>
               <% if current_theme == theme %>
                 <i class='fa-regular fa-check text-xs text-highlight'></i>
@@ -128,15 +132,15 @@
       <%= button_to 'Sign out',
                     session_path,
                     method: :delete,
-                    class: 'text-link hover:text-highlight hover:underline hover:underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-medium' %>
+                    class: 'text-nav-fg hover:text-nav-hover hover:underline hover:underline-offset-2 cursor-pointer bg-transparent border-0 p-0 font-medium' %>
     <% else %>
       <%= link_to 'Sign in',
                   new_session_path,
-                  class: 'text-link no-underline hover:text-highlight hover:underline hover:underline-offset-2' %>
+                  class: 'text-nav-fg no-underline hover:text-nav-hover hover:underline hover:underline-offset-2' %>
     <% end %>
 
     <%= link_to (content_for?(:help_path) ? yield(:help_path) : contextual_help_path),
-                class: 'text-link no-underline hover:text-highlight hover:underline hover:underline-offset-2',
+                class: 'text-nav-fg no-underline hover:text-nav-hover hover:underline hover:underline-offset-2',
                 title: 'Open contextual help' do %>
       <i class='fa-regular fa-square-info'></i>
     <% end %>

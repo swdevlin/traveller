@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Survey Overlays', survey_overlays_path]] %>
+
 <% content_for :title, @survey_overlay.name %>
 <% content_for :page_kicker, 'Survey Overlay' %>
 <% content_for :page_title, @survey_overlay.name %>
@@ -6,10 +9,6 @@
   <%= render @survey_overlay %>
 
   <%= link_to 'Edit', edit_survey_overlay_path(@survey_overlay), class: 'w-full sm:w-auto btn btn-primary' %>
-  <%= render 'application/back_button',
-             path: survey_overlays_path,
-             label: 'Survey Overlays',
-             class: 'w-full sm:w-auto' %>
   <%= button_to 'Delete',
                 @survey_overlay,
                 method: :delete,

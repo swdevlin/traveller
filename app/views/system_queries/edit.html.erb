@@ -1,0 +1,7 @@
+<% content_for :title, "Editing #{@system_query.name}" %>
+<% content_for :page_kicker, 'System Query' %>
+<% content_for :page_title, @system_query.name %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', system_query: @system_query %>
+<% end %>

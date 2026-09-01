@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Governments', governments_path]] %>
+
 <%= content_for :title, @government.government_type %>
 <%= content_for :page_kicker, "Government Classification" %>
 <%= content_for :page_title, @government.government_type %>
@@ -5,10 +8,6 @@
 
 <%= content_for :page_buttons do %>
   <%= link_to "Edit", edit_government_path(@government), class: "w-full sm:w-auto btn btn-primary" %>
-  <%= render 'application/back_button',
-             path: governments_path,
-             label: 'Governments',
-             class: 'w-full sm:w-auto' %>
   <%= button_to "Delete",
                 @government,
                 method: :delete,

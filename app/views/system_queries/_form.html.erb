@@ -1,0 +1,89 @@
+<%=
+  form_with model: system_query,
+            data: {
+              controller: 'survey-overlay-rule',
+              survey_overlay_rule_fields_value: SystemQuery::FIELDS.to_json,
+              survey_overlay_rule_operators_value: SystemQuery::OPERATORS.to_json,
+              survey_overlay_rule_operators_for_field_value: SystemQuery::OPERATORS_FOR_FIELD.to_json,
+              survey_overlay_rule_field_options_value: SystemQuery.picker_options.to_json,
+              survey_overlay_rule_initial_value: system_query.rule_data.to_json,
+              action: 'submit->survey-overlay-rule#serialize'
+            },
+            class: 'contents' do |form|
+%>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/edit_field', form: form, attribute: :name do %>
+      <%= form.text_field :name, class: 'edit-base w-60' %>
+    <% end %>
+
+    <%= render 'application/subsection', title: 'Rule' %>
+    <p class='text-xs text-fg-muted -mt-1 mb-2'>
+      Conditions within a group are combined with AND. Groups are combined with OR — any one matching
+      group is enough for the rule to match.
+    </p>
+
+    <div data-survey-overlay-rule-target='groups' class='space-y-4'></div>
+
+    <button type='button' data-action='survey-overlay-rule#addGroup' class='btn btn-sm'>
+      <i class='fa-regular fa-plus mr-1'></i> Add OR group
+    </button>
+
+    <%= form.hidden_field :rule_data_json, data: { survey_overlay_rule_target: 'output' } %>
+
+    <template data-survey-overlay-rule-target='groupTemplate'>
+      <div data-group class='rounded-md border border-outline p-3 space-y-2'>
+        <div data-conditions class='space-y-2'></div>
+        <div class='flex gap-2'>
+          <button type='button' data-action='survey-overlay-rule#addCondition' class='btn btn-sm'>
+            <i class='fa-regular fa-plus mr-1'></i> Add AND condition
+          </button>
+          <button type='button' data-action='survey-overlay-rule#removeGroup' class='btn btn-sm btn-danger'>
+            Remove group
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <template data-survey-overlay-rule-target='conditionTemplate'>
+      <div data-condition class='flex flex-wrap items-center gap-2 text-sm'>
+        <select data-field data-action='change->survey-overlay-rule#fieldChanged' class='edit-base min-w-40'></select>
+        <select data-operator data-action='change->survey-overlay-rule#operatorChanged' class='edit-base min-w-56'></select>
+        <div class='flex items-center gap-2'>
+          <input type='checkbox' data-negate class='sr-only'>
+          <button type='button' data-negate-toggle data-action='survey-overlay-rule#toggleNegate'
+                  role='switch' aria-checked='false'
+                  class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-toggle-off'>
+            <span data-negate-indicator class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out translate-x-0 bg-toggle-knob-off'></span>
+          </button>
+          <span class='text-xs text-fg-muted'>Not</span>
+        </div>
+        <div data-values-picker class='flex flex-wrap items-center gap-x-3 gap-y-1'></div>
+        <button type='button' data-action='survey-overlay-rule#removeCondition'
+                class='text-danger-fg hover:text-white hover:bg-danger rounded p-1.5 cursor-pointer transition'
+                title='Remove condition'>
+          <i class='fa-regular fa-trash'></i>
+        </button>
+      </div>
+    </template>
+
+    <%= render 'application/subsection', title: 'Columns' %>
+    <p class='text-xs text-fg-muted -mt-1 mb-2'>
+      Location (sector and hex, e.g. "Bifront 0307") and Name are always shown first. Choose which other columns to display.
+    </p>
+
+    <div class='flex flex-wrap gap-x-4 gap-y-1'>
+      <%= hidden_field_tag 'system_query[columns][]', '' %>
+      <% SystemQuery::COLUMN_KEYS.each do |key| %>
+        <label class='flex items-center gap-1.5 text-sm cursor-pointer'>
+          <%= check_box_tag 'system_query[columns][]', key, system_query.columns.include?(key), id: "system_query_columns_#{key}" %>
+          <%= SystemQuery::COLUMN_LABELS.fetch(key) %>
+        </label>
+      <% end %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit system_query.persisted? ? 'Update' : 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', system_query.persisted? ? system_query : system_queries_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

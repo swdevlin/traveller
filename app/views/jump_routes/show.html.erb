@@ -1,3 +1,6 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Jump Routes', jump_routes_path]] %>
+
 <% content_for :title, @jump_route.name %>
 <% content_for :page_kicker, 'Jump Route' %>
 <% content_for :page_title, @jump_route.name %>
@@ -10,10 +13,6 @@
   </turbo-frame>
 
   <%= link_to 'Edit', edit_jump_route_path(@jump_route), class: 'w-full sm:w-auto btn btn-primary' %>
-  <%= render 'application/back_button',
-             path: jump_routes_path,
-             label: 'Jump Routes',
-             class: 'w-full sm:w-auto' %>
   <%= button_to 'Delete',
                 @jump_route,
                 method: :delete,

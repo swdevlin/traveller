@@ -1,4 +1,4 @@
-module Traveller.SolarSystem exposing (BaseFacility, MainWorldProfile, SolarSystem, codec)
+module Traveller.StarSystemDetail exposing (BaseFacility, MainWorldProfile, StarSystemDetail, codec)
 
 import Codec
 import Dict
@@ -28,7 +28,7 @@ type alias MainWorldProfile =
     }
 
 
-type alias SolarSystem =
+type alias StarSystemDetail =
     { id : Int
     , address : HexAddress
     , primaryStar : StarData
@@ -51,7 +51,7 @@ type alias SolarSystem =
     }
 
 
-type alias RawSolarSystem =
+type alias RawStarSystemDetail =
     { id : Int
     , x : Int
     , y : Int
@@ -76,60 +76,60 @@ type alias RawSolarSystem =
     }
 
 
-codec : Codec.Codec SolarSystem
+codec : Codec.Codec StarSystemDetail
 codec =
     rawCodec
         |> Codec.andThen rawToFinal finalToRaw
 
 
-rawToFinal : RawSolarSystem -> Codec.Codec SolarSystem
-rawToFinal rawSolarSystem =
+rawToFinal : RawStarSystemDetail -> Codec.Codec StarSystemDetail
+rawToFinal rawStarSystemDetail =
     Codec.succeed
-        { id = rawSolarSystem.id
-        , address = HexAddress.createFromStarSystem rawSolarSystem
-        , primaryStar = rawSolarSystem.primaryStar
-        , gasGiants = rawSolarSystem.gasGiants
-        , planetoidBelts = rawSolarSystem.planetoidBelts
-        , terrestrialPlanets = rawSolarSystem.terrestrialPlanets
-        , surveyIndex = rawSolarSystem.surveyIndex
-        , actualSurveyIndex = rawSolarSystem.surveyIndex
-        , nativeSophont = rawSolarSystem.nativeSophont
-        , extinctSophont = rawSolarSystem.extinctSophont
-        , allegiance = rawSolarSystem.allegiance
-        , allegianceName = rawSolarSystem.allegianceName
-        , name = rawSolarSystem.name
-        , sectorName = rawSolarSystem.sectorName
-        , mainWorldProfile = rawSolarSystem.mainWorldProfile
-        , known = rawSolarSystem.known
-        , bases = rawSolarSystem.bases
-        , tradeCodes = rawSolarSystem.tradeCodes
-        , referenceUrl = rawSolarSystem.referenceUrl
+        { id = rawStarSystemDetail.id
+        , address = HexAddress.createFromStarSystem rawStarSystemDetail
+        , primaryStar = rawStarSystemDetail.primaryStar
+        , gasGiants = rawStarSystemDetail.gasGiants
+        , planetoidBelts = rawStarSystemDetail.planetoidBelts
+        , terrestrialPlanets = rawStarSystemDetail.terrestrialPlanets
+        , surveyIndex = rawStarSystemDetail.surveyIndex
+        , actualSurveyIndex = rawStarSystemDetail.surveyIndex
+        , nativeSophont = rawStarSystemDetail.nativeSophont
+        , extinctSophont = rawStarSystemDetail.extinctSophont
+        , allegiance = rawStarSystemDetail.allegiance
+        , allegianceName = rawStarSystemDetail.allegianceName
+        , name = rawStarSystemDetail.name
+        , sectorName = rawStarSystemDetail.sectorName
+        , mainWorldProfile = rawStarSystemDetail.mainWorldProfile
+        , known = rawStarSystemDetail.known
+        , bases = rawStarSystemDetail.bases
+        , tradeCodes = rawStarSystemDetail.tradeCodes
+        , referenceUrl = rawStarSystemDetail.referenceUrl
         }
 
 
-finalToRaw : SolarSystem -> RawSolarSystem
-finalToRaw solarSystem =
-    { id = solarSystem.id
+finalToRaw : StarSystemDetail -> RawStarSystemDetail
+finalToRaw starSystemDetail =
+    { id = starSystemDetail.id
     , x = 9999999999
     , y = 9999999999
-    , primaryStar = solarSystem.primaryStar
-    , gasGiants = solarSystem.gasGiants
-    , planetoidBelts = solarSystem.planetoidBelts
-    , terrestrialPlanets = solarSystem.terrestrialPlanets
-    , surveyIndex = solarSystem.surveyIndex
-    , nativeSophont = solarSystem.nativeSophont
-    , extinctSophont = solarSystem.extinctSophont
+    , primaryStar = starSystemDetail.primaryStar
+    , gasGiants = starSystemDetail.gasGiants
+    , planetoidBelts = starSystemDetail.planetoidBelts
+    , terrestrialPlanets = starSystemDetail.terrestrialPlanets
+    , surveyIndex = starSystemDetail.surveyIndex
+    , nativeSophont = starSystemDetail.nativeSophont
+    , extinctSophont = starSystemDetail.extinctSophont
     , sectorX = 9999999999
     , sectorY = 9999999999
-    , allegiance = solarSystem.allegiance
-    , allegianceName = solarSystem.allegianceName
-    , name = solarSystem.name
-    , sectorName = solarSystem.sectorName
-    , mainWorldProfile = solarSystem.mainWorldProfile
-    , known = solarSystem.known
-    , bases = solarSystem.bases
-    , tradeCodes = solarSystem.tradeCodes
-    , referenceUrl = solarSystem.referenceUrl
+    , allegiance = starSystemDetail.allegiance
+    , allegianceName = starSystemDetail.allegianceName
+    , name = starSystemDetail.name
+    , sectorName = starSystemDetail.sectorName
+    , mainWorldProfile = starSystemDetail.mainWorldProfile
+    , known = starSystemDetail.known
+    , bases = starSystemDetail.bases
+    , tradeCodes = starSystemDetail.tradeCodes
+    , referenceUrl = starSystemDetail.referenceUrl
     }
 
 
@@ -159,9 +159,9 @@ baseFacilityCodec =
         |> Codec.buildObject
 
 
-rawCodec : Codec.Codec RawSolarSystem
+rawCodec : Codec.Codec RawStarSystemDetail
 rawCodec =
-    Codec.object RawSolarSystem
+    Codec.object RawStarSystemDetail
         |> Codec.field "id" .id Codec.int
         |> Codec.field "x" .x Codec.int
         |> Codec.field "y" .y Codec.int
