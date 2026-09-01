@@ -65,6 +65,25 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'edit is forbidden for a logged-in user who does not referee this campaign' do
+    sign_out
+    sign_in_as users(:two)
+    get edit_star_system_url(@star_system)
+    assert_response :forbidden
+  end
+
+  test 'map is reachable for a logged-in user who does not referee this campaign, at the player variant' do
+    get map_star_system_url(@star_system, format: :svg)
+    owner_etag = response.headers['ETag']
+
+    sign_out
+    sign_in_as users(:two)
+    get map_star_system_url(@star_system, format: :svg)
+
+    assert_response :success
+    refute_equal owner_etag, response.headers['ETag']
+  end
+
   test 'should update star_system' do
     patch star_system_url(@star_system), params: { star_system: { name: @star_system.name } }
     assert_redirected_to star_system_url(@star_system)

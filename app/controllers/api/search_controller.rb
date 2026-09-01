@@ -8,7 +8,7 @@ class Api::SearchController < Api::BaseController
     return render json: [] if q.length < 3
 
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
 
     render json: search(q, is_referee)
   end

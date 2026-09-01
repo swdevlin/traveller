@@ -38,7 +38,7 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1/map.svg or .webp
   def map
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     fresh_when etag: "#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}", last_modified: @star_system.updated_at
     return if performed?
 
@@ -292,7 +292,7 @@ class StarSystemsController < ApplicationController
   private
 
   def map_cache_variant
-    authenticated? ? "auth_v#{MAP_TEMPLATE_VERSION}" : "public_v#{MAP_TEMPLATE_VERSION}"
+    owns_campaign? ? "auth_v#{MAP_TEMPLATE_VERSION}" : "public_v#{MAP_TEMPLATE_VERSION}"
   end
 
   def cached_svg
@@ -694,7 +694,7 @@ class StarSystemsController < ApplicationController
     region_record_max  = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: viewport_parsec_ids }).maximum(:updated_at)
     region_max_updated = [region_parsec_max, region_record_max].compact.max
 
-    auth_variant = authenticated? ? 'auth' : 'public'
+    auth_variant = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       max_system_updated.to_i,

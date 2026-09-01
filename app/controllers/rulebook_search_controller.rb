@@ -49,6 +49,6 @@ class RulebookSearchController < ApplicationController
   end
 
   def referee?
-    Current.user.present? || authenticated_by_token?
+    Current.owns_campaign? || authenticated_by_token?
   end
 end

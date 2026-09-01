@@ -98,6 +98,6 @@ class RulebookSearchFlowTest < ActionDispatch::IntegrationTest
   test 'a non-referee cannot reach the Library page for someone else\'s campaign' do
     sign_in_as users(:two)
     get library_url
-    assert_response :redirect
+    assert_response :forbidden
   end
 end

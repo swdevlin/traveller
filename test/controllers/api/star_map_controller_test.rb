@@ -55,6 +55,27 @@ class Api::StarMapControllerTest < ActionDispatch::IntegrationTest
     assert_equal [], entry['trade_codes']
   end
 
+  test 'a system not known and below survey index 10 has no trade codes for a logged-in user who does not referee this campaign' do
+    star_system = StarSystem.create!(name: 'Unsurveyed System', parsec: @parsec, known: false, survey_index: 0)
+    star = Star.create!(star_system: star_system, colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V')
+    main_world = TerrestrialPlanet.create!(
+      size_code: '5', atmosphere_code: 6, hydrographics_code: 5,
+      population_code: 6, government_code: 5, law_level_code: 5,
+      tech_level_code: 8, starport_code: 'A',
+      orbiting: star, orbit: 1.0
+    )
+    main_world.trade_codes = [trade_codes(:tc1)]
+    star_system.update!(main_world: main_world)
+
+    sign_in_as users(:two)
+    get api_star_map_url(campaign_slug: @campaign.slug, **@bounds), as: :json
+
+    assert_response :success
+    entry = response.parsed_body.find { |s| s['id'] == star_system.id }
+    assert entry
+    assert_equal [], entry['trade_codes']
+  end
+
   test 'strategic is only computed when display_mode requests it, trade_codes is unaffected either way' do
     star_system = StarSystem.create!(name: 'Strategic Test System', parsec: @parsec, known: true)
     star = Star.create!(star_system: star_system, colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V')

@@ -12,12 +12,21 @@ class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'renders for a user logged in as a different campaign\'s referee the same as logged-out' do
-    # find_session_by_cookie refuses to resume this session for campaigns(:one),
-    # since users(:two) is not campaigns(:one)'s own referee — so this behaves
+    # referee? checks Current.owns_campaign?, which is false here since
+    # users(:two) is not campaigns(:one)'s own referee — so this behaves
     # exactly like an anonymous player, not like campaigns(:one)'s own referee.
     sign_in_as users(:two)
     get rulebook_search_url, params: { q: 'jump drive' }
     assert_response :success
+  end
+
+  test 'a user logged in as a different campaign\'s referee does not see an enabled book that is not player-searchable' do
+    campaign_rulebooks(:core_enabled).update!(player_searchable: false)
+    sign_in_as users(:two)
+
+    get rulebook_search_url, params: { q: 'jump drive' }
+    assert_response :success
+    assert_includes @response.body, 'No matches'
   end
 
   test 'sets a noindex meta tag' do

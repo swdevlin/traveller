@@ -15,7 +15,7 @@ class Api::StellarObjectsController < Api::BaseController
     return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object
 
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
     star_system = stellar_object.star_system
     player_visible = is_referee || (star_system.present? && (star_system.known? || star_system.survey_index >= 10))
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible
@@ -30,7 +30,7 @@ class Api::StellarObjectsController < Api::BaseController
     return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object
 
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
     star_system = stellar_object.star_system
     player_visible = is_referee || (star_system.present? && (star_system.known? || star_system.survey_index >= 10))
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible

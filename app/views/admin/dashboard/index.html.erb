@@ -56,11 +56,14 @@
               <td class='text-right'><%= row[:star_system_count] || 'n/a' %></td>
               <td class='text-right'><%= row[:referee_visits] || 'n/a' %></td>
               <td class='text-right'><%= row[:player_visits] || 'n/a' %></td>
-              <td><%= campaign.created_at.to_fs(:long) %></td>
+              <td><%= campaign.created_at.to_date.iso8601 %></td>
             </tr>
           <% end %>
           </tbody>
         </table>
+      </div>
+      <div class='w-full pb-4'>
+        <%== @pagy.series_nav %>
       </div>
     </div>
   </div>

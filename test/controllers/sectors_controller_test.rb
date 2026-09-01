@@ -44,6 +44,25 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'edit is forbidden for a logged-in user who does not referee this campaign' do
+    sign_out
+    sign_in_as users(:two)
+    get edit_sector_url(@sector)
+    assert_response :forbidden
+  end
+
+  test 'map is reachable for a logged-in user who does not referee this campaign, at the player variant' do
+    get map_sector_url(@sector, format: :svg)
+    owner_etag = response.headers['ETag']
+
+    sign_out
+    sign_in_as users(:two)
+    get map_sector_url(@sector, format: :svg)
+
+    assert_response :success
+    refute_equal owner_etag, response.headers['ETag']
+  end
+
   test 'statistics renders the world statistics partial without a layout' do
     get statistics_sector_url(@sector)
     assert_response :success
