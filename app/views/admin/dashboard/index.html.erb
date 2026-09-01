@@ -19,6 +19,8 @@
     <div class='grid grid-cols-2 gap-4 sm:grid-cols-5'>
       <%= render 'application/data_block', label: 'New this week', value: @campaigns_created_this_week %>
       <%= render 'application/data_block', label: 'New this month', value: @campaigns_created_this_month %>
+      <%= render 'application/data_block', label: 'Referee visits (7d)', value: @referee_visits_7d %>
+      <%= render 'application/data_block', label: 'Player visits (7d)', value: @player_visits_7d %>
     </div>
 
     <div class='table-card'>
@@ -31,10 +33,13 @@
           <thead>
           <tr>
             <th scope='col'>Name</th>
+            <th scope='col'>Slug</th>
             <th scope='col'>Referee</th>
             <th scope='col'>Type</th>
             <th scope='col' class='text-right'>Sectors</th>
             <th scope='col' class='text-right'>Star systems</th>
+            <th scope='col' class='text-right'>Referee visits (7d)</th>
+            <th scope='col' class='text-right'>Player visits (7d)</th>
             <th scope='col'>Created</th>
           </tr>
           </thead>
@@ -44,10 +49,13 @@
             <% campaign = row[:campaign] %>
             <tr>
               <td><%= campaign.name %></td>
+              <td><%= campaign.slug %></td>
               <td><%= campaign.referee.email_address %></td>
               <td><span class='pill'><%= campaign.campaign_type.humanize %></span></td>
               <td class='text-right'><%= row[:sector_count] || 'n/a' %></td>
               <td class='text-right'><%= row[:star_system_count] || 'n/a' %></td>
+              <td class='text-right'><%= row[:referee_visits] || 'n/a' %></td>
+              <td class='text-right'><%= row[:player_visits] || 'n/a' %></td>
               <td><%= campaign.created_at.to_fs(:long) %></td>
             </tr>
           <% end %>

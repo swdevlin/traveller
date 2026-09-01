@@ -54,12 +54,14 @@ namespace :jump_routes do
         .pluck(
           'star_systems.id',
           Arel.sql("(stellar_objects.data -> 'population' ->> 'code')::integer"),
-          Arel.sql('ARRAY_AGG(trade_codes.code)')
+          Arel.sql('ARRAY_AGG(trade_codes.code)'),
+          Arel.sql("stellar_objects.data ->> 'starport_code'")
         )
       tenders = 0
       xboats = 0
       spare_xboats = 0
-      systems.each do |id, population_code, trade_codes|
+      tankers = 0
+      systems.each do |id, population_code, trade_codes, starport_code|
         links = system_links[id]
         if population_code.nil?
           system = StarSystem.find(id)
@@ -76,11 +78,13 @@ namespace :jump_routes do
         tenders += [(xb.to_f/4).ceil, 1].max
         spare_xboats += spares
         xboats += xb
+        tankers += 1 if %w[E X].include?(starport_code)
       end
       puts "Systems = #{systems.size}"
       puts "X-boats = #{xboats}"
       puts "Spare x-boats = #{spare_xboats}"
       puts "Tenders = #{tenders}"
+      puts "Tankers = #{tankers}"
     end
   end
 

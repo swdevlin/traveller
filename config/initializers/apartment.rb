@@ -9,6 +9,7 @@ Apartment.configure do |config|
     User Campaign Session FontAwesomeIcon Rulebook RulebookPage
     Faultline::ErrorGroup Faultline::ErrorOccurrence Faultline::ErrorContext
     Faultline::RequestTrace Faultline::RequestProfile
+    Ahoy::Visit Ahoy::Event
   ]
 
   config.tenant_names = lambda do
