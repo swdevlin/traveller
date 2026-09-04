@@ -6,14 +6,15 @@ class SectorRouteImporterTest < ActiveSupport::TestCase
     @neighbour = Sector.create!(name: 'Beta', x: 10, y: 11, abbreviation: 'Bet')
   end
 
-  def build_star_system(sector, hex)
+  def build_star_system(sector, hex, allegiance_code: nil, name: nil)
     ul = sector.upper_left
     x = ul.x + (hex[0, 2].to_i - 1)
     y = ul.y - (hex[2, 2].to_i - 1)
     q = x
     r = -y - ((x - (x & 1)) / 2)
     parsec = Parsec.create!(sector: sector, x: x, y: y, q: q, r: r, s: -q - r)
-    StarSystem.create!(name: "System #{hex}", parsec: parsec)
+    allegiance = allegiance_code && (Allegiance.find_by(code: allegiance_code) || Allegiance.create!(code: allegiance_code, name: allegiance_code))
+    StarSystem.create!(name: name || "System #{hex}", parsec: parsec, allegiance: allegiance)
   end
 
   test 'creates a link between two systems in the same sector, tagged with the given allegiance' do
@@ -125,5 +126,93 @@ class SectorRouteImporterTest < ActiveSupport::TestCase
     low_id, high_id = [from.id, to.id].sort
     link = JumpRouteLink.find_by(from_star_system_id: low_id, to_star_system_id: high_id)
     assert link
+  end
+
+  test 'falls back to the endpoint systems shared allegiance when the route entry has none' do
+    build_star_system(@sector, '0101', allegiance_code: 'SoCf')
+    build_star_system(@sector, '0202', allegiance_code: 'SoCf')
+    metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202' }] }
+
+    SectorRouteImporter.new(@sector, metadata).call
+
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'SoCf')
+    assert jump_route
+    assert_equal 'SoCf Jump Route', jump_route.name
+  end
+
+  test 'normalizes any Im-prefixed endpoint allegiance to the Im bucket' do
+    build_star_system(@sector, '0101', allegiance_code: 'ImDs')
+    build_star_system(@sector, '0202', allegiance_code: 'ImDs')
+    metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202' }] }
+
+    SectorRouteImporter.new(@sector, metadata).call
+
+    assert_nil JumpRoute.find_by(travellermap_allegiance_code: 'ImDs')
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'Im')
+    assert jump_route
+    assert_equal 'Express Boat', jump_route.name
+    assert_equal jump_route, jump_route.jump_route_links.sole.jump_route
+  end
+
+  test 'differing endpoint allegiances with no route tag fall back to Im when untyped' do
+    build_star_system(@sector, '0101', allegiance_code: 'NaHu')
+    build_star_system(@sector, '0202', allegiance_code: 'CsIm')
+    metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202' }] }
+
+    SectorRouteImporter.new(@sector, metadata).call
+
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'Im')
+    assert jump_route
+    assert_equal 'Express Boat', jump_route.name
+  end
+
+  test 'differing endpoint allegiances with no route tag fall back to LocalTrade when Type is Trade' do
+    build_star_system(@sector, '0101', allegiance_code: 'NaHu')
+    build_star_system(@sector, '0202', allegiance_code: 'CsIm')
+    metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202', 'Type' => 'Trade' }] }
+
+    SectorRouteImporter.new(@sector, metadata).call
+
+    assert_nil JumpRoute.find_by(travellermap_allegiance_code: 'Im-Trade')
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'LocalTrade')
+    assert jump_route
+    assert_equal 'Local Trade Route', jump_route.name
+  end
+
+  test 'a Type Trade entry gets its own route distinct from the Comm route for the same code' do
+    build_star_system(@sector, '0101')
+    build_star_system(@sector, '0202')
+    build_star_system(@sector, '0303')
+    metadata = {
+      'Routes' => [
+        { 'Start' => '0101', 'End' => '0202', 'Allegiance' => 'SoCf' },
+        { 'Start' => '0101', 'End' => '0303', 'Allegiance' => 'SoCf', 'Type' => 'Trade' }
+      ]
+    }
+
+    SectorRouteImporter.new(@sector, metadata).call
+
+    comm_route = JumpRoute.find_by(travellermap_allegiance_code: 'SoCf')
+    trade_route = JumpRoute.find_by(travellermap_allegiance_code: 'SoCf-Trade')
+    assert comm_route
+    assert trade_route
+    assert_not_equal comm_route, trade_route
+    assert_equal 'SoCf Trade Route', trade_route.name
+  end
+
+  test 'a forced-override pair always lands on Express Boat regardless of allegiance or type' do
+    sector = Sector.create!(name: 'The Beyond', x: -5, y: 0, abbreviation: 'Bey')
+    delta_base = build_star_system(sector, '0101', allegiance_code: 'NaHu', name: 'Delta Base')
+    aacheon = build_star_system(sector, '0202', allegiance_code: 'CsIm', name: 'Aacheon')
+    metadata = { 'Routes' => [{ 'Start' => '0101', 'End' => '0202', 'Type' => 'Trade' }] }
+
+    SectorRouteImporter.new(sector, metadata).call
+
+    jump_route = JumpRoute.find_by(travellermap_allegiance_code: 'Im')
+    assert jump_route
+    assert_equal 'Express Boat', jump_route.name
+    low_id, high_id = [delta_base.id, aacheon.id].sort
+    link = JumpRouteLink.find_by(from_star_system_id: low_id, to_star_system_id: high_id)
+    assert_equal jump_route, link.jump_route
   end
 end

@@ -2,6 +2,27 @@
 
 class SectorRouteImporter
   DEFAULT_ALLEGIANCE_CODE = 'Im'
+  LOCAL_TRADE_CODE = 'LocalTrade'
+
+  # Known X-boat tender hops that stay on the Imperium's Express Boat network regardless of
+  # local allegiance or route Type. Each entry is [sector_name, system_name, sector_name, system_name].
+  FORCED_IM_LINKS = [
+    ['The Beyond', 'Delta Base', 'The Beyond', 'Aacheon'],
+    ['The Beyond', 'Aacheon', 'The Beyond', 'Tellus'],
+    ['The Beyond', 'Tellus', 'The Beyond', 'Web Edge'],
+    ['The Beyond', 'Web Edge', 'The Beyond', 'Aakumaska'],
+    ['The Beyond', 'Aakumaska', 'The Beyond', 'Dedeged'],
+    ['The Beyond', 'Dedeged', 'The Beyond', 'Cirat'],
+    ['The Beyond', 'Cirat', 'The Beyond', 'Morphy'],
+    ['The Beyond', 'Morphy', 'The Beyond', 'Alekhine'],
+    ['The Beyond', 'Alekhine', 'The Beyond', 'Midway'],
+    ['The Beyond', 'Midway', 'The Beyond', 'Kazar'],
+    ['The Beyond', 'Kazar', 'Spinward Marches', 'Raweh'],
+    ['The Beyond', 'Morphy', 'The Beyond', 'Djend'],
+    ['The Beyond', 'Djend', 'The Beyond', 'Tartakover'],
+    ['Spinward Marches', 'Caladbolg', 'Spinward Marches', 'Biter'],
+    ['Spinward Marches', 'Biter', 'Spinward Marches', 'Adabicci']
+  ].freeze
 
   def initialize(sector, metadata)
     @sector = sector
@@ -20,7 +41,7 @@ class SectorRouteImporter
         next
       end
 
-      jump_route = find_or_create_jump_route(route['Allegiance'])
+      jump_route = find_or_create_jump_route(route['Allegiance'], route['Type'], from_system, to_system)
       low_id, high_id = [from_system.id, to_system.id].sort
 
       if JumpRouteLink.exists?(from_star_system_id: low_id, to_star_system_id: high_id)
@@ -61,16 +82,50 @@ class SectorRouteImporter
     end
   end
 
-  def find_or_create_jump_route(allegiance)
-    code = allegiance.presence || DEFAULT_ALLEGIANCE_CODE
+  def find_or_create_jump_route(allegiance, type, from_system, to_system)
+    route_code = resolve_route_code(allegiance, type, from_system, to_system)
 
-    (@jump_route_cache ||= {}).fetch(code) do
-      @jump_route_cache[code] = JumpRoute.find_or_create_by!(travellermap_allegiance_code: code) do |jump_route|
-        jump_route.name = "#{code} Jump Route"
+    (@jump_route_cache ||= {}).fetch(route_code) do
+      @jump_route_cache[route_code] = JumpRoute.find_or_create_by!(travellermap_allegiance_code: route_code) do |jump_route|
+        jump_route.name = route_name_for(route_code)
         jump_route.route_type = 'network'
         jump_route.colour = '#6b7280'
         jump_route.known = true
       end
     end
+  end
+
+  def resolve_route_code(allegiance, type, from_system, to_system)
+    return DEFAULT_ALLEGIANCE_CODE if forced_im_link?(from_system, to_system)
+
+    trade = type == 'Trade'
+    code = allegiance.presence || common_endpoint_allegiance_code(from_system, to_system)
+
+    if code.blank?
+      return trade ? LOCAL_TRADE_CODE : DEFAULT_ALLEGIANCE_CODE
+    end
+
+    code = DEFAULT_ALLEGIANCE_CODE if code.start_with?('Im')
+    trade ? "#{code}-Trade" : code
+  end
+
+  def route_name_for(route_code)
+    return 'Express Boat' if route_code == DEFAULT_ALLEGIANCE_CODE
+    return 'Local Trade Route' if route_code == LOCAL_TRADE_CODE
+    return "#{route_code.delete_suffix('-Trade')} Trade Route" if route_code.end_with?('-Trade')
+
+    "#{route_code} Jump Route"
+  end
+
+  def common_endpoint_allegiance_code(from_system, to_system)
+    from_code = from_system.allegiance&.code
+    to_code = to_system.allegiance&.code
+    from_code if from_code.present? && from_code == to_code
+  end
+
+  def forced_im_link?(from_system, to_system)
+    a = [from_system.parsec.sector.name, from_system.name]
+    b = [to_system.parsec.sector.name, to_system.name]
+    FORCED_IM_LINKS.any? { |s1, n1, s2, n2| (a == [s1, n1] && b == [s2, n2]) || (a == [s2, n2] && b == [s1, n1]) }
   end
 end

@@ -59,7 +59,7 @@ namespace :jump_routes do
         .tally
       systems = StarSystem
         .where(id: system_links.keys)
-        .joins(main_world: :trade_codes)
+        .left_joins(main_world: :trade_codes)
         .group('star_systems.id', 'stellar_objects.id')
         .pluck(
           'star_systems.id',
@@ -78,14 +78,11 @@ namespace :jump_routes do
            puts "#{system.name} (#{id}) has a nil population"
         end
 
-        if population_code > 8 or 'Cp' in trade_codes or 'Cs' in trade_codes
-          jumps_per_day = 3
-        else
-          jumps_per_day = 1
-        end
-        xb = jumps_per_day * links
-        spares = [population_code.to_i * links, 2].max
-        tenders += [(xb.to_f/4).ceil, 1].max
+        jumps_per_day = 1
+
+        xb = jumps_per_day * 7 * links
+        spares = links * 2
+        tenders += [(links.to_f/4).ceil, 1].max + 1
         spare_xboats += spares
         xboats += xb
         tankers += 1 if %w[E X].include?(starport_code)
@@ -95,6 +92,30 @@ namespace :jump_routes do
       puts "Spare x-boats = #{spare_xboats}"
       puts "Tenders = #{tenders}"
       puts "Tankers = #{tankers}"
+    end
+  end
+
+  desc 'Deletes all network jump routes for a campaign and reimports them from TravellerMap'
+  task :reimport_network, [:campaign] => :environment do |_task, args|
+    campaign = Campaign.find_by!(slug: args[:campaign])
+    Apartment::Tenant.switch(campaign.schema_name) do
+      deleted = JumpRoute.where(route_type: 'network').destroy_all.size
+      puts "Deleted #{deleted} network jump route(s)"
+
+      traveller_map = TravellerMap.new
+      Sector.kept.where(source: 'traveller_map').find_each do |sector|
+        metadata = traveller_map.fetch_sector_metadata(sector.x, sector.y)
+        if metadata.blank?
+          puts "#{sector.name}: metadata fetch failed, skipped"
+          next
+        end
+
+        stats = SectorRouteImporter.new(sector, metadata).call
+        puts "#{sector.name}: #{stats}"
+      end
+
+      puts "\nDone. #{JumpRoute.where(route_type: 'network').count} network route(s), " \
+           "#{JumpRouteLink.count} link(s) total."
     end
   end
 
