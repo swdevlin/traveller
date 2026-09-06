@@ -80,6 +80,10 @@
       <%= render 'application/data_block',
                  label: 'Realistic Star Distribution',
                  value: @campaign.realistic_star_distribution? ? 'Yes' : 'No' %>
+
+      <%= render 'application/data_block',
+                 label: 'Limit Populated World Eccentricity',
+                 value: @campaign.limited_main_world_eccentricity? ? 'Yes' : 'No' %>
     </div>
 
     <%= render 'application/subsection', title: 'Display Preferences' %>

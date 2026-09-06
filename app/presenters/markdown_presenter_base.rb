@@ -196,14 +196,31 @@ class MarkdownPresenterBase
   end
 
   def environmental_data_section
-    celsius = @obj.temperature ? (@obj.temperature - StellarConstants::KELVIN_TO_CELSIUS_OFFSET).round : nil
-    rows = []
-    rows << ['Temperature', "#{celsius}°C"] if celsius
-    rows << ['Rotation', "#{fmt(@obj.rotation, 2)} hours"] if @obj.rotation.present?
-    rows << ['Axial Tilt', "#{fmt(@obj.axial_tilt, 2)}°"] if @obj.axial_tilt.present?
-    rows << ['Albedo', fmt(@obj.albedo, 2)] if @obj.albedo.present?
-    rows << ['Greenhouse', fmt(@obj.greenhouse, 2)] if @obj.greenhouse.present?
+    rows = temperature_rows
+    rows << ['Rotation', "#{fmt(@obj.rotation, 2)} hours"] if @obj.respond_to?(:rotation) && @obj.rotation.present?
+    rows << ['Axial Tilt', "#{fmt(@obj.axial_tilt, 2)}°"] if @obj.respond_to?(:axial_tilt) && @obj.axial_tilt.present?
+    rows << ['Albedo', fmt(@obj.albedo, 2)] if @obj.respond_to?(:albedo) && @obj.albedo.present?
+    rows << ['Greenhouse', fmt(@obj.greenhouse, 2)] if @obj.respond_to?(:greenhouse) && @obj.greenhouse.present?
     table_section('Environmental Data', rows)
+  end
+
+  def temperature_rows
+    rows = []
+    if @obj.respond_to?(:current_temperature) && @obj.current_temperature.present?
+      rows << ['Current Temperature', "#{kelvin_to_celsius(@obj.current_temperature)}°C"]
+    end
+    rows << ['Temperature', "#{kelvin_to_celsius(@obj.temperature)}°C"] if @obj.temperature.present?
+    if @obj.respond_to?(:periapsis_temperature) && @obj.periapsis_temperature.present?
+      rows << ['Periapsis Temperature', "#{kelvin_to_celsius(@obj.periapsis_temperature)}°C"]
+    end
+    if @obj.respond_to?(:apoapsis_temperature) && @obj.apoapsis_temperature.present?
+      rows << ['Apoapsis Temperature', "#{kelvin_to_celsius(@obj.apoapsis_temperature)}°C"]
+    end
+    rows
+  end
+
+  def kelvin_to_celsius(kelvin)
+    (kelvin - StellarConstants::KELVIN_TO_CELSIUS_OFFSET).round
   end
 
   def atmosphere_section

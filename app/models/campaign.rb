@@ -27,6 +27,7 @@ class Campaign < ApplicationRecord
                             :default_language, :date_format, :trade_good_base_prices,
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
+                            :limited_main_world_eccentricity,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
 
   def exploration?
@@ -72,6 +73,11 @@ class Campaign < ApplicationRecord
 
   def native_tech_level?
     ActiveModel::Type::Boolean.new.cast(native_tech_level)
+  end
+
+  def limited_main_world_eccentricity?
+    val = ActiveModel::Type::Boolean.new.cast(limited_main_world_eccentricity)
+    val.nil? ? charted_space? : val
   end
 
   before_validation :default_sector_source

@@ -34,6 +34,7 @@ sophontCheck:
 maxTechLevel:
 nativeTechLevel:
 allowCaptiveGovernment:
+limitedMainWorldEccentricity:
 exclude:
 required:
 systems:
@@ -100,6 +101,17 @@ populated:</code></pre>
               <div>
                 <dt>allowCaptiveGovernment</dt>
                 <dd>If set to false, the main world will not have a captive government type.</dd>
+              </div>
+
+              <div>
+                <dt>limitedMainWorldEccentricity</dt>
+                <dd>Boolean. When true, restricts every generated world with a population code of 3 or
+                  greater to the three lowest rolls of the Eccentricity table (<cite>World Builder's
+                  Handbook, pg. 27</cite>), i.e. an eccentricity of 0.09 or less — unless that world
+                  already has an explicit <span class="yaml-tag">eccentricity</span> value set, which
+                  always wins. Applies to every system in the subsector; an individual entry in
+                  <span class="yaml-tag">required</span> or <span class="yaml-tag">systems</span> can
+                  override this per system.</dd>
               </div>
 
               <div>

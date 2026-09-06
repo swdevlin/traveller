@@ -22,6 +22,7 @@ MainWorldSchema = Dry::Schema.Params do
   optional(:orbit).filled(:string, included_in?: BODY_ORBIT_TYPES)
   optional(:name).filled(:string)
   optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
+  optional(:eccentricity).filled(:float, gteq?: 0, lteq?: 1)
 end
 
 CoordinateSchema = Dry::Schema.Params do
@@ -43,6 +44,7 @@ CountsSchema = Dry::Schema.Params do
     optional(:language).filled(:string)
     optional(:moon).filled(:bool)
     optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
+    optional(:eccentricity).filled(:float, gteq?: 0, lteq?: 1)
   end
 end
 
@@ -66,6 +68,7 @@ BaseStarSchema = Dry::Schema.Params do
     optional(:language).filled(:string)
     optional(:mainWorld).filled(:bool)
     optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
+    optional(:eccentricity).filled(:float, gteq?: 0, lteq?: 1)
   end
 end
 
@@ -138,6 +141,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:travelZone).maybe(:string)
   optional(:counts).hash(CountsSchema)
   optional(:rogues).value(:array).each { hash(RogueSchema) }
+  optional(:limitedMainWorldEccentricity).filled(:bool)
 end
 
 SOPHONT_CHECK_VALUES = %w[standard rareEarth veryRareEarth none].freeze
@@ -157,6 +161,7 @@ SingleSystemSchema = Dry::Schema.Params do
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 33)
   optional(:nativeTechLevel).filled(:bool)
   optional(:rogues).value(:array).each { hash(RogueSchema) }
+  optional(:limitedMainWorldEccentricity).filled(:bool)
 end
 
 BuildConfigSchema = Dry::Schema.Params do
@@ -179,4 +184,5 @@ BuildConfigSchema = Dry::Schema.Params do
   optional(:maxTechLevel).filled(:integer, gteq?: 0, lteq?: 33)
   optional(:nativeTechLevel).filled(:bool)
   optional(:allowCaptiveGovernment).filled(:bool)
+  optional(:limitedMainWorldEccentricity).filled(:bool)
 end

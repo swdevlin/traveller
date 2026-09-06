@@ -199,6 +199,28 @@
           </div>
         </div>
 
+        <div>
+          <dt class='font-semibold text-fg-bright'>Limit Populated World Eccentricity</dt>
+          <dd class='mt-1 text-fg'>
+            When enabled, restricts every generated world with a population code of 3 or greater to
+            the three lowest rolls of the Eccentricity table (<cite>World Builder's Handbook, pg. 27</cite>),
+            i.e. an eccentricity of 0.09 or less — unless that world already has an explicit
+            eccentricity value set, which always wins.
+          </dd>
+          <div class='mt-3 space-y-2'>
+            <p class=' text-fg'>
+              Defaults to <span class='font-mono text-fg-bright'>enabled</span> for Charted Space
+              campaigns and <span class='font-mono text-fg-bright'>disabled</span> for Deepnight
+              Revelation and Homebrew campaigns.
+            </p>
+            <p class=' text-fg'>
+              Individual build configurations may specify
+              <span class='font-mono text-fg-bright'>limitedMainWorldEccentricity</span>, which takes
+              precedence over this campaign setting for that generation run.
+            </p>
+          </div>
+        </div>
+
       </dl>
     </div>
 

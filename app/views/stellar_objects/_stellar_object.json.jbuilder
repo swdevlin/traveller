@@ -14,7 +14,16 @@ deep_snake = ->(val) {
   else val
   end
 }
-stellar_object.data&.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
+# periapsis_temperature/apoapsis_temperature are served via the accessor methods below
+# instead, since those fall back to an estimate for bodies the generator didn't send them for.
+stellar_object.data&.except('periapsis_temperature', 'apoapsis_temperature')
+              &.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
+
+if stellar_object.respond_to?(:periapsis_temperature)
+  json.current_temperature stellar_object.current_temperature
+  json.periapsis_temperature stellar_object.periapsis_temperature
+  json.apoapsis_temperature stellar_object.apoapsis_temperature
+end
 
 render_context = local_assigns[:render_context] || {}
 

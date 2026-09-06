@@ -48,6 +48,7 @@ mainWorld:
   uwp:
   orbit:
   name:
+limitedMainWorldEccentricity:
 populated:
   type:
   allegiance:
@@ -144,6 +145,14 @@ rogues:</code></pre>
               requiring a <span class="yaml-tag">counts</span> entry. Can also be placed directly on any star
               definition to associate the main world with a specific star.
               See mainWorld definition below.</dd>
+          </div>
+
+          <div>
+            <dt>limitedMainWorldEccentricity</dt>
+            <dd>Boolean. When true, restricts every world with a population code of 3 or greater to the
+              three lowest rolls of the Eccentricity table (<cite>World Builder's Handbook, pg. 27</cite>),
+              i.e. an eccentricity of 0.09 or less — unless that world already has an explicit
+              <span class="yaml-tag">eccentricity</span> value set, which always wins.</dd>
           </div>
 
           <div>
@@ -258,7 +267,8 @@ rogues:</code></pre>
     orbit:
     name:
     moon:
-    populationDigit:</code></pre>
+    populationDigit:
+    eccentricity:</code></pre>
           <p class='text-sm'>System density is detailed on page 8 in the <cite>Deepnight Revelation Referee Handbook</cite>.</p>
         </div>
 
@@ -320,6 +330,11 @@ rogues:</code></pre>
                   <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
                     code. Used by the generator as a hint toward the main world's population.</dd>
                 </div>
+                <div>
+                  <dt>eccentricity</dt>
+                  <dd>Optional orbital eccentricity, from 0 to 1, pinned on the main world instead of
+                    letting the generator roll it randomly.</dd>
+                </div>
               </dl>
           </div>
         </dl>
@@ -342,7 +357,8 @@ rogues:</code></pre>
   uwp: (required)
   orbit:
   name:
-  populationDigit:</code></pre>
+  populationDigit:
+  eccentricity:</code></pre>
         </div>
 
         <dl class='spec-dl lg:col-span-3'>
@@ -376,6 +392,12 @@ rogues:</code></pre>
             <dt>populationDigit</dt>
             <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
               code. Used by the generator as a hint toward the main world's population.</dd>
+          </div>
+
+          <div>
+            <dt>eccentricity</dt>
+            <dd>Optional orbital eccentricity, from 0 to 1, pinned on the main world instead of
+              letting the generator roll it randomly.</dd>
           </div>
         </dl>
       </div>

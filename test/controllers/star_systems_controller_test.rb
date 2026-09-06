@@ -234,6 +234,46 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_equal [1, 2, 10], posted['populated']['governmentTypes']
   end
 
+  test 'build configuration create defaults limitedMainWorldEccentricity from the campaign setting' do
+    campaigns(:one).update!(campaign_type: 'charted_space')
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    posted = nil
+    stub_request(:post, "#{base}/star_system")
+      .with { |req| posted = JSON.parse(req.body) }
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: 'name: Halvor' }
+    }
+
+    assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+    assert_equal true, posted['limitedMainWorldEccentricity']
+  end
+
+  test 'build configuration create does not overwrite an explicit limitedMainWorldEccentricity' do
+    base = Rails.application.config.x.generator_service
+    body = file_fixture('star_system_import_minimal.json').read
+
+    posted = nil
+    stub_request(:post, "#{base}/star_system")
+      .with { |req| posted = JSON.parse(req.body) }
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: body)
+
+    build = <<~YAML
+      name: Halvor
+      limitedMainWorldEccentricity: false
+    YAML
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+    }
+
+    assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
+    assert_equal false, posted['limitedMainWorldEccentricity']
+  end
+
   test 'build configuration create falls back to generator response bases when config has none' do
     base = Rails.application.config.x.generator_service
     body = JSON.parse(file_fixture('star_system_import_minimal.json').read)

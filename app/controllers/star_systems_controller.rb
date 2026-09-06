@@ -375,6 +375,7 @@ class StarSystemsController < ApplicationController
       },
       'primary' => primary
     }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options).merge(realistic_star_distribution_options)
+      .merge(limited_main_world_eccentricity_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -416,6 +417,7 @@ class StarSystemsController < ApplicationController
     config.reverse_merge!(max_tech_level_options)
     config.reverse_merge!(native_tech_level_options)
     config.reverse_merge!(realistic_star_distribution_options)
+    config.reverse_merge!(limited_main_world_eccentricity_options)
     result = generator_service.generate_star_system(config)
 
     unless result.success?
@@ -459,6 +461,7 @@ class StarSystemsController < ApplicationController
     build_config = {
       'name' => params['name']
     }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options).merge(realistic_star_distribution_options)
+      .merge(limited_main_world_eccentricity_options)
     result = generator_service.generate_star_system(build_config)
 
     unless result.success?
@@ -498,6 +501,7 @@ class StarSystemsController < ApplicationController
         'counts'  => { 'gasGiants' => 0, 'planetoidBelts' => 0, 'terrestrialPlanets' => 0 },
         'primary' => primary
       }.merge(sophont_check_options).merge(max_tech_level_options).merge(native_tech_level_options).merge(realistic_star_distribution_options)
+        .merge(limited_main_world_eccentricity_options)
       result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
@@ -505,6 +509,7 @@ class StarSystemsController < ApplicationController
       config = { 'name' => create_params['name'] }
       config['populated'] = true if create_params['populated'] == '1'
       config.merge!(sophont_check_options).merge!(max_tech_level_options).merge!(native_tech_level_options).merge!(realistic_star_distribution_options)
+      config.merge!(limited_main_world_eccentricity_options)
       result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil] : [nil, result.errors.to_sentence]
 
@@ -526,6 +531,7 @@ class StarSystemsController < ApplicationController
       config.reverse_merge!(max_tech_level_options)
       config.reverse_merge!(native_tech_level_options)
       config.reverse_merge!(realistic_star_distribution_options)
+      config.reverse_merge!(limited_main_world_eccentricity_options)
       result = generator_service.generate_star_system(config)
       result.success? ? [result.value, nil, config_bases] : [nil, result.errors.to_sentence, config_bases]
 
@@ -566,6 +572,10 @@ class StarSystemsController < ApplicationController
 
   def realistic_star_distribution_options
     { 'realisticStarDistribution' => current_campaign.realistic_star_distribution? }
+  end
+
+  def limited_main_world_eccentricity_options
+    { 'limitedMainWorldEccentricity' => current_campaign.limited_main_world_eccentricity? }
   end
 
   def new_star_system_params

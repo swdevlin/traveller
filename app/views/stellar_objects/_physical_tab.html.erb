@@ -13,7 +13,33 @@
 
   <%= render 'application/subsection', title: 'Environmental Data' %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <%= render 'application/data_block', label: 'Temperature', value: format_temperature_celsius(stellar_object.temperature), suffix: '°C' %>
+    <div class='min-w-0'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Temperature</div>
+      <dl class='mt-2 space-y-0.5'>
+        <% if stellar_object.current_temperature.present? %>
+          <div class='flex items-baseline justify-between gap-2'>
+            <dt class='text-fg-muted'>Current</dt>
+            <dd class='text-fg-bright text-right'><%= format_temperature_celsius(stellar_object.current_temperature) %>°C</dd>
+          </div>
+        <% end %>
+        <div class='flex items-baseline justify-between gap-2'>
+          <dt class='text-fg-muted'>Mean</dt>
+          <dd class='text-fg-bright text-right'><%= format_temperature_celsius(stellar_object.temperature) %>°C</dd>
+        </div>
+        <% if stellar_object.periapsis_temperature.present? %>
+          <div class='flex items-baseline justify-between gap-2'>
+            <dt class='text-fg-muted'>Periapsis</dt>
+            <dd class='text-fg-bright text-right'><%= format_temperature_celsius(stellar_object.periapsis_temperature) %>°C</dd>
+          </div>
+        <% end %>
+        <% if stellar_object.apoapsis_temperature.present? %>
+          <div class='flex items-baseline justify-between gap-2'>
+            <dt class='text-fg-muted'>Apoapsis</dt>
+            <dd class='text-fg-bright text-right'><%= format_temperature_celsius(stellar_object.apoapsis_temperature) %>°C</dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
     <%= render 'application/data_block', label: 'Rotation', value: number_with_precision(stellar_object.rotation, precision: 2, strip_insignificant_zeros: true), suffix: 'hours' %>
     <%= render 'application/data_block', label: 'Axial Tilt', value: number_with_precision(stellar_object.axial_tilt, precision: 2, strip_insignificant_zeros: true), suffix: '°' %>
     <%= render 'application/data_block', label: 'Albedo', value: number_with_precision(stellar_object.albedo, precision: 2, strip_insignificant_zeros: true) %>

@@ -44,4 +44,27 @@ class MoonMarkdownPresenterTest < ActiveSupport::TestCase
     assert_includes markdown, 'Periapsis | 1,235 km'
     assert_includes markdown, 'Apoapsis | 5,679 km'
   end
+
+  test 'renders explicit periapsis/apoapsis temperature from the generator' do
+    moon = moons(:orbiting_gas_giant)
+    moon.data = moon.data.merge('temperature' => 280.0, 'periapsis_temperature' => 310.0, 'apoapsis_temperature' => 260.0)
+    moon.save!
+
+    markdown = MoonMarkdownPresenter.new(moon).render
+
+    assert_includes markdown, 'Periapsis Temperature | 37°C'
+    assert_includes markdown, 'Apoapsis Temperature | -13°C'
+  end
+
+  test 'renders an estimated periapsis/apoapsis temperature when the generator omitted them' do
+    moon = moons(:orbiting_gas_giant)
+    moon.eccentricity = 0.2
+    moon.data = moon.data.merge('temperature' => 280.0)
+    moon.save!
+
+    markdown = MoonMarkdownPresenter.new(moon).render
+
+    assert_includes markdown, 'Periapsis Temperature'
+    assert_includes markdown, 'Apoapsis Temperature'
+  end
 end

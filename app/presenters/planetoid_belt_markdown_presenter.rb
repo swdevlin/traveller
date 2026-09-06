@@ -2,7 +2,8 @@ class PlanetoidBeltMarkdownPresenter < MarkdownPresenterBase
   private
 
   def type_sections
-    orbital_data_section + jump_shadow_section + belt_composition_section + belt_data_section
+    orbital_data_section + jump_shadow_section + environmental_data_section +
+      belt_composition_section + belt_data_section
   end
 
   def belt_composition_section

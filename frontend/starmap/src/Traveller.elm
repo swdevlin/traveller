@@ -9331,6 +9331,9 @@ update msg ( time, model ) =
                 fromKelvin k =
                     rnd 0 <| Maybe.withDefault 0 k - 273.15
 
+                fromKelvinMaybe k =
+                    Maybe.map (\v -> rnd 0 (v - 273.15)) k
+
                 analysisDetail : AnalysisDetail
                 analysisDetail =
                     let
@@ -9565,6 +9568,9 @@ update msg ( time, model ) =
                                         , gravity = "—"
                                         , diameter = "—"
                                         , meanTemperature = fromKelvin pdata.meanTemperature
+                                        , periapsisTemperature = fromKelvinMaybe pdata.periapsisTemperature
+                                        , apoapsisTemperature = fromKelvinMaybe pdata.apoapsisTemperature
+                                        , currentTemperature = fromKelvinMaybe pdata.currentTemperature
                                         , albedo = "—"
                                         , axialTilt = "—"
                                         , greenhouse = "—"
@@ -9890,6 +9896,9 @@ update msg ( time, model ) =
                                 , gravity = rndm 2 0 pdata.gravity
                                 , diameter = rnd 0 pdata.diameter
                                 , meanTemperature = fromKelvin pdata.meanTemperature
+                                , periapsisTemperature = fromKelvinMaybe pdata.periapsisTemperature
+                                , apoapsisTemperature = fromKelvinMaybe pdata.apoapsisTemperature
+                                , currentTemperature = fromKelvinMaybe pdata.currentTemperature
                                 , albedo = rnd 2 pdata.albedo
                                 , axialTilt = rnd 2 pdata.axialTilt ++ "°"
                                 , greenhouse = rndm 2 0 pdata.greenhouse

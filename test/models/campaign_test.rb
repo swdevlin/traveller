@@ -139,4 +139,38 @@ class CampaignTest < ActiveSupport::TestCase
 
     assert_equal 'deepnight_defaults', campaign.sector_source
   end
+
+  # limited_main_world_eccentricity
+
+  test 'limited_main_world_eccentricity? defaults to true for charted_space campaigns' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'charted_space'
+    campaign.limited_main_world_eccentricity = nil
+
+    assert campaign.limited_main_world_eccentricity?
+  end
+
+  test 'limited_main_world_eccentricity? defaults to false for homebrew campaigns' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'homebrew'
+    campaign.limited_main_world_eccentricity = nil
+
+    assert_not campaign.limited_main_world_eccentricity?
+  end
+
+  test 'limited_main_world_eccentricity? defaults to false for deepnight_revelation campaigns' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'deepnight_revelation'
+    campaign.limited_main_world_eccentricity = nil
+
+    assert_not campaign.limited_main_world_eccentricity?
+  end
+
+  test 'limited_main_world_eccentricity? returns the stored value once explicitly set' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'charted_space'
+    campaign.limited_main_world_eccentricity = false
+
+    assert_not campaign.limited_main_world_eccentricity?
+  end
 end

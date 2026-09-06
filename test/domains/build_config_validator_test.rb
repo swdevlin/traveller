@@ -1597,4 +1597,110 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid_for_star_system?
   end
+
+  # eccentricity
+
+  test 'eccentricity is valid on a top-level mainWorld' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        eccentricity: 0.4
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'eccentricity is valid on counts.mainWorld' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          counts:
+            density: 5
+            mainWorld:
+              uwp: X674000-0
+              eccentricity: 0
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'eccentricity is valid on a bodies entry' do
+    yaml = <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+          - uwp: terrestrial
+            eccentricity: 1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'eccentricity above 1 is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        eccentricity: 1.5
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'eccentricity'
+  end
+
+  test 'eccentricity below 0 is invalid' do
+    yaml = <<~YAML
+      mainWorld:
+        uwp: X674000-0
+        eccentricity: -0.1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'eccentricity'
+  end
+
+  # limitedMainWorldEccentricity
+
+  test 'limitedMainWorldEccentricity is valid on a star system' do
+    yaml = <<~YAML
+      name: Test System
+      limitedMainWorldEccentricity: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'limitedMainWorldEccentricity is valid on a subsector' do
+    yaml = <<~YAML
+      type: standard
+      limitedMainWorldEccentricity: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'limitedMainWorldEccentricity is valid on a system entry within a subsector' do
+    yaml = <<~YAML
+      type: standard
+      systems:
+        - x: 1
+          y: 1
+          limitedMainWorldEccentricity: true
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'limitedMainWorldEccentricity rejects a non-boolean value' do
+    yaml = <<~YAML
+      type: standard
+      limitedMainWorldEccentricity: maybe
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid?
+    assert_includes validator.errors.join, 'limitedMainWorldEccentricity'
+  end
 end

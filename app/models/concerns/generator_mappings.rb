@@ -27,6 +27,28 @@ module GeneratorMappings
     end
   end
 
+  # Bodies generated before the generator started returning these won't have
+  # them in `data`; fall back to estimating from `temperature`/`eccentricity`
+  # (equilibrium temperature scales with the inverse square root of distance).
+  def periapsis_temperature
+    data&.dig('periapsis_temperature') || estimated_temperature_at_distance_ratio(1 - eccentricity.to_f)
+  end
+
+  def apoapsis_temperature
+    data&.dig('apoapsis_temperature') || estimated_temperature_at_distance_ratio(1 + eccentricity.to_f)
+  end
+
+  # The body's real current position (via HasOrbit#orbit_distance_from_parent_km)
+  # is generally somewhere between periapsis and apoapsis; falls back to the
+  # mean temperature when the real position isn't known (distance ratio of 1).
+  def current_temperature
+    return nil unless respond_to?(:orbit_distance_from_parent_km)
+    return nil if au.to_f <= 0
+
+    distance_ratio = orbit_distance_from_parent_km / (au.to_f * StellarConstants::AU_TO_KM)
+    estimated_temperature_at_distance_ratio(distance_ratio)
+  end
+
   def assign_moons(moons, campaign: nil)
     return [] if moons.blank?
 
@@ -164,6 +186,18 @@ module GeneratorMappings
       self.data['apoapsis'] = apoapsis_payload
     end
 
+    periapsis_temperature_payload = payload['periapsisTemperature']
+    unless periapsis_temperature_payload.nil?
+      self.data ||= {}
+      self.data['periapsis_temperature'] = periapsis_temperature_payload
+    end
+
+    apoapsis_temperature_payload = payload['apoapsisTemperature']
+    unless apoapsis_temperature_payload.nil?
+      self.data ||= {}
+      self.data['apoapsis_temperature'] = apoapsis_temperature_payload
+    end
+
     mapped = self.class.mapped_data_from_generator(payload)
 
     self.diameter = payload['diameter']
@@ -196,5 +230,14 @@ module GeneratorMappings
     self.data = merge ? self.data.merge(mapped) : mapped
     assign_starport_costs if respond_to?(:starport_code)
     self
+  end
+
+  private
+
+  def estimated_temperature_at_distance_ratio(distance_ratio)
+    return nil unless respond_to?(:temperature)
+    return nil if temperature.blank? || distance_ratio <= 0
+
+    temperature.to_f / Math.sqrt(distance_ratio)
   end
 end

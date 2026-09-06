@@ -119,6 +119,9 @@ type alias SharedPData =
     , density : Maybe Float
     , greenhouse : Maybe Float
     , meanTemperature : Maybe Float
+    , periapsisTemperature : Maybe Float
+    , apoapsisTemperature : Maybe Float
+    , currentTemperature : Maybe Float
     , habitabilityRating : Maybe Int
     , orbitSequence : String
     , uwp : String
@@ -169,6 +172,8 @@ type alias PlanetoidData =
     , density : Maybe Float
     , greenhouse : Maybe Float
     , meanTemperature : Maybe Float
+    , periapsisTemperature : Maybe Float
+    , apoapsisTemperature : Maybe Float
     , orbitSequence : String
     , uwp : String
     , diameter : Float
@@ -246,6 +251,9 @@ type alias PlanetoidBeltData =
     , lawLevelDetail : Maybe LawLevelDetailData
     , techLevelDetail : Maybe TechLevelDetailData
     , meanTemperature : Maybe Float
+    , periapsisTemperature : Maybe Float
+    , apoapsisTemperature : Maybe Float
+    , currentTemperature : Maybe Float
     , id : Int
     , cityCount : Int
     , berthingCost : Maybe Int
@@ -456,7 +464,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp id_ cityCount_ berthCost refFuel unrefFuel ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -493,6 +501,9 @@ codecPlanetoidBeltData =
             , lawLevelDetail = llD
             , techLevelDetail = tlD
             , meanTemperature = temp
+            , periapsisTemperature = periT
+            , apoapsisTemperature = apoT
+            , currentTemperature = currT
             , id = id_
             , cityCount = cityCount_
             , berthingCost = berthCost
@@ -548,6 +559,9 @@ codecPlanetoidBeltData =
         |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
         |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail
         |> Codec.optionalNullableField "temperature" .meanTemperature Codec.float
+        |> Codec.optionalNullableField "periapsis_temperature" .periapsisTemperature Codec.float
+        |> Codec.optionalNullableField "apoapsis_temperature" .apoapsisTemperature Codec.float
+        |> Codec.optionalNullableField "current_temperature" .currentTemperature Codec.float
         |> Codec.field "id" .id Codec.int
         |> Codec.field "city_count" .cityCount Codec.int
         |> Codec.optionalNullableField "berthing_cost" .berthingCost Codec.int
@@ -729,7 +743,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -758,6 +772,9 @@ codecSharedPData =
             , density = den
             , greenhouse = grn
             , meanTemperature = temp
+            , periapsisTemperature = periT
+            , apoapsisTemperature = apoT
+            , currentTemperature = currT
             , habitabilityRating = hab
             , orbitSequence = orbitSeq
             , uwp = uwp_
@@ -825,6 +842,9 @@ codecSharedPData =
         |> Codec.optionalNullableField "density" .density Codec.float
         |> Codec.optionalNullableField "greenhouse" .greenhouse Codec.float
         |> Codec.optionalNullableField "temperature" .meanTemperature Codec.float
+        |> Codec.optionalNullableField "periapsis_temperature" .periapsisTemperature Codec.float
+        |> Codec.optionalNullableField "apoapsis_temperature" .apoapsisTemperature Codec.float
+        |> Codec.optionalNullableField "current_temperature" .currentTemperature Codec.float
         |> Codec.optionalNullableField "habitability_rating" .habitabilityRating Codec.int
         |> Codec.field "orbit_sequence" .orbitSequence Codec.string
         |> Codec.field "uwp" .uwp Codec.string
