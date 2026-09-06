@@ -5,6 +5,7 @@ module Authentication
     before_action :require_authentication
     before_action :require_campaign
     helper_method :authenticated?
+    helper_method :owns_campaign?
   end
 
   class_methods do
@@ -30,6 +31,10 @@ module Authentication
       resume_session
     end
 
+    def owns_campaign?
+      Current.owns_campaign?
+    end
+
     def require_authentication
       resume_session || request_authentication
     end
@@ -41,15 +46,7 @@ module Authentication
     def find_session_by_cookie
       return unless cookies.signed[:session_id]
 
-      session = Session.find_by(id: cookies.signed[:session_id])
-      return unless session
-
-      if params[:campaign_slug].present?
-        campaign = Campaign.find_by(slug: params[:campaign_slug])
-        return if campaign && campaign.referee_id != session.user_id
-      end
-
-      session
+      Session.find_by(id: cookies.signed[:session_id])
     end
 
     def request_authentication
@@ -86,6 +83,11 @@ module Authentication
 
     def require_campaign
       return unless Current.user
-      redirect_to new_campaign_path unless Campaign.exists?(referee_id: Current.user.id)
+
+      if params[:campaign_slug].present?
+        head :forbidden unless owns_campaign?
+      else
+        redirect_to new_campaign_path unless Campaign.exists?(referee_id: Current.user.id)
+      end
     end
 end

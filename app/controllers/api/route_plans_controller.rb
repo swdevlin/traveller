@@ -7,7 +7,7 @@ class Api::RoutePlansController < Api::BaseController
 
   def plan
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
 
     from_system = StarSystem.find_by(id: params[:from_id])
     to_system   = StarSystem.find_by(id: params[:to_id])
@@ -99,7 +99,7 @@ class Api::RoutePlansController < Api::BaseController
     return render json: [] if q.length < 3
 
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
 
     render json: search_systems(q, is_referee)
   end

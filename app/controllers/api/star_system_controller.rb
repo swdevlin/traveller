@@ -20,7 +20,7 @@ class Api::StarSystemController < Api::BaseController
     end
 
     authenticated_by_session?
-    @is_referee = Current.user.present?
+    @is_referee = Current.owns_campaign?
 
     @star_system = parsec.star_systems
                          .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,

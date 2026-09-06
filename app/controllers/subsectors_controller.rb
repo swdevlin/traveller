@@ -119,7 +119,7 @@ class SubsectorsController < ApplicationController
   end
 
   def map
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     @star_systems = @subsector.star_systems.includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
 
     @cols = 8
@@ -164,7 +164,7 @@ class SubsectorsController < ApplicationController
     facility_max_updated = StarSystemFacility
       .where(star_system_id: star_system_subquery)
       .maximum(:updated_at)
-    auth_variant = authenticated? ? 'auth' : 'public'
+    auth_variant = owns_campaign? ? 'auth' : 'public'
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
@@ -221,7 +221,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
 
     rogue_data = StellarObject
@@ -263,7 +263,7 @@ class SubsectorsController < ApplicationController
     @map_mode          = :strategic
     @show_heat_overlay = params[:heat] == 'true'
     @hex_size          = 50
-    @show_map_links    = authenticated?
+    @show_map_links    = owns_campaign?
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
@@ -288,7 +288,7 @@ class SubsectorsController < ApplicationController
       .maximum(:updated_at)
     facility_max_updated   = StarSystemFacility.where(star_system_id: star_system_subquery).maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -334,7 +334,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 
@@ -370,7 +370,7 @@ class SubsectorsController < ApplicationController
     @map_mode          = :resource
     @show_heat_overlay = params[:heat] == 'true'
     @hex_size          = 50
-    @show_map_links    = authenticated?
+    @show_map_links    = owns_campaign?
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
@@ -395,7 +395,7 @@ class SubsectorsController < ApplicationController
       .maximum(:updated_at)
     facility_max_updated   = StarSystemFacility.where(star_system_id: star_system_subquery).maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -441,7 +441,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 
@@ -476,7 +476,7 @@ class SubsectorsController < ApplicationController
   def heat_map
     @map_mode  = :heat
     @hex_size  = 50
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, :facilities, stars: [], main_world: :trade_codes
     )
@@ -501,7 +501,7 @@ class SubsectorsController < ApplicationController
       .maximum(:updated_at)
     facility_max_updated   = StarSystemFacility.where(star_system_id: star_system_subquery).maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -546,7 +546,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 
@@ -581,7 +581,7 @@ class SubsectorsController < ApplicationController
   def tech_level_map
     @map_mode = :tech_level
     @hex_size = 50
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
     )
@@ -605,7 +605,7 @@ class SubsectorsController < ApplicationController
       .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
       .maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -648,7 +648,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 
@@ -683,7 +683,7 @@ class SubsectorsController < ApplicationController
   def habitability_map
     @map_mode = :habitability
     @hex_size = 50
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
     )
@@ -707,7 +707,7 @@ class SubsectorsController < ApplicationController
       .or(JumpRouteLink.where(to_star_system_id: star_system_subquery))
       .maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
     theme_light            = helpers.current_theme_light?
     theme_variant          = theme_light ? 'light' : 'dark'
 
@@ -758,7 +758,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 
@@ -793,7 +793,7 @@ class SubsectorsController < ApplicationController
   def government_map
     @map_mode = :government
     @hex_size = 50
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     @governments_by_code = Government.all.index_by(&:code)
     @star_systems = @subsector.star_systems.includes(
       :parsec, :allegiance, :travel_zone, stars: [], main_world: :trade_codes
@@ -819,7 +819,7 @@ class SubsectorsController < ApplicationController
       .maximum(:updated_at)
     stellar_object_max     = StellarObject.where(star_system_id: star_system_subquery).maximum(:updated_at)
     government_max_updated = Government.maximum(:updated_at)
-    auth_variant           = authenticated? ? 'auth' : 'public'
+    auth_variant           = owns_campaign? ? 'auth' : 'public'
 
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
@@ -863,7 +863,7 @@ class SubsectorsController < ApplicationController
       sub_ul,
       visible_col: 1..8,
       visible_row: 1..10,
-      authenticated: authenticated?
+      authenticated: owns_campaign?
     )
     @region_fills_by_pos = {}
 

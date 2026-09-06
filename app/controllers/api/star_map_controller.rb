@@ -23,7 +23,7 @@ class Api::StarMapController < Api::BaseController
     return render json: [] if ids.empty?
 
     authenticated_by_session?
-    is_referee = Current.user.present?
+    is_referee = Current.owns_campaign?
 
     main_world_ids = systems.filter_map(&:main_world_id)
 

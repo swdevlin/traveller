@@ -10,10 +10,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
   end
 
-  test 'a different campaign\'s referee is redirected, not permitted' do
+  test 'a different campaign\'s referee is forbidden, not permitted' do
     sign_in_as users(:two)
     get library_url
-    assert_redirected_to new_session_path
+    assert_response :forbidden
   end
 
   test 'the campaign\'s own referee sees the catalog with current enabled state' do
@@ -90,6 +90,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
   test 'a non-referee cannot toggle another campaign\'s library' do
     sign_in_as users(:two)
     patch toggle_enabled_library_url(rulebook_id: rulebooks(:core).id)
-    assert_redirected_to new_session_path
+    assert_response :forbidden
   end
 end

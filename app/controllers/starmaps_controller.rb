@@ -42,7 +42,7 @@ class StarmapsController < ApplicationController
     sectors = SurveyOverlay.sector_options.map { |code, name| { code: code, name: name } }
     subsectors = SurveyOverlay.subsector_options.map { |code, name| { code: code, name: name } }
     @starmap_flags = {
-      referee: Current.user.present?,
+      referee: Current.owns_campaign?,
       campaignSlug: params[:campaign_slug],
       campaignName: Current.campaign&.name,
       sectorCapitalColour: Current.campaign&.sector_capital_colour,

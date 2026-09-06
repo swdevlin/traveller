@@ -5,7 +5,7 @@ class Api::MapLabelsController < Api::BaseController
                   status: :bad_request if parsecs.nil?
 
     authenticated_by_session?
-    @is_referee = Current.user.present?
+    @is_referee = Current.owns_campaign?
     @map_labels = parsecs.where(visible: true).labeled
   end
 end

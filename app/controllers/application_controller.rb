@@ -39,6 +39,13 @@ class ApplicationController < ActionController::Base
   end
 
   def track_campaign_page_view
+    # A browser's Ahoy visit is created once (from the ahoy_visit cookie) and
+    # keeps its user_id from that point on — Ahoy never revisits it. Without
+    # this, a visit that started before sign-in (or before this ownership fix
+    # shipped) stays permanently anonymous even once Current.user is correct.
+    # authenticate is a no-op once the visit already has a user.
+    ahoy.authenticate(current_user) if current_user
+
     return if Current.campaign.blank?
 
     ahoy.track 'Viewed page', campaign_id: Current.campaign.id

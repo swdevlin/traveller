@@ -173,7 +173,7 @@ class SectorsController < ApplicationController
   end
 
   def map
-    @show_map_links = authenticated?
+    @show_map_links = owns_campaign?
     build_survey_overlays_data
     @cols = 32
     @rows = 40
@@ -213,7 +213,7 @@ class SectorsController < ApplicationController
       .joins(:jump_route_links)
       .where(jump_route_links: { from_star_system_id: sector_star_system_ids })
       .maximum(:updated_at)
-    auth_variant = authenticated? ? 'auth' : 'public'
+    auth_variant = owns_campaign? ? 'auth' : 'public'
     overlay_variant = "#{SurveyOverlay.maximum(:updated_at).to_i}-#{SurveyOverlay.count}"
     cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{current_campaign.updated_at.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{overlay_variant}"
 
@@ -404,7 +404,7 @@ class SectorsController < ApplicationController
       @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set
 
       @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
-        @sector.parsecs, sector_ul, visible_col: 1..32, visible_row: 1..40, authenticated: authenticated?
+        @sector.parsecs, sector_ul, visible_col: 1..32, visible_row: 1..40, authenticated: owns_campaign?
       )
 
       rogue_data = StellarObject

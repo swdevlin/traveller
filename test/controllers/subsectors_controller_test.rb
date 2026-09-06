@@ -16,6 +16,25 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'edit is forbidden for a logged-in user who does not referee this campaign' do
+    sign_out
+    sign_in_as users(:two)
+    get edit_subsector_url(@subsector)
+    assert_response :forbidden
+  end
+
+  test 'map is reachable for a logged-in user who does not referee this campaign, at the player variant' do
+    get map_subsector_url(@subsector, format: :svg)
+    owner_etag = response.headers['ETag']
+
+    sign_out
+    sign_in_as users(:two)
+    get map_subsector_url(@subsector, format: :svg)
+
+    assert_response :success
+    refute_equal owner_etag, response.headers['ETag']
+  end
+
   test 'map colours a sector capital system name when the campaign colour is set' do
     campaigns(:one).update!(sector_capital_colour: '#ff0000')
 
