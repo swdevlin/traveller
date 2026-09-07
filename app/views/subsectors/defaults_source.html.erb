@@ -91,7 +91,7 @@
       <div class='flex items-center justify-between gap-3'>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Current build</div>
         <% if @subsector.build.present? %>
-          <span class='text-green-400 text-sm'>
+          <span class='text-notice text-sm'>
             <i class='fa-regular fa-circle-check mr-1'></i><%= @subsector.build_source_label %>
           </span>
         <% else %>
