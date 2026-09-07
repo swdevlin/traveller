@@ -78,7 +78,7 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     GenerateSubsectorJob.perform_now(@subsector.id, definition)
 
     assert_not_nil system_parsec.star_systems.sole
-    assert_equal true, posted['limitedMainWorldEccentricity']
+    assert_equal false, posted['limitedMainWorldEccentricity']
   end
 
   test 'does not overwrite an explicit limitedMainWorldEccentricity already in the config' do
