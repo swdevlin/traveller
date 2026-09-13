@@ -38,38 +38,16 @@ class StarSystemImporter
       @star_system.allegiance   = allegiance_code ? find_or_create_allegiance(allegiance_code) : nil
       @star_system.save!
 
-      set_star_system_facilities(data, config_bases)
-
-      @deferred_belt_assignments = []
-      @deferred_tidal_lock_assignments = []
-      primary = Star.new
-      primary.skip_import_callbacks = true
-      primary.star_system = @star_system
-      import_star(primary, data['primaryStar'])
-
-      @deferred_belt_assignments.each do |entry|
-        belt = entry[:star].stellar_objects
-                           .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
-        entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
-      end
-
-      resolve_tidal_lock_targets
-
-      main_world_orbit_sequence = data['mainWorldOrbitSequence']
-      @star_system.main_world =
-        @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
-        Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
-      unless @star_system.main_world.nil?
-        if @star_system.main_world.name.blank? && @star_system.name.present?
-          @star_system.main_world.name = @star_system.name
-          @star_system.main_world.save!
-        elsif @star_system.name.blank? && @star_system.main_world.name.present?
-          @star_system.name = @star_system.main_world.name
+      finish_import!(data, config_bases: config_bases) do
+        unless @star_system.main_world.nil?
+          if @star_system.main_world.name.blank? && @star_system.name.present?
+            @star_system.main_world.name = @star_system.name
+            @star_system.main_world.save!
+          elsif @star_system.name.blank? && @star_system.main_world.name.present?
+            @star_system.name = @star_system.main_world.name
+          end
         end
       end
-      @star_system.save!
-      @star_system.recalculate_world_counts!
-      @star_system.recalculate_sophont_flags!
     end
     @star_system
   end
@@ -95,46 +73,52 @@ class StarSystemImporter
       end
       @star_system.save!
 
-      set_star_system_facilities(data, config_bases)
-
-      @deferred_belt_assignments = []
-      @deferred_tidal_lock_assignments = []
-
-      primary_data = data['primaryStar']
-      primary = Star.new
-      primary.skip_import_callbacks = true
-      primary.star_system = @star_system
-      import_star(primary, primary_data)
-
-      @deferred_belt_assignments.each do |entry|
-        belt = entry[:star].stellar_objects
-                           .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
-        entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
-      end
-
-      resolve_tidal_lock_targets
-
-      main_world_orbit_sequence = data['mainWorldOrbitSequence']
-      @star_system.main_world =
-        @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
-        Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
-      unless @star_system.main_world.nil?
-        if @star_system.main_world.name.blank? || effective_system_language.present?
-          @star_system.main_world.name = resolve_main_world_name
-          @star_system.main_world.language = main_world_language if main_world_language.present?
-          @star_system.main_world.save!
-        elsif @star_system.name.blank?
-          @star_system.name = @star_system.main_world.name
+      finish_import!(data, config_bases: config_bases) do
+        unless @star_system.main_world.nil?
+          if @star_system.main_world.name.blank? || effective_system_language.present?
+            @star_system.main_world.name = resolve_main_world_name
+            @star_system.main_world.language = main_world_language if main_world_language.present?
+            @star_system.main_world.save!
+          elsif @star_system.name.blank?
+            @star_system.name = @star_system.main_world.name
+          end
         end
       end
-      @star_system.save!
-      @star_system.recalculate_world_counts!
-      @star_system.recalculate_sophont_flags!
     end
     @star_system
   end
 
   private
+
+  def finish_import!(data, config_bases:)
+    set_star_system_facilities(data, config_bases)
+
+    @deferred_belt_assignments = []
+    @deferred_tidal_lock_assignments = []
+    primary = Star.new
+    primary.skip_import_callbacks = true
+    primary.star_system = @star_system
+    import_star(primary, data['primaryStar'])
+
+    @deferred_belt_assignments.each do |entry|
+      belt = entry[:star].stellar_objects
+                         .find_by(type: 'PlanetoidBelt', orbit_sequence: entry[:belt_orbit_seq])
+      entry[:planetoid].update!(planetoid_belt_id: belt.id) if belt
+    end
+
+    resolve_tidal_lock_targets
+
+    main_world_orbit_sequence = data['mainWorldOrbitSequence']
+    @star_system.main_world =
+      @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
+      Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
+
+    yield
+
+    @star_system.save!
+    @star_system.recalculate_world_counts!
+    @star_system.recalculate_sophont_flags!
+  end
 
   def effective_campaign
     @campaign || Current.campaign
@@ -201,21 +185,7 @@ class StarSystemImporter
     Array(data['bases']).reject(&:blank?).presence
   end
 
-  def set_stellar_object_trade_codes(stellar_object, codes)
-    return if codes.nil?
-
-    codes.uniq.each do |code|
-      trade_code = TradeCode.find_by(code: code)
-      next unless trade_code
-
-      StellarObjectTradeCode.find_or_create_by!(
-        stellar_object: stellar_object,
-        trade_code: trade_code
-      )
-    end
-  end
-
-  def assign_cities(stellar_object, so_data)
+def assign_cities(stellar_object, so_data)
     return unless stellar_object.respond_to?(:cities)
     return if Array(so_data['population']&.dig('majorCityPopulations')).blank?
 
@@ -267,7 +237,7 @@ class StarSystemImporter
           moon = Moon.find_by(star_system_id: @star_system.id, orbit_sequence: entry[:orbit_sequence])
           @deferred_tidal_lock_assignments << { object: moon, orbit_sequence: entry[:tidal_lock_orbit_seq] } if moon
         end
-        set_stellar_object_trade_codes(so, so_data['tradeCodes'])
+        StellarObjectTradeCode.assign_from_codes!(so, so_data['tradeCodes'])
         if klass == Planetoid && so_data['belt'].present?
           @deferred_belt_assignments << {
             planetoid: so,

@@ -133,7 +133,7 @@ class StellarObjectsController < ApplicationController
     ActiveRecord::Base.transaction do
       @stellar_object.assign_data_from_generator(data)
       @stellar_object.stellar_object_trade_codes.delete_all
-      apply_stellar_object_trade_codes(@stellar_object, data['tradeCodes'])
+      StellarObjectTradeCode.assign_from_codes!(@stellar_object, data['tradeCodes'])
       if @stellar_object.is_a?(TerrestrialPlanet) && data['moons'].present?
         @stellar_object.moons.destroy_all
         @stellar_object.assign_moons(data['moons'])
@@ -179,20 +179,6 @@ class StellarObjectsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_stellar_object
       @stellar_object = StellarObject.find(params.expect(:id))
-    end
-
-    def apply_stellar_object_trade_codes(stellar_object, codes)
-      return if codes.blank?
-
-      codes.uniq.each do |code|
-        trade_code = TradeCode.find_by(code: code)
-        next unless trade_code
-
-        StellarObjectTradeCode.find_or_create_by!(
-          stellar_object: stellar_object,
-          trade_code: trade_code
-        )
-      end
     end
 
     # Only allow a list of trusted parameters through.

@@ -130,6 +130,22 @@ class StellarObject < ApplicationRecord
     self.class.model_name.human
   end
 
+  def orbiting_star_system
+    orbiting&.star_system
+  end
+
+  def location_parsec
+    parsec || orbiting_star_system&.parsec
+  end
+
+  def location_subsector
+    location_parsec&.subsector
+  end
+
+  def location_sector
+    location_parsec&.sector
+  end
+
   # Safe defaults for STI subtypes that don't map these fields in their own
   # generator_data_map, so generic "main world" code paths can call them on
   # any StellarObject without a respond_to? guard. Subtypes that do map the

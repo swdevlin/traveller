@@ -36,16 +36,10 @@ class StarMarkdownPresenter < MarkdownPresenterBase
   def location_section
     star_system = @obj.star_system
     parsec = star_system&.parsec
-    subsector = parsec&.subsector
-    sector = parsec&.sector
 
     lines = ['## Location', '']
     lines << "**Star System:** #{star_system.display_name}" if star_system
-    lines << "**Subsector:** #{subsector.name}" if subsector
-    if sector
-      hex = parsec&.hex_code
-      lines << "**Sector:** #{sector.name}#{hex ? " · #{hex}" : ''}"
-    end
+    lines.concat(subsector_sector_lines(parsec))
     lines << ''
     lines
   end

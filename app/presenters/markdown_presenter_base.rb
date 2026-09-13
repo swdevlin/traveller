@@ -63,18 +63,25 @@ class MarkdownPresenterBase
     parent = @obj.orbiting
     star_system = StarSystem.find_by(id: @obj.star_system_id)
     parsec = @obj.parsec || star_system&.parsec
-    subsector = parsec&.subsector
-    sector = parsec&.sector
 
     lines = ['## Location', '']
     lines << "**Orbiting:** #{parent.display_name}" if parent
     lines << "**Star System:** #{star_system.display_name}" if star_system
+    lines.concat(subsector_sector_lines(parsec))
+    lines << ''
+    lines
+  end
+
+  def subsector_sector_lines(parsec)
+    subsector = parsec&.subsector
+    sector = parsec&.sector
+
+    lines = []
     lines << "**Subsector:** #{subsector.name}" if subsector
     if sector
       hex = parsec&.hex_code
       lines << "**Sector:** #{sector.name}#{hex ? " · #{hex}" : ''}"
     end
-    lines << ''
     lines
   end
 
