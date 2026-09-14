@@ -58,8 +58,8 @@ class OrbitMechanicsSerializerTest < ActiveSupport::TestCase
     ss = create_system
     primary = create_star(ss, name: 'Sol')
     close = create_star(ss, name: 'Close', orbiting: primary, orbit: 1)
-    near = create_star(ss, name: 'Near', orbiting: primary, orbit: 2)
-    far = create_star(ss, name: 'Far', orbiting: primary, orbit: 3)
+    near = create_star(ss, name: 'Near', orbiting: primary, orbit: 8)
+    far = create_star(ss, name: 'Far', orbiting: primary, orbit: 14)
     OrbitSequenceAssigner.new(ss).assign!
     ss.reload
     [close, near, far].each(&:reload)

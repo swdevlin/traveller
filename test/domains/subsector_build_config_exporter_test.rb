@@ -105,7 +105,9 @@ class SubsectorBuildConfigExporterTest < ActiveSupport::TestCase
   test 'exports near secondary star' do
     system    = StarSystem.create!(parsec: @parsec, meta: {})
     primary   = build_primary_star(system, type: 'G', subtype: 5, klass: 'V')
-    _near     = build_secondary_star(primary, system, orbit_type: 2, type: 'M', subtype: 8, klass: 'V')
+    # Orbit# 8 falls in the 'near' band (6-11) per World Builder's Handbook pg. 27,
+    # not the literal orbitType code 2 - proves role is derived from Orbit#, not luck.
+    _near     = build_secondary_star(primary, system, orbit: 8, type: 'M', subtype: 8, klass: 'V')
 
     p_config = SubsectorBuildConfigExporter.new(@subsector).export['systems'].first['primary']
 
@@ -259,8 +261,8 @@ class SubsectorBuildConfigExporterTest < ActiveSupport::TestCase
     star
   end
 
-  def build_secondary_star(orbiting_star, star_system, orbit_type:, type: 'M', subtype: 8, klass: 'V')
-    star = Star.new(orbiting: orbiting_star, star_system: star_system, orbit: orbit_type, orbit_sequence: 'B')
+  def build_secondary_star(orbiting_star, star_system, orbit:, type: 'M', subtype: 8, klass: 'V')
+    star = Star.new(orbiting: orbiting_star, star_system: star_system, orbit: orbit, orbit_sequence: 'B')
     star.stellar_type    = type
     star.stellar_subtype = subtype
     star.stellar_class   = klass

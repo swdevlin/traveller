@@ -45,6 +45,6 @@ class OrbitMechanicsSerializer
     return OrbitType::VALUES[:primary] if star.orbiting.nil?
     return OrbitType::VALUES[:companion] if star.orbiting.companion_id == star.id
 
-    star.orbit.to_i
+    OrbitType::VALUES[OrbitType.role_for_orbit(star.orbit)]
   end
 end
