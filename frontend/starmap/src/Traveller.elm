@@ -1180,6 +1180,7 @@ type Msg
     | SurveyOverlayMutated (Result Http.Error ())
     | OpenRoutePlanner
     | RoutePlanFormMsg RoutePlanForm.Msg
+    | ClearActiveRoutePlan
     | OpenCommerce
     | CommerceFormMsg CommerceForm.Msg
     | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
@@ -1858,8 +1859,8 @@ isOnRoute route address =
     List.any (\a -> a.address == address) route
 
 
-hexAddressLabel : Int -> Int -> Float -> HexAddress -> String -> Svg msg
-hexAddressLabel x y size hexAddress hexColour =
+hexAddressLabel : Int -> Int -> Float -> HexAddress -> Bool -> Svg msg
+hexAddressLabel x y size hexAddress themeIsLight =
     if size <= 15 then
         Svg.text ""
 
@@ -1880,7 +1881,7 @@ hexAddressLabel x y size hexAddress hexColour =
             , SvgAttrs.textAnchor "middle"
             , SvgAttrs.fontFamily "Tomorrow"
             , SvgAttrs.fontWeight "400"
-            , SvgAttrs.fill (hexTextColour hexColour)
+            , SvgAttrs.fill (hexTextColour themeIsLight)
             ]
             [ HexAddress.hexLabel hexAddress |> Svg.text ]
 
@@ -1911,7 +1912,7 @@ viewHexEmpty hx hy x y size childSvgTxt fillInfo =
                 , SvgAttrs.y <| String.fromInt y
                 , SvgAttrs.fontSize "10"
                 , SvgAttrs.textAnchor "middle"
-                , SvgAttrs.fill (hexTextColour fillInfo.colour)
+                , SvgAttrs.fill (hexTextColour fillInfo.themeIsLight)
                 , SvgAttrs.class "hex-scan"
                 ]
                 [ Svg.text childSvgTxt ]
@@ -1927,7 +1928,7 @@ viewHexEmpty hx hy x y size childSvgTxt fillInfo =
         ]
         [ -- background hex
           Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) fillInfo.colour fillInfo.isRegionFill fillInfo.themeIsLight
-        , hexAddressLabel x y size hexAddress fillInfo.colour
+        , hexAddressLabel x y size hexAddress fillInfo.themeIsLight
         , childSvg
         ]
 
@@ -2004,7 +2005,7 @@ viewHexRogue hexAddress x y size hexColour isReferee rogueObjectPathData themeIs
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
         [ Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour isRegionFill themeIsLight
-        , hexAddressLabel x y size hexAddress hexColour
+        , hexAddressLabel x y size hexAddress themeIsLight
         , case ( showComet && size > 15, cometDetail ) of
             ( True, Just detail ) ->
                 drawRogueIcon themeIsLight rogueObjectPathData detail (toFloat x) (toFloat y) size
@@ -2217,16 +2218,16 @@ renderPolygon points_ fill isRegionFill themeIsLight =
         []
 
 
-{-| The default hex label/icon text colour for a given hex background —
-light text on a black (dark-theme) hex, the original dark teal otherwise.
+{-| The default hex label/icon text colour for the current theme —
+light text in dark theme, the original dark teal in light theme.
 -}
-hexTextColour : String -> String
-hexTextColour hexColour =
-    if hexColour == "#000000" then
-        "#f1f5f9"
+hexTextColour : Bool -> String
+hexTextColour themeIsLight =
+    if themeIsLight then
+        "#1a1a1a"
 
     else
-        "#1a1a1a"
+        "#f1f5f9"
 
 
 captiveGovernmentColour : String -> String
@@ -2386,22 +2387,18 @@ cornerGlyphScale =
     0.8
 
 
-drawUnknownSlot : Float -> Float -> Float -> Svg Msg
-drawUnknownSlot iconX iconY size =
+drawUnknownSlot : Bool -> Float -> Float -> Float -> Svg Msg
+drawUnknownSlot themeIsLight iconX iconY size =
     let
-        r =
-            5 * iconScale size * cornerGlyphScale
+        colour =
+            if themeIsLight then
+                "#222222"
+
+            else
+                "#cbd5e1"
     in
     Svg.g []
-        [ Svg.circle
-            [ SvgAttrs.cx <| String.fromFloat iconX
-            , SvgAttrs.cy <| String.fromFloat iconY
-            , SvgAttrs.r <| String.fromFloat r
-            , SvgAttrs.fill "#DDDDDD"
-            , SvgAttrs.opacity "0.6"
-            ]
-            []
-        , Svg.text_
+        [ Svg.text_
             [ SvgAttrs.x <| String.fromFloat iconX
             , SvgAttrs.y <| String.fromFloat iconY
             , SvgAttrs.fontSize (String.fromFloat (9 * iconScale size * cornerGlyphScale))
@@ -2409,7 +2406,7 @@ drawUnknownSlot iconX iconY size =
             , SvgAttrs.dominantBaseline "central"
             , SvgAttrs.fontFamily "Tomorrow"
             , SvgAttrs.fontWeight "400"
-            , SvgAttrs.fill "#2A6A8A"
+            , SvgAttrs.fill colour
             ]
             [ Svg.text "?" ]
         ]
@@ -2620,8 +2617,8 @@ renderHexBg { hexColour, isRegionFill, hexAddrX, hexAddrY, hexapointsStr, themeI
         [ Svg.Lazy.lazy4 renderPolygon hexapointsStr hexColour isRegionFill themeIsLight ]
 
 
-viewBarRow : Float -> Float -> Float -> String -> Int -> String -> Svg Msg
-viewBarRow size cx rowY label tier hexColour =
+viewBarRow : Float -> Float -> Float -> String -> Int -> String -> Bool -> Svg Msg
+viewBarRow size cx rowY label tier hexColour themeIsLight =
     let
         segW =
             size * 0.15
@@ -2699,7 +2696,7 @@ viewBarRow size cx rowY label tier hexColour =
             , SvgAttrs.y (String.fromFloat rowY)
             , SvgAttrs.textAnchor "end"
             , SvgAttrs.dominantBaseline "middle"
-            , SvgAttrs.fill (hexTextColour hexColour)
+            , SvgAttrs.fill (hexTextColour themeIsLight)
             , SvgAttrs.fontSize (String.fromFloat (size * 0.2))
             , SvgAttrs.fontFamily "Oxanium, sans-serif"
             , SvgAttrs.fontWeight "600"
@@ -2709,8 +2706,8 @@ viewBarRow size cx rowY label tier hexColour =
         )
 
 
-viewRoleBadge : Float -> Float -> Float -> String -> String -> Svg Msg
-viewRoleBadge size cx rowY role hexColour =
+viewRoleBadge : Float -> Float -> Float -> String -> String -> Bool -> Svg Msg
+viewRoleBadge size cx rowY role hexColour themeIsLight =
     let
         isDarkHex =
             hexColour == "#000000"
@@ -2746,7 +2743,7 @@ viewRoleBadge size cx rowY role hexColour =
                         "#7a1010"
 
                 _ ->
-                    hexTextColour hexColour
+                    hexTextColour themeIsLight
     in
     Svg.text_
         [ SvgAttrs.x (String.fromFloat cx)
@@ -2895,7 +2892,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
 
         hexCentreText : String -> Svg Msg
         hexCentreText txt =
-            hexCentreTextColoured (hexTextColour hexColour) txt
+            hexCentreTextColoured (hexTextColour themeIsLight) txt
 
         hexCentreTextOffset : Float -> String -> Svg Msg
         hexCentreTextOffset yOffset txt =
@@ -2904,7 +2901,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                 , SvgAttrs.y (String.fromFloat (toFloat voy + yOffset))
                 , SvgAttrs.textAnchor "middle"
                 , SvgAttrs.dominantBaseline "middle"
-                , SvgAttrs.fill (hexTextColour hexColour)
+                , SvgAttrs.fill (hexTextColour themeIsLight)
                 , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
                 , SvgAttrs.fontFamily "Oxanium, sans-serif"
                 , SvgAttrs.fontWeight "600"
@@ -2929,7 +2926,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                         , SvgAttrs.y (String.fromFloat (toFloat voy + yOffset))
                         , SvgAttrs.textAnchor "middle"
                         , SvgAttrs.dominantBaseline "middle"
-                        , SvgAttrs.fill (hexTextColour hexColour)
+                        , SvgAttrs.fill (hexTextColour themeIsLight)
                         , SvgAttrs.fontSize (String.fromFloat (size * fontSizeFactor))
                         , SvgAttrs.fontFamily "Oxanium, sans-serif"
                         , SvgAttrs.fontWeight "700"
@@ -2959,7 +2956,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
             toFloat (round (f * 10)) / 10
     in
     Svg.g []
-        [ hexAddressLabel vox voy size hexAddress hexColour
+        [ hexAddressLabel vox voy size hexAddress themeIsLight
         , case effectiveMode of
             ShowMainWorld ->
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
@@ -3073,10 +3070,10 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                         if size >= 30 then
                             Svg.g [ SvgAttrs.pointerEvents "none" ]
                                 [ starportSvg (-size * 0.46) 0.18
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.1) "Rs" strat.resourceTier hexColour
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour themeIsLight
+                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour themeIsLight
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.1) "Rs" strat.resourceTier hexColour themeIsLight
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour themeIsLight
                                 , travelZoneRing
                                 ]
 
@@ -3094,12 +3091,12 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                                 [ starportSvg (-size * 0.46) 0.2
                                 , case strat.routeRole of
                                     Just role ->
-                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.16) role hexColour
+                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.16) role hexColour themeIsLight
 
                                     Nothing ->
                                         Svg.text ""
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.13) "Ix" strat.importanceTier hexColour
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.35) "Td" strat.tradeEaseTier hexColour
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.13) "Ix" strat.importanceTier hexColour themeIsLight
+                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.35) "Td" strat.tradeEaseTier hexColour themeIsLight
                                 , travelZoneRing
                                 ]
 
@@ -3147,7 +3144,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                                         captiveGovernmentColour hexColour
 
                                     else
-                                        hexTextColour hexColour
+                                        hexTextColour themeIsLight
                             in
                             Svg.g []
                                 [ starportSvg (-size * 0.42) 0.2
@@ -3257,12 +3254,12 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
                       else
                         Svg.text ""
                     , if showUnknownGasGiant && size > 15 then
-                        drawUnknownSlot gasGiantX topRightAnchorY size
+                        drawUnknownSlot themeIsLight gasGiantX topRightAnchorY size
 
                       else
                         Svg.text ""
                     , if showUnknownPlanetoidBelt && size > 15 then
-                        drawUnknownSlot beltX beltY size
+                        drawUnknownSlot themeIsLight beltX beltY size
 
                       else
                         Svg.text ""
@@ -3278,7 +3275,7 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
 
 
 renderHexSystemLabels : HexRenderOpts -> Svg Msg
-renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee, sectorCapitalColour, subsectorCapitalColour } =
+renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee, themeIsLight, sectorCapitalColour, subsectorCapitalColour } =
     let
         si =
             starSystem.surveyIndex
@@ -3288,13 +3285,13 @@ renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee, sector
 
         nameColour =
             if List.member "Cs" starSystem.tradeCodes then
-                Maybe.withDefault (hexTextColour hexColour) sectorCapitalColour
+                Maybe.withDefault (hexTextColour themeIsLight) sectorCapitalColour
 
             else if List.member "Cp" starSystem.tradeCodes then
-                Maybe.withDefault (hexTextColour hexColour) subsectorCapitalColour
+                Maybe.withDefault (hexTextColour themeIsLight) subsectorCapitalColour
 
             else
-                hexTextColour hexColour
+                hexTextColour themeIsLight
     in
     if not showStar || size <= 25 then
         Svg.text ""
@@ -3311,7 +3308,7 @@ renderHexSystemLabels { starSystem, hexColour, vox, voy, size, isReferee, sector
                             , SvgAttrs.textAnchor "middle"
                             , SvgAttrs.fontFamily "Oxanium"
                             , SvgAttrs.fontWeight "400"
-                            , SvgAttrs.fill (hexTextColour hexColour)
+                            , SvgAttrs.fill (hexTextColour themeIsLight)
                             ]
                             [ Svg.text uwpStr ]
 
@@ -3393,7 +3390,7 @@ viewHexLoading hx hy x y size hexColour isRegionFill themeIsLight =
         , SvgAttrs.id <| "rendered-hex:" ++ HexAddress.toKey hexAddress
         ]
         [ Svg.Lazy.lazy4 renderPolygon (String.join " " <| hexagonPoints origin size) hexColour isRegionFill themeIsLight
-        , hexAddressLabel x y size hexAddress hexColour
+        , hexAddressLabel x y size hexAddress themeIsLight
         , dot "hex-dot hex-dot-1" -spacing
         , dot "hex-dot hex-dot-2" 0
         , dot "hex-dot hex-dot-3" spacing
@@ -5452,7 +5449,7 @@ viewStatusRowHtml model =
                         ]
                         [ faIcon "fa-regular fa-route" 16 ]
                     , if model.showJumpRouteLayersMenu then
-                        viewJumpRouteLayersMenuHtml model.jumpRouteLayers model.hiddenJumpRouteIds model.pendingDeleteJumpRouteId model.isReferee
+                        viewJumpRouteLayersMenuHtml model.activeRoutePlan model.jumpRouteLayers model.hiddenJumpRouteIds model.pendingDeleteJumpRouteId model.isReferee
 
                       else
                         Html.text ""
@@ -5817,12 +5814,12 @@ viewDeleteRuleConfirmModal rule =
 switch that hides/shows that route's lines on this browser only (never
 persisted server-side). Referees additionally get click-to-edit rows and a
 two-step delete confirm; non-referees see a read-only list. Everyone gets the
-trailing "+ Plan a Route…" row, which opens the Route Planner - the only way
+leading "+ Plan a Route…" row, which opens the Route Planner - the only way
 to create a new jump route, whether a referee's hand-built network link or a
 player's calculated path.
 -}
-viewJumpRouteLayersMenuHtml : List JumpRouteLayer.Route -> Set.Set Int -> Maybe Int -> Bool -> Html Msg
-viewJumpRouteLayersMenuHtml routes hiddenIds pendingDeleteId isReferee =
+viewJumpRouteLayersMenuHtml : Maybe RoutePlan.StoredRoutePlan -> List JumpRouteLayer.Route -> Set.Set Int -> Maybe Int -> Bool -> Html Msg
+viewJumpRouteLayersMenuHtml activeRoutePlan routes hiddenIds pendingDeleteId isReferee =
     Html.div
         [ HtmlAttrs.id "starmap-jump-route-layers-menu"
         , HtmlAttrs.class "starmap-glass-panel"
@@ -5836,20 +5833,71 @@ viewJumpRouteLayersMenuHtml routes hiddenIds pendingDeleteId isReferee =
         , HtmlAttrs.style "padding" "4px 0"
         , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-direction" "column"
+        , HtmlAttrs.style "max-height" "calc(100vh - 80px)"
+        , HtmlAttrs.style "overflow-y" "auto"
         ]
-        ((if List.isEmpty routes then
-            [ Html.div
-                [ HtmlAttrs.class "text-xs text-fg-muted"
-                , HtmlAttrs.style "padding" "8px 16px"
-                ]
-                [ Html.text "No jump routes yet." ]
-            ]
+        ([ planRouteRowHtml ]
+            ++ (activeRoutePlan
+                    |> Maybe.map (\stored -> [ myRouteRowHtml stored ])
+                    |> Maybe.withDefault []
+               )
+            ++ (if List.isEmpty routes then
+                    [ Html.div
+                        [ HtmlAttrs.class "text-xs text-fg-muted"
+                        , HtmlAttrs.style "padding" "8px 16px"
+                        ]
+                        [ Html.text "No jump routes yet." ]
+                    ]
 
-          else
-            List.map (jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee) routes
-         )
-            ++ [ planRouteRowHtml ]
+                else
+                    List.map (jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee) routes
+               )
         )
+
+
+myRouteRowHtml : RoutePlan.StoredRoutePlan -> Html Msg
+myRouteRowHtml stored =
+    let
+        jumps =
+            max 0 (List.length stored.result.hops - 1)
+
+        jumpsLabel =
+            String.fromInt jumps
+                ++ " jump"
+                ++ (if jumps == 1 then
+                        ""
+
+                    else
+                        "s"
+                   )
+    in
+    Html.div
+        [ HtmlAttrs.class "starmap-display-option"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "align-items" "center"
+        , HtmlAttrs.style "gap" "10px"
+        , HtmlAttrs.style "padding" "8px 16px"
+        ]
+        [ Html.span
+            [ HtmlAttrs.style "display" "inline-block"
+            , HtmlAttrs.style "width" "12px"
+            , HtmlAttrs.style "height" "12px"
+            , HtmlAttrs.style "flex-shrink" "0"
+            , HtmlAttrs.style "border-radius" "6px"
+            , HtmlAttrs.style "background-color" stored.colour
+            ]
+            []
+        , Html.div [ HtmlAttrs.style "flex" "1", HtmlAttrs.style "min-width" "0" ]
+            [ Html.div [ HtmlAttrs.class "text-sm text-fg" ] [ Html.text "My Route" ]
+            , Html.div [ HtmlAttrs.class "text-xs text-fg-muted" ] [ Html.text jumpsLabel ]
+            ]
+        , Html.span
+            [ HtmlAttrs.class "text-fg-muted cursor-pointer"
+            , HtmlAttrs.title "Clear route"
+            , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( ClearActiveRoutePlan, True ))
+            ]
+            [ Html.i [ HtmlAttrs.class "fa-regular fa-trash", HtmlAttrs.style "font-size" "12px" ] [] ]
+        ]
 
 
 jumpRouteLayerRowHtml : Set.Set Int -> Maybe Int -> Bool -> JumpRouteLayer.Route -> Html Msg
@@ -9286,6 +9334,9 @@ update msg ( time, model ) =
                                     RoutePlanForm.update (routePlanFormConfig model) subMsg formModel
                             in
                             ( withTime { model | routePlanForm = Just newForm }, Cmd.map RoutePlanFormMsg formCmd )
+
+        ClearActiveRoutePlan ->
+            ( withTime { model | activeRoutePlan = Nothing }, storeRoutePlan Encode.null )
 
         CommerceFormMsg subMsg ->
             case model.commerceForm of

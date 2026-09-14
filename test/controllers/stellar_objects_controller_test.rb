@@ -19,6 +19,25 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'show and edit render for every stellar object type sharing the DRY show/form partials' do
+    star = stars(:star_one)
+
+    [
+      GasGiant.create!(name: 'Test GG', orbiting: star, orbit: 2, inclination: 0, eccentricity: 0, diameter: 1000, mass: 1, data: { code: 'GS' }),
+      PlanetoidBelt.create!(name: 'Test Belt', orbiting: star, orbit: 3, inclination: 0, eccentricity: 0),
+      Comet.create!(name: 'Test Comet', orbiting: star, orbit: 4, inclination: 0, eccentricity: 0, diameter: 1),
+      GasCloud.create!(name: 'Test Gas Cloud', orbiting: star, orbit: 5, inclination: 0, eccentricity: 0, diameter: 1),
+      GravityAnomaly.create!(name: 'Test GA', orbiting: star, orbit: 6, inclination: 0, eccentricity: 0, diameter: 1),
+      TerrestrialPlanet.create!(name: 'Test TP', orbiting: star, orbit: 7, inclination: 0, eccentricity: 0, diameter: 1000, mass: 1, size_code: '7', atmosphere_code: 6, hydrographics_code: 5),
+      Planetoid.create!(name: 'Test Planetoid', orbiting: star, orbit: 8, inclination: 0, eccentricity: 0, diameter: 100, mass: 1, size_code: '1')
+    ].each do |so|
+      get stellar_object_url(so)
+      assert_response :success, "#{so.type} show failed: #{response.body[0..500]}"
+      get edit_stellar_object_url(so)
+      assert_response :success, "#{so.type} edit failed: #{response.body[0..500]}"
+    end
+  end
+
   test 'show renders periapsis and apoapsis in whole-number km for a moon' do
     @gas_giant.update!(star_system: @star_system)
     @moon.data = @moon.data.merge('periapsis' => 1234.5, 'apoapsis' => 5678.9)

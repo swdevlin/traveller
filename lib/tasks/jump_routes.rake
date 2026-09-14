@@ -78,7 +78,8 @@ namespace :jump_routes do
            puts "#{system.name} (#{id}) has a nil population"
         end
 
-        jumps_per_day = 1
+        jumps_per_git pull
+        day = 1
 
         xb = jumps_per_day * 7 * links
         spares = links * 2

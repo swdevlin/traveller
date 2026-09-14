@@ -1,14 +1,12 @@
-class StarSystemMarkdownPresenter
-  include ActionView::Helpers::NumberHelper
-
+class StarSystemMarkdownPresenter < MarkdownPresenterBase
   def initialize(star_system, campaign)
-    @sys = star_system
+    super(star_system)
     @campaign = campaign
   end
 
   def render
     lines = []
-    lines << "# #{@sys.display_name} (Star System)"
+    lines << "# #{@obj.display_name} (Star System)"
     lines << ''
     lines.concat(header_fields)
     lines << ''
@@ -23,49 +21,43 @@ class StarSystemMarkdownPresenter
 
   def header_fields
     fields = []
-    fields << "**UWP:** `#{@sys.main_world_uwp}`" if @sys.main_world_uwp.present?
-    if (allegiance = @sys.allegiance)
+    fields << "**UWP:** `#{@obj.main_world_uwp}`" if @obj.main_world_uwp.present?
+    if (allegiance = @obj.allegiance)
       fields << "**Allegiance:** #{allegiance.name} (#{allegiance.code})"
     end
-    if (tz = @sys.travel_zone)
+    if (tz = @obj.travel_zone)
       fields << "**Travel Zone:** #{tz.name} (#{tz.code})"
     end
-    fields << "**Trade Codes:** #{@sys.trade_codes_string}" if @sys.trade_codes_string.present?
-    if (ref = @sys.effective_reference_url(@campaign)).present?
+    fields << "**Trade Codes:** #{@obj.trade_codes_string}" if @obj.trade_codes_string.present?
+    if (ref = @obj.effective_reference_url(@campaign)).present?
       fields << "**Library Data:** #{ref}"
     end
-    fields << "**Facilities:** #{@sys.facilities_string}" if @sys.facilities_string.present?
+    fields << "**Facilities:** #{@obj.facilities_string}" if @obj.facilities_string.present?
     fields
   end
 
   def location_section
-    parsec = @sys.parsec
-    subsector = parsec&.subsector
-    sector = parsec&.sector
+    parsec = @obj.parsec
 
     lines = ['## Location', '']
-    lines << "**Subsector:** #{subsector.name}" if subsector
-    if sector
-      hex = parsec&.hex_code
-      lines << "**Sector:** #{sector.name}#{hex ? " · #{hex}" : ''}"
-    end
+    lines.concat(subsector_sector_lines(parsec))
     lines << ''
     lines
   end
 
   def system_data_section
     rows = [
-      ['Age', "#{@sys.age} Gyr"],
-      ['Gas Giants', @sys.gas_giant_count],
-      ['Planetoid Belts', @sys.belt_count],
-      ['Terrestrial Planets', @sys.terrestrial_count]
+      ['Age', "#{@obj.age} Gyr"],
+      ['Gas Giants', @obj.gas_giant_count],
+      ['Planetoid Belts', @obj.belt_count],
+      ['Terrestrial Planets', @obj.terrestrial_count]
     ]
-    rows << ['Survey Index', @sys.survey_index] if @sys.survey_index.present?
+    rows << ['Survey Index', @obj.survey_index] if @obj.survey_index.present?
     table_section('System Data', rows)
   end
 
   def stars_section
-    stars = @sys.ordered_stars
+    stars = @obj.ordered_stars
     return [] if stars.empty?
 
     lines = ['## Stars', '']
@@ -84,26 +76,5 @@ class StarSystemMarkdownPresenter
       lines << ''
     end
     lines
-  end
-
-  def notes_section
-    return [] if @sys.notes.blank?
-
-    ['## Notes', '', @sys.notes.strip, '']
-  end
-
-  def table_section(title, rows)
-    return [] if rows.empty?
-
-    lines = ["## #{title}", '', '| Field | Value |', '|---|---|']
-    rows.each { |label, value| lines << "| #{label} | #{value} |" }
-    lines << ''
-    lines
-  end
-
-  def fmt(value, precision)
-    return '' if value.nil?
-
-    number_with_precision(value, precision: precision, strip_insignificant_zeros: true)
   end
 end

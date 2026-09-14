@@ -698,7 +698,7 @@ viewSidebarColumn :
             | selectedHex : Maybe HexAddress
             , starSystemStatus : Maybe String
             , sectors : SectorDict
-            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, colour : Maybe Color }
+            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, label : Maybe String, playerVisible : Bool, colour : Maybe Color }
             , selectedSystem : Maybe StarSystemDetail
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
@@ -818,6 +818,13 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
                             , let
                                 allegianceName =
                                     selectedSystem |> Maybe.andThen .allegianceName
+
+                                nonBlank str =
+                                    if String.trim str == "" then
+                                        Nothing
+
+                                    else
+                                        Just str
                               in
                               regions
                                 |> Dict.values
@@ -831,20 +838,28 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
 
                                                     Nothing ->
                                                         False
-                                        in
-                                        if List.member viewingAddress region.hexes && not isAllegianceRegion then
-                                            let
-                                                colourAttrs =
-                                                    case region.colour of
-                                                        Just colour ->
-                                                            [ HtmlAttrs.style "color" (Color.toCssString colour) ]
 
-                                                        Nothing ->
-                                                            []
-                                            in
-                                            text region.name
-                                                |> el (fontSize 12 :: centerX :: colourAttrs)
-                                                |> Just
+                                            isVisible =
+                                                isReferee || region.playerVisible
+                                        in
+                                        if List.member viewingAddress region.hexes && not isAllegianceRegion && isVisible then
+                                            case region.label |> Maybe.andThen nonBlank of
+                                                Just labelText ->
+                                                    let
+                                                        colourAttrs =
+                                                            case region.colour of
+                                                                Just colour ->
+                                                                    [ HtmlAttrs.style "color" (Color.toCssString colour) ]
+
+                                                                Nothing ->
+                                                                    []
+                                                    in
+                                                    text labelText
+                                                        |> el (fontSize 12 :: centerX :: colourAttrs)
+                                                        |> Just
+
+                                                Nothing ->
+                                                    Nothing
 
                                         else
                                             Nothing

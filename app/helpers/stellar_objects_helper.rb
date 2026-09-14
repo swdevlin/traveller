@@ -8,6 +8,12 @@ module StellarObjectsHelper
     'X' => { quality: 'No Starport', fuel: 'None', facilities: 'None' }
   }.freeze
 
+  def allegiance_badge(allegiance)
+    return 'None' unless allegiance
+
+    safe_join([allegiance.name, content_tag(:span, allegiance.code, class: 'identifier')])
+  end
+
   def starport_summary(code)
     data = STARPORT_DATA[code]
     return nil unless data
