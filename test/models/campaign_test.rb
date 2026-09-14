@@ -142,12 +142,12 @@ class CampaignTest < ActiveSupport::TestCase
 
   # limited_main_world_eccentricity
 
-  test 'limited_main_world_eccentricity? defaults to true for charted_space campaigns' do
+  test 'limited_main_world_eccentricity? defaults to false for charted_space campaigns' do
     campaign = campaigns(:one)
     campaign.campaign_type = 'charted_space'
     campaign.limited_main_world_eccentricity = nil
 
-    assert campaign.limited_main_world_eccentricity?
+    assert_not campaign.limited_main_world_eccentricity?
   end
 
   test 'limited_main_world_eccentricity? defaults to false for homebrew campaigns' do
@@ -169,8 +169,8 @@ class CampaignTest < ActiveSupport::TestCase
   test 'limited_main_world_eccentricity? returns the stored value once explicitly set' do
     campaign = campaigns(:one)
     campaign.campaign_type = 'charted_space'
-    campaign.limited_main_world_eccentricity = false
+    campaign.limited_main_world_eccentricity = true
 
-    assert_not campaign.limited_main_world_eccentricity?
+    assert campaign.limited_main_world_eccentricity?
   end
 end

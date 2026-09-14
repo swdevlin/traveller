@@ -76,8 +76,7 @@ class Campaign < ApplicationRecord
   end
 
   def limited_main_world_eccentricity?
-    val = ActiveModel::Type::Boolean.new.cast(limited_main_world_eccentricity)
-    val.nil? ? charted_space? : val
+    ActiveModel::Type::Boolean.new.cast(limited_main_world_eccentricity) || false
   end
 
   before_validation :default_sector_source

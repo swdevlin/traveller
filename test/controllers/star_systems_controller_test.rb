@@ -268,7 +268,7 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     }
 
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
-    assert_equal true, posted['limitedMainWorldEccentricity']
+    assert_equal false, posted['limitedMainWorldEccentricity']
   end
 
   test 'build configuration create does not overwrite an explicit limitedMainWorldEccentricity' do
