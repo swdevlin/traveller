@@ -299,6 +299,17 @@
                             min: 0 %>
     <% end %>
 
+    <% StellarObjectsHelper::CULTURE_TRAIT_DATA.each do |trait| %>
+      <%= render 'application/edit_field', form: form, attribute: trait[:getter], field_label: trait[:label] do %>
+        <%= form.number_field trait[:getter],
+                              value: stellar_object.send(trait[:getter]),
+                              class: 'edit-base sm:w-28 w-24',
+                              step: 1,
+                              min: trait[:min],
+                              max: trait[:max] %>
+      <% end %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
       <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
             checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>

@@ -93,6 +93,44 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_equal 5, @moon.hydrographics_code
   end
 
+  test 'should update culture trait fields within their own ranges' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        population_militancy: 20, population_cohesion: 22
+      }
+    }
+    assert_redirected_to stellar_object_url(planet)
+    planet.reload
+    assert_equal 20, planet.population_militancy
+    assert_equal 22, planet.population_cohesion
+
+    get stellar_object_url(planet)
+    assert_response :success
+    assert_select '.dg-subsection .label', text: 'Culture'
+    assert_match(/Militancy/, response.body)
+  end
+
+  test 'should reject a culture trait value above its own max' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        population_militancy: 21
+      }
+    }
+    assert_response :unprocessable_entity
+    assert_match(/less than or equal to 20/, response.body)
+  end
+
+  test 'edit form renders a culture trait input with its own min/max attributes' do
+    get edit_stellar_object_url(stellar_objects(:two))
+    assert_response :success
+    assert_select "input[name='stellar_object[population_militancy]'][min='1'][max='20']"
+    assert_select "input[name='stellar_object[population_cohesion]'][min='1'][max='22']"
+  end
+
   test 'should update stellar_object' do
     patch stellar_object_url(@stellar_object), params: { stellar_object: { eccentricity: 1, effective_hzco_deviation: 2, inclination: 0.3, orbit: 2, orbit_x: 1, orbit_y: 1 } }
     assert_redirected_to stellar_object_url(@stellar_object)

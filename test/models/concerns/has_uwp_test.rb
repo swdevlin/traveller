@@ -130,4 +130,46 @@ class HasUwpTest < ActiveSupport::TestCase
     assert_nil planet.refined_fuel_cost
     assert_nil planet.unrefined_fuel_cost
   end
+
+  test 'culture trait setters round-trip through the population hash' do
+    planet = TerrestrialPlanet.new
+    planet.population_militancy = 12
+    planet.population_cohesion = 7
+
+    assert_equal 12, planet.population_militancy
+    assert_equal 7, planet.population_cohesion
+    assert_equal 12, planet.population['militancy']
+    assert_equal 7, planet.population['cohesion']
+  end
+
+  test 'culture trait values are nil when left unset' do
+    planet = TerrestrialPlanet.new
+    assert_nil planet.population_diversity
+  end
+
+  test 'culture trait validation accepts each trait at its own min and max' do
+    HasUwp::CULTURE_TRAIT_DATA.each do |trait|
+      planet = TerrestrialPlanet.new
+      planet.public_send("#{trait[:getter]}=", trait[:min])
+      planet.valid?
+      assert_empty planet.errors[trait[:getter]], "expected #{trait[:getter]} to allow its min (#{trait[:min]})"
+
+      planet.public_send("#{trait[:getter]}=", trait[:max])
+      planet.valid?
+      assert_empty planet.errors[trait[:getter]], "expected #{trait[:getter]} to allow its max (#{trait[:max]})"
+    end
+  end
+
+  test 'culture trait validation rejects values outside a trait\'s own range' do
+    HasUwp::CULTURE_TRAIT_DATA.each do |trait|
+      planet = TerrestrialPlanet.new
+      planet.public_send("#{trait[:getter]}=", trait[:min] - 1)
+      planet.valid?
+      assert_not_empty planet.errors[trait[:getter]], "expected #{trait[:getter]} to reject below its min (#{trait[:min]})"
+
+      planet.public_send("#{trait[:getter]}=", trait[:max] + 1)
+      planet.valid?
+      assert_not_empty planet.errors[trait[:getter]], "expected #{trait[:getter]} to reject above its max (#{trait[:max]})"
+    end
+  end
 end

@@ -65,6 +65,13 @@ module HasUwp
     has_many :cities, foreign_key: :stellar_object_id, inverse_of: :stellar_object, dependent: :destroy
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
+
+    CULTURE_TRAIT_DATA.each do |trait|
+      validates trait[:getter],
+                numericality: { only_integer: true, greater_than_or_equal_to: trait[:min],
+                                 less_than_or_equal_to: trait[:max] },
+                allow_nil: true
+    end
   end
 
   def atmosphere_code          = atmosphere&.code
@@ -181,6 +188,17 @@ module HasUwp
     self.population = (population || {}).merge('majorCities' => val.present? ? val.to_i : nil)
   end
 
+  CULTURE_TRAIT_DATA = [
+    { code: 'D', label: 'Diversity',       key: 'diversity',       getter: :population_diversity,       low_label: 'Monolithic',      high_label: 'Multicultural',  min: 1, max: 20, description: '' },
+    { code: 'X', label: 'Xenophilia',      key: 'xenophilia',      getter: :population_xenophilia,      low_label: 'Xenophobic',      high_label: 'Xenophilic',     min: 1, max: 17, description: '' },
+    { code: 'U', label: 'Uniqueness',      key: 'uniqueness',      getter: :population_uniqueness,      low_label: 'Normal',          high_label: 'Obscure',        min: 1, max: 18, description: '' },
+    { code: 'S', label: 'Symbology',       key: 'symbology',       getter: :population_symbology,       low_label: 'Concrete',        high_label: 'Abstract',       min: 1, max: 19, description: '' },
+    { code: 'C', label: 'Cohesion',        key: 'cohesion',        getter: :population_cohesion,        low_label: 'Individualistic', high_label: 'Collective',     min: 1, max: 22, description: '' },
+    { code: 'P', label: 'Progressiveness', key: 'progressiveness', getter: :population_progressiveness, low_label: 'Reactionary',     high_label: 'Radical',        min: 1, max: 18, description: '' },
+    { code: 'E', label: 'Expansionism',    key: 'expansionism',    getter: :population_expansionism,    low_label: 'Passive',         high_label: 'Expansionistic', min: 1, max: 18, description: '' },
+    { code: 'M', label: 'Militancy',       key: 'militancy',       getter: :population_militancy,       low_label: 'Peaceful',        high_label: 'Militant',       min: 1, max: 20, description: '' }
+  ].freeze
+
   def population_cohesion              = population&.dig('cohesion')
   def population_diversity             = population&.dig('diversity')
   def population_militancy             = population&.dig('militancy')
@@ -190,6 +208,12 @@ module HasUwp
   def population_expansionism          = population&.dig('expansionism')
   def population_progressiveness       = population&.dig('progressiveness')
   def population_major_city_population = population&.dig('majorCityPopulation')
+
+  CULTURE_TRAIT_DATA.each do |trait|
+    define_method("#{trait[:getter]}=") do |val|
+      self.population = (population || {}).merge(trait[:key] => val.present? ? val.to_i : nil)
+    end
+  end
 
   def total_urban_population
     population&.dig('totalUrbanPopulation') || data&.dig('total_urban_population')
@@ -474,6 +498,7 @@ module HasUwp
         :atmosphere_hazard_code,
         :hydrographics_code, :hydrographics_liquid, :hydrographics_distribution,
         :population_code, :population_concentration_rating, :population_urbanization_percentage, :population_major_cities,
+        *CULTURE_TRAIT_DATA.map { |trait| trait[:getter] },
         :government_code, :government_authority, :government_centralisation,
         :government_judicial, :government_executive, :government_legislative,
         :law_level_code, :law_level_weapons_and_armour, :law_level_criminal_law, :law_level_economic_law,

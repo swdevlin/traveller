@@ -469,16 +469,7 @@ module StellarObjectsHelper
   NO_POPULATION_LAW_LEVEL_MESSAGE = 'No law level (population 0).'
   NO_POPULATION_TECH_LEVEL_MESSAGE = 'No tech level (population 0).'
 
-  CULTURE_TRAIT_DATA = [
-    { code: 'D', label: 'Diversity',       getter: :population_diversity,       low_label: 'Monolithic',      high_label: 'Multicultural',  min: 1, max: 20, description: '' },
-    { code: 'X', label: 'Xenophilia',      getter: :population_xenophilia,      low_label: 'Xenophobic',      high_label: 'Xenophilic',     min: 1, max: 17, description: '' },
-    { code: 'U', label: 'Uniqueness',      getter: :population_uniqueness,      low_label: 'Normal',          high_label: 'Obscure',        min: 1, max: 18, description: '' },
-    { code: 'S', label: 'Symbology',       getter: :population_symbology,       low_label: 'Concrete',        high_label: 'Abstract',       min: 1, max: 19, description: '' },
-    { code: 'C', label: 'Cohesion',        getter: :population_cohesion,        low_label: 'Individualistic', high_label: 'Collective',     min: 1, max: 22, description: '' },
-    { code: 'P', label: 'Progressiveness', getter: :population_progressiveness, low_label: 'Reactionary',     high_label: 'Radical',        min: 1, max: 18, description: '' },
-    { code: 'E', label: 'Expansionism',    getter: :population_expansionism,    low_label: 'Passive',         high_label: 'Expansionistic', min: 1, max: 18, description: '' },
-    { code: 'M', label: 'Militancy',       getter: :population_militancy,       low_label: 'Peaceful',        high_label: 'Militant',       min: 1, max: 20, description: '' }
-  ].freeze
+  CULTURE_TRAIT_DATA = HasUwp::CULTURE_TRAIT_DATA
 
   def culture_trait_dm(value)
     return nil if value.nil?
