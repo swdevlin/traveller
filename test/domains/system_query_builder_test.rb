@@ -205,6 +205,20 @@ class SystemQueryBuilderTest < ActiveSupport::TestCase
     assert_not_includes relation, outside_subsector
   end
 
+  test 'jump_route field matches systems that are either endpoint of a link on that route' do
+    from = build_star_system
+    to = build_star_system
+    other = build_star_system
+    route = JumpRoute.create!(name: 'Spinward Main')
+    JumpRouteLink.create!(jump_route: route, from_star_system: from, to_star_system: to)
+
+    relation = relation_for(field: 'jump_route', operator: 'eq', values: [route.id.to_s])
+
+    assert_includes relation, from
+    assert_includes relation, to
+    assert_not_includes relation, other
+  end
+
   test 'negate flips the condition' do
     matching = build_star_system(starport_code: 'A')
     other = build_star_system(starport_code: 'B')

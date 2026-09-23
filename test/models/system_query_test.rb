@@ -51,6 +51,48 @@ class SystemQueryTest < ActiveSupport::TestCase
     assert_equal %w[sector_location name uwp allegiance], system_query.display_columns
   end
 
+  test 'jump_route is a SystemQuery-only field, not shared onto SurveyOverlay' do
+    assert_includes SystemQuery::FIELDS.map(&:first), 'jump_route'
+    assert_not_includes SurveyOverlay::FIELDS.map(&:first), 'jump_route'
+    assert_equal 'Jump Route', SystemQuery.field_label('jump_route')
+  end
+
+  test 'rejects an unknown jump route id' do
+    system_query = SystemQuery.new(
+      name: 'Test', columns: [],
+      rule_data: { groups: [[{ field: 'jump_route', operator: 'eq', negate: false, values: ['999999'] }]] }
+    )
+
+    assert_not system_query.valid?
+    assert system_query.errors[:rule_data].any?
+  end
+
+  test 'accepts a jump route id that exists' do
+    route = JumpRoute.create!(name: 'Spinward Main')
+    system_query = SystemQuery.new(
+      name: 'Test', columns: [],
+      rule_data: { groups: [[{ field: 'jump_route', operator: 'eq', negate: false, values: [route.id.to_s] }]] }
+    )
+
+    assert system_query.valid?
+  end
+
+  test 'picker_options includes jump routes sourced live from the JumpRoute table' do
+    route = JumpRoute.create!(name: 'Spinward Main')
+
+    assert_includes SystemQuery.picker_options.fetch('jump_route'), [route.id.to_s, route.name]
+  end
+
+  test 'value_label resolves a jump route id to its name, mirroring sector/subsector' do
+    route = JumpRoute.create!(name: 'Spinward Main')
+
+    assert_equal 'Spinward Main', SystemQuery.value_label('jump_route', route.id.to_s)
+  end
+
+  test 'value_label falls back to the raw value for an id with no matching row' do
+    assert_equal '999999', SystemQuery.value_label('jump_route', '999999')
+  end
+
   test 'matching_star_systems delegates to SystemQueryBuilder' do
     star_system = StarSystem.create!(name: 'Test System', parsec: parsecs(:one))
     system_query = SystemQuery.create!(name: 'Test', columns: [], rule_data: {})

@@ -125,12 +125,27 @@ module HasFilterRule
       )
     end
 
+    # `self::` (not the bare constant) so an includer that overrides
+    # FIELDS/OPERATORS with its own additions (e.g. `SystemQuery` adding
+    # `jump_route`) gets correct labels back — mirrors the `self.class::`
+    # dispatch already used by `validate_condition` below.
     def field_label(code)
-      FIELDS.find { |value, _| value == code }&.last || code
+      self::FIELDS.find { |value, _| value == code }&.last || code
     end
 
     def operator_label(code)
-      OPERATORS.find { |value, _| value == code }&.last || code
+      self::OPERATORS.find { |value, _| value == code }&.last || code
+    end
+
+    # A condition's stored `values` are option codes/ids (e.g. a sector id,
+    # a jump route id, an allegiance code) rather than display text — look
+    # each one up against `picker_options` for the human-readable label,
+    # falling back to the raw value (e.g. a deleted row's id) if it's no
+    # longer a valid option. Bare `picker_options` call, not `self::`,
+    # correctly dispatches to an includer's override (e.g. `SystemQuery`)
+    # since method calls (unlike constant lookups) resolve dynamically.
+    def value_label(field, value)
+      picker_options.fetch(field, []).find { |code, _| code == value }&.last || value
     end
   end
 
@@ -216,6 +231,8 @@ module HasFilterRule
       errors.add(:rule_data, "#{label} has an unknown sector") if values.any? { |value| !Sector.kept.exists?(id: value) }
     when 'subsector'
       errors.add(:rule_data, "#{label} has an unknown subsector") if values.any? { |value| !Subsector.kept_sector.exists?(id: value) }
+    when 'jump_route'
+      errors.add(:rule_data, "#{label} has an unknown jump route") if values.any? { |value| !JumpRoute.exists?(id: value) }
     else
       domain = self.class::FIELD_OPTIONS[field]&.map(&:first)
       if domain && values.any? { |value| !domain.include?(value) }
