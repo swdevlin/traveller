@@ -171,6 +171,25 @@ Faultline.configure do |config|
   config.notification_cooldown = 5.minutes
 
   # =============================================================================
+  # MCP (AI agent access)
+  # =============================================================================
+
+  # Enable the MCP endpoint so AI agents (e.g. Claude Code) can query errors/traces.
+  # Endpoint: <faultline-mount>/mcp — 404s unless mcp_enabled, 401s without a valid token.
+  # Gated on the token's presence so boot doesn't fail in environments (dev/test/CI)
+  # where the token isn't set.
+  mcp_token = ENV['FAULTLINE_MCP_TOKEN'] || Rails.application.credentials.dig(:faultline, :mcp_token)
+
+  config.mcp_enabled = mcp_token.present?
+
+  # Bearer tokens accepted by the MCP endpoint, compared with timing-safe SHA256 digests.
+  config.mcp_tokens = [mcp_token].compact
+
+  # Mutating tools (resolve/ignore/delete/bulk_update/create_github_issue) are
+  # gated behind mcp_readonly: false. Default true keeps agent access read-only.
+  config.mcp_readonly = true
+
+  # =============================================================================
   # GitHub Integration
   # =============================================================================
 

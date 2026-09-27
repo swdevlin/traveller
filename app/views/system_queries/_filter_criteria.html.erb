@@ -8,7 +8,9 @@
           <span><%= SystemQuery.field_label(condition[:field]) %></span>
           <% if condition[:negate] %>not <% end %>
           <%= SystemQuery.operator_label(condition[:operator]) %>
-          <span class='font-mono'><%= Array(condition[:values]).join(', ') %></span>
+          <span class='font-mono'>
+            <%= safe_join(Array(condition[:values]).map { |value| filter_value_display(condition[:field], value) }, ', ') %>
+          </span>
         <% end %>
       </div>
     <% end %>

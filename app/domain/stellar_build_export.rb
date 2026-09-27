@@ -9,8 +9,6 @@ module StellarBuildExport
     'GL' => 'large gas giant'
   }.freeze
 
-  ORBIT_ROLE_MAP = { 1 => 'close', 2 => 'near', 3 => 'far' }.freeze
-
   def export_star(star, main_world_id)
     hash = { 'type' => star_type_string(star) }
     hash['class'] = star.stellar_class if star.stellar_class.present? && !special_type?(star)
@@ -22,8 +20,8 @@ module StellarBuildExport
     hash['companion'] = export_star(star.companion, main_world_id) if star.companion
 
     star.secondary_stars.each do |secondary|
-      role = ORBIT_ROLE_MAP[secondary.orbit.to_i]
-      hash[role] = export_star(secondary, main_world_id) if role
+      role = OrbitType.role_for_orbit(secondary.orbit)
+      hash[role.to_s] = export_star(secondary, main_world_id) if role
     end
 
     hash
