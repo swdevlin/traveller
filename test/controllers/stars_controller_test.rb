@@ -51,4 +51,11 @@ class StarsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_url(@star)
     assert_match(/could not be recalculated/, flash[:alert].to_s)
   end
+
+  test 'update stores stellar subtype as an integer' do
+    patch star_url(@star), params: { star: { stellar_subtype: '4' } }
+
+    assert_redirected_to star_url(@star)
+    assert_equal 4, @star.reload.data['stellar_subtype']
+  end
 end
