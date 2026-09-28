@@ -434,7 +434,7 @@ type alias HexColorDict =
 
 
 type alias RegionLabelDict =
-    Dict.Dict HexKey String
+    Dict.Dict HexKey ( String, Maybe Color )
 
 
 nextRequestNum : RequestHistory -> RequestNum
@@ -1019,7 +1019,7 @@ type alias ModelData =
     , route : RouteList
     , regions : RegionDict
     , regionsCoverage : Set.Set HexKey
-    , regionLabels : Dict.Dict String String
+    , regionLabels : RegionLabelDict
     , mapLabels : Dict.Dict String MapLabel
     , hexColours : Dict.Dict String Color
     , ship : Maybe Ship
@@ -3798,8 +3798,14 @@ backgroundNameLabel themeIsLight fontSize cx cy name =
         tspans
 
 
-regionLabel : Int -> Int -> String -> Svg msg
-regionLabel x y name =
+regionLabel : Int -> Int -> Maybe Color -> String -> Svg msg
+regionLabel x y colour name =
+    let
+        fillColour =
+            colour
+                |> Maybe.map Color.Convert.colorToHex
+                |> Maybe.withDefault "#1A4A6A"
+    in
     Svg.text_
         [ SvgAttrs.x <| String.fromInt x
         , SvgAttrs.y <| String.fromInt y
@@ -3807,7 +3813,7 @@ regionLabel x y name =
         , SvgAttrs.dominantBaseline "middle"
         , SvgAttrs.fontFamily "Tomorrow"
         , SvgAttrs.fontWeight "500"
-        , SvgAttrs.fill "#1A4A6A"
+        , SvgAttrs.fill fillColour
         , SvgAttrs.style "pointer-events: none; user-select: none;"
         ]
         [ Svg.text name ]
@@ -4199,12 +4205,12 @@ viewHexes config =
                                 config.regionLabels
                                     |> Dict.get (HexAddress.toKey hexAddress)
                                     |> Maybe.map
-                                        (\name ->
+                                        (\( name, colour ) ->
                                             let
                                                 ( x, y ) =
                                                     labelPos hexAddress
                                             in
-                                            Html.Lazy.lazy3 regionLabel x y name
+                                            Html.Lazy.lazy4 regionLabel x y colour name
                                         )
 
                     labels =
@@ -7947,12 +7953,12 @@ update msg ( time, model ) =
                     else
                         Just str
 
-                regionLabelDict : Dict.Dict String String
+                regionLabelDict : RegionLabelDict
                 regionLabelDict =
                     visibleRegions
                         |> List.filterMap
                             (\region ->
-                                Maybe.map2 (\pos label -> ( HexAddress.toKey pos, label ))
+                                Maybe.map2 (\pos label -> ( HexAddress.toKey pos, ( label, region.colour ) ))
                                     region.labelPosition
                                     (region.label |> Maybe.andThen nonBlank)
                             )
