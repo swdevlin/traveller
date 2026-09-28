@@ -7676,15 +7676,18 @@ update msg ( time, model ) =
 
                 clearedJumpRouteLinksCoverage =
                     unmarkCovered model.hexRect model.jumpRouteLinksCoverage
+
+                ( newModel, starSystemCmds ) =
+                    update DownloadStarSystems
+                        (withTime
+                            { model
+                                | starSystems = clearedStarSystems
+                                , regionsCoverage = clearedRegionsCoverage
+                                , jumpRouteLinksCoverage = clearedJumpRouteLinksCoverage
+                            }
+                        )
             in
-            update DownloadStarSystems
-                (withTime
-                    { model
-                        | starSystems = clearedStarSystems
-                        , regionsCoverage = clearedRegionsCoverage
-                        , jumpRouteLinksCoverage = clearedJumpRouteLinksCoverage
-                    }
-                )
+            ( newModel, Cmd.batch [ starSystemCmds, sendJumpRouteLayersRequest model.hostConfig ] )
 
         DownloadStarSystems ->
             let
