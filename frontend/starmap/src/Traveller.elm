@@ -1033,6 +1033,7 @@ type alias ModelData =
     , starMapModalSize : { width : Float, height : Float }
     , starMapResizeDrag : Maybe { startX : Float, startY : Float, startWidth : Float, startHeight : Float }
     , selectedRogueObjects : Maybe (List RogueObjectDetail)
+    , selectedParsecSurvey : Maybe { parsecId : Int, surveyIndex : Int }
     , timeOpened : Time.Posix
     , campaignName : String
     , sectorCapitalColour : Maybe String
@@ -1099,7 +1100,7 @@ type Msg
     | RefreshMap
     | DownloadedStarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
     | ClearAllErrors
-    | FetchedStarSystemDetail (Result Http.Error StarSystemDetail)
+    | FetchedStarSystemDetail (Result Http.Error StarSystemDetailResponse)
     | DownloadedSectors ( RequestEntry, String ) (Result Http.Error (List Sector))
     | DownloadedRegions ( HexRect, String ) (Result Http.Error (List Region))
     | HoveringHex HexAddress ( Float, Float )
@@ -1118,6 +1119,8 @@ type Msg
     | SetSurveyIndex Int
     | KnownSaved (Result Http.Error ())
     | SurveyIndexSaved (Result Http.Error ())
+    | SetParsecSurveyIndex Int
+    | ParsecSurveyIndexSaved (Result Http.Error ())
     | MapMouseDown ( Float, Float )
     | MapMouseUp (Maybe HexAddress) ( Float, Float ) Bool
     | MapMouseMove ( Float, Float )
@@ -1784,6 +1787,7 @@ init viewport settings key hostConfig referee =
             , starMapModalSize = { width = 760, height = 560 }
             , starMapResizeDrag = Nothing
             , selectedRogueObjects = Nothing
+            , selectedParsecSurvey = Nothing
             , timeOpened = Time.millisToPosix 0
             , campaignName = settings.campaignName |> Maybe.withDefault "Navigation"
             , sectorCapitalColour = settings.sectorCapitalColour
@@ -3492,6 +3496,7 @@ type RogueObjectDetail
 
 type alias RogueHexData =
     { surveyIndex : Int
+    , parsecId : Int
     , objects : List RogueObjectDetail
     }
 
@@ -3501,6 +3506,7 @@ type alias RogueResponseItem =
     , x : Int
     , y : Int
     , surveyIndex : Int
+    , parsecId : Int
     }
 
 
@@ -3534,11 +3540,12 @@ rogueObjectDetailDecoder =
 
 rogueResponseItemDecoder : JsDecode.Decoder RogueResponseItem
 rogueResponseItemDecoder =
-    JsDecode.map4 RogueResponseItem
+    JsDecode.map5 RogueResponseItem
         rogueObjectDetailDecoder
         (JsDecode.field "x" JsDecode.int)
         (JsDecode.field "y" JsDecode.int)
         (JsDecode.field "survey_index" JsDecode.int)
+        (JsDecode.field "parsec_id" JsDecode.int)
 
 
 type RemoteStarSystem
@@ -6642,6 +6649,7 @@ view ( time, model ) =
             , openCommerce = OpenCommerce
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
+            , setParsecSurveyIndex = SetParsecSurveyIndex
             }
 
         starSystemStatus =
@@ -6682,6 +6690,7 @@ view ( time, model ) =
             , mDrive = model.ship |> Maybe.andThen .mDrive
             , showTravelTable = model.showTravelTable
             , rogueContent = model.selectedRogueObjects |> Maybe.map viewRogueContent
+            , selectedParsecSurvey = model.selectedParsecSurvey
             }
 
         travelTableMsgs : TravelTable.Msgs Msg
@@ -7034,13 +7043,24 @@ sendRouteRequest requestEntry hostConfig =
     requestCmd
 
 
+type alias StarSystemDetailResponse =
+    { starSystem : Maybe StarSystemDetail
+    , parsecId : Int
+    , parsecSurveyIndex : Int
+    }
+
+
+starSystemDetailResponseDecoder : JsDecode.Decoder StarSystemDetailResponse
+starSystemDetailResponseDecoder =
+    JsDecode.map3 StarSystemDetailResponse
+        (JsDecode.field "star_system" (JsDecode.nullable (StarSystemDetail.codec |> Codec.decoder)))
+        (JsDecode.at [ "parsec", "id" ] JsDecode.int)
+        (JsDecode.at [ "parsec", "survey_index" ] JsDecode.int)
+
+
 fetchStarSystemDetailRequest : HostConfig -> SectorHexAddress -> Cmd Msg
 fetchStarSystemDetailRequest hostConfig hex =
     let
-        starSystemDetailDecoder : JsDecode.Decoder StarSystemDetail
-        starSystemDetailDecoder =
-            StarSystemDetail.codec |> Codec.decoder
-
         ( urlHostRoot, urlHostPath ) =
             hostConfig
 
@@ -7061,7 +7081,7 @@ fetchStarSystemDetailRequest hostConfig hex =
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson FetchedStarSystemDetail starSystemDetailDecoder
+                , expect = Http.expectJson FetchedStarSystemDetail starSystemDetailResponseDecoder
                 , timeout = Just 5000
                 , tracker = Nothing
                 }
@@ -7238,6 +7258,29 @@ updateStarSystemSurveyIndex hostConfig starSystemId surveyIndex =
         , url = url
         , body = Http.jsonBody (Encode.object [ ( "survey_index", Encode.int surveyIndex ) ])
         , expect = Http.expectWhatever SurveyIndexSaved
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+updateParsecSurveyIndex : HostConfig -> Int -> Int -> Cmd Msg
+updateParsecSurveyIndex hostConfig parsecId surveyIndex =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "parsecs", String.fromInt parsecId ])
+                []
+    in
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = url
+        , body = Http.jsonBody (Encode.object [ ( "survey_index", Encode.int surveyIndex ) ])
+        , expect = Http.expectWhatever ParsecSurveyIndexSaved
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -8018,42 +8061,57 @@ update msg ( time, model ) =
             -- covered so the next pan over it naturally retries the fetch.
             ( withTime { model | jumpRouteLinksCoverage = unmarkCovered hexRect model.jumpRouteLinksCoverage }, Cmd.none )
 
-        FetchedStarSystemDetail (Ok starSystemDetail) ->
-            if model.pendingCtrlNavigation then
-                let
-                    ( _, pathParts ) =
-                        model.hostConfig
+        FetchedStarSystemDetail (Ok response) ->
+            case response.starSystem of
+                Nothing ->
+                    if model.pendingCtrlNavigation then
+                        ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
 
-                    campaignPrefix =
-                        List.take 2 pathParts |> String.join "/"
+                    else
+                        ( withTime
+                            { model
+                                | selectedParsecSurvey =
+                                    Just { parsecId = response.parsecId, surveyIndex = response.parsecSurveyIndex }
+                            }
+                        , Cmd.none
+                        )
 
-                    url =
-                        "/" ++ campaignPrefix ++ "/star_systems/" ++ String.fromInt starSystemDetail.id
-                in
-                ( withTime { model | pendingCtrlNavigation = False }
-                , navigateToUrl url
-                )
+                Just starSystemDetail ->
+                    if model.pendingCtrlNavigation then
+                        let
+                            ( _, pathParts ) =
+                                model.hostConfig
 
-            else
-                let
-                    si =
-                        if model.isReferee then
-                            refereeSI
+                            campaignPrefix =
+                                List.take 2 pathParts |> String.join "/"
 
-                        else
-                            starSystemDetail.surveyIndex
+                            url =
+                                "/" ++ campaignPrefix ++ "/star_systems/" ++ String.fromInt starSystemDetail.id
+                        in
+                        ( withTime { model | pendingCtrlNavigation = False }
+                        , navigateToUrl url
+                        )
 
-                    updatedSS =
-                        { starSystemDetail
-                            | surveyIndex = si
-                        }
-                in
-                ( withTime
-                    { model
-                        | selectedSystem = Just updatedSS
-                    }
-                , Cmd.none
-                )
+                    else
+                        let
+                            si =
+                                if model.isReferee then
+                                    refereeSI
+
+                                else
+                                    starSystemDetail.surveyIndex
+
+                            updatedSS =
+                                { starSystemDetail
+                                    | surveyIndex = si
+                                }
+                        in
+                        ( withTime
+                            { model
+                                | selectedSystem = Just updatedSS
+                            }
+                        , Cmd.none
+                        )
 
         FetchedStarSystemDetail (Err (Http.BadBody err)) ->
             ( withTime { model | pendingCtrlNavigation = False, newStarSystemErrors = model.newStarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
@@ -8091,6 +8149,22 @@ update msg ( time, model ) =
             ( withTime { model | newStarSystemErrors = ( err, "survey_index" ) :: model.newStarSystemErrors }, Cmd.none )
 
         SurveyIndexSaved (Ok ()) ->
+            ( withTime model, Cmd.none )
+
+        SetParsecSurveyIndex surveyIndex ->
+            case model.selectedParsecSurvey of
+                Just survey ->
+                    ( withTime { model | selectedParsecSurvey = Just { survey | surveyIndex = surveyIndex } }
+                    , updateParsecSurveyIndex model.hostConfig survey.parsecId surveyIndex
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        ParsecSurveyIndexSaved (Err err) ->
+            ( withTime { model | newStarSystemErrors = ( err, "parsec_survey_index" ) :: model.newStarSystemErrors }, Cmd.none )
+
+        ParsecSurveyIndexSaved (Ok ()) ->
             ( withTime model, Cmd.none )
 
         DownloadedStarSystems ( requestEntry, url ) (Err err) ->
@@ -8474,6 +8548,14 @@ update msg ( time, model ) =
                                                 _ ->
                                                     Nothing
 
+                                        parsecSurvey =
+                                            case Dict.get (HexAddress.toKey hexAddress) model.starSystems of
+                                                Just (LoadedRogueHex data) ->
+                                                    Just { parsecId = data.parsecId, surveyIndex = data.surveyIndex }
+
+                                                _ ->
+                                                    Nothing
+
                                         focusedErrors =
                                             Dict.get (HexAddress.toKey hexAddress) model.starSystems
                                                 |> Maybe.map
@@ -8508,6 +8590,7 @@ update msg ( time, model ) =
                                             , showTravelTable = False
                                             , showShipTraffic = False
                                             , selectedRogueObjects = rogueObjects
+                                            , selectedParsecSurvey = parsecSurvey
                                             , newStarSystemErrors = focusedErrors
                                             , sidebarOpen = True
                                         }
@@ -10340,7 +10423,7 @@ update msg ( time, model ) =
                                             Just { data | objects = item.detail :: data.objects }
 
                                         Nothing ->
-                                            Just { surveyIndex = item.surveyIndex, objects = [ item.detail ] }
+                                            Just { surveyIndex = item.surveyIndex, parsecId = item.parsecId, objects = [ item.detail ] }
                                 )
                                 acc
                         )
@@ -10380,7 +10463,7 @@ update msg ( time, model ) =
             ( withTime model, Cmd.none )
 
         ClearSelectedRogueObjects ->
-            ( withTime { model | selectedRogueObjects = Nothing }, Cmd.none )
+            ( withTime { model | selectedRogueObjects = Nothing, selectedParsecSurvey = Nothing }, Cmd.none )
 
 
 stripDataFromRemoteData : RemoteData err data -> RemoteData err ()

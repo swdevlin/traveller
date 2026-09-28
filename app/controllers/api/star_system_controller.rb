@@ -21,6 +21,7 @@ class Api::StarSystemController < Api::BaseController
 
     authenticated_by_session?
     @is_referee = Current.owns_campaign?
+    @parsec = parsec
 
     @star_system = parsec.star_systems
                          .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,
@@ -28,8 +29,5 @@ class Api::StarSystemController < Api::BaseController
                              { stars: [{ stellar_objects: :moons }, :companion] }] },
                    main_world: :trade_codes)
                          .first
-    unless @star_system
-      render json: { error: 'solar system not found' }, status: :not_found
-    end
   end
 end
