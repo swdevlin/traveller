@@ -91,7 +91,7 @@ gem 'dry-schema'
 
 gem 'commonmarker'
 
-gem 'ultimate_turbo_modal', '~> 3.2'
+gem 'ultimate_turbo_modal', '~> 3.4'
 
 gem 'discard'
 
