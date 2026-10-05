@@ -68,6 +68,7 @@ class SystemQueryBuilder
     when 'allegiance' then allegiance_relation(values)
     when 'sector' then sector_relation(values)
     when 'subsector' then subsector_relation(values)
+    when 'jump_route' then jump_route_relation(values)
     else StarSystem.none
     end
   end
@@ -189,6 +190,14 @@ class SystemQueryBuilder
                               .reduce { |a, b| a.or(b) }
 
     StarSystem.where(parsec_id: parsec_scope.select(:id))
+  end
+
+  # A system is "on" a jump route if it's either endpoint of any of that
+  # route's links — mirrors `StarSystem#jump_route_links`.
+  def jump_route_relation(values)
+    links = JumpRouteLink.where(jump_route_id: values)
+    StarSystem.where(id: links.select(:from_star_system_id))
+              .or(StarSystem.where(id: links.select(:to_star_system_id)))
   end
 
   def parsec_bounding_box(subsector)

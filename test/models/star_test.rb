@@ -109,4 +109,29 @@ class StarTest < ActiveSupport::TestCase
 
     assert_equal 'A', primary.reload.orbit_sequence
   end
+
+  # normalize_data_types tests
+
+  test 'numeric data fields submitted as strings are stored as numbers' do
+    star = stars(:star_one)
+    star.update!(stellar_subtype: '4', temperature: '5200', age: '1.82',
+                 luminosity: '0.53357', hzco: '2.10153', minimum_allowable_orbit: '0.02')
+
+    data = star.reload.data
+    assert_equal 4, data['stellar_subtype']
+    assert_equal 5200, data['temperature']
+    assert_in_delta 1.82, data['age']
+    assert_in_delta 0.53357, data['luminosity']
+    assert_in_delta 2.10153, data['hzco']
+    assert_in_delta 0.02, data['minimum_allowable_orbit']
+  end
+
+  test 'blank numeric data fields are stored as nil' do
+    star = stars(:star_one)
+    star.update!(stellar_subtype: '', luminosity: ' ')
+
+    data = star.reload.data
+    assert_nil data['stellar_subtype']
+    assert_nil data['luminosity']
+  end
 end

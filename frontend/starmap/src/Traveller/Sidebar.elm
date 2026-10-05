@@ -254,6 +254,7 @@ type alias SidebarMsgs msg =
     , openCommerce : msg
     , setKnown : Bool -> msg
     , setSurveyIndex : Int -> msg
+    , setParsecSurveyIndex : Int -> msg
     }
 
 
@@ -555,6 +556,28 @@ viewSidebarJumpTable maybeKm =
                     ]
 
 
+{-| The Survey Index (0-12) `<select>` shared by `viewSurveyControls` and
+`viewParsecSurveyControls`.
+-}
+surveyIndexSelect : (Int -> msg) -> Int -> Html msg
+surveyIndexSelect onSelect currentValue =
+    Html.select
+        [ HtmlAttrs.class "edit-base w-20 text-xs py-1 leading-normal"
+        , Html.Events.onInput
+            (\str -> onSelect (String.toInt str |> Maybe.withDefault currentValue))
+        ]
+        (List.range 0 12
+            |> List.map
+                (\i ->
+                    Html.option
+                        [ HtmlAttrs.value (String.fromInt i)
+                        , HtmlAttrs.selected (i == currentValue)
+                        ]
+                        [ Html.text (String.fromInt i) ]
+                )
+        )
+
+
 {-| Referee-editable known/survey-index controls, or a read-only survey index for players.
 
 Rendered unconditionally (unlike the rest of the system details) so players can see survey
@@ -570,22 +593,7 @@ viewSurveyControls msgs isReferee starSystemDetail =
             [ Html.div [ HtmlAttrs.class "min-w-0" ]
                 [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Survey Index" ]
                 , Html.div [ HtmlAttrs.class "mt-2 text-fg-bright" ]
-                    [ Html.select
-                        [ HtmlAttrs.class "edit-base w-20 text-xs py-1 leading-normal"
-                        , Html.Events.onInput
-                            (\str -> msgs.setSurveyIndex (String.toInt str |> Maybe.withDefault starSystemDetail.actualSurveyIndex))
-                        ]
-                        (List.range 0 12
-                            |> List.map
-                                (\i ->
-                                    Html.option
-                                        [ HtmlAttrs.value (String.fromInt i)
-                                        , HtmlAttrs.selected (i == starSystemDetail.actualSurveyIndex)
-                                        ]
-                                        [ Html.text (String.fromInt i) ]
-                                )
-                        )
-                    ]
+                    [ surveyIndexSelect msgs.setSurveyIndex starSystemDetail.actualSurveyIndex ]
                 ]
             , Html.div [ HtmlAttrs.class "min-w-0" ]
                 [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Known" ]
@@ -597,6 +605,25 @@ viewSurveyControls msgs isReferee starSystemDetail =
 
     else
         el [ width fill, paddingXY 8 4 ] (profileFieldDisplay "Survey Index" (String.fromInt starSystemDetail.actualSurveyIndex))
+
+
+{-| Referee-editable Survey Index control for a hex with no star system (rogue-object-only or
+fully empty). No "Known" toggle: `parsecs.known` is a distinct, unrelated flag (MapLabel
+visibility), not survey/known state for the hex itself.
+-}
+viewParsecSurveyControls : SidebarMsgs msg -> Bool -> Int -> Html msg
+viewParsecSurveyControls msgs isReferee surveyIndex =
+    if isReferee then
+        Html.div [ HtmlAttrs.class "flex items-start gap-6 px-2 py-1" ]
+            [ Html.div [ HtmlAttrs.class "min-w-0" ]
+                [ Html.div [ HtmlAttrs.class "text-xs uppercase tracking-[0.22em] text-fg-muted" ] [ Html.text "Survey Index" ]
+                , Html.div [ HtmlAttrs.class "mt-2 text-fg-bright" ]
+                    [ surveyIndexSelect msgs.setParsecSurveyIndex surveyIndex ]
+                ]
+            ]
+
+    else
+        el [ width fill, paddingXY 8 4 ] (profileFieldDisplay "Survey Index" (String.fromInt surveyIndex))
 
 
 {-| Render the list of bases present in a system, each with its facility icon (if configured) and name.
@@ -705,9 +732,10 @@ viewSidebarColumn :
             , mDrive : Maybe Int
             , showTravelTable : Bool
             , rogueContent : Maybe (Html msg)
+            , selectedParsecSurvey : Maybe { parsecId : Int, surveyIndex : Int }
         }
     -> Html msg
-viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent } =
+viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, selectedSystem, isReferee, allSectorsMapUrl, mDrive, showTravelTable, rogueContent, selectedParsecSurvey } =
     column [ width fill, spacing 4, centerX, height fill, HtmlAttrs.style "position" "relative" ]
         [ el
             [ HtmlAttrs.style "position" "absolute"
@@ -883,14 +911,26 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
                         }
 
                 Nothing ->
-                    case rogueContent of
-                        Just content ->
-                            content
+                    column [ width fill, spacing 6 ]
+                        [ case selectedParsecSurvey of
+                            Just survey ->
+                                viewParsecSurveyControls msgs isReferee survey.surveyIndex
 
-                        Nothing ->
-                            column [ centerX, fontSize 10 ]
-                                [ text "Click a hex to view system details."
-                                ]
+                            Nothing ->
+                                none
+                        , case rogueContent of
+                            Just content ->
+                                content
+
+                            Nothing ->
+                                if selectedParsecSurvey == Nothing then
+                                    column [ centerX, fontSize 10 ]
+                                        [ text "Click a hex to view system details."
+                                        ]
+
+                                else
+                                    none
+                        ]
             ]
         , Html.Lazy.lazy viewSidebarFooter selectedHex
         ]

@@ -1,6 +1,22 @@
 class SystemQuery < ApplicationRecord
   include HasFilterRule
 
+  # `jump_route` is a SystemQuery-only field, not shared via HasFilterRule —
+  # SurveyOverlay (the other includer, for map-highlight rules) has its own
+  # separate field_value dispatch with no jump_route case, and no Elm-side
+  # HighlightRule.elm support either, so surfacing it there would add a
+  # silently-dead option to the overlay editor.
+  FIELDS = (HasFilterRule::FIELDS + [['jump_route', 'Jump Route']]).sort_by(&:first).freeze
+  OPERATORS_FOR_FIELD = HasFilterRule::OPERATORS_FOR_FIELD.merge('jump_route' => %w[eq one_of]).freeze
+
+  def self.jump_route_options
+    JumpRoute.order(:name).pluck(:id, :name).map { |id, name| [id.to_s, name] }
+  end
+
+  def self.picker_options
+    super.merge('jump_route' => jump_route_options)
+  end
+
   # Sector+location (e.g. "Bifront 0307") and name always identify the row,
   # so they're not part of the referee's choosable set — always shown,
   # always in this order, first.

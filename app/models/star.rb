@@ -16,6 +16,14 @@ class Star < StellarObject
   # (e.g. 'L5'), but have no luminosity class.
   BROWN_DWARF_TYPES = %w[L T Y].freeze
 
+  # Numeric fields stored in the `data` jsonb column. store_accessor doesn't
+  # cast, so form submissions arrive as strings and must be converted before
+  # saving.
+  INTEGER_DATA_FIELDS = %i[stellar_subtype temperature].freeze
+  FLOAT_DATA_FIELDS = %i[luminosity hzco minimum_allowable_orbit age].freeze
+
+  before_validation :normalize_data_types
+
   generator_data_map(
     stellar_class: 'stellarClass',
     stellar_type: 'stellarType',
@@ -118,6 +126,20 @@ class Star < StellarObject
   end
 
   private
+
+  def normalize_data_types
+    cast_string_data_fields(INTEGER_DATA_FIELDS) { |v| v.to_f.round }
+    cast_string_data_fields(FLOAT_DATA_FIELDS, &:to_f)
+  end
+
+  def cast_string_data_fields(fields)
+    fields.each do |field|
+      value = public_send(field)
+      next unless value.is_a?(String)
+
+      public_send(:"#{field}=", value.strip.empty? ? nil : yield(value))
+    end
+  end
 
   def orbit_star_system
     star_system || orbiting&.star_system

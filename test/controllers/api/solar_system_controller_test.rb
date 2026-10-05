@@ -8,13 +8,21 @@ class Api::SolarSystemControllerTest < AuthenticatedIntegrationTest
   test 'returns single star system by sector and hex coordinates' do
     get api_starsystem_url(sx: 1, sy: 1, hx: 1, hy: 1), as: :json
     assert_response :success
-    body = response.parsed_body
+    body = response.parsed_body['star_system']
     assert_equal 1, body['sector_x']
     assert_equal 1, body['sector_y']
     assert_equal 1, body['x']
     assert_equal 1, body['y']
     assert_equal 32, body['origin_x']
     assert_equal 40, body['origin_y']
+  end
+
+  test 'returns parsec survey data with no star system when hex is empty' do
+    get api_starsystem_url(sx: 1, sy: 1, hx: 1, hy: 2), as: :json  # parsec four, no star system fixture
+    assert_response :success
+    body = response.parsed_body
+    assert_nil body['star_system']
+    assert body['parsec']['id'].present?
   end
 
   test 'returns 404 for non-existent hex' do

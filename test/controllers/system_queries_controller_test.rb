@@ -56,6 +56,43 @@ class SystemQueriesControllerTest < AuthenticatedIntegrationTest
     assert_includes @response.body, "#{@star_system.parsec.sector.name} #{@star_system.parsec.hex_code}"
   end
 
+  test 'filter criteria links jump_route, allegiance, sector and subsector values to their show pages' do
+    route = JumpRoute.create!(name: 'Spinward Main')
+    @system_query.update!(
+      rule_data: {
+        groups: [[
+          { field: 'jump_route', operator: 'eq', negate: false, values: [route.id.to_s] },
+          { field: 'allegiance', operator: 'eq', negate: false, values: [allegiances(:one).code] },
+          { field: 'sector', operator: 'eq', negate: false, values: [sectors(:one).id.to_s] },
+          { field: 'subsector', operator: 'eq', negate: false, values: [subsectors(:subsector_1_1).id.to_s] }
+        ]]
+      }
+    )
+
+    get system_query_url(@system_query)
+
+    assert_response :success
+    assert_includes @response.body, "href=\"#{jump_route_path(route)}\""
+    assert_includes @response.body, "href=\"#{allegiance_path(allegiances(:one))}\""
+    assert_includes @response.body, "href=\"#{sector_path(sectors(:one))}\""
+    assert_includes @response.body, "href=\"#{subsector_path(subsectors(:subsector_1_1))}\""
+  end
+
+  test 'filter criteria falls back to plain text for a jump_route id that no longer exists' do
+    route = JumpRoute.create!(name: 'Temp Route')
+    @system_query.update!(
+      rule_data: { groups: [[{ field: 'jump_route', operator: 'eq', negate: false, values: [route.id.to_s] }]] }
+    )
+    route_id = route.id
+    route.destroy!
+
+    get system_query_url(@system_query)
+
+    assert_response :success
+    assert_includes @response.body, route_id.to_s
+    assert_not_includes @response.body, "href=\"#{jump_route_path(route_id)}\""
+  end
+
   test 'should get edit' do
     get edit_system_query_url(@system_query)
     assert_response :success

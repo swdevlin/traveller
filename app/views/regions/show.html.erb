@@ -90,8 +90,8 @@
         </div>
       </div>
 
-      <%= form_with url: region_path(@region), method: :patch, class: 'min-w-0' do |f| %>
-        <%= f.hidden_field :player_visible, value: !@region.player_visible? %>
+      <%= form_with url: region_path(@region), method: :patch, class: 'min-w-0' do %>
+        <%= hidden_field_tag 'region[player_visible]', !@region.player_visible? %>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Player Visible</div>
         <div class='mt-2 flex items-center gap-3'>
           <button type='submit'

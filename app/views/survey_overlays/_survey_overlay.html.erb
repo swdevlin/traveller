@@ -28,7 +28,7 @@
               <%= SurveyOverlay.field_label(condition[:field]) %>
               <% if condition[:negate] %>not <% end %>
               <%= SurveyOverlay.operator_label(condition[:operator]) %>
-              <%= Array(condition[:values]).join(', ') %>
+              <%= Array(condition[:values]).map { |value| SurveyOverlay.value_label(condition[:field], value) }.join(', ') %>
             </div>
           <% end %>
         </div>

@@ -38,6 +38,15 @@ class RegionsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to region_url(@region)
   end
 
+  test 'should toggle player visible' do
+    assert_not @region.player_visible?
+
+    patch region_url(@region), params: { region: { player_visible: true } }
+
+    assert_redirected_to region_url(@region)
+    assert @region.reload.player_visible?
+  end
+
   test 'should destroy region' do
     assert_difference('Region.count', -1) do
       delete region_url(@region)
