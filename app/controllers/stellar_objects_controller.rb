@@ -21,14 +21,8 @@ class StellarObjectsController < ApplicationController
     @route_from_system = @stellar_object.parsec ? nil : @stellar_object.orbiting&.star_system
 
     if @stellar_object.is_a?(PlanetoidBelt)
-      scope = @stellar_object.significant_bodies
-      @planetoid_count = scope.count
-      if params[:significant_only].present?
-        scope = scope.where.not(size_code: %w[0 S]).order(:orbit)
-      else
-        scope = scope.order(Arel.sql("array_position(ARRAY[#{StellarObject::SIZE_CODES.map { |c| "'#{c}'" }.join(',')}]::text[], size_code) DESC"))
-                     .order(:orbit)
-      end
+      @planetoid_count = @stellar_object.significant_bodies.count
+      scope = @stellar_object.listed_planetoids(significant_only: params[:significant_only].present?)
       @pagy, @planetoids = pagy(scope, limit: 10, params: request.query_parameters)
     elsif @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(GasGiant)
       @moon_count = @stellar_object.moons.count

@@ -7,6 +7,7 @@ module Traveller.AnalysisDetail exposing
     , AnalysisDetailHeader
     , CitiesTabConfig
     , MoonsTabConfig
+    , PlanetoidsTabConfig
     , viewGasGiantAnalysisDetail
     , viewObjectAnalysisDetail
     , viewPlanetoidAnalysisDetail
@@ -27,9 +28,11 @@ import Json.Decode
 import List.Extra
 import RemoteData exposing (RemoteData(..))
 import Round
+import Svg
+import Svg.Attributes as SA
 import Traveller.City exposing (CitiesPage)
 import Traveller.StarOrbitMap as StarOrbitMap
-import Traveller.StellarObject exposing (MoonsPage, StarData, StellarObject(..))
+import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 
 
@@ -72,6 +75,14 @@ type alias MoonsTabConfig msg =
     }
 
 
+type alias PlanetoidsTabConfig msg =
+    { page : RemoteData Http.Error PlanetoidsPage
+    , significantOnly : Bool
+    , onToggleSignificant : msg
+    , onSetPage : Int -> msg
+    }
+
+
 type alias CitiesTabConfig msg =
     { page : RemoteData Http.Error CitiesPage
     , onSetPage : Int -> msg
@@ -99,6 +110,7 @@ type alias AnalyisDetailGasGiantData =
 
 type alias AnalyisDetailPlanetoidBeltData =
     { planet : AnalyisDetailPlanetoidData
+    , planetoidCount : Int
     , composition :
         { mType : String
         , sType : String
@@ -611,11 +623,34 @@ viewOneTab activeTab setTab tab =
             )
 
 
+{-| The planetoid belt's rock cluster from the star map (`belt-icon` in
+`StarSystemMap.svgDefs`), filled with `currentColor` so it takes the tab's colour.
+-}
+beltTabIcon : Html msg
+beltTabIcon =
+    Svg.svg
+        [ SA.viewBox "-16 -16 32 32"
+        , SA.width "18"
+        , SA.height "18"
+        , SA.fill "currentColor"
+        , SA.style "display:inline-block;vertical-align:middle;"
+        ]
+        [ Svg.polygon [ SA.points "-12,-6 -7,-10 -3,-5 -6,-1 -10,-2" ] []
+        , Svg.polygon [ SA.points "4,-11 10,-9 8,-4 3,-6" ] []
+        , Svg.polygon [ SA.points "-10,4 -5,2 -2,7 -7,10" ] []
+        , Svg.polygon [ SA.points "2,1 8,-1 11,5 7,8 3,6" ] []
+        , Svg.polygon [ SA.points "-1,9 4,11 1,14 -3,12" ] []
+        ]
+
+
 viewTabCode : String -> Html msg
 viewTabCode code =
     case String.split ":" code of
         [ "fa", faClass ] ->
             Html.i [ HtmlAttrs.class faClass ] []
+
+        [ "svg", "belt" ] ->
+            beltTabIcon
 
         _ ->
             text code
@@ -931,8 +966,8 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
-viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
+viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
+viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
     case data of
         AnalyisDetailStar detailHeader starData ->
             StarOrbitMap.viewModal
@@ -945,7 +980,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee o
                 starData.children
 
         _ ->
-            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data
+            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data
 
 
 starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
@@ -961,8 +996,8 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
-viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig citiesTabConfig zIndex data =
+viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
+viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data =
     let
         profileLayout profile content_ =
             row [ spacing 0 ]
@@ -999,7 +1034,7 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
 
                 AnalyisDetailPlanetoidBelt detailHeader sharePBData ->
                     ( detailHeader.header
-                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabConfig sharePBData)
+                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig sharePBData)
                     , 960
                     )
 
@@ -1924,6 +1959,131 @@ viewMoonsTab onSelectObject moonsTabConfig =
         ]
 
 
+viewPlanetoidsTab : (StellarObject -> msg) -> PlanetoidsTabConfig msg -> Html msg
+viewPlanetoidsTab onSelectObject planetoidsTabConfig =
+    let
+        checkboxRow =
+            row
+                [ spacing 6
+                , pointerCursor
+                , Html.Events.onClick planetoidsTabConfig.onToggleSignificant
+                , paddingEach { zeroEach | bottom = 8 }
+                ]
+                [ el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg" ]
+                    (text
+                        (if planetoidsTabConfig.significantOnly then
+                            "☑"
+
+                         else
+                            "☐"
+                        )
+                    )
+                , el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text "Significant only")
+                ]
+
+        headerCell alignAttrs label =
+            el
+                ([ HtmlAttrs.style "font-size" "11px"
+                 , HtmlAttrs.class "font-bold"
+                 , fontVar "--color-fg-muted"
+                 , paddingEach { left = 8, right = 8, top = 0, bottom = 6 }
+                 , HtmlAttrs.class "border-b"
+                 , outlineBorder
+                 , HtmlAttrs.style "white-space" "nowrap"
+                 ]
+                    ++ alignAttrs
+                )
+                (text label)
+
+        bodyCell planetoidObj alignAttrs content =
+            el
+                ([ HtmlAttrs.style "font-size" "13px"
+                 , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                 , pointerCursor
+                 , Html.Events.onClick (onSelectObject planetoidObj)
+                 ]
+                    ++ alignAttrs
+                )
+                content
+
+        asPlanetoid planetoidObj =
+            case planetoidObj of
+                Planetoid pdata ->
+                    Just ( planetoidObj, pdata )
+
+                _ ->
+                    Nothing
+
+        sophontIcons pdata =
+            Html.span []
+                ((if pdata.nativeSophont then
+                    [ Html.i [ HtmlAttrs.class "fa-regular fa-user-alien", HtmlAttrs.title "Native sophont" ] [] ]
+
+                  else
+                    []
+                 )
+                    ++ (if pdata.extinctSophont then
+                            [ Html.i [ HtmlAttrs.class "fa-kit fa-light-user-alien-slash", HtmlAttrs.title "Extinct sophont" ] [] ]
+
+                        else
+                            []
+                       )
+                )
+
+        planetoidsTable planetoids =
+            Html.div
+                [ HtmlAttrs.style "display" "grid"
+                , HtmlAttrs.style "grid-template-columns" "60px 1fr 80px 60px 2fr"
+                , width fill
+                ]
+                (headerCell [] "Size"
+                    :: headerCell [] "Orbit Sequence"
+                    :: headerCell [ HtmlAttrs.class "text-right" ] "AU"
+                    :: headerCell [] ""
+                    :: headerCell [] "UWP"
+                    :: (planetoids
+                            |> List.filterMap asPlanetoid
+                            |> List.concatMap
+                                (\( planetoidObj, pdata ) ->
+                                    [ bodyCell planetoidObj [ HtmlAttrs.class "font-mono" ] (text pdata.size)
+                                    , bodyCell planetoidObj [] (text pdata.orbitSequence)
+                                    , bodyCell planetoidObj [ HtmlAttrs.class "text-right font-mono" ] (text (Round.round 2 pdata.au))
+                                    , bodyCell planetoidObj [] (sophontIcons pdata)
+                                    , bodyCell planetoidObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+                                    ]
+                                )
+                       )
+                )
+
+        mutedText str =
+            el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text str)
+    in
+    column [ width fill ]
+        [ checkboxRow
+        , case planetoidsTabConfig.page of
+            NotAsked ->
+                mutedText "Select this tab to load planetoids."
+
+            Loading ->
+                mutedText "Loading planetoids…"
+
+            Failure _ ->
+                mutedText "Could not load planetoids."
+
+            Success page ->
+                if List.isEmpty page.planetoids then
+                    mutedText "No significant bodies recorded."
+
+                else
+                    column [ width fill ]
+                        [ el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted", paddingEach { zeroEach | bottom = 8 } ]
+                            (text ("Planetoids: " ++ String.fromInt page.count))
+                        , planetoidsTable page.planetoids
+                        , viewPager page.page page.pages planetoidsTabConfig.onSetPage
+                        ]
+        ]
+
+
 viewPagerPill : List (Html.Attribute msg) -> String -> Html msg
 viewPagerPill attrs label =
     el
@@ -2059,8 +2219,8 @@ viewCitiesTab citiesTabConfig =
         ]
 
 
-viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Html msg
-viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabConfig data =
+viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Html msg
+viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig data =
     let
         pd =
             data.planet
@@ -2245,6 +2405,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
             , { id = "law", label = "Law", code = uc 6 }
             , { id = "-", label = "", code = "–" }
             , { id = "tech", label = "Tech", code = uc 8 }
+            , { id = "planetoids", label = "Planetoids (" ++ String.fromInt data.planetoidCount ++ ")", code = "svg:belt" }
             , { id = "cities", label = "Cities (" ++ String.fromInt pd.cityCount ++ ")", code = "fa:fa-regular fa-city" }
             ]
 
@@ -2257,6 +2418,9 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee citiesTabCo
 
         tabContent =
             case safeTab of
+                "planetoids" ->
+                    viewPlanetoidsTab onSelectObject planetoidsTabConfig
+
                 "cities" ->
                     viewCitiesTab citiesTabConfig
 

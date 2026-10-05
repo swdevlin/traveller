@@ -227,3 +227,37 @@ cities_test_planet:
   diameter: 12000
   orbit: 1.0
   data: {}
+
+planetoids_test_belt:
+  name: Planetoids Test Belt
+  type: 'PlanetoidBelt'
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  au: 2.8
+  diameter: 0
+  orbit: 3.0
+  data: {}
+
+planetoids_test_significant:
+  name: Significant Rock
+  type: 'Planetoid'
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  au: 2.8
+  orbit: 3.0
+  size_code: '2'
+  uwp: 'X200000-0'
+  data:
+    planetoid_belt_id: <%= ActiveRecord::FixtureSet.identify(:planetoids_test_belt) %>
+
+planetoids_test_insignificant:
+  name: Tiny Rock
+  type: 'Planetoid'
+  orbiting: primary_for_hierarchy
+  star_system: hierarchy_system
+  au: 2.9
+  orbit: 3.1
+  size_code: 'S'
+  uwp: 'XS00000-0'
+  data:
+    planetoid_belt_id: <%= ActiveRecord::FixtureSet.identify(:planetoids_test_belt) %>

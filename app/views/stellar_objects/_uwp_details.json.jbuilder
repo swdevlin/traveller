@@ -92,6 +92,11 @@ if stellar_object.respond_to?(:cities)
   json.city_count city_counts ? city_counts.fetch(stellar_object.id, 0) : stellar_object.cities.count
 end
 
+if stellar_object.is_a?(PlanetoidBelt)
+  planetoid_counts = render_context[:planetoid_counts_by_belt_id]
+  json.planetoid_count planetoid_counts ? planetoid_counts.fetch(stellar_object.id, 0) : stellar_object.significant_bodies.count
+end
+
 pop_code = stellar_object.population_code
 json.population do
   json.label 'Population'

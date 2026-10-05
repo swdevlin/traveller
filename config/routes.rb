@@ -65,6 +65,7 @@ Rails.application.routes.draw do
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
+      get 'stellar_objects/:id/planetoids', to: 'stellar_objects#planetoids', as: :stellar_object_planetoids, defaults: { format: :json }
       get 'stellar_objects/:id/cities', to: 'stellar_objects#cities', as: :stellar_object_cities, defaults: { format: :json }
       resources :stars, only: %i[index update]
       get 'map', to: 'map#show'

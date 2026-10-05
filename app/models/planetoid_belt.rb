@@ -29,6 +29,18 @@ class PlanetoidBelt < StellarObject
       .where("(data ->> 'planetoid_belt_id')::int = ?", id)
   end
 
+  # Significant bodies for display: largest first, or by orbit when limited to
+  # the significant ones (size 0 and S are not).
+  def listed_planetoids(significant_only: false)
+    if significant_only
+      significant_bodies.where.not(size_code: %w[0 S]).order(:orbit)
+    else
+      significant_bodies
+        .order(Arel.sql("array_position(ARRAY[#{StellarObject::SIZE_CODES.map { |c| "'#{c}'" }.join(',')}]::text[], size_code) DESC"))
+        .order(:orbit)
+    end
+  end
+
   def diameter
     0
   end

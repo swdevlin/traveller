@@ -1,7 +1,6 @@
 module Traveller.StarSystemMap exposing
     ( MapNode
     , gasGiantRadius
-    , isDisplayable
     , isKnown
     , makeBodyNode
     , makeStarNode
@@ -95,6 +94,11 @@ terrRadius =
 beltRadius : Float
 beltRadius =
     9
+
+
+planetoidRadius : Float
+planetoidRadius =
+    4
 
 
 defaultRadius : Float
@@ -639,7 +643,7 @@ makeBodyNode showNames body x y =
             in
             { x = x
             , y = y
-            , radius = terrRadius
+            , radius = planetoidRadius
             , kind = TerrestrialNodeKind
             , fillColour = terrestrialColour data
             , label = lbl

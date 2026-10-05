@@ -91,7 +91,6 @@ buildChildren surveyIndex maybeCompanion stellarObjects =
         visibleChildren =
             (companionList ++ stellarObjects)
                 |> List.filter (StarSystemMap.isKnown surveyIndex)
-                |> List.filter StarSystemMap.isDisplayable
 
         toRawChild obj =
             let
@@ -319,6 +318,54 @@ rankedCorePositions coreInnerPx coreOuterPx sortedCore =
             firstPosition :: secondPosition :: List.reverse restPositionsReversed
 
 
+beltIdOf : StellarObject -> Maybe Int
+beltIdOf obj =
+    case obj of
+        PlanetoidBelt data ->
+            Just data.id
+
+        _ ->
+            Nothing
+
+
+planetoidBeltIdOf : StellarObject -> Maybe Int
+planetoidBeltIdOf obj =
+    case obj of
+        Planetoid data ->
+            data.planetoidBeltId
+
+        _ ->
+            Nothing
+
+
+{-| Planetoids within this fractional AU offset of their belt's distance are
+scattered across `planetoidSpreadPx` either side of the belt's ring; anything
+further out is clamped to the edge of that band. Tunable; not derived from
+any game rule.
+-}
+planetoidSpreadFraction : Float
+planetoidSpreadFraction =
+    0.2
+
+
+planetoidSpreadPx : Float
+planetoidSpreadPx =
+    14
+
+
+{-| Radial pixel position for a planetoid: its belt's ring radius, nudged by
+how far the planetoid's real AU distance sits from the belt's, relative to
+the belt's own distance.
+-}
+planetoidPixelR : Float -> ProjectedChild -> ChildNode -> Float
+planetoidPixelR innerPx belt child =
+    let
+        relativeOffset =
+            (childAuDist child - belt.auDist) / max belt.auDist 0.01
+    in
+    max (innerPx + 4) (belt.pixelR + clamp -1 1 (relativeOffset / planetoidSpreadFraction) * planetoidSpreadPx)
+
+
 {-| The primary star's jump-shadow boundary radius, found the same way the
 schematic subway map (`StarSystemMap.computeVerticalShadow`) already does:
 bracket the shadow's real AU value between the two nearest known children
@@ -502,8 +549,21 @@ viewMap onSelectObject mapWidth mapHeight showNames primaryStarData children =
         orbitGapThreshold =
             outlierGapMultiplier * typicalOrbitGap primaryStarData
 
+        -- Planetoids associated with a belt shown on this map are placed
+        -- hugging that belt's ring instead of taking a ranked slot of their own.
+        beltIds =
+            children |> List.filterMap (.stellarObject >> beltIdOf)
+
+        isBeltBound child =
+            planetoidBeltIdOf child.stellarObject
+                |> Maybe.map (\beltId -> List.member beltId beltIds)
+                |> Maybe.withDefault False
+
+        ( beltBoundPlanetoids, rankedChildren ) =
+            List.partition isBeltBound children
+
         ( coreChildren, outlierChildren ) =
-            partitionCoreAndOutliers orbitGapThreshold children
+            partitionCoreAndOutliers orbitGapThreshold rankedChildren
 
         -- Reserve an outer band exclusively for outliers when there are any,
         -- so a pinned companion star never lands on the same ring as the
@@ -521,12 +581,26 @@ viewMap onSelectObject mapWidth mapHeight showNames primaryStarData children =
         corePositions =
             rankedCorePositions innerPx coreOuterPx sortedCore
 
-        projected =
+        projectedRanked =
             List.map2 (\child pixelR -> projectChild centerX centerY pixelR showNames child) sortedCore corePositions
                 ++ (outlierChildren |> List.map (projectChild centerX centerY outerPx showNames))
 
+        projectedPlanetoids =
+            beltBoundPlanetoids
+                |> List.filterMap
+                    (\child ->
+                        planetoidBeltIdOf child.stellarObject
+                            |> Maybe.andThen (\beltId -> List.Extra.find (\p -> beltIdOf p.node.stellarObject == Just beltId) projectedRanked)
+                            |> Maybe.map (\belt -> projectChild centerX centerY (planetoidPixelR innerPx belt child) showNames child)
+                    )
+
+        projected =
+            projectedRanked ++ projectedPlanetoids
+
         orbitRingElements =
-            projected |> List.map (renderOrbitRing centerX centerY)
+            projected
+                |> List.filter (\p -> not (isPlanetoid p.node.stellarObject))
+                |> List.map (renderOrbitRing centerX centerY)
 
         childElements =
             projected |> List.map (renderMapNode onSelectObject)
@@ -683,12 +757,35 @@ renderOrbitRing centerX centerY projectedChild =
         []
 
 
+isPlanetoid : StellarObject -> Bool
+isPlanetoid obj =
+    case obj of
+        Planetoid _ ->
+            True
+
+        _ ->
+            False
+
+
 renderMapNode : (StellarObject -> msg) -> ProjectedChild -> Svg msg
 renderMapNode onSelectObject { node, auDist } =
     let
         iconEl =
-            case node.image of
-                Just imageName ->
+            case ( isPlanetoid node.stellarObject, node.image ) of
+                ( True, _ ) ->
+                    Svg.ellipse
+                        [ SA.cx (String.fromFloat node.x)
+                        , SA.cy (String.fromFloat node.y)
+                        , SA.rx (String.fromFloat node.radius)
+                        , SA.ry (String.fromFloat (node.radius * 0.6))
+                        , SA.transform ("rotate(-20 " ++ String.fromFloat node.x ++ " " ++ String.fromFloat node.y ++ ")")
+                        , SA.fill node.fillColour
+                        , SA.stroke "var(--color-outline)"
+                        , SA.strokeWidth "1.5"
+                        ]
+                        []
+
+                ( False, Just imageName ) ->
                     Svg.image
                         [ SA.xlinkHref ("/stellar_objects/" ++ imageName ++ ".webp")
                         , SA.x (String.fromFloat (node.x - node.radius))
@@ -700,7 +797,7 @@ renderMapNode onSelectObject { node, auDist } =
                         ]
                         []
 
-                Nothing ->
+                ( False, Nothing ) ->
                     Svg.circle
                         [ SA.cx (String.fromFloat node.x)
                         , SA.cy (String.fromFloat node.y)
@@ -760,7 +857,11 @@ renderMapNode onSelectObject { node, auDist } =
             else
                 [ SE.onClick (onSelectObject node.stellarObject), SA.class "sm-node" ]
     in
-    Svg.g clickAttrs (iconEl :: labelEls)
+    if isPlanetoid node.stellarObject then
+        Svg.g clickAttrs [ iconEl ]
+
+    else
+        Svg.g clickAttrs (iconEl :: labelEls)
 
 
 

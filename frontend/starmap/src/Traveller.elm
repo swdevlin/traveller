@@ -111,7 +111,7 @@ import Traveller.StarSystemStars exposing (FallibleStarSystem, StarSystem, StarT
 import Traveller.StarColour exposing (starColourRGB)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
-import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder)
+import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 import Traveller.StellarObjectView
     exposing
         ( JumpShadowChecker
@@ -1029,6 +1029,8 @@ type alias ModelData =
     , analysisTab : String
     , moonsPage : RemoteData Http.Error MoonsPage
     , moonsSignificantOnly : Bool
+    , planetoidsPage : RemoteData Http.Error PlanetoidsPage
+    , planetoidsSignificantOnly : Bool
     , citiesPage : RemoteData Http.Error CitiesPage
     , starMapModalSize : { width : Float, height : Float }
     , starMapResizeDrag : Maybe { startX : Float, startY : Float, startWidth : Float, startHeight : Float }
@@ -1141,6 +1143,9 @@ type Msg
     | FetchedCities (Result Http.Error CitiesPage)
     | SetCitiesPage Int
     | ToggleMoonsSignificantOnly
+    | FetchedPlanetoids (Result Http.Error PlanetoidsPage)
+    | SetPlanetoidsPage Int
+    | TogglePlanetoidsSignificantOnly
     | StarMapResizeStart { startX : Float, startY : Float }
     | StarMapResizeMove ( Float, Float )
     | StarMapResizeEnd
@@ -1783,6 +1788,8 @@ init viewport settings key hostConfig referee =
             , analysisTab = "orbital"
             , moonsPage = RemoteData.NotAsked
             , moonsSignificantOnly = False
+            , planetoidsPage = RemoteData.NotAsked
+            , planetoidsSignificantOnly = False
             , citiesPage = RemoteData.NotAsked
             , starMapModalSize = { width = 760, height = 560 }
             , starMapResizeDrag = Nothing
@@ -6760,6 +6767,11 @@ view ( time, model ) =
                                     , onToggleSignificant = ToggleMoonsSignificantOnly
                                     , onSetPage = SetMoonsPage
                                     }
+                                    { page = model.planetoidsPage
+                                    , significantOnly = model.planetoidsSignificantOnly
+                                    , onToggleSignificant = TogglePlanetoidsSignificantOnly
+                                    , onSetPage = SetPlanetoidsPage
+                                    }
                                     { page = model.citiesPage
                                     , onSetPage = SetCitiesPage
                                     }
@@ -7144,6 +7156,20 @@ currentMoonsParentId model =
             )
 
 
+currentPlanetoidsParentId : ModelData -> Maybe Int
+currentPlanetoidsParentId model =
+    List.head model.objectToBeAnalyzed
+        |> Maybe.andThen
+            (\entry ->
+                case entry.stellarObject of
+                    PlanetoidBelt bdata ->
+                        Just bdata.id
+
+                    _ ->
+                        Nothing
+            )
+
+
 currentCitiesParentId : ModelData -> Maybe Int
 currentCitiesParentId model =
     List.head model.objectToBeAnalyzed
@@ -7189,6 +7215,36 @@ sendMoonsRequest hostConfig gasGiantId page significantOnly =
         , url = url
         , body = Http.emptyBody
         , expect = Http.expectJson FetchedMoons moonsPageDecoder
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+sendPlanetoidsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
+sendPlanetoidsRequest hostConfig beltId page significantOnly =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "stellar_objects", String.fromInt beltId, "planetoids" ])
+                ([ Url.Builder.int "page" page ]
+                    ++ (if significantOnly then
+                            [ Url.Builder.string "significant_only" "1" ]
+
+                        else
+                            []
+                       )
+                )
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson FetchedPlanetoids planetoidsPageDecoder
         , timeout = Just 5000
         , tracker = Nothing
         }
@@ -9883,6 +9939,7 @@ update msg ( time, model ) =
                                     }
                             in
                             { planet = planet
+                            , planetoidCount = pdata.planetoidCount
                             , composition =
                                 { mType = rnd 0 pdata.mType ++ "%"
                                 , sType = rnd 0 pdata.sType ++ "%"
@@ -10304,6 +10361,24 @@ update msg ( time, model ) =
                         , Cmd.none
                         )
 
+            else if tab == "planetoids" then
+                case currentPlanetoidsParentId model of
+                    Just beltId ->
+                        ( withTime
+                            { model
+                                | analysisTab = tab
+                                , planetoidsPage = RemoteData.Loading
+                                , planetoidsSignificantOnly = False
+                                , timeOpened = time
+                            }
+                        , sendPlanetoidsRequest model.hostConfig beltId 1 False
+                        )
+
+                    Nothing ->
+                        ( withTime { model | analysisTab = tab, timeOpened = time }
+                        , Cmd.none
+                        )
+
             else if tab == "cities" then
                 case currentCitiesParentId model of
                     Just stellarObjectId ->
@@ -10354,6 +10429,35 @@ update msg ( time, model ) =
 
                 Nothing ->
                     ( withTime { model | moonsSignificantOnly = newSignificantOnly }, Cmd.none )
+
+        FetchedPlanetoids result ->
+            ( withTime { model | planetoidsPage = RemoteData.fromResult result }
+            , Cmd.none
+            )
+
+        SetPlanetoidsPage page ->
+            case currentPlanetoidsParentId model of
+                Just beltId ->
+                    ( withTime { model | planetoidsPage = RemoteData.Loading }
+                    , sendPlanetoidsRequest model.hostConfig beltId page model.planetoidsSignificantOnly
+                    )
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        TogglePlanetoidsSignificantOnly ->
+            let
+                newSignificantOnly =
+                    not model.planetoidsSignificantOnly
+            in
+            case currentPlanetoidsParentId model of
+                Just beltId ->
+                    ( withTime { model | planetoidsPage = RemoteData.Loading, planetoidsSignificantOnly = newSignificantOnly }
+                    , sendPlanetoidsRequest model.hostConfig beltId 1 newSignificantOnly
+                    )
+
+                Nothing ->
+                    ( withTime { model | planetoidsSignificantOnly = newSignificantOnly }, Cmd.none )
 
         FetchedCities result ->
             ( withTime { model | citiesPage = RemoteData.fromResult result }

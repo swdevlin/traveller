@@ -22,6 +22,18 @@ class Api::StellarObjectsController < Api::BaseController
     @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
+  def planetoids
+    stellar_object = StellarObject.find_by(id: params[:id])
+    return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object
+
+    authenticated_by_session?
+    return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible_star_system?(stellar_object.star_system)
+    return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object.is_a?(PlanetoidBelt)
+
+    scope = stellar_object.listed_planetoids(significant_only: params[:significant_only].present?)
+    @pagy, @planetoids = pagy(scope, limit: 10, params: request.query_parameters)
+  end
+
   def cities
     stellar_object = StellarObject.find_by(id: params[:id])
     return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object

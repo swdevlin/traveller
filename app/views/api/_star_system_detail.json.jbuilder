@@ -47,7 +47,8 @@ if primary
     governments_by_code: Government.all.index_by(&:code),
     law_levels_by_code: LawLevel.all.index_by(&:code),
     tech_levels_by_code: TechLevel.all.index_by(&:code),
-    city_counts_by_stellar_object_id: star_system.city_counts_by_stellar_object_id
+    city_counts_by_stellar_object_id: star_system.city_counts_by_stellar_object_id,
+    planetoid_counts_by_belt_id: star_system.planetoid_counts_by_belt_id
   }
 
   json.primary_star do

@@ -56,6 +56,53 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test 'referee sees the planetoids associated with a belt, largest first' do
+    sign_in_as users(:one)
+
+    get api_stellar_object_planetoids_url(stellar_objects(:planetoids_test_belt)), as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 2, body['count']
+    assert_equal 'Significant Rock', body['planetoids'].first['name']
+    assert_equal 13, body['planetoids'].first['orbit_type']
+    assert_equal stellar_objects(:planetoids_test_belt).id, body['planetoids'].first['planetoid_belt_id']
+  end
+
+  test 'a planetoid belt reports how many planetoids it has' do
+    sign_in_as users(:one)
+
+    get "/c/#{campaigns(:one).slug}/api/stellar_objects/#{stellar_objects(:planetoids_test_belt).id}", as: :json
+
+    assert_response :success
+    assert_equal 2, response.parsed_body['planetoid_count']
+  end
+
+  test 'planetoids significant_only filters out size 0/S planetoids' do
+    sign_in_as users(:one)
+
+    get api_stellar_object_planetoids_url(stellar_objects(:planetoids_test_belt), significant_only: 1), as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 1, body['count']
+    assert_equal 'Significant Rock', body['planetoids'].first['name']
+  end
+
+  test 'planetoids is not found for something that is not a planetoid belt' do
+    sign_in_as users(:one)
+
+    get api_stellar_object_planetoids_url(@gas_giant), as: :json
+
+    assert_response :not_found
+  end
+
+  test 'player is denied planetoids when the star system is unknown and unsurveyed' do
+    get api_stellar_object_planetoids_url(stellar_objects(:planetoids_test_belt)), as: :json
+
+    assert_response :not_found
+  end
+
   test 'referee sees cities ordered by population, with a positional label when unnamed' do
     sign_in_as users(:one)
     planet = stellar_objects(:cities_test_planet)

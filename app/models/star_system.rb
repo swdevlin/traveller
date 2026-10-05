@@ -171,6 +171,10 @@ class StarSystem < ApplicationRecord
     City.joins(:stellar_object).where(stellar_objects: { star_system_id: id }).group(:stellar_object_id).count
   end
 
+  def planetoid_counts_by_belt_id
+    Planetoid.where(star_system_id: id).group("(data ->> 'planetoid_belt_id')::int").count
+  end
+
   private
 
   def default_reference_url

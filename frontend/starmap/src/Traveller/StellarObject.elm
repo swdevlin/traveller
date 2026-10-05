@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder)
+module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -144,6 +144,7 @@ type alias SharedPData =
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
+    , planetoidBeltId : Maybe Int
     }
 
 
@@ -259,6 +260,7 @@ type alias PlanetoidBeltData =
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
+    , planetoidCount : Int
     }
 
 
@@ -464,7 +466,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -509,6 +511,7 @@ codecPlanetoidBeltData =
             , berthingCost = berthCost
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
+            , planetoidCount = planetoidCount_
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -567,6 +570,7 @@ codecPlanetoidBeltData =
         |> Codec.optionalNullableField "berthing_cost" .berthingCost Codec.int
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
+        |> Codec.field "planetoid_count" .planetoidCount Codec.int
         |> Codec.buildObject
 
 
@@ -743,7 +747,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -797,6 +801,7 @@ codecSharedPData =
             , berthingCost = berthCost
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
+            , planetoidBeltId = beltId
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -879,6 +884,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "berthing_cost" .berthingCost Codec.int
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
+        |> Codec.optionalNullableField "planetoid_belt_id" .planetoidBeltId Codec.int
         |> Codec.buildObject
 
 
@@ -1021,6 +1027,23 @@ moonsPageDecoder : JsDecode.Decoder MoonsPage
 moonsPageDecoder =
     JsDecode.map4 MoonsPage
         (JsDecode.field "moons" (JsDecode.list decodeStellarObject))
+        (JsDecode.field "count" JsDecode.int)
+        (JsDecode.field "page" JsDecode.int)
+        (JsDecode.field "pages" JsDecode.int)
+
+
+type alias PlanetoidsPage =
+    { planetoids : List StellarObject
+    , count : Int
+    , page : Int
+    , pages : Int
+    }
+
+
+planetoidsPageDecoder : JsDecode.Decoder PlanetoidsPage
+planetoidsPageDecoder =
+    JsDecode.map4 PlanetoidsPage
+        (JsDecode.field "planetoids" (JsDecode.list decodeStellarObject))
         (JsDecode.field "count" JsDecode.int)
         (JsDecode.field "page" JsDecode.int)
         (JsDecode.field "pages" JsDecode.int)
