@@ -140,6 +140,7 @@ type alias AnalyisDetailPlanetoidData =
     , jumpShadowKm : Maybe Float
     , moons : Int
     , cityCount : Int
+    , mapUrl : Maybe String
     , physical :
         { au : String
         , period : String
@@ -1012,18 +1013,25 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
                     [ content_ ]
                 ]
 
+        planetaryModalWidth =
+            if activeTab == "map" then
+                1280
+
+            else
+                960
+
         ( header, content, modalWidth ) =
             case data of
                 AnalyisDetailTerrestialPlanet detailHeader sharedPData ->
                     ( detailHeader.header
                     , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
-                    , 960
+                    , planetaryModalWidth
                     )
 
                 AnalyisDetailPlanetoid detailHeader sharedPData ->
                     ( detailHeader.header
                     , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
-                    , 960
+                    , planetaryModalWidth
                     )
 
                 AnalyisDetailGasGiant detailHeader sharedGGData ->
@@ -1066,6 +1074,7 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             , HtmlAttrs.style "max-height" "92vh"
             , HtmlAttrs.style "overflow-y" "auto"
             , width (px modalWidth)
+            , HtmlAttrs.style "max-width" "96vw"
             , padding 20
             , HtmlAttrs.class "rounded-md"
             , HtmlAttrs.style "box-shadow" "0 8px 32px rgba(0, 0, 0, 0.25)"
@@ -1478,6 +1487,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
             , { id = "law", label = "Law", code = uc 6 }
             , { id = "-", label = "", code = "–" }
             , { id = "tech", label = "Tech", code = uc 8 }
+            , { id = "map", label = "Map", code = "fa:fa-regular fa-map" }
             ]
                 ++ (if showMoonsTab then
                         [ { id = "moons", label = "Moons (" ++ String.fromInt data.moons ++ ")", code = "☾" } ]
@@ -1501,6 +1511,9 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
 
                 "cities" ->
                     viewCitiesTab citiesTabConfig
+
+                "map" ->
+                    viewMapTab data.mapUrl
 
                 "starport" ->
                     column groupAttrs
@@ -2129,6 +2142,35 @@ viewPager page pages onSetPage =
         , viewPagerPill [ bgVar "--color-panel-muted", fontVar "--color-fg-bright", outlineBorder ] (String.fromInt page)
         , viewPagerArrow (page < pages) "›" (onSetPage (page + 1))
         ]
+
+
+viewMapTab : Maybe String -> Html msg
+viewMapTab maybeUrl =
+    case maybeUrl of
+        Just url ->
+            Html.div
+                [ HtmlAttrs.style "width" "100%"
+                , HtmlAttrs.style "white-space" "normal"
+                , HtmlAttrs.class "flex justify-center"
+                ]
+                [ Html.img
+                    [ HtmlAttrs.src url
+                    , HtmlAttrs.alt "World map"
+                    , HtmlAttrs.class "block max-w-full h-auto"
+                    , HtmlAttrs.style "max-height" "calc(92vh - 170px)"
+                    , HtmlAttrs.style "object-fit" "contain"
+                    ]
+                    []
+                ]
+
+        Nothing ->
+            Html.div
+                [ HtmlAttrs.style "width" "100%"
+                , HtmlAttrs.style "white-space" "normal"
+                , HtmlAttrs.style "color" "var(--color-fg-muted)"
+                , HtmlAttrs.style "font-size" "13px"
+                ]
+                [ Html.text "No map has been generated for this world." ]
 
 
 viewCitiesTab : CitiesTabConfig msg -> Html msg

@@ -21,7 +21,7 @@ module Traveller
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.active_record.schema_format = :sql
 
-    config.autoload_lib(ignore: %w[assets tasks])
+    config.autoload_lib(ignore: %w[assets tasks active_storage])
 
     config.solid_queue.clear_finished_jobs_after = 1.month
 

@@ -1,0 +1,41 @@
+<% planet_map = stellar_object.planet_map %>
+<div id="<%= dom_id(stellar_object, :map) %>" class="space-y-2">
+  <% if planet_map %>
+    <% if stellar_object.map_stale? %>
+      <p class="text-fg-muted text-sm">This world's details have changed since the map was generated.</p>
+    <% end %>
+    <%= image_tag map_stellar_object_path(stellar_object, v: planet_map.updated_at.to_i), alt: 'Surface map', class: 'block max-w-full h-auto' %>
+    <div class='flex items-center justify-between'>
+      <%= button_to 'Regenerate map', generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary btn-sm' %>
+      <div class='flex gap-3 text-fg-muted'>
+        <button type='button'
+                title='Copy public map link'
+                class='hover:text-fg-bright'
+                data-controller='clipboard'
+                data-clipboard-url-value='<%= signed_map_url(map_stellar_object_path(stellar_object)) %>'
+                data-action='click->clipboard#copy'>
+          <i class='fa-regular fa-link'></i>
+        </button>
+        <%= link_to map_stellar_object_path(stellar_object, format: :webp),
+                    download: stellar_object.map_download_filename,
+                    class: 'hover:text-fg-bright',
+                    title: 'Download map' do %>
+          <i class='fa-regular fa-download'></i>
+        <% end %>
+        <%= link_to map_stellar_object_path(stellar_object),
+                    target: '_blank',
+                    rel: 'noopener',
+                    class: 'hover:text-fg-bright',
+                    title: 'Open map in new tab' do %>
+          <i class='fa-regular fa-arrow-up-right-from-square'></i>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <%= button_to 'Generate Map', generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary' %>
+    <p class="text-fg-muted text-sm">Click Generate Map to render this world's surface map.</p>
+  <% end %>
+  <% if local_assigns[:error].present? %>
+    <p class="text-red-400 text-sm"><%= error %></p>
+  <% end %>
+</div>

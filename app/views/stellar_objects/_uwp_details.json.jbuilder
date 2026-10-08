@@ -87,9 +87,15 @@ json.hydrographics do
   end
 end
 
+cities = nil
 if stellar_object.respond_to?(:cities)
   city_counts = render_context[:city_counts_by_stellar_object_id]
-  json.city_count city_counts ? city_counts.fetch(stellar_object.id, 0) : stellar_object.cities.count
+  if city_counts
+    json.city_count city_counts.fetch(stellar_object.id, 0)
+  else
+    cities = stellar_object.cities.order(population: :desc, id: :asc).to_a
+    json.city_count cities.size
+  end
 end
 
 if stellar_object.is_a?(PlanetoidBelt)
@@ -126,6 +132,11 @@ json.population do
     json.major_cities do
       json.label 'Major Cities'
       json.value stellar_object.population_major_cities
+    end
+  end
+  if cities
+    json.cities cities.each_with_index.to_a do |(city, index)|
+      json.partial! 'api/stellar_objects/city', city: city, position: index + 1
     end
   end
   if stellar_object.population_major_city_population.present?

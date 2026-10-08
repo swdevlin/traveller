@@ -246,4 +246,257 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
 
     assert_redirected_to referer_url
   end
+
+  test 'generate_map stores the rendered map for a terrestrial planet' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+      .with { |req| JSON.parse(req.body).dig('population', 'cities').first['name'] == 'Newhaven' }
+      .to_return(status: 200, headers: { 'Content-Type' => 'image/svg+xml' }, body: SAMPLE_SVG)
+
+    post generate_map_stellar_object_url(planet), as: :turbo_stream
+
+    assert_requested stub
+    assert_response :success
+    assert_select "a[title='Open map in new tab'][target=_blank]"
+    assert_select "button[title='Copy public map link']"
+    assert_match(/Regenerate map/, response.body)
+  end
+
+  test 'generate_map stores the map and updates it on regeneration' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    base = Rails.application.config.x.map_service
+    stub_request(:post, "#{base}/map")
+      .to_return(status: 200, body: SAMPLE_SVG)
+      .then.to_return(status: 200, body: SAMPLE_SVG.sub('red', 'blue'))
+
+    assert_difference('PlanetMap.count', 1) do
+      post generate_map_stellar_object_url(planet), as: :turbo_stream
+    end
+    assert_match(/Regenerate map/, response.body)
+
+    assert_no_difference('PlanetMap.count') do
+      post generate_map_stellar_object_url(planet), as: :turbo_stream
+    end
+    assert_equal 'WEBP', planet.reload.planet_map.webp_data[8, 4]
+    assert_not planet.planet_map.respond_to?(:svg)
+  end
+
+  test 'generate_map failure leaves an existing map intact' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    kept_key = planet.reload.planet_map.webp.key
+    base = Rails.application.config.x.map_service
+    stub_request(:post, "#{base}/map").to_return(status: 500, body: { error: 'boom' }.to_json)
+
+    post generate_map_stellar_object_url(planet), as: :turbo_stream
+
+    assert_match(/boom/, response.body)
+    assert_match(/Regenerate map/, response.body)
+    assert_equal kept_key, planet.reload.planet_map.webp.key
+  end
+
+  test 'map serves the stored WebP on its own' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+
+    get map_stellar_object_url(planet)
+
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+    assert_equal 'WEBP', response.body[8, 4]
+  end
+
+  test 'map is served to a logged-out visitor with a valid token' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    path = map_stellar_object_path(planet)
+    token = campaigns(:one).token_for(path)
+    sign_out
+
+    get path, params: { token: token }
+
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+  end
+
+  test 'map.webp is served as image/webp' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+
+    get map_stellar_object_url(planet, format: :webp)
+
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+    assert_equal 'WEBP', response.body[8, 4]
+  end
+
+  test 'map_download_filename uses the name, else sector and hex code' do
+    planet = stellar_objects(:two)
+    planet.name = 'Big Rock'
+    assert_equal 'big-rock.webp', planet.map_download_filename
+
+    planet.name = nil
+    parsec = planet.location_parsec
+    assert_equal "#{parsec.sector.name.parameterize}_#{parsec.hex_code}.webp", planet.map_download_filename
+  end
+
+  test 'map.webp is served to a logged-out visitor with the extensionless token' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    token = campaigns(:one).token_for(map_stellar_object_path(planet))
+    sign_out
+
+    get map_stellar_object_path(planet, format: :webp), params: { token: token }
+
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+  end
+
+  test 'map.webp is not found when no map is stored' do
+    get map_stellar_object_url(stellar_objects(:two), format: :webp)
+
+    assert_response :not_found
+  end
+
+  test 'map is forbidden to a logged-out visitor without a valid token' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    sign_out
+
+    get map_stellar_object_path(planet), params: { token: 'wrong' }
+
+    assert_response :forbidden
+  end
+
+  test 'a token does not unlock other stellar object actions for a logged-out visitor' do
+    token = campaigns(:one).token_for(stellar_object_path(@stellar_object))
+    sign_out
+
+    get stellar_object_path(@stellar_object), params: { token: token }
+
+    assert_response :redirect
+  end
+
+  test 'show offers Generate Map and no map links when no map exists' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+
+    get stellar_object_url(planet)
+
+    assert_select 'form[action=?] button', generate_map_stellar_object_path(planet), text: 'Generate Map'
+    assert_select "##{ActionView::RecordIdentifier.dom_id(planet, :map)} a[title='Open map in new tab']", count: 0
+  end
+
+  test 'map is not found when no map is stored' do
+    get map_stellar_object_url(@stellar_object)
+
+    assert_response :not_found
+  end
+
+  test 'show renders a stored map without calling the map service' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:any, /#{Regexp.escape(base)}/)
+
+    get stellar_object_url(planet)
+
+    assert_response :success
+    assert_select "##{ActionView::RecordIdentifier.dom_id(planet, :map)} img[src^=?]", map_stellar_object_path(planet)
+    assert_not_requested stub
+  end
+
+  test 'generate_map shows an error message when the map service fails' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    base = Rails.application.config.x.map_service
+    stub_request(:post, "#{base}/map")
+      .to_return(status: 500, headers: { 'Content-Type' => 'application/json' }, body: { error: 'boom' }.to_json)
+
+    post generate_map_stellar_object_url(planet), as: :turbo_stream
+
+    assert_response :success
+    assert_match(/boom/, response.body)
+  end
+
+  test 'generate_map is rejected for a non-terrestrial-planet stellar object' do
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+
+    post generate_map_stellar_object_url(@stellar_object)
+
+    assert_not_requested stub
+    assert_redirected_to stellar_object_url(@stellar_object)
+    assert_match(/terrestrial planets, planetoids and moons/, flash[:alert].to_s)
+  end
+
+  test 'generate_map stores the rendered map for a moon of size 1 or greater' do
+    moon = stellar_objects(:moon_inside_planet_shadow)
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+      .to_return(status: 200, headers: { 'Content-Type' => 'image/svg+xml' }, body: SAMPLE_SVG)
+
+    post generate_map_stellar_object_url(moon), as: :turbo_stream
+
+    assert_requested stub
+    assert_not_nil moon.reload.planet_map
+  end
+
+  test 'generate_map is rejected for moons of size 0 or S' do
+    moon = stellar_objects(:moon_inside_planet_shadow)
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+
+    %w[0 S].each do |size|
+      moon.update_columns(size_code: size)
+      post generate_map_stellar_object_url(moon)
+
+      assert_redirected_to stellar_object_url(moon)
+    end
+    assert_not_requested stub
+  end
+
+  test 'generate_map stores the rendered map for a planetoid of size 1 or greater' do
+    planetoid = planetoid_for_map('1')
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+      .to_return(status: 200, headers: { 'Content-Type' => 'image/svg+xml' }, body: SAMPLE_SVG)
+
+    post generate_map_stellar_object_url(planetoid), as: :turbo_stream
+
+    assert_requested stub
+    assert_not_nil planetoid.reload.planet_map
+  end
+
+  test 'generate_map is rejected for planetoids of size 0 or S' do
+    planetoid = planetoid_for_map('1')
+    base = Rails.application.config.x.map_service
+    stub = stub_request(:post, "#{base}/map")
+
+    %w[0 S].each do |size|
+      planetoid.update_columns(size_code: size)
+      post generate_map_stellar_object_url(planetoid)
+
+      assert_redirected_to stellar_object_url(planetoid)
+    end
+    assert_not_requested stub
+  end
+
+  private
+
+  def planetoid_for_map(size_code)
+    star = stars(:star_one)
+    Planetoid.create!(name: 'Map Planetoid', orbiting: star, orbit: 8, inclination: 0, eccentricity: 0,
+                      diameter: 100, mass: 1, size_code: size_code)
+  end
 end

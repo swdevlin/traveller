@@ -29,6 +29,8 @@ WebMock.disable_net_connect!(allow_localhost: true)
 class ActiveSupport::TestCase
   parallelize(workers: :number_of_processors)
 
+  SAMPLE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10" fill="red"/></svg>'.freeze
+
   dupes = TRADE_CODES.group_by { |h| h[:code] }.select { |_k, v| v.size > 1 }.keys
   raise "Duplicate trade codes in TRADE_CODES: #{dupes.join(', ')}" if dupes.any?
 

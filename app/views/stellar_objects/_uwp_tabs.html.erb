@@ -6,7 +6,7 @@
   storage_key = "uwp_tabs_#{dom_id(stellar_object)}"
 
   uwp_tab_defs = [
-    { id: 'orbital',       code: nil,      label: 'Orbital',   highlight: false },
+    { id: 'orbital',       code: nil,      label: 'Orbital',   highlight: false, icon: 'fa-light fa-solar-system' },
     { id: 'starport',      code: uwp[0],   label: 'Starport',  highlight: true },
     { id: 'physical',      code: uwp[1],   label: 'Physical',  highlight: true },
     { id: 'atmosphere',    code: uwp[2],   label: 'Atmo',       highlight: true },
@@ -31,7 +31,7 @@
               data-tabs-target="tab"
               data-tab="<%= tab[:id] %>"
               data-action="click->tabs#switch">
-        <span class="uwp-tab-code"><%= tab[:code] || '⊕' %></span>
+        <span class="uwp-tab-code"><% if tab[:icon] %><i class="<%= tab[:icon] %>"></i><% else %><%= tab[:code] %><% end %></span>
         <span class="uwp-tab-label"><%= tab[:label] %></span>
       </button>
       <% if tab[:id] == 'orbital' %>
@@ -58,7 +58,9 @@
                 data-tabs-target="tab"
                 data-tab="<%= tab[:id] %>"
                 data-action="click->tabs#switch">
-          <span class="uwp-tab-code"><%= tab[:code] %></span>
+          <span class="uwp-tab-code">
+            <% if tab[:icon] %><i class="<%= tab[:icon] %>"></i><% else %><%= tab[:code] %><% end %>
+          </span>
           <span class="uwp-tab-label"><%= tab[:label] %></span>
         </button>
       <% end %>

@@ -2,6 +2,7 @@ class TerrestrialPlanet < StellarObject
   include HasUwp
   include NormalizesPlanetaryData
   include HasPlanetaryBodyAttributes
+  include HasPlanetMap
 
   after_initialize :set_default_data
 

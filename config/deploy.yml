@@ -92,6 +92,7 @@ env:
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
     GENERATOR_SERVICE_URL: http://host.docker.internal:3007
+    MAP_SERVICE_URL: http://host.docker.internal:3012
 
     # Show the relevance score on rulebook search results (defaults to hidden in production).
     SHOW_RULEBOOK_SEARCH_RANK: true

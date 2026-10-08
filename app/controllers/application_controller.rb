@@ -54,4 +54,8 @@ class ApplicationController < ActionController::Base
   def generator_service
     GeneratorService.new(campaign_id: current_campaign&.id)
   end
+
+  def map_service
+    MapService.new(campaign_id: current_campaign&.id)
+  end
 end

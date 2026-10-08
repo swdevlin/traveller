@@ -5,7 +5,7 @@ class Api::StellarObjectsController < Api::BaseController
 
   def show
     @stellar_object = StellarObject
-                      .includes(:moons, :orbiting, :parsec, :allegiance)
+                      .includes(:moons, :orbiting, :parsec, :allegiance, :tidal_lock_target)
                       .find_by(id: params[:id])
     render json: { error: 'stellar object not found' }, status: :not_found unless @stellar_object
   end

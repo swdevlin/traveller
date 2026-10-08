@@ -104,6 +104,12 @@ class Campaign < ApplicationRecord
     OpenSSL::HMAC.hexdigest('SHA256', token_secret, path)
   end
 
+  # Opaque per-campaign folder name for stored files. Derived from the secret rather than
+  # the slug or schema_name, which are guessable, and hashed so the secret is not exposed.
+  def storage_key
+    Digest::SHA256.hexdigest("storage:#{token_secret}")[0, 32]
+  end
+
   private
 
   def default_sector_source

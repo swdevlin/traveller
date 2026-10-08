@@ -66,6 +66,23 @@
           <dt class='font-semibold text-fg-bright'>Tech</dt>
           <dd class='mt-1 text-fg'>Overall technology level code with per-category sub-ratings. Not shown when population and this value are both 0.</dd>
         </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Map</dt>
+          <dd class='mt-1 text-fg'>
+            Renders a surface map for the moon from an external cartography service,
+            derived from its Universal World Profile, name, system, and recorded trade
+            codes. Only moons of size 1 or greater have a map; size 0 (ring) and S
+            moons do not show this tab. <span class='font-semibold text-fg-bright'>Generate Map</span>
+            requests a render. Once a map exists it is shown whenever this tab is opened,
+            with a small <span class='font-semibold text-fg-bright'>Regenerate map</span> button
+            beneath it to request a fresh one, an icon to open the map on its own in a
+            new tab, and a link icon that copies a public link to the map (anyone with
+            the link can view it without signing in). A download icon fetches the map
+            as a WebP image, which is created the first time it is requested and kept
+            until the map is regenerated. A note appears if the moon's details have
+            changed since the map was generated.
+          </dd>
+        </div>
       </dl>
     </div>
 

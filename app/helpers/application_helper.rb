@@ -37,6 +37,8 @@ module ApplicationHelper
     current_campaign&.homebrew? || current_campaign&.deepnight_revelation?
   end
 
+  # The token covers the path without its extension (see UrlTokenVerification), so one
+  # token is valid for every format of a map.
   def signed_map_url(path)
     uri = URI.parse(path)
     token = current_campaign.token_for(uri.path)

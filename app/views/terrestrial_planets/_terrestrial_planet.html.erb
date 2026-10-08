@@ -23,6 +23,10 @@
     extra_tabs << { id: 'cities', code: terrestrial_planet.cities.count.to_s, label: 'Cities',
                     partial: 'stellar_objects/cities_tab', locals: { stellar_object: terrestrial_planet } }
   end
+  if terrestrial_planet.map_supported?
+    extra_tabs << { id: 'map', icon: 'fa-regular fa-map', label: 'Map',
+                    partial: 'stellar_objects/map_tab', locals: { stellar_object: terrestrial_planet } }
+  end
 %>
 
 <div id="<%= dom_id terrestrial_planet %>" class="space-y-4">

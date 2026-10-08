@@ -103,6 +103,50 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test 'referee sees city names on the stellar object json' do
+    sign_in_as users(:one)
+    planet = stellar_objects(:cities_test_planet)
+
+    get api_stellar_object_cities_url(planet).sub(%r{/cities\z}, ''), as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 2, body['city_count']
+    assert_equal ['Landing', 'City 2'], body['population']['cities'].pluck('name')
+    assert_equal 900_000, body['population']['cities'].first['population']
+    assert_not body['population'].key?('major_city_populations')
+  end
+
+  test 'tidal lock target type is null when unlocked and the target type when locked' do
+    sign_in_as users(:one)
+    planet = stellar_objects(:cities_test_planet)
+    show_url = api_stellar_object_cities_url(planet).sub(%r{/cities\z}, '')
+
+    get show_url, as: :json
+    assert response.parsed_body.key?('tidal_lock_target_type')
+    assert_nil response.parsed_body['tidal_lock_target_type']
+
+    planet.update_column(:tidal_lock_target_id, @gas_giant.id)
+    get show_url, as: :json
+    assert_equal 'GasGiant', response.parsed_body['tidal_lock_target_type']
+  end
+
+  test 'map url is null without a map and signed once one exists' do
+    sign_in_as users(:one)
+    planet = stellar_objects(:cities_test_planet)
+    show_url = api_stellar_object_cities_url(planet).sub(%r{/cities\z}, '')
+
+    get show_url, as: :json
+    assert response.parsed_body.key?('map_url')
+    assert_nil response.parsed_body['map_url']
+
+    planet.store_map(SAMPLE_SVG)
+    get show_url, as: :json
+    body = response.parsed_body
+    token = campaigns(:one).token_for(map_stellar_object_path(planet))
+    assert_match(%r{/stellar_objects/#{planet.id}/map\?token=#{token}\z}, body['map_url'])
+  end
+
   test 'referee sees cities ordered by population, with a positional label when unnamed' do
     sign_in_as users(:one)
     planet = stellar_objects(:cities_test_planet)

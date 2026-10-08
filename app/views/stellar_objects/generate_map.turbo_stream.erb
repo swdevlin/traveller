@@ -1,0 +1,3 @@
+<%= turbo_stream.replace dom_id(@stellar_object, :map) do %>
+  <%= render 'stellar_objects/map', stellar_object: @stellar_object, error: @map_error %>
+<% end %>

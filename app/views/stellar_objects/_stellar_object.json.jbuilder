@@ -7,6 +7,8 @@ json.extract! stellar_object,
               :tidal_lock_target_id, :companion_id,
               :created_at, :updated_at
 
+json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
+
 deep_snake = ->(val) {
   case val
   when Hash  then val.transform_keys { |k| k.to_s.underscore }.transform_values(&deep_snake)
@@ -16,8 +18,12 @@ deep_snake = ->(val) {
 }
 # periapsis_temperature/apoapsis_temperature are served via the accessor methods below
 # instead, since those fall back to an estimate for bodies the generator didn't send them for.
-stellar_object.data&.except('periapsis_temperature', 'apoapsis_temperature')
-              &.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
+# majorCityPopulations is served as population.cities (named) instead.
+stellar_data = stellar_object.data&.except('periapsis_temperature', 'apoapsis_temperature')
+if stellar_data&.dig('population').is_a?(Hash)
+  stellar_data = stellar_data.merge('population' => stellar_data['population'].except('majorCityPopulations'))
+end
+stellar_data&.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
 
 if stellar_object.respond_to?(:periapsis_temperature)
   json.current_temperature stellar_object.current_temperature
@@ -70,6 +76,9 @@ else
 end
 
 json.star_system_map_url signed_map_url(map_star_system_path(star_system)) if star_system
+planet_map = stellar_object.try(:planet_map)
+has_map = planet_map&.webp&.attached?
+json.map_url has_map ? signed_map_url(map_stellar_object_path(stellar_object)) : nil
 json.url stellar_object_url(stellar_object, format: :json)
 
 if stellar_object.is_a?(HasUwp)

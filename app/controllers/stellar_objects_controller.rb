@@ -3,6 +3,9 @@ class StellarObjectsController < ApplicationController
 
   ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
 
+  include UrlTokenVerification
+  optional_authentication only: :map
+  skip_before_action :verify_url_token, except: :map
   before_action :set_stellar_object, except: %i[index new create]
 
   # GET /stellar_objects or /stellar_objects.json
@@ -152,6 +155,40 @@ class StellarObjectsController < ApplicationController
     redirect_to stellar_object_path(@stellar_object), alert: 'Could not regenerate characteristics at this time.'
   end
 
+  # GET /stellar_objects/1/map
+  def map
+    planet_map = @stellar_object.try(:planet_map)
+    return head :not_found unless planet_map&.webp&.attached?
+
+    send_data planet_map.webp_data, type: 'image/webp', disposition: 'inline', filename: @stellar_object.map_download_filename
+  end
+
+  # POST /stellar_objects/1/generate_map
+  def generate_map
+    unless @stellar_object.try(:map_supported?)
+      return redirect_to stellar_object_path(@stellar_object), alert: 'Maps can only be generated for terrestrial planets, planetoids and moons of size 1 or greater.'
+    end
+
+    rendered = map_service.render(map_payload, seed: MapService::PLANET_SEED)
+    @stellar_object.store_map(rendered.svg)
+
+    respond_to do |format|
+      format.turbo_stream
+    end
+  rescue MapService::Error => e
+    Rails.logger.error "generate_map failed: #{e.message}"
+    @map_error = e.api_message
+    respond_to do |format|
+      format.turbo_stream
+    end
+  rescue StandardError => e
+    Rails.logger.error "generate_map failed: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    @map_error = 'Could not generate the map at this time.'
+    respond_to do |format|
+      format.turbo_stream
+    end
+  end
+
   # DELETE /stellar_objects/1 or /stellar_objects/1.json
   def destroy
     type = @stellar_object.type.underscore.humanize
@@ -165,6 +202,13 @@ class StellarObjectsController < ApplicationController
   end
 
   private
+    # The standard stellar object JSON, as served by the API.
+    def map_payload
+      json = render_to_string(partial: 'stellar_objects/stellar_object', formats: [:json],
+                              locals: { stellar_object: @stellar_object })
+      JSON.parse(json)
+    end
+
     def sti_class
       t = params.dig(:stellar_object, :type)
       ALLOWED_STI_CLASSES.fetch(t) { raise ActionController::BadRequest, 'Invalid type' }

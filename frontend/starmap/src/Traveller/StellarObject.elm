@@ -145,6 +145,7 @@ type alias SharedPData =
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
     , planetoidBeltId : Maybe Int
+    , mapUrl : Maybe String
     }
 
 
@@ -747,7 +748,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -802,6 +803,7 @@ codecSharedPData =
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
             , planetoidBeltId = beltId
+            , mapUrl = mapUrl_
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -885,6 +887,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
         |> Codec.optionalNullableField "planetoid_belt_id" .planetoidBeltId Codec.int
+        |> Codec.optionalNullableField "map_url" .mapUrl Codec.string
         |> Codec.buildObject
 
 

@@ -152,6 +152,8 @@ Rails.application.routes.draw do
     resources :stellar_objects do
       member do
         post :regenerate_characteristics
+        post :generate_map
+        get  :map
         get  :daily_traffic
         post :generate_daily_traffic
       end

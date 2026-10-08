@@ -2,6 +2,7 @@ class Planetoid < StellarObject
   include HasUwp
   include NormalizesPlanetaryData
   include HasPlanetaryBodyAttributes
+  include HasPlanetMap
 
   def orbit_type = 13
 

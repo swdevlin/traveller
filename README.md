@@ -7,6 +7,10 @@ own charted space. It is intended to eventually support Drinax campaigns and cha
 
 * [Rulebook search](docs/rulebooks.md) — importing rulebooks, page numbering, and search
 
+## Credits
+
+* The Elm starmap (`frontend/starmap/`) was developed with [TankorSmash](https://github.com/tankorsmash).
+
 ## To Do
 * Add Button to create all deepnight sectors
   * create with configuration for each sector

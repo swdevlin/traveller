@@ -19,6 +19,10 @@
     extra_tabs << { id: 'cities', code: planetoid.cities.count.to_s, label: 'Cities',
                     partial: 'stellar_objects/cities_tab', locals: { stellar_object: planetoid } }
   end
+  if planetoid.map_supported?
+    extra_tabs << { id: 'map', icon: 'fa-regular fa-map', label: 'Map',
+                    partial: 'stellar_objects/map_tab', locals: { stellar_object: planetoid } }
+  end
 %>
 
 <div id="<%= dom_id planetoid %>" class="space-y-4">

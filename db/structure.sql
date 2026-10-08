@@ -953,6 +953,38 @@ ALTER SEQUENCE public.parsecs_id_seq OWNED BY public.parsecs.id;
 
 
 --
+-- Name: planet_maps; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.planet_maps (
+    id bigint NOT NULL,
+    stellar_object_id bigint NOT NULL,
+    inputs_digest character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: planet_maps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.planet_maps_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: planet_maps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.planet_maps_id_seq OWNED BY public.planet_maps.id;
+
+
+--
 -- Name: region_parsecs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1895,6 +1927,13 @@ ALTER TABLE ONLY public.parsecs ALTER COLUMN id SET DEFAULT nextval('public.pars
 
 
 --
+-- Name: planet_maps id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.planet_maps ALTER COLUMN id SET DEFAULT nextval('public.planet_maps_id_seq'::regclass);
+
+
+--
 -- Name: region_parsecs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2232,6 +2271,14 @@ ALTER TABLE ONLY public.law_levels
 
 ALTER TABLE ONLY public.parsecs
     ADD CONSTRAINT parsecs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: planet_maps planet_maps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.planet_maps
+    ADD CONSTRAINT planet_maps_pkey PRIMARY KEY (id);
 
 
 --
@@ -2767,6 +2814,13 @@ CREATE INDEX index_pending_sector_border_segments_on_allegiance_code ON public.s
 
 
 --
+-- Name: index_planet_maps_on_stellar_object_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_planet_maps_on_stellar_object_id ON public.planet_maps USING btree (stellar_object_id);
+
+
+--
 -- Name: index_region_parsecs_on_parsec_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3124,11 +3178,11 @@ ALTER TABLE ONLY public.jump_logs
 
 
 --
--- Name: jump_route_links fk_rails_42802f7ca7; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: planet_maps fk_rails_3a1f3826b2; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.jump_route_links
-    ADD CONSTRAINT fk_rails_42802f7ca7 FOREIGN KEY (to_star_system_id) REFERENCES public.star_systems(id);
+ALTER TABLE ONLY public.planet_maps
+    ADD CONSTRAINT fk_rails_3a1f3826b2 FOREIGN KEY (stellar_object_id) REFERENCES public.stellar_objects(id) ON DELETE CASCADE;
 
 
 --
@@ -3136,7 +3190,7 @@ ALTER TABLE ONLY public.jump_route_links
 --
 
 ALTER TABLE ONLY public.sector_border_segments
-    ADD CONSTRAINT fk_rails_55d1b44aeb FOREIGN KEY (region_id) REFERENCES public.regions(id);
+    ADD CONSTRAINT fk_rails_55d1b44aeb FOREIGN KEY (region_id) REFERENCES public.regions(id) ON DELETE SET NULL;
 
 
 --
@@ -3164,19 +3218,19 @@ ALTER TABLE ONLY public.sessions
 
 
 --
+-- Name: jump_route_links fk_rails_7687ee4734; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.jump_route_links
+    ADD CONSTRAINT fk_rails_7687ee4734 FOREIGN KEY (to_star_system_id) REFERENCES public.star_systems(id) ON DELETE CASCADE;
+
+
+--
 -- Name: star_system_facilities fk_rails_84924f7005; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.star_system_facilities
     ADD CONSTRAINT fk_rails_84924f7005 FOREIGN KEY (star_system_id) REFERENCES public.star_systems(id) ON DELETE CASCADE;
-
-
---
--- Name: jump_route_links fk_rails_968ef22631; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.jump_route_links
-    ADD CONSTRAINT fk_rails_968ef22631 FOREIGN KEY (from_star_system_id) REFERENCES public.star_systems(id);
 
 
 --
@@ -3188,11 +3242,19 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 
 --
+-- Name: jump_route_links fk_rails_9ae2828bfa; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.jump_route_links
+    ADD CONSTRAINT fk_rails_9ae2828bfa FOREIGN KEY (from_star_system_id) REFERENCES public.star_systems(id) ON DELETE CASCADE;
+
+
+--
 -- Name: jump_logs fk_rails_9c065f667d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.jump_logs
-    ADD CONSTRAINT fk_rails_9c065f667d FOREIGN KEY (from_parsec_id) REFERENCES public.parsecs(id);
+    ADD CONSTRAINT fk_rails_9c065f667d FOREIGN KEY (from_parsec_id) REFERENCES public.parsecs(id) ON DELETE CASCADE;
 
 
 --
@@ -3200,7 +3262,7 @@ ALTER TABLE ONLY public.jump_logs
 --
 
 ALTER TABLE ONLY public.jump_routes
-    ADD CONSTRAINT fk_rails_a40373e8b5 FOREIGN KEY (to_star_system_id) REFERENCES public.star_systems(id);
+    ADD CONSTRAINT fk_rails_a40373e8b5 FOREIGN KEY (to_star_system_id) REFERENCES public.star_systems(id) ON DELETE SET NULL;
 
 
 --
@@ -3304,7 +3366,7 @@ ALTER TABLE ONLY public.stellar_objects
 --
 
 ALTER TABLE ONLY public.region_parsecs
-    ADD CONSTRAINT fk_rails_e0deb3cb45 FOREIGN KEY (parsec_id) REFERENCES public.parsecs(id);
+    ADD CONSTRAINT fk_rails_e0deb3cb45 FOREIGN KEY (parsec_id) REFERENCES public.parsecs(id) ON DELETE CASCADE;
 
 
 --
@@ -3312,7 +3374,7 @@ ALTER TABLE ONLY public.region_parsecs
 --
 
 ALTER TABLE ONLY public.sector_border_segments
-    ADD CONSTRAINT fk_rails_ef17b4dc25 FOREIGN KEY (sector_id) REFERENCES public.sectors(id);
+    ADD CONSTRAINT fk_rails_ef17b4dc25 FOREIGN KEY (sector_id) REFERENCES public.sectors(id) ON DELETE CASCADE;
 
 
 --
@@ -3320,7 +3382,7 @@ ALTER TABLE ONLY public.sector_border_segments
 --
 
 ALTER TABLE ONLY public.jump_logs
-    ADD CONSTRAINT fk_rails_f385000113 FOREIGN KEY (to_parsec_id) REFERENCES public.parsecs(id);
+    ADD CONSTRAINT fk_rails_f385000113 FOREIGN KEY (to_parsec_id) REFERENCES public.parsecs(id) ON DELETE CASCADE;
 
 
 --
@@ -3360,7 +3422,7 @@ ALTER TABLE ONLY public.faultline_error_contexts
 --
 
 ALTER TABLE ONLY public.jump_routes
-    ADD CONSTRAINT fk_rails_fd61107ee6 FOREIGN KEY (from_star_system_id) REFERENCES public.star_systems(id);
+    ADD CONSTRAINT fk_rails_fd61107ee6 FOREIGN KEY (from_star_system_id) REFERENCES public.star_systems(id) ON DELETE SET NULL;
 
 
 --
@@ -3370,16 +3432,20 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261005120000'),
 ('20260927215121'),
+('20260831220700'),
+('20260831220600'),
+('20260831220500'),
+('20260831141910'),
+('20260829190200'),
+('20260829190100'),
+('20260829190000'),
 ('20260828155221'),
 ('20260826031250'),
 ('20260825235754'),
 ('20260825234234'),
 ('20260825213813'),
-('20260831141910'),
-('20260829190200'),
-('20260829190100'),
-('20260829190000'),
 ('20260822190453'),
 ('20260822150000'),
 ('20260821195558'),

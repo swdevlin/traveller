@@ -138,6 +138,13 @@ class StellarObject < ApplicationRecord
     parsec || orbiting_star_system&.parsec
   end
 
+  def map_download_filename
+    parsec = location_parsec
+    base = name.presence&.parameterize
+    base ||= "#{parsec.sector.name.parameterize}_#{parsec.hex_code}" if parsec
+    "#{base.presence || 'map'}.webp"
+  end
+
   def location_subsector
     location_parsec&.subsector
   end

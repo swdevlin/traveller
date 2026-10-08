@@ -2,6 +2,7 @@ class Moon < StellarObject
   include HasUwp
   include NormalizesPlanetaryData
   include HasPlanetaryBodyAttributes
+  include HasPlanetMap
 
   def effective_jump_shadow_km
     compute_effective_jump_shadow[:km]
