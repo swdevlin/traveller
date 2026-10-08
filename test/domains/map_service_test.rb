@@ -37,11 +37,12 @@ class MapServiceTest < ActiveSupport::TestCase
     assert_match(/422.*Size 0 worlds cannot be mapped/, error.message)
   end
 
-  test 'render keeps a non-JSON error body in the message' do
+  test 'render keeps a non-JSON error body in the log message but not the api_message' do
     stub_request(:post, @url).to_return(status: 502, body: '<html>Bad gateway</html>')
 
     error = assert_raises(MapService::Error) { MapService.new.render(@planet) }
 
     assert_match(/Bad gateway/, error.message)
+    assert_nil error.api_message
   end
 end

@@ -177,7 +177,7 @@ class StellarObjectsController < ApplicationController
     end
   rescue MapService::Error => e
     Rails.logger.error "generate_map failed: #{e.message}"
-    @map_error = e.api_message
+    @map_error = e.api_message || 'The map service is unavailable. Please try again later.'
     respond_to do |format|
       format.turbo_stream
     end

@@ -8,14 +8,15 @@ class MapService
 
   Rendered = Struct.new(:svg, :seed, keyword_init: true)
 
-  # Raised for any non-200 response; carries the status and the service's "error" message.
+  # Raised for any non-200 response. api_message is the service's JSON "error" message, safe to
+  # show users; it is nil for anything else (e.g. an nginx HTML 502), which only goes in the log.
   class Error < StandardError
     attr_reader :status, :api_message
 
-    def initialize(status, api_message)
+    def initialize(status, api_message, detail = nil)
       @status = status
       @api_message = api_message
-      super("planetmap returned HTTP #{status}: #{api_message}")
+      super("planetmap returned HTTP #{status}: #{api_message || detail}")
     end
   end
 
@@ -40,7 +41,7 @@ class MapService
     Rails.logger.info "MapService POST #{uri} planet=#{planet_json['id']} seed=#{seed.inspect} " \
                       "status=#{response.code} svg_bytes=#{response.body.to_s.bytesize}"
 
-    raise Error.new(response.code.to_i, error_message(response.body)) unless response.code == '200'
+    raise Error.new(response.code.to_i, error_message(response.body), response.body.to_s.truncate(300)) unless response.code == '200'
 
     Rendered.new(svg: response.body, seed: response['X-Planet-Seed'])
   end
@@ -49,9 +50,9 @@ class MapService
 
   def error_message(body)
     parsed = JSON.parse(body)
-    parsed.is_a?(Hash) && parsed['error'].present? ? parsed['error'] : body.to_s.truncate(300)
+    parsed['error'].presence if parsed.is_a?(Hash)
   rescue JSON::ParserError
-    body.to_s.truncate(300)
+    nil
   end
 
   def base_url
