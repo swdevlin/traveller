@@ -1,0 +1,111 @@
+<% content_for :title, 'Star Survey' %>
+
+<%= render 'help/page', title: 'Star Survey' do %>
+  <div class='space-y-6'>
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Star Map</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Schematic Map</dt>
+            <dd class='mt-1 text-fg'>
+              The same style of map as on the star system page, but showing only what orbits this star. A star
+              orbiting this one appears as a single node, without the objects that orbit it &mdash; open that star&rsquo;s
+              own page to see them. Click any object to open its page. Not drawn to scale.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Copy Public Map Link</dt>
+            <dd class='mt-1 text-fg'>
+              Link icon above the map &mdash; copies a signed, no-login-required link to this star&rsquo;s schematic map
+              as an SVG image. For a WebP image instead, put
+              <span class='font-mono text-fg-bright'>.webp</span> straight after
+              <span class='font-mono text-fg-bright'>/map</span> in the copied address.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div>
+        <p class='text-sm font-semibold text-highlight mb-2'>Orbit Map</p>
+        <dl class='space-y-5 text-sm'>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Opening</dt>
+            <dd class='mt-1 text-fg'>
+              Solar system icon beside the copy link icon. Opens the orbit map in a window, in the current theme.
+              Click any object to open its page; the star at the centre is not a link.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Layout</dt>
+            <dd class='mt-1 text-fg'>
+              The star sits at the centre with the objects orbiting it on rings, nearest first. The same map as the
+              interactive starmap. Rings are evenly spaced in order of distance rather than drawn to scale, and the
+              real gaps between orbits nudge the spacing. Each object keeps its real bearing from the star. The
+              dashed outline of each ring is that object&rsquo;s orbit, so an eccentric orbit shows as a stretched
+              ellipse.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Labels</dt>
+            <dd class='mt-1 text-fg'>
+              Each object shows its name, or its orbit sequence letter if it has none, with its real distance from the
+              star in AU underneath.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Distant Companions</dt>
+            <dd class='mt-1 text-fg'>
+              A companion or secondary star orbiting far beyond the planetary system is pinned to the outermost ring,
+              clear of the other objects.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Belts</dt>
+            <dd class='mt-1 text-fg'>
+              Planetoids that belong to a belt shown on the map are drawn as small rocks scattered around that
+              belt&rsquo;s ring, rather than taking rings of their own.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Jump Shadow</dt>
+            <dd class='mt-1 text-fg'>
+              The glowing ring is the boundary of the star&rsquo;s jump shadow, placed between the two rings it falls
+              between. A companion or secondary star shown on the map gets its own ring around it, in its own colour.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Crowded Stars</dt>
+            <dd class='mt-1 text-fg'>
+              The map grows with the number of rings so that they stay legible. A large map scrolls inside the window.
+              Labels can still overlap where two neighbouring objects lie in nearly the same direction.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Survey Index</dt>
+            <dd class='mt-1 text-fg'>
+              Unlike the interactive starmap, the orbit map shows every object regardless of the system&rsquo;s survey
+              index.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Download</dt>
+            <dd class='mt-1 text-fg'>
+              Downloads the orbit map as a WebP image, without links, in the current theme. It is named after the
+              star, or after the star system if the star has no name, or after the sector and hex if neither has one.
+            </dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>API</dt>
+            <dd class='mt-1 text-fg'>
+              The orbit map is also available as an SVG or WebP image from the API, for use in other tools &mdash; see
+              API Access in Campaign Settings.
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+        REFERENCE 1009ST
+      </div>
+  </div>
+<% end %>

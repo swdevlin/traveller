@@ -259,4 +259,36 @@ class StarSystemMapLayoutTest < ActiveSupport::TestCase
     assert_equal 1, track_edges.size
     assert_equal '10', track_edges.first.au_label
   end
+
+  test 'for_star shows orbiting star but not the objects orbiting it' do
+    ss = create_system
+    alpha = create_star(ss, name: 'Alpha')
+    beta = create_star(ss, name: 'Beta', orbiting: alpha, au: 10.0, orbit: 5)
+    create_body(alpha, type: 'TerrestrialPlanet', name: 'Alpha Prime', orbit: 1, au: 0.4)
+    create_body(beta, type: 'GasGiant', name: 'Beta Giant', orbit: 2, au: 1.0)
+
+    layout = StarSystemMapLayout.for_star(alpha)
+
+    labels = layout.nodes.map(&:label)
+    assert_includes labels, 'Alpha Prime'
+    assert(labels.any? { |l| l.include?('Beta') })
+    assert_not_includes labels, 'Beta Giant'
+    assert_empty layout.edges.select { |e| e.kind == :branch }
+  end
+
+  test 'for_star on a secondary star is rooted at that star' do
+    ss = create_system
+    alpha = create_star(ss, name: 'Alpha')
+    beta = create_star(ss, name: 'Beta', orbiting: alpha, au: 10.0, orbit: 5)
+    create_body(alpha, type: 'TerrestrialPlanet', name: 'Alpha Prime', orbit: 1, au: 0.4)
+    create_body(beta, type: 'GasGiant', name: 'Beta Giant', orbit: 2, au: 1.0)
+
+    layout = StarSystemMapLayout.for_star(beta)
+
+    labels = layout.nodes.map(&:label)
+    assert_equal StarSystemMapLayout::LEFT_MARGIN, layout.nodes.first.x
+    assert layout.nodes.first.label.include?('Beta')
+    assert_includes labels, 'Beta Giant'
+    assert_not_includes labels, 'Alpha Prime'
+  end
 end

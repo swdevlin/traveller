@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StarSystemMapLayout
+  include StellarObjectAppearance
+
   LEFT_MARGIN = 80
   TOP_Y = 120
   ORBIT_STEP = 100
@@ -19,8 +21,16 @@ class StarSystemMapLayout
 
   attr_reader :nodes, :edges, :jump_shadows, :svg_width, :svg_height
 
-  def initialize(star_system)
+  # Map for just the objects orbiting a single star: any star orbiting it appears as a node,
+  # but the objects orbiting that star do not.
+  def self.for_star(star)
+    new(star.star_system, root: star, nested: false)
+  end
+
+  def initialize(star_system, root: nil, nested: true)
     @star_system = star_system
+    @root = root
+    @nested = nested
     @nodes = []
     @edges = []
     @jump_shadows = []
@@ -32,8 +42,7 @@ class StarSystemMapLayout
   private
 
   def compute_layout
-    primary = @star_system.primary_star
-    layout_primary(primary)
+    layout_primary(@root || @star_system.primary_star)
     calculate_dimensions
   end
 
@@ -59,7 +68,7 @@ class StarSystemMapLayout
 
       if body.is_a?(Star)
         @nodes << make_star_node(body, current_x, star_y)
-        layout_vertical_branch(body, current_x, star_y, primary_jump_x: primary_jump_x)
+        layout_vertical_branch(body, current_x, star_y, primary_jump_x: primary_jump_x) if @nested
       else
         @nodes << make_body_node(body, current_x, star_y, star, vertical: false)
       end
@@ -132,8 +141,6 @@ class StarSystemMapLayout
     @svg_height = [@max_y + bottom_padding, TOP_Y + bottom_padding].max
   end
 
-  STANDARD_STAR_TYPES = %w[O B A F G K M BD NS D PS L T Y].freeze
-
   def make_star_node(star, x, y)
     Node.new(
       id: "star-#{star.id}",
@@ -148,11 +155,6 @@ class StarSystemMapLayout
       tooltip: star.display_name,
       image: star_image(star)
     )
-  end
-
-  def star_image(star)
-    type = star.stellar_type.to_s.upcase
-    :"#{type.downcase}_star" if STANDARD_STAR_TYPES.include?(type)
   end
 
   def make_body_node(body, x, y, parent_star, vertical:)
@@ -212,72 +214,10 @@ class StarSystemMapLayout
     end
   end
 
-  ICE_THRESHOLD_K = 263.15 # -10 °C
-  HOT_ROCKBALL_THRESHOLD_K = 473.15 # 200 °C
-  MOLTEN_THRESHOLD_K = 673.15 # 400 °C
-  SPARSE_ATMOSPHERE_DENSITIES = %w[Trace Thin Very\ Thin].freeze
-
   def image_for(body)
     return terrestrial_image(body) if body.is_a?(TerrestrialPlanet)
     return gas_giant_image(body) if body.is_a?(GasGiant)
     :planetoid_belt if body.is_a?(PlanetoidBelt)
-  end
-
-  def gas_giant_image(body)
-    case body.code
-    when 'GS' then :gg_small
-    when 'GM' then :gg_medium
-    when 'GL' then :gg_large
-    end
-  end
-
-  def terrestrial_image(body)
-    atmo_code = body.atmosphere&.code || 0
-    hydro_code = body.hydrographics&.code || 0
-    return :unusual if atmo_code == 10
-    return :corrosive if atmo_code == 11
-    return :insidious if atmo_code == 12
-    return :dense if atmo_code == 13
-    return :low if atmo_code == 14
-    return :unusual if atmo_code == 15
-    return :helium if atmo_code == 16
-    return :hydrogen if atmo_code == 17
-    return :biological if body.atmosphere&.taint_code.to_s.upcase == 'B'
-    if hydro_code == 0
-      return :hot_rockball if body.temperature.present? && body.temperature.to_f > HOT_ROCKBALL_THRESHOLD_K
-      density = body.atmosphere&.density.to_s
-      return :trace if SPARSE_ATMOSPHERE_DENSITIES.any? { |d| density.start_with?(d) }
-      return :desert
-    end
-    return :molten if hydro_code > 0 && body.temperature.present? && body.temperature.to_f >= MOLTEN_THRESHOLD_K
-    return :ice if hydro_code > 0 && body.temperature.present? && body.temperature.to_f < ICE_THRESHOLD_K
-    if atmo_code <= 9
-      return :waterworld if hydro_code == 10
-      return :"tp_#{hydro_code * 10}" if (1..9).cover?(hydro_code)
-    end
-
-    nil
-  end
-
-  def terrestrial_colour(body)
-    atmo_code = body.atmosphere&.code || 0
-    hydro_code = body.hydrographics&.code || 0
-
-    # Exotic/hostile atmospheres
-    return '#16a34a' if atmo_code == 10 # exotic — green
-    return '#f59e0b' if atmo_code == 11 # corrosive — amber
-    return '#ef4444' if atmo_code == 12 # insidious — red
-
-    # No atmosphere: airless rock
-    return '#78716c' if atmo_code == 0
-
-    # Has atmosphere, increasing water coverage
-    return '#d97706' if hydro_code == 0
-    return '#b45309' if hydro_code <= 2
-    return '#0e7490' if hydro_code <= 4
-    return '#0369a1' if hydro_code <= 6
-    return '#1d4ed8' if hydro_code <= 8
-    '#1e40af' # water world
   end
 
   def body_tooltip(body, parent_star, is_primary)

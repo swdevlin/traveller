@@ -1,0 +1,15 @@
+<%= modal(title: "Orbit Map: #{@star.display_name}", padding: true, advance: false, overlay: false) do %>
+  <div class='mb-3 flex justify-end'>
+    <%= link_to orbit_map_star_path(@star, format: :webp),
+                download: @star.orbit_map_download_filename,
+                class: 'text-xs text-fg-muted hover:text-fg-bright no-underline hover:underline flex items-center gap-1' do %>
+      <i class='fa-regular fa-download'></i>
+      Download
+    <% end %>
+  </div>
+  <div class='overflow-auto max-h-[75vh]'>
+    <div style='width: <%= [@orbit_map.size, 1000].min %>px;'>
+      <%= @orbit_map.to_svg.html_safe %>
+    </div>
+  </div>
+<% end %>

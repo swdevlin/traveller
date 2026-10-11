@@ -64,6 +64,14 @@ class Star < StellarObject
     companion_id ? stars.where.not(id: companion_id) : stars
   end
 
+  # Named for the star, else its system, else where it is (sector and hex).
+  def orbit_map_download_filename(extension = 'webp')
+    base = [name, star_system&.name].find(&:present?)&.parameterize
+    parsec = star_system&.parsec
+    base ||= "#{parsec.sector.name.parameterize}_#{parsec.hex_code}" if parsec
+    "#{base.presence || 'orbit-map'}.#{extension}"
+  end
+
   def display_name
     if name.present?
       "#{name} (#{spectral_classification})"

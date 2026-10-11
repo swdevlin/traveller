@@ -68,6 +68,7 @@ Rails.application.routes.draw do
       get 'stellar_objects/:id/planetoids', to: 'stellar_objects#planetoids', as: :stellar_object_planetoids, defaults: { format: :json }
       get 'stellar_objects/:id/cities', to: 'stellar_objects#cities', as: :stellar_object_cities, defaults: { format: :json }
       resources :stars, only: %i[index update]
+      get 'stars/:id/orbit_map', to: 'star_orbit_maps#show', as: :star_orbit_map, defaults: { format: :svg }
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
       resources :jump_routes, only: %i[index update destroy], defaults: { format: :json }
@@ -208,6 +209,11 @@ Rails.application.routes.draw do
     resources :stars, only: %i[index show edit update destroy] do
       collection do
         get :lookup
+      end
+      member do
+        get :map
+        get :orbit_map
+        get :orbit_map_modal
       end
     end
 

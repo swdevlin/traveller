@@ -2,8 +2,12 @@
 
 class StarsController < ApplicationController
   include RecalculatesOrbitMechanics
+  include UrlTokenVerification
+  include SubwayMapRendering
+  include OrbitMapRendering
+  optional_authentication only: :map
 
-  before_action :set_star, only: %i[ show edit update destroy ]
+  before_action :set_star, only: %i[ show edit update destroy map orbit_map orbit_map_modal ]
   rescue_from ActiveRecord::RecordNotFound, with: :star_not_found
 
   def lookup
@@ -27,6 +31,26 @@ class StarsController < ApplicationController
         presenter = StarMarkdownPresenter.new(@star)
         render plain: presenter.render, content_type: 'text/markdown'
       end
+    end
+  end
+
+  # GET /stars/1/map.svg or .webp
+  def map
+    return head :not_found unless @star.star_system
+
+    send_subway_map
+  end
+
+  # GET /stars/1/orbit_map_modal
+  def orbit_map_modal
+    @orbit_map = StarOrbitMap.new(@star, theme: current_theme_key, link_builder: method(:orbit_map_link))
+    render layout: false
+  end
+
+  # GET /stars/1/orbit_map.webp
+  def orbit_map
+    respond_to do |format|
+      format.webp { send_data cached_orbit_map_webp(@star, theme: current_theme_key), type: 'image/webp', disposition: 'inline' }
     end
   end
 
@@ -57,6 +81,16 @@ class StarsController < ApplicationController
   def set_star
     @star = Star.find(params.expect(:id))
   end
+
+  def current_theme_key = OrbitMapTheme.key_for(helpers.current_theme)
+
+  def subway_map_cache_prefix = "star_map_#{@star.id}"
+
+  # The star system is touched when any of its objects change, so its cache version
+  # covers the star's children as well as the star itself.
+  def subway_map_record = @star.star_system
+
+  def subway_map_layout = StarSystemMapLayout.for_star(@star)
 
   def star_not_found
     redirect_to root_path, alert: 'That star no longer exists.'

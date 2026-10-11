@@ -86,5 +86,27 @@
     </div>
   </div>
 
+  <% if star_system %>
+    <div>
+      <div class='flex justify-end gap-3 mb-1'>
+        <%= link_to orbit_map_modal_star_path(star),
+                    data: { turbo_frame: 'modal' },
+                    title: 'Orbit map',
+                    class: 'text-fg-muted hover:text-fg-bright' do %>
+          <i class='fa-regular fa-solar-system'></i>
+        <% end %>
+        <button type='button'
+                title='Copy public map link'
+                class='text-fg-muted hover:text-fg-bright'
+                data-controller='clipboard'
+                data-clipboard-url-value='<%= signed_map_url(map_star_path(star)) %>'
+                data-action='click->clipboard#copy'>
+          <i class='fa-regular fa-link'></i>
+        </button>
+      </div>
+      <%= render 'star_systems/system_map', star_system: star_system, layout: StarSystemMapLayout.for_star(star) %>
+    </div>
+  <% end %>
+
   <%= render 'orbiting_table', bodies: star.orbiting_bodies %>
 </div>

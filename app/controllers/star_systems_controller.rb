@@ -3,13 +3,13 @@ require 'uri'
 require 'json'
 require 'yaml'
 require 'vips'
-require 'open3'
 
 class StarSystemsController < ApplicationController
   include ParentHex
   include HexMapBases
   include UrlTokenVerification
   include LinkModalSetup
+  include SubwayMapRendering
   optional_authentication only: [:map, :jump_map]
   before_action :set_star_system, except: %i[index new create]
   before_action :set_form_context
@@ -38,16 +38,7 @@ class StarSystemsController < ApplicationController
 
   # GET /star_systems/1/map.svg or .webp
   def map
-    @show_map_links = owns_campaign?
-    fresh_when etag: "#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}", last_modified: @star_system.updated_at
-    return if performed?
-
-    respond_to do |format|
-      format.svg  { send_data cached_svg,  type: 'image/svg+xml', disposition: 'inline' }
-      format.html { send_data cached_svg,  type: 'image/svg+xml', disposition: 'inline' }
-      format.webp { send_data cached_webp, type: 'image/webp',    disposition: 'inline' }
-      format.png  { send_data cached_png,  type: 'image/png',     disposition: 'inline' }
-    end
+    send_subway_map
   end
 
   def select_main_world
@@ -291,50 +282,11 @@ class StarSystemsController < ApplicationController
 
   private
 
-  def map_cache_variant
-    owns_campaign? ? "auth_v#{MAP_TEMPLATE_VERSION}" : "public_v#{MAP_TEMPLATE_VERSION}"
-  end
+  def subway_map_cache_prefix = 'system_map'
 
-  def cached_svg
-    Rails.cache.fetch("system_map_svg/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      render_to_string(formats: [:svg], layout: false)
-    end
-  end
+  def subway_map_record = @star_system
 
-  def cached_webp
-    Rails.cache.fetch("system_map_webp/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      Vips::Image.new_from_buffer(rasterized_png, '').webpsave_buffer
-    end
-  end
-
-  def cached_png
-    Rails.cache.fetch("system_map_png/#{current_campaign.id}/#{@star_system.cache_key_with_version}/#{map_cache_variant}") do
-      rasterized_png
-    end
-  end
-
-  # ActiveStorage globally disables libvips's "untrusted" loaders (including
-  # svgload) at boot via Vips.block_untrusted(true), even though this app
-  # never processes user-uploaded files through libvips. Rather than weaken
-  # that process-wide safety net, rasterize our own server-rendered SVG via
-  # the rsvg-convert CLI instead; PNG loading isn't blocked, so the result
-  # can still go through Vips for webp encoding.
-  def rasterized_png
-    svg = embed_svg_images(cached_svg)
-    png, status = Open3.capture2('rsvg-convert', '-f', 'png', stdin_data: svg, binmode: true)
-    raise "rsvg-convert failed (exit #{status.exitstatus}) for star system #{@star_system.id}" unless status.success?
-
-    png
-  end
-
-  def embed_svg_images(svg)
-    svg.gsub(/href="(\/stellar_objects\/[^"]+\.webp)"/) do
-      path = Rails.root.join('public', $1.delete_prefix('/'))
-      next "href=\"#{$1}\"" unless File.exist?(path)
-      data = Base64.strict_encode64(File.binread(path))
-      "href=\"data:image/webp;base64,#{data}\""
-    end
-  end
+  def subway_map_layout = nil
 
   # Use callbacks to share common setup or constraints between actions.
   def set_star_system

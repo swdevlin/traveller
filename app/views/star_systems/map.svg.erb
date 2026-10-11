@@ -1,5 +1,5 @@
 <%
-  layout = StarSystemMapLayout.new(@star_system)
+  layout = @layout || StarSystemMapLayout.new(@star_system)
 -%><svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      width="<%= layout.svg_width %>" height="<%= layout.svg_height %>"
@@ -84,5 +84,5 @@
 
   <rect width="100%" height="100%" fill="#000000"/>
 
-  <%= render 'system_map_inner', layout: layout, linkable: @show_map_links %>
+  <%= render 'star_systems/system_map_inner', layout: layout, linkable: @show_map_links %>
 </svg>

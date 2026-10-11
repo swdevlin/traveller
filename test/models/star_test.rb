@@ -134,4 +134,28 @@ class StarTest < ActiveSupport::TestCase
     assert_nil data['stellar_subtype']
     assert_nil data['luminosity']
   end
+
+  test 'orbit map download filename prefers the star name' do
+    star = stars(:star_one)
+    star.update_columns(name: 'Alpha Centauri')
+
+    assert_equal 'alpha-centauri.webp', star.orbit_map_download_filename
+  end
+
+  test 'orbit map download filename falls back to the star system name' do
+    star = stars(:star_one)
+    star.update_columns(name: nil)
+    star.star_system.update_columns(name: 'The Reach')
+
+    assert_equal 'the-reach.webp', star.orbit_map_download_filename
+  end
+
+  test 'orbit map download filename falls back to sector and hex' do
+    star = stars(:star_one)
+    star.update_columns(name: nil)
+    star.star_system.update_columns(name: nil)
+    parsec = star.star_system.parsec
+
+    assert_equal "#{parsec.sector.name.parameterize}_#{parsec.hex_code}.webp", star.orbit_map_download_filename
+  end
 end

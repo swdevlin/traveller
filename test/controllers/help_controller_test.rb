@@ -40,4 +40,22 @@ class HelpControllerTest < AuthenticatedIntegrationTest
     get help_page_url('stellar_objects_show')
     assert_response :success
   end
+
+  test 'should get stars_show' do
+    get help_page_url('stars_show')
+    assert_response :success
+    assert_select '.page-title', text: /Star Survey/
+  end
+
+  test 'campaign_settings documents the orbit map endpoint' do
+    get help_page_url('campaign_settings')
+    assert_response :success
+    assert_select 'dt', text: 'Star Orbit Map Endpoint'
+  end
+
+  test 'the star page help link opens the star help page' do
+    get star_url(stars(:star_one))
+
+    assert_select "a[href='#{help_page_path('stars_show', campaign_slug: campaigns(:one).slug)}']"
+  end
 end

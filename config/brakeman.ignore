@@ -183,6 +183,40 @@
         89
       ],
       "note": "False positive: `column` here is always one of a fixed set of hardcoded literal strings selected by SystemQueryBuilder#field_relation's field-name whitelist (e.g. 'star_systems.known', 'star_systems.survey_index', a CASE-expression template) -- never built from the request-controlled `field`/`values`. The only place user input reaches raw SQL in this class is uwp_json_relation's `field` interpolation, which is passed through ActiveRecord::Base.connection.quote."
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "da58d1d73b12a5d8290d611c467246b0a3bfb901f582a56cb686402ce62ddbb0",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/stars/orbit_map_modal.html.erb",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "StarOrbitMap.new(Star.find(params.expect(:id)), :theme => current_theme_key, :link_builder => method(:orbit_map_link)).to_svg",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "StarsController",
+          "method": "orbit_map_modal",
+          "line": 46,
+          "file": "app/controllers/stars_controller.rb",
+          "rendered": {
+            "name": "stars/orbit_map_modal",
+            "file": "app/views/stars/orbit_map_modal.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "stars/orbit_map_modal"
+      },
+      "user_input": "Star.find(params.expect(:id))",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": "False positive: StarOrbitMap builds the SVG itself and HTML-escapes every piece of record text it interpolates (object names, orbit sequences, link URLs) with ERB::Util.html_escape; colours come from fixed palettes and numbers are formatted. StarOrbitMapTest 'names are escaped' covers it. The SVG has to be emitted unescaped to be inlined in the modal."
     }
   ],
   "brakeman_version": "8.0.6"

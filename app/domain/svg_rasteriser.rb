@@ -17,6 +17,17 @@ class SvgRasteriser
     new(svg).webp
   end
 
+  # Swaps references to the bundled /stellar_objects/*.webp images for inline data URIs, so
+  # the SVG renders without fetching them: needed to rasterise it, or to serve it standalone.
+  def self.embed_images(svg)
+    svg.gsub(%r{href="(/stellar_objects/[^"]+\.webp)"}) do
+      path = Rails.root.join('public', Regexp.last_match(1).delete_prefix('/'))
+      next Regexp.last_match(0) unless File.exist?(path)
+
+      "href=\"data:image/webp;base64,#{Base64.strict_encode64(File.binread(path))}\""
+    end
+  end
+
   def initialize(svg)
     @svg = svg
   end

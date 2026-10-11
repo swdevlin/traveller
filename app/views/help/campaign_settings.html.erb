@@ -358,6 +358,38 @@
           </div>
         </div>
 
+        <div>
+          <dt class='font-semibold text-fg-bright'>Star Orbit Map Endpoint</dt>
+          <dd class='mt-1 text-fg'>
+            Returns a star&rsquo;s orbit map as an image, for use in other tools such as a VTT or a wiki:
+            <span class='font-mono text-fg-bright'>GET /c/:campaign_slug/api/stars/:id/orbit_map</span>,
+            where <span class='font-mono text-fg-bright'>:id</span> is the star&rsquo;s id (the number in its page
+            address). Authorise with the API token as a
+            <span class='font-mono text-fg-bright'>Bearer</span> credential; a request without a valid token or a
+            logged-in session receives <span class='font-mono text-fg-bright'>401 Unauthorised</span>.
+          </dd>
+          <div class='mt-3 space-y-2'>
+            <p class=' text-fg'>
+              Add <span class='font-mono text-fg-bright'>.svg</span> or
+              <span class='font-mono text-fg-bright'>.webp</span> to choose the format; SVG is the default. Any other
+              format receives <span class='font-mono text-fg-bright'>406 Not Acceptable</span>. The SVG carries its
+              images inside it, so it displays correctly on its own.
+            </p>
+            <p class=' text-fg'>
+              A request made with the token returns an SVG with no links in it. A logged-in user&rsquo;s SVG links each
+              object back to its page.
+            </p>
+            <p class=' text-fg'>
+              <span class='font-mono text-fg-bright'>theme</span> chooses the colours, using the theme&rsquo;s key, such
+              as <span class='font-mono text-fg-bright'>imperium</span> or
+              <span class='font-mono text-fg-bright'>light</span>. The default is
+              <span class='font-mono text-fg-bright'>dark</span>, and an unrecognised key also gives dark.
+              <span class='font-mono text-fg-bright'>download=1</span> asks the browser to save the image rather than
+              display it, named after the star. The map shows every object, whatever the system&rsquo;s survey index.
+            </p>
+          </div>
+        </div>
+
       </dl>
     </div>
 
