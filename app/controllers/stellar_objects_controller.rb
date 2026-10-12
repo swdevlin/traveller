@@ -169,7 +169,7 @@ class StellarObjectsController < ApplicationController
       return redirect_to stellar_object_path(@stellar_object), alert: 'Maps can only be generated for terrestrial planets, planetoids and moons of size 1 or greater.'
     end
 
-    rendered = map_service.render(map_payload, seed: MapService::PLANET_SEED)
+    rendered = map_service.render(map_payload)
     @stellar_object.store_map(rendered.svg)
 
     respond_to do |format|

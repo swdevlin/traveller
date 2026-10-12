@@ -4,8 +4,6 @@ require 'net/http'
 
 # Client for the planetmap service, which turns a planet's JSON into an SVG map.
 class MapService
-  PLANET_SEED = 12_345
-
   Rendered = Struct.new(:svg, :seed, keyword_init: true)
 
   # Raised for any non-200 response. api_message is the service's JSON "error" message, safe to
