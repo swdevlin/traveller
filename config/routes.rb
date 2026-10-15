@@ -270,9 +270,11 @@ Rails.application.routes.draw do
       end
     end
     resource :commerce, only: [:show], controller: 'commerce'
-    get  '/languages',          to: 'languages#index',    as: :languages
     post '/languages/generate', to: 'languages#generate', as: :generate_languages
     get  '/languages/word',     to: 'languages#word',     as: :language_word
+    resources :languages, except: [:show] do
+      get :download, on: :member
+    end
     get '/data-cores', to: 'data_cores#index', as: :data_cores
 
     get 'library/search',      to: 'rulebook_search#index', as: :rulebook_search

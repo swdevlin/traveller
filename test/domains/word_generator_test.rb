@@ -22,6 +22,27 @@ class WordGeneratorTest < ActiveSupport::TestCase
     end
   end
 
+  # --- Campaign languages ---
+
+  test 'languages merges campaign languages with the built-in ones, sorted by name' do
+    languages = WordGenerator.languages
+    assert_includes languages, :elvish
+    assert_equal (WordGenerator::BUILT_IN + [:elvish]).sort, languages
+  end
+
+  test 'campaign language: generates deterministic words from the corpus alphabet' do
+    words = [42, 1, 99].map do |seed|
+      WordGenerator.new(language: :elvish, dice_roller: DiceRoller.new(seed: seed)).generate
+    end
+    words.each { |word| assert_match(/\A[a-z]{3,12}\z/i, word) }
+    assert_equal words.first, WordGenerator.new(language: :elvish, dice_roller: DiceRoller.new(seed: 42)).generate
+  end
+
+  test 'label uses the campaign language name' do
+    assert_equal 'Elvish', WordGenerator.label(:elvish)
+    assert_equal 'Aslan', WordGenerator.label(:aslan)
+  end
+
   # --- Aslan ---
 
   test 'aslan: generates a non-empty string' do

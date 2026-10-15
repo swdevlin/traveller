@@ -66,6 +66,19 @@ class AllegianceTest < ActiveSupport::TestCase
     assert_equal({ 8 => 1 }, allegiance.tech_level_histogram)
   end
 
+  test 'accepts built-in and custom languages and rejects unknown ones' do
+    allegiance = allegiances(:one)
+    allegiance.language = 'aslan'
+    assert allegiance.valid?
+
+    allegiance.language = 'not_a_language'
+    assert_not allegiance.valid?
+
+    allegiance.language = ''
+    assert allegiance.valid?
+    assert_nil allegiance.language
+  end
+
   private
 
   def create_world(star:, allegiance:, name:, population_code:, tech_level_code: nil, census_population: nil)

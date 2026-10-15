@@ -52,25 +52,26 @@ class StarSystemImporter
     @star_system
   end
 
-  def import!(parsec, data, campaign: nil, subsector_language: nil,
+  def import!(parsec, data, campaign: nil, subsector_language: nil, inherited_language: nil,
               system_language: nil, main_world_language: nil, system_name: nil, config_bases: nil)
     @parsec = parsec
     @campaign = campaign
     @subsector_language = subsector_language
+    @inherited_language = inherited_language
     @system_language = system_language
     @main_world_language = main_world_language
 
     ActiveRecord::Base.transaction do
       @star_system = StarSystem.new
       @star_system.parsec = parsec
-      @star_system.name = resolve_system_name(system_name, data['name'])
-      @star_system.language = system_language if system_language.present?
-      @star_system.build_log = data['buildLog']
-      @star_system.survey_index = data['surveyIndex'] || 0
       allegiance = data['allegiance']
       unless allegiance.nil?
         @star_system.allegiance = find_or_create_allegiance(allegiance)
       end
+      @star_system.name = resolve_system_name(system_name, data['name'])
+      @star_system.language = system_language if system_language.present?
+      @star_system.build_log = data['buildLog']
+      @star_system.survey_index = data['surveyIndex'] || 0
       @star_system.save!
 
       finish_import!(data, config_bases: config_bases) do
@@ -125,7 +126,11 @@ class StarSystemImporter
   end
 
   def effective_system_language
-    @system_language.presence || @subsector_language.presence || @campaign&.default_language.presence
+    @system_language.presence ||
+      @subsector_language.presence ||
+      @star_system&.allegiance&.language.presence ||
+      @inherited_language.presence ||
+      @campaign&.default_language.presence
   end
 
   def effective_main_world_language

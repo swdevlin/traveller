@@ -1,7 +1,7 @@
 <% if words.any? %>
   <div class='table-card' data-controller='clipboard'>
     <div class='table-banner'>
-      <p><%= language.to_s.capitalize %></p>
+      <p><%= WordGenerator.label(language) %></p>
       <div class='actions'>
         <span class='text-xs text-fg-muted'><%= words.size %> words</span>
         <button type='button' class='icon-btn' title='Copy word list'

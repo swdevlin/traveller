@@ -2,9 +2,9 @@
 <% eff_lang = form.object.effective_language(current_campaign).to_s %>
 <% own_lang = form.object.language.to_s %>
 <% tooltip = if own_lang.present?
-               "Language: #{own_lang.capitalize}"
+               "Language: #{WordGenerator.label(own_lang)}"
              elsif eff_lang.present?
-               "Language: inherited (#{eff_lang.capitalize})"
+               "Language: inherited (#{WordGenerator.label(eff_lang)})"
              else
                'Language: none set'
              end %>
@@ -52,7 +52,7 @@
                       class='w-full text-left px-3 py-2 text-sm hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->random-name#selectLanguage'
                       data-value='<%= lang %>'>
-                <%= lang.to_s.capitalize %>
+                <%= WordGenerator.label(lang) %>
               </button>
             <% end %>
           </div>

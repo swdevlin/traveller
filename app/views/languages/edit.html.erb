@@ -1,0 +1,7 @@
+<%= content_for :title, "Editing #{@language.name}" %>
+<%= content_for :page_kicker, 'Languages' %>
+<%= content_for :page_title, @language.name %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', language: @language %>
+<% end %>

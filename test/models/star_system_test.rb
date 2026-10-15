@@ -17,6 +17,24 @@ class StarSystemTest < ActiveSupport::TestCase
     assert_equal 'korean', star_system.effective_language(campaign)
   end
 
+  test 'effective_language prefers the allegiance language over the subsector language' do
+    campaign = campaigns(:one)
+    star_system = star_systems(:in_one)
+    star_system.parsec.subsector.update!(language: 'korean')
+    star_system.allegiance = allegiances(:one)
+    star_system.allegiance.update!(language: 'hindi')
+    assert_equal 'hindi', star_system.effective_language(campaign)
+  end
+
+  test 'effective_language own language overrides allegiance language' do
+    campaign = campaigns(:one)
+    star_system = star_systems(:in_one)
+    star_system.allegiance = allegiances(:one)
+    star_system.allegiance.update!(language: 'hindi')
+    star_system.language = 'zdetl'
+    assert_equal 'zdetl', star_system.effective_language(campaign)
+  end
+
   test 'effective_language falls back to campaign default' do
     campaign = campaigns(:one)
     campaign.default_language = 'solomani'

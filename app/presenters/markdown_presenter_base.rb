@@ -253,7 +253,22 @@ class MarkdownPresenterBase
     if hyd.distribution
       rows << ['Distribution', "#{hyd.distribution} — #{HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS[hyd.distribution]}"]
     end
+    rows.concat(ice_cap_rows)
     table_section('Hydrographics', rows)
+  end
+
+  def ice_cap_rows
+    ice_caps = @obj.respond_to?(:ice_caps) ? @obj.ice_caps : nil
+    return [] if ice_caps.blank?
+
+    rows = []
+    rows << ['Ice Cap Liquid', ice_caps['liquid']] if ice_caps['liquid'].present?
+    rows << ['Ice Cap Melting Point', "#{kelvin_to_celsius(ice_caps['melting_point_k'])}°C"] if ice_caps['melting_point_k']
+    rows << ['Ice Cap Edge Temperature', "#{kelvin_to_celsius(ice_caps['edge_temperature_k'])}°C"] if ice_caps['edge_temperature_k']
+    rows << ['Ice Cap Edge Latitude', "#{ice_caps['edge_latitude']}°"] unless ice_caps['edge_latitude'].nil?
+    rows << ['Ice Cap Coverage', "#{fmt(ice_caps['coverage'].to_f * 100, 1)}%"] unless ice_caps['coverage'].nil?
+    rows << ['Ice Cap Note', ice_caps['note']] if ice_caps['note'].present?
+    rows
   end
 
   def population_section

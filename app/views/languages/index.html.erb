@@ -7,22 +7,51 @@
 <%= render 'application/page' do %>
   <%= form_with url: generate_languages_path, method: :post, data: { controller: 'language-picker' } do |f| %>
     <div class='flex gap-6'>
-      <div class='w-48 shrink-0'>
+      <div class='w-72 shrink-0'>
         <div class='table-card'>
           <div class='table-banner'>
             <p>Language</p>
+
+            <div class='actions'>
+              <%= link_to new_language_path, class: 'btn-header' do %>
+                <i class='fa-regular fa-plus'></i>
+                Add
+              <% end %>
+            </div>
           </div>
           <div class='divide-y divide-outline'>
+            <% custom_by_key = @custom_languages.index_by(&:key) %>
             <% @languages.each do |lang| %>
-              <label class='flex cursor-pointer'>
-                <%= radio_button_tag :language, lang, @selected == lang, class: 'peer sr-only',
-                                  data: { action: 'change->language-picker#clear' } %>
-                <div class='w-full px-4 py-2.5 text-sm text-fg transition
-                            hover:bg-panel hover:text-fg-bright
-                            peer-checked:bg-panel peer-checked:font-semibold peer-checked:text-highlight'>
-                  <%= lang.to_s.capitalize %>
-                </div>
-              </label>
+              <% custom = custom_by_key[lang.to_s] %>
+              <div class='flex items-center'>
+                <label class='flex flex-1 cursor-pointer'>
+                  <%= radio_button_tag :language, lang, @selected == lang, class: 'peer sr-only',
+                                    data: { action: 'change->language-picker#clear' } %>
+                  <div class='w-full px-4 py-2.5 text-sm text-fg transition
+                              hover:bg-panel hover:text-fg-bright
+                              peer-checked:bg-panel peer-checked:font-semibold peer-checked:text-highlight'>
+                    <%= WordGenerator.label(lang) %>
+                  </div>
+                </label>
+
+                <% if custom %>
+                  <div class='action-group pr-3'>
+                    <%= link_to download_language_path(custom), class: 'action', title: 'Download word list' do %>
+                      <i class='fa-regular fa-download'></i>
+                    <% end %>
+
+                    <%= link_to edit_language_path(custom), class: 'action', title: 'Edit' do %>
+                      <i class='fa-regular fa-pen-to-square'></i>
+                    <% end %>
+
+                    <%# A link rather than button_to: this sits inside the generate form, and forms cannot nest. %>
+                    <%= link_to custom, class: 'action danger', title: 'Delete',
+                                data: { turbo_method: :delete, turbo_confirm: 'Delete this language?' } do %>
+                      <i class='fa-regular fa-trash'></i>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
             <% end %>
           </div>
         </div>

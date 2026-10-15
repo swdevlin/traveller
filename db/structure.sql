@@ -249,7 +249,8 @@ CREATE TABLE public.allegiances (
     legacy_code character varying,
     name character varying NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    known boolean DEFAULT true NOT NULL
+    known boolean DEFAULT true NOT NULL,
+    language character varying
 );
 
 
@@ -867,6 +868,39 @@ CREATE SEQUENCE public.jump_routes_id_seq
 --
 
 ALTER SEQUENCE public.jump_routes_id_seq OWNED BY public.jump_routes.id;
+
+
+--
+-- Name: languages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.languages (
+    id bigint NOT NULL,
+    key character varying NOT NULL,
+    name character varying NOT NULL,
+    corpus text DEFAULT ''::text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: languages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.languages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: languages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.languages_id_seq OWNED BY public.languages.id;
 
 
 --
@@ -1913,6 +1947,13 @@ ALTER TABLE ONLY public.jump_routes ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
+-- Name: languages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.languages ALTER COLUMN id SET DEFAULT nextval('public.languages_id_seq'::regclass);
+
+
+--
 -- Name: law_levels id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2255,6 +2296,14 @@ ALTER TABLE ONLY public.jump_route_links
 
 ALTER TABLE ONLY public.jump_routes
     ADD CONSTRAINT jump_routes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: languages languages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.languages
+    ADD CONSTRAINT languages_pkey PRIMARY KEY (id);
 
 
 --
@@ -2776,6 +2825,13 @@ CREATE INDEX index_jump_routes_on_to_star_system_id ON public.jump_routes USING 
 --
 
 CREATE UNIQUE INDEX index_jump_routes_on_travellermap_allegiance_code ON public.jump_routes USING btree (travellermap_allegiance_code);
+
+
+--
+-- Name: index_languages_on_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_languages_on_key ON public.languages USING btree (key);
 
 
 --
@@ -3432,6 +3488,8 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261012130000'),
+('20261012120000'),
 ('20261005120000'),
 ('20260927215121'),
 ('20260831220700'),

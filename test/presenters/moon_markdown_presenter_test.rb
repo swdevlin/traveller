@@ -67,4 +67,16 @@ class MoonMarkdownPresenterTest < ActiveSupport::TestCase
     assert_includes markdown, 'Periapsis Temperature'
     assert_includes markdown, 'Apoapsis Temperature'
   end
+
+  test 'renders ice caps in the hydrographics section' do
+    moon = moons(:orbiting_gas_giant)
+    moon.hydrographics = { 'code' => 5, 'liquid' => 'Water' }
+    moon.data = moon.data.merge('ice_caps' => { 'liquid' => 'Water', 'melting_point_k' => 273, 'edge_temperature_k' => 263, 'edge_latitude' => 54, 'coverage' => 0.191, 'note' => nil })
+    moon.save!
+
+    markdown = MoonMarkdownPresenter.new(moon).render
+
+    assert_includes markdown, 'Ice Cap Edge Latitude | 54°'
+    assert_includes markdown, 'Ice Cap Coverage | 19.1%'
+  end
 end

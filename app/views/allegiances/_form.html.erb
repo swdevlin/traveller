@@ -16,6 +16,13 @@
       <%= form.text_field :legacy_code, class: 'edit-base w-24' %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :language do %>
+      <%= form.select :language,
+                      WordGenerator.languages.map { |l| [WordGenerator.label(l), l.to_s] },
+                      { include_blank: '— None —' },
+                      { class: 'edit-base' } %>
+    <% end %>
+
     <div data-controller='colour-pair'>
       <%= render 'application/edit_field', form: form, attribute: :background_colour do %>
         <%= form.text_field :background_colour,

@@ -31,6 +31,7 @@ class StarSystem < ApplicationRecord
 
   def effective_language(campaign)
     language.presence ||
+      allegiance&.language.presence ||
       parsec.subsector&.language.presence ||
       parsec.sector.language.presence ||
       campaign.default_language.presence

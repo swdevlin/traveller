@@ -1,0 +1,7 @@
+<%= content_for :title, 'New language' %>
+<%= content_for :page_kicker, 'Languages' %>
+<%= content_for :page_title, 'New Language' %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', language: @language %>
+<% end %>

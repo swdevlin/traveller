@@ -8,14 +8,29 @@
 #   WordGenerator.new(language: :aslan, dice_roller: DiceRoller.new(seed: 42)).generate
 #
 class WordGenerator
+  # Languages implemented in code, one *_word_generator.rb file each.
+  BUILT_IN = Dir[Rails.root.join('app/domain/word_generators/*_word_generator.rb')]
+             .map { |f| File.basename(f, '_word_generator.rb').to_sym }
+             .reject { |lang| lang == :corpus }
+             .sort
+             .freeze
+
+  # Built-in languages plus the current campaign's custom languages, sorted by display name.
   def self.languages
-    Dir[Rails.root.join('app/domain/word_generators/*_word_generator.rb')]
-      .map { |f| File.basename(f, '_word_generator.rb').to_sym }
-      .sort
+    custom = Language.pluck(:key, :name).to_h { |key, name| [key.to_sym, name] }
+    labels = BUILT_IN.index_with { |lang| lang.to_s.capitalize }.merge(custom)
+    labels.keys.sort_by { |lang| labels[lang].downcase }
+  end
+
+  def self.label(language)
+    language = language.to_sym
+    return language.to_s.capitalize if BUILT_IN.include?(language)
+
+    Language.find_by(key: language.to_s)&.name || language.to_s.capitalize
   end
 
   def initialize(language:, dice_roller: nil)
-    @language = language
+    @language = language.to_sym
     @dice_roller = dice_roller || DiceRoller.new
   end
 
@@ -30,21 +45,15 @@ class WordGenerator
   private
 
   def generator
-    case @language
-    when :aslan    then AslanWordGenerator.new(@dice_roller)
-    when :french   then FrenchWordGenerator.new(@dice_roller)
-    when :hindi    then HindiWordGenerator.new(@dice_roller)
-    when :japanese then JapaneseWordGenerator.new(@dice_roller)
-    when :korean   then KoreanWordGenerator.new(@dice_roller)
-    when :nordic   then NordicWordGenerator.new(@dice_roller)
-    when :oynprith  then OynprithWordGenerator.new(@dice_roller)
-    when :solomani  then SolomaniWordGenerator.new(@dice_roller)
-    when :arrghoun  then ArrghounWordGenerator.new(@dice_roller)
-    when :gurvin    then GurvinWordGenerator.new(@dice_roller)
-    when :xengri    then XengriWordGenerator.new(@dice_roller)
-    when :zdetl     then ZdetlWordGenerator.new(@dice_roller)
-    when :imperium  then ImperiumWordGenerator.new(@dice_roller)
-    else raise ArgumentError, "Unknown language: #{@language}"
-    end
+    @generator ||= build_generator
+  end
+
+  def build_generator
+    return "#{@language.to_s.camelize}WordGenerator".constantize.new(@dice_roller) if BUILT_IN.include?(@language)
+
+    custom = Language.find_by(key: @language.to_s)
+    raise ArgumentError, "Unknown language: #{@language}" unless custom
+
+    CorpusWordGenerator.for(custom, @dice_roller)
   end
 end

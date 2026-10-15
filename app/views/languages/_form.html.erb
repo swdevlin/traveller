@@ -1,0 +1,43 @@
+<%= form_with(model: language, class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: language.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :name, required: true do %>
+      <%= form.text_field :name, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <div>
+      <%= form.label :corpus, 'Word list', class: 'text-xs uppercase tracking-[0.18em] text-fg-muted' %>
+      <p class='mt-1 text-sm text-fg-muted'>
+        One word or name per line, at least <%= Language::MIN_WORDS %>. New words are generated in the style of this list.
+      </p>
+      <%= form.text_area :corpus,
+                         rows: 12,
+                         class: [
+                           'w-full edit-base mt-2 resize-y',
+                           {
+                             'border-gray-400 focus:outline-blue-600': language.errors[:corpus].none?,
+                             'border-red-400 focus:outline-red-600': language.errors[:corpus].any?
+                           }
+                         ] %>
+      <%= render 'application/field_error', form: form, attribute: :corpus %>
+    </div>
+
+    <div>
+      <%= form.label :corpus_file, 'Or upload a text file', class: 'text-xs uppercase tracking-[0.18em] text-fg-muted' %>
+      <p class='mt-1 text-sm text-fg-muted'>
+        Plain UTF-8 text, one word per line, up to <%= Language::MAX_BYTES / 1.megabyte %> MB. An uploaded file replaces the list above.
+      </p>
+      <%= render 'application/file_field',
+                 form: form, attribute: :corpus_file, accept: '.txt,text/plain', wrapper_class: 'mt-2' %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit language.persisted? ? 'Update language' : 'Create language', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', languages_path, class: 'w-full sm:w-auto btn' %>
+      <% if language.persisted? %>
+        <%= link_to 'Download word list', download_language_path(language), class: 'w-full sm:w-auto btn' %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

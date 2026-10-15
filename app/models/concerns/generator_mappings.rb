@@ -38,6 +38,14 @@ module GeneratorMappings
     data&.dig('apoapsis_temperature') || estimated_temperature_at_distance_ratio(1 + eccentricity.to_f)
   end
 
+  def ice_caps
+    data&.dig('ice_caps')
+  end
+
+  def latitude_temperatures
+    data&.dig('latitude_temperatures')
+  end
+
   # The body's real current position (via HasOrbit#orbit_distance_from_parent_km)
   # is generally somewhere between periapsis and apoapsis; falls back to the
   # mean temperature when the real position isn't known (distance ratio of 1).
@@ -196,6 +204,18 @@ module GeneratorMappings
     unless apoapsis_temperature_payload.nil?
       self.data ||= {}
       self.data['apoapsis_temperature'] = apoapsis_temperature_payload
+    end
+
+    ice_caps_payload = payload['iceCaps']
+    unless ice_caps_payload.nil?
+      self.data ||= {}
+      self.data['ice_caps'] = ice_caps_payload.deep_transform_keys(&:underscore)
+    end
+
+    latitude_temperatures_payload = payload['latitudeTemperatures']
+    unless latitude_temperatures_payload.nil?
+      self.data ||= {}
+      self.data['latitude_temperatures'] = latitude_temperatures_payload
     end
 
     mapped = self.class.mapped_data_from_generator(payload)

@@ -10,6 +10,27 @@ class TerrestrialPlanetTest < ActiveSupport::TestCase
     assert_equal 260.0, planet.apoapsis_temperature
   end
 
+  test 'assign_data_from_generator stores ice caps and latitude temperatures' do
+    planet = TerrestrialPlanet.new
+    planet.assign_data_from_generator({
+      'iceCaps' => { 'liquid' => 'Water', 'meltingPointK' => 273, 'edgeTemperatureK' => 263, 'edgeLatitude' => 54, 'coverage' => 0.191, 'note' => nil },
+      'latitudeTemperatures' => [{ 'latitude' => 0, 'temperature' => 281.6 }, { 'latitude' => 90, 'temperature' => 237.9 }]
+    })
+
+    assert_equal 273, planet.ice_caps['melting_point_k']
+    assert_equal 54, planet.ice_caps['edge_latitude']
+    assert_equal 2, planet.latitude_temperatures.size
+    assert_equal 237.9, planet.latitude_temperatures.last['temperature']
+  end
+
+  test 'ice caps and latitude temperatures are nil when the payload omits them' do
+    planet = TerrestrialPlanet.new
+    planet.assign_data_from_generator({})
+
+    assert_nil planet.ice_caps
+    assert_nil planet.latitude_temperatures
+  end
+
   test 'periapsis/apoapsis temperature fall back to an estimate when the payload omits them' do
     planet = TerrestrialPlanet.new
     planet.assign_data_from_generator({ 'meanTemperature' => 280.0, 'eccentricity' => 0.2 })

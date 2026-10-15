@@ -4,10 +4,12 @@ class Allegiance < ApplicationRecord
 
   before_validation { self.background_colour = nil if background_colour.blank? }
   before_validation { self.border_colour     = nil if border_colour.blank? }
+  before_validation { self.language          = nil if language.blank? }
 
   validates :code, presence: true, uniqueness: true
   validates :name, presence: true
   validates_hex_colour :background_colour, :border_colour, allow_nil: true
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
 
   has_many :stellar_objects, dependent: :nullify
   has_many :star_systems, dependent: :nullify

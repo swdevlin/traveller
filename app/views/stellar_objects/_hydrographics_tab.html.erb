@@ -21,3 +21,19 @@
     <div class="text-fg-muted text-sm col-span-full">No hydrographic data recorded.</div>
   <% end %>
 </div>
+
+<% ice_caps = stellar_object.respond_to?(:ice_caps) ? stellar_object.ice_caps : nil %>
+<% if ice_caps.present? %>
+  <div class='space-y-4 mt-6'>
+    <%= render 'application/subsection', title: 'Ice Caps' %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'application/data_block', label: 'Frozen Liquid', value: ice_caps['liquid'] %>
+      <%= render 'application/data_block', label: 'Melting Point', value: "#{format_temperature_celsius(ice_caps['melting_point_k'])}°C" if ice_caps['melting_point_k'] %>
+      <%= render 'application/data_block', label: 'Edge Temperature', value: "#{format_temperature_celsius(ice_caps['edge_temperature_k'])}°C" if ice_caps['edge_temperature_k'] %>
+      <%= render 'application/data_block', label: 'Edge Latitude', value: "#{ice_caps['edge_latitude']}°" unless ice_caps['edge_latitude'].nil? %>
+      <%= render 'application/data_block', label: 'Coverage', value: number_to_percentage(ice_caps['coverage'].to_f * 100, precision: 1) unless ice_caps['coverage'].nil? %>
+      <%= render 'application/data_block', label: 'Note', value: ice_caps['note'] if ice_caps['note'].present? %>
+    </div>
+  </div>
+<% end %>
+<%# latitude_temperatures is stored in data but not displayed %>

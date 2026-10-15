@@ -27,6 +27,50 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 'Kiusah', star_system.name
   end
 
+  def languages_used_for_import(allegiance_language:, **options)
+    allegiance = allegiances(:one)
+    allegiance.update!(language: allegiance_language)
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
+    data['allegiance'] = allegiance.code
+
+    used = []
+    singleton = WordGenerator.singleton_class
+    singleton.send(:alias_method, :__original_new, :new)
+    singleton.send(:define_method, :new) do |language:, **|
+      used << language
+      Struct.new(:generate).new('Generated')
+    end
+
+    begin
+      @importer.import!(@parsec, data, **options)
+    ensure
+      singleton.send(:alias_method, :new, :__original_new)
+      singleton.send(:remove_method, :__original_new)
+    end
+    used.uniq
+  end
+
+  test 'system name uses the allegiance language when none is configured' do
+    used = languages_used_for_import(allegiance_language: 'korean', campaign: campaigns(:one),
+                                     inherited_language: 'aslan')
+    assert_equal [:korean].map(&:to_sym), used.map(&:to_sym)
+  end
+
+  test 'configured system language overrides the allegiance language' do
+    used = languages_used_for_import(allegiance_language: 'korean', system_language: 'japanese')
+    assert_equal [:japanese], used.map(&:to_sym)
+  end
+
+  test 'configured subsector language overrides the allegiance language' do
+    used = languages_used_for_import(allegiance_language: 'korean', subsector_language: 'hindi')
+    assert_equal [:hindi], used.map(&:to_sym)
+  end
+
+  test 'allegiance language overrides the inherited subsector language' do
+    used = languages_used_for_import(allegiance_language: 'korean', inherited_language: 'aslan')
+    assert_equal [:korean], used.map(&:to_sym)
+  end
+
   test 'every stellar object in a star system points to the star system' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
     star_system = @importer.import!(@parsec, data)
