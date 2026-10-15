@@ -71,6 +71,7 @@ json.hydrographics do
   json.label       'Hydrographics'
   json.code        hydro_code
   json.description StellarObjectsHelper::HYDROGRAPHICS_DESCRIPTIONS[hydro_code]
+  json.percentage  stellar_object.hydrographics_percentage
   if stellar_object.hydrographics_liquid.present?
     json.liquid do
       json.label 'Liquid'

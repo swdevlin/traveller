@@ -84,7 +84,7 @@ import Traveller.HexGeometry
         )
 import Traveller.HighlightRule as HighlightRule
 import Traveller.HighlightRuleEditor as HighlightRuleEditor
-import Traveller.Hydrographics exposing (hydrographicsPercentageDescription, surfaceDistributionDescription)
+import Traveller.Hydrographics exposing (hydrographicsCoverageDescription, surfaceDistributionDescription)
 import Traveller.JumpRouteLayer as JumpRouteLayer
 import Traveller.JumpRouteLayerEditor as JumpRouteLayerEditor
 import Traveller.LawLevel as LawLevel
@@ -9800,7 +9800,7 @@ update msg ( time, model ) =
                                     , hydrographics =
                                         { percentage =
                                             pdata.hydrographics
-                                                |> Maybe.map (.code >> hydrographicsPercentageDescription)
+                                                |> Maybe.map (\h -> hydrographicsCoverageDescription h.code h.percentage)
                                                 |> Maybe.withDefault "N/A"
                                         , liquid =
                                             pdata.hydrographics
@@ -10130,7 +10130,7 @@ update msg ( time, model ) =
                             , hydrographics =
                                 { percentage =
                                     pdata.hydrographics
-                                        |> Maybe.map (.code >> hydrographicsPercentageDescription)
+                                        |> Maybe.map (\h -> hydrographicsCoverageDescription h.code h.percentage)
                                         |> Maybe.withDefault "N/A"
                                 , liquid =
                                     pdata.hydrographics

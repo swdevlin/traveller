@@ -1,4 +1,4 @@
-module Traveller.Hydrographics exposing (StellarHydrographics, codec, hydrographicsPercentageDescription, surfaceDistributionDescription)
+module Traveller.Hydrographics exposing (StellarHydrographics, codec, hydrographicsCoverageDescription, hydrographicsPercentageDescription, surfaceDistributionDescription)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -33,6 +33,16 @@ codec =
                 )
             )
         |> Codec.buildObject
+
+
+hydrographicsCoverageDescription : Int -> Maybe Float -> String
+hydrographicsCoverageDescription code percentage =
+    case percentage of
+        Just p ->
+            String.fromFloat (toFloat (round (p * 10)) / 10) ++ "%"
+
+        Nothing ->
+            hydrographicsPercentageDescription code
 
 
 hydrographicsPercentageDescription : Int -> String

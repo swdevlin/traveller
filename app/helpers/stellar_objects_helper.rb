@@ -397,6 +397,17 @@ module StellarObjectsHelper
     HYDROGRAPHICS_DESCRIPTIONS[code]
   end
 
+  # Exact coverage when the generator supplied one, otherwise the code's range
+  def hydrographics_coverage(hydrographics)
+    return if hydrographics.blank?
+
+    if hydrographics.percentage.present?
+      number_to_percentage(hydrographics.percentage, precision: 1, strip_insignificant_zeros: true)
+    else
+      hydrographics_description(hydrographics.code)
+    end
+  end
+
   HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS = {
     0 => 'Extremely Dispersed',
     1 => 'Very Dispersed',

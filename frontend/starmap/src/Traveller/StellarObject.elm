@@ -971,6 +971,7 @@ type alias Hydrographics =
     { code : Int
     , distribution : Maybe Int
     , liquid : Maybe String
+    , percentage : Maybe Float
     }
 
 
@@ -988,6 +989,7 @@ codecHydrographics =
                     ]
                 )
             )
+        |> Codec.optionalNullableField "percentage" .percentage Codec.float
         |> Codec.buildObject
 
 

@@ -121,10 +121,14 @@ module HasUwp
   def hydrographics_code          = hydrographics&.code
   def hydrographics_liquid        = hydrographics&.liquid
   def hydrographics_distribution  = hydrographics&.distribution
+  def hydrographics_percentage    = hydrographics&.percentage
 
   def hydrographics_code=(val)
     hyd = hydrographics || Hydrographics.new
-    hyd.code = val.present? ? val.to_i : nil
+    new_code = val.present? ? val.to_i : nil
+    # A manual code change makes the generated percentage stale
+    hyd.percentage = nil unless hyd.code == new_code
+    hyd.code = new_code
     self.hydrographics = hyd
   end
 
