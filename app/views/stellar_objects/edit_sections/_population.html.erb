@@ -1,0 +1,97 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Population</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
+  <%= form.number_field :population_code,
+                        value: stellar_object.population_code,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 12 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_concentration_rating, field_label: 'Concentration Rating' do %>
+  <%= form.number_field :population_concentration_rating,
+                        value: stellar_object.population_concentration_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 9 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_urbanization_percentage, field_label: 'Urbanisation %' do %>
+  <%= form.number_field :population_urbanization_percentage,
+                        value: stellar_object.population_urbanization_percentage,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_major_cities, field_label: 'Major Cities' do %>
+  <%= form.number_field :population_major_cities,
+                        value: stellar_object.population_major_cities,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0 %>
+<% end %>
+
+<% StellarObjectsHelper::CULTURE_TRAIT_DATA.each do |trait| %>
+  <%= render 'application/edit_field', form: form, attribute: trait[:getter], field_label: trait[:label] do %>
+    <%= form.number_field trait[:getter],
+                          value: stellar_object.send(trait[:getter]),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 1,
+                          min: trait[:min],
+                          max: trait[:max] %>
+  <% end %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
+        checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
+        checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :habitability_rating, field_label: 'Habitability Rating' do %>
+  <%= form.number_field :habitability_rating,
+                        value: stellar_object.habitability_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :biomass_rating, field_label: 'Biomass Rating' do %>
+  <%= form.number_field :biomass_rating,
+                        value: stellar_object.biomass_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :biodiversity_rating, field_label: 'Biodiversity Rating' do %>
+  <%= form.number_field :biodiversity_rating,
+                        value: stellar_object.biodiversity_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :biocomplexity_rating, field_label: 'Biocomplexity Rating' do %>
+  <%= form.text_field :biocomplexity_rating,
+                      value: stellar_object.biocomplexity_rating,
+                      class: 'edit-base w-24' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating' do %>
+  <%= form.number_field :resource_rating,
+                        value: stellar_object.resource_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 2,
+                        max: 12 %>
+<% end %>

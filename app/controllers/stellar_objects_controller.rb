@@ -51,6 +51,7 @@ class StellarObjectsController < ApplicationController
 
   # GET /stellar_objects/1/edit
   def edit
+    @section = edit_section
   end
 
   # POST /stellar_objects or /stellar_objects.json
@@ -77,7 +78,10 @@ class StellarObjectsController < ApplicationController
         format.html { redirect_to stellar_object_url(@stellar_object), notice: "#{@stellar_object.type.underscore.humanize} was successfully updated.", status: :see_other }
         format.json { render :show, status: :ok, location: @stellar_object }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html do
+          @section = edit_section
+          render :edit, status: :unprocessable_entity
+        end
         format.json { render json: @stellar_object.errors, status: :unprocessable_entity }
       end
     end
@@ -202,6 +206,15 @@ class StellarObjectsController < ApplicationController
   end
 
   private
+    # Whitelisted edit section; unknown values (and orbital for rogues) fall back to general.
+    def edit_section
+      section = params[:section].to_s
+      return 'general' unless StellarObject::EDIT_SECTIONS.include?(section)
+      return 'general' if section == 'orbital' && @stellar_object.orbiting.nil?
+
+      section
+    end
+
     # The standard stellar object JSON, as served by the API.
     def map_payload
       json = render_to_string(partial: 'stellar_objects/stellar_object', formats: [:json],

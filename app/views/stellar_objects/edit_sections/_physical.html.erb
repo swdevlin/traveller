@@ -1,0 +1,78 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Physical</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<div data-controller='planet-size' class='space-y-6'>
+  <%= render 'application/edit_field', form: form, attribute: :size_code, field_label: 'Size', required: true do %>
+    <%= form.select :size_code,
+                    options_for_select(
+                      StellarObjectsHelper::SIZE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                      stellar_object.size_code
+                    ),
+                    { include_blank: 'Select size' },
+                    class: 'edit-base',
+                    data: { planet_size_target: 'size', action: 'planet-size#sizeChanged' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :diameter do %>
+    <%= form.number_field :diameter,
+                          value: format_precision(stellar_object.diameter, precision: 5),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 'any',
+                          data: { planet_size_target: 'diameter', action: 'planet-size#recalculate' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :density do %>
+    <%= form.number_field :density,
+                          value: format_precision(stellar_object.density, precision: 5),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 'any',
+                          data: { planet_size_target: 'density', action: 'planet-size#recalculate' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉', calculated: true do %>
+    <%= form.number_field :mass,
+                          value: format_precision(stellar_object.mass, precision: 5),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 'any',
+                          data: { planet_size_target: 'mass' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :gravity, calculated: true do %>
+    <%= form.number_field :gravity,
+                          value: format_precision(stellar_object.gravity, precision: 5),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 'any',
+                          data: { planet_size_target: 'gravity' } %>
+  <% end %>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :temperature do %>
+  <%= form.number_field :temperature,
+                        value: format_precision(stellar_object.temperature, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :axial_tilt, field_label: 'Axial Tilt' do %>
+  <%= form.number_field :axial_tilt,
+                        value: format_precision(stellar_object.axial_tilt, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :albedo do %>
+  <%= form.number_field :albedo,
+                        value: format_precision(stellar_object.albedo, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :greenhouse do %>
+  <%= form.number_field :greenhouse,
+                        value: format_precision(stellar_object.greenhouse, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>

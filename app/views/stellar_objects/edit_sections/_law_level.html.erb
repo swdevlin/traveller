@@ -1,0 +1,114 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Law Level</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<% law_levels = LawLevel.order(:code) %>
+
+<div data-controller='law-level' class='space-y-2'>
+  <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
+    <%= form.select :law_level_code,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                      stellar_object.law_level_code
+                    ),
+                    { include_blank: 'Select law level' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'code', action: 'change->law-level#sync' } %>
+  <% end %>
+
+  <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Sub-Classifications</div>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_weapons_and_armour, field_label: 'Weapons & Armour' do %>
+    <%= form.select :law_level_weapons_and_armour,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },
+                      stellar_object.law_level_weapons_and_armour
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'subClassification' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_criminal_law, field_label: 'Criminal Law' do %>
+    <%= form.select :law_level_criminal_law,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.criminal_law}", l.code] },
+                      stellar_object.law_level_criminal_law
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'subClassification' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_economic_law, field_label: 'Economic Law' do %>
+    <%= form.select :law_level_economic_law,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.economic_law}", l.code] },
+                      stellar_object.law_level_economic_law
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'subClassification' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_private_law, field_label: 'Private Law' do %>
+    <%= form.select :law_level_private_law,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.private_law}", l.code] },
+                      stellar_object.law_level_private_law
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'subClassification' } %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_personal_rights, field_label: 'Personal Rights' do %>
+    <%= form.select :law_level_personal_rights,
+                    options_for_select(
+                      law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.personal_law}", l.code] },
+                      stellar_object.law_level_personal_rights
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base',
+                    data: { law_level_target: 'subClassification' } %>
+  <% end %>
+
+  <div class='pt-1 text-xs uppercase tracking-[0.18em] text-fg-muted'>Characteristics</div>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_uniformity, field_label: 'Uniformity' do %>
+    <%= form.select :law_level_uniformity,
+                    options_for_select(
+                      StellarObjectsHelper::LAW_UNIFORMITY_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                      stellar_object.law_level_uniformity
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base' %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_judicial_system, field_label: 'Judicial System' do %>
+    <%= form.select :law_level_judicial_system,
+                    options_for_select(
+                      StellarObjectsHelper::LAW_JUDICIAL_SYSTEM_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                      stellar_object.law_level_judicial_system
+                    ),
+                    { include_blank: 'Select' },
+                    class: 'edit-base' %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_death_penalty, field_label: 'Death Penalty' do %>
+    <%= render 'application/boolean_toggle', form: form, attribute: :law_level_death_penalty,
+          checked: stellar_object.law_level_death_penalty, checked_value: 'true', unchecked_value: 'false' %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_presumed_innocence, field_label: 'Presumed Innocence' do %>
+    <%= render 'application/boolean_toggle', form: form, attribute: :law_level_presumed_innocence,
+          checked: stellar_object.law_level_presumed_innocence, checked_value: 'true', unchecked_value: 'false' %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :law_level_econometric_infractions_administrative, field_label: 'Econometric Infractions Administrative' do %>
+    <%= render 'application/boolean_toggle', form: form, attribute: :law_level_econometric_infractions_administrative,
+          checked: stellar_object.law_level_econometric_infractions_administrative, checked_value: 'true', unchecked_value: 'false' %>
+  <% end %>
+</div>

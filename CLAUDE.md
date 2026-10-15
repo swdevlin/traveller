@@ -91,7 +91,7 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 
 When adding a new display field to any stellar object type, update all of the following:
 
-1. **Rails show view** — add a `data_block` in the appropriate section partial
+1. **Rails show view** — add a `data_block` in the appropriate section partial (and, for planets/planetoids/moons, the edit field in `app/views/stellar_objects/edit_sections/_<section>.html.erb`)
 2. **Markdown export** — update the relevant presenter in `app/presenters/` (usually `markdown_presenter_base.rb`)
 3. **Elm app** — update `frontend/starmap/src/Traveller/` (typically the relevant module such as `Population.elm`, `StellarObject.elm`, or `AnalysisDetail.elm`)
 4. **Help screens** — update both the edit and show help partials in `app/views/help/`

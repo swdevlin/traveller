@@ -115,6 +115,7 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   test 'should reject a culture trait value above its own max' do
     planet = stellar_objects(:two)
     patch stellar_object_url(planet), params: {
+      section: 'population',
       stellar_object: {
         size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
         population_militancy: 21
@@ -125,10 +126,38 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   end
 
   test 'edit form renders a culture trait input with its own min/max attributes' do
-    get edit_stellar_object_url(stellar_objects(:two))
+    get edit_stellar_object_url(stellar_objects(:two), section: 'population')
     assert_response :success
     assert_select "input[name='stellar_object[population_militancy]'][min='1'][max='20']"
     assert_select "input[name='stellar_object[population_cohesion]'][min='1'][max='22']"
+  end
+
+  test 'edit with section shows only that section' do
+    planet = stellar_objects(:two)
+    get edit_stellar_object_url(planet, section: 'physical')
+    assert_response :success
+    assert_select "select[name='stellar_object[size_code]']"
+    assert_select "input[name='stellar_object[population_code]']", count: 0
+    assert_select "input[name='stellar_object[name]']", count: 0
+  end
+
+  test 'edit with unknown or missing section falls back to general' do
+    planet = stellar_objects(:two)
+    [nil, 'bogus'].each do |section|
+      get edit_stellar_object_url(planet, section: section)
+      assert_response :success
+      assert_select "input[name='stellar_object[name]']"
+      assert_select "select[name='stellar_object[size_code]']", count: 0
+    end
+  end
+
+  test 'edit orbital on a rogue falls back to general' do
+    rogue = stellar_objects(:two)
+    rogue.update_columns(orbiting_id: nil)
+    get edit_stellar_object_url(rogue, section: 'orbital')
+    assert_response :success
+    assert_select "input[name='stellar_object[orbit]']", count: 0
+    assert_select "input[name='stellar_object[name]']"
   end
 
   test 'should update stellar_object' do

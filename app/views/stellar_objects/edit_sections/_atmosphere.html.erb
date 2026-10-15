@@ -1,0 +1,61 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Atmosphere</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_code, field_label: 'Atmosphere', required: true do %>
+  <%= form.select :atmosphere_code,
+                  options_for_select(
+                    StellarObjectsHelper::ATMOSPHERE_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                    stellar_object.atmosphere_code
+                  ),
+                  { include_blank: 'Select atmosphere' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_composition, field_label: 'Composition' do %>
+  <%= form.text_field :atmosphere_composition,
+                      value: stellar_object.atmosphere_composition,
+                      class: 'edit-base w-full sm:max-w-xl' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_code, field_label: 'Irritant' do %>
+  <%= form.select :atmosphere_taint_code,
+                  options_for_select(
+                    StellarObjectsHelper::TAINT_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                    stellar_object.atmosphere_taint_code
+                  ),
+                  { include_blank: 'None' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_severity, field_label: 'Taint Severity' do %>
+  <%= form.select :atmosphere_taint_severity,
+                  options_for_select(
+                    StellarObjectsHelper::TAINT_SEVERITY_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                    stellar_object.atmosphere_taint_severity
+                  ),
+                  { include_blank: 'Select severity' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_taint_persistence, field_label: 'Taint Persistence' do %>
+  <%= form.select :atmosphere_taint_persistence,
+                  options_for_select(
+                    StellarObjectsHelper::TAINT_PERSISTENCE_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                    stellar_object.atmosphere_taint_persistence
+                  ),
+                  { include_blank: 'Select persistence' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :atmosphere_hazard_code, field_label: 'Hazard' do %>
+  <%= form.select :atmosphere_hazard_code,
+                  options_for_select(
+                    StellarObjectsHelper::INSIDIOUS_HAZARD_DESCRIPTIONS.map { |k, v| ["#{k} – #{v}", k] },
+                    stellar_object.atmosphere_hazard_code
+                  ),
+                  { include_blank: 'None' },
+                  class: 'edit-base' %>
+<% end %>

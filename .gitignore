@@ -56,3 +56,4 @@
 /.venv-rulebooks
 bin/deploy
 bin/announce_release
+/.mcp.json

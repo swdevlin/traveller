@@ -1,0 +1,47 @@
+<%# locals: form, stellar_object %>
+<% orbit_min = stellar_object.orbiting.respond_to?(:minimum_allowable_orbit) ? stellar_object.orbiting.minimum_allowable_orbit : nil %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
+  <%= form.number_field :orbit,
+                        value: format_precision(stellar_object.orbit, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any',
+                        min: orbit_min %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :period do %>
+  <%= form.number_field :period,
+                        value: format_precision(stellar_object.period, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :retrograde do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :retrograde,
+        checked: stellar_object.retrograde, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :rotation do %>
+  <%= form.number_field :rotation,
+                        value: format_precision(stellar_object.rotation, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :inclination do %>
+  <%= form.number_field :inclination,
+                        value: format_precision(stellar_object.inclination, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
+  <%= form.number_field :eccentricity,
+                        value: format_precision(stellar_object.eccentricity, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>

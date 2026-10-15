@@ -1,0 +1,31 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Hydrographics</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :hydrographics_code, field_label: 'Hydrographics', required: true do %>
+  <%= form.select :hydrographics_code,
+                  options_for_select(
+                    StellarObjectsHelper::HYDROGRAPHICS_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                    stellar_object.hydrographics_code
+                  ),
+                  { include_blank: 'Select hydrographics' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :hydrographics_liquid, field_label: 'Liquid' do %>
+  <%= form.text_field :hydrographics_liquid,
+                      value: stellar_object.hydrographics_liquid,
+                      class: 'edit-base w-full sm:max-w-xl' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :hydrographics_distribution, field_label: 'Distribution' do %>
+  <%= form.select :hydrographics_distribution,
+                  options_for_select(
+                    StellarObjectsHelper::HYDROGRAPHICS_DISTRIBUTION_DESCRIPTIONS.map { |k, v| ["#{HexDigit.hex_digit(k)} – #{v}", k] },
+                    stellar_object.hydrographics_distribution
+                  ),
+                  { include_blank: 'Select distribution' },
+                  class: 'edit-base' %>
+<% end %>

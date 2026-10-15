@@ -4,7 +4,8 @@
 <%= content_for :iiss_form, '0421D-II.III' %>
 
 <%= content_for :page_buttons do %>
-  <%= link_to "Edit", edit_stellar_object_path(@stellar_object), class: "w-full sm:w-auto btn btn-primary" %>
+  <%= link_to "Edit", edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary',
+              data: { controller: 'edit-section', edit_section_storage_key_value: "uwp_tabs_#{dom_id(@stellar_object)}", action: 'click->edit-section#go' } %>
   <%= render 'application/back_button',
              path: stellar_objects_path,
              label: 'Stellar Objects',

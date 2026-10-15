@@ -1,0 +1,39 @@
+<%# locals: form, stellar_object %>
+<div class='flex items-center gap-2 pt-2'>
+  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Starport</div>
+  <div class='h-px flex-1 bg-panel'></div>
+</div>
+
+<%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
+  <%= form.select :starport_code,
+                  options_for_select(
+                    StellarObjectsHelper::STARPORT_CODES.map { |k, v| ["#{k} – #{v}", k] },
+                    stellar_object.starport_code
+                  ),
+                  { include_blank: 'Select starport' },
+                  class: 'edit-base' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :berthing_cost, field_label: 'Berthing Cost' do %>
+  <%= form.number_field :berthing_cost,
+                        value: stellar_object.berthing_cost,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :refined_fuel_cost, field_label: 'Refined Fuel Cost' do %>
+  <%= form.number_field :refined_fuel_cost,
+                        value: stellar_object.refined_fuel_cost,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :unrefined_fuel_cost, field_label: 'Unrefined Fuel Cost' do %>
+  <%= form.number_field :unrefined_fuel_cost,
+                        value: stellar_object.unrefined_fuel_cost,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0 %>
+<% end %>

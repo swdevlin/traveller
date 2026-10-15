@@ -17,7 +17,8 @@
 <%= content_for :page_buttons do %>
   <div class='flex items-center justify-between'>
     <div class='flex gap-2'>
-      <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary',
+                data: { controller: 'edit-section', edit_section_storage_key_value: "uwp_tabs_#{dom_id(@stellar_object)}", action: 'click->edit-section#go' } %>
       <% if (@stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)) && @stellar_object.orbiting.is_a?(Star) %>
         <%= button_to 'Regenerate', regenerate_characteristics_stellar_object_path(@stellar_object),
               method: :post, class: 'btn btn-secondary',

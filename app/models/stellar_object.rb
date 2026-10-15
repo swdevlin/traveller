@@ -4,6 +4,8 @@ class StellarObject < ApplicationRecord
   SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F G H J K L M].freeze
   WORLD_COUNT_TYPES = %w[TerrestrialPlanet PlanetoidBelt GasGiant].freeze
   POPULATED_WORLD_TYPES = %w[TerrestrialPlanet Moon PlanetoidBelt Planetoid].freeze
+  EDIT_SECTIONS = %w[general orbital starport physical atmosphere hydrographics population government law_level tech_level].freeze
+
   STI_TYPES = %w[
     Comet
     GasCloud
