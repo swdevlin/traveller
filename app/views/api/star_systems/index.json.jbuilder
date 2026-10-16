@@ -1,5 +1,5 @@
 json.array! @star_systems do |star_system|
-  json.partial! 'api/solar_system', star_system: star_system
+  json.partial! 'api/star_system', star_system: star_system
 
   primary = star_system.primary_star
   mw = star_system.main_world

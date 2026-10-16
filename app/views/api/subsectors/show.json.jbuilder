@@ -12,7 +12,7 @@ json.sector do
 end
 
 json.star_systems @star_systems do |star_system|
-  json.partial! 'api/solar_system', star_system: star_system
+  json.partial! 'api/star_system', star_system: star_system
 
   json.hex star_system.parsec.subsector_hex_code
 

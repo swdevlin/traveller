@@ -1,4 +1,4 @@
-json.partial! 'api/solar_system', star_system: star_system
+json.partial! 'api/star_system', star_system: star_system
 json.map_url signed_map_url(map_star_system_path(star_system))
 
 player_visible = @is_referee || star_system.known? || star_system.survey_index >= 10
