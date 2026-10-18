@@ -32,6 +32,50 @@ CREATE SCHEMA IF NOT EXISTS shared_extensions;
 
 
 --
+-- Name: cities_after_delete_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_delete_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(SELECT DISTINCT stellar_object_id FROM old_rows));
+  RETURN NULL;
+END;
+$$;
+
+
+--
+-- Name: cities_after_insert_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_insert_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(SELECT DISTINCT stellar_object_id FROM new_rows));
+  RETURN NULL;
+END;
+$$;
+
+
+--
+-- Name: cities_after_update_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_update_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(
+    SELECT stellar_object_id FROM new_rows UNION SELECT stellar_object_id FROM old_rows
+  ));
+  RETURN NULL;
+END;
+$$;
+
+
+--
 -- Name: parsecs_set_hex_coordinates(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -43,6 +87,35 @@ BEGIN
   NEW.r := -NEW.y - ((NEW.x - (NEW.x & 1)) / 2);
   NEW.s := -NEW.q - NEW.r;
   RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: recalculate_major_city_totals(bigint[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.recalculate_major_city_totals(stellar_object_ids bigint[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  UPDATE stellar_objects
+  SET data = jsonb_set(
+    COALESCE(stellar_objects.data, '{}'::jsonb),
+    '{population}',
+    COALESCE(stellar_objects.data -> 'population', '{}'::jsonb) || jsonb_build_object(
+      'majorCities', totals.city_count,
+      'majorCityPopulation', totals.city_population
+    )
+  )
+  FROM (
+    SELECT stellar_objects.id,
+           (SELECT COUNT(*) FROM cities WHERE cities.stellar_object_id = stellar_objects.id) AS city_count,
+           (SELECT SUM(cities.population) FROM cities WHERE cities.stellar_object_id = stellar_objects.id) AS city_population
+    FROM stellar_objects
+    WHERE stellar_objects.id = ANY(stellar_object_ids)
+  ) totals
+  WHERE stellar_objects.id = totals.id;
 END;
 $$;
 
@@ -433,7 +506,8 @@ CREATE TABLE public.cities (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     city_type character varying,
-    capital_designation character varying
+    capital_designation character varying,
+    language character varying
 );
 
 
@@ -3172,6 +3246,27 @@ CREATE UNIQUE INDEX index_users_on_email_address ON public.users USING btree (em
 
 
 --
+-- Name: cities trigger_cities_delete_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_delete_major_city_totals AFTER DELETE ON public.cities REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_delete_major_city_totals();
+
+
+--
+-- Name: cities trigger_cities_insert_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_insert_major_city_totals AFTER INSERT ON public.cities REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_insert_major_city_totals();
+
+
+--
+-- Name: cities trigger_cities_update_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_update_major_city_totals AFTER UPDATE ON public.cities REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_update_major_city_totals();
+
+
+--
 -- Name: parsecs trigger_parsecs_set_hex_coordinates; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3489,6 +3584,9 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261018050000'),
+('20261018040000'),
+('20261018030000'),
 ('20261017204015'),
 ('20261012130000'),
 ('20261012120000'),

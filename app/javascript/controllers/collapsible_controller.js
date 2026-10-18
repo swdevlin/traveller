@@ -4,7 +4,10 @@ export default class extends Controller {
   static targets = ['content', 'icon']
   static values = { collapseClass: { type: String, default: '' } }
 
-  toggle() {
+  toggle(event) {
+    // Clicks on header actions (links, buttons) must not toggle via the banner; the chevron has its own action.
+    if (event && event.currentTarget !== event.target.closest('button') && event.target.closest('.actions')) return;
+
     if (this.collapseClassValue) {
       const isCollapsed = this.contentTarget.classList.toggle(this.collapseClassValue)
       this.iconTarget.classList.toggle('fa-square-chevron-down', isCollapsed)

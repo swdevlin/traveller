@@ -7,11 +7,14 @@ class CitiesController < ApplicationController
     @city = @stellar_object.cities.new
   end
 
+  # The database keeps the stellar object's major city totals in step with its cities, so
+  # the in-memory object is reloaded before the streams render it.
   # POST /stellar_objects/1/cities
   def create
     @city = @stellar_object.cities.new(city_params)
 
     if @city.save
+      @stellar_object.reload
       respond_to { |format| format.turbo_stream }
     else
       render :new, status: :unprocessable_entity
@@ -27,6 +30,7 @@ class CitiesController < ApplicationController
     @stellar_object = @city.stellar_object
 
     if @city.update(city_params)
+      @stellar_object.reload
       respond_to { |format| format.turbo_stream }
     else
       render :edit, status: :unprocessable_entity
@@ -37,6 +41,7 @@ class CitiesController < ApplicationController
   def destroy
     @stellar_object = @city.stellar_object
     @city.destroy!
+    @stellar_object.reload
 
     respond_to { |format| format.turbo_stream }
   end
@@ -51,6 +56,6 @@ class CitiesController < ApplicationController
     end
 
     def city_params
-      params.expect(city: [:name, :population, :city_type, :capital_designation])
+      params.expect(city: [:name, :language, :population, :city_type, :capital_designation])
     end
 end

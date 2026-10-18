@@ -26,11 +26,11 @@ class City < ApplicationRecord
     'Cr' => 'Regional capital'
   }.freeze
 
+  validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   validates :population, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :city_type, inclusion: { in: TYPES.keys }, allow_blank: true
   validates :capital_designation, inclusion: { in: CAPITAL_DESIGNATIONS.keys }, allow_blank: true
 
-  before_destroy :redistribute_population
 
   def type_label
     city_type.present? ? TYPES.dig(city_type, :label) : 'Standard'
@@ -40,30 +40,7 @@ class City < ApplicationRecord
     CAPITAL_DESIGNATIONS[capital_designation]
   end
 
-  private
-    # Weighted by remaining cities' current population, so bigger cities absorb more.
-    # When every remaining city has zero population, falls back to an even split.
-    def redistribute_population
-      return if population.to_i <= 0
-
-      siblings = stellar_object.cities.where.not(id: id).order(:id).to_a
-      return if siblings.empty?
-
-      total = siblings.sum(&:population)
-      remainder = population
-
-      siblings.each_with_index do |sibling, index|
-        share =
-          if index == siblings.length - 1
-            remainder
-          elsif total.positive?
-            (population * sibling.population / total.to_f).round
-          else
-            population / siblings.length
-          end
-
-        sibling.update!(population: sibling.population + share)
-        remainder -= share
-      end
-    end
+  def effective_language(campaign)
+    language.presence || stellar_object.effective_language(campaign)
+  end
 end

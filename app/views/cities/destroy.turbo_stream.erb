@@ -1,3 +1,7 @@
 <%= turbo_stream.replace 'cities-table' do %>
   <%= render 'cities/cities_table', stellar_object: @stellar_object %>
 <% end %>
+<%= turbo_stream.replace dom_id(@stellar_object, :urbanisation_summary) do %>
+  <%= render 'stellar_objects/urbanisation_summary', stellar_object: @stellar_object %>
+<% end %>
+<%= turbo_stream.update dom_id(@stellar_object, :tab_cities_code), @stellar_object.cities.count %>

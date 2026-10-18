@@ -58,7 +58,7 @@
                 data-tabs-target="tab"
                 data-tab="<%= tab[:id] %>"
                 data-action="click->tabs#switch">
-          <span class="uwp-tab-code">
+          <span class="uwp-tab-code" id="<%= dom_id(stellar_object, "tab_#{tab[:id]}_code") %>">
             <% if tab[:icon] %><i class="<%= tab[:icon] %>"></i><% else %><%= tab[:code] %><% end %>
           </span>
           <span class="uwp-tab-label"><%= tab[:label] %></span>

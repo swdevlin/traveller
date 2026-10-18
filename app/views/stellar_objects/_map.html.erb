@@ -2,7 +2,15 @@
 <div id="<%= dom_id(stellar_object, :map) %>" class="space-y-2">
   <% if planet_map %>
     <% if stellar_object.map_stale? %>
-      <p class="text-fg-muted text-sm">This world's details have changed since the map was generated.</p>
+      <div class='flex items-start gap-3 rounded-2xl border-2 border-warning bg-warning/25 p-4 text-fg-bright shadow-sm' role='alert'>
+        <i class='fa-regular fa-triangle-exclamation mt-0.5'></i>
+        <p class='text-sm font-semibold'>
+          This world's details have changed since the map was generated.
+          <%= button_to 'Regenerate the map', generate_map_stellar_object_path(stellar_object), method: :post,
+                        form: { class: 'inline' },
+                        class: 'font-bold text-link no-underline hover:underline hover:underline-offset-2' %>
+        </p>
+      </div>
     <% end %>
     <%= image_tag map_stellar_object_path(stellar_object, v: planet_map.updated_at.to_i), alt: 'Surface map', class: 'block max-w-full h-auto' %>
     <div class='flex items-center justify-between'>
