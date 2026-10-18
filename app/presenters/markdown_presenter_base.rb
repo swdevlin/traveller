@@ -23,8 +23,9 @@ class MarkdownPresenterBase
   NO_POPULATION_LAW_LEVEL_MESSAGE = StellarObjectsHelper::NO_POPULATION_LAW_LEVEL_MESSAGE
   NO_POPULATION_TECH_LEVEL_MESSAGE = StellarObjectsHelper::NO_POPULATION_TECH_LEVEL_MESSAGE
 
-  def initialize(obj)
+  def initialize(obj, campaign = nil)
     @obj = obj
+    @campaign = campaign
   end
 
   def render
@@ -55,6 +56,9 @@ class MarkdownPresenterBase
     fields << "**UWP:** `#{@obj.uwp}`" if @obj.respond_to?(:uwp) && @obj.uwp.present?
     if (allegiance = @obj.allegiance)
       fields << "**Allegiance:** #{allegiance.name} (#{allegiance.code})"
+    end
+    if (ref = @obj.effective_reference_url(@campaign)).present?
+      fields << "**Library Data:** #{ref}"
     end
     fields
   end

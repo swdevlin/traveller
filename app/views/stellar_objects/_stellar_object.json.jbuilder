@@ -7,6 +7,7 @@ json.extract! stellar_object,
               :tidal_lock_target_id, :companion_id,
               :created_at, :updated_at
 
+json.reference_url stellar_object.effective_reference_url(current_campaign)
 json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
 
 deep_snake = ->(val) {

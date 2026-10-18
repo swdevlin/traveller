@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "solid_queue_jobs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "active_job_id" varchar, "arguments" text, "class_name" varchar NOT NULL, "concurrency_key" varchar, "created_at" datetime(6) NOT NULL, "finished_at" datetime(6), "priority" integer DEFAULT 0 NOT NULL, "queue_name" varchar NOT NULL, "scheduled_at" datetime(6), "updated_at" datetime(6) NOT NULL);
+CREATE TABLE IF NOT EXISTS "solid_queue_jobs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "active_job_id" varchar, "arguments" text, "class_name" varchar NOT NULL, "concurrency_key" varchar, "created_at" datetime(6) NOT NULL, "finished_at" datetime(6), "priority" integer DEFAULT 0 NOT NULL, "queue_name" varchar NOT NULL, "scheduled_at" datetime(6), "updated_at" datetime(6) NOT NULL, "batch_id" bigint /*application='Traveller'*/);
 CREATE INDEX "index_solid_queue_jobs_on_active_job_id" ON "solid_queue_jobs" ("active_job_id") /*application='Traveller'*/;
 CREATE INDEX "index_solid_queue_jobs_on_class_name" ON "solid_queue_jobs" ("class_name") /*application='Traveller'*/;
 CREATE INDEX "index_solid_queue_jobs_on_finished_at" ON "solid_queue_jobs" ("finished_at") /*application='Traveller'*/;
@@ -56,6 +56,20 @@ CREATE UNIQUE INDEX "index_solid_queue_scheduled_executions_on_job_id" ON "solid
 CREATE INDEX "index_solid_queue_dispatch_all" ON "solid_queue_scheduled_executions" ("scheduled_at", "priority", "job_id") /*application='Traveller'*/;
 CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE INDEX "index_solid_queue_jobs_on_batch_id" ON "solid_queue_jobs" ("batch_id") /*application='Traveller'*/;
+CREATE TABLE IF NOT EXISTS "solid_queue_batches" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "active_job_batch_id" varchar, "description" varchar, "on_finish" text, "on_success" text, "on_failure" text, "metadata" text, "total_jobs" integer DEFAULT 0 NOT NULL, "completed_jobs" integer DEFAULT 0 NOT NULL, "failed_jobs" integer DEFAULT 0 NOT NULL, "enqueued_at" datetime(6), "finished_at" datetime(6), "failed_at" datetime(6), "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE UNIQUE INDEX "index_solid_queue_batches_on_active_job_batch_id" ON "solid_queue_batches" ("active_job_batch_id") /*application='Traveller'*/;
+CREATE INDEX "index_solid_queue_batches_on_finished_at" ON "solid_queue_batches" ("finished_at") /*application='Traveller'*/;
+CREATE TABLE IF NOT EXISTS "solid_queue_batch_executions" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "job_id" bigint NOT NULL, "batch_id" bigint NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_7c5e073422"
+FOREIGN KEY ("batch_id")
+  REFERENCES "solid_queue_batches" ("id")
+ ON DELETE CASCADE, CONSTRAINT "fk_rails_bc9f981155"
+FOREIGN KEY ("job_id")
+  REFERENCES "solid_queue_jobs" ("id")
+ ON DELETE CASCADE);
+CREATE UNIQUE INDEX "index_solid_queue_batch_executions_on_job_id" ON "solid_queue_batch_executions" ("job_id") /*application='Traveller'*/;
+CREATE INDEX "index_solid_queue_batch_executions_on_batch_id" ON "solid_queue_batch_executions" ("batch_id") /*application='Traveller'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20261018023923'),
 ('1');
 

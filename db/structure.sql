@@ -1514,6 +1514,7 @@ CREATE TABLE public.stellar_objects (
     tidal_lock_target_id bigint,
     language character varying,
     known boolean DEFAULT false NOT NULL,
+    reference_url character varying,
     CONSTRAINT stellar_objects_parsec_xor_orbiting_present CHECK ((((type)::text = 'Star'::text) OR ((parsec_id IS NULL) <> (orbiting_id IS NULL))))
 );
 
@@ -3488,6 +3489,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261017204015'),
 ('20261012130000'),
 ('20261012120000'),
 ('20261005120000'),

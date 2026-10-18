@@ -153,4 +153,33 @@ class StarSystemTest < ActiveSupport::TestCase
     assert_not star_system.sector_capital?
     assert_not star_system.subsector_capital?
   end
+
+  # effective_reference_url tests
+
+  test 'effective_reference_url falls back to the main world link when blank' do
+    system = star_systems(:hierarchy_system)
+    system.main_world = stellar_objects(:planet_near_primary)
+    assert_equal 'https://wiki.travellerrpg.com/Inner_Planet_(world)', system.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url prefers the stored system value over the main world' do
+    system = star_systems(:hierarchy_system)
+    system.main_world = stellar_objects(:planet_near_primary)
+    system.reference_url = 'https://example.com/system'
+    assert_equal 'https://example.com/system', system.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url uses the main world stored value' do
+    system = star_systems(:hierarchy_system)
+    planet = stellar_objects(:planet_near_primary)
+    planet.reference_url = 'https://example.com/world'
+    system.main_world = planet
+    assert_equal 'https://example.com/world', system.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url without a main world keeps the system default' do
+    system = star_systems(:hierarchy_system)
+    system.main_world = nil
+    assert_equal system.send(:default_reference_url), system.effective_reference_url(campaigns(:one))
+  end
 end

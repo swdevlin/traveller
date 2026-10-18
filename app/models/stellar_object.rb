@@ -27,6 +27,7 @@ class StellarObject < ApplicationRecord
 
   include ScrubsMailtoLinks
   include HasOrbit
+  include HasReferenceUrl
 
   attr_accessor :skip_import_callbacks
 
@@ -91,7 +92,13 @@ class StellarObject < ApplicationRecord
   end
 
   def self.permitted_params
-    [:name, :notes, :language, :known]
+    [:name, :notes, :language, :known, :reference_url]
+  end
+
+  def self.wiki_world_url(name)
+    return nil if name.blank?
+
+    "https://wiki.travellerrpg.com/#{ERB::Util.url_encode(name.tr(' ', '_'))}_(world)"
   end
 
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }

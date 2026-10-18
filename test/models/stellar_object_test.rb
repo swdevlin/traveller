@@ -148,4 +148,41 @@ class StellarObjectTest < ActiveSupport::TestCase
 
     assert_in_delta expected_secondary_remaining, result, 1.0
   end
+
+  # effective_reference_url tests
+
+  test 'effective_reference_url defaults to the wiki world page for planets in charted space' do
+    planet = stellar_objects(:planet_near_primary)
+    assert_equal 'https://wiki.travellerrpg.com/Inner_Planet_(world)', planet.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url defaults to the wiki world page for planetoid belts' do
+    belt = stellar_objects(:planetoids_test_belt)
+    assert_equal 'https://wiki.travellerrpg.com/Planetoids_Test_Belt_(world)', belt.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url defaults to the wiki world page for planetoids' do
+    planetoid = Planetoid.new(name: 'Rock Ball')
+    assert_equal 'https://wiki.travellerrpg.com/Rock_Ball_(world)', planetoid.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url is blank outside charted space' do
+    campaign = Campaign.new(campaign_type: 'homebrew')
+    assert_nil stellar_objects(:planet_near_primary).effective_reference_url(campaign)
+  end
+
+  test 'effective_reference_url is blank for other stellar object types' do
+    assert_nil stellar_objects(:moons_test_gas_giant).effective_reference_url(campaigns(:one))
+    assert_nil Moon.new(name: 'Luna').effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url is blank when the name is blank' do
+    assert_nil TerrestrialPlanet.new.effective_reference_url(campaigns(:one))
+  end
+
+  test 'effective_reference_url prefers the stored value' do
+    planet = stellar_objects(:planet_near_primary)
+    planet.reference_url = 'https://example.com/inner'
+    assert_equal 'https://example.com/inner', planet.effective_reference_url(Campaign.new(campaign_type: 'homebrew'))
+  end
 end

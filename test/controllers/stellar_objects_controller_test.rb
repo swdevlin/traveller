@@ -93,6 +93,19 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_equal 5, @moon.hydrographics_code
   end
 
+  test 'should update reference_url and show it as a link' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: { reference_url: 'https://example.com/planet' }
+    }
+    assert_redirected_to stellar_object_url(planet)
+    assert_equal 'https://example.com/planet', planet.reload.reference_url
+
+    get stellar_object_url(planet)
+    assert_response :success
+    assert_select 'a[href=?]', 'https://example.com/planet', text: 'Reference'
+  end
+
   test 'should update culture trait fields within their own ranges' do
     planet = stellar_objects(:two)
     patch stellar_object_url(planet), params: {

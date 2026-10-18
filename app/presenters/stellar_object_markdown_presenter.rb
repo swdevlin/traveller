@@ -9,8 +9,8 @@ module StellarObjectMarkdownPresenter
     Comet             => CometMarkdownPresenter
   }.freeze
 
-  def self.for(stellar_object)
+  def self.for(stellar_object, campaign = nil)
     klass = PRESENTER_MAP.fetch(stellar_object.class, SimpleStellarObjectMarkdownPresenter)
-    klass.new(stellar_object)
+    klass.new(stellar_object, campaign)
   end
 end

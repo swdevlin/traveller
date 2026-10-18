@@ -72,6 +72,7 @@
   <% end %>
 
   <%= render 'application/data_block', label: 'Native Sophont', value: sophont_status %>
+  <%= render 'stellar_objects/reference_link_block', stellar_object: stellar_object %>
 </div>
 
 <% unless local_assigns.fetch(:hide_transit_times, false) %>

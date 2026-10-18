@@ -1,0 +1,3 @@
+<% if (reference_url = safe_external_url(stellar_object.effective_reference_url(current_campaign))) %>
+  <%= render 'application/data_block', label: 'Library data', value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2') %>
+<% end %>
