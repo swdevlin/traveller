@@ -20,6 +20,26 @@ class CampaignTest < ActiveSupport::TestCase
     campaign&.destroy
   end
 
+  test 'creating a charted space campaign seeds the default sophonts' do
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      assert_equal Sophont::DEFAULT_NAMES.sort, Sophont.pluck(:name).sort
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a homebrew campaign does not seed sophonts' do
+    campaign = Campaign.create!(name: 'Homebrew', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'homebrew')
+
+    Apartment::Tenant.switch(campaign.schema_name) { assert_equal 0, Sophont.count }
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
   test 'creating a campaign with no existing rulebooks does not error' do
     Rulebook.delete_all
     campaign = Campaign.create!(name: 'Empty Books Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one))

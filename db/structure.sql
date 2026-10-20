@@ -3657,6 +3657,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261019150000'),
 ('20261019140000'),
 ('20261019130000'),
 ('20261019120000'),

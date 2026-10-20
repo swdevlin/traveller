@@ -33,6 +33,14 @@ class SophontTest < ActiveSupport::TestCase
     assert_equal 'https://example.com/v', sophont.effective_reference_url(charted)
   end
 
+  test 'seed_defaults adds the missing defaults once and keeps existing ones' do
+    Sophont.create!(name: 'aslan', referee_notes: 'mine')
+    2.times { Sophont.seed_defaults }
+    assert_equal Sophont::DEFAULT_NAMES.size, Sophont.count
+    assert_equal 'mine', Sophont.find_by_name('Aslan').referee_notes
+    assert_equal 'arrghoun', Sophont.find_by_name('Vargr').language
+  end
+
   test 'blank optional fields are stored as nil' do
     sophont = Sophont.create!(name: 'Aslan', language: '', referee_notes: '', player_notes: ' ')
     assert_nil sophont.language
