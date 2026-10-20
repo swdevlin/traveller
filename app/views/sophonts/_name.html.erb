@@ -1,0 +1,5 @@
+<%# locals: stellar_object — the sophont's name (linked) when the world has a native sophont with one recorded. %>
+<% sophont = stellar_object.native_sophont ? stellar_object.sophont : nil %>
+<% if sophont %>
+  <%= link_to sophont.name, sophont_path(sophont), class: 'no-underline hover:underline' %>
+<% end %>

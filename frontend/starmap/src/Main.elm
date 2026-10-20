@@ -70,6 +70,7 @@ type alias Flags =
     , allegianceOptions : List { code : String, name : String }
     , sectorOptions : List { code : String, name : String }
     , subsectorOptions : List { code : String, name : String }
+    , sophontOptions : List { code : String, name : String }
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -208,6 +209,7 @@ update msg model =
                                 , allegianceOptions = model.flags.allegianceOptions
                                 , sectorOptions = model.flags.sectorOptions
                                 , subsectorOptions = model.flags.subsectorOptions
+                                , sophontOptions = model.flags.sophontOptions
                                 , shipLocation = model.flags.shipLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay

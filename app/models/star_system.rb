@@ -102,6 +102,14 @@ class StarSystem < ApplicationRecord
       .exists?
   end
 
+  # Ids (as strings) of the sophonts native to worlds in this system.
+  def sophont_ids
+    @sophont_ids ||= stellar_objects
+                     .where("stellar_objects.data @> '{\"native_sophont\": true}'")
+                     .where("stellar_objects.data ->> 'sophont_id' IS NOT NULL")
+                     .pluck(Arel.sql("stellar_objects.data ->> 'sophont_id'")).uniq
+  end
+
   def recalculate_sophont_flags!
     recalculate_derived_fields!(sophont_flags: true)
   end
@@ -166,6 +174,12 @@ class StarSystem < ApplicationRecord
     return name if name.present?
 
     "#{parsec.sector.name} #{parsec.hex_code}"
+  end
+
+  # e.g. "Regina (Spinward Marches 1910)" — the name, with the sector and hex address.
+  def located_name
+    location = "#{parsec.sector.name} #{parsec.hex_code}"
+    name.present? ? "#{name} (#{location})" : location
   end
 
   def city_counts_by_stellar_object_id

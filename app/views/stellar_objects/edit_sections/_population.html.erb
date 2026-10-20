@@ -55,6 +55,8 @@
         checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
 <% end %>
 
+<%= render 'sophonts/picker', form: form, stellar_object: stellar_object %>
+
 <%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
   <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
         checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>

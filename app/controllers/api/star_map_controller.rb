@@ -44,6 +44,13 @@ class Api::StarMapController < Api::BaseController
       .where("data->>'native_sophont' = 'true'")
       .pluck(:star_system_id).to_set
 
+    sophont_ids_by_system = StellarObject
+      .where(star_system_id: ids)
+      .where("data @> '{\"native_sophont\": true}'")
+      .where("data ->> 'sophont_id' IS NOT NULL")
+      .pluck(:star_system_id, Arel.sql("data ->> 'sophont_id'"))
+      .group_by(&:first).transform_values { |rows| rows.map(&:last).uniq }
+
     extinct_ids = StellarObject
       .where(star_system_id: ids)
       .where("data->>'extinct_sophont' = 'true'")
@@ -134,6 +141,7 @@ class Api::StarMapController < Api::BaseController
         allegiance_name:   allegiance_visible ? ss.allegiance&.name : nil,
         native_sophont:    native_ids.include?(ss.id),
         extinct_sophont:   extinct_ids.include?(ss.id),
+        sophont_ids:       sophont_ids_by_system.fetch(ss.id, []),
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
         habitability_rating: habitability_rating,

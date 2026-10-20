@@ -7,7 +7,6 @@
 <% government = stellar_object.government ? Government.find_by(code: stellar_object.government.code) : nil %>
 <% law_level = stellar_object.law_level ? LawLevel.find_by(code: stellar_object.law_level.code) : nil %>
 <% tech_level_record = stellar_object.tech_level_code.present? ? TechLevel.find_by(code: stellar_object.tech_level_code) : nil %>
-<% sophont_status = if stellar_object.extinct_sophont then 'Extinct' elsif stellar_object.native_sophont then 'Extant' else 'None' end %>
 
 <%= render 'application/subsection', title: local_assigns.fetch(:title, 'Planetary Profile') %>
 
@@ -71,7 +70,7 @@
     </div>
   <% end %>
 
-  <%= render 'application/data_block', label: 'Native Sophont', value: sophont_status %>
+  <%= render 'sophonts/native', stellar_object: stellar_object %>
 </div>
 
 <% unless local_assigns.fetch(:hide_transit_times, false) %>

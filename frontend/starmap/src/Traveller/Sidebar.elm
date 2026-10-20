@@ -25,6 +25,7 @@ import Traveller.LawLevel as LawLevel
 import Traveller.Parser exposing (UWP, uwp)
 import Traveller.Population as Population
 import Traveller.Sector exposing (SectorDict)
+import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarSystemDetail exposing (BaseFacility, MainWorldProfile, StarSystemDetail)
 import Traveller.StarSystemMap exposing (viewStarSystemMap)
 import Traveller.StellarObject exposing (StellarObject)
@@ -212,6 +213,16 @@ profileFieldDisplayAttrs lbl val extraAttrs =
         ]
 
 
+{-| Like `profileFieldDisplay`, but the value is arbitrary HTML.
+-}
+profileFieldHtml : String -> Html msg -> Html msg
+profileFieldHtml lbl content =
+    row [ width fill, paddingEach { zeroEach | top = 3 } ]
+        [ el [ fixedFlex 80, fontVar "--color-fg-muted", fontSize 11, bold, alignTop ] (text lbl)
+        , Html.div [ HtmlAttrs.style "margin" "0", growFlex, shrinkable, fontSize 12, alignTop, fontVar "--color-fg-bright" ] [ content ]
+        ]
+
+
 {-| Like `profileFieldDisplay`, but the value is an external link.
 -}
 profileFieldLinkDisplay : String -> String -> String -> Html msg
@@ -255,6 +266,7 @@ type alias SidebarMsgs msg =
     , setKnown : Bool -> msg
     , setSurveyIndex : Int -> msg
     , setParsecSurveyIndex : Int -> msg
+    , openSophont : Sophont -> msg
     }
 
 
@@ -322,8 +334,8 @@ universalHexLabel sectors hexAddress =
 
 {-| Renders the main world profile block above the star system map.
 -}
-viewMainWorldProfile : MainWorldProfile -> Html msg
-viewMainWorldProfile profile =
+viewMainWorldProfile : (Sophont -> msg) -> MainWorldProfile -> Html msg
+viewMainWorldProfile onSophont profile =
     let
         mParsed =
             Parser.run uwp profile.uwp
@@ -480,6 +492,12 @@ viewMainWorldProfile profile =
                 withUwp 8 .techLevel TechLevel.description
             )
         , profileFieldDisplay "Sophonts" sophontStr
+        , case profile.sophont of
+            Just sophont ->
+                profileFieldHtml "Sophont" (Sophont.view onSophont sophont)
+
+            Nothing ->
+                none
         ]
 
 
@@ -682,7 +700,7 @@ viewSystemDetailsSidebar msgs starSystemDetail opts =
                 , case starSystemDetail.mainWorldProfile of
                     Just profile ->
                         column [ width fill ]
-                            [ viewMainWorldProfile profile
+                            [ viewMainWorldProfile msgs.openSophont profile
                             , if List.isEmpty starSystemDetail.tradeCodes then
                                 none
 

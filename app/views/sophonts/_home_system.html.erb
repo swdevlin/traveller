@@ -1,0 +1,10 @@
+<%# locals: star_system — the system name links to the system, the sector name to the sector. %>
+<% sector = star_system.parsec.sector %>
+<% hex = star_system.parsec.hex_code %>
+<% system_link = ->(text) { link_to(text, star_system_path(star_system), class: 'no-underline hover:underline') } %>
+<% sector_link = link_to(sector.name, sector_path(sector), class: 'no-underline hover:underline') %>
+<% if star_system.name.present? %>
+  <%= system_link.call(star_system.name) %> (<%= sector_link %> <%= hex %>)
+<% else %>
+  <%= sector_link %> <%= system_link.call(hex) %>
+<% end %>

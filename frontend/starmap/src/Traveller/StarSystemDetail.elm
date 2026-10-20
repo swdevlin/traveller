@@ -4,6 +4,7 @@ import Codec
 import Dict
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.StellarObject exposing (StarData, codecStarData, codecStellarObject)
+import Traveller.Sophont as Sophont exposing (Sophont)
 
 
 type alias BaseFacility =
@@ -25,6 +26,7 @@ type alias MainWorldProfile =
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
+    , sophont : Maybe Sophont
     }
 
 
@@ -147,6 +149,7 @@ mainWorldProfileCodec =
         |> Codec.field "berthing_cost" .berthingCost (Codec.nullable Codec.int)
         |> Codec.field "refined_fuel_cost" .refinedFuelCost (Codec.nullable Codec.int)
         |> Codec.field "unrefined_fuel_cost" .unrefinedFuelCost (Codec.nullable Codec.int)
+        |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.buildObject
 
 

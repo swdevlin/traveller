@@ -1,0 +1,10 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Sophonts', sophonts_path], [@sophont.name, sophont_path(@sophont)]] %>
+
+<% content_for :title, "Edit #{@sophont.name}" %>
+<% content_for :page_kicker, 'Sophont' %>
+<% content_for :page_title, "Edit #{@sophont.name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'form', sophont: @sophont %>
+<% end %>

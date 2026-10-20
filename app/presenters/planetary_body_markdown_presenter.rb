@@ -76,7 +76,7 @@ class PlanetaryBodyMarkdownPresenter < MarkdownPresenterBase
     elsif @obj.no_tech_level?
       rows << ['Tech Level', '—']
     end
-    rows << ['Native Sophont', sophont_status]
+    rows << ['Native Sophont', @obj.native_sophont ? [sophont_status, @obj.sophont&.name].compact.join(' · ') : sophont_status]
 
     lines = table_section('Planetary Profile', rows)
 

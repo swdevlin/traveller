@@ -1,6 +1,7 @@
 class PlanetoidBelt < StellarObject
   include GeneratorMappings
   include HasUwp
+  include HasSophont
 
   after_initialize :normalize_data_types
   before_validation :normalize_data_types
@@ -14,7 +15,7 @@ class PlanetoidBelt < StellarObject
 
   def self.permitted_params
     [
-      :name, :notes, :orbit, :inclination, :eccentricity,
+      :name, :notes, :orbit, :inclination, :eccentricity, :sophont_id, :new_sophont_name,
       *uwp_attribute_names,
       data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
              :temperature, :retrograde, :period, :native_sophont, :extinct_sophont]

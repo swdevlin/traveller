@@ -109,6 +109,7 @@ type alias StarSystem =
     , governmentName : Maybe String
     , sectorId : Int
     , subsectorId : Maybe Int
+    , sophontIds : List String
     }
 
 
@@ -142,6 +143,7 @@ type alias FallibleStarSystem =
     , governmentName : Maybe String
     , sectorId : Int
     , subsectorId : Maybe Int
+    , sophontIds : List String
     }
 
 
@@ -181,6 +183,7 @@ starSystemCodec =
         |> Codec.field "government_name" .governmentName (Codec.nullable Codec.string)
         |> Codec.field "sector_id" .sectorId Codec.int
         |> Codec.field "subsector_id" .subsectorId (Codec.nullable Codec.int)
+        |> Codec.field "sophont_ids" .sophontIds (Codec.list Codec.string)
         |> Codec.buildObject
 
 
@@ -244,3 +247,4 @@ fallibleStarSystemDecoder =
         |> optional "government_name" (Decode.nullable Decode.string) Nothing
         |> optional "sector_id" Decode.int 0
         |> optional "subsector_id" (Decode.nullable Decode.int) Nothing
+        |> optional "sophont_ids" (Decode.list Decode.string) []

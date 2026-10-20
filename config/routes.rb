@@ -275,6 +275,9 @@ Rails.application.routes.draw do
     resources :languages, except: [:show] do
       get :download, on: :member
     end
+    resources :sophonts do
+      get :picture, on: :member
+    end
     get '/data-cores', to: 'data_cores#index', as: :data_cores
 
     get 'library/search',      to: 'rulebook_search#index', as: :rulebook_search

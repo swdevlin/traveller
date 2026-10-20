@@ -44,6 +44,7 @@ class SurveyOverlay < ApplicationRecord
     values = condition[:values] || []
 
     return bases_condition_matches?(operator, values, star_system) if field == 'bases'
+    return sophont_condition_matches?(operator, values, star_system) if field == 'sophont'
 
     code = field_value(field, star_system)
     return false if code.nil?
@@ -65,6 +66,16 @@ class SurveyOverlay < ApplicationRecord
     case operator
     when 'has'         then values.first.present? && base_codes.include?(values.first)
     when 'has_one_of'  then (base_codes & values).any?
+    else false
+    end
+  end
+
+  # A system can have several sophont worlds, so like bases this is a containment check.
+  def sophont_condition_matches?(operator, values, star_system)
+    ids = star_system.sophont_ids
+    case operator
+    when 'eq'     then values.first.present? && ids.include?(values.first)
+    when 'one_of' then (ids & values).any?
     else false
     end
   end

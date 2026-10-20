@@ -24,6 +24,7 @@ module HasFilterRule
     ['primary_star_class', 'Primary Star Class'],
     ['sector', 'Sector'],
     ['size', 'Size'],
+    ['sophont', 'Sophont'],
     ['star_count', 'Star Count'],
     ['starport', 'Starport'],
     ['subsector', 'Subsector'],
@@ -53,6 +54,7 @@ module HasFilterRule
     'allegiance'      => %w[eq one_of],
     'sector'          => %w[eq one_of],
     'subsector'       => %w[eq one_of],
+    'sophont'         => %w[eq one_of],
     'primary_star'    => %w[eq one_of]
   }.freeze
 
@@ -104,6 +106,11 @@ module HasFilterRule
       Allegiance.order(:code).pluck(:code, :name)
     end
 
+    # A system matches when any of its native sophont worlds is the chosen sophont.
+    def sophont_options
+      Sophont.ordered.pluck(:id, :name).map { |id, name| [id.to_s, name] }
+    end
+
     def sector_options
       Sector.kept.order(:name).pluck(:id, :name).map { |id, name| [id.to_s, name] }
     end
@@ -121,7 +128,8 @@ module HasFilterRule
         'bases'      => bases_options,
         'allegiance' => allegiance_options,
         'sector'     => sector_options,
-        'subsector'  => subsector_options
+        'subsector'  => subsector_options,
+        'sophont'    => sophont_options
       )
     end
 
@@ -231,6 +239,8 @@ module HasFilterRule
       errors.add(:rule_data, "#{label} has an unknown sector") if values.any? { |value| !Sector.kept.exists?(id: value) }
     when 'subsector'
       errors.add(:rule_data, "#{label} has an unknown subsector") if values.any? { |value| !Subsector.kept_sector.exists?(id: value) }
+    when 'sophont'
+      errors.add(:rule_data, "#{label} has an unknown sophont") if values.any? { |value| !Sophont.exists?(id: value) }
     when 'jump_route'
       errors.add(:rule_data, "#{label} has an unknown jump route") if values.any? { |value| !JumpRoute.exists?(id: value) }
     else

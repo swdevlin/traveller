@@ -109,6 +109,7 @@ import Traveller.Sidebar
 import Traveller.StarSystemDetail as StarSystemDetail exposing (StarSystemDetail)
 import Traveller.StarSystemStars exposing (FallibleStarSystem, StarSystem, StarType, StarTypeData, StrategicData, fallibleStarSystemDecoder, getStarTypeData, isBrownDwarfType)
 import Traveller.StarColour exposing (starColourRGB)
+import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
 import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
@@ -1050,6 +1051,7 @@ type alias ModelData =
     , allegianceOptions : List HighlightRule.Option
     , sectorOptions : List HighlightRule.Option
     , subsectorOptions : List HighlightRule.Option
+    , sophontOptions : List HighlightRule.Option
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
     , showDisplaySettings : Bool
@@ -1069,6 +1071,7 @@ type alias ModelData =
     , ruleEditor : Maybe HighlightRuleEditor.Model
     , nextRuleId : Int
     , pendingDeleteRuleId : Maybe String
+    , viewedSophont : Maybe Sophont
     , routePlanForm : Maybe RoutePlanForm.Model
     , commerceForm : Maybe CommerceForm.Model
     , activeRoutePlan : Maybe RoutePlan.StoredRoutePlan
@@ -1178,6 +1181,8 @@ type Msg
     | StartEditRule String
     | RequestDeleteRule String
     | CancelDeleteRule
+    | OpenSophont Sophont
+    | CloseSophont
     | DeleteRule String
     | MoveRuleUp String
     | MoveRuleDown String
@@ -1459,6 +1464,7 @@ type alias Flags =
     , allegianceOptions : List HighlightRule.Option
     , sectorOptions : List HighlightRule.Option
     , subsectorOptions : List HighlightRule.Option
+    , sophontOptions : List HighlightRule.Option
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
@@ -1819,6 +1825,7 @@ init viewport settings key hostConfig referee =
             , allegianceOptions = settings.allegianceOptions |> List.sortBy .name
             , sectorOptions = settings.sectorOptions |> List.sortBy .name
             , subsectorOptions = settings.subsectorOptions |> List.sortBy .name
+            , sophontOptions = settings.sophontOptions |> List.sortBy .name
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             , theme = settings.theme
             , themeIsLight = settings.themeIsLight
@@ -1829,6 +1836,7 @@ init viewport settings key hostConfig referee =
             , ruleEditor = Nothing
             , nextRuleId = 1
             , pendingDeleteRuleId = Nothing
+            , viewedSophont = Nothing
             , routePlanForm = Nothing
             , commerceForm = Nothing
             , activeRoutePlan = initialActiveRoutePlan
@@ -5561,6 +5569,7 @@ pickerData model =
     , allegiances = model.allegianceOptions
     , sectors = model.sectorOptions
     , subsectors = model.subsectorOptions
+    , sophonts = model.sophontOptions
     }
 
 
@@ -6657,6 +6666,7 @@ view ( time, model ) =
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
             , setParsecSurveyIndex = SetParsecSurveyIndex
+            , openSophont = OpenSophont
             }
 
         starSystemStatus =
@@ -6755,7 +6765,8 @@ view ( time, model ) =
                     (\index entry ->
                         Element.inFront <|
                             Element.html
-                                (viewObjectAnalysisDetail timeChars
+                                (viewObjectAnalysisDetail OpenSophont
+                                    timeChars
                                     CloseObjectAnalysis
                                     NoOpMsg
                                     model.analysisTab
@@ -6836,6 +6847,12 @@ view ( time, model ) =
                , case model.pendingDeleteRuleId |> Maybe.andThen (\id -> List.filter (\r -> r.id == id) model.highlightRules |> List.head) of
                     Just rule ->
                         Element.inFront <| Element.html (viewDeleteRuleConfirmModal rule)
+
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.viewedSophont of
+                    Just sophont ->
+                        Element.inFront <| Element.html (Sophont.viewModal CloseSophont NoOpMsg sophont)
 
                     Nothing ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -7898,6 +7915,7 @@ update msg ( time, model ) =
                                             , governmentName = fallibleSystem.governmentName
                                             , sectorId = fallibleSystem.sectorId
                                             , subsectorId = fallibleSystem.subsectorId
+                                            , sophontIds = fallibleSystem.sophontIds
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address
@@ -9130,6 +9148,12 @@ update msg ( time, model ) =
         RequestDeleteRule ruleId ->
             ( withTime { model | pendingDeleteRuleId = Just ruleId, showHighlightRulesMenu = False }, Cmd.none )
 
+        OpenSophont sophont ->
+            ( withTime { model | viewedSophont = Just sophont }, Cmd.none )
+
+        CloseSophont ->
+            ( withTime { model | viewedSophont = Nothing }, Cmd.none )
+
         CancelDeleteRule ->
             ( withTime { model | pendingDeleteRuleId = Nothing }, Cmd.none )
 
@@ -9826,6 +9850,7 @@ update msg ( time, model ) =
 
                                             else
                                                 "None"
+                                        , sophont = pdata.sophont
                                         }
                                     , social =
                                         { population =
@@ -10156,6 +10181,7 @@ update msg ( time, model ) =
 
                                     else
                                         "None"
+                                , sophont = pdata.sophont
                                 }
                             , social =
                                 let

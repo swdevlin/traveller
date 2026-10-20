@@ -31,6 +31,7 @@ import Round
 import Svg
 import Svg.Attributes as SA
 import Traveller.City exposing (CitiesPage)
+import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
@@ -189,6 +190,7 @@ type alias AnalyisDetailPlanetoidData =
         , compatibility : String
         , habitability : String
         , sophonts : String
+        , sophont : Maybe Sophont
         }
     , starport :
         { code : String
@@ -507,6 +509,22 @@ textDisplay lbl val =
     textDisplayAttrs lbl val []
 
 
+{-| The sophont's name; clicking it reveals its notes. Nothing when there is none.
+-}
+sophontDisplay : (Sophont -> msg) -> Maybe Sophont -> Html msg
+sophontDisplay onSophont maybeSophont =
+    case maybeSophont of
+        Just sophont ->
+            row
+                [ width fill, paddingEach { zeroEach | top = 5 } ]
+                [ el (fixedFlex 150 :: headerAttrs) (text "Sophont")
+                , el (growFlex :: shrinkable :: valueAttrs) (Sophont.view onSophont sophont)
+                ]
+
+        Nothing ->
+            none
+
+
 {-| Like `textDisplay`, but with extra attributes on the value — e.g. a
 `title` tooltip for a field with no dedicated help page to explain it.
 -}
@@ -665,8 +683,8 @@ viewSectionHeader title =
         ]
 
 
-viewPlanetaryProfile : AnalyisDetailPlanetoidData -> Html msg
-viewPlanetaryProfile data =
+viewPlanetaryProfile : (Sophont -> msg) -> AnalyisDetailPlanetoidData -> Html msg
+viewPlanetaryProfile onSophont data =
     column
         [ paddingEach { zeroEach | right = 16 }, spacing 0 ]
         [ el
@@ -686,6 +704,15 @@ viewPlanetaryProfile data =
         , profileFieldDisplay "Law Level" data.social.lawLevel
         , profileFieldDisplay "Tech Level" data.social.techLevel
         , profileFieldDisplay "Sophonts" data.life.sophonts
+        , case data.life.sophont of
+            Just sophont ->
+                row [ width fill, paddingEach { zeroEach | top = 3 } ]
+                    [ el (fixedFlex 80 :: HtmlAttrs.class "text-fg-muted text-xs font-bold whitespace-nowrap self-start" :: []) (text "Sophont")
+                    , el [ growFlex, shrinkable, HtmlAttrs.class "text-xs self-start text-fg-bright" ] (Sophont.view onSophont sophont)
+                    ]
+
+            Nothing ->
+                none
         ]
 
 
@@ -967,8 +994,8 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
-viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
+viewObjectAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
+viewObjectAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
     case data of
         AnalyisDetailStar detailHeader starData ->
             StarOrbitMap.viewModal
@@ -981,7 +1008,7 @@ viewObjectAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee o
                 starData.children
 
         _ ->
-            viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data
+            viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data
 
 
 starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
@@ -997,8 +1024,8 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
-viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data =
+viewNonStarAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
+viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data =
     let
         profileLayout profile content_ =
             row [ spacing 0 ]
@@ -1024,13 +1051,13 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
             case data of
                 AnalyisDetailTerrestialPlanet detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , planetaryModalWidth
                     )
 
                 AnalyisDetailPlanetoid detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile sharedPData) (viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , planetaryModalWidth
                     )
 
@@ -1042,7 +1069,7 @@ viewNonStarAnalysisDetail timeChars closeMsg noOpMsg activeTab setTab isReferee 
 
                 AnalyisDetailPlanetoidBelt detailHeader sharePBData ->
                     ( detailHeader.header
-                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig sharePBData)
+                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig sharePBData)
                     , 960
                     )
 
@@ -1304,8 +1331,8 @@ viewTechLevelDetail show data =
             ]
 
 
-viewPlanetoidAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Html msg
-viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig citiesTabConfig data =
+viewPlanetoidAnalysisDetail : (Sophont -> msg) -> Int -> String -> (String -> msg) -> Bool -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidData -> Html msg
+viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showMoonsTab onSelectObject moonsTabConfig citiesTabConfig data =
     let
         firstTabIndex =
             case safeTab of
@@ -1706,6 +1733,7 @@ viewPlanetoidAnalysisDetail timeChars activeTab setTab isReferee showMoonsTab on
                             , textDisplay "Compatibility" <| show 38 data.life.compatibility
                             , textDisplay "Habitability" <| show 39 data.life.habitability
                             , textDisplay "Sophonts" <| show 40 data.life.sophonts
+                            , sophontDisplay onSophont data.life.sophont
                             ]
                         , if isReferee && not (List.isEmpty data.cultureTrait) then
                             column [ width fill ]
@@ -2261,8 +2289,8 @@ viewCitiesTab citiesTabConfig =
         ]
 
 
-viewPlanetoidBeltAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Html msg
-viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig data =
+viewPlanetoidBeltAnalysisDetail : (Sophont -> msg) -> Int -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> AnalyisDetailPlanetoidBeltData -> Html msg
+viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig data =
     let
         pd =
             data.planet
@@ -2616,6 +2644,7 @@ viewPlanetoidBeltAnalysisDetail timeChars activeTab setTab isReferee onSelectObj
                             , textDisplay "Compatibility" <| show 38 pd.life.compatibility
                             , textDisplay "Habitability" <| show 39 pd.life.habitability
                             , textDisplay "Sophonts" <| show 40 pd.life.sophonts
+                            , sophontDisplay onSophont pd.life.sophont
                             ]
                         , if isReferee && not (List.isEmpty pd.cultureTrait) then
                             column [ width fill ]

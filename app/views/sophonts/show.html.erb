@@ -1,0 +1,52 @@
+<%= render 'stellar_objects/object_context',
+           hierarchy: [['Data Cores', data_cores_path], ['Sophonts', sophonts_path]] %>
+
+<% content_for :title, @sophont.name %>
+<% content_for :page_kicker, 'Sophont' %>
+<% content_for :page_title, @sophont.name %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <% if @sophont.picture.attached? %>
+      <%= image_tag picture_sophont_path(@sophont), alt: @sophont.name, class: 'max-h-80 rounded-md border border-outline' %>
+    <% end %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block', label: 'Language',
+                 value: @sophont.language.present? ? WordGenerator.label(@sophont.language.to_sym) : '—' %>
+      <%= render 'application/data_block', label: 'Home System',
+                 value: @sophont.home_system ? render('sophonts/home_system', star_system: @sophont.home_system) : '—' %>
+      <% if (reference_url = safe_external_url(@sophont.effective_reference_url(current_campaign))) %>
+        <%= render 'application/data_block', label: 'Reference',
+                   value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
+                                  class: 'hover:underline underline-offset-4') %>
+      <% end %>
+    </div>
+
+    <% if @sophont.referee_notes.present? && owns_campaign? %>
+      <%= render 'application/subsection', title: 'Referee Notes' %>
+      <div class='prose'><%= render_markdown(@sophont.referee_notes) %></div>
+    <% end %>
+
+    <% if @sophont.player_notes.present? %>
+      <%= render 'application/subsection', title: 'Player Notes' %>
+      <div class='prose'><%= render_markdown(@sophont.player_notes) %></div>
+    <% end %>
+
+    <%= render 'application/subsection', title: 'Worlds' %>
+    <ul class='space-y-1'>
+      <% @worlds.each do |world| %>
+        <li><%= link_to world.name.presence || world.uwp, stellar_object_path(world), class: 'no-underline hover:underline' %></li>
+      <% end %>
+      <%= tag.li('None', class: 'text-fg-muted') if @worlds.empty? %>
+    </ul>
+
+    <div class='flex flex-col sm:flex-row gap-2'>
+      <%= link_to 'Edit', edit_sophont_path(@sophont), class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= button_to 'Delete', @sophont, method: :delete,
+                    form_class: 'w-full sm:w-auto inline-flex m-0',
+                    class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                    data: { turbo_confirm: "Delete #{@sophont.name}?" } %>
+    </div>
+  </div>
+<% end %>

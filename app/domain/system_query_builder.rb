@@ -65,6 +65,7 @@ class SystemQueryBuilder
     when 'primary_star' then primary_star_relation(operator, values)
     when 'primary_star_class' then primary_star_class_relation(operator, values)
     when 'bases' then bases_relation(values)
+    when 'sophont' then sophont_relation(values)
     when 'allegiance' then allegiance_relation(values)
     when 'sector' then sector_relation(values)
     when 'subsector' then subsector_relation(values)
@@ -169,6 +170,12 @@ class SystemQueryBuilder
   # case of that same set membership check.
   def bases_relation(values)
     StarSystem.where(id: StarSystemFacility.joins(:facility).where(facilities: { code: values }).select(:star_system_id))
+  end
+
+  def sophont_relation(values)
+    StarSystem.where(id: StellarObject.where("stellar_objects.data @> '{\"native_sophont\": true}'")
+                                      .where("stellar_objects.data ->> 'sophont_id' IN (?)", values)
+                                      .select(:star_system_id))
   end
 
   def allegiance_relation(values)

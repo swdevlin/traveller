@@ -1,0 +1,71 @@
+<%= form_with(model: sophont, class: 'contents') do |form| %>
+  <div class='space-y-2 pb-10'>
+    <%= render 'application/form_errors', errors: sophont.errors.where(:base) %>
+
+    <%= render 'application/edit_field', form: form, attribute: :name, required: true do %>
+      <%= form.text_field :name, class: 'edit-base w-full sm:max-w-xl' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :language do %>
+      <%= form.select :language,
+                      WordGenerator.languages.map { |l| [WordGenerator.label(l), l.to_s] },
+                      { include_blank: '— None —' },
+                      { class: 'edit-base' } %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :reference_url, field_label: 'Reference link' do %>
+      <%= form.text_field :reference_url, class: 'edit-base w-full sm:max-w-xl', placeholder: 'https://' %>
+    <% end %>
+
+    <div class='py-1'>
+      <label class='edit-label'>Home System</label>
+      <div data-controller='system-search'
+           data-system-search-search-url-value='<%= search_star_systems_path %>'>
+        <input type='text'
+               placeholder='Search for a system…'
+               autocomplete='off'
+               data-system-search-target='input'
+               data-action='input->system-search#search'
+               value='<%= sophont.home_system&.located_name %>'
+               class='w-full edit-base mt-2 sm:max-w-xl'>
+        <%= form.hidden_field :home_system_id, data: { 'system-search-target': 'idField' } %>
+        <div data-system-search-target='dropdown'
+             class='hidden relative mt-1 z-50 rounded-lg border border-outline bg-dropdown shadow-xl overflow-hidden sm:max-w-xl'>
+          <ul data-system-search-target='list'></ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :referee_notes, 'Referee notes', class: 'edit-label' %>
+      <p class='mt-1 text-sm text-fg-muted'>Markdown. Only the referee sees these.</p>
+      <%= form.text_area :referee_notes, rows: 8, class: 'edit-base mt-2 w-full resize-y' %>
+      <%= render 'application/field_error', form: form, attribute: :referee_notes %>
+    </div>
+
+    <div>
+      <%= form.label :player_notes, 'Player notes', class: 'edit-label' %>
+      <p class='mt-1 text-sm text-fg-muted'>Markdown. Visible to players and the referee.</p>
+      <%= form.text_area :player_notes, rows: 8, class: 'edit-base mt-2 w-full resize-y' %>
+      <%= render 'application/field_error', form: form, attribute: :player_notes %>
+    </div>
+
+    <div>
+      <%= form.label :picture, 'Picture', class: 'edit-label' %>
+      <% if sophont.picture.attached? && sophont.persisted? %>
+        <%= image_tag picture_sophont_path(sophont), alt: sophont.name, class: 'mt-2 max-h-48 rounded-md border border-outline' %>
+        <label class='mt-2 flex items-center gap-2 text-sm text-fg-muted'>
+          <%= check_box_tag 'sophont[remove_picture]', '1', false %> Remove picture
+        </label>
+      <% end %>
+      <%= render 'application/file_field',
+                 form: form, attribute: :picture, accept: Sophont::PICTURE_TYPES.join(','), wrapper_class: 'mt-2' %>
+      <%= render 'application/field_error', form: form, attribute: :picture %>
+    </div>
+
+    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+      <%= form.submit sophont.persisted? ? 'Update sophont' : 'Create sophont', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', sophont.persisted? ? sophont_path(sophont) : sophonts_path, class: 'w-full sm:w-auto btn' %>
+    </div>
+  </div>
+<% end %>

@@ -167,6 +167,10 @@ class StellarObject < ApplicationRecord
     false
   end
 
+  def sophont
+    nil
+  end
+
   def gravity
     nil
   end

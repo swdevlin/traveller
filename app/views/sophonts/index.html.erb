@@ -1,0 +1,53 @@
+<%= render 'stellar_objects/object_context', hierarchy: [['Data Cores', data_cores_path]] %>
+
+<% content_for :title, 'Sophonts' %>
+<% content_for :page_kicker, 'Data Cores' %>
+<% content_for :page_title, 'Sophonts' %>
+
+<%= render 'application/page' do %>
+  <div class='flex justify-end pb-2'>
+    <%= link_to new_sophont_path, class: 'btn-header' do %>
+      <i class='fa-regular fa-plus'></i>
+      Add
+    <% end %>
+  </div>
+
+  <div class='table-card'>
+    <div class='table-scroll'>
+      <table>
+        <thead>
+        <tr>
+          <th scope='col'>Name</th>
+          <th scope='col'>Language</th>
+          <th scope='col'>Home System</th>
+          <th scope='col' class='text-right'>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% @sophonts.each do |sophont| %>
+          <tr class='cursor-pointer'
+              data-controller='row-link'
+              data-row-link-url-value='<%= sophont_path(sophont) %>'
+              data-action='click->row-link#navigate'>
+            <td class='whitespace-nowrap'><%= sophont.name %></td>
+            <td class='whitespace-nowrap'><%= WordGenerator.label(sophont.language.to_sym) if sophont.language.present? %></td>
+            <td class='whitespace-nowrap'><%= sophont.home_system&.located_name %></td>
+            <td class='actions-cell'>
+              <div class='action-group'>
+                <%= link_to edit_sophont_path(sophont), class: 'action', title: 'Edit' do %>
+                  <i class='fa-regular fa-pen-to-square'></i>
+                <% end %>
+                <%= button_to sophont, method: :delete, class: 'action danger', title: 'Delete',
+                              data: { turbo_confirm: "Delete #{sophont.name}?" } do %>
+                  <i class='fa-regular fa-trash'></i>
+                <% end %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>

@@ -60,11 +60,12 @@ type Field
     | Allegiance
     | Sector
     | Subsector
+    | Sophont
 
 
 allFields : List Field
 allFields =
-    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, PrimaryStar, PrimaryStarClass, Sector, Size, StarCount, Starport, Subsector, SurveyIndex, TechLevel ]
+    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, PrimaryStar, PrimaryStarClass, Sector, Size, Sophont, StarCount, Starport, Subsector, SurveyIndex, TechLevel ]
 
 
 {-| The (code, name) shape of a live, server-loaded option list - bases
@@ -85,6 +86,7 @@ type alias PickerData =
     , allegiances : List Option
     , sectors : List Option
     , subsectors : List Option
+    , sophonts : List Option
     }
 
 
@@ -160,6 +162,9 @@ fieldLabel field =
         Subsector ->
             "Subsector"
 
+        Sophont ->
+            "Sophont"
+
 
 type Operator
     = Eq
@@ -230,6 +235,9 @@ operatorsFor field =
             [ Eq, OneOf ]
 
         Subsector ->
+            [ Eq, OneOf ]
+
+        Sophont ->
             [ Eq, OneOf ]
 
         PrimaryStar ->
@@ -402,6 +410,9 @@ fieldOptions field =
         Subsector ->
             []
 
+        Sophont ->
+            []
+
 
 {-| The ordinal rank used by the comparison operators, e.g. `<`/`between`.
 For most fields this is just the option's position in `fieldOptions` (which
@@ -543,6 +554,9 @@ uwpFieldAccessor field fields =
         Subsector ->
             Nothing
 
+        Sophont ->
+            Nothing
+
 
 getFieldValue : Field -> StarSystem -> Maybe String
 getFieldValue field system =
@@ -617,6 +631,9 @@ getFieldValue field system =
         Subsector ->
             Maybe.map String.fromInt system.subsectorId
 
+        Sophont ->
+            Nothing
+
         _ ->
             system.mainWorldUwp
                 |> Maybe.andThen parseUwp
@@ -652,6 +669,18 @@ conditionMatches system condition =
 
                         ( HasOneOf, targets ) ->
                             List.any (\t -> List.member t system.baseCodes) targets
+
+                        _ ->
+                            False
+
+                Sophont ->
+                    -- A system can have several sophont worlds, so like Bases this is a containment check.
+                    case ( condition.operator, condition.values ) of
+                        ( Eq, target :: _ ) ->
+                            List.member target system.sophontIds
+
+                        ( OneOf, targets ) ->
+                            List.any (\t -> List.member t system.sophontIds) targets
 
                         _ ->
                             False
@@ -816,6 +845,9 @@ fieldToString field =
         Subsector ->
             "subsector"
 
+        Sophont ->
+            "sophont"
+
 
 fieldFromString : String -> Maybe Field
 fieldFromString s =
@@ -888,6 +920,9 @@ fieldFromString s =
 
         "subsector" ->
             Just Subsector
+
+        "sophont" ->
+            Just Sophont
 
         _ ->
             Nothing

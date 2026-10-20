@@ -9,6 +9,7 @@ import Traveller.Point as Point exposing (StellarPoint)
 import Traveller.Population as Population exposing (CultureTrait, StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
 import Traveller.TravelCalculations as TravelCalculations
+import Traveller.Sophont as Sophont exposing (Sophont)
 
 
 type alias CodeAndDesc =
@@ -113,6 +114,7 @@ type alias SharedPData =
     , resourceRating : Int
     , nativeSophont : Bool
     , extinctSophont : Bool
+    , sophont : Maybe Sophont
     , hasRing : Bool
     , hydrographics : Maybe Hydrographics
     , albedo : Float
@@ -169,6 +171,7 @@ type alias PlanetoidData =
     , resourceRating : Int
     , nativeSophont : Bool
     , extinctSophont : Bool
+    , sophont : Maybe Sophont
     , hasRing : Bool
     , albedo : Float
     , density : Maybe Float
@@ -249,6 +252,7 @@ type alias PlanetoidBeltData =
     , habitabilityRating : Maybe Int
     , nativeSophont : Bool
     , extinctSophont : Bool
+    , sophont : Maybe Sophont
     , governmentDetail : Maybe GovernmentDetailData
     , lawLevelDetail : Maybe LawLevelDetailData
     , techLevelDetail : Maybe TechLevelDetailData
@@ -467,7 +471,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ sophont_ ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -513,6 +517,7 @@ codecPlanetoidBeltData =
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
             , planetoidCount = planetoidCount_
+            , sophont = sophont_
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -572,6 +577,7 @@ codecPlanetoidBeltData =
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
         |> Codec.field "planetoid_count" .planetoidCount Codec.int
+        |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.buildObject
 
 
@@ -748,7 +754,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -770,6 +776,7 @@ codecSharedPData =
             , compatibilityRating = compat
             , resourceRating = res
             , nativeSophont = natS
+            , sophont = sophont_
             , extinctSophont = extS
             , hasRing = Maybe.withDefault False hasRingM
             , hydrographics = hydro
@@ -888,6 +895,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
         |> Codec.optionalNullableField "planetoid_belt_id" .planetoidBeltId Codec.int
         |> Codec.optionalNullableField "map_url" .mapUrl Codec.string
+        |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.buildObject
 
 

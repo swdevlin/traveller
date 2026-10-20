@@ -24,6 +24,12 @@ if mw
     json.native_sophont mw.native_sophont || false
     json.extinct_sophont mw.extinct_sophont || false
     json.census_population mw.respond_to?(:census_population) ? mw.census_population : nil
+    mw_sophont = mw.native_sophont ? mw.sophont : nil
+    if mw_sophont
+      json.sophont do
+        json.partial! 'sophonts/sophont', sophont: mw_sophont
+      end
+    end
     json.survival_requirement atmosphere_survival_requirement(
       mw.respond_to?(:atmosphere_code) ? mw.atmosphere_code : nil,
       tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.tainted?

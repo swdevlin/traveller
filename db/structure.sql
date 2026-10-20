@@ -32,6 +32,50 @@ CREATE SCHEMA IF NOT EXISTS shared_extensions;
 
 
 --
+-- Name: cities_after_delete_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_delete_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(SELECT DISTINCT stellar_object_id FROM old_rows));
+  RETURN NULL;
+END;
+$$;
+
+
+--
+-- Name: cities_after_insert_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_insert_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(SELECT DISTINCT stellar_object_id FROM new_rows));
+  RETURN NULL;
+END;
+$$;
+
+
+--
+-- Name: cities_after_update_major_city_totals(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.cities_after_update_major_city_totals() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  PERFORM recalculate_major_city_totals(ARRAY(
+    SELECT stellar_object_id FROM new_rows UNION SELECT stellar_object_id FROM old_rows
+  ));
+  RETURN NULL;
+END;
+$$;
+
+
+--
 -- Name: parsecs_set_hex_coordinates(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -43,6 +87,35 @@ BEGIN
   NEW.r := -NEW.y - ((NEW.x - (NEW.x & 1)) / 2);
   NEW.s := -NEW.q - NEW.r;
   RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: recalculate_major_city_totals(bigint[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.recalculate_major_city_totals(stellar_object_ids bigint[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  UPDATE stellar_objects
+  SET data = jsonb_set(
+    COALESCE(stellar_objects.data, '{}'::jsonb),
+    '{population}',
+    COALESCE(stellar_objects.data -> 'population', '{}'::jsonb) || jsonb_build_object(
+      'majorCities', totals.city_count,
+      'majorCityPopulation', totals.city_population
+    )
+  )
+  FROM (
+    SELECT stellar_objects.id,
+           (SELECT COUNT(*) FROM cities WHERE cities.stellar_object_id = stellar_objects.id) AS city_count,
+           (SELECT SUM(cities.population) FROM cities WHERE cities.stellar_object_id = stellar_objects.id) AS city_population
+    FROM stellar_objects
+    WHERE stellar_objects.id = ANY(stellar_object_ids)
+  ) totals
+  WHERE stellar_objects.id = totals.id;
 END;
 $$;
 
@@ -433,7 +506,8 @@ CREATE TABLE public.cities (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     city_type character varying,
-    capital_designation character varying
+    capital_designation character varying,
+    language character varying
 );
 
 
@@ -1366,6 +1440,42 @@ ALTER SEQUENCE public.social_characteristics_presets_id_seq OWNED BY public.soci
 
 
 --
+-- Name: sophonts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sophonts (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    language character varying,
+    home_system_id bigint,
+    referee_notes text,
+    player_notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    reference_url character varying
+);
+
+
+--
+-- Name: sophonts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.sophonts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: sophonts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.sophonts_id_seq OWNED BY public.sophonts.id;
+
+
+--
 -- Name: star_system_facilities; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1514,6 +1624,7 @@ CREATE TABLE public.stellar_objects (
     tidal_lock_target_id bigint,
     language character varying,
     known boolean DEFAULT false NOT NULL,
+    reference_url character varying,
     CONSTRAINT stellar_objects_parsec_xor_orbiting_present CHECK ((((type)::text = 'Star'::text) OR ((parsec_id IS NULL) <> (orbiting_id IS NULL))))
 );
 
@@ -2038,6 +2149,13 @@ ALTER TABLE ONLY public.social_characteristics_presets ALTER COLUMN id SET DEFAU
 
 
 --
+-- Name: sophonts id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sophonts ALTER COLUMN id SET DEFAULT nextval('public.sophonts_id_seq'::regclass);
+
+
+--
 -- Name: star_system_facilities id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2408,6 +2526,14 @@ ALTER TABLE ONLY public.ships
 
 ALTER TABLE ONLY public.social_characteristics_presets
     ADD CONSTRAINT social_characteristics_presets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sophonts sophonts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sophonts
+    ADD CONSTRAINT sophonts_pkey PRIMARY KEY (id);
 
 
 --
@@ -2996,6 +3122,20 @@ CREATE UNIQUE INDEX index_social_characteristics_presets_on_name ON public.socia
 
 
 --
+-- Name: index_sophonts_on_home_system_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_sophonts_on_home_system_id ON public.sophonts USING btree (home_system_id);
+
+
+--
+-- Name: index_sophonts_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_sophonts_on_lower_name ON public.sophonts USING btree (lower((name)::text));
+
+
+--
 -- Name: index_star_system_facilities_on_facility_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3168,6 +3308,27 @@ CREATE UNIQUE INDEX index_travel_zones_on_code ON public.travel_zones USING btre
 --
 
 CREATE UNIQUE INDEX index_users_on_email_address ON public.users USING btree (email_address);
+
+
+--
+-- Name: cities trigger_cities_delete_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_delete_major_city_totals AFTER DELETE ON public.cities REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_delete_major_city_totals();
+
+
+--
+-- Name: cities trigger_cities_insert_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_insert_major_city_totals AFTER INSERT ON public.cities REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_insert_major_city_totals();
+
+
+--
+-- Name: cities trigger_cities_update_major_city_totals; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trigger_cities_update_major_city_totals AFTER UPDATE ON public.cities REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.cities_after_update_major_city_totals();
 
 
 --
@@ -3426,6 +3587,14 @@ ALTER TABLE ONLY public.region_parsecs
 
 
 --
+-- Name: sophonts fk_rails_e9482bc1e7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sophonts
+    ADD CONSTRAINT fk_rails_e9482bc1e7 FOREIGN KEY (home_system_id) REFERENCES public.star_systems(id) ON DELETE SET NULL;
+
+
+--
 -- Name: sector_border_segments fk_rails_ef17b4dc25; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3488,6 +3657,13 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261019140000'),
+('20261019130000'),
+('20261019120000'),
+('20261018050000'),
+('20261018040000'),
+('20261018030000'),
+('20261017204015'),
 ('20261012130000'),
 ('20261012120000'),
 ('20261005120000'),

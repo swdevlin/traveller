@@ -228,6 +228,14 @@ defaultValuesForOperator pickerData field operator =
                 Nothing ->
                     []
 
+        HighlightRule.Sophont ->
+            case List.head pickerData.sophonts of
+                Just option ->
+                    [ option.code ]
+
+                Nothing ->
+                    []
+
         _ ->
             let
                 options =
@@ -546,6 +554,9 @@ valuePicker pickerData isOpen groupIdx condIdx condition =
 
                 HighlightRule.Subsector ->
                     pickerData.subsectors |> List.map (\o -> { code = o.code, label = o.name })
+
+                HighlightRule.Sophont ->
+                    pickerData.sophonts |> List.map (\o -> { code = o.code, label = o.name })
 
                 _ ->
                     HighlightRule.fieldOptions condition.field

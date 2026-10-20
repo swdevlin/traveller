@@ -1,5 +1,21 @@
 import { applyTheme } from 'theme'
 
+// Elm 0.19 refuses to set innerHTML, so server-rendered (already sanitised) Markdown is handed
+// over through this element's `html` attribute instead.
+class HtmlContent extends HTMLElement {
+  static get observedAttributes() {
+    return ['html'];
+  }
+
+  attributeChangedCallback() {
+    this.innerHTML = this.getAttribute('html') || '';
+  }
+}
+
+if (!customElements.get('html-content')) {
+  customElements.define('html-content', HtmlContent);
+}
+
 document.addEventListener('turbo:load', () => {
   const node = document.getElementById('root')
 

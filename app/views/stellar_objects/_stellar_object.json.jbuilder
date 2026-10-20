@@ -81,6 +81,13 @@ has_map = planet_map&.webp&.attached?
 json.map_url has_map ? signed_map_url(map_stellar_object_path(stellar_object)) : nil
 json.url stellar_object_url(stellar_object, format: :json)
 
+sophont = stellar_object.native_sophont ? stellar_object.sophont : nil
+if sophont
+  json.sophont do
+    json.partial! 'sophonts/sophont', sophont: sophont
+  end
+end
+
 if stellar_object.is_a?(HasUwp)
   json.partial! 'stellar_objects/uwp_details', stellar_object: stellar_object, render_context: render_context
 end

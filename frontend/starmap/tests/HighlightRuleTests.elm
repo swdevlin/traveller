@@ -40,6 +40,7 @@ baseSystem =
     , governmentName = Nothing
     , sectorId = 42
     , subsectorId = Just 7
+    , sophontIds = [ "3" ]
     }
 
 
@@ -367,6 +368,18 @@ evaluateTests =
             \_ ->
                 ruleFrom [ [ condition Sector Eq [ "1" ] ] ]
                     |> evaluatesTo False
+        , Test.test "Sophont matches when the system has that sophont" <|
+            \_ ->
+                ruleFrom [ [ condition Sophont Eq [ "3" ] ] ]
+                    |> evaluatesTo True
+        , Test.test "Sophont fails for a different sophont" <|
+            \_ ->
+                ruleFrom [ [ condition Sophont Eq [ "4" ] ] ]
+                    |> evaluatesTo False
+        , Test.test "Sophont one of matches any listed sophont" <|
+            \_ ->
+                ruleFrom [ [ condition Sophont OneOf [ "4", "3" ] ] ]
+                    |> evaluatesTo True
         , Test.test "Subsector matches the system's subsector id" <|
             \_ ->
                 ruleFrom [ [ condition Subsector Eq [ "7" ] ] ]

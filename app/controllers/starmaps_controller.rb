@@ -41,6 +41,7 @@ class StarmapsController < ApplicationController
     allegiances = SurveyOverlay.allegiance_options.map { |code, name| { code: code, name: name } }
     sectors = SurveyOverlay.sector_options.map { |code, name| { code: code, name: name } }
     subsectors = SurveyOverlay.subsector_options.map { |code, name| { code: code, name: name } }
+    sophonts = SurveyOverlay.sophont_options.map { |code, name| { code: code, name: name } }
     @starmap_flags = {
       referee: Current.owns_campaign?,
       campaignSlug: params[:campaign_slug],
@@ -57,6 +58,7 @@ class StarmapsController < ApplicationController
       allegianceOptions: allegiances,
       sectorOptions: sectors,
       subsectorOptions: subsectors,
+      sophontOptions: sophonts,
       theme: helpers.current_theme,
       themeIsLight: helpers.current_theme_light?,
       themeOptions: ApplicationHelper::THEMES.map { |key, info| { key: key, label: info[:label], light: info[:light] } }

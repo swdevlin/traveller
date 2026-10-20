@@ -3,6 +3,7 @@
 module HasPlanetaryBodyAttributes
   extend ActiveSupport::Concern
   include GeneratorMappings
+  include HasSophont
 
   included do
     generator_data_map(
@@ -44,7 +45,7 @@ module HasPlanetaryBodyAttributes
         :name, :notes, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
         :period, :rotation, :retrograde, :density, :gravity,
         :temperature, :axial_tilt, :albedo, :greenhouse,
-        :native_sophont, :extinct_sophont, :habitability_rating, :biomass_rating,
+        :native_sophont, :sophont_id, :new_sophont_name, :extinct_sophont, :habitability_rating, :biomass_rating,
         :biodiversity_rating, :biocomplexity_rating, :resource_rating,
         *uwp_attribute_names
       ]
