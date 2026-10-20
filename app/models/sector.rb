@@ -8,7 +8,8 @@ class Sector < ApplicationRecord
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
-  attr_accessor :skip_subsector_creation, :default_build_spec, :t5_build_specs
+  attr_accessor :skip_subsector_creation, :default_build_spec, :t5_build_specs, :populate_subsectors,
+            :density, :settled, :systems_known, :max_tech_level, :creation_mode, :subsector_settings, :campaign_slug
   after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
@@ -82,7 +83,8 @@ class Sector < ApplicationRecord
     existing = Sector.kept.where(x: x, y: y).where.not(id: id).first
     if existing
       safe_name = ERB::Util.h(existing.name)
-      path = Rails.application.routes.url_helpers.sector_path(existing)
+      slug = campaign_slug || Campaign.find_by(schema_name: Apartment::Tenant.current)&.slug
+      path = Rails.application.routes.url_helpers.sector_path(existing, campaign_slug: slug)
       errors.add(:base, %(<a href="#{path}">#{safe_name}</a> already exists at #{x}/#{y}.))
       return
     end
@@ -121,10 +123,19 @@ class Sector < ApplicationRecord
     ('A'..'P').each_with_index do |letter, index|
       sx = (index % 4) + 1
       sy = (index / 4) + 1
-      subsector_name = subsector_names&.dig(letter, 'Name')
-      letter_spec = t5_build_specs&.dig(letter)
-      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name, letter_spec || default_build_spec, letter_spec ? 'uploaded' : 'default')
+      custom = subsector_settings&.dig(letter)
+      subsector_name = custom&.dig(:name).presence || subsector_names&.dig(letter, 'Name')
+      letter_spec = t5_build_specs&.dig(letter) || custom_build_spec(custom)
+      CreateSubsectorJob.perform_later(id, letter, sx, sy, subsector_name, letter_spec || default_build_spec, t5_build_specs&.dig(letter) ? 'uploaded' : 'default', populate_subsectors)
     end
+  end
+
+  def custom_build_spec(custom)
+    return unless custom
+
+    SectorBuildSpec.to_yaml(
+      density: custom[:density], known: custom[:known], settled: custom[:settled], max_tech_level: custom[:max_tech_level]
+    )
   end
 
   def fetch_subsector_names_from_traveller_map

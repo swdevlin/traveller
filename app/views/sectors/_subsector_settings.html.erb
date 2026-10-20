@@ -1,0 +1,65 @@
+<%# locals: sector: %>
+<% settings = sector.subsector_settings || {} %>
+<div class='table-card'>
+  <div class='table-banner'>
+    <p>Subsector settings</p>
+  </div>
+
+  <div class='table-scroll'>
+    <table>
+      <thead>
+        <tr>
+          <th scope='col'>Subsector</th>
+          <th scope='col'>Name</th>
+          <th scope='col'>Density</th>
+          <th scope='col' class='text-right'>Max TL</th>
+          <th scope='col' class='text-center'>Settled</th>
+          <th scope='col' class='text-center'>Known</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% ('A'..'P').each do |letter| %>
+          <% row = settings[letter] || {} %>
+          <tr data-subsector-settings-target='row'>
+            <td class='font-mono'><%= letter %></td>
+            <td>
+              <%= text_field_tag "subsectors[#{letter}][name]", row[:name].presence || letter, class: 'edit-base w-full', 'aria-label': "Subsector #{letter} name" %>
+            </td>
+            <td>
+              <%= select_tag "subsectors[#{letter}][density]",
+                             options_for_select(SectorBuildSpec::DENSITY_OPTIONS, row[:density] || SectorBuildSpec::DEFAULT_DENSITY),
+                             class: 'edit-base w-full', 'aria-label': "Subsector #{letter} density", data: { field: 'density' } %>
+            </td>
+            <td class='text-right'>
+              <%= number_field_tag "subsectors[#{letter}][max_tech_level]", row[:max_tech_level] || SectorBuildSpec::DEFAULT_MAX_TECH_LEVEL,
+                                   min: SectorBuildSpec::MAX_TECH_LEVEL_RANGE.min, max: SectorBuildSpec::MAX_TECH_LEVEL_RANGE.max,
+                                   class: 'edit-base block w-20 ml-auto text-right', 'aria-label': "Subsector #{letter} maximum tech level", data: { field: 'maxTechLevel' } %>
+            </td>
+            <td class='text-center'>
+              <%= fields_for "subsectors[#{letter}]" do |row_form| %>
+                <div class='inline-flex' title='<%= "Subsector #{letter} settled" %>'>
+                  <%= render 'application/boolean_toggle',
+                             form: row_form,
+                             attribute: :settled,
+                             checked: row[:settled].present?,
+                             checkbox_data: { field: 'settled' } %>
+                </div>
+              <% end %>
+            </td>
+            <td class='text-center'>
+              <%= fields_for "subsectors[#{letter}]" do |row_form| %>
+                <div class='inline-flex' title='<%= "Subsector #{letter} systems known" %>'>
+                  <%= render 'application/boolean_toggle',
+                             form: row_form,
+                             attribute: :known,
+                             checked: row[:known].present?,
+                             checkbox_data: { field: 'known' } %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

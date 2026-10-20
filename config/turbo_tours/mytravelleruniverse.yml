@@ -66,15 +66,35 @@ journeys:
       title: "Imperial coordinates"
       body: "The sector's position in the Imperial grid. X increases coreward, Y increases spinward. Each sector occupies a unique position."
 
+    - name: sector_density
+      target: sector-density
+      title: "Star system density"
+      body: "The chance that each parsec holds a star system. Standard is 50%. Choose a lower density for frontier regions and rifts."
+
+    - name: sector_max_tech_level
+      target: sector-max-tech-level
+      title: "Maximum tech level"
+      body: "The highest tech level any generated system can have. Defaults to 15. When setting each subsector separately, every subsector has its own value."
+
     - name: sector_settled
       target: sector-settled
       title: "Settled space"
-      body: "Enable this for a sector in known space. The build specification will include a populated section to indicate that the sebsectors are settled and the survey index will be 10 so the players will have access to the data. For exploration regions, you can set this to false and the survey index will be 3 and the default is not populated."
+      body: "Enable this for a sector in known space. Populated systems will be generated so the sectors are inhabited. Leave it off for unsettled exploration regions."
 
-    - name: sector_build_plan
-      target: sector-build-plan
-      title: "Default build plan"
-      body: "The build specification applied to every subsector when the sector is created. Toggling settled space updates this automatically, but you can edit it directly. See the build specification reference for the full schema."
+    - name: sector_systems_known
+      target: sector-systems-known
+      title: "Systems known"
+      body: "Enable this if the players already have the data for these systems (survey index 10). Leave it off for exploration, where each system must be surveyed before its details are available (survey index 3)."
+
+    - name: sector_creation_mode
+      target: sector-creation-mode
+      title: "Creation method"
+      body: "Choose how the subsectors are set up. Same for every subsector applies one set of choices to the whole sector. Set each subsector separately lets you name each one and give it its own density, settled space and systems known. T5 import seeds the subsectors from a T5 Tab Delimited file."
+
+    - name: sector_populate
+      target: sector-populate
+      title: "Populate subsectors"
+      body: "Generate the star systems for every subsector as soon as it has been created. Leave it off to review or edit the build plans first."
 
   sectors:
     - name: sector_coordinates

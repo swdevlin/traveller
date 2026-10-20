@@ -3,9 +3,13 @@
 class CreateSubsectorJob < ApplicationJob
   queue_as :subsector_creation
 
-  def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil, build_source = 'default')
+  def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil, build_source = 'default', populate = false)
     sector = Sector.find(sector_id)
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
+
+    # The new sector form pre-fills each subsector's name with its letter. Treat that as
+    # "no name chosen" so a sector language can supply a generated name instead.
+    subsector_name = nil if subsector_name == letter
 
     subsector = sector.subsectors.find_by(x: x, y: y)
 
@@ -41,6 +45,8 @@ class CreateSubsectorJob < ApplicationJob
       subsector.update!(build: default_build_spec, build_source: build_source)
     end
 
+    queue_population(sector, subsector) if populate && subsector.build.present?
+
     ActionCable.server.broadcast(
       'ui_updates',
       { event: 'subsector_created', sector_id: sector.id, subsector_id: subsector.id }
@@ -61,6 +67,11 @@ class CreateSubsectorJob < ApplicationJob
   end
 
   private
+
+  def queue_population(sector, subsector)
+    priority = sector.x.abs * 1000 + sector.y.abs * 10 + subsector.y + subsector.x
+    GenerateSubsectorJob.set(priority: priority).perform_later(subsector.id, subsector.build)
+  end
 
   def create_parsecs(sector, subsector)
     ul = subsector.universal_coordinates.first

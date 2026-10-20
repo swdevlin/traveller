@@ -293,24 +293,14 @@ class SectorsController < ApplicationController
               filename: "#{@sector.name.parameterize}-sector-poster.pdf"
   end
 
-  SETTLED_BUILD_SPEC = <<~YAML.freeze
-    type: STANDARD
-    defaultSI: 10
-    populated:
-      type: full
-      minTechLevel: 0
-      maxTechLevel: 15
-  YAML
-
-  BASIC_BUILD_SPEC = <<~YAML.freeze
-    type: STANDARD
-    defaultSI: 3
-  YAML
-
   # GET /sectors/new
   def new
     @sector = Sector.new
-    @sector.default_build_spec = current_campaign.exploration? ? BASIC_BUILD_SPEC : SETTLED_BUILD_SPEC
+    @sector.density = SectorBuildSpec::DEFAULT_DENSITY
+    @sector.settled = @sector.systems_known = !current_campaign.exploration?
+    @sector.max_tech_level = SectorBuildSpec::DEFAULT_MAX_TECH_LEVEL
+    @sector.populate_subsectors = true
+    @sector.subsector_settings = default_subsector_settings(@sector)
   end
 
   def clear
@@ -327,13 +317,20 @@ class SectorsController < ApplicationController
   # POST /sectors or /sectors.json
   def create
     @sector = Sector.new(sector_params)
+    @sector.campaign_slug = current_campaign.slug
+    assign_build_options
 
-    if params[:t5_file].present?
+    if params[:t5_file].present? && (@sector.creation_mode == 't5' || build_option_params.empty?)
       parser = T5TabDelimitedParser.parse(params[:t5_file].read)
       if parser.systems.present?
-        survey_index = extract_survey_index(sector_params[:default_build_spec])
+        survey_index = extract_survey_index(@sector.default_build_spec)
         @sector.t5_build_specs = parser.build_plans_by_subsector(survey_index: survey_index)
       end
+    end
+
+    if @sector.creation_mode == 't5' && @sector.t5_build_specs.blank?
+      flash.now[:alert] = 'Please choose a T5 Tab Delimited file containing systems.'
+      return render :new, status: :unprocessable_entity
     end
 
     respond_to do |format|
@@ -434,11 +431,64 @@ class SectorsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_sector
       @sector = Sector.kept.find(params.expect(:id))
+      @sector.campaign_slug = current_campaign&.slug
     end
 
     # Only allow a list of trusted parameters through.
     def sector_params
       params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language, :default_build_spec, :reference_url])
+    end
+
+    def build_option_params
+      params.fetch(:sector, {}).permit(:density, :settled, :systems_known, :max_tech_level, :populate_subsectors, :creation_mode)
+    end
+
+    # The new sector form offers a few simple choices rather than raw YAML; turn them
+    # into the default build specification applied to every subsector.
+    def assign_build_options
+      options = build_option_params
+      boolean = ActiveModel::Type::Boolean.new
+      @sector.density = options[:density].presence || SectorBuildSpec::DEFAULT_DENSITY
+      @sector.settled = boolean.cast(options[:settled]) || false
+      @sector.systems_known = boolean.cast(options[:systems_known]) || false
+      @sector.max_tech_level = SectorBuildSpec.normalise_max_tech_level(options[:max_tech_level])
+      @sector.populate_subsectors = boolean.cast(options[:populate_subsectors]) || false
+      @sector.creation_mode = CREATION_MODES.include?(options[:creation_mode]) ? options[:creation_mode] : 'options'
+      @sector.subsector_settings = subsector_settings_from_params if @sector.creation_mode == 'subsectors'
+      return if options.empty? && @sector.default_build_spec.present?
+
+      @sector.default_build_spec = SectorBuildSpec.to_yaml(
+        density: @sector.density, known: @sector.systems_known, settled: @sector.settled,
+        max_tech_level: @sector.max_tech_level
+      )
+    end
+
+    CREATION_MODES = %w[options subsectors t5].freeze
+    SUBSECTOR_LETTERS = ('A'..'P').to_a.freeze
+
+    def default_subsector_settings(sector)
+      SUBSECTOR_LETTERS.index_with do |letter|
+        { name: letter, density: sector.density, settled: sector.settled, known: sector.systems_known,
+          max_tech_level: sector.max_tech_level }
+      end
+    end
+
+    # Per-subsector rows from the customise grid, keyed by subsector letter.
+    def subsector_settings_from_params
+      boolean = ActiveModel::Type::Boolean.new
+      rows = params.fetch(:subsectors, {}).permit(SUBSECTOR_LETTERS.index_with { %i[name density settled known max_tech_level] })
+      defaults = default_subsector_settings(@sector)
+
+      SUBSECTOR_LETTERS.index_with do |letter|
+        row = rows[letter] || {}
+        {
+          name: row[:name].to_s.strip.presence || letter,
+          density: row[:density].presence || defaults[letter][:density],
+          settled: boolean.cast(row[:settled]) || false,
+          known: boolean.cast(row[:known]) || false,
+          max_tech_level: SectorBuildSpec.normalise_max_tech_level(row[:max_tech_level])
+        }
+      end
     end
 
     def job_priority(sector, subsector)

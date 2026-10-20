@@ -29,51 +29,73 @@
     </div>
 
     <div>
-      <p class='text-sm font-semibold text-highlight mb-2'>Default subsector build</p>
+      <p class='text-sm font-semibold text-highlight mb-2'>Creation method</p>
       <dl class='space-y-5 text-sm'>
         <div>
-          <dt class='font-semibold text-fg-bright'>Settled space</dt>
+          <dt class='font-semibold text-fg-bright'>Same for every subsector</dt>
           <dd class='mt-1 text-fg'>
             <div class='space-y-2'>
-              <p>When enabled, each of the 16 subsectors is pre-configured with a populated build plan so that generated star systems will have populations, governments, and tech levels. The survey index is set to 10.</p>
-              <p>When disabled, subsectors are seeded with a minimal build plan and a survey index of 3. Use this for exploration or frontier sectors where population data should be sparse or absent.</p>
-              <p>Defaults to <span class='font-semibold text-fg-bright'>on</span> for Charted Space and Homebrew campaigns, and <span class='font-semibold text-fg-bright'>off</span> for Deepnight Revelation campaigns.</p>
+              <p>Choose one density and one set of settings, and every subsector in the sector is set up the same way. Subsectors are given names generated from the sector&rsquo;s language, or named with their letter if the sector has no language.</p>
+              <dl class='space-y-3 mt-3'>
+                <div>
+                  <dt class='font-semibold text-fg-bright'>Star system density</dt>
+                  <dd class='mt-1 text-fg'>The chance that each parsec holds a star system, from Dense (60%) down to Empty (0%). Standard (50%) is the default density in Traveller. Choose a lower density for frontier regions, and one of the rift options for sparsely charted voids.</dd>
+                </div>
+                <div>
+                  <dt class='font-semibold text-fg-bright'>Maximum tech level</dt>
+                  <dd class='mt-1 text-fg'>The highest tech level any generated system can have, from 0 to 33. Defaults to 15. Lower it for low-technology settings.</dd>
+                </div>
+                <div>
+                  <dt class='font-semibold text-fg-bright'>Settled space</dt>
+                  <dd class='mt-1 text-fg'>When enabled, generated star systems have populations, governments and tech levels. When disabled, systems are generated without populations. Use this for exploration or frontier sectors.</dd>
+                </div>
+                <div>
+                  <dt class='font-semibold text-fg-bright'>Systems known</dt>
+                  <dd class='mt-1 text-fg'>
+                    Whether the players already have the data for these systems. When enabled, systems are fully surveyed (survey index 10) and visible on all maps. When disabled, they are lightly surveyed (survey index 3): they appear on the starmap but without detailed world data, reflecting an exploration-era record.
+                  </dd>
+                </div>
+              </dl>
+              <p>Settled space and Systems known default to <span class='font-semibold text-fg-bright'>on</span>, except in exploration campaigns, where they default to <span class='font-semibold text-fg-bright'>off</span>.</p>
             </div>
           </dd>
         </div>
         <div>
-          <dt class='font-semibold text-fg-bright'>Survey index</dt>
+          <dt class='font-semibold text-fg-bright'>Set each subsector separately</dt>
           <dd class='mt-1 text-fg'>
             <div class='space-y-2'>
-              <p>The survey index (<code>defaultSI</code>) controls what data is visible on player-facing maps. Systems with a survey index below the map&rsquo;s threshold are hidden or shown with reduced detail.</p>
-              <p>A value of <span class='font-semibold text-fg-bright'>10</span> marks a system as fully surveyed and visible on all maps. A value of <span class='font-semibold text-fg-bright'>3</span> marks it as lightly surveyed — it will appear on the starmap but without detailed world data, reflecting an exploration-era record.</p>
+              <p>Shows a grid of the 16 subsectors, A to P. For each one you can enter a name (blank names fall back to the subsector letter) and set its own density, maximum tech level, settled space and systems known.</p>
+              <p>Names are pre-filled with the subsector letter. If the sector has a language, any name still set to its letter is replaced with a name generated from that language when the subsector is created. A name you type yourself is always kept.</p>
+              <p>The grid starts from the values chosen under <i>Same for every subsector</i> when you switch to it, so you only need to change the exceptions.</p>
             </div>
           </dd>
         </div>
         <div>
-          <dt class='font-semibold text-fg-bright'>T5 Tab Delimited File</dt>
+          <dt class='font-semibold text-fg-bright'>T5 import</dt>
           <dd class='mt-1 text-fg'>
             <div class='space-y-2'>
-              <p>Homebrew campaigns only. Optionally upload a whole-sector
+              <p>Homebrew campaigns only. Upload a whole-sector
                 <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
-                file to seed each of the 16 subsectors with its own build plan, derived from the systems that fall
-                within its hexes.
+                file to seed each of the 16 subsectors with its own configuration, derived from the systems that fall
+                within its hexes. A file containing systems is required.
               </p>
-              <p>While a file is attached, it takes precedence over the Build plan field below for system
-                placement &mdash; the field becomes read-only to reflect this. Survey index still applies from
-                Settled space above, to every subsector, regardless of the uploaded file. Subsectors with no
-                matching rows in the file fall back to the build plan below.
+              <p>Systems known still applies to every subsector, regardless of the uploaded file. Subsectors with no
+                matching rows in the file are created with standard density.
               </p>
             </div>
           </dd>
         </div>
+      </dl>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight mb-2'>After creation</p>
+      <dl class='space-y-5 text-sm'>
         <div>
-          <dt class='font-semibold text-fg-bright'>Build plan</dt>
+          <dt class='font-semibold text-fg-bright'>Populate subsectors</dt>
           <dd class='mt-1 text-fg'>
-            YAML configuration applied to every subsector when the sector is created. You can customise it here
-            before committing, unless a T5 Tab Delimited file is attached above, in which case it is locked and
-            the uploaded file&rsquo;s data is used instead.
-            See the <%= link_to 'build specification reference', help_page_path('subsector_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> for the full schema.
+            When enabled (the default), generation of each subsector is queued as soon as the subsector has been created, so the sector fills in without further action. Disable it if you want to review or edit the subsector configurations first; you can populate them later from the sector or subsector pages.
+            The configuration is created for you; the <%= link_to 'build specification reference', help_page_path('subsector_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %> describes it in full should you wish to edit a subsector&rsquo;s configuration afterwards.
           </dd>
         </div>
       </dl>

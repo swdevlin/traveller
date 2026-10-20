@@ -31,11 +31,34 @@ export default class extends Controller {
     this.reload();
   }
 
-  reload() {
+  // Reload one at a time. A burst of events (e.g. sixteen subsectors being created) would
+  // otherwise start overlapping frame loads that cancel each other; events arriving while a
+  // load is in flight are coalesced into a single follow-up reload.
+  async reload() {
+    if (this.loading) {
+      this.reloadPending = true;
+      return;
+    }
+
     const src = this.hasSrcValue ? this.srcValue : this.element.getAttribute("src");
-    if (src) {
-      this.element.src = "";
-      this.element.src = src;
+    if (!src) return;
+
+    this.loading = true;
+    try {
+      if (this.element.getAttribute("src") === src) {
+        await this.element.reload();
+      } else {
+        this.element.src = src;
+        await this.element.loaded;
+      }
+    } catch (error) {
+      console.error("ui-updates reload failed", error);
+    } finally {
+      this.loading = false;
+      if (this.reloadPending) {
+        this.reloadPending = false;
+        this.reload();
+      }
     }
   }
 

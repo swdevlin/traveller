@@ -37,42 +37,90 @@
     </div>
 
     <% if sector.new_record? %>
-      <% settled = sector.default_build_spec.to_s.include?('populated') %>
-      <div data-controller='settled-build'
-           data-settled-build-settled-yaml-value="<%= SectorsController::SETTLED_BUILD_SPEC %>"
-           data-settled-build-basic-yaml-value="<%= SectorsController::BASIC_BUILD_SPEC %>"
-           >
-        <div data-tour-step='sector-settled'>
+      <% mode = sector.creation_mode.presence || 'options' %>
+      <% mode_class = ->(*modes) { 'hidden' unless modes.include?(mode) } %>
+      <% mode_choices = [['options', 'Same for every subsector', 'All subsectors in the sector have the same density and population characteristics.'],
+                         ['subsectors', 'Set each subsector separately', 'Name each subsector and choose its own density and settings.']] %>
+      <% mode_choices << ['t5', 'T5 import', 'Seed the subsectors from a T5 Tab Delimited file.'] if current_campaign.homebrew? %>
+
+      <div data-controller='subsector-settings' class='space-y-6'>
+        <div data-tour-step='sector-creation-mode'>
+          <div class='edit-label'>Creation method</div>
+          <div class='mt-2 space-y-2'>
+            <% mode_choices.each do |value, label, hint| %>
+              <label class='flex items-start gap-3 cursor-pointer'>
+                <%= form.radio_button :creation_mode, value,
+                                      checked: mode == value,
+                                      class: 'mt-1 accent-highlight',
+                                      data: { subsector_settings_target: 'mode', action: 'change->subsector-settings#changeMode' } %>
+                <span>
+                  <span class='block text-sm text-fg-bright'><%= label %></span>
+                  <span class='block text-xs text-fg-muted'><%= hint %></span>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <div data-subsector-settings-target='section' data-modes='options' class='space-y-6 <%= mode_class.call('options') %>'>
+          <div data-tour-step='sector-density'>
+            <label for='sector_density' class='edit-label'>Star system density</label>
+            <p class='text-xs text-fg-muted mt-1'>Chance that each parsec holds a star system.</p>
+            <%= form.select :density, SectorBuildSpec::DENSITY_OPTIONS, {}, class: 'edit-base mt-2', data: { subsector_settings_target: 'density' } %>
+          </div>
+
+          <div data-tour-step='sector-max-tech-level'>
+            <label for='sector_max_tech_level' class='edit-label'>Maximum tech level</label>
+            <p class='text-xs text-fg-muted mt-1'>No generated system will exceed this tech level.</p>
+            <%= form.number_field :max_tech_level, min: SectorBuildSpec::MAX_TECH_LEVEL_RANGE.min, max: SectorBuildSpec::MAX_TECH_LEVEL_RANGE.max,
+                                  value: sector.max_tech_level || SectorBuildSpec::DEFAULT_MAX_TECH_LEVEL,
+                                  class: 'edit-base mt-2 w-24', data: { subsector_settings_target: 'maxTechLevel' } %>
+          </div>
+
+          <div data-tour-step='sector-settled'>
+            <%= render 'application/boolean_toggle',
+                       form: form,
+                       attribute: :settled,
+                       checked: sector.settled.present?,
+                       label: 'Settled space',
+                       checkbox_data: { 'subsector-settings-target': 'settled' },
+                       hint: 'Generate populated systems.' %>
+          </div>
+        </div>
+
+        <div data-subsector-settings-target='section' data-modes='options t5' class='<%= mode_class.call('options', 't5') %>' data-tour-step='sector-systems-known'>
           <%= render 'application/boolean_toggle',
                      form: form,
-                     attribute: :settled,
-                     checked: settled,
-                     label: 'Settled space',
-                     checkbox_data: { 'settled-build-target': 'checkbox', action: 'change->settled-build#toggle' } %>
+                     attribute: :systems_known,
+                     checked: sector.systems_known.present?,
+                     label: 'Systems known',
+                     checkbox_data: { 'subsector-settings-target': 'known' },
+                     hint: 'Players have already surveyed these systems.' %>
+        </div>
+
+        <div data-subsector-settings-target='section' data-modes='subsectors' class='<%= mode_class.call('subsectors') %>'>
+          <%= render 'sectors/subsector_settings', sector: sector %>
         </div>
 
         <% if current_campaign.homebrew? %>
-          <div class='mt-4'>
-            <div class='edit-label'>T5 Tab Delimited File (optional)</div>
+          <div data-subsector-settings-target='section' data-modes='t5' class='<%= mode_class.call('t5') %>'>
+            <div class='edit-label'>T5 Tab Delimited File</div>
             <p class='text-xs text-fg-muted mt-1'>
               Upload a whole-sector
               <%= link_to 'T5 Tab Delimited', 'https://travellermap.com/doc/fileformats#t5tab', target: '_blank', rel: 'noopener', class: 'no-underline hover:underline hover:underline-offset-2' %>
-              file to seed each subsector&rsquo;s build configuration individually, overriding the build plan below. Survey index still comes from Settled space above.
+              file to seed each subsector&rsquo;s build configuration individually. The survey index still comes from Systems known.
             </p>
-            <%= render 'application/file_field',
-                       name: 't5_file', accept: '.txt,.tab', wrapper_class: 'w-full mt-2',
-                       data: { 'settled-build-target': 'fileInput', action: 'change->settled-build#toggleFileLock' } %>
+            <%= render 'application/file_field', name: 't5_file', accept: '.txt,.tab', wrapper_class: 'w-full mt-2' %>
           </div>
         <% end %>
 
-        <div class='mt-4' data-tour-step='sector-build-plan'>
-          <p data-settled-build-target='fileLockNotice' class='hidden text-xs text-fg-muted mb-1'>
-            Locked &mdash; overridden by the uploaded T5 file above.
-          </p>
-          <%= render 'application/build_config',
+        <div data-tour-step='sector-populate'>
+          <%= render 'application/boolean_toggle',
                      form: form,
-                     attribute: :default_build_spec,
-                     textarea_data: { 'settled-build-target': 'textarea' } %>
+                     attribute: :populate_subsectors,
+                     checked: sector.populate_subsectors.present?,
+                     label: 'Populate subsectors',
+                     hint: 'Queue generation of each subsector as soon as it has been created.' %>
         </div>
       </div>
     <% end %>

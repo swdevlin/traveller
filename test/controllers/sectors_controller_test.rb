@@ -30,13 +30,63 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
       post sectors_url, params: {
         sector: {
           abbreviation: @sector.abbreviation, name: @sector.name, x: 13, y: 13,
-          default_build_spec: SectorsController::SETTLED_BUILD_SPEC
+          creation_mode: 't5', systems_known: '1'
         },
         t5_file: file
       }
     end
 
     assert_redirected_to sector_url(Sector.last)
+  end
+
+  test 'should build the default build spec from the form options and queue population' do
+    assert_difference('Sector.count') do
+      post sectors_url, params: {
+        sector: {
+          abbreviation: 'ZZ', name: 'Optioned', x: 14, y: 14,
+          density: 'SPARSE', settled: '0', systems_known: '0', populate_subsectors: '1'
+        }
+      }
+    end
+
+    sector = Sector.find_by!(name: 'Optioned')
+    assert_redirected_to sector_url(sector)
+  end
+
+  test 'should create sector with customised subsector settings' do
+    assert_difference('Sector.count') do
+      post sectors_url, params: {
+        sector: { abbreviation: 'YY', name: 'Gridded', x: 15, y: 15, creation_mode: 'subsectors' },
+        subsectors: { 'A' => { name: 'Alpha', density: 'DENSE', settled: '1', known: '0', max_tech_level: '12' } }
+      }
+    end
+
+    assert_redirected_to sector_url(Sector.find_by!(name: 'Gridded'))
+  end
+
+  test 'sector create_subsectors queues customised names and specs' do
+    sector = Sector.new(name: 'Q', x: 16, y: 16, abbreviation: 'QQ')
+    sector.default_build_spec = 'type: STANDARD'
+    sector.subsector_settings = { 'A' => { name: 'Alpha', density: 'DENSE', settled: true, known: false, max_tech_level: 12 } }
+    assert_equal "type: DENSE\ndefaultSI: 3\nmaxTechLevel: 12\npopulated:\n  type: full\n  minTechLevel: 0\n  maxTechLevel: 12\n",
+                 sector.send(:custom_build_spec, sector.subsector_settings['A'])
+  end
+
+  test 'T5 mode without a file re-renders the form' do
+    assert_no_difference('Sector.count') do
+      post sectors_url, params: { sector: { abbreviation: 'XX', name: 'NoFile', x: 17, y: 17, creation_mode: 't5' } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test 'creating a sector at occupied coordinates re-renders with a link to the existing sector' do
+    assert_no_difference('Sector.count') do
+      post sectors_url, params: { sector: { abbreviation: 'DD', name: 'Dup', x: @sector.x, y: @sector.y } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, 'already exists at'
   end
 
   test 'should show sector' do
