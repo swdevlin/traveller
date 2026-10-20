@@ -40,6 +40,7 @@
       <% end %>
       <%= tag.li('None', class: 'text-fg-muted') if @worlds.empty? %>
     </ul>
+    <%== @pagy.series_nav %>
 
     <div class='flex flex-col sm:flex-row gap-2'>
       <%= link_to 'Edit', edit_sophont_path(@sophont), class: 'w-full sm:w-auto btn btn-primary' %>

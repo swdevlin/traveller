@@ -11,6 +11,15 @@ class SophontsControllerTest < AuthenticatedIntegrationTest
     assert_match 'Vargr', response.body
   end
 
+  test 'index is paginated' do
+    30.times { |i| Sophont.create!(name: "Species #{format('%02d', i)}") }
+    get sophonts_url
+    assert_response :success
+    assert_select 'tbody tr', 10
+    get sophonts_url(page: 4)
+    assert_select 'tbody tr', 1
+  end
+
   test 'create adds a sophont' do
     assert_difference 'Sophont.count' do
       post sophonts_url, params: { sophont: { name: 'Aslan', language: 'aslan' } }

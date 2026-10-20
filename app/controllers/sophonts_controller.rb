@@ -8,11 +8,12 @@ class SophontsController < ApplicationController
   before_action :set_sophont, only: %i[show edit update destroy picture]
 
   def index
-    @sophonts = Sophont.ordered.includes(home_system: { parsec: :sector })
+    scope = Sophont.ordered.includes(home_system: { parsec: :sector })
+    @pagy, @sophonts = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
   def show
-    @worlds = @sophont.worlds.order(:name)
+    @pagy, @worlds = pagy(@sophont.worlds.order(:name), limit: 10, params: request.query_parameters)
   end
 
   def new
