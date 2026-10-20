@@ -37,4 +37,15 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
 
     assert_equal 'A', subsector.name
   end
+
+  test 'a Traveller Map subsector queues its population when asked to' do
+    stub_request(:get, %r{travellermap\.com/api/sec\?}).to_return(status: 200, body: file_fixture('t5_tab_subsector.txt').read)
+    sector = Sector.new(name: 'Mapped', abbreviation: 'Mp', x: 41, y: 41, source: 'traveller_map')
+    sector.skip_subsector_creation = true
+    sector.save!(validate: false)
+
+    assert_enqueued_with(job: GenerateSubsectorJob) do
+      CreateSubsectorJob.perform_now(sector.id, 'A', 1, 1, 'Mapped A', nil, 'default', true)
+    end
+  end
 end

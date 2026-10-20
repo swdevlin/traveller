@@ -319,6 +319,8 @@ class SectorsController < ApplicationController
     @sector = Sector.new(sector_params)
     @sector.campaign_slug = current_campaign.slug
     assign_build_options
+    # Imported sectors always have their subsectors populated from the Traveller Map data.
+    @sector.populate_subsectors = true if @sector.source == 'traveller_map'
 
     if params[:t5_file].present? && (@sector.creation_mode == 't5' || build_option_params.empty?)
       parser = T5TabDelimitedParser.parse(params[:t5_file].read)
