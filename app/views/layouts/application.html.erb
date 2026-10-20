@@ -90,11 +90,11 @@
       <i class='fa-brands fa-bluesky'></i>
     <% end %>
 
-    <%= link_to 'https://github.com/swdevlin/traveller',
-                target: '_blank',
-                rel: 'noopener',
+    <%= mail_to 'mytravelleruniverse@gmail.com',
+                title: 'Email',
+                aria: { label: 'Email' },
                 class: 'no-underline hover:text-highlight transition-colors' do %>
-      <i class='fa-brands fa-github mr-1'></i>
+      <i class='fa-regular fa-envelope'></i>
     <% end %>
 
     <%= link_to fairuse_path,
@@ -105,6 +105,22 @@
     <%= link_to 'Δ',
                 deltas_path,
                 class: 'no-underline hover:text-highlight transition-colors font-bold' %>
+
+    <%= link_to 'https://app.fizzy.do/6303717/public/boards/JhzXjsgtppTYSQMhMbZfok9W',
+                target: '_blank',
+                rel: 'noopener',
+                title: 'Kanban board',
+                aria: { label: 'Kanban board' },
+                class: 'no-underline hover:text-highlight transition-colors' do %>
+      <i class='fa-solid fa-chart-kanban'></i>
+    <% end %>
+
+    <%= link_to 'https://github.com/swdevlin/traveller',
+                target: '_blank',
+                rel: 'noopener',
+                class: 'no-underline hover:text-highlight transition-colors' do %>
+      <i class='fa-brands fa-github mr-1'></i>
+    <% end %>
   </div>
 </footer>
 </body>
