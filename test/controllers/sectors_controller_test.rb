@@ -234,6 +234,31 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_match(/Condyole/, subsector_b.build)
   end
 
+  test 'upload_t5 blocks an invalid file with a helpful alert' do
+    subsector = subsectors(:subsector_1_1)
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_invalid_hex.txt'), 'text/plain')
+
+    post upload_t5_sector_url(@sector), params: { t5_file: file }
+
+    assert_redirected_to sector_url(@sector)
+    assert_match(/Line 4: missing or invalid Hex/, flash[:alert])
+    assert_not_equal 'uploaded', subsector.reload.build_source
+  end
+
+  test 'create sector rejects an invalid T5 file' do
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_invalid_hex.txt'), 'text/plain')
+
+    assert_no_difference('Sector.count') do
+      post sectors_url, params: {
+        sector: { abbreviation: 'XX', name: 'Bad T5', x: 17, y: 17, creation_mode: 't5' },
+        t5_file: file
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match(/missing or invalid Hex/, flash[:alert])
+  end
+
   test 'upload_t5 redirects with alert when no file given' do
     post upload_t5_sector_url(@sector)
     assert_redirected_to sector_url(@sector)

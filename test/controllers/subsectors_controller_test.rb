@@ -181,6 +181,16 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_match(/Efate/, subsector.build)
   end
 
+  test 'upload_t5 blocks an invalid file with a helpful alert' do
+    subsector = subsectors(:subsector_1_1)
+    file = Rack::Test::UploadedFile.new(file_fixture('t5_tab_invalid_hex.txt'), 'text/plain')
+
+    post upload_t5_subsector_url(subsector), params: { t5_file: file }
+
+    assert_redirected_to subsector_url(subsector)
+    assert_match(/Line 4: missing or invalid Hex/, flash[:alert])
+  end
+
   test 'upload_t5 redirects with alert when no file given' do
     post upload_t5_subsector_url(@subsector)
     assert_redirected_to subsector_url(@subsector)

@@ -97,7 +97,11 @@ class SubsectorsController < ApplicationController
       return redirect_to subsector_path(@subsector), alert: 'Please choose a T5 Tab Delimited file.'
     end
 
-    @subsector.load_t5_defaults!(file.read)
+    begin
+      @subsector.load_t5_defaults!(file.read)
+    rescue T5TabDelimitedParser::InvalidFile => e
+      return redirect_to subsector_path(@subsector), alert: e.message
+    end
     if @subsector.build.present? && @subsector.save
       redirect_to subsector_path(@subsector), notice: 'T5 file loaded.'
     else

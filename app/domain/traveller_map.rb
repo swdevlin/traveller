@@ -40,6 +40,9 @@ class TravellerMap
     return [] if body.nil?
 
     T5TabDelimitedParser.parse(body).systems
+  rescue T5TabDelimitedParser::InvalidFile => e
+    Rails.logger.error "Traveller Map returned an unreadable T5 file: #{e.message}"
+    []
   end
 
   def fetch_sector_metadata(sector_x, sector_y)

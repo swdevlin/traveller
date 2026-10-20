@@ -286,4 +286,31 @@ class T5TabDelimitedParserTest < ActiveSupport::TestCase
     assert_equal 1, b_plan['systems'].length
     assert_equal 'Gamma', b_plan['systems'].first['name']
   end
+
+  test 'parse ignores blank lines' do
+    parser = T5TabDelimitedParser.parse("Hex\tName\n0101\tA\n\n0102\tB\n\n")
+    assert_equal %w[0101 0102], parser.systems.map { |s| s['Hex'] }
+  end
+
+  test 'parse raises with line numbers for missing or invalid hexes' do
+    error = assert_raises(T5TabDelimitedParser::InvalidFile) do
+      T5TabDelimitedParser.parse(file_fixture('t5_tab_invalid_hex.txt').read)
+    end
+
+    assert_match(/Line 4: missing or invalid Hex \("01A3"\)/, error.message)
+    assert_match(/Line 6: missing or invalid Hex/, error.message)
+    assert_match(/Line 7: missing or invalid Hex \("9901"\)/, error.message)
+    assert_no_match(/Line 5/, error.message)
+  end
+
+  test 'parse raises when the header has no Hex column' do
+    error = assert_raises(T5TabDelimitedParser::InvalidFile) { T5TabDelimitedParser.parse("Name\tUWP\nA\tB\n") }
+    assert_match(/Missing Hex column/, error.message)
+  end
+
+  test 'parse truncates the reported errors' do
+    text = "Hex\n#{(['bad'] * 8).join("\n")}\n"
+    error = assert_raises(T5TabDelimitedParser::InvalidFile) { T5TabDelimitedParser.parse(text) }
+    assert_match(/and 3 more/, error.message)
+  end
 end

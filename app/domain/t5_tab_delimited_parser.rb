@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class T5TabDelimitedParser
+  MAX_REPORTED_ERRORS = 5
+
+  class InvalidFile < StandardError
+    def initialize(errors)
+      errors = Array(errors)
+      message = errors.first(MAX_REPORTED_ERRORS).join('; ')
+      extra = errors.size - MAX_REPORTED_ERRORS
+      message += "; and #{extra} more" if extra.positive?
+      super("The T5 file could not be read. #{message}")
+    end
+  end
+
   def self.parse(text)
     new(parse_rows(text))
   end
@@ -10,13 +22,32 @@ class T5TabDelimitedParser
     return [] if lines.empty?
 
     headers = lines.first.split("\t")
-    lines[1..].map do |line|
+    raise InvalidFile, 'Missing Hex column in header row' unless headers.include?('Hex')
+
+    errors = []
+    rows = []
+    lines.each_with_index.drop(1).each do |line, index|
+      next if line.strip.empty?
+
       values = line.split("\t")
-      headers.each_with_index.with_object({}) do |(header, i), hash|
-        hash[header] = values[i]
+      row = headers.each_with_index.with_object({}) { |(header, i), hash| hash[header] = values[i] }
+      if valid_hex?(row['Hex'])
+        rows << row
+      else
+        errors << "Line #{index + 1}: missing or invalid Hex (#{row['Hex'].inspect})"
       end
     end
+    raise InvalidFile, errors if errors.any?
+
+    rows
   end
+
+  def self.valid_hex?(hex)
+    return false unless hex.to_s.match?(/\A\d{4}\z/)
+
+    hex[0, 2].to_i.between?(1, 32) && hex[2, 2].to_i.between?(1, 40)
+  end
+  private_class_method :valid_hex?
   private_class_method :parse_rows
 
   def initialize(systems)

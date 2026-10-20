@@ -70,7 +70,11 @@ class SectorsController < ApplicationController
       return redirect_to sector_path(@sector), alert: 'Please choose a T5 Tab Delimited file.'
     end
 
-    parser = T5TabDelimitedParser.parse(file.read)
+    begin
+      parser = T5TabDelimitedParser.parse(file.read)
+    rescue T5TabDelimitedParser::InvalidFile => e
+      return redirect_to sector_path(@sector), alert: e.message
+    end
     plans = parser.build_plans_by_subsector
 
     count = 0
@@ -323,10 +327,15 @@ class SectorsController < ApplicationController
     @sector.populate_subsectors = true if @sector.source == 'traveller_map'
 
     if params[:t5_file].present? && (@sector.creation_mode == 't5' || build_option_params.empty?)
-      parser = T5TabDelimitedParser.parse(params[:t5_file].read)
-      if parser.systems.present?
-        survey_index = extract_survey_index(@sector.default_build_spec)
-        @sector.t5_build_specs = parser.build_plans_by_subsector(survey_index: survey_index)
+      begin
+        parser = T5TabDelimitedParser.parse(params[:t5_file].read)
+        if parser.systems.present?
+          survey_index = extract_survey_index(@sector.default_build_spec)
+          @sector.t5_build_specs = parser.build_plans_by_subsector(survey_index: survey_index)
+        end
+      rescue T5TabDelimitedParser::InvalidFile => e
+        flash.now[:alert] = e.message
+        return render :new, status: :unprocessable_entity
       end
     end
 
