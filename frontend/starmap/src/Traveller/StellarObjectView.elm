@@ -156,6 +156,24 @@ renderSODescription onClick description orbitSequence =
         )
 
 
+renderReferenceLink : Maybe String -> Element msg
+renderReferenceLink maybeUrl =
+    case maybeUrl of
+        Just url ->
+            Element.newTabLink
+                [ Font.size 10
+                , Element.paddingEach { zeroEach | top = 2 }
+                , Element.htmlAttribute (HtmlAttrs.class "starmap-icon-hover")
+                , Element.htmlAttribute (HtmlAttrs.title "Reference")
+                ]
+                { url = url
+                , label = renderIconRaw "fa-solid fa-book"
+                }
+
+        Nothing ->
+            Element.none
+
+
 iconSizing : List (Element.Attribute msg)
 iconSizing =
     [ Element.height <| Element.px 16, Element.width <| Element.px 16 ]
@@ -289,6 +307,7 @@ renderTerrestrialPlanet msgs newNestingLevel terrestrialData jumpShadowCheckers 
         [ orbit
         , renderOrbitSequence terrestrialData.orbitSequence
         , renderSODescription (msgs.onViewDetail planet) terrestrialData.uwp terrestrialData.orbitSequence
+        , renderReferenceLink terrestrialData.referenceUrl
         , renderImage terrestrialData.uwp terrestrialData.meanTemperature
         , renderJumpTime mDrive maxShadow terrestrialData.jumpShadow
         ]
@@ -314,6 +333,7 @@ renderPlanetoidBelt msgs newNestingLevel planetoidBeltData jumpShadowCheckers is
         [ orbit
         , renderOrbitSequence planetoidBeltData.orbitSequence
         , renderSODescription (msgs.onViewDetail belt) planetoidBeltData.uwp planetoidBeltData.orbitSequence
+        , renderReferenceLink planetoidBeltData.referenceUrl
         , renderImage planetoidBeltData.uwp Nothing
         , renderJumpTime mDrive maxShadow planetoidBeltData.jumpShadow
         ]
@@ -339,6 +359,7 @@ renderPlanetoid msgs newNestingLevel planetoidData jumpShadowCheckers isReferee 
         [ orbit
         , renderOrbitSequence planetoidData.orbitSequence
         , renderSODescription (msgs.onViewDetail planet) planetoidData.uwp planetoidData.orbitSequence
+        , renderReferenceLink planetoidData.referenceUrl
         , renderImage planetoidData.uwp planetoidData.meanTemperature
         , renderJumpTime mDrive maxShadow planetoidData.jumpShadow
         ]

@@ -38,7 +38,7 @@ class StellarObjectsController < ApplicationController
       format.html
       format.json
       format.md do
-        presenter = StellarObjectMarkdownPresenter.for(@stellar_object)
+        presenter = StellarObjectMarkdownPresenter.for(@stellar_object, current_campaign)
         render plain: presenter.render, content_type: 'text/markdown'
       end
     end

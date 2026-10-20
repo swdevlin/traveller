@@ -75,36 +75,62 @@ class CityTest < ActiveSupport::TestCase
     assert_equal 'World capital', city.capital_label
   end
 
-  test 'destroying a city redistributes its population proportionally to remaining cities' do
+  test 'destroying a city reduces the major city population by its population' do
     stellar_object = stellar_objects(:planet_near_primary)
-    departing = City.create!(stellar_object: stellar_object, population: 520000)
-    first = City.create!(stellar_object: stellar_object, population: 310000)
-    second = City.create!(stellar_object: stellar_object, population: 150000)
+    stellar_object.cities.destroy_all
+    departing = City.create!(stellar_object: stellar_object, population: 600)
+    remaining = City.create!(stellar_object: stellar_object, population: 400)
 
     departing.destroy!
 
-    assert_equal 660435, first.reload.population
-    assert_equal 319565, second.reload.population
-    assert_equal 980000, first.population + second.population
-  end
-
-  test 'destroying a city splits population evenly when remaining cities have zero population' do
-    stellar_object = stellar_objects(:planet_near_primary)
-    departing = City.create!(stellar_object: stellar_object, population: 100)
-    a = City.create!(stellar_object: stellar_object, population: 0)
-    b = City.create!(stellar_object: stellar_object, population: 0)
-    c = City.create!(stellar_object: stellar_object, population: 0)
-
-    departing.destroy!
-
-    assert_equal 33, a.reload.population
-    assert_equal 33, b.reload.population
-    assert_equal 34, c.reload.population
+    assert_equal 400, remaining.reload.population
+    stellar_object.reload
+    assert_equal 1, stellar_object.population_major_cities
+    assert_equal 400, stellar_object.population_major_city_population
   end
 
   test 'destroying the only city on a stellar object does not error' do
     city = City.create!(stellar_object: stellar_objects(:planet_near_primary), population: 500)
 
     assert_nothing_raised { city.destroy! }
+  end
+
+  test 'saving and destroying cities keeps the major city count and population in step' do
+    stellar_object = stellar_objects(:planet_near_primary)
+    stellar_object.cities.destroy_all
+    a = City.create!(stellar_object: stellar_object, population: 1000)
+    City.create!(stellar_object: stellar_object, population: 500)
+
+    stellar_object.reload
+    assert_equal 2, stellar_object.population_major_cities
+    assert_equal 1500, stellar_object.population_major_city_population
+
+    a.update!(population: 2000)
+    assert_equal 2500, stellar_object.reload.population_major_city_population
+
+    stellar_object.cities.destroy_all
+    stellar_object.reload
+    assert_equal 0, stellar_object.population_major_cities
+    assert_nil stellar_object.population_major_city_population
+  end
+
+  test 'bulk inserts and deletes also keep the major city totals in step' do
+    stellar_object = stellar_objects(:planet_near_primary)
+    stellar_object.cities.delete_all
+    now = Time.current
+    City.insert_all!([
+      { stellar_object_id: stellar_object.id, population: 700, created_at: now, updated_at: now },
+      { stellar_object_id: stellar_object.id, population: 300, created_at: now, updated_at: now }
+    ])
+
+    stellar_object.reload
+    assert_equal 2, stellar_object.population_major_cities
+    assert_equal 1000, stellar_object.population_major_city_population
+
+    stellar_object.cities.where(population: 700).delete_all
+
+    stellar_object.reload
+    assert_equal 1, stellar_object.population_major_cities
+    assert_equal 300, stellar_object.population_major_city_population
   end
 end

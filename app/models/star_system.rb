@@ -190,6 +190,10 @@ class StarSystem < ApplicationRecord
     Planetoid.where(star_system_id: id).group("(data ->> 'planetoid_belt_id')::int").count
   end
 
+  def effective_reference_url(campaign)
+    reference_url.presence || main_world&.effective_reference_url(campaign) || super
+  end
+
   private
 
   def default_reference_url

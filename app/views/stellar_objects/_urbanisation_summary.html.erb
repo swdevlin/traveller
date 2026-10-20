@@ -1,0 +1,17 @@
+<%# Replaced in place by the city turbo streams so the major city total follows city edits. %>
+<%
+  urbanization_percentage = stellar_object.population&.dig('urbanizationPercentage')
+  major_city_population = stellar_object.population_major_city_population
+%>
+<div id='<%= dom_id(stellar_object, :urbanisation_summary) %>' class='hidden has-[div]:block'>
+  <% if urbanization_percentage.present? || major_city_population.present? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% if urbanization_percentage.present? %>
+        <%= render 'application/data_block', label: 'Urbanisation', value: "#{urbanization_percentage}%" %>
+      <% end %>
+      <% if major_city_population.present? %>
+        <%= render 'application/data_block', label: 'Major City Population', value: number_with_delimiter(major_city_population) %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

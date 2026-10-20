@@ -2,8 +2,6 @@
   population_code = stellar_object.population&.dig('code')
   census_population = stellar_object.population&.dig('censusPopulation')
   concentration_rating = stellar_object.population&.dig('concentrationRating')
-  urbanization_percentage = stellar_object.population&.dig('urbanizationPercentage')
-  major_city_population = stellar_object.population_major_city_population
   show_sophont = stellar_object.respond_to?(:native_sophont)
 %>
 <div class="space-y-4">
@@ -28,16 +26,7 @@
     </div>
   <% end %>
 
-  <% if urbanization_percentage.present? || major_city_population.present? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <% if urbanization_percentage.present? %>
-        <%= render 'application/data_block', label: 'Urbanisation', value: "#{urbanization_percentage}%" %>
-      <% end %>
-      <% if major_city_population.present? %>
-        <%= render 'application/data_block', label: 'Major City Population', value: number_with_delimiter(major_city_population) %>
-      <% end %>
-    </div>
-  <% end %>
+  <%= render 'stellar_objects/urbanisation_summary', stellar_object: stellar_object %>
 
   <% if stellar_object.respond_to?(:population_diversity) && StellarObjectsHelper::CULTURE_TRAIT_DATA.any? { |t| stellar_object.send(t[:getter]).present? } %>
     <%= render 'application/subsection', title: 'Culture' %>

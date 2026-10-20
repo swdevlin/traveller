@@ -19,6 +19,12 @@
       <%= form.text_area :notes, rows: 6, class: "edit-base mt-2 w-full resize-y" %>
       <%= render 'application/field_error', form: form, attribute: :notes if local_assigns.fetch(:show_notes_field_error, false) %>
     </div>
+    <div>
+      <%= render 'application/edit_field', form: form, attribute: :reference_url, field_label: 'Reference link' do %>
+        <%= form.text_field :reference_url, class: 'w-full edit-base',
+                                                  placeholder: form.object.derived_reference_url(current_campaign) %>
+      <% end %>
+    </div>
     <% end %>
 
     <div class="pt-2 flex flex-col sm:flex-row gap-2">

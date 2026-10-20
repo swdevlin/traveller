@@ -14,6 +14,8 @@ class TerrestrialPlanet < StellarObject
 
   private
 
+  def default_reference_url = StellarObject.wiki_world_url(name)
+
   def set_default_data
     self.atmosphere ||= Atmosphere.new
     self.hydrographics ||= Hydrographics.new

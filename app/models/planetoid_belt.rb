@@ -15,7 +15,7 @@ class PlanetoidBelt < StellarObject
 
   def self.permitted_params
     [
-      :name, :notes, :orbit, :inclination, :eccentricity, :sophont_id, :new_sophont_name,
+      :name, :notes, :reference_url, :orbit, :inclination, :eccentricity, :sophont_id, :new_sophont_name,
       *uwp_attribute_names,
       data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
              :temperature, :retrograde, :period, :native_sophont, :extinct_sophont]
@@ -68,6 +68,8 @@ class PlanetoidBelt < StellarObject
   )
 
   private
+
+  def default_reference_url = StellarObject.wiki_world_url(name)
 
   def orbit_above_minimum
     min = orbiting.minimum_allowable_orbit
