@@ -161,6 +161,7 @@ Rails.application.routes.draw do
       end
       resources :cities, only: %i[new create edit update destroy], shallow: true
       resources :moons, only: %i[new create]
+      resources :planetoids, only: %i[new create]
       resources :rings, only: %i[new create edit update destroy], shallow: true
     end
 

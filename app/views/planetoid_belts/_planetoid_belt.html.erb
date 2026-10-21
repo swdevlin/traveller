@@ -14,10 +14,7 @@
   hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
   hierarchy << [parent.display_name, star_path(parent)] if parent
 
-  extra_tabs = [
-    { id: 'significant_bodies', code: (@planetoid_count || 0).to_s, label: 'Bodies',
-      partial: 'planetoid_belts/significant_bodies_tab', locals: {} }
-  ]
+  extra_tabs = []
   if planetoid_belt.respond_to?(:cities)
     extra_tabs << { id: 'cities', code: planetoid_belt.cities.count.to_s, label: 'Cities',
                     partial: 'stellar_objects/cities_tab', locals: { stellar_object: planetoid_belt } }
@@ -39,4 +36,8 @@
 
   <%= render 'stellar_objects/known_toggle', stellar_object: planetoid_belt %>
   <%= render 'application/observation_block', notes: planetoid_belt.notes %>
+
+  <% if @planetoids %>
+    <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
+  <% end %>
 </div>

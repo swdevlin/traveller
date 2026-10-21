@@ -5,7 +5,7 @@ class PlanetoidBeltsControllerTest < AuthenticatedIntegrationTest
     @star_system = star_systems(:hierarchy_system)
     @star = @star_system.primary_star
     @params = {
-      name: 'Shard', orbit: 6.0, inclination: 1.5, eccentricity: 0.05,
+      name: 'Shard', orbit: 6.0, atmosphere_code: 0, starport_code: 'X', hydrographics_code: 0, population_code: 0, government_code: 0, law_level_code: 0, tech_level_code: 0, inclination: 1.5, eccentricity: 0.05,
       data: { period: 1500, m_type: 20, s_type: 40, c_type: 30, o_type: 10, resource_rating: 7, bulk: 3, span: 0.5 }
     }
   end
@@ -51,6 +51,14 @@ class PlanetoidBeltsControllerTest < AuthenticatedIntegrationTest
   test 'rejects a belt missing required fields' do
     assert_no_difference -> { PlanetoidBelt.count } do
       post star_planetoid_belts_url(@star), params: { stellar_object: @params.merge(orbit: '', data: { period: '' }) }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test 'rejects a belt without an atmosphere' do
+    assert_no_difference -> { PlanetoidBelt.count } do
+      post star_planetoid_belts_url(@star), params: { stellar_object: @params.merge(atmosphere_code: '') }
     end
 
     assert_response :unprocessable_entity

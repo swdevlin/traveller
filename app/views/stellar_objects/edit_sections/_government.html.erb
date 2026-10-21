@@ -1,5 +1,5 @@
 <%# locals: form, stellar_object %>
-<%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government' do %>
+<%= render 'application/edit_field', form: form, attribute: :government_code, field_label: 'Government', required: true do %>
   <%= form.select :government_code,
                   options_for_select(
                     Government.order(:code).map { |g| ["#{HexDigit.hex_digit(g.code)} – #{g.government_type}", g.code] },

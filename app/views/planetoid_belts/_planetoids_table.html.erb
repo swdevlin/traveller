@@ -12,9 +12,13 @@
     </form>
   <% end %>
 
+  <% add_planetoid_button = link_to new_stellar_object_planetoid_path(@stellar_object), class: 'btn-header', title: 'Add planetoid', aria: { label: 'Add planetoid' }, data: { turbo_frame: '_top' } do %>
+    <i class="fa-regular fa-plus"></i> Planetoid
+  <% end %>
+
   <%= render 'application/collapsible_table_card',
              title: safe_join(['Planetoids ', tag.span(@planetoid_count, class: 'identifier')]),
-             actions: significant_form do %>
+             actions: safe_join([significant_form, add_planetoid_button]) do %>
     <div class="table-scroll">
       <table>
         <thead>
@@ -29,9 +33,13 @@
             <% end %>
             <th scope="col"></th>
             <th scope="col">UWP</th>
+            <th scope="col" class="text-right actions-cell">Actions</th>
           </tr>
         </thead>
         <tbody>
+          <% if planetoids.empty? %>
+            <tr><td colspan="<%= 5 + (show_orbit_number? ? 1 : 0) + (show_au? ? 1 : 0) %>" class="text-fg-muted">No planetoids recorded.</td></tr>
+          <% end %>
           <% planetoids.each do |planetoid| %>
             <tr class="cursor-pointer"
                 data-controller="row-link"
@@ -63,6 +71,17 @@
               </td>
               <td class="whitespace-nowrap">
                 <%= planetoid.uwp %>
+              </td>
+              <td class="actions-cell">
+                <div class="action-group">
+                  <%= link_to edit_stellar_object_path(planetoid), class: 'action', title: 'Edit planetoid', data: { turbo_frame: '_top' } do %>
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  <% end %>
+                  <%= button_to stellar_object_path(planetoid), method: :delete, class: 'action danger', title: 'Delete planetoid',
+                                data: { turbo_confirm: "Delete #{planetoid.display_name}?" } do %>
+                    <i class="fa-regular fa-trash"></i>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

@@ -1,5 +1,5 @@
 <%# locals: form, stellar_object %>
-<%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
+<%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population', required: true do %>
   <%= form.number_field :population_code,
                         value: stellar_object.population_code,
                         class: 'edit-base sm:w-28 w-24',

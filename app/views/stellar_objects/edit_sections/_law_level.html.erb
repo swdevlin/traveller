@@ -2,7 +2,7 @@
 <% law_levels = LawLevel.order(:code) %>
 
 <div data-controller='law-level' class='space-y-2'>
-  <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level' do %>
+  <%= render 'application/edit_field', form: form, attribute: :law_level_code, field_label: 'Law Level', required: true do %>
     <%= form.select :law_level_code,
                     options_for_select(
                       law_levels.map { |l| ["#{HexDigit.hex_digit(l.code)} – #{l.weapons}", l.code] },

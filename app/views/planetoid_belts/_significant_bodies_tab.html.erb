@@ -1,5 +1,0 @@
-<% if @planetoids&.any? %>
-  <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
-<% else %>
-  <div class="text-fg-muted text-sm">No significant bodies recorded.</div>
-<% end %>

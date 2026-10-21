@@ -63,6 +63,9 @@ module HasUwp
     prepend GovernanceAccessors
     prepend TechLevelAccessors
     has_many :cities, foreign_key: :stellar_object_id, inverse_of: :stellar_object, dependent: :destroy
+    # Every character of the UWP is required when a body is added by hand.
+    validates :starport_code, :atmosphere_code, :hydrographics_code, :population_code, :government_code,
+              :law_level_code, :tech_level_code, presence: true, on: :manual
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
 

@@ -1,0 +1,8 @@
+<% content_for :help_path, help_page_path('planetoid_edit') %>
+<%= content_for :title, "New planetoid in #{@planetoid_belt.display_name}" %>
+<%= content_for :page_kicker, 'Planetoid Data Core' %>
+<%= content_for :page_title, "New planetoid in #{@planetoid_belt.display_name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'stellar_objects/tabbed_form', moon: @planetoid, url: stellar_object_planetoids_path(@planetoid_belt), cancel_url: stellar_object_path(@planetoid_belt) %>
+<% end %>
