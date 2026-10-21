@@ -24,6 +24,10 @@
               method: :post, class: 'btn btn-secondary',
               data: { turbo_confirm: 'Replace all characteristics from the current UWP? Existing moons will be replaced.' } %>
       <% end %>
+      <% if @stellar_object.is_a?(TerrestrialPlanet) %>
+        <%= link_to 'World Map', world_map_stellar_object_path(@stellar_object),
+              target: '_blank', rel: 'noopener', class: 'w-full sm:w-auto btn btn-secondary' %>
+      <% end %>
     </div>
     <button type='button'
             title='Copy as markdown'

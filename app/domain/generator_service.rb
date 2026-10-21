@@ -44,6 +44,10 @@ class GeneratorService
     get_service('star', query)
   end
 
+  def world_map(payload)
+    call_svg_service('world_map', payload)
+  end
+
   private
 
   def base_url
@@ -111,5 +115,25 @@ class GeneratorService
       Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}"
       Result.new(errors: ['Cannot create star system at this time'])
     end
+  end
+
+  def call_svg_service(endpoint, data)
+    uri = URI.join(base_url.end_with?('/') ? base_url : "#{base_url}/", endpoint)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 50
+    http.read_timeout = 50
+
+    headers = { 'Content-Type' => 'application/json', 'Accept' => 'image/svg+xml' }
+    headers['x-tenant-id'] = @campaign_id.to_s if @campaign_id.present?
+
+    response = http.post(uri.request_uri, data.to_json, headers)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+      return Result.new(errors: ['Cannot generate world map at this time'])
+    end
+
+    Result.new(value: response.body)
   end
 end

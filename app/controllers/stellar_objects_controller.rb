@@ -161,6 +161,26 @@ class StellarObjectsController < ApplicationController
     redirect_to stellar_object_path(@stellar_object), alert: 'Could not regenerate characteristics at this time.'
   end
 
+  # GET /stellar_objects/1/world_map
+  def world_map
+    unless @stellar_object.is_a?(TerrestrialPlanet)
+      return redirect_to stellar_object_path(@stellar_object), alert: 'World maps are only available for terrestrial planets.'
+    end
+
+    payload = JSON.parse(render_to_string(template: 'stellar_objects/show', formats: [:json]))
+    payload['trade_codes'] = @stellar_object.star_system&.trade_codes&.order(:code)&.pluck(:code) || []
+    result = generator_service.world_map(payload)
+
+    unless result.success?
+      return redirect_to stellar_object_path(@stellar_object), alert: result.errors.to_sentence
+    end
+
+    send_data result.value, type: 'image/svg+xml', disposition: 'inline'
+  rescue StandardError => e
+    Rails.logger.error "world_map failed: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    redirect_to stellar_object_path(@stellar_object), alert: 'Could not generate world map at this time.'
+  end
+
   # GET /stellar_objects/1/map
   def map
     planet_map = @stellar_object.try(:planet_map)
