@@ -7,6 +7,9 @@ json.extract! stellar_object,
               :tidal_lock_target_id, :companion_id,
               :created_at, :updated_at
 
+# bodies created or edited in the UI (e.g. moons, which OrbitSequenceAssigner skips) can have no
+# orbit_sequence, and the starmap decoder requires a string
+json.orbit_sequence stellar_object.orbit_sequence || ''
 json.reference_url stellar_object.effective_reference_url(current_campaign)
 json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
 

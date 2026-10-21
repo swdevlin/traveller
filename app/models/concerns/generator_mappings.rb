@@ -234,7 +234,8 @@ module GeneratorMappings
     self.au = payload['au']
     self.survey_index = payload.fetch('surveyIndex', 0)
     self.effective_hzco_deviation = payload['effectiveHZCODeviation']
-    self.orbit_sequence = payload.fetch('orbitSequence', nil)
+    # absent when regenerating from a UWP; the existing sequence is kept
+    self.orbit_sequence = payload['orbitSequence'] if payload.key?('orbitSequence')
     orbitPosition = payload.fetch('orbitPosition', {})
     self.orbit_x = orbitPosition.fetch('x', nil)
     self.orbit_y = orbitPosition.fetch('y', nil)

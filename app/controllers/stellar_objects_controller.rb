@@ -153,6 +153,9 @@ class StellarObjectsController < ApplicationController
       @stellar_object.save!
     end
 
+    # the UWP generator does not know orbit sequences, and assign_moons inserts without callbacks
+    OrbitSequenceAssigner.new(star.star_system).assign! if star.star_system
+
     redirect_to stellar_object_path(@stellar_object), notice: 'Characteristics regenerated successfully.'
   rescue StandardError => e
     Rails.logger.error "regenerate_characteristics failed: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"

@@ -39,11 +39,20 @@ class OrbitSequenceAssigner
       elsif !body.is_a?(Planetoid)
         index += 1
         prefix = star.companion_id.present? && orbiting.length == 1 ? orbiting + 'ab' : orbiting
-        body.update_column(:orbit_sequence, "#{prefix} #{RomanNumeral.convert(index)}")
+        sequence = "#{prefix} #{RomanNumeral.convert(index)}"
+        body.update_column(:orbit_sequence, sequence)
+        assign_moons(body, sequence)
       end
     end
 
     letter
+  end
+
+  # Moons are numbered by distance from their planet, e.g. 'A VI.1'.
+  def assign_moons(planet, planet_sequence)
+    Moon.where(orbiting_id: planet.id).order(:orbit, :id).each.with_index(1) do |moon, index|
+      moon.update_column(:orbit_sequence, "#{planet_sequence}.#{index}")
+    end
   end
 
   def assign_planetoid_objects(star)

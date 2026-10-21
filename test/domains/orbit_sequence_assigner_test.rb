@@ -204,4 +204,31 @@ class OrbitSequenceAssignerTest < ActiveSupport::TestCase
     assert_equal 'B I', b1.orbit_sequence
     assert_equal 'B II', b2.orbit_sequence
   end
+
+  test 'moons are numbered by orbit within their planet' do
+    ss = create_system
+    star = create_star(ss, name: 'Sol')
+    inner = create_body(star, type: 'TerrestrialPlanet', name: 'Inner', orbit: 1)
+    outer = create_body(star, type: 'TerrestrialPlanet', name: 'Outer', orbit: 2)
+    far_moon = Moon.create!(name: 'Far', orbiting: outer, orbit: 20, au: 0.1, size_code: 2)
+    near_moon = Moon.create!(name: 'Near', orbiting: outer, orbit: 5, au: 0.1, size_code: 2)
+
+    OrbitSequenceAssigner.new(ss).assign!
+    [inner, outer, far_moon, near_moon].each(&:reload)
+
+    assert_equal 'A II', outer.orbit_sequence
+    assert_equal 'A II.1', near_moon.orbit_sequence
+    assert_equal 'A II.2', far_moon.orbit_sequence
+  end
+
+  test 'a moon created after the system is numbered gets a sequence' do
+    ss = create_system
+    star = create_star(ss, name: 'Sol')
+    planet = create_body(star, type: 'TerrestrialPlanet', name: 'Earth', orbit: 3)
+    OrbitSequenceAssigner.new(ss).assign!
+
+    moon = Moon.create!(name: 'Luna', orbiting: planet, orbit: 4, au: 0.1, size_code: 2)
+
+    assert_equal 'A I.1', moon.reload.orbit_sequence
+  end
 end

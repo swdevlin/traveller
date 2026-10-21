@@ -57,3 +57,4 @@
 bin/deploy
 bin/announce_release
 /.mcp.json
+/system.json

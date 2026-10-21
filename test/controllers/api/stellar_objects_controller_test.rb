@@ -15,6 +15,17 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, response.parsed_body['count']
   end
 
+  test 'moons without an orbit sequence serialise it as an empty string' do
+    sign_in_as users(:one)
+    moon = @gas_giant.moons.first
+    moon.update_column(:orbit_sequence, nil)
+
+    get api_stellar_object_moons_url(@gas_giant), as: :json
+
+    assert_response :success
+    assert response.parsed_body['moons'].all? { |m| m['orbit_sequence'].is_a?(String) }
+  end
+
   test 'player sees moons when the star system is known' do
     @gas_giant.star_system.update!(known: true)
 
