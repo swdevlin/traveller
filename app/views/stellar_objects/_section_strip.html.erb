@@ -1,6 +1,7 @@
 <%# locals: stellar_object, section %>
 <% sections = [['general', 'General'], ['orbital', 'Orbital'], ['starport', 'Starport'], ['physical', 'Physical'], ['atmosphere', 'Atmo'],
                ['hydrographics', 'Hydro'], ['population', 'Pop'], ['government', 'Gov'], ['law_level', 'Law'], ['tech_level', 'Tech']] %>
+<% sections = sections.select { |id, _| stellar_object.edit_sections.include?(id) } %>
 <% sections = sections.reject { |id, _| id == 'orbital' } unless stellar_object.orbiting %>
 <div class='uwp-tab-bar mb-4'>
   <% sections.each do |id, label| %>

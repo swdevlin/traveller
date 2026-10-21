@@ -9624,7 +9624,7 @@ update msg ( time, model ) =
                                 , axialTilt = rnd 2 ggdata.axialTilt ++ "°"
                                 , moons = String.fromInt <| List.length ggdata.moons
                                 , hasRing =
-                                    if ggdata.hasRing then
+                                    if ggdata.hasRing || not (List.isEmpty ggdata.rings) then
                                         "Yes"
 
                                     else

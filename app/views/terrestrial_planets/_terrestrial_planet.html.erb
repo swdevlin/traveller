@@ -14,9 +14,10 @@
   hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
   hierarchy << [parent.display_name, star_path(parent)] if parent
 
-  moons_count = @pagy&.count || @moons&.size || 0
+  moons_count = @moon_count || terrestrial_planet.moons.count
   extra_tabs = [
     { id: 'moons', code: moons_count.to_s, label: 'Moons',
+      badge_icon: (terrestrial_planet.ringed? ? 'fa-light fa-planet-ringed' : nil), badge_title: 'Has rings',
       partial: 'terrestrial_planets/moons_tab', locals: {} }
   ]
   if terrestrial_planet.respond_to?(:cities)

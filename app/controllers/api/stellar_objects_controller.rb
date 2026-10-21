@@ -17,8 +17,7 @@ class Api::StellarObjectsController < Api::BaseController
     authenticated_by_session?
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible_star_system?(stellar_object.star_system)
 
-    scope = stellar_object.moons.order(:orbit)
-    scope = scope.where.not(size_code: %w[0 S]) if params[:significant_only].present?
+    scope = stellar_object.moons_and_rings(significant_only: params[:significant_only].present?)
     @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
   end
 

@@ -1,0 +1,34 @@
+<% parent = ring.orbiting %>
+<% star_system = StarSystem.find_by(id: ring.star_system_id) %>
+<% parsec = ring.parsec || star_system&.parsec %>
+<% subsector = parsec&.subsector %>
+<% sector = parsec&.sector %>
+
+<%
+  hierarchy = []
+  hierarchy << [parsec.display_name, sector_path(sector)] if sector
+  hierarchy << [parsec.subsector_display_name, subsector_path(subsector)] if subsector
+  hierarchy << [star_system.display_name, star_system_path(star_system)] if star_system
+  hierarchy << [parent.display_name, stellar_object_path(parent)] if parent
+%>
+
+<div id="<%= dom_id ring %>" class="space-y-4">
+  <%= render 'stellar_objects/object_context', hierarchy: hierarchy %>
+
+  <div class='space-y-2'>
+    <%= render 'application/subsection', title: 'Ring Data' %>
+
+    <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2'>
+      <%= render 'application/data_block', label: 'Orbit', value: number_with_precision(ring.orbit, precision: 2, strip_insignificant_zeros: true), suffix: 'diameters' %>
+      <%= render 'application/data_block', label: 'Span', value: number_with_precision(ring.span, precision: 3, strip_insignificant_zeros: true), suffix: 'diameters' %>
+      <%= render 'application/data_block', label: 'Inner edge', value: number_with_precision(ring.inner_edge, precision: 3, strip_insignificant_zeros: true), suffix: 'diameters' %>
+      <%= render 'application/data_block', label: 'Outer edge', value: number_with_precision(ring.outer_edge, precision: 3, strip_insignificant_zeros: true), suffix: 'diameters' %>
+      <% if ring.distance_km %>
+        <%= render 'application/data_block', label: 'Orbit distance', value: number_with_delimiter(ring.distance_km.round), suffix: 'km' %>
+        <%= render 'application/data_block', label: 'Width', value: number_with_delimiter(ring.width_km.round), suffix: 'km' %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= render 'application/observation_block', notes: ring.notes %>
+</div>

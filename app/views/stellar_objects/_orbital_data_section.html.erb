@@ -27,7 +27,7 @@
         <%= render 'application/data_block', label: 'Eccentricity', value: number_with_precision(stellar_object.eccentricity, precision: 2, strip_insignificant_zeros: true) %>
         <%= render 'application/data_block',
                    label: 'Orbiting',
-                   value: link_to(star.display_name, star_path(star), class: 'no-underline hover:underline') %>
+                   value: link_to(star.display_name, star.is_a?(Star) ? star_path(star) : stellar_object_path(star), class: 'no-underline hover:underline') %>
         <% if star_system %>
           <%= render 'application/data_block',
                      label: 'Star System',
@@ -36,7 +36,9 @@
         <% if subsector %>
           <%= render 'application/data_block',
                      label: 'Subsector',
-                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline') %>
+                     value: link_to(subsector.name, subsector_path(subsector), class: 'no-underline hover:underline'),
+                     value_wrap_class: 'flex flex-wrap items-center gap-2',
+                     suffix: tag.span(parsec.subsector_hex_code, class: 'identifier') %>
         <% end %>
         <% if sector %>
           <%= render 'application/data_block',

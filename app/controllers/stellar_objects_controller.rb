@@ -29,8 +29,7 @@ class StellarObjectsController < ApplicationController
       @pagy, @planetoids = pagy(scope, limit: 10, params: request.query_parameters)
     elsif @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(GasGiant)
       @moon_count = @stellar_object.moons.count
-      scope = @stellar_object.moons.order(:orbit)
-      scope = scope.where.not(size_code: %w[0 S]) if params[:significant_only].present?
+      scope = @stellar_object.moons_and_rings(significant_only: params[:significant_only].present?)
       @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
     end
 
@@ -212,7 +211,7 @@ class StellarObjectsController < ApplicationController
     # Whitelisted edit section; unknown values (and orbital for rogues) fall back to general.
     def edit_section
       section = params[:section].to_s
-      return 'general' unless StellarObject::EDIT_SECTIONS.include?(section)
+      return 'general' unless @stellar_object.edit_sections.include?(section)
       return 'general' if section == 'orbital' && @stellar_object.orbiting.nil?
 
       section

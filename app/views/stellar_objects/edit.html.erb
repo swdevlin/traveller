@@ -3,7 +3,7 @@
 <%= content_for :page_title, @stellar_object.display_name %>
 
 <%= render 'application/page' do %>
-  <% if @section %>
+  <% if @section && @stellar_object.edit_sections.many? %>
     <%= render 'stellar_objects/section_strip', stellar_object: @stellar_object, section: @section %>
   <% end %>
   <%= render "#{@stellar_object.class.model_name.collection}/form", stellar_object: @stellar_object %>

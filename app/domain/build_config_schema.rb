@@ -16,6 +16,7 @@ UWP_LABELS = [
   'super earth',
   'empty'
 ].freeze
+MOON_UWP_LABELS = ['ring', 'small moon', 'random'].freeze
 
 MainWorldSchema = Dry::Schema.Params do
   required(:uwp).value(:string, format?: UWP_CODE)
@@ -69,6 +70,11 @@ BaseStarSchema = Dry::Schema.Params do
     optional(:mainWorld).filled(:bool)
     optional(:populationDigit).filled(:integer, gteq?: 0, lteq?: 9)
     optional(:eccentricity).filled(:float, gteq?: 0, lteq?: 1)
+    optional(:moonCount).filled(:integer, gteq?: 0, lteq?: 20)
+    optional(:ringCount).filled(:integer, gteq?: 0, lteq?: 5)
+    optional(:moons).array(:hash) do
+      required(:uwp).value(:string) { included_in?(MOON_UWP_LABELS) | format?(UWP_CODE) }
+    end
   end
 end
 

@@ -199,6 +199,16 @@ def assign_cities(stellar_object, so_data)
     City.insert_all!(records) if records.any?
   end
 
+  def import_rings(planet, rings)
+    return if rings.blank?
+
+    Array(rings).each do |ring_data|
+      ring = Ring.from_generator(planet, ring_data)
+      ring.skip_import_callbacks = true
+      ring.save!
+    end
+  end
+
   def import_star(star, data)
     star.assign_data_from_generator(data)
     star.save!
@@ -242,6 +252,7 @@ def assign_cities(stellar_object, so_data)
           moon = Moon.find_by(star_system_id: @star_system.id, orbit_sequence: entry[:orbit_sequence])
           @deferred_tidal_lock_assignments << { object: moon, orbit_sequence: entry[:tidal_lock_orbit_seq] } if moon
         end
+        import_rings(so, so_data['rings'])
         StellarObjectTradeCode.assign_from_codes!(so, so_data['tradeCodes'])
         if klass == Planetoid && so_data['belt'].present?
           @deferred_belt_assignments << {

@@ -34,6 +34,8 @@
                 body.spectral_classification
               elsif body.is_a?(GasGiant)
                 "Gas Giant (#{GasGiant::SIZES[body.data['code']]})"
+              elsif body.is_a?(Ring)
+                'Ring'
               elsif body.uwp.present?
                 body.uwp
               end

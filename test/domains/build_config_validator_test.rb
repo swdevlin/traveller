@@ -1703,4 +1703,73 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_not validator.valid?
     assert_includes validator.errors.join, 'limitedMainWorldEccentricity'
   end
+
+  # Body moons
+  def moons_yaml(body)
+    <<~YAML
+      name: Test System
+      primary:
+        type: G5
+        class: V
+        bodies:
+    YAML
+      .then { |head| head + body.lines.map { |l| "      #{l}" }.join }
+  end
+
+  test 'body with moons list is valid' do
+    yaml = moons_yaml(<<~YAML)
+      - uwp: terrestrial
+        moons:
+        - uwp: ring
+        - uwp: small moon
+        - uwp: X674000-0
+        - uwp: random
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'gas giant with moonCount and ringCount is valid' do
+    yaml = moons_yaml(<<~YAML)
+      - uwp: gas giant
+        moonCount: 3
+        ringCount: 1
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert validator.valid_for_star_system?, "Expected valid but got errors: #{validator.errors.inspect}"
+  end
+
+  test 'moon with unknown uwp label is invalid' do
+    yaml = moons_yaml(<<~YAML)
+      - uwp: terrestrial
+        moons:
+        - uwp: big moon
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+  end
+
+  test 'moons cannot be combined with moonCount or ringCount' do
+    yaml = moons_yaml(<<~YAML)
+      - uwp: terrestrial
+        moonCount: 2
+        moons:
+        - uwp: ring
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'moons cannot be used with moonCount or ringCount'
+  end
+
+  test 'empty and planetoid belt bodies cannot have moons' do
+    ['empty', 'planetoid belt'].each do |uwp|
+      yaml = moons_yaml(<<~YAML)
+        - uwp: #{uwp}
+          moonCount: 1
+      YAML
+      validator = BuildConfigValidator.new(yaml)
+      assert_not validator.valid_for_star_system?, "Expected #{uwp} with moons to be invalid"
+      assert_includes validator.errors.join, "#{uwp} cannot have moons"
+    end
+  end
 end

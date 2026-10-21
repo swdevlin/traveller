@@ -48,7 +48,7 @@ class OrbitSequenceAssigner
     letter
   end
 
-  # Moons are numbered by distance from their planet, e.g. 'A VI.1'.
+  # Moons are numbered by distance from their planet, e.g. 'A VI.1'. Rings have no orbit sequence.
   def assign_moons(planet, planet_sequence)
     Moon.where(orbiting_id: planet.id).order(:orbit, :id).each.with_index(1) do |moon, index|
       moon.update_column(:orbit_sequence, "#{planet_sequence}.#{index}")

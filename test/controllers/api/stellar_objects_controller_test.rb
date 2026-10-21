@@ -26,6 +26,32 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert response.parsed_body['moons'].all? { |m| m['orbit_sequence'].is_a?(String) }
   end
 
+  test 'star system detail lists the rings of each planet alongside its moons' do
+    sign_in_as users(:one)
+    Ring.create!(name: 'Ring', orbiting: @gas_giant, orbit: 0.9, data: { 'span' => 0.25 })
+
+    get "/c/#{campaigns(:one).slug}/api/star_systems/#{@gas_giant.star_system_id}", as: :json
+
+    assert_response :success
+    giant = find_json_object(response.parsed_body, @gas_giant.id)
+    assert_equal 2, giant['moons'].size
+    assert_equal [{ 'name' => 'Ring', 'orbit' => 0.9, 'span' => 0.25 }],
+                 giant['rings'].map { |r| r.slice('name', 'orbit', 'span') }
+  end
+
+  test 'moons route returns rings alongside moons in orbit order' do
+    sign_in_as users(:one)
+    Ring.create!(name: 'Ring', orbiting: @gas_giant, orbit: 0.9, data: { 'span' => 0.25 })
+
+    get api_stellar_object_moons_url(@gas_giant), as: :json
+
+    assert_response :success
+    assert_equal 3, response.parsed_body['count']
+    assert_equal [0.9], response.parsed_body['rings'].map { |r| r['orbit'] }
+    assert_equal [0.25], response.parsed_body['rings'].map { |r| r['span'] }
+    assert_equal 2, response.parsed_body['moons'].size
+  end
+
   test 'player sees moons when the star system is known' do
     @gas_giant.star_system.update!(known: true)
 
@@ -188,5 +214,26 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     get api_stellar_object_cities_url(@gas_giant), as: :json
 
     assert_response :not_found
+  end
+
+  private
+
+  def find_json_object(node, id)
+    case node
+    when Hash
+      return node if node['id'] == id && node.key?('rings')
+
+      node.each_value do |value|
+        found = find_json_object(value, id)
+        return found if found
+      end
+      nil
+    when Array
+      node.each do |value|
+        found = find_json_object(value, id)
+        return found if found
+      end
+      nil
+    end
   end
 end

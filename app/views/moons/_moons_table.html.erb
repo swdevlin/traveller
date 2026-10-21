@@ -20,7 +20,8 @@
         <thead>
           <tr>
             <th scope="col" class="w-px">Name</th>
-            <th scope="col" class="w-px text-right">Orbit (diameters)</th>
+            <th scope="col" class="w-px text-right cursor-help" title="Orbit, in planetary diameters">Orbit</th>
+            <th scope="col" class="w-px text-right cursor-help" title="Ring span, in planetary diameters">Span</th>
             <th scope="col">UWP</th>
           </tr>
         </thead>
@@ -39,8 +40,11 @@
               <td class="whitespace-nowrap text-right">
                 <%= number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true) %>
               </td>
+              <td class="whitespace-nowrap text-right">
+                <%= number_with_precision(moon.span, precision: 3, strip_insignificant_zeros: true) if moon.is_a?(Ring) %>
+              </td>
               <td>
-                <%= moon.uwp %>
+                <%= moon.is_a?(Ring) ? 'Ring' : moon.uwp %>
               </td>
             </tr>
           <% end %>

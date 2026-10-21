@@ -14,6 +14,31 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   #   assert_response :success
   # end
 
+  test 'ring show, edit and update, and the planet lists its rings among the moons' do
+    planet = stellar_objects(:moons_test_gas_giant)
+    ring = Ring.create!(name: 'Ring', orbiting: planet, orbit: 0.9, data: { 'span' => 0.25 })
+
+    get stellar_object_url(planet)
+    assert_response :success
+    assert_select 'td', text: /Ring/
+
+    get stellar_object_url(ring)
+    assert_response :success
+    assert_select "nav.uwp-breadcrumb a[href='#{stellar_object_path(planet)}']", text: planet.display_name
+
+    get edit_stellar_object_url(ring, section: 'physical')
+    assert_response :success
+    assert_select '.uwp-tab-btn', count: 0
+
+    patch stellar_object_url(ring), params: { stellar_object: { orbit: '2.5', data: { span: '0.4' } } }
+    assert_redirected_to stellar_object_url(ring)
+    assert_equal 2.5, ring.reload.orbit
+    assert_equal 0.4, ring.span
+
+    patch stellar_object_url(ring), params: { stellar_object: { data: { span: '0' } } }
+    assert_response :unprocessable_entity
+  end
+
   test 'should get new' do
     get new_stellar_object_url
     assert_response :success

@@ -53,5 +53,9 @@ json.stellar_objects all_objects do |obj|
     json.moons obj.moons do |m|
       json.partial! 'stellar_objects/stellar_object', stellar_object: m, render_context: render_context
     end
+    json.rings obj.rings.sort_by { |r| r.orbit.to_f } do |ring|
+      json.extract! ring, :id, :name, :orbit
+      json.span ring.span
+    end
   end
 end

@@ -131,6 +131,23 @@ class StarSystemImporterTest < ActiveSupport::TestCase
     assert_equal 'B100477-C', star_system.main_world.uwp
   end
 
+  test 'rings are imported as rings, not moons, and have no orbit sequence' do
+    data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_moon_main_world.json')))
+    gas_giant_data = data.dig('primaryStar', 'stellarObjects').first
+    gas_giant_data['rings'] = [{ 'orbit' => 0.9, 'span' => 0.25 }, { 'orbit' => 100.0, 'span' => 0.1 }]
+
+    star_system = @importer.import!(@parsec, data)
+    gas_giant = star_system.stellar_objects.find_by!(type: 'GasGiant')
+    list = gas_giant.moons_and_rings.to_a
+
+    assert_equal [0.9, 100.0], gas_giant.rings.order(:orbit).map(&:orbit)
+    assert_equal [0.25, 0.1], gas_giant.rings.order(:orbit).map(&:span)
+    assert_equal list.map(&:orbit), list.map(&:orbit).sort
+    assert_equal [nil, nil], gas_giant.rings.map(&:orbit_sequence)
+    assert_equal 1, gas_giant.moons.count
+    assert_nil gas_giant.rings.first.name
+  end
+
   test 'facilities assigned from generator response bases when config_bases is not given' do
     data = JSON.parse(File.read(Rails.root.join('test/fixtures/files/star_system_import_minimal.json')))
     data['bases'] = [facilities(:one).code]

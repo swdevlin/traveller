@@ -56,12 +56,30 @@ class StellarObject < ApplicationRecord
   belongs_to :tidal_lock_target, class_name: 'StellarObject', optional: true
 
   has_many :moons, class_name: 'Moon', foreign_key: :orbiting_id
+  has_many :rings, class_name: 'Ring', foreign_key: :orbiting_id
+
+  # True when the generator flagged the body as ringed or it has Ring records
+  def ringed?
+    data.present? && data.values_at('hasRing', 'has_ring').include?(true) || rings.exists?
+  end
+
+  # Moons and rings both orbit the planet, so they are listed together in orbit order. Rings are always
+  # significant: the size filter only applies to moons.
+  def moons_and_rings(significant_only: false)
+    scope = StellarObject.where(orbiting_id: id, type: %w[Moon Ring]).order(:orbit, :id)
+    scope = scope.where(type: 'Ring').or(scope.where.not(size_code: %w[0 S])) if significant_only
+    scope
+  end
 
 
   BY_SIZE_SQL = Arel.sql("array_position(ARRAY['0','S','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','J','K','L','M']::text[], size_code)")
 
   scope :by_size, -> { order(BY_SIZE_SQL) }
   scope :populated, -> { where("(data -> 'population' ->> 'code')::integer > 0") }
+
+  def edit_sections
+    EDIT_SECTIONS
+  end
 
   def size_description
     StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]

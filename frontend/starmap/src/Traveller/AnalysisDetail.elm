@@ -33,7 +33,7 @@ import Svg.Attributes as SA
 import Traveller.City exposing (CitiesPage)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
-import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, StarData, StellarObject(..))
+import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 
 
@@ -1940,7 +1940,44 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 _ ->
                     Nothing
 
-        moonsTable moons =
+        formatOrbit orbit =
+            Round.round
+                (if orbit < 10 then
+                    1
+
+                 else
+                    0
+                )
+                orbit
+
+        -- rings have no detail view, so their cells are not clickable
+        ringCell alignAttrs content =
+            el
+                ([ HtmlAttrs.style "font-size" "13px"
+                 , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
+                 ]
+                    ++ alignAttrs
+                )
+                content
+
+        moonRow ( moonObj, pdata ) =
+            ( pdata.orbit
+            , [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+              , bodyCell moonObj [ HtmlAttrs.class "text-right font-mono" ] (text (formatOrbit pdata.orbit))
+              , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+              ]
+            )
+
+        ringRow ring =
+            ( ring.orbit
+            , [ ringCell [] (text (ring.name |> Maybe.withDefault "Ring"))
+              , ringCell [ HtmlAttrs.class "text-right font-mono" ] (text (formatOrbit ring.orbit))
+              , ringCell [ HtmlAttrs.class "font-mono" ] (text ("Ring, span " ++ formatOrbit ring.span))
+              ]
+            )
+
+        bodiesTable : List StellarObject -> List RingData -> Html msg
+        bodiesTable moons rings =
             Html.div
                 [ HtmlAttrs.style "display" "grid"
                 , HtmlAttrs.style "grid-template-columns" "2fr 108px 2fr"
@@ -1949,27 +1986,10 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 (headerCell [] "Name"
                     :: headerCell [ HtmlAttrs.class "text-right" ] "Orbit (diameters)"
                     :: headerCell [] "UWP"
-                    :: (moons
-                            |> List.filterMap asTerrestrialPlanet
-                            |> List.concatMap
-                                (\( moonObj, pdata ) ->
-                                    [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
-                                    , bodyCell moonObj
-                                        [ HtmlAttrs.class "text-right font-mono" ]
-                                        (text
-                                            (Round.round
-                                                (if pdata.orbit < 10 then
-                                                    1
-
-                                                 else
-                                                    0
-                                                )
-                                                pdata.orbit
-                                            )
-                                        )
-                                    , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
-                                    ]
-                                )
+                    :: (List.map moonRow (List.filterMap asTerrestrialPlanet moons)
+                            ++ List.map ringRow rings
+                            |> List.sortBy Tuple.first
+                            |> List.concatMap Tuple.second
                        )
                 )
 
@@ -1989,12 +2009,12 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 mutedText "Could not load moons."
 
             Success page ->
-                if List.isEmpty page.moons then
+                if List.isEmpty page.moons && List.isEmpty page.rings then
                     mutedText "No moons recorded."
 
                 else
                     column [ width fill ]
-                        [ moonsTable page.moons
+                        [ bodiesTable page.moons page.rings
                         , viewPager page.page page.pages moonsTabConfig.onSetPage
                         ]
         ]

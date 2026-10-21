@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
+module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -107,6 +107,7 @@ type alias SharedPData =
     , trojanOffset : Maybe Float
     , axialTilt : Float
     , moons : List Moon
+    , rings : List RingData
     , biomassRating : Int
     , biocomplexityCode : Int
     , biodiversityRating : Int
@@ -207,6 +208,7 @@ type alias GasGiantData =
     , mass : Maybe Float
     , orbit : Float
     , moons : List Moon
+    , rings : List RingData
     , hasRing : Bool
     , trojanOffset : Maybe Float
     , axialTilt : Float
@@ -588,7 +590,7 @@ codecPlanetoidBeltData =
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc peri apo hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ->
+        (\pos inc ecc peri apo hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ringsM ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -600,6 +602,7 @@ codecGasGiantData =
             , mass = mass_
             , orbit = orb
             , moons = mns
+            , rings = Maybe.withDefault [] ringsM
             , hasRing = Maybe.withDefault False hasRingM
             , trojanOffset = tj
             , axialTilt = axTilt
@@ -642,6 +645,7 @@ codecGasGiantData =
         |> Codec.field "au" .au Codec.float
         |> Codec.optionalNullableField "name" .name Codec.string
         |> Codec.field "id" .id Codec.int
+        |> Codec.optionalField "rings" (\d -> Just d.rings) (Codec.list ringCodec)
         |> Codec.buildObject
 
 
@@ -758,7 +762,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -774,6 +778,7 @@ codecSharedPData =
             , trojanOffset = tj
             , axialTilt = axTilt
             , moons = mns
+            , rings = Maybe.withDefault [] ringsM
             , biomassRating = bio
             , biocomplexityCode = bioC
             , biodiversityRating = bioDiv
@@ -902,6 +907,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "map_url" .mapUrl Codec.string
         |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
+        |> Codec.optionalField "rings" (\d -> Just d.rings) (Codec.list ringCodec)
         |> Codec.buildObject
 
 
@@ -1034,18 +1040,41 @@ codecStellarObject =
         decodeStellarObject
 
 
+{-| A ring orbiting a planet. Rings have no detail view, so only the orbit and span are decoded.
+Both are in planetary diameters.
+-}
+type alias RingData =
+    { id : Int
+    , name : Maybe String
+    , orbit : Float
+    , span : Float
+    }
+
+
 type alias MoonsPage =
     { moons : List StellarObject
+    , rings : List RingData
     , count : Int
     , page : Int
     , pages : Int
     }
 
 
+ringCodec : Codec RingData
+ringCodec =
+    Codec.object RingData
+        |> Codec.field "id" .id Codec.int
+        |> Codec.optionalNullableField "name" .name Codec.string
+        |> Codec.field "orbit" .orbit Codec.float
+        |> Codec.field "span" .span Codec.float
+        |> Codec.buildObject
+
+
 moonsPageDecoder : JsDecode.Decoder MoonsPage
 moonsPageDecoder =
-    JsDecode.map4 MoonsPage
+    JsDecode.map5 MoonsPage
         (JsDecode.field "moons" (JsDecode.list decodeStellarObject))
+        (JsDecode.oneOf [ JsDecode.field "rings" (JsDecode.list (Codec.decoder ringCodec)), JsDecode.succeed [] ])
         (JsDecode.field "count" JsDecode.int)
         (JsDecode.field "page" JsDecode.int)
         (JsDecode.field "pages" JsDecode.int)

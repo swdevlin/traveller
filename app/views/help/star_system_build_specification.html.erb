@@ -418,7 +418,11 @@ rogues:</code></pre>
     orbit:
     name:
     mainWorld:
-    populationDigit:</code></pre>
+    populationDigit:
+    moonCount:
+    ringCount:
+    moons:
+      - uwp</code></pre>
         </div>
         <dl class='spec-dl lg:col-span-3'>
           <div>
@@ -461,6 +465,27 @@ rogues:</code></pre>
             <dt>populationDigit</dt>
             <dd>Optional population multiplier digit, from 0–9, taken from the first digit of a T5 PBG
               code. Used by the generator as a hint toward this body's population, if it is the main world.</dd>
+          </div>
+
+          <div>
+            <dt>moons</dt>
+            <dd class="space-y-2">
+              <p>Optional list of moons for this body, each with a required <code>uwp</code> of
+                <code>ring</code>, <code>small moon</code>, <code>random</code> or a UWP code such as
+                <code>X674000-0</code>. Use <code>random</code> to let the generator choose the moon.</p>
+              <pre><code>moons:
+  - uwp: ring
+  - uwp: small moon
+  - uwp: X674000-0
+  - uwp: random</code></pre>
+            </dd>
+          </div>
+
+          <div>
+            <dt>moonCount, ringCount</dt>
+            <dd>Optional integers (moonCount 0–20, ringCount 0–5) that let the generator create that many moons
+              or rings. They cannot be used together with <code>moons</code>. Moons cannot be given to bodies
+              whose uwp is <code>empty</code> or <code>planetoid belt</code>.</dd>
           </div>
         </dl>
       </div>

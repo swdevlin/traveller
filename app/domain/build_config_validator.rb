@@ -271,7 +271,10 @@ class BuildConfigValidator
 
     # 3) Validate body orbit uniqueness
     bodies = star['bodies']
-    validate_body_orbits(bodies, path) if bodies.is_a?(Array)
+    if bodies.is_a?(Array)
+      validate_body_orbits(bodies, path)
+      validate_body_moons(bodies, path)
+    end
 
     # 4) Recurse into nested stars
     STAR_SCHEMA_CHILD_KEYS.each do |key|
@@ -317,6 +320,25 @@ class BuildConfigValidator
     return if orbits.size <= 1
 
     @errors << "#{path}.bodies: only one body may specify an orbit label"
+  end
+
+  MOON_KEYS = %w[moons moonCount ringCount].freeze
+  MOONLESS_UWPS = ['empty', 'planetoid belt'].freeze
+
+  def validate_body_moons(bodies, path)
+    bodies.each_with_index do |body, idx|
+      next unless body.is_a?(Hash)
+
+      body_path = "#{path}.bodies[#{idx}]"
+
+      if body.key?('moons') && (body.key?('moonCount') || body.key?('ringCount'))
+        @errors << "#{body_path}: moons cannot be used with moonCount or ringCount"
+      end
+
+      if MOON_KEYS.any? { |key| body.key?(key) } && MOONLESS_UWPS.include?(body['uwp'])
+        @errors << "#{body_path}: #{body['uwp']} cannot have moons"
+      end
+    end
   end
 
   def validate_populated_tech_level
