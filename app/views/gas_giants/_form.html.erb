@@ -1,13 +1,14 @@
 <% star = stellar_object.orbiting %>
 
-<%= render 'stellar_objects/form_scaffold', stellar_object: stellar_object, wrapper_class: 'space-y-2 pb-10', show_known_field: false, notes_wrapper_class: 'edit-row-notes', show_notes_required_icon: true, show_notes_field_error: true do |form| %>
+<%= render 'stellar_objects/form_scaffold', stellar_object: stellar_object, wrapper_class: 'space-y-2 pb-10', show_known_field: false, notes_wrapper_class: 'edit-row-notes', show_notes_required_icon: true, show_notes_field_error: true,
+   url: local_assigns[:url], cancel_url: local_assigns[:cancel_url], submit_label: local_assigns[:submit_label] do |form| %>
   <% if star %>
     <div class='flex items-center gap-2 pt-2'>
       <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Orbital Data</div>
       <div class='h-px flex-1 bg-panel'></div>
     </div>
 
-    <%= render 'application/edit_field', form: form, attribute: :orbit, required: true do %>
+    <%= render 'application/edit_field', form: form, attribute: :orbit, field_label: 'Orbit #', required: true do %>
       <%= form.number_field :orbit,
                             value: format_precision(stellar_object.orbit, precision: 5),
                             class: 'edit-base sm:w-28 w-24',
@@ -16,14 +17,14 @@
     <% end %>
 
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-      <%= render 'application/edit_field', form: form, attribute: :period do %>
+      <%= render 'application/edit_field', form: form, attribute: :period, required: true, unit: 'days' do %>
         <%= df.number_field :period,
                             value: format_precision(stellar_object.period, precision: 5),
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
       <% end %>
 
-      <%= render 'application/edit_field', form: form, attribute: :rotation do %>
+      <%= render 'application/edit_field', form: form, attribute: :rotation, unit: 'hours' do %>
         <%= df.number_field :rotation,
                             value: format_precision(stellar_object.rotation, precision: 5),
                             class: 'edit-base sm:w-28 w-24',
@@ -31,14 +32,14 @@
       <% end %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :inclination do %>
+    <%= render 'application/edit_field', form: form, attribute: :inclination, required: true, unit: '°' do %>
       <%= form.number_field :inclination,
                             value: format_precision(stellar_object.inclination, precision: 5),
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
     <% end %>
 
-    <%= render 'application/edit_field', form: form, attribute: :eccentricity do %>
+    <%= render 'application/edit_field', form: form, attribute: :eccentricity, required: true do %>
       <%= form.number_field :eccentricity,
                             value: format_precision(stellar_object.eccentricity, precision: 5),
                             class: 'edit-base sm:w-28 w-24',
@@ -52,15 +53,22 @@
   </div>
 
   <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
-    <%= render 'application/edit_field', form: form, attribute: :code do %>
+    <%= render 'application/edit_field', form: form, attribute: :code, required: true do %>
       <%= df.select :code,
-                    options_for_select([['GS', 'GS'], ['GM', 'GM'], ['GL', 'GL']], stellar_object.code),
+                    options_for_select(GasGiant::SIZES.map { |code, size| ["#{code} (#{size})", code] }, stellar_object.code),
                     { include_blank: 'Select code' },
-                    class: 'edit-base w-24' %>
+                    class: 'edit-base w-40' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: form, attribute: :axial_tilt, field_label: 'Axial tilt', required: true, unit: '°' do %>
+      <%= df.number_field :axial_tilt,
+                          value: format_precision(stellar_object.axial_tilt, precision: 5),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 'any' %>
     <% end %>
   <% end %>
 
-  <%= render 'application/edit_field', form: form, attribute: :diameter do %>
+  <%= render 'application/edit_field', form: form, attribute: :diameter, required: true, unit: 'km' do %>
     <%= form.number_field :diameter,
                           value: format_precision(stellar_object.diameter, precision: 5),
                           class: 'edit-base sm:w-28 w-24',

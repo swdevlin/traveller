@@ -45,7 +45,28 @@ module StellarBuildExport
     entry['name']      = obj.name     if obj.name.present?
     entry['language']  = obj.language if obj.language.present?
     entry['mainWorld'] = true         if obj.id == main_world_id
+    export_satellites(obj, entry)
     entry
+  end
+
+  def export_satellites(obj, entry)
+    return if obj.is_a?(PlanetoidBelt)
+
+    moons = obj.moons.order(:orbit, :id).map { |moon| { 'uwp' => moon_uwp(moon) } }
+    entry['moons'] = moons if moons.any?
+
+    ring_count = obj.rings.count
+    entry['ringCount'] = ring_count if ring_count.positive?
+  end
+
+  # The schema only accepts a full UWP, so size S (which UWP_CODE cannot express) is exported as a small
+  # moon and anything malformed is left for the generator to choose.
+  def moon_uwp(moon)
+    return 'small moon' if moon.size_code == 'S'
+
+    uwp = moon.uwp.to_s
+    uwp = "X#{uwp}" if uwp.length == 8 && !uwp.match?(UWP_CODE)
+    uwp.match?(UWP_CODE) ? uwp : 'random'
   end
 
   def body_uwp(obj)

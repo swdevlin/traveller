@@ -1,4 +1,4 @@
-<%= form_with(model: stellar_object, scope: :stellar_object, url: stellar_object_path(stellar_object), class: "contents") do |form| %>
+<%= form_with(model: stellar_object, scope: :stellar_object, url: local_assigns[:url] || stellar_object_path(stellar_object), class: "contents") do |form| %>
   <div class="<%= local_assigns.fetch(:wrapper_class, 'space-y-2') %>">
     <%= render 'application/form_errors', errors: stellar_object.errors.where(:base) %>
 
@@ -28,8 +28,8 @@
     <% end %>
 
     <div class="pt-2 flex flex-col sm:flex-row gap-2">
-      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
+      <%= form.submit local_assigns[:submit_label] || 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+      <%= link_to 'Cancel', local_assigns[:cancel_url] || stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
     </div>
   </div>
 <% end %>

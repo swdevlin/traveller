@@ -574,8 +574,8 @@ module HasUwp
 
   def sync_uwp
     self.uwp = [
-      starport_code || 'X',
-      size_code || '0',
+      starport_code.presence || 'X',
+      size_code.presence || '0',
       HexDigit.hex_digit(atmosphere_code),
       HexDigit.hex_digit(hydrographics_code),
       HexDigit.hex_digit(population_code),

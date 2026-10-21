@@ -3,7 +3,10 @@
     <p>Orbiting bodies</p>
 
     <div class='actions'>
-      <%# buttons/links can go here later %>
+      <%= link_to new_star_gas_giant_path(star), class: 'btn-header' do %>
+        <i class='fa-regular fa-plus'></i>
+        Gas giant
+      <% end %>
     </div>
   </div>
 

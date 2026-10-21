@@ -95,15 +95,15 @@
     </div>
   </div>
 
-  <div class="space-y-2">
-    <%= render 'application/subsection', title: 'Transit Times' %>
-    <%= render 'stellar_objects/transit_times_table', stellar_object: gas_giant %>
-  </div>
-
   <%= render 'application/observation_block',
              notes: gas_giant.notes %>
 
   <% if @moons %>
     <%= render 'moons/moons_table', moons: @moons, pagy: @pagy, star_system: star_system %>
   <% end %>
+
+  <div class="space-y-2 pt-4">
+    <%= render 'application/subsection', title: 'Transit Times' %>
+    <%= render 'stellar_objects/transit_times_table', stellar_object: gas_giant %>
+  </div>
 </div>

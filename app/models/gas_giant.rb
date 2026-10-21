@@ -18,6 +18,10 @@ class GasGiant < StellarObject
     sidereal_day: 'siderealDay'
   )
 
+  # The starmap (Elm) decoder cannot load a gas giant without these, so every new one must supply them.
+  validates :orbit, :inclination, :eccentricity, :diameter, :period, :axial_tilt, :code, presence: true, on: :manual
+  validates :code, inclusion: { in: SIZES.keys }, allow_blank: true
+
   def orbit_type = 10
 
   def self.allowed_data_keys
@@ -27,14 +31,16 @@ class GasGiant < StellarObject
   def self.permitted_params
     [
       :name, :notes, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass,
-      data: [:code, :period, :rotation]
+      data: [:code, :period, :rotation, :axial_tilt]
     ]
   end
 
   private
 
   def normalize_data_types
-    self.period = period.to_f if period.present?
-    self.rotation = rotation.to_f if rotation.present?
+    %i[period rotation diameter axial_tilt].each do |field|
+      value = public_send(field)
+      public_send(:"#{field}=", value.presence&.to_f)
+    end
   end
 end

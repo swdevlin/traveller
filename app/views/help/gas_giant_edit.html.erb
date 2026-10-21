@@ -1,0 +1,59 @@
+<% content_for :title, 'Edit gas giant' %>
+
+<%= render 'help/page', title: 'Edit Gas Giant' do %>
+  <div class='space-y-8'>
+    <p class='text-fg'>
+      Manual changes are not validated against the rules in the World Builder's Handbook (WBH). Any value entered here is
+      stored as given, so check it against the WBH yourself.
+    </p>
+
+    <p class='text-fg'>
+      Fields marked with the chip icon are required when adding a gas giant: orbit, period, inclination, eccentricity,
+      axial tilt, code and diameter. Mass is optional.
+    </p>
+
+    <div>
+      <%= render 'application/subsection', title: 'Orbital' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbit</dt>
+          <dd class='mt-1 text-fg'>Orbit number around the parent star. The AU distance and orbit sequence are derived from it.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Period</dt>
+          <dd class='mt-1 text-fg'>Orbital period in days.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Rotation</dt>
+          <dd class='mt-1 text-fg'>Sidereal rotation period in hours.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Inclination and Eccentricity</dt>
+          <dd class='mt-1 text-fg'>Inclination in degrees; eccentricity from 0 (circular) upwards.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Physical' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Code</dt>
+          <dd class='mt-1 text-fg'>GS (small), GM (medium) or GL (large).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Axial tilt</dt>
+          <dd class='mt-1 text-fg'>Tilt of the rotational axis in degrees.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Diameter</dt>
+          <dd class='mt-1 text-fg'>Diameter in kilometres. The jump shadow is derived from it.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Mass</dt>
+          <dd class='mt-1 text-fg'>Mass in solar masses.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+<% end %>

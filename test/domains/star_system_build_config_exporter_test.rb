@@ -93,6 +93,22 @@ class StarSystemBuildConfigExporterTest < ActiveSupport::TestCase
     assert config['primary']['far']['bodies'].present?, 'Expected far secondary to keep its bodies'
   end
 
+  test 'exports moons and rings of a body' do
+    system = StarSystem.create!(parsec: @parsec, meta: {})
+    primary = build_primary_star(system)
+    planet = build_terrestrial_planet(primary, system, orbit: 2.0, uwp: 'A786865-B')
+    moon = Moon.new(orbiting: planet, star_system: system, orbit: 5)
+    moon.size_code = 'S'
+    moon.save!
+    Ring.create!(orbiting: planet, star_system: system, orbit: 1.5, span: 0.5)
+
+    body = StarSystemBuildConfigExporter.new(system).export['primary']['bodies'].first
+
+    assert_equal 1, body['moons'].size
+    assert_equal 1, body['ringCount']
+    assert_equal 'small moon', body['moons'].first['uwp']
+  end
+
   private
 
   def build_primary_star(star_system, type: 'G', subtype: 5, klass: 'V')

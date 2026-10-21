@@ -1,0 +1,11 @@
+<% content_for :help_path, help_page_path('gas_giant_edit') %>
+<%= content_for :title, "New gas giant orbiting #{@star.display_name}" %>
+<%= content_for :page_kicker, 'Gas Giant Data Core' %>
+<%= content_for :page_title, "New gas giant orbiting #{@star.display_name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'gas_giants/form', stellar_object: @gas_giant,
+                                url: star_gas_giants_path(@star),
+                                cancel_url: star_path(@star),
+                                submit_label: 'Commit core' %>
+<% end %>
