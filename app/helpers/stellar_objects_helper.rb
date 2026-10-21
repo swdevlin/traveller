@@ -546,8 +546,7 @@ module StellarObjectsHelper
     return [0.0, 0.0] if obj.is_a?(Star) && obj.orbiting.nil?
 
     if obj.orbit_x.present? && obj.orbit_y.present?
-      parent_pos = absolute_orbit_position_for(obj.orbiting)
-      [parent_pos[0] + obj.orbit_x.to_f, parent_pos[1] + obj.orbit_y.to_f]
+      [obj.orbit_x.to_f, obj.orbit_y.to_f]
     else
       [au_from_primary_for(obj) * StellarConstants::AU_TO_KM, 0.0]
     end

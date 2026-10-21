@@ -1,0 +1,19 @@
+<%= form_with model: ring, url: url, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
+  <div class='space-y-6'>
+    <%= render 'application/edit_field', form: f, attribute: :name do %>
+      <%= f.text_field :name, class: 'edit-base w-72' %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: f, attribute: :orbit, field_label: 'Orbit (diameters)', required: true do %>
+      <%= f.number_field :orbit, class: 'edit-base w-28', step: 'any', min: 0 %>
+    <% end %>
+
+    <%= render 'application/edit_field', form: f, attribute: :span, field_label: 'Span (diameters)', required: true do %>
+      <%= f.number_field :span, class: 'edit-base w-28', step: 'any', min: 0 %>
+    <% end %>
+
+    <div class='pt-2'>
+      <%= f.submit submit_label, class: 'btn btn-primary' %>
+    </div>
+  </div>
+<% end %>

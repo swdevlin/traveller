@@ -1,0 +1,8 @@
+<% content_for :help_path, help_page_path('moon_edit') %>
+<%= content_for :title, "New moon of #{@stellar_object.display_name}" %>
+<%= content_for :page_kicker, 'Moon Data Core' %>
+<%= content_for :page_title, "New moon of #{@stellar_object.display_name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'stellar_objects/tabbed_form', moon: @moon, url: stellar_object_moons_path(@stellar_object), cancel_url: stellar_object_path(@stellar_object) %>
+<% end %>

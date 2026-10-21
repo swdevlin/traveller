@@ -471,10 +471,9 @@ rogues:</code></pre>
             <dt>moons</dt>
             <dd class="space-y-2">
               <p>Optional list of moons for this body, each with a required <code>uwp</code> of
-                <code>ring</code>, <code>small moon</code>, <code>random</code> or a UWP code such as
+                <code>small moon</code>, <code>random</code> or a UWP code such as
                 <code>X674000-0</code>. Use <code>random</code> to let the generator choose the moon.</p>
               <pre><code>moons:
-  - uwp: ring
   - uwp: small moon
   - uwp: X674000-0
   - uwp: random</code></pre>
@@ -484,7 +483,8 @@ rogues:</code></pre>
           <div>
             <dt>moonCount, ringCount</dt>
             <dd>Optional integers (moonCount 0–20, ringCount 0–5) that let the generator create that many moons
-              or rings. They cannot be used together with <code>moons</code>. Moons cannot be given to bodies
+              or rings. Rings cannot be listed in <code>moons</code>; use <code>ringCount</code> instead, which may
+              be combined with <code>moons</code>. <code>moonCount</code> cannot be used together with <code>moons</code>. Moons cannot be given to bodies
               whose uwp is <code>empty</code> or <code>planetoid belt</code>.</dd>
           </div>
         </dl>

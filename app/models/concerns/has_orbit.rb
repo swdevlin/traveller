@@ -19,17 +19,21 @@ module HasOrbit
     data&.dig('apoapsis') || au.to_f * (1 + eccentricity.to_f)
   end
 
-  # Real distance from the immediate parent, in km. Prefers the generator's
-  # actual position (`orbit_x`/`orbit_y`, already in km) over the nominal
-  # `au` (semi-major axis) — with eccentric orbits the two can differ
-  # substantially, so anything computing a body's current distance from its
-  # primary (e.g. jump shadow) needs the real position, not `au`.
+  # `orbit_x`/`orbit_y` are the generator's actual position (already in km), absolute to the system's primary
+  # star. This is the same position relative to the body being orbited (the primary star's own is the
+  # origin), or nil when the position isn't known.
+  def relative_orbit_position
+    return nil unless orbit_x.present? && orbit_y.present?
+
+    [orbit_x.to_f - orbiting&.orbit_x.to_f, orbit_y.to_f - orbiting&.orbit_y.to_f]
+  end
+
+  # Real distance from the immediate parent, in km. Prefers the generator's actual position over the nominal
+  # `au` (semi-major axis) — with eccentric orbits the two can differ substantially, so anything computing a
+  # body's current distance from its primary (e.g. jump shadow) needs the real position, not `au`.
   def orbit_distance_from_parent_km
-    if orbit_x.present? && orbit_y.present?
-      Math.sqrt((orbit_x.to_f**2) + (orbit_y.to_f**2))
-    else
-      au.to_f * StellarConstants::AU_TO_KM
-    end
+    position = relative_orbit_position
+    position ? Math.hypot(*position) : au.to_f * StellarConstants::AU_TO_KM
   end
 
   private

@@ -193,6 +193,7 @@ moons_test_gas_giant:
   orbit: 5.0
   data:
     code: GM
+    diameter: 100000
 
 moons_test_significant_moon:
   name: Significant Moon

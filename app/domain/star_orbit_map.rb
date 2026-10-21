@@ -115,7 +115,7 @@ class StarOrbitMap
   # ── Children ────────────────────────────────────────────────────────────────
 
   # The star's companion followed by the other objects orbiting it, nearest first (the order the
-  # starmap API returns them). Children whose position is unknown (0, 0) are fanned out by
+  # starmap API returns them). Positions are taken relative to this star. Children whose position is unknown (0, 0) are fanned out by
   # golden angle, in that order.
   def build_children
     bodies = @star.stellar_objects.select { |o| BODY_TYPES.include?(o.type) }
@@ -124,8 +124,12 @@ class StarOrbitMap
 
     next_index = 0
     objects.map do |obj|
-      child = Child.new(obj, obj.orbit_x.to_f, obj.orbit_y.to_f, obj.au.to_f, obj.orbit.to_f, obj.eccentricity.to_f)
-      if child.x_km.zero? && child.y_km.zero?
+      # Positions are absolute to the primary star; the map is centred on this star.
+      known = obj.orbit_x.to_f != 0 || obj.orbit_y.to_f != 0
+      x_km = known ? obj.orbit_x.to_f - @star.orbit_x.to_f : 0.0
+      y_km = known ? obj.orbit_y.to_f - @star.orbit_y.to_f : 0.0
+      child = Child.new(obj, x_km, y_km, obj.au.to_f, obj.orbit.to_f, obj.eccentricity.to_f)
+      unless known
         child.synthetic_index = next_index
         next_index += 1
       end

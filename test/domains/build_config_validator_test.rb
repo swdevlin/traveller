@@ -1719,8 +1719,8 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
   test 'body with moons list is valid' do
     yaml = moons_yaml(<<~YAML)
       - uwp: terrestrial
+        ringCount: 2
         moons:
-        - uwp: ring
         - uwp: small moon
         - uwp: X674000-0
         - uwp: random
@@ -1749,16 +1749,26 @@ class BuildConfigValidatorTest < ActiveSupport::TestCase
     assert_not validator.valid_for_star_system?
   end
 
-  test 'moons cannot be combined with moonCount or ringCount' do
+  test 'moon with ring uwp is invalid' do
     yaml = moons_yaml(<<~YAML)
       - uwp: terrestrial
-        moonCount: 2
         moons:
         - uwp: ring
     YAML
     validator = BuildConfigValidator.new(yaml)
     assert_not validator.valid_for_star_system?
-    assert_includes validator.errors.join, 'moons cannot be used with moonCount or ringCount'
+  end
+
+  test 'moons cannot be combined with moonCount' do
+    yaml = moons_yaml(<<~YAML)
+      - uwp: terrestrial
+        moonCount: 2
+        moons:
+        - uwp: random
+    YAML
+    validator = BuildConfigValidator.new(yaml)
+    assert_not validator.valid_for_star_system?
+    assert_includes validator.errors.join, 'moons cannot be used with moonCount'
   end
 
   test 'empty and planetoid belt bodies cannot have moons' do

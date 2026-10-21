@@ -170,22 +170,24 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_select "input[name='stellar_object[population_cohesion]'][min='1'][max='22']"
   end
 
-  test 'edit with section shows only that section' do
+  test 'edit renders every section in one form so a validation error can be fixed on the page' do
     planet = stellar_objects(:two)
     get edit_stellar_object_url(planet, section: 'physical')
     assert_response :success
+    assert_select "button[data-tabs-target='tab']", planet.edit_sections.size - (planet.orbiting ? 0 : 1)
+    assert_select "[data-tabs-target='tab'][data-tab='physical']"
     assert_select "select[name='stellar_object[size_code]']"
-    assert_select "input[name='stellar_object[population_code]']", count: 0
-    assert_select "input[name='stellar_object[name]']", count: 0
+    assert_select "input[name='stellar_object[biomass_rating]']"
+    assert_select "input[name='stellar_object[name]']"
   end
 
-  test 'edit with unknown or missing section falls back to general' do
+  test 'edit opens on the requested section, falling back to general' do
     planet = stellar_objects(:two)
+    get edit_stellar_object_url(planet, section: 'physical')
+    assert_select "[data-tabs-default-value='physical']"
     [nil, 'bogus'].each do |section|
       get edit_stellar_object_url(planet, section: section)
-      assert_response :success
-      assert_select "input[name='stellar_object[name]']"
-      assert_select "select[name='stellar_object[size_code]']", count: 0
+      assert_select "[data-tabs-default-value='general']"
     end
   end
 
@@ -195,7 +197,7 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     get edit_stellar_object_url(rogue, section: 'orbital')
     assert_response :success
     assert_select "input[name='stellar_object[orbit]']", count: 0
-    assert_select "input[name='stellar_object[name]']"
+    assert_select "[data-tabs-default-value='general']"
   end
 
   test 'should update stellar_object' do

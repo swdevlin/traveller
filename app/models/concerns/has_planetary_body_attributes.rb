@@ -37,6 +37,12 @@ module HasPlanetaryBodyAttributes
     )
 
     validates :size_code, inclusion: { in: StellarObject::SIZE_CODES }
+
+    # The starmap (Elm) decoder cannot load a body without these, so every form must supply them.
+    validates :inclination, :eccentricity, :axial_tilt, :albedo,
+              :biomass_rating, :biocomplexity_rating, :biodiversity_rating, :compatibility_rating, :resource_rating,
+              presence: true
+    validates :resource_rating, numericality: { only_integer: true, in: 2..12 }, allow_nil: true
   end
 
   class_methods do
@@ -46,7 +52,7 @@ module HasPlanetaryBodyAttributes
         :period, :rotation, :retrograde, :density, :gravity,
         :temperature, :axial_tilt, :albedo, :greenhouse,
         :native_sophont, :sophont_id, :new_sophont_name, :extinct_sophont, :habitability_rating, :biomass_rating,
-        :biodiversity_rating, :biocomplexity_rating, :resource_rating,
+        :biodiversity_rating, :biocomplexity_rating, :compatibility_rating, :resource_rating,
         *uwp_attribute_names
       ]
     end

@@ -159,6 +159,8 @@ Rails.application.routes.draw do
         post :generate_daily_traffic
       end
       resources :cities, only: %i[new create edit update destroy], shallow: true
+      resources :moons, only: %i[new create]
+      resources :rings, only: %i[new create edit update destroy], shallow: true
     end
 
     resources :social_characteristics_presets, only: %i[index create destroy]

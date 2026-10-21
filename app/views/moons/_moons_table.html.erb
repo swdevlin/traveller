@@ -12,20 +12,32 @@
     </form>
   <% end %>
 
+  <% add_moon_button = link_to new_stellar_object_moon_path(@stellar_object), class: 'btn-header', title: 'Add moon', aria: { label: 'Add moon' }, data: { turbo_frame: '_top' } do %>
+    <i class="fa-regular fa-plus"></i> Moon
+  <% end %>
+  <% add_ring_button = link_to new_stellar_object_ring_path(@stellar_object), class: 'btn-header', title: 'Add ring', aria: { label: 'Add ring' }, data: { turbo_frame: 'modal' } do %>
+    <i class="fa-regular fa-plus"></i> Ring
+  <% end %>
+
   <%= render 'application/collapsible_table_card',
              title: safe_join(['Moons ', tag.span(@moon_count, class: 'identifier')]),
-             actions: significant_form do %>
+             actions: safe_join([significant_form, add_moon_button, add_ring_button]) do %>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th scope="col" class="w-px">Name</th>
+            <th scope="col" class="w-px cursor-help" title="Orbit sequence">Seq</th>
             <th scope="col" class="w-px text-right cursor-help" title="Orbit, in planetary diameters">Orbit</th>
             <th scope="col" class="w-px text-right cursor-help" title="Ring span, in planetary diameters">Span</th>
             <th scope="col">UWP</th>
+            <th scope="col" class="text-right actions-cell">Actions</th>
           </tr>
         </thead>
         <tbody>
+          <% if moons.empty? %>
+            <tr><td colspan="6" class="text-fg-muted">No moons recorded.</td></tr>
+          <% end %>
           <% moons.each do |moon| %>
             <tr class="cursor-pointer"
                 data-controller="row-link"
@@ -37,6 +49,7 @@
                 <% end %>
                 <%= moon.name %>
               </td>
+              <td class="whitespace-nowrap"><%= moon.orbit_sequence %></td>
               <td class="whitespace-nowrap text-right">
                 <%= number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true) %>
               </td>
@@ -45,6 +58,27 @@
               </td>
               <td>
                 <%= moon.is_a?(Ring) ? 'Ring' : moon.uwp %>
+              </td>
+              <td class="actions-cell">
+                <div class="action-group">
+                  <% if moon.is_a?(Ring) %>
+                    <%= link_to edit_ring_path(moon), class: 'action', title: 'Edit ring', data: { turbo_frame: 'modal' } do %>
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    <% end %>
+                    <%= button_to ring_path(moon), method: :delete, class: 'action danger', title: 'Delete ring',
+                                  data: { turbo_confirm: 'Delete this ring?' } do %>
+                      <i class="fa-regular fa-trash"></i>
+                    <% end %>
+                  <% else %>
+                    <%= link_to edit_stellar_object_path(moon), class: 'action', title: 'Edit moon', data: { turbo_frame: '_top' } do %>
+                      <i class="fa-regular fa-pen-to-square"></i>
+                    <% end %>
+                    <%= button_to stellar_object_path(moon), method: :delete, class: 'action danger', title: 'Delete moon',
+                                  data: { turbo_confirm: "Delete #{moon.name}?" } do %>
+                      <i class="fa-regular fa-trash"></i>
+                    <% end %>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

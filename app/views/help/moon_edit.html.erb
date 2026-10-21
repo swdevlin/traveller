@@ -1,0 +1,217 @@
+<% content_for :title, 'Edit moon' %>
+
+<%= render 'help/page', title: 'Edit Moon' do %>
+  <div class='space-y-8'>
+    <p class='text-fg'>
+      Fields marked with the chip icon are required: orbit, size, inclination, eccentricity, axial tilt, albedo and the
+      five ratings (biomass, biocomplexity, biodiversity, compatibility, resource). Enter 0 where a value is unknown, except resource rating, which runs from 2 to 12.
+    </p>
+
+    <div>
+      <%= render 'application/subsection', title: 'Orbital' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbit</dt>
+          <dd class='mt-1 text-fg'>Distance from the centre of the parent planet, in planetary diameters.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Retrograde</dt>
+          <dd class='mt-1 text-fg'>Orbits opposite to the planet's rotation.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Rotation</dt>
+          <dd class='mt-1 text-fg'>Sidereal rotation period in hours.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Eccentricity</dt>
+          <dd class='mt-1 text-fg'>0 is a circular orbit.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Starport' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Starport</dt>
+          <dd class='mt-1 text-fg'>Class A&ndash;E, or X for none.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Berthing and fuel costs</dt>
+          <dd class='mt-1 text-fg'>
+            Assigned from the starport class on import (WBH p. 257); blank means none. Edit to override.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Physical' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Size</dt>
+          <dd class='mt-1 text-fg'>UWP size code: 0, S, 1&ndash;9, then A&ndash;H and J&ndash;M. Changing it recalculates diameter, mass and gravity.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Diameter, Density</dt>
+          <dd class='mt-1 text-fg'>Diameter is in kilometres and density is relative to Earth. Editing either recalculates mass and gravity.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Mass, Gravity</dt>
+          <dd class='mt-1 text-fg'>Calculated from diameter and density; can be overridden by hand.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Temperature</dt>
+          <dd class='mt-1 text-fg'>Mean surface temperature in Kelvin.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Albedo</dt>
+          <dd class='mt-1 text-fg'>Fraction of incident radiation reflected, 0&ndash;1.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Atmosphere' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Atmosphere</dt>
+          <dd class='mt-1 text-fg'>UWP atmosphere code, 0&ndash;F.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hazard</dt>
+          <dd class='mt-1 text-fg'>Insidious hazard: B Biological, R Radioactive, G Gas, T Thermal.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Hydrographics' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Hydrographics</dt>
+          <dd class='mt-1 text-fg'>UWP code 0&ndash;A, each a band of surface liquid coverage: 0 is 0%&ndash;5%, 5 is 46%&ndash;55%, A is 96%&ndash;100%.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Population' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Population</dt>
+          <dd class='mt-1 text-fg'>Population code, 0&ndash;12.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Concentration Rating</dt>
+          <dd class='mt-1 text-fg'>0&ndash;9: 0 is extremely dispersed, 9 extremely concentrated.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Urbanisation %</dt>
+          <dd class='mt-1 text-fg'>0&ndash;100.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Culture Traits</dt>
+          <dd class='mt-1 text-fg'>
+            Eight dimensions of the dominant culture (WBH p. 181), ranges are:
+            Diversity (Monolithic 1 to Multicultural 20), Xenophilia (Xenophobic 1 to Xenophilic 17),
+            Uniqueness (Normal 1 to Obscure 18), Symbology (Concrete 1 to Abstract 19),
+            Cohesion (Individualistic 1 to Collective 22), Progressiveness (Reactionary 1 to Radical 18),
+            Expansionism (Passive 1 to Expansionistic 18), Militancy (Peaceful 1 to Militant 20).
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Sophont</dt>
+          <dd class='mt-1 text-fg'>
+            Choose an existing sophont, or type a new name to create one with this system as its home.
+            Other sophont details are managed under Data Cores &rarr; Sophonts.
+          </dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Habitability Rating</dt>
+          <dd class='mt-1 text-fg'>0 is actively hostile to unprotected humans; 10 is a Terra-equivalent garden world (WBH p. 132).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Biocomplexity, Resource Rating</dt>
+          <dd class='mt-1 text-fg'>Biocomplexity runs 1&ndash;10; resource rating 2&ndash;12 (WBH p. 131).</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Government' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Government</dt>
+          <dd class='mt-1 text-fg'>Type code, 0&ndash;F (WBH p. 156).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Judicial, Executive, Legislative</dt>
+          <dd class='mt-1 text-fg'>Structure of each branch: D Demos, S Single Council, M Multiple Councils, R Ruler (WBH p. 158).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Authority</dt>
+          <dd class='mt-1 text-fg'>The branch holding supreme authority: L Legislative, E Executive, J Judicial, B Balance (WBH p. 159).</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Centralisation</dt>
+          <dd class='mt-1 text-fg'>C Confederal, F Federal, U Unitary (WBH p. 159).</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Law Level' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Law Level</dt>
+          <dd class='mt-1 text-fg'>Overall level, 0&ndash;F. Changing it resets the five sub-classifications to match, as a baseline to adjust.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Uniformity</dt>
+          <dd class='mt-1 text-fg'>P Personal, T Territorial, U Universal.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Judicial System</dt>
+          <dd class='mt-1 text-fg'>I Inquisitorial, A Adversarial, T Traditional.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Tech Level' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Tech Level</dt>
+          <dd class='mt-1 text-fg'>Overall level, 0&ndash;35, as recorded in the UWP.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Specialist levels</dt>
+          <dd class='mt-1 text-fg'>
+            Electronics, energy, land, sea, air, space, personal and heavy military, manufacturing and medical
+            may differ from the overall level where a society has specialised (WBH p. 173).
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'General' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Name</dt>
+          <dd class='mt-1 text-fg'>The moon's designation or proper name. The generator button suggests one.</dd>
+        </div>
+        <%= render 'help/observations' %>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Reference link</dt>
+          <dd class='mt-1 text-fg'>An http or https link. Leave blank to use the generated Traveller Wiki entry in charted-space campaigns.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted'>
+      REFERENCE 0423MN
+    </div>
+  </div>
+<% end %>

@@ -8,6 +8,11 @@
           The Orbital section is only shown when the body orbits a star.
         </p>
         <p>
+          Fields marked with the chip icon are required: orbit, size, inclination, eccentricity, axial tilt, albedo, and the
+          biomass, biocomplexity, biodiversity, compatibility and resource ratings. Terrestrial planets also require atmosphere and
+          hydrographics. Enter 0 where a value is unknown.
+        </p>
+        <p>
           Editing is scoped to one section at a time. Pressing Edit while a tab is selected on the show page opens
           only that tab's fields; Name, Known and Observations are under <span class='font-semibold text-fg-bright'>General</span>.
           Use the section strip at the top to jump to another section. Unsaved changes are not carried between sections,
@@ -223,7 +228,7 @@
           </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Resource Rating</dt>
-            <dd class='mt-1 text-fg'>Economic value of extractable resources (2–12).</dd>
+            <dd class='mt-1 text-fg'>Economic value of extractable resources (2–12). See WBH p. 131.</dd>
           </div>
         </dl>
       </div>
@@ -364,10 +369,7 @@
       <div>
         <p class=' font-semibold text-highlight mb-2'>Observations</p>
         <dl class='space-y-5 '>
-          <div>
-            <dt class='font-semibold text-fg-bright'>Observations</dt>
-            <dd class='mt-1 text-fg'>Free-text notes in CommonMark (Markdown) format.</dd>
-          </div>
+          <%= render 'help/observations' %>
           <div>
             <dt class='font-semibold text-fg-bright'>Reference link</dt>
             <dd class='mt-1 text-fg'>

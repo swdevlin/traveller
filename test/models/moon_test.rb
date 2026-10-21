@@ -58,4 +58,27 @@ class MoonTest < ActiveSupport::TestCase
     moon = Moon.new(diameter: 500, size_code: '1', data: {})
     assert_nil moon.effective_jump_shadow_source
   end
+
+  # required values
+
+  test 'requires every value the starmap decoder needs' do
+    [Moon, TerrestrialPlanet, Planetoid].each do |klass|
+      body = klass.new(size_code: '2', data: {})
+      body.skip_planetary_defaults = true
+      body.valid?
+
+      %i[inclination eccentricity axial_tilt albedo biomass_rating biocomplexity_rating
+         biodiversity_rating compatibility_rating resource_rating].each do |attribute|
+        assert_includes body.errors[attribute], "can't be blank", "#{klass} should require #{attribute}"
+      end
+    end
+  end
+
+  test 'a zero value satisfies the requirement' do
+    moon = Moon.new(size_code: '2', data: {})
+    moon.valid?
+
+    assert_empty moon.errors[:inclination]
+    assert_empty moon.errors[:albedo]
+  end
 end

@@ -1,0 +1,3 @@
+<%= modal(title: 'Edit Ring', padding: true, advance: false, overlay: false) do %>
+  <%= render 'rings/modal_form', ring: @ring, url: ring_path(@ring), submit_label: 'Update ring' %>
+<% end %>

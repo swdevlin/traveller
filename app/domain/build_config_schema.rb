@@ -16,7 +16,7 @@ UWP_LABELS = [
   'super earth',
   'empty'
 ].freeze
-MOON_UWP_LABELS = ['ring', 'small moon', 'random'].freeze
+MOON_UWP_LABELS = ['small moon', 'random'].freeze
 
 MainWorldSchema = Dry::Schema.Params do
   required(:uwp).value(:string, format?: UWP_CODE)

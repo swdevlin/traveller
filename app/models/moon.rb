@@ -14,6 +14,20 @@ class Moon < StellarObject
 
   private
 
+  # A moon only changes the numbering of the moons around its own planet, so the rest of the system's
+  # sequences are left alone. A planet that has not been numbered yet needs the whole system assigned.
+  def reassign_orbit_sequences
+    return super if orbiting&.orbit_sequence.blank?
+
+    OrbitSequenceAssigner.new(orbit_star_system).assign_moons_of!(orbiting)
+  end
+
+  def reassign_orbit_sequences_after_destroy
+    return super if orbit_star_system_for_destroy.nil? || orbiting.orbit_sequence.blank?
+
+    OrbitSequenceAssigner.new(orbit_star_system_for_destroy).assign_moons_of!(orbiting)
+  end
+
   def compute_effective_jump_shadow
     @compute_effective_jump_shadow ||= begin
       planet = orbiting

@@ -14,6 +14,11 @@ class OrbitSequenceAssigner
     assign_planetoid_objects(primary)
   end
 
+  # Renumbers just one planet's moons, leaving the rest of the system's sequences as they are.
+  def assign_moons_of!(planet)
+    assign_moons(planet, planet.orbit_sequence)
+  end
+
   private
 
   def next_letter

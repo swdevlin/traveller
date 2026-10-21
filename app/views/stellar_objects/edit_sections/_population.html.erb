@@ -1,9 +1,4 @@
 <%# locals: form, stellar_object %>
-<div class='flex items-center gap-2 pt-2'>
-  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Population</div>
-  <div class='h-px flex-1 bg-panel'></div>
-</div>
-
 <%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
   <%= form.number_field :population_code,
                         value: stellar_object.population_code,
@@ -69,27 +64,34 @@
                         step: 1 %>
 <% end %>
 
-<%= render 'application/edit_field', form: form, attribute: :biomass_rating, field_label: 'Biomass Rating' do %>
+<%= render 'application/edit_field', form: form, attribute: :biomass_rating, required: true, field_label: 'Biomass Rating' do %>
   <%= form.number_field :biomass_rating,
                         value: stellar_object.biomass_rating,
                         class: 'edit-base sm:w-28 w-24',
                         step: 1 %>
 <% end %>
 
-<%= render 'application/edit_field', form: form, attribute: :biodiversity_rating, field_label: 'Biodiversity Rating' do %>
+<%= render 'application/edit_field', form: form, attribute: :biodiversity_rating, required: true, field_label: 'Biodiversity Rating' do %>
   <%= form.number_field :biodiversity_rating,
                         value: stellar_object.biodiversity_rating,
                         class: 'edit-base sm:w-28 w-24',
                         step: 1 %>
 <% end %>
 
-<%= render 'application/edit_field', form: form, attribute: :biocomplexity_rating, field_label: 'Biocomplexity Rating' do %>
+<%= render 'application/edit_field', form: form, attribute: :biocomplexity_rating, required: true, field_label: 'Biocomplexity Rating' do %>
   <%= form.text_field :biocomplexity_rating,
                       value: stellar_object.biocomplexity_rating,
                       class: 'edit-base w-24' %>
 <% end %>
 
-<%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating' do %>
+<%= render 'application/edit_field', form: form, attribute: :compatibility_rating, field_label: 'Compatibility Rating', required: true do %>
+  <%= form.number_field :compatibility_rating,
+                        value: stellar_object.compatibility_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :resource_rating, required: true, field_label: 'Resource Rating' do %>
   <%= form.number_field :resource_rating,
                         value: stellar_object.resource_rating,
                         class: 'edit-base sm:w-28 w-24',

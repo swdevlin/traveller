@@ -10347,7 +10347,7 @@ update msg ( time, model ) =
                                     , jumpShadow = starDataConfig.jumpShadow |> Maybe.map (\js -> format { usLocale | decimals = Exact 0, thousandSeparator = " " } js ++ " km") |> Maybe.withDefault "—"
                                     , showNames = showName
                                     , primaryStarData = StarDataWrap starDataConfig
-                                    , children = StarOrbitMap.buildChildren surveyIndex starDataConfig.companion starDataConfig.stellarObjects
+                                    , children = StarOrbitMap.buildChildren surveyIndex (StarDataWrap starDataConfig) starDataConfig.companion starDataConfig.stellarObjects
                                     }
                             in
                             AnalyisDetailStar header starDetailData

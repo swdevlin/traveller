@@ -23,8 +23,11 @@ require_relative '../db/seed_data/trade_codes'
 require_relative 'test_helpers/session_test_helper'
 require_relative 'test_helpers/authenticated_integration_test'
 require_relative 'test_helpers/stub_new_helper'
+require_relative 'test_helpers/planetary_body_defaults'
 
 WebMock.disable_net_connect!(allow_localhost: true)
+
+[Moon, TerrestrialPlanet, Planetoid].each { |klass| klass.include PlanetaryBodyDefaults }
 
 class ActiveSupport::TestCase
   parallelize(workers: :number_of_processors)

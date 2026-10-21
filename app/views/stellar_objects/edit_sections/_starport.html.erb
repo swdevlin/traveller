@@ -1,9 +1,4 @@
 <%# locals: form, stellar_object %>
-<div class='flex items-center gap-2 pt-2'>
-  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Starport</div>
-  <div class='h-px flex-1 bg-panel'></div>
-</div>
-
 <%= render 'application/edit_field', form: form, attribute: :starport_code, field_label: 'Starport' do %>
   <%= form.select :starport_code,
                   options_for_select(

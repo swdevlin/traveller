@@ -1,5 +1,5 @@
-<% section = local_assigns.fetch(:section, @section || 'general') %>
-
-<%= render 'stellar_objects/form_scaffold', stellar_object: stellar_object, section: section, show_core_fields: section == 'general', wrapper_class: 'space-y-2 pb-10', notes_wrapper_class: 'edit-row-notes', show_notes_required_icon: true, show_notes_field_error: true do |form| %>
-  <%= render "stellar_objects/edit_sections/#{section}", form: form, stellar_object: stellar_object %>
-<% end %>
+<%# One form with a tab per section, so a selection survives switching tabs and a validation error on any
+    section can be fixed on the same page. %>
+<%= render 'stellar_objects/tabbed_form', moon: stellar_object, url: stellar_object_path(stellar_object),
+                                          cancel_url: stellar_object_path(stellar_object), submit_label: 'Update core',
+                                          section: local_assigns.fetch(:section, @section || 'general') %>

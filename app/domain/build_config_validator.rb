@@ -331,8 +331,8 @@ class BuildConfigValidator
 
       body_path = "#{path}.bodies[#{idx}]"
 
-      if body.key?('moons') && (body.key?('moonCount') || body.key?('ringCount'))
-        @errors << "#{body_path}: moons cannot be used with moonCount or ringCount"
+      if body.key?('moons') && body.key?('moonCount')
+        @errors << "#{body_path}: moons cannot be used with moonCount"
       end
 
       if MOON_KEYS.any? { |key| body.key?(key) } && MOONLESS_UWPS.include?(body['uwp'])

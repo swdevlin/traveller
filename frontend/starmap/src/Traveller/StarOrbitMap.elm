@@ -77,9 +77,12 @@ type alias ResizeConfig msg =
 children, filtered by survey visibility, with a synthesized fan-out angle
 assigned to any child whose orbit\_x/orbit\_y are both absent (0,0).
 -}
-buildChildren : Int -> Maybe StarData -> List StellarObject -> List ChildNode
-buildChildren surveyIndex maybeCompanion stellarObjects =
+buildChildren : Int -> StarData -> Maybe StarData -> List StellarObject -> List ChildNode
+buildChildren surveyIndex centreStarData maybeCompanion stellarObjects =
     let
+        centre =
+            (getInnerStarData centreStarData).orbitPosition
+
         companionList =
             case maybeCompanion of
                 Just companionStarData ->
@@ -96,10 +99,24 @@ buildChildren surveyIndex maybeCompanion stellarObjects =
             let
                 orbit =
                     getStellarOrbit obj
+
+                -- Positions are absolute to the primary star; the map is centred on this star.
+                known =
+                    orbit.orbitPosition.x /= 0 || orbit.orbitPosition.y /= 0
             in
             { stellarObject = obj
-            , xKm = orbit.orbitPosition.x
-            , yKm = orbit.orbitPosition.y
+            , xKm =
+                if known then
+                    orbit.orbitPosition.x - centre.x
+
+                else
+                    0
+            , yKm =
+                if known then
+                    orbit.orbitPosition.y - centre.y
+
+                else
+                    0
             , au = orbit.au
             , orbit = orbit.orbit
             , eccentricity = orbit.eccentricity

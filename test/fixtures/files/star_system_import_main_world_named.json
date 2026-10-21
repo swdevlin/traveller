@@ -88,7 +88,7 @@
             "biocomplexityCode": 0,
             "biodiversityRating": 0,
             "compatibilityRating": 0,
-            "resourceRating": 0,
+            "resourceRating": 2,
             "axialTilt": 10.0,
             "diameter": null,
             "jumpShadow": null,
