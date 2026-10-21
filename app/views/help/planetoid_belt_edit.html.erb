@@ -1,0 +1,76 @@
+<% content_for :title, 'Edit planetoid belt' %>
+
+<%= render 'help/page', title: 'Edit Planetoid Belt' do %>
+  <div class='space-y-8'>
+    <p class='text-fg'>
+      Manual changes are not validated against the rules in the World Builder's Handbook (WBH). Any value entered here is
+      stored as given, so check it against the WBH yourself.
+    </p>
+
+    <p class='text-fg'>
+      The form has one tab for each part of the belt's UWP: General, Orbital, Starport, Physical, Atmosphere,
+      Hydrographics, Population, Government, Law Level and Tech Level. It is a single form, so values on every tab are
+      saved together.
+    </p>
+
+    <p class='text-fg'>
+      Fields marked with the chip icon are required when adding a planetoid belt: orbit, period, inclination,
+      eccentricity, the four composition percentages, resource rating, bulk and span. Enter 0 for any composition
+      percentage that does not apply.
+    </p>
+
+    <div>
+      <%= render 'application/subsection', title: 'Orbital tab' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Orbit</dt>
+          <dd class='mt-1 text-fg'>Orbit number around the parent star, no lower than the star's minimum allowable orbit.
+            The AU distance and orbit sequence are derived from it.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Period</dt>
+          <dd class='mt-1 text-fg'>Orbital period in days.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Retrograde</dt>
+          <dd class='mt-1 text-fg'>Whether the belt orbits against the direction of the star's rotation.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Inclination and Eccentricity</dt>
+          <dd class='mt-1 text-fg'>Inclination in degrees; eccentricity from 0 (circular) upwards.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Physical tab' %>
+      <dl class='mt-4 space-y-5'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Metallic, Stony, Carbonaceous and Other</dt>
+          <dd class='mt-1 text-fg'>Percentage of each material type. When any is non-zero the four must total 100%.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Resource rating</dt>
+          <dd class='mt-1 text-fg'>Resource rating from 2 to 12.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Bulk</dt>
+          <dd class='mt-1 text-fg'>Bulk of the belt, a whole number of at least 1.</dd>
+        </div>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Span</dt>
+          <dd class='mt-1 text-fg'>Width of the belt in orbit numbers.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div>
+      <%= render 'application/subsection', title: 'Other tabs' %>
+      <p class='mt-4 text-fg'>
+        The Starport, Atmosphere, Hydrographics, Population, Government, Law Level and Tech Level tabs are optional and
+        follow the same rules as other worlds. See the help for editing a world for details. The Physical tab also holds
+        the mean temperature in kelvin.
+      </p>
+    </div>
+  </div>
+<% end %>

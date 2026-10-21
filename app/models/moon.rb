@@ -4,7 +4,7 @@ class Moon < StellarObject
   include HasPlanetaryBodyAttributes
   include HasPlanetMap
 
-  validates :starport_code, presence: true
+  validates :starport_code, presence: true, on: :manual
 
   def effective_jump_shadow_km
     compute_effective_jump_shadow[:km]

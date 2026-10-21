@@ -7,6 +7,11 @@
                      'law_level' => 'Law', 'tech_level' => 'Tech' }
   sections = moon.edit_sections
   sections -= ['orbital'] unless moon.orbiting
+  # A body type can override a section with its own partial under <collection>/edit_sections.
+  section_partial = lambda do |section|
+    own = "#{moon.class.model_name.collection}/edit_sections/#{section}"
+    lookup_context.exists?(own, [], true) ? own : "stellar_objects/edit_sections/#{section}"
+  end
 %>
 <%= form_with(model: moon, scope: :stellar_object, url: url, class: 'contents') do |form| %>
   <div class='space-y-2 pb-10' data-controller='tabs' data-tabs-default-value='<%= local_assigns.fetch(:section, 'general') %>'>
@@ -44,7 +49,7 @@
             <% end %>
           </div>
         <% else %>
-          <%= render "stellar_objects/edit_sections/#{section}", form: form, stellar_object: moon %>
+          <%= render section_partial.call(section), form: form, stellar_object: moon %>
         <% end %>
       </div>
     <% end %>

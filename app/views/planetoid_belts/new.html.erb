@@ -1,0 +1,11 @@
+<% content_for :help_path, help_page_path('planetoid_belt_edit') %>
+<%= content_for :title, "New planetoid belt orbiting #{@star.display_name}" %>
+<%= content_for :page_kicker, 'Planetoid Belt Data Core' %>
+<%= content_for :page_title, "New planetoid belt orbiting #{@star.display_name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'planetoid_belts/form', stellar_object: @planetoid_belt,
+                                     url: star_planetoid_belts_path(@star),
+                                     cancel_url: star_path(@star),
+                                     submit_label: 'Commit core' %>
+<% end %>

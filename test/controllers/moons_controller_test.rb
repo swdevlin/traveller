@@ -45,7 +45,7 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
 
   test 'should create moon orbiting the planet' do
     assert_difference('Moon.count') do
-      post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'New moon', orbit: 1.5, size_code: '3', period: 2.5, atmosphere_code: 6 } }
+      post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'New moon', orbit: 1.5, size_code: '3', starport_code: 'X', period: 2.5, atmosphere_code: 6 } }
     end
 
     moon = Moon.order(:id).last
@@ -57,9 +57,17 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@planet)
   end
 
+  test 'rejects a moon without a starport' do
+    assert_no_difference('Moon.count') do
+      post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'No port', orbit: 1.5, size_code: '3' } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
   test 'creating a moon calculates its orbit position from the planet' do
     @planet.update_columns(orbit_x: 7.5e8, orbit_y: -2.0e8)
-    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Placed moon', orbit: 4, eccentricity: 0.2, size_code: '3' } }
+    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Placed moon', orbit: 4, eccentricity: 0.2, size_code: '3', starport_code: 'X' } }
 
     moon = Moon.order(:id).last
     assert_not_nil moon.orbit_x
@@ -73,7 +81,7 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
   test 'saving a new moon renumbers only the planet\'s moons by orbit' do
     @planet.update_column(:orbit_sequence, 'ZZ')
 
-    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Inner moon', orbit: 0.5, size_code: '3' } }
+    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Inner moon', orbit: 0.5, size_code: '3', starport_code: 'X' } }
 
     moons = @planet.moons.order(:orbit)
     assert_equal 'Inner moon', moons.first.name
@@ -92,7 +100,7 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
   test 'deleting a moon renumbers the remaining moons of its planet' do
     @planet.update_column(:orbit_sequence, 'ZZ')
     %w[One Two Three].each_with_index do |name, i|
-      post stellar_object_moons_url(@planet), params: { stellar_object: { name: name, orbit: i + 1, size_code: '3' } }
+      post stellar_object_moons_url(@planet), params: { stellar_object: { name: name, orbit: i + 1, size_code: '3', starport_code: 'X' } }
     end
     doomed = @planet.moons.find_by(name: 'One')
 
@@ -124,7 +132,7 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
   end
 
   test 'creating a moon leaves its position blank when the planet has none' do
-    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Unplaced moon', orbit: 4, size_code: '3' } }
+    post stellar_object_moons_url(@planet), params: { stellar_object: { name: 'Unplaced moon', orbit: 4, size_code: '3', starport_code: 'X' } }
 
     moon = Moon.find_by!(name: 'Unplaced moon')
     assert_nil moon.orbit_x

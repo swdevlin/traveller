@@ -211,6 +211,7 @@ Rails.application.routes.draw do
 
     resources :stars, only: %i[index show edit update destroy] do
       resources :gas_giants, only: %i[new create]
+      resources :planetoid_belts, only: %i[new create]
       collection do
         get :lookup
       end

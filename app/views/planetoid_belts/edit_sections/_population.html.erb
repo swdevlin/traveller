@@ -1,0 +1,58 @@
+<%# locals: form, stellar_object %>
+<%= render 'application/edit_field', form: form, attribute: :population_code, field_label: 'Population' do %>
+  <%= form.number_field :population_code,
+                        value: stellar_object.population_code,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 12 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_concentration_rating, field_label: 'Concentration Rating' do %>
+  <%= form.number_field :population_concentration_rating,
+                        value: stellar_object.population_concentration_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 9 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_urbanization_percentage, field_label: 'Urbanisation %' do %>
+  <%= form.number_field :population_urbanization_percentage,
+                        value: stellar_object.population_urbanization_percentage,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :population_major_cities, field_label: 'Major Cities' do %>
+  <%= form.number_field :population_major_cities,
+                        value: stellar_object.population_major_cities,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0 %>
+<% end %>
+
+<% StellarObjectsHelper::CULTURE_TRAIT_DATA.each do |trait| %>
+  <%= render 'application/edit_field', form: form, attribute: trait[:getter], field_label: trait[:label] do %>
+    <%= form.number_field trait[:getter],
+                          value: stellar_object.send(trait[:getter]),
+                          class: 'edit-base sm:w-28 w-24',
+                          step: 1,
+                          min: trait[:min],
+                          max: trait[:max] %>
+  <% end %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :native_sophont, field_label: 'Native Sophont' do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :native_sophont,
+        checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>
+
+<%= render 'sophonts/picker', form: form, stellar_object: stellar_object %>
+
+<%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
+        checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>

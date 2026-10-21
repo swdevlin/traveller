@@ -1,0 +1,71 @@
+<%# locals: form, stellar_object %>
+<%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+  <%= render 'application/edit_field', form: form, attribute: :m_type, field_label: 'Metallic %', required: true do %>
+    <%= df.number_field :m_type,
+                        value: stellar_object.m_type,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :s_type, field_label: 'Stony %', required: true do %>
+    <%= df.number_field :s_type,
+                        value: stellar_object.s_type,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :c_type, field_label: 'Carbonaceous %', required: true do %>
+    <%= df.number_field :c_type,
+                        value: stellar_object.c_type,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :o_type, field_label: 'Other %', required: true do %>
+    <%= df.number_field :o_type,
+                        value: stellar_object.o_type,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 0,
+                        max: 100 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :resource_rating, field_label: 'Resource Rating', required: true do %>
+    <%= df.number_field :resource_rating,
+                        value: stellar_object.resource_rating,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 2,
+                        max: 12 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :bulk, required: true do %>
+    <%= df.number_field :bulk,
+                        value: stellar_object.bulk,
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 1,
+                        min: 1 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :span, required: true do %>
+    <%= df.number_field :span,
+                        value: format_precision(stellar_object.span, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any',
+                        min: -1,
+                        max: 1 %>
+  <% end %>
+
+  <%= render 'application/edit_field', form: form, attribute: :temperature, unit: 'K' do %>
+    <%= df.number_field :temperature,
+                        value: format_precision(stellar_object.temperature, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+  <% end %>
+<% end %>

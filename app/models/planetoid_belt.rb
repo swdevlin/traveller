@@ -7,6 +7,9 @@ class PlanetoidBelt < StellarObject
   before_validation :normalize_data_types
 
   validates :orbit, presence: true
+  # The starmap (Elm) decoder cannot load a belt without these, so every new one must supply them.
+  validates :inclination, :eccentricity, :period, :m_type, :s_type, :c_type, :o_type, :span, :bulk, :resource_rating,
+            presence: true, on: :manual
   validate :orbit_above_minimum, if: -> { orbit.present? && orbiting.present? }
   validate :composition_sums_to_100
   validates :bulk, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
@@ -79,9 +82,9 @@ class PlanetoidBelt < StellarObject
   end
 
   def normalize_data_types
-    self.period = period.to_f if period.present?
-    self.span = span.to_f if span.present?
-    self.temperature = temperature.to_f if temperature.present?
+    self.period = period.presence&.to_f
+    self.span = span.presence&.to_f
+    self.temperature = temperature.presence&.to_f
     self.m_type = m_type.to_i if m_type.present?
     self.s_type = s_type.to_i if s_type.present?
     self.c_type = c_type.to_i if c_type.present?

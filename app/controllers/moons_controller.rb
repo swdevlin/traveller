@@ -13,7 +13,7 @@ class MoonsController < ApplicationController
     @moon = build_moon(moon_params)
     assign_orbit_position(@moon)
 
-    if @moon.save
+    if @moon.save(context: :manual)
       redirect_to stellar_object_path(@stellar_object), notice: 'Moon was successfully created.', status: :see_other
     else
       render :new, status: :unprocessable_entity

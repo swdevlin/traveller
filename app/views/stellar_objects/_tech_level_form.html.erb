@@ -1,8 +1,3 @@
-<div class='flex items-center gap-2 pt-2'>
-  <div class='text-xs uppercase tracking-[0.22em] text-highlight'>Tech Level</div>
-  <div class='h-px flex-1 bg-panel'></div>
-</div>
-
 <%= render 'application/edit_field', form: form, attribute: :tech_level_code, field_label: 'Tech Level' do %>
   <%= form.number_field :tech_level_code,
                         value: stellar_object.tech_level_code,
