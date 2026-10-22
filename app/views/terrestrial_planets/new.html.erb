@@ -1,0 +1,8 @@
+<% content_for :help_path, help_page_path('terrestrial_planet_edit') %>
+<%= content_for :title, "New planet orbiting #{@star.display_name}" %>
+<%= content_for :page_kicker, 'Terrestrial Planet Data Core' %>
+<%= content_for :page_title, "New planet orbiting #{@star.display_name}" %>
+
+<%= render 'application/page' do %>
+  <%= render 'stellar_objects/tabbed_form', moon: @terrestrial_planet, url: star_terrestrial_planets_path(@star), cancel_url: star_path(@star) %>
+<% end %>

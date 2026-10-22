@@ -3,6 +3,16 @@ require 'test_helper'
 class StellarObjectsHelperTest < ActionView::TestCase
   include StellarObjectsHelper
 
+  # transit tables
+
+  test 'transit tables leave out rings' do
+    planet = stellar_objects(:moons_test_gas_giant)
+    ring = Ring.create!(name: 'Halo', orbiting: planet, star_system_id: planet.star_system_id, orbit: 1.5, data: { 'span' => 0.25 })
+
+    assert_not_includes transit_bodies_for(planet).pluck(:body), ring
+    assert_not_includes transit_matrix_for(planet.star_system).pluck(:body), ring
+  end
+
   # flip_burn_travel_time_hours tests
 
   test 'flip_burn_travel_time_hours returns nil for nil distance' do

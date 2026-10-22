@@ -506,6 +506,7 @@ module StellarObjectsHelper
     star_system.stellar_objects.includes(:orbiting).each do |obj|
       next if obj.is_a?(Planetoid)
       next if obj.is_a?(Moon)
+      next if obj.is_a?(Ring)
       bodies << { body: obj, au: au_from_primary_for(obj), position: absolute_orbit_position_for(obj) }
     end
 
@@ -531,6 +532,7 @@ module StellarObjectsHelper
       next if obj.id == stellar_object.id
       next if obj.is_a?(Planetoid)
       next if obj.is_a?(Moon)
+      next if obj.is_a?(Ring)
       obj_pos = absolute_orbit_position_for(obj)
       obj_au = au_from_primary_for(obj)
       distance_km = euclidean_distance_km(current_pos, obj_pos)

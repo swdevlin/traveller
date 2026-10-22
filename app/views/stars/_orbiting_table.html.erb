@@ -7,6 +7,10 @@
         <i class='fa-regular fa-plus'></i>
         Gas giant
       <% end %>
+      <%= link_to new_star_terrestrial_planet_path(star), class: 'btn-header' do %>
+        <i class='fa-regular fa-plus'></i>
+        Planet
+      <% end %>
       <%= link_to new_star_planetoid_belt_path(star), class: 'btn-header' do %>
         <i class='fa-regular fa-plus'></i>
         Planetoid belt
