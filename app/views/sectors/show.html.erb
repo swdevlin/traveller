@@ -55,42 +55,7 @@
 <% end %>
 
 <% content_for :page_side do %>
-  <div class='flex items-center justify-between mb-2'>
-    <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Subsectors</div>
-    <div class='flex items-center gap-3'>
-      <button type='button'
-              title='Copy public map link'
-              class='text-fg-muted hover:text-fg-bright'
-              data-tour-step='public-map-link'
-              data-controller='clipboard'
-              data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
-              data-action='click->clipboard#copy'>
-        <i class='fa-regular fa-link'></i>
-      </button>
-      <%= link_to map_sector_path(@sector),
-                  target: '_blank',
-                  rel: 'noopener',
-                  title: 'Star Map',
-                  data: {'tour_step': 'sector-map'},
-                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
-        <i class="fa-regular fa-map"></i>
-      <% end %>
-      <%= link_to poster_sector_path(@sector),
-                  title: 'Download poster PDF',
-                  data: {'tour_step': 'sector-poster'},
-                  class: 'text-fg-muted hover:text-highlight transition-colors' do %>
-        <i class="fa-regular fa-rectangle-vertical"></i>
-      <% end %>
-    </div>
-  </div>
-  <turbo-frame id='sector-subsector-grid'
-               data-controller='ui-updates'
-               data-ui-updates-sector-id-value='<%= @sector.id %>'
-               data-ui-updates-src-value='<%= sector_path(@sector) %>'>
-    <%= render 'subsector_grid', sector: @sector %>
-  </turbo-frame>
-
-  <div class='mt-6'>
+  <div>
     <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>
       Neighbouring sectors
     </div>
@@ -123,9 +88,36 @@
                    value: link_to('Reference', reference_url, target: '_blank', rel: 'noopener',
                                   class: 'hover:underline underline-offset-4') %>
       <% end %>
-    </div>
 
-    <%= render 'application/observation_block', notes: @sector.notes %>
+      <% maps_links = capture do %>
+      <div class='flex items-center gap-3 text-lg'>
+        <button type='button'
+                title='Copy public map link'
+                class='text-fg-muted hover:text-fg-bright'
+                data-tour-step='public-map-link'
+                data-controller='clipboard'
+                data-clipboard-url-value='<%= signed_map_url(map_sector_path(@sector)) %>'
+                data-action='click->clipboard#copy'>
+          <i class='fa-regular fa-link'></i>
+        </button>
+        <%= link_to map_sector_path(@sector),
+                    target: '_blank',
+                    rel: 'noopener',
+                    title: 'Star Map',
+                    data: {'tour_step': 'sector-map'},
+                    class: 'text-fg-muted hover:text-highlight transition-colors' do %>
+          <i class="fa-regular fa-map"></i>
+        <% end %>
+        <%= link_to poster_sector_path(@sector),
+                    title: 'Download poster PDF',
+                    data: {'tour_step': 'sector-poster'},
+                    class: 'text-fg-muted hover:text-highlight transition-colors' do %>
+          <i class="fa-regular fa-rectangle-vertical"></i>
+        <% end %>
+      </div>
+      <% end %>
+      <%= render 'application/data_block', label: 'Maps', value: maps_links %>
+    </div>
 
     <div>
       <%= render 'application/subsection', title: 'Sector Statistics' %>
@@ -155,11 +147,13 @@
       </div>
     </div>
 
-    <turbo-frame id='sector-subsectors-table'
+    <turbo-frame id='sector-subsectors' class='block'
                  data-controller='ui-updates'
                  data-ui-updates-sector-id-value='<%= @sector.id %>'
                  data-ui-updates-src-value='<%= sector_path(@sector) %>'>
-      <%= render 'subsectors/table', subsectors: @sector.subsectors.order(:name) %>
+      <%= render 'subsector_cards', sector: @sector %>
     </turbo-frame>
+
+    <%= render 'application/observation_block', notes: @sector.notes %>
   </div>
 <% end %>

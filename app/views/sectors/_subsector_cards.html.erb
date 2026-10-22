@@ -1,0 +1,75 @@
+<%# locals: (sector:) %>
+
+<% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
+<div class='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+  <% (1..4).each do |row| %>
+    <% (1..4).each do |col| %>
+      <% subsector = subsectors_by_coord[[col, row]] %>
+
+      <% if subsector %>
+        <% highest_tl_code = subsector.highest_tech_level_world&.tech_level_code %>
+        <div data-controller='row-link'
+             data-row-link-url-value='<%= subsector_path(subsector) %>'
+             data-action='click->row-link#navigate'
+             class='group block cursor-pointer rounded-xl border border-outline/60 bg-panel p-3 hover:border-highlight transition'>
+          <div class='flex items-center justify-between pb-2 border-b border-outline/60'>
+            <div class='text-base font-semibold text-fg-bright'>
+              <%= link_to subsector.name.presence || '?', subsector_path(subsector), class: 'text-fg-bright no-underline' %>
+              <span class='text-fg-muted font-normal'>(<%= subsector.letter %>)</span>
+            </div>
+            <i class='fa-regular fa-chevron-right text-fg-muted group-hover:text-highlight'></i>
+          </div>
+
+          <div class='grid grid-cols-2 gap-3 py-2 border-b border-outline/60'>
+            <div>
+              <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_star_systems %></div>
+              <div class='mt-0.5 text-xs text-fg-muted'>Systems</div>
+            </div>
+            <% if show_population_count? %>
+              <div>
+                <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_populated_star_systems %></div>
+                <div class='mt-0.5 text-xs text-fg-muted'>Inhabited</div>
+              </div>
+            <% end %>
+          </div>
+
+          <dl class='pt-2 space-y-1 text-xs'>
+            <% if show_population_count? %>
+              <div class='flex items-baseline justify-between'>
+                <dt class='text-fg-muted'>Population</dt>
+                <dd class='font-semibold text-fg-bright'>
+                  <%= subsector.worlds_with_known_census_count.positive? ? abbreviated_population(subsector.total_population.to_i) : '—' %>
+                </dd>
+              </div>
+              <div class='flex items-baseline justify-between'>
+                <dt class='text-fg-muted'>Highest TL</dt>
+                <dd class='font-semibold text-fg-bright'><%= highest_tl_code ? HexDigit.hex_digit(highest_tl_code) : '—' %></dd>
+              </div>
+            <% end %>
+            <div class='flex items-baseline justify-between'>
+              <dt class='text-fg-muted'>Allegiances</dt>
+              <dd class='text-right font-semibold text-fg-bright'>
+                <%= safe_join(
+                      subsector.allegiances.order(:code).map { |a|
+                        link_to a.code, allegiance_path(a), class: 'no-underline hover:underline', title: a.name
+                      },
+                      ', '
+                    ) %>
+              </dd>
+            </div>
+          </dl>
+
+          <div class='mt-2 text-xs text-fg-muted/60'>
+            <% if subsector.build.present? %>
+              <i class='fa-regular fa-circle-check mr-1'></i>Build: <%= subsector.build_source_label %>
+            <% else %>
+              <i class='fa-regular fa-circle-minus mr-1'></i>Build not configured
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class='rounded-xl border border-outline/60 bg-panel p-3 text-fg-muted'>Empty</div>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
