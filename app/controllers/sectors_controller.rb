@@ -399,7 +399,7 @@ class SectorsController < ApplicationController
       if SectorMapImage.new(@sector, version).exist?
         map_image_sector_path(@sector, v: version)
       else
-        map_sector_path(@sector, compact: true, transparent: true)
+        map_sector_path(@sector, compact: true, transparent: true, v: version)
       end
     end
 
