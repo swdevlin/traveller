@@ -216,14 +216,27 @@ class SectorsController < ApplicationController
     end
   end
 
+  # With ?v=<digest>: that exact version, cached for good. Without: the newest image we have
+  # (good enough for thumbnails), or a redirect to the SVG, whose render queues the rasterising.
   def map_image
-    version = params[:v].to_s
-    return head :not_found unless SectorMapImage.valid_version?(version)
+    if params[:v].present?
+      version = params[:v].to_s
+      return head :not_found unless SectorMapImage.valid_version?(version)
 
-    path = SectorMapImage.new(@sector, version).path
-    return head :not_found unless path.exist?
+      path = SectorMapImage.new(@sector, version).path
+      return head :not_found unless path.exist?
 
-    response.headers['Cache-Control'] = 'private, max-age=31536000, immutable'
+      response.headers['Cache-Control'] = 'private, max-age=31536000, immutable'
+    else
+      path = SectorMapImage.latest(@sector)
+      unless path
+        response.headers['Cache-Control'] = 'no-store'
+        return redirect_to map_sector_path(@sector, compact: true, transparent: true)
+      end
+
+      response.headers['Cache-Control'] = 'private, max-age=300'
+    end
+
     send_file path, type: 'image/webp', disposition: 'inline'
   end
 

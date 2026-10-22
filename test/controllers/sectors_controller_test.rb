@@ -291,6 +291,33 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert flash[:alert].present?
   end
 
+  test 'map_image redirects to the SVG while no image has been rasterised' do
+    get map_image_sector_url(@sector)
+
+    assert_redirected_to map_sector_url(@sector, compact: true, transparent: true)
+    assert_equal 'no-store', response.headers['Cache-Control']
+  end
+
+  test 'map_image serves the newest rasterised image' do
+    image = SectorMapImage.new(@sector, 'a' * 64)
+    FileUtils.mkdir_p(image.path.dirname)
+    File.binwrite(image.path, 'webp')
+
+    get map_image_sector_url(@sector)
+
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+    assert_includes response.headers['Cache-Control'], 'max-age=300'
+  ensure
+    FileUtils.rm_f(image.path.to_s) if image
+  end
+
+  test 'map_image rejects a malformed version' do
+    get map_image_sector_url(@sector, v: '../secret')
+
+    assert_response :not_found
+  end
+
   test 'should get sector map' do
     get map_sector_url(@sector)
     assert_response :success

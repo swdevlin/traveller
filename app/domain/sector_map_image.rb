@@ -14,6 +14,16 @@ class SectorMapImage
     version.to_s.match?(VERSION_FORMAT)
   end
 
+  # Most recently written image for a sector, whatever data version it was built from.
+  def self.latest(sector)
+    dir = directory
+    Dir.glob(dir.join("#{sector.id}-*.webp")).max_by { |file| File.mtime(file) }&.then { |file| Pathname.new(file) }
+  end
+
+  def self.directory
+    Rails.root.join('storage', Apartment::Tenant.current, 'sector_maps')
+  end
+
   def path
     directory.join("#{@sector.id}-#{@version}.webp")
   end
@@ -31,9 +41,7 @@ class SectorMapImage
 
   private
 
-  def directory
-    Rails.root.join('storage', Apartment::Tenant.current, 'sector_maps')
-  end
+  def directory = self.class.directory
 
   def purge_stale
     Dir.glob(directory.join("#{@sector.id}-*.webp")).each do |file|
