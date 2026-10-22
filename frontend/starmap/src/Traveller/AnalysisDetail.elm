@@ -405,7 +405,7 @@ codes, "Culture" section headers. Matches Rails' `.dg-subsection .label`.
 -}
 accentHeadingColour : Html.Attribute msg
 accentHeadingColour =
-    HtmlAttrs.class "text-highlight"
+    HtmlAttrs.class "text-highlight-fg"
 
 
 outlineBorder : Html.Attribute msg

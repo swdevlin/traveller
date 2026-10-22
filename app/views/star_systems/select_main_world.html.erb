@@ -18,7 +18,7 @@
           <tbody>
             <% @worlds.each do |world| %>
               <% is_current = world.id == @star_system.main_world_id %>
-              <tr class='<%= is_current ? "text-highlight" : "" %>'>
+              <tr class='<%= is_current ? "text-highlight-fg" : "" %>'>
                 <td class='whitespace-nowrap'>
                   <% if world.orbit_sequence.present? %>
                     <span class='pill'><%= world.orbit_sequence %></span>
@@ -48,7 +48,7 @@
                                   method: :patch,
                                   class: 'btn btn-primary btn-sm' %>
                   <% else %>
-                    <span class='text-xs text-highlight block text-center'>Current</span>
+                    <span class='text-xs text-highlight-fg block text-center'>Current</span>
                   <% end %>
                 </td>
               </tr>

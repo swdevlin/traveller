@@ -12,7 +12,7 @@
   </div>
 
   <% if errors.any? %>
-    <ul class='mt-2 space-y-1 text-sm text-danger'>
+    <ul class='mt-2 space-y-1 text-sm text-danger-text'>
       <% errors.each do |message| %>
         <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
       <% end %>

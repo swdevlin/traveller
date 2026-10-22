@@ -32,7 +32,7 @@
         </thead>
         <tbody>
           <% @ordered_systems.each_with_index do |sys, i| %>
-            <tr class='<%= 'text-highlight font-medium' if i == 0 || i == @ordered_systems.size - 1 %>'>
+            <tr class='<%= 'text-highlight-fg font-medium' if i == 0 || i == @ordered_systems.size - 1 %>'>
               <td class='text-right tabular-nums text-fg-muted'><%= i + 1 %></td>
               <td>
                 <%= render 'star_systems/system_link', star_system: sys %>

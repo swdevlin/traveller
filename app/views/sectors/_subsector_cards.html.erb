@@ -36,22 +36,22 @@
         <div data-controller='row-link'
              data-row-link-url-value='<%= subsector_path(subsector) %>'
              data-action='click->row-link#navigate'
-             class='group relative flex min-w-0 cursor-pointer flex-col justify-center overflow-hidden rounded-xl border border-outline/60 bg-panel p-3 transition hover:border-highlight lg:rounded-none lg:border-0 lg:border-b lg:border-r lg:border-outline/40 lg:bg-transparent lg:hover:border-outline/40 lg:hover:bg-panel/20 lg:nth-[4n]:border-r-0 lg:nth-[n+13]:border-b-0'>
+             class='group relative flex min-w-0 cursor-pointer flex-col justify-center overflow-hidden rounded-xl border border-outline/60 bg-panel p-3 transition hover:border-highlight lg:rounded-none lg:border-0 lg:border-b lg:border-r lg:border-outline/40 lg:bg-transparent lg:hover:border-outline/40 lg:hover:bg-highlight/10 lg:hover:ring-2 lg:hover:ring-inset lg:hover:ring-highlight lg:nth-[4n]:border-r-0 lg:nth-[n+13]:border-b-0'>
           <div class='relative'>
             <div class='relative pb-2 text-center'>
-              <div class='inline-block text-xl font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
-                <%= link_to subsector.name.presence || '?', subsector_path(subsector), class: 'text-highlight no-underline' %>
+              <div class='inline-block text-xl font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
+                <%= link_to subsector.name.presence || '?', subsector_path(subsector), class: 'text-highlight-fg no-underline' %>
                 <span class='text-sm text-fg-muted font-normal'>(<%= subsector.letter %>)</span>
               </div>
             </div>
 
             <div class='relative grid grid-cols-2 gap-3 py-2'>
-              <div class='h-fit w-fit lg:rounded lg:bg-panel/70 lg:px-1'>
+              <div class='h-fit w-fit lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
                 <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_star_systems %></div>
                 <div class='mt-0.5 text-sm text-fg'>Systems</div>
               </div>
               <% if show_population_count? %>
-                <div class='h-fit w-fit lg:rounded lg:bg-panel/70 lg:px-1'>
+                <div class='h-fit w-fit lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
                   <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_populated_star_systems %></div>
                   <div class='mt-0.5 text-sm text-fg'>Inhabited</div>
                 </div>
@@ -61,19 +61,19 @@
             <dl class='relative pt-2 space-y-1 text-sm'>
               <% if show_population_count? %>
                 <div class='flex items-baseline justify-between'>
-                  <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Population</dt>
-                  <dd class='font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
+                  <dt class='text-fg lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>Population</dt>
+                  <dd class='font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
                     <%= subsector.worlds_with_known_census_count.positive? ? abbreviated_population(subsector.total_population.to_i) : '—' %>
                   </dd>
                 </div>
                 <div class='flex items-baseline justify-between'>
-                  <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Highest TL</dt>
-                  <dd class='font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'><%= highest_tl_code ? HexDigit.hex_digit(highest_tl_code) : '—' %></dd>
+                  <dt class='text-fg lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>Highest TL</dt>
+                  <dd class='font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'><%= highest_tl_code ? HexDigit.hex_digit(highest_tl_code) : '—' %></dd>
                 </div>
               <% end %>
               <div class='flex flex-wrap items-baseline justify-between gap-x-2'>
-                <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Allegiances</dt>
-                <dd class='text-right font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
+                <dt class='text-fg lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>Allegiances</dt>
+                <dd class='text-right font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
                   <%= safe_join(
                         subsector.allegiances.order(:code).map { |a|
                           link_to a.code, allegiance_path(a), class: 'no-underline hover:underline', title: a.name
@@ -84,7 +84,7 @@
               </div>
             </dl>
 
-            <div class='relative mt-2 w-fit text-xs text-fg-muted/60 lg:rounded lg:bg-panel/70 lg:px-1'>
+            <div class='relative mt-2 w-fit text-xs text-fg-muted lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
               <% if subsector.build.present? %>
                 <i class='fa-regular fa-circle-check mr-1'></i>Build: <%= subsector.build_source_label %>
               <% else %>

@@ -2,7 +2,7 @@
         class='fixed top-0 inset-x-0 z-40 max-w-none px-4 py-2 flex items-center justify-between text-sm leading-tight bg-nav-bar/95 backdrop-blur border-b border-outline'>
   <%= link_to (current_campaign&.name || 'My Traveller Universe'),
               root_path,
-              class: 'font-bold mr-6 text-highlight no-underline hover:underline hover:underline-offset-2 truncate min-w-0' %>
+              class: 'font-bold mr-6 text-highlight-fg no-underline hover:underline hover:underline-offset-2 truncate min-w-0' %>
 
   <% if authenticated? %>
     <div class='flex items-center gap-6 flex-1 min-w-0'>
@@ -15,7 +15,7 @@
                  autocomplete='off'
                  data-global-search-target='input'
                  data-action='input->global-search#search focus->global-search#inputFocused blur->global-search#inputBlurred'
-                 class='w-full bg-panel-muted border border-outline rounded-lg px-3 py-1.5 pr-8 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:border-highlight/50 focus:ring-1 focus:ring-highlight/30 transition'>
+                 class='w-full bg-panel-muted border border-control-outline rounded-lg px-3 py-1.5 pr-8 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus:border-highlight/50 focus:ring-1 focus:ring-highlight/30 transition'>
           <kbd data-global-search-target='hint'
                class='pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-fg-muted border border-outline rounded px-1'>/</kbd>
           <div data-global-search-target='dropdown'
@@ -122,7 +122,7 @@
                     class='w-full flex items-center justify-between px-4 py-2 text-sm text-nav-fg hover:bg-dropdown-hover hover:text-nav-hover <%= 'rounded-t-lg' if index.zero? %> <%= 'rounded-b-lg' if index == ApplicationHelper::THEMES.size - 1 %>'>
               <span><%= info[:label] %></span>
               <% if current_theme == theme %>
-                <i class='fa-regular fa-check text-xs text-highlight'></i>
+                <i class='fa-regular fa-check text-xs text-highlight-fg'></i>
               <% end %>
             </button>
           <% end %>

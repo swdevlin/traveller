@@ -197,7 +197,7 @@
             </thead>
             <tbody class='divide-y divide-outline/50'>
               <% @plan.hops.each_with_index do |hop, i| %>
-                <tr class='<%= 'text-highlight font-medium' if i == 0 || i == @plan.hops.size - 1 %>'>
+                <tr class='<%= 'text-highlight-fg font-medium' if i == 0 || i == @plan.hops.size - 1 %>'>
                   <td class='py-2 pr-4 text-right tabular-nums text-fg-muted'>
                     <% if i > 0 %>J-<%= hop.distance %><% end %>
                   </td>
@@ -274,7 +274,7 @@
                     new_route_plan_path(from_id: @from_system.id, jump_range: @jump_range, refueling: @refueling,
                                         m_drive: @m_drive,
                                         excluded_travel_zone_ids: @excluded_travel_zone_ids),
-                    class: 'text-sm text-highlight no-underline hover:underline hover:underline-offset-2' %>
+                    class: 'text-sm text-highlight-fg no-underline hover:underline hover:underline-offset-2' %>
       </div>
     <% end %>
   </div>

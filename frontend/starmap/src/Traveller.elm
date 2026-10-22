@@ -5993,7 +5993,7 @@ jumpRouteLayerRowHtml hiddenIds pendingDeleteId isReferee route =
             Html.span [ HtmlAttrs.style "display" "flex", HtmlAttrs.style "align-items" "center", HtmlAttrs.style "gap" "8px" ]
                 [ Html.span [ HtmlAttrs.class "text-xs text-fg-muted" ] [ Html.text "Delete?" ]
                 , Html.span
-                    [ HtmlAttrs.class "text-danger cursor-pointer"
+                    [ HtmlAttrs.class "text-danger-text cursor-pointer"
                     , Html.Events.stopPropagationOn "click" (JsDecode.succeed ( DeleteJumpRouteLayer route.id, True ))
                     ]
                     [ Html.i [ HtmlAttrs.class "fa-regular fa-check", HtmlAttrs.style "font-size" "12px" ] [] ]

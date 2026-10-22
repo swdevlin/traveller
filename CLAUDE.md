@@ -86,6 +86,7 @@ Build configs support density types: DENSE, STANDARD, MODERATE, LOW, SPARSE, MIN
 - always use `jsonb` for JSON columns, never `json` — jsonb supports GIN indexes, the `@>` containment operator, and is more efficient on read
 - indexing a jsonb field is better than extracting the value into a column
 - when working with sectors, use Sector.kept except for queries that need to include deleted sectors
+- Theme colours are audited with `ruby script/theme_contrast.rb` (WCAG AA: 4.5:1 text, 3:1 large text and UI, 4.8:1 target for small text). Run it after editing any theme token. Use `text-highlight-fg` for small accent text (`text-highlight` is for large headings and decoration only), `text-danger-text` for danger text, and `border-control-outline` for form control borders.
 
 ## Adding a New Property to a Stellar Object
 
@@ -117,3 +118,4 @@ Follow it immediately with a `grid` of `data_block` partials:
 ```
 
 Wrap the whole page in `<div class='space-y-6'>` so sections and grids are evenly spaced.
+

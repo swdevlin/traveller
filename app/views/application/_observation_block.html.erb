@@ -6,7 +6,7 @@
 
     <% if local_assigns[:notes].present? %>
       <button type='button'
-              class='rounded-lg p-1 -mt-1 text-fg-muted hover:text-highlight hover:bg-panel-muted'
+              class='rounded-lg p-1 -mt-1 text-fg-muted hover:text-highlight-fg hover:bg-panel-muted'
               data-action='collapsible#toggle'
               aria-label='Collapse/expand observations'>
         <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>
@@ -19,7 +19,7 @@
       <div data-collapsible-target='content'
            class='prose prose-theme max-w-none
                   prose-headings:tracking-[0.2em] prose-headings:uppercase
-                  prose-a:text-highlight prose-a:no-underline hover:prose-a:underline
+                  prose-a:text-highlight-fg prose-a:no-underline hover:prose-a:underline
                   prose-code:text-fg prose-code:bg-panel prose-code:px-1 prose-code:py-0.5 prose-code:rounded
                   prose-pre:bg-bg prose-pre:border prose-pre:border-outline prose-pre:rounded-2xl
                   <%= local_assigns[:notes].present? ? 'max-h-14 overflow-hidden notes-fade' : '' %>'>

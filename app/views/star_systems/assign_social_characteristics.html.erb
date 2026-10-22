@@ -15,7 +15,7 @@
             <option value=''>— load a preset —</option>
           </select>
           <button type='button'
-                  class='text-fg-muted hover:text-danger'
+                  class='text-fg-muted hover:text-danger-text'
                   title='Delete preset'
                   data-action='click->social-characteristics-preset#deletePreset'>
             <i class='fa-regular fa-trash'></i>
@@ -94,7 +94,7 @@
         </div>
         <div class='flex items-center gap-3 pb-1'>
           <%= check_box_tag 'social_characteristics[allow_captive_government]', '1', true,
-                            class: 'rounded border-outline bg-panel-muted text-highlight focus:ring-highlight/50' %>
+                            class: 'rounded border-outline bg-panel-muted text-highlight-fg focus:ring-highlight/50' %>
           <label class='text-sm text-fg'>Allow captive government</label>
         </div>
       </div>
@@ -161,7 +161,7 @@
                   class='btn btn-secondary'
                   data-action='click->social-characteristics-preset#save'>Save</button>
         </div>
-        <p class='text-xs text-danger mt-1'
+        <p class='text-xs text-danger-text mt-1'
            data-social-characteristics-preset-target='saveError'></p>
       </div>
     </div>

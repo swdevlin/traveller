@@ -16,7 +16,7 @@
 <% content_for :page_side do %>
   <div class='space-y-6'>
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-1'>
-      <div class="uppercase tracking-[0.22em] text-highlight">Statistics</div>
+      <div class="uppercase tracking-[0.22em] text-highlight-fg">Statistics</div>
       <%= render 'application/data_block',
                  label: 'Sectors',
                  value: number_with_delimiter(@sector_count) %>

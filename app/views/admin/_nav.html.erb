@@ -11,7 +11,7 @@
       <% active = controller_path.start_with?(tool_controller_path) %>
       <li>
         <%= link_to label, path,
-                    class: "no-underline hover:underline hover:underline-offset-2 #{active ? 'text-highlight' : 'text-fg hover:text-highlight'}" %>
+                    class: "no-underline hover:underline hover:underline-offset-2 #{active ? 'text-highlight-fg' : 'text-fg hover:text-highlight-fg'}" %>
       </li>
     <% end %>
   </ul>
