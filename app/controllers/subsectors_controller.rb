@@ -144,6 +144,7 @@ class SubsectorsController < ApplicationController
     end
 
     @compact = params[:compact].present?
+    @transparent = params[:transparent].present?
 
     max_updated = @star_systems.maximum(:updated_at)
     max_parsec_updated = @subsector.parsecs.maximum(:updated_at)
@@ -184,7 +185,7 @@ class SubsectorsController < ApplicationController
       SurveyOverlay.count,
       MAP_TEMPLATE_VERSION
     ].join('-'))
-    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{version}/#{auth_variant}"
+    cache_key = "subsector_map/#{current_campaign.id}/#{@subsector.id}/#{@highlight_hex}/#{@compact}/#{@transparent}/#{version}/#{auth_variant}"
 
     build_survey_overlays_data
 

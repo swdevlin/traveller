@@ -147,11 +147,11 @@
       </div>
     </div>
 
-    <turbo-frame id='sector-subsectors' class='block'
+    <turbo-frame id='sector-subsectors' class='block' target='_top'
                  data-controller='ui-updates'
                  data-ui-updates-sector-id-value='<%= @sector.id %>'
                  data-ui-updates-src-value='<%= sector_path(@sector) %>'>
-      <%= render 'subsector_cards', sector: @sector %>
+      <%= render 'subsector_cards', sector: @sector, backdrop_url: @map_backdrop_url %>
     </turbo-frame>
 
     <%= render 'application/observation_block', notes: @sector.notes %>

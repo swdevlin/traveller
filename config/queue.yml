@@ -23,6 +23,10 @@ development:
       threads: 1
       processes: 1
       polling_interval: 1.0
+    - queues: "sector_maps"
+      threads: 1
+      processes: 1
+      polling_interval: 1.0
 
 test:
   <<: *default
@@ -42,5 +46,9 @@ production:
       polling_interval: 1.0
     - queues: "subsector_creation"
       threads: 2
+      processes: 1
+      polling_interval: 1.0
+    - queues: "sector_maps"
+      threads: 1
       processes: 1
       polling_interval: 1.0

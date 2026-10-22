@@ -1,7 +1,32 @@
-<%# locals: (sector:) %>
+<%# locals: (sector:, backdrop_url: nil) %>
 
 <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
-<div class='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4'>
+<%
+  # Align the card grid with the subsector boundaries drawn on the sector map
+  svg_w, svg_h = hex_map_svg_dimensions(32, 40)
+  hex_size   = effective_hex_size
+  hex_height = hex_size * Math.sqrt(3)
+  x_left   = hex_center(1, 1).first - hex_size
+  x_right  = hex_center(32, 1).first + hex_size
+  y_top    = hex_center(1, 1).last - hex_height * 0.75
+  y_bottom = hex_center(1, 40).last + hex_height * 0.75
+  pct = ->(value, total) { "#{(value / total.to_f * 100).round(3)}%" }
+  overlay_vars = {
+    '--ar' => "#{svg_w} / #{svg_h}",
+    '--l' => pct.(x_left, svg_w),
+    '--t' => pct.(y_top, svg_h),
+    '--w' => pct.(x_right - x_left, svg_w),
+    '--h' => pct.(y_bottom - y_top, svg_h)
+  }.map { |k, v| "#{k}: #{v}" }.join('; ')
+%>
+<div class='relative lg:overflow-hidden lg:rounded-xl lg:border lg:border-outline/60 lg:bg-panel lg:[aspect-ratio:var(--ar)]'
+     style='<%= overlay_vars %>'>
+  <img src='<%= backdrop_url || map_sector_path(sector, compact: true, transparent: true) %>'
+       alt=''
+       loading='lazy'
+       aria-hidden='true'
+       class='pointer-events-none absolute inset-0 hidden h-full w-full object-contain opacity-30 lg:block'>
+  <div class='grid grid-cols-1 gap-3 sm:grid-cols-2 lg:absolute lg:left-[var(--l)] lg:top-[var(--t)] lg:h-[var(--h)] lg:w-[var(--w)] lg:grid-cols-4 lg:grid-rows-4 lg:gap-0'>
   <% (1..4).each do |row| %>
     <% (1..4).each do |col| %>
       <% subsector = subsectors_by_coord[[col, row]] %>
@@ -11,65 +36,67 @@
         <div data-controller='row-link'
              data-row-link-url-value='<%= subsector_path(subsector) %>'
              data-action='click->row-link#navigate'
-             class='group block cursor-pointer rounded-xl border border-outline/60 bg-panel p-3 hover:border-highlight transition'>
-          <div class='flex items-center justify-between pb-2 border-b border-outline/60'>
-            <div class='text-base font-semibold text-fg-bright'>
-              <%= link_to subsector.name.presence || '?', subsector_path(subsector), class: 'text-fg-bright no-underline' %>
-              <span class='text-fg-muted font-normal'>(<%= subsector.letter %>)</span>
-            </div>
-            <i class='fa-regular fa-chevron-right text-fg-muted group-hover:text-highlight'></i>
-          </div>
-
-          <div class='grid grid-cols-2 gap-3 py-2 border-b border-outline/60'>
-            <div>
-              <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_star_systems %></div>
-              <div class='mt-0.5 text-xs text-fg-muted'>Systems</div>
-            </div>
-            <% if show_population_count? %>
-              <div>
-                <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_populated_star_systems %></div>
-                <div class='mt-0.5 text-xs text-fg-muted'>Inhabited</div>
+             class='group relative flex min-w-0 cursor-pointer flex-col justify-center overflow-hidden rounded-xl border border-outline/60 bg-panel p-3 transition hover:border-highlight lg:rounded-none lg:border-0 lg:border-b lg:border-r lg:border-outline/40 lg:bg-transparent lg:hover:border-outline/40 lg:hover:bg-panel/20 lg:nth-[4n]:border-r-0 lg:nth-[n+13]:border-b-0'>
+          <div class='relative'>
+            <div class='relative pb-2 text-center'>
+              <div class='inline-block text-xl font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
+                <%= link_to subsector.name.presence || '?', subsector_path(subsector), class: 'text-highlight no-underline' %>
+                <span class='text-sm text-fg-muted font-normal'>(<%= subsector.letter %>)</span>
               </div>
-            <% end %>
-          </div>
+            </div>
 
-          <dl class='pt-2 space-y-1 text-xs'>
-            <% if show_population_count? %>
-              <div class='flex items-baseline justify-between'>
-                <dt class='text-fg-muted'>Population</dt>
-                <dd class='font-semibold text-fg-bright'>
-                  <%= subsector.worlds_with_known_census_count.positive? ? abbreviated_population(subsector.total_population.to_i) : '—' %>
+            <div class='relative grid grid-cols-2 gap-3 py-2'>
+              <div class='h-fit w-fit lg:rounded lg:bg-panel/70 lg:px-1'>
+                <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_star_systems %></div>
+                <div class='mt-0.5 text-sm text-fg'>Systems</div>
+              </div>
+              <% if show_population_count? %>
+                <div class='h-fit w-fit lg:rounded lg:bg-panel/70 lg:px-1'>
+                  <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_populated_star_systems %></div>
+                  <div class='mt-0.5 text-sm text-fg'>Inhabited</div>
+                </div>
+              <% end %>
+            </div>
+
+            <dl class='relative pt-2 space-y-1 text-sm'>
+              <% if show_population_count? %>
+                <div class='flex items-baseline justify-between'>
+                  <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Population</dt>
+                  <dd class='font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
+                    <%= subsector.worlds_with_known_census_count.positive? ? abbreviated_population(subsector.total_population.to_i) : '—' %>
+                  </dd>
+                </div>
+                <div class='flex items-baseline justify-between'>
+                  <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Highest TL</dt>
+                  <dd class='font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'><%= highest_tl_code ? HexDigit.hex_digit(highest_tl_code) : '—' %></dd>
+                </div>
+              <% end %>
+              <div class='flex flex-wrap items-baseline justify-between gap-x-2'>
+                <dt class='text-fg lg:rounded lg:bg-panel/70 lg:px-1'>Allegiances</dt>
+                <dd class='text-right font-semibold text-fg-bright lg:rounded lg:bg-panel/70 lg:px-1'>
+                  <%= safe_join(
+                        subsector.allegiances.order(:code).map { |a|
+                          link_to a.code, allegiance_path(a), class: 'no-underline hover:underline', title: a.name
+                        },
+                        ', '
+                      ) %>
                 </dd>
               </div>
-              <div class='flex items-baseline justify-between'>
-                <dt class='text-fg-muted'>Highest TL</dt>
-                <dd class='font-semibold text-fg-bright'><%= highest_tl_code ? HexDigit.hex_digit(highest_tl_code) : '—' %></dd>
-              </div>
-            <% end %>
-            <div class='flex items-baseline justify-between'>
-              <dt class='text-fg-muted'>Allegiances</dt>
-              <dd class='text-right font-semibold text-fg-bright'>
-                <%= safe_join(
-                      subsector.allegiances.order(:code).map { |a|
-                        link_to a.code, allegiance_path(a), class: 'no-underline hover:underline', title: a.name
-                      },
-                      ', '
-                    ) %>
-              </dd>
-            </div>
-          </dl>
+            </dl>
 
-          <div class='mt-2 text-xs text-fg-muted/60'>
-            <% if subsector.build.present? %>
-              <i class='fa-regular fa-circle-check mr-1'></i>Build: <%= subsector.build_source_label %>
-            <% else %>
-              <i class='fa-regular fa-circle-minus mr-1'></i>Build not configured
-            <% end %>
+            <div class='relative mt-2 w-fit text-xs text-fg-muted/60 lg:rounded lg:bg-panel/70 lg:px-1'>
+              <% if subsector.build.present? %>
+                <i class='fa-regular fa-circle-check mr-1'></i>Build: <%= subsector.build_source_label %>
+              <% else %>
+                <i class='fa-regular fa-circle-minus mr-1'></i>Build not configured
+              <% end %>
+            </div>
           </div>
         </div>
       <% else %>
-        <div class='rounded-xl border border-outline/60 bg-panel p-3 text-fg-muted'>Empty</div>
+        <div class='rounded-xl border border-outline/60 bg-panel p-3 text-fg-muted lg:rounded-none lg:border-0 lg:border-b lg:border-r lg:border-outline/40 lg:bg-panel/40 lg:nth-[4n]:border-r-0 lg:nth-[n+13]:border-b-0'>Empty</div>
       <% end %>
     <% end %>
   <% end %>
+  </div>
 </div>

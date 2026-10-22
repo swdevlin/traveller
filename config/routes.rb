@@ -261,6 +261,7 @@ Rails.application.routes.draw do
         post :import_jump_routes
         get  :defaults_source
         get  :map
+        get  :map_image
         get  :poster
         get  :statistics
       end

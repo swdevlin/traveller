@@ -135,6 +135,7 @@ class SectorsController < ApplicationController
     @sector_highest_tech_level_code = @sector.highest_tech_level_world&.tech_level_code
     @sector_highest_population_world = @sector.highest_population_world
     @allegiance_count = @sector.get_allegiances.count
+    @map_backdrop_url = sector_map_backdrop_url
 
     position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
     @page = (position + 9) / 10
@@ -181,7 +182,9 @@ class SectorsController < ApplicationController
     build_survey_overlays_data
     @cols = 32
     @rows = 40
-    @subsector_overlays = true
+    @compact = params[:compact].present?
+    @transparent = params[:transparent].present?
+    @subsector_overlays = !@transparent
 
     @ul = @sector.upper_left
 
@@ -190,38 +193,11 @@ class SectorsController < ApplicationController
       .where(parsecs: { sector_id: @sector.id })
       .includes({ parsec: { sector: :subsectors } }, :allegiance, stars: [:companion], main_world: :trade_codes)
 
-    sector_parsec_subquery = @sector.parsecs.select(:id)
-    max_updated = @star_systems.maximum(:updated_at)
-    max_parsec_updated = @sector.parsecs.maximum(:updated_at)
-    region_parsec_max = RegionParsec.joins(:parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
-    region_record_max = Region.joins(region_parsecs: :parsec).where(parsecs: { sector_id: @sector.id }).maximum(:updated_at)
-    region_max_updated = [region_parsec_max, region_record_max].compact.max
-    jump_max_updated = JumpLog.maximum(:updated_at)
-    rogue_max_updated = StellarObject
-      .where(parsec_id: sector_parsec_subquery, orbiting_id: nil)
-      .where(type: %w[GasGiant Comet])
-      .maximum(:updated_at)
-    rogue_object_max_updated = StellarObject
-      .where(parsec_id: sector_parsec_subquery, orbiting_id: nil)
-      .where.not(type: %w[GasGiant Comet Star])
-      .maximum(:updated_at)
-    facility_max_updated = StarSystemFacility
-      .joins(star_system: :parsec)
-      .where(parsecs: { sector_id: @sector.id })
-      .maximum(:updated_at)
-    sector_star_system_ids = @star_systems.select(:id)
-    jump_route_link_max_updated = JumpRouteLink
-      .where(from_star_system_id: sector_star_system_ids, to_star_system_id: sector_star_system_ids)
-      .maximum(:updated_at)
-    jump_route_max_updated = JumpRoute
-      .joins(:jump_route_links)
-      .where(jump_route_links: { from_star_system_id: sector_star_system_ids })
-      .maximum(:updated_at)
+    map_version = SectorMapVersion.new(@sector, current_campaign)
     auth_variant = owns_campaign? ? 'auth' : 'public'
-    overlay_variant = "#{SurveyOverlay.maximum(:updated_at).to_i}-#{SurveyOverlay.count}"
-    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{@sector.updated_at.to_i}-#{max_updated.to_i}-#{max_parsec_updated.to_i}-#{region_max_updated.to_i}-#{jump_max_updated.to_i}-#{rogue_max_updated.to_i}-#{rogue_object_max_updated.to_i}-#{facility_max_updated.to_i}-#{jump_route_link_max_updated.to_i}-#{jump_route_max_updated.to_i}-#{current_campaign.updated_at.to_i}-#{HexMapBases::MAP_TEMPLATE_VERSION}/#{auth_variant}/#{overlay_variant}"
+    cache_key = "sector_map/#{current_campaign.id}/#{@sector.id}/#{map_version.digest}/#{auth_variant}/#{@compact}/#{@transparent}"
 
-    fresh_when etag: cache_key, last_modified: [@sector.updated_at, max_updated, max_parsec_updated, region_max_updated, jump_max_updated].compact.max
+    fresh_when etag: cache_key, last_modified: map_version.last_modified
     return if performed?
 
     build_sector_map_data
@@ -229,13 +205,26 @@ class SectorsController < ApplicationController
     respond_to do |format|
       format.svg do
         svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
+        enqueue_rasterise(map_version.digest, cache_key) if @compact && @transparent
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
       format.html do
         svg = Rails.cache.fetch(cache_key) { render_to_string('shared/hex_map', formats: [:svg], layout: false) }
+        enqueue_rasterise(map_version.digest, cache_key) if @compact && @transparent
         send_data svg, type: 'image/svg+xml', disposition: 'inline'
       end
     end
+  end
+
+  def map_image
+    version = params[:v].to_s
+    return head :not_found unless SectorMapImage.valid_version?(version)
+
+    path = SectorMapImage.new(@sector, version).path
+    return head :not_found unless path.exist?
+
+    response.headers['Cache-Control'] = 'private, max-age=31536000, immutable'
+    send_file path, type: 'image/webp', disposition: 'inline'
   end
 
   def poster
@@ -385,6 +374,22 @@ class SectorsController < ApplicationController
   end
 
   private
+    def enqueue_rasterise(version, svg_cache_key)
+      return if SectorMapImage.new(@sector, version).exist?
+      return unless Rails.cache.write("sector_map_raster/#{@sector.id}/#{version}", true, unless_exist: true, expires_in: 10.minutes)
+
+      RasteriseSectorMapJob.perform_later(@sector.id, version, svg_cache_key)
+    end
+
+    def sector_map_backdrop_url
+      version = SectorMapVersion.new(@sector, current_campaign).digest
+      if SectorMapImage.new(@sector, version).exist?
+        map_image_sector_path(@sector, v: version)
+      else
+        map_sector_path(@sector, compact: true, transparent: true)
+      end
+    end
+
     def build_sector_map_data
       sector_ul = @ul
 
