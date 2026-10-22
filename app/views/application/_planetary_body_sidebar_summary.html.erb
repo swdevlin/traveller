@@ -33,9 +33,20 @@
              value: format_temperature_celsius(stellar_object.temperature),
              suffix: '°C' %>
 
-  <%= render 'application/data_block',
-             label: 'Survival Req.',
-             value: atmosphere_survival_requirement(atmosphere_code, tainted: atmosphere_tainted) %>
+  <% survival_requirement = atmosphere_survival_requirement(atmosphere_code, tainted: atmosphere_tainted) %>
+  <% if atmosphere&.composition.present? %>
+    <%# Own row so the composition always sits to the left of the survival requirement %>
+    <div class='col-span-2 grid grid-cols-2 gap-3'>
+      <%= render 'application/data_block', label: 'Atmosphere', value: atmosphere.composition %>
+      <%= render 'application/data_block', label: 'Survival Req.', value: survival_requirement %>
+    </div>
+  <% else %>
+    <%= render 'application/data_block', label: 'Survival Req.', value: survival_requirement %>
+  <% end %>
+
+  <% if stellar_object.hydrographics_liquid.present? %>
+    <%= render 'application/data_block', label: 'Hydrographics Liquid', value: stellar_object.hydrographics_liquid %>
+  <% end %>
 
   <% if population_code.present? %>
     <%= render 'application/data_block',

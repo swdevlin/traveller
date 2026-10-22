@@ -171,6 +171,7 @@ type alias AnalyisDetailPlanetoidData =
     , atmosphere :
         { type_ : String
         , hazardCode : String
+        , composition : String
         , bar : String
         , taint :
             { subtype : String
@@ -699,6 +700,16 @@ viewPlanetaryProfile onSophont data =
         , profileFieldDisplay "Gravity" (data.physical.gravity ++ "g")
         , profileFieldDisplay "Temperature" (data.physical.meanTemperature ++ "°C")
         , profileFieldDisplay "Hazard" data.atmosphere.hazardCode
+        , if data.atmosphere.composition /= "" then
+            profileFieldDisplay "Atmosphere" data.atmosphere.composition
+
+          else
+            none
+        , if data.hydrographics.liquid /= "" then
+            profileFieldDisplay "Liquid" data.hydrographics.liquid
+
+          else
+            none
         , profileFieldDisplay "Population" data.social.population
         , profileFieldDisplay "Government" data.social.government
         , profileFieldDisplay "Law Level" data.social.lawLevel

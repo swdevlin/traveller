@@ -22,6 +22,8 @@ type alias MainWorldProfile =
     , extinctSophont : Bool
     , censusPopulation : Maybe Int
     , survivalRequirement : String
+    , atmosphereComposition : Maybe String
+    , hydrographicsLiquid : Maybe String
     , jumpShadow : Maybe Float
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
@@ -145,6 +147,8 @@ mainWorldProfileCodec =
         |> Codec.field "extinct_sophont" .extinctSophont Codec.bool
         |> Codec.field "census_population" .censusPopulation (Codec.nullable Codec.int)
         |> Codec.field "survival_requirement" .survivalRequirement Codec.string
+        |> Codec.optionalNullableField "atmosphere_composition" .atmosphereComposition Codec.string
+        |> Codec.optionalNullableField "hydrographics_liquid" .hydrographicsLiquid Codec.string
         |> Codec.field "jump_shadow" .jumpShadow (Codec.nullable Codec.float)
         |> Codec.field "berthing_cost" .berthingCost (Codec.nullable Codec.int)
         |> Codec.field "refined_fuel_cost" .refinedFuelCost (Codec.nullable Codec.int)

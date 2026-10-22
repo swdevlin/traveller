@@ -58,6 +58,8 @@ class PlanetaryBodyMarkdownPresenter < MarkdownPresenterBase
       rows << ['Temperature', "#{celsius}°C"]
     end
     rows << ['Survival Req.', atmosphere_survival_requirement(atmosphere_code, tainted: atmosphere_tainted)]
+    rows << ['Atmosphere', atmosphere.composition] if atmosphere&.composition.present?
+    rows << ['Hydrographics Liquid', @obj.hydrographics_liquid] if @obj.hydrographics_liquid.present?
     rows << ['Population', "#{HexDigit.hex_digit(population_code.to_i)} — #{population_display(population_code, census_population)}"] if population_code.present?
     if @obj.no_government?
       rows << ['Government', '—']

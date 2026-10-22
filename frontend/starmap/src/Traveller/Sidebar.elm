@@ -469,6 +469,18 @@ viewMainWorldProfile onSophont profile =
         , profileFieldDisplay "Temperature" tempStr
         , profileFieldDisplay "Survival" profile.survivalRequirement
         , profileFieldDisplay "Atmosphere" (withUwp 2 .atmosphere Atmosphere.atmosphereDescription)
+        , case profile.atmosphereComposition of
+            Just composition ->
+                profileFieldDisplay "Composition" composition
+
+            Nothing ->
+                none
+        , case profile.hydrographicsLiquid of
+            Just liquid ->
+                profileFieldDisplay "Liquid" liquid
+
+            Nothing ->
+                none
         , profileFieldDisplay "Population" populationStr
         , profileFieldDisplay "Government"
             (if noGovernment then

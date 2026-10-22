@@ -9771,6 +9771,7 @@ update msg ( time, model ) =
                                             , gasType = Nothing
                                             , density = Nothing
                                             , hazardCode = Nothing
+                                            , composition = Nothing
                                             }
 
                                 planet : AnalyisDetailPlanetoidData
@@ -9814,6 +9815,7 @@ update msg ( time, model ) =
                                     , atmosphere =
                                         { type_ = toEHexChar atm.code ++ " – " ++ atmosphereDescriptionEx atm.code
                                         , hazardCode = atmosphereHazardDescription atm.hazardCode
+                                        , composition = Maybe.withDefault "" atm.composition
                                         , bar = rnd 1 atm.bar
                                         , taint =
                                             { subtype = taintSubtypeDescription atm.taint.code
@@ -10145,6 +10147,7 @@ update msg ( time, model ) =
                             , atmosphere =
                                 { type_ = toEHexChar pdata.atmosphere.code ++ " – " ++ atmosphereDescriptionEx pdata.atmosphere.code
                                 , hazardCode = atmosphereHazardDescription pdata.atmosphere.hazardCode
+                                , composition = Maybe.withDefault "" pdata.atmosphere.composition
                                 , bar = rnd 1 <| pdata.atmosphere.bar
                                 , taint =
                                     { subtype = taintSubtypeDescription pdata.atmosphere.taint.code

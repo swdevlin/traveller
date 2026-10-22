@@ -17,6 +17,7 @@ type alias StellarAtmosphere =
     , gasType : Maybe String
     , density : Maybe String
     , hazardCode : Maybe String
+    , composition : Maybe String
     }
 
 
@@ -31,6 +32,7 @@ codec =
         |> Codec.optionalNullableField "gasType" .gasType Codec.string
         |> Codec.optionalNullableField "density" .density Codec.string
         |> Codec.optionalNullableField "hazardCode" .hazardCode Codec.string
+        |> Codec.optionalNullableField "composition" .composition Codec.string
         |> Codec.buildObject
 
 

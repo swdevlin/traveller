@@ -34,6 +34,8 @@ if mw
       mw.respond_to?(:atmosphere_code) ? mw.atmosphere_code : nil,
       tainted: mw.respond_to?(:atmosphere) && mw.atmosphere&.tainted?
     )
+    json.atmosphere_composition mw.respond_to?(:atmosphere) ? mw.atmosphere&.composition : nil
+    json.hydrographics_liquid mw.respond_to?(:hydrographics_liquid) ? mw.hydrographics_liquid.presence : nil
     json.jump_shadow mw.effective_jump_shadow_km
     json.berthing_cost mw.respond_to?(:berthing_cost) ? mw.berthing_cost : nil
     json.refined_fuel_cost mw.respond_to?(:refined_fuel_cost) ? mw.refined_fuel_cost : nil
