@@ -264,7 +264,7 @@ Faultline.configure do |config|
 
   # Enable basic APM to track request performance metrics.
   # Captures response times, database queries, and throughput per endpoint.
-  # config.enable_apm = true
+  config.enable_apm = true
 
   # Sample rate for high-traffic apps (0.0 to 1.0, default: 1.0 = every request)
   # config.apm_sample_rate = 1.0
@@ -274,7 +274,7 @@ Faultline.configure do |config|
 
   # How long to keep APM traces in days (default: 30)
   # Use `rake faultline:apm:cleanup` to remove old traces.
-  # config.apm_retention_days = 30
+  config.apm_retention_days = 14
 
   # --- Span Collection (Waterfall Visualization) ---
   # Capture detailed spans for SQL, HTTP, Redis, and view rendering.

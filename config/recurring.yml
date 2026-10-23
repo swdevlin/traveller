@@ -16,6 +16,9 @@ production:
   reconcile_stuck_rulebook_imports:
     class: ReconcileStuckRulebookImportsJob
     schedule: every 15 minutes
+  cleanup_faultline_apm_traces:
+    command: "Faultline::RequestTrace.cleanup!"
+    schedule: at 4am every day
 
 development:
   clear_solid_queue_finished_jobs:
