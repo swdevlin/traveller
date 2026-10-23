@@ -50,7 +50,7 @@ class Sector < ApplicationRecord
   end
 
   def neighbours
-    Sector
+    Sector.kept
         .where(x: (x-1..x+1), y: (y-1..y+1))
         .index_by { |s| [s.x, s.y] }
   end

@@ -135,7 +135,7 @@ class SectorsController < ApplicationController
     @sector_highest_tech_level_code = @sector.highest_tech_level_world&.tech_level_code
     @sector_highest_population_world = @sector.highest_population_world
     @allegiance_count = @sector.get_allegiances.count
-    @map_backdrop_url = sector_map_backdrop_url
+    @map_backdrop_url = helpers.sector_map_backdrop_url(@sector)
 
     position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
     @page = (position + 9) / 10
@@ -392,15 +392,6 @@ class SectorsController < ApplicationController
       return unless Rails.cache.write("sector_map_raster/#{@sector.id}/#{version}", true, unless_exist: true, expires_in: 10.minutes)
 
       RasteriseSectorMapJob.perform_later(@sector.id, version, svg_cache_key)
-    end
-
-    def sector_map_backdrop_url
-      version = SectorMapVersion.new(@sector, current_campaign).digest
-      if SectorMapImage.new(@sector, version).exist?
-        map_image_sector_path(@sector, v: version)
-      else
-        map_sector_path(@sector, compact: true, transparent: true, v: version)
-      end
     end
 
     def build_sector_map_data

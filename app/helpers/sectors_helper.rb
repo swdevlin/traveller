@@ -1,6 +1,16 @@
 module SectorsHelper
   include SubsectorsHelper
 
+  # Exact-version backdrop: the cached raster if built, otherwise the SVG (which queues the raster).
+  def sector_map_backdrop_url(sector)
+    version = SectorMapVersion.new(sector, current_campaign).digest
+    if SectorMapImage.new(sector, version).exist?
+      map_image_sector_path(sector, v: version)
+    else
+      map_sector_path(sector, compact: true, transparent: true, v: version)
+    end
+  end
+
   def sector_chart_link(sector)
     link_to map_sector_path(sector),
             target: '_blank',
