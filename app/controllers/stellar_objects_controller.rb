@@ -86,6 +86,34 @@ class StellarObjectsController < ApplicationController
     end
   end
 
+  # GET /stellar_objects/1/moon_orbit_map_modal?significant_only=1
+  def moon_orbit_map_modal
+    return head :not_found unless @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(GasGiant)
+
+    @moon_map = MoonOrbitMap.new(@stellar_object, significant_only: params[:significant_only].present?,
+                                                  theme: OrbitMapTheme.key_for(helpers.current_theme),
+                                                  link_builder: ->(moon) { stellar_object_path(moon) })
+    render layout: false
+  end
+
+  # GET /stellar_objects/1/moon_orbit_map.webp?significant_only=1
+  def moon_orbit_map
+    return head :not_found unless @stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(GasGiant)
+
+    significant_only = params[:significant_only].present?
+    theme = OrbitMapTheme.key_for(helpers.current_theme)
+    # Moons and rings touch the planet they orbit when they change, so its cache version covers them.
+    key = ['moon_orbit_map', current_campaign.id, MoonOrbitMap::VERSION, theme, significant_only, @stellar_object.cache_key_with_version]
+    webp = Rails.cache.fetch(key) do
+      map = MoonOrbitMap.new(@stellar_object, significant_only: significant_only, theme: theme, inline_images: true)
+      SvgRasteriser.webp(map.to_svg)
+    end
+
+    respond_to do |format|
+      format.webp { send_data webp, type: 'image/webp', disposition: 'inline' }
+    end
+  end
+
   # GET /stellar_objects/1/daily_traffic
   def daily_traffic
     @frontier = false

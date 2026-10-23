@@ -188,10 +188,7 @@ class SectorsController < ApplicationController
 
     @ul = @sector.upper_left
 
-    @star_systems = StarSystem
-      .joins(:parsec)
-      .where(parsecs: { sector_id: @sector.id })
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, stars: [:companion], main_world: :trade_codes)
+    @star_systems = sector_map_star_systems
 
     map_version = SectorMapVersion.new(@sector, current_campaign)
     auth_variant = owns_campaign? ? 'auth' : 'public'
@@ -250,10 +247,7 @@ class SectorsController < ApplicationController
 
     @ul = @sector.upper_left
 
-    @star_systems = StarSystem
-      .joins(:parsec)
-      .where(parsecs: { sector_id: @sector.id })
-      .includes({ parsec: { sector: :subsectors } }, :allegiance, stars: [:companion], main_world: :trade_codes)
+    @star_systems = sector_map_star_systems
 
     build_sector_map_data
 
@@ -392,6 +386,29 @@ class SectorsController < ApplicationController
       return unless Rails.cache.write("sector_map_raster/#{@sector.id}/#{version}", true, unless_exist: true, expires_in: 10.minutes)
 
       RasteriseSectorMapJob.perform_later(@sector.id, version, svg_cache_key)
+    end
+
+    # Main worlds and stars are preloaded without their bulky text/jsonb columns (build log,
+    # characteristics, notes): the map never reads them and they made that one query
+    # take seconds on a full sector.
+    MAP_EXCLUDED_COLUMNS = %w[build_log characteristics notes].freeze
+
+    def sector_map_star_systems
+      systems = StarSystem
+        .joins(:parsec)
+        .where(parsecs: { sector_id: @sector.id })
+        .includes({ parsec: { sector: :subsectors } }, :allegiance)
+        .load
+      lean = StellarObject.select(StellarObject.column_names - MAP_EXCLUDED_COLUMNS)
+      preload_with(systems.to_a, :stars, lean)
+      preload_with(systems.to_a, :main_world, lean)
+      preload_with(systems.filter_map(&:main_world), :trade_codes, TradeCode.all)
+      preload_with(systems.flat_map(&:stars), :companion, lean)
+      systems
+    end
+
+    def preload_with(records, associations, scope)
+      ActiveRecord::Associations::Preloader.new(records: records, associations: associations, scope: scope).call
     end
 
     def build_sector_map_data

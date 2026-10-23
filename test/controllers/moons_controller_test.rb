@@ -128,7 +128,7 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
     get stellar_object_url(@planet)
 
     assert_select 'th', text: 'Seq'
-    assert_select 'td', text: 'ZZ.1'
+    assert_select 'td', text: /ZZ\.1/
   end
 
   test 'creating a moon leaves its position blank when the planet has none' do

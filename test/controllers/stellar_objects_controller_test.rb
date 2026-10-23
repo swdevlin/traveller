@@ -14,6 +14,53 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   #   assert_response :success
   # end
 
+  test 'moon orbit map is served as a webp, for planets only' do
+    get moon_orbit_map_stellar_object_url(stellar_objects(:moons_test_gas_giant), format: :webp)
+    assert_response :success
+    assert_equal 'image/webp', response.media_type
+
+    get moon_orbit_map_stellar_object_url(stellar_objects(:moons_test_gas_giant), format: :webp, significant_only: '1')
+    assert_response :success
+
+    get moon_orbit_map_stellar_object_url(stellar_objects(:primary_for_hierarchy), format: :webp)
+    assert_response :not_found
+  end
+
+  test 'moon orbit map modal shows the map with a download link, filtered when asked' do
+    planet = stellar_objects(:moons_test_gas_giant)
+
+    get moon_orbit_map_modal_stellar_object_url(planet)
+    assert_response :success
+    assert_select 'svg'
+    assert_select "a[download='#{planet.moon_orbit_map_download_filename}'][href*='moon_orbit_map.webp'] i.fa-download"
+    assert_match 'Insignificant Moon', response.body
+
+    get moon_orbit_map_modal_stellar_object_url(planet, significant_only: '1')
+    assert_select "a[download][href*='significant_only=1']"
+    assert_no_match 'Insignificant Moon', response.body
+
+    get moon_orbit_map_modal_stellar_object_url(stellar_objects(:primary_for_hierarchy))
+    assert_response :not_found
+  end
+
+  test 'moons card has the significant toggle and an orbit map button that opens the image in a new tab' do
+    planet = stellar_objects(:moons_test_gas_giant)
+
+    get stellar_object_url(planet)
+    assert_select "a[href*='moon_orbit_map_modal'][data-turbo-frame='modal'] i.fa-solar-system"
+    assert_select "a[href*='significant_only']", false
+    assert_select 'button[role=switch][aria-checked=false]'
+    assert_select 'input[type=hidden][name=significant_only][value="1"]'
+    assert_select 'th', text: 'Seq'
+    assert_match 'Insignificant Moon', response.body
+
+    get stellar_object_url(planet, significant_only: '1')
+    assert_select "a[href*='moon_orbit_map_modal'][href*='significant_only=1']"
+    assert_select 'button[role=switch][aria-checked=true]'
+    assert_select 'input[type=hidden][name=significant_only]', false
+    assert_no_match 'Insignificant Moon', response.body
+  end
+
   test 'ring show, edit and update, and the planet lists its rings among the moons' do
     planet = stellar_objects(:moons_test_gas_giant)
     ring = Ring.create!(name: 'Ring', orbiting: planet, orbit: 0.9, data: { 'span' => 0.25 })

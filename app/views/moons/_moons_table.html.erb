@@ -1,17 +1,4 @@
 <turbo-frame id="moons-table">
-  <% significant_form = capture do %>
-    <form class="text-sm text-fg">
-      <label class="flex items-center gap-1.5 cursor-pointer select-none">
-        <input type="checkbox"
-               name="significant_only"
-               value="1"
-               <%= params[:significant_only].present? ? 'checked' : '' %>
-               onchange="this.form.requestSubmit()">
-        Significant only
-      </label>
-    </form>
-  <% end %>
-
   <% add_moon_button = link_to new_stellar_object_moon_path(@stellar_object), class: 'btn-header', title: 'Add moon', aria: { label: 'Add moon' }, data: { turbo_frame: '_top' } do %>
     <i class="fa-regular fa-plus"></i> Moon
   <% end %>
@@ -19,9 +6,29 @@
     <i class="fa-regular fa-plus"></i> Ring
   <% end %>
 
+  <% significant_only = params[:significant_only].present? %>
+  <% significant_toggle = form_with(url: stellar_object_path(@stellar_object), method: :get, class: 'flex items-center gap-2 text-sm text-fg') do %>
+    <% unless significant_only %>
+      <%= hidden_field_tag :significant_only, '1' %>
+    <% end %>
+    <button type='submit'
+            role='switch'
+            aria-checked='<%= significant_only %>'
+            aria-label='Significant moons only'
+            class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= significant_only ? "bg-toggle-on" : "bg-toggle-off" %>'>
+      <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= significant_only ? "translate-x-5 bg-toggle-knob-on" : "translate-x-0 bg-toggle-knob-off" %>'></span>
+    </button>
+    Significant only
+  <% end if @moon_count.to_i > 0 %>
+
+  <% orbit_map_button = link_to moon_orbit_map_modal_stellar_object_path(@stellar_object, significant_only: params[:significant_only].presence), class: 'btn-header', title: 'Moon orbit map', aria: { label: 'Moon orbit map' }, data: { turbo_frame: 'modal' } do %>
+    <i class="fa-regular fa-solar-system"></i> Orbit map
+  <% end if moons.any? %>
+
+
   <%= render 'application/collapsible_table_card',
              title: safe_join(['Moons ', tag.span(@moon_count, class: 'identifier')]),
-             actions: safe_join([significant_form, add_moon_button, add_ring_button]) do %>
+             actions: safe_join([significant_toggle, orbit_map_button, add_moon_button, add_ring_button].compact) do %>
     <div class="table-scroll">
       <table>
         <thead>

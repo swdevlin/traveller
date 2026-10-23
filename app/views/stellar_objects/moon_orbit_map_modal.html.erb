@@ -1,0 +1,15 @@
+<%= modal(title: "Moon Orbit Map: #{@stellar_object.display_name}", padding: true, advance: false, overlay: false) do %>
+  <div class='mb-3 flex justify-end'>
+    <%= link_to moon_orbit_map_stellar_object_path(@stellar_object, format: :webp, significant_only: params[:significant_only].presence),
+                download: @stellar_object.moon_orbit_map_download_filename,
+                class: 'text-xs text-fg-muted hover:text-fg-bright no-underline hover:underline flex items-center gap-1' do %>
+      <i class='fa-regular fa-download'></i>
+      Download
+    <% end %>
+  </div>
+  <div class='overflow-auto max-h-[75vh]'>
+    <div style='width: <%= @moon_map.size %>px;'>
+      <%= @moon_map.to_svg.html_safe %>
+    </div>
+  </div>
+<% end %>

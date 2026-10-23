@@ -63,6 +63,12 @@ class StellarObject < ApplicationRecord
     data.present? && data.values_at('hasRing', 'has_ring').include?(true) || rings.exists?
   end
 
+  # Named for the planet, else its position in its system.
+  def moon_orbit_map_download_filename(extension = 'webp')
+    base = [name, [star_system&.name, orbit_sequence].compact_blank.join(' ')].find(&:present?)&.parameterize
+    "#{base.presence || 'planet'}-moons.#{extension}"
+  end
+
   # Moons and rings both orbit the planet, so they are listed together in orbit order. Rings are always
   # significant: the size filter only applies to moons.
   def moons_and_rings(significant_only: false)

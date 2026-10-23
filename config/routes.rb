@@ -158,6 +158,8 @@ Rails.application.routes.draw do
         get  :daily_traffic
         post :generate_daily_traffic
         get  :world_map
+        get  :moon_orbit_map
+        get  :moon_orbit_map_modal
       end
       resources :cities, only: %i[new create edit update destroy], shallow: true
       resources :moons, only: %i[new create]

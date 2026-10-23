@@ -185,4 +185,12 @@ class StellarObjectTest < ActiveSupport::TestCase
     planet.reference_url = 'https://example.com/inner'
     assert_equal 'https://example.com/inner', planet.effective_reference_url(Campaign.new(campaign_type: 'homebrew'))
   end
+
+  test 'moon orbit map download filename is named for the planet' do
+    planet = stellar_objects(:moons_test_gas_giant)
+
+    assert_equal 'moons-test-gas-giant-moons.webp', planet.moon_orbit_map_download_filename
+    planet.name = nil
+    assert_match(/-moons\.webp\z/, planet.moon_orbit_map_download_filename)
+  end
 end
