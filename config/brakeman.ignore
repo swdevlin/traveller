@@ -217,6 +217,29 @@
         79
       ],
       "note": "False positive: StarOrbitMap builds the SVG itself and HTML-escapes every piece of record text it interpolates (object names, orbit sequences, link URLs) with ERB::Util.html_escape; colours come from fixed palettes and numbers are formatted. StarOrbitMapTest 'names are escaped' covers it. The SVG has to be emitted unescaped to be inlined in the modal."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "ebd3b74ec90f5168ef69209d79e2d8f4d2c8e7addf5efaa6339313106b60d4f3",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/sectors_controller.rb",
+      "line": 240,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file((SectorMapImage.new(Sector.kept.find(params.expect(:id)), params[:v].to_s).path or SectorMapImage.latest(Sector.kept.find(params.expect(:id)))), :type => \"image/webp\", :disposition => \"inline\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SectorsController",
+        "method": "map_image"
+      },
+      "user_input": "Sector.kept.find(params.expect(:id))",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "False positive: the only request-controlled part of the path is params[:v], which is rejected with a 404 unless it matches SectorMapImage::VERSION_FORMAT (/\\A\\h{64}\\z/, exactly 64 hex characters) before SectorMapImage#path is built. The sector id comes from the database, so no path separators or traversal sequences can reach send_file."
     }
   ],
   "brakeman_version": "8.0.6"
