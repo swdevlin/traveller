@@ -14,7 +14,7 @@ SET row_security = off;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA public;
+CREATE SCHEMA IF NOT EXISTS public;
 
 
 --
@@ -28,7 +28,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 -- Name: shared_extensions; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA shared_extensions;
+CREATE SCHEMA IF NOT EXISTS shared_extensions;
 
 
 --
@@ -3654,7 +3654,7 @@ ALTER TABLE ONLY public.jump_routes
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO public,shared_extensions;
+SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
 ('20261024160000'),
