@@ -2,6 +2,7 @@ class CastStellarObjectRatingFieldsToIntegers < ActiveRecord::Migration[8.1]
   FIELDS = %w[
     habitability_rating biomass_rating biocomplexity_rating
     biodiversity_rating compatibility_rating resource_rating
+    berthing_cost refined_fuel_cost unrefined_fuel_cost
   ].freeze
 
   def up
