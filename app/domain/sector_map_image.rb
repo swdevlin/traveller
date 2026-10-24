@@ -5,6 +5,9 @@
 class SectorMapImage
   VERSION_FORMAT = /\A\h{64}\z/
 
+  # Overridden per worker in tests so parallel processes don't share images.
+  class_attribute :root, default: Rails.root.join('storage')
+
   def initialize(sector, version)
     @sector = sector
     @version = version
@@ -21,7 +24,7 @@ class SectorMapImage
   end
 
   def self.directory
-    Rails.root.join('storage', Apartment::Tenant.current, 'sector_maps')
+    root.join(Apartment::Tenant.current, 'sector_maps')
   end
 
   def path

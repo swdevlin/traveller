@@ -8,7 +8,7 @@ class Admin::RulebooksControllerTest < ActionDispatch::IntegrationTest
   teardown do
     # Tests that only assert a job was enqueued (not that it ran) leave their
     # staged upload behind, since cleanup happens inside the job itself.
-    FileUtils.rm_rf(Rails.root.join('tmp', 'rulebook_uploads'))
+    FileUtils.rm_rf(Admin::RulebooksController.upload_dir)
   end
 
   test 'a logged-out request is 404, not a redirect' do
@@ -121,7 +121,7 @@ class Admin::RulebooksControllerTest < ActionDispatch::IntegrationTest
 
     job_args = enqueued_jobs.last[:args]
     assert_equal @rulebook.id, job_args[0]
-    assert_match %r{tmp/rulebook_uploads/#{@rulebook.id}-[0-9a-f]+\.pdf\z}, job_args[1]
+    assert_match %r{rulebook_uploads/#{@rulebook.id}-[0-9a-f]+\.pdf\z}, job_args[1]
     # Always force: true — an upload is always reprocessed, even if byte-identical to what's
     # already imported, rather than silently no-opping on a matching checksum.
     assert job_args[2]['force']
@@ -159,6 +159,6 @@ class Admin::RulebooksControllerTest < ActionDispatch::IntegrationTest
     post import_admin_rulebook_url(@rulebook), params: { pdf_file: file }
     follow_redirect!
 
-    assert_not @response.body.include?(Rails.root.join('tmp', 'rulebook_uploads').to_s)
+    assert_not @response.body.include?(Admin::RulebooksController.upload_dir.to_s)
   end
 end

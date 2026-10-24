@@ -32,6 +32,12 @@ WebMock.disable_net_connect!(allow_localhost: true)
 class ActiveSupport::TestCase
   parallelize(workers: :number_of_processors)
 
+  # Fixture ids are identical in every worker, so give each its own scratch directories.
+  parallelize_setup do |worker|
+    SectorMapImage.root = Rails.root.join('tmp', 'test_workers', worker.to_s, 'storage')
+    Admin::RulebooksController.upload_dir = Rails.root.join('tmp', 'test_workers', worker.to_s, 'rulebook_uploads')
+  end
+
   SAMPLE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10"><rect width="20" height="10" fill="red"/></svg>'.freeze
 
   dupes = TRADE_CODES.group_by { |h| h[:code] }.select { |_k, v| v.size > 1 }.keys

@@ -1,4 +1,7 @@
 class Admin::RulebooksController < AdminController
+  # Overridden per worker in tests so parallel processes don't share staged uploads.
+  class_attribute :upload_dir, default: Rails.root.join('tmp', 'rulebook_uploads')
+
   before_action :set_rulebook, except: %i[index new create]
 
   def index
@@ -101,7 +104,7 @@ class Admin::RulebooksController < AdminController
   end
 
   def stage_upload(rulebook, pdf_file)
-    dir = Rails.root.join('tmp', 'rulebook_uploads')
+    dir = upload_dir
     FileUtils.mkdir_p(dir)
     destination = dir.join("#{rulebook.id}-#{SecureRandom.hex(8)}.pdf")
     IO.copy_stream(pdf_file, destination)
