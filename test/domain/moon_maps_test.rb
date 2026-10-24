@@ -36,4 +36,29 @@ class MoonMapsTest < ActiveSupport::TestCase
 
     assert_includes MoonOrbitMap.new(planet).to_svg, '</svg>'
   end
+
+  test 'orbits are ellipses that grow the canvas with eccentricity' do
+    moon = stellar_objects(:moons_test_significant_moon)
+    circular = MoonOrbitMap.new(@planet)
+    moon.update_columns(eccentricity: 0.6, au: 0.002)
+    eccentric = MoonOrbitMap.new(@planet.reload)
+
+    assert_includes eccentric.to_svg, '<ellipse'
+    placement = eccentric.placements.find { |p| p.body == moon }
+    assert_operator placement.ellipse[:rx], :>, placement.ellipse[:ry]
+    assert_operator eccentric.size, :>=, circular.size
+
+    # The moon is drawn on its own ellipse: its distance from the focus satisfies the conic equation.
+    e = 0.6
+    ell = placement.ellipse
+    cx = (eccentric.size / 2.0) + ell[:offset_x]
+    cy = (eccentric.size / 2.0) + ell[:offset_y]
+    rot = -ell[:rotation_deg] * Math::PI / 180
+    dx = placement.x - cx
+    dy = placement.y - cy
+    u = (dx * Math.cos(rot)) - (dy * Math.sin(rot))
+    v = (dx * Math.sin(rot)) + (dy * Math.cos(rot))
+    assert_in_delta 1.0, ((u / ell[:rx])**2) + ((v / ell[:ry])**2), 0.01
+    assert_in_delta e, ell[:offset_x].abs <= ell[:rx] ? Math.hypot(ell[:offset_x], ell[:offset_y]) / ell[:rx] : 0, 0.01
+  end
 end

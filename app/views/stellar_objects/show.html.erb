@@ -55,6 +55,10 @@
   </div>
 <% end %>
 
-<%= render 'application/two_column_page' do %>
-  <%= render @stellar_object %>
+<% nodes = orbit_strip_nodes(@stellar_object) %>
+<% index = nodes.index(@stellar_object) %>
+<%= render 'stellar_objects/orbit_strip_nav', nodes: nodes, index: index do %>
+  <%= render 'application/two_column_page' do %>
+    <%= render @stellar_object %>
+  <% end %>
 <% end %>

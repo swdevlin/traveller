@@ -567,4 +567,40 @@ module StellarObjectsHelper
       obj.orbiting.present? ? au_from_primary_for(obj.orbiting) : obj.au.to_f
     end
   end
+
+  ORBIT_STRIP_FALLBACK_ICONS = {
+    'Star' => 'fa-solid fa-star',
+    'PlanetoidBelt' => 'fa-regular fa-ellipsis'
+  }.freeze
+
+  # Nodes left to right: the primary (and, for a star, the star it orbits), the object itself and its siblings.
+  def orbit_strip_nodes(body)
+    if body.is_a?(Star)
+      [body.orbiting.presence, body, *body.orbiting_bodies].compact
+    elsif body.orbiting.is_a?(Star)
+      [body.orbiting, *body.orbit_siblings]
+    else
+      []
+    end
+  end
+
+  def orbit_strip_icon(body)
+    image = OrbitStripImage.for(body)
+    return image_tag(image, alt: '', class: 'orbit-strip-image') if image
+
+    tag.i(class: ORBIT_STRIP_FALLBACK_ICONS.fetch(body.type, 'fa-regular fa-circle-dot'))
+  end
+
+  def orbit_strip_path(body)
+    body.is_a?(Star) ? star_path(body) : stellar_object_path(body)
+  end
+
+  def orbit_strip_label(body)
+    body.is_a?(Star) ? body.spectral_classification : body.short_label
+  end
+
+  def orbit_strip_title(body)
+    kind = body.is_a?(Star) ? body.spectral_classification : body.type_title
+    [body.display_name, body.orbit_sequence.presence, kind].compact.uniq.join(' · ')
+  end
 end

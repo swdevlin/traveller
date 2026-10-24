@@ -1,0 +1,17 @@
+<%# locals: nodes (left to right), current, label %>
+<nav class='orbit-strip' aria-label='Bodies in orbit order'>
+  <ol>
+    <% nodes.each do |body| %>
+      <% is_current = body == current %>
+      <li class='orbit-strip-node<%= ' orbit-strip-current' if is_current %>'
+          <%= 'data-sibling-nav-target=current aria-current=page' if is_current %>>
+        <%= link_to orbit_strip_path(body),
+                    title: orbit_strip_title(body),
+                    class: 'no-underline hover:underline' do %>
+          <span class='orbit-strip-icon'><%= orbit_strip_icon(body) %></span>
+          <span class='orbit-strip-label'><%= orbit_strip_label(body) %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</nav>

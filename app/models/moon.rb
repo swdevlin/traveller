@@ -4,6 +4,10 @@ class Moon < StellarObject
   include HasPlanetaryBodyAttributes
   include HasPlanetMap
 
+  def distance_km
+    orbiting&.diameter && orbit && (orbit * orbiting.diameter)
+  end
+
   def effective_jump_shadow_km
     compute_effective_jump_shadow[:km]
   end

@@ -35,7 +35,7 @@
           <tr>
             <th scope="col" class="w-px">Name</th>
             <th scope="col" class="w-px cursor-help" title="Orbit sequence">Seq</th>
-            <th scope="col" class="w-px text-right cursor-help" title="Orbit, in planetary diameters">Orbit</th>
+            <th scope="col" class="w-px text-right cursor-help" title="Distance from the parent planet's centre, in kilometres">Distance</th>
             <th scope="col" class="w-px text-right cursor-help" title="Ring span, in planetary diameters">Span</th>
             <th scope="col">UWP</th>
             <th scope="col" class="text-right actions-cell">Actions</th>
@@ -58,7 +58,8 @@
               </td>
               <td class="whitespace-nowrap"><%= moon.orbit_sequence %></td>
               <td class="whitespace-nowrap text-right">
-                <%= number_with_precision(moon.orbit, precision: moon.orbit.to_f < 10 ? 1 : 0, strip_insignificant_zeros: true) %>
+                <% distance_km = moon.distance_km %>
+                <%= "#{number_with_precision(distance_km, precision: 3, significant: true, delimiter: ',')} km" if distance_km %>
               </td>
               <td class="whitespace-nowrap text-right">
                 <%= number_with_precision(moon.span, precision: 3, strip_insignificant_zeros: true) if moon.is_a?(Ring) %>

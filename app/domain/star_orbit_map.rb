@@ -19,6 +19,7 @@ require 'erb'
 #   works standalone and can be rasterised.
 class StarOrbitMap
   include StellarObjectAppearance
+  include OrbitEllipse
 
   # Bump when the drawing changes, to invalidate cached output.
   VERSION = 1
@@ -50,8 +51,6 @@ class StarOrbitMap
   # How far (as a fraction of a ring step) a real gap bigger or smaller than the previous one
   # can nudge an object outwards or inwards.
   GAP_ADJUSTMENT = 0.5
-  # Caps how far an orbit ellipse can stretch beyond the object's own ring radius.
-  MAX_ORBIT_STRETCH = 3
   # Planetoids belonging to a belt are scattered across this many pixels either side of the
   # belt's ring, according to how far their real distance differs from the belt's.
   PLANETOID_SPREAD_FRACTION = 0.2
@@ -281,28 +280,6 @@ class StarOrbitMap
     %(<ellipse cx="#{n(cx)}" cy="#{n(cy)}" rx="#{n(ellipse[:rx])}" ry="#{n(ellipse[:ry])}" ) +
       %(transform="rotate(#{n(ellipse[:rotation_deg])} #{n(cx)} #{n(cy)})" fill="none" ) +
       %(stroke="#{@palette.outline}" stroke-width="1" stroke-dasharray="2 3" opacity="0.85"/>)
-  end
-
-  # The orbit's ellipse, recovered from the object's real position (bearing theta, distance r),
-  # semi-major axis a and eccentricity e. The generator keeps only the resulting position, not
-  # the direction of periapsis, so that is recovered from the orbit's polar equation. The
-  # ellipse is then scaled to put the object exactly on its ring.
-  def orbit_ellipse(theta, r, a, e, pixel_r)
-    ecc = e.clamp(0, 0.95)
-    cos_nu = ecc > 1.0e-6 ? (((a * (1 - (ecc**2))) / r - 1) / ecc).clamp(-1, 1) : 1
-    periapsis_dir = theta - Math.acos(cos_nu)
-
-    a_px = [pixel_r * (1 + (ecc * cos_nu)) / (1 - (ecc**2)), MAX_ORBIT_STRETCH * pixel_r].min
-    b_px = a_px * Math.sqrt(1 - (ecc**2))
-    c_px = a_px * ecc
-
-    {
-      rx: a_px,
-      ry: b_px,
-      rotation_deg: periapsis_dir * 180 / Math::PI,
-      offset_x: -c_px * Math.cos(periapsis_dir),
-      offset_y: -c_px * Math.sin(periapsis_dir)
-    }
   end
 
   # ── Nodes ───────────────────────────────────────────────────────────────────

@@ -87,6 +87,10 @@ class StellarObject < ApplicationRecord
     EDIT_SECTIONS
   end
 
+  def orbit_siblings
+    orbiting.is_a?(Star) ? orbiting.orbiting_bodies : []
+  end
+
   def size_description
     StellarObjectsHelper::SIZE_DESCRIPTIONS[size_code]
   end
@@ -157,6 +161,11 @@ class StellarObject < ApplicationRecord
     return name if name.present?
 
     "Unnamed #{type_title}"
+  end
+
+  # Short label for compact displays: the name if there is one, otherwise the orbit sequence identifier.
+  def short_label
+    name.presence || orbit_sequence.presence || type_title
   end
 
   def type_title

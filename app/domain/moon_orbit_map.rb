@@ -12,9 +12,10 @@ require 'erb'
 # of moons rather than the moons shrinking to fit. A ring's inner and outer edges are placed by interpolating between the moons either side.
 class MoonOrbitMap
   include MoonMapAppearance
+  include OrbitEllipse
 
   # Bump when the drawing changes, to invalidate cached output.
-  VERSION = 2
+  VERSION = 5
 
   PLANET_RADIUS = 36
   ORBIT_MIN_MOON_RADIUS = 10
@@ -28,7 +29,7 @@ class MoonOrbitMap
   RING_SPACING_PX = 72
   GOLDEN_ANGLE = 2.399963
 
-  Placement = Struct.new(:body, :x, :y, :pixel_r)
+  Placement = Struct.new(:body, :x, :y, :pixel_r, :ellipse)
 
   attr_reader :size, :placements
 
@@ -47,9 +48,13 @@ class MoonOrbitMap
     @step = RING_SPACING_PX
     rings_half = INNER_PX + (@step * [@moons.size - 1, 0].max) + EDGE_MARGIN
     label_half = (@planet.display_name.to_s.length * PLANET_LABEL_CHAR_PX / 2.0) + 8
-    @size = (2 * [rings_half, label_half].max).ceil
-    @center = @size / 2.0
+    @center = 0
     @placements = @moons.each_with_index.map { |moon, i| place(moon, i) }
+    # An eccentric orbit swings out past its ring, so the canvas has to hold the widest apoapsis.
+    reach_half = @placements.map { |p| p.ellipse[:reach] + EDGE_MARGIN }.max.to_f
+    @size = (2 * [rings_half, label_half, reach_half].max).ceil
+    @center = @size / 2.0
+    @placements = @placements.map { |p| shift(p) }
   end
 
   def to_svg
@@ -67,10 +72,28 @@ class MoonOrbitMap
 
   private
 
+  # Positions are worked out about the origin and shifted onto the canvas once its size is known.
   def place(moon, index)
     pixel_r = INNER_PX + (@step * index)
-    theta = index * GOLDEN_ANGLE
-    Placement.new(moon, @center + (pixel_r * Math.cos(theta)), @center + (pixel_r * Math.sin(theta)), pixel_r)
+    position = moon.relative_orbit_position
+    theta = position ? Math.atan2(position[1], position[0]) : index * GOLDEN_ANGLE
+    semi_major_km = [moon.distance_km.to_f, 1.0].max
+    ellipse = ranked_orbit_ellipse(theta, current_km(position, semi_major_km), semi_major_km,
+                                   moon.eccentricity.to_f, pixel_r)
+    Placement.new(moon, ellipse[:r_px] * Math.cos(theta), ellipse[:r_px] * Math.sin(theta), pixel_r, ellipse)
+  end
+
+  def shift(placement)
+    Placement.new(placement.body, @center + placement.x, @center + placement.y, placement.pixel_r, placement.ellipse)
+  end
+
+  # The moon's current distance from the planet in km, from its real position when known and
+  # otherwise its semi-major axis. Moons are worked in km from `orbit` (planetary diameters)
+  # because the generator's `au` for a moon is not a usable distance from its planet.
+  def current_km(position, semi_major_km)
+    return semi_major_km unless position
+
+    [Math.hypot(*position), 1.0].max
   end
 
   # Pixel radius for a distance in planetary diameters, interpolated between the moons' rings.
@@ -96,8 +119,12 @@ class MoonOrbitMap
   end
 
   def orbit_ring(placement)
-    %(<circle cx="#{n(@center)}" cy="#{n(@center)}" r="#{n(placement.pixel_r)}" fill="none" ) +
-      %(stroke="#{@palette.outline}" stroke-width="1" stroke-dasharray="2 3" opacity="0.85"/>)
+    ellipse = placement.ellipse
+    cx = @center + ellipse[:offset_x]
+    cy = @center + ellipse[:offset_y]
+    %(<ellipse cx="#{n(cx)}" cy="#{n(cy)}" rx="#{n(ellipse[:rx])}" ry="#{n(ellipse[:ry])}" ) +
+      %(transform="rotate(#{n(ellipse[:rotation_deg])} #{n(cx)} #{n(cy)})" fill="none" ) +
+      %(stroke="#{@palette.fg_muted}" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.9"/>)
   end
 
   def planet_svg
@@ -128,7 +155,7 @@ class MoonOrbitMap
     end
     content = icon +
               %(<text x="#{x}" y="#{n(placement.y - radius - 6)}" text-anchor="middle" class="mm-label">#{esc(body_label(moon))}</text>) +
-              %(<text x="#{x}" y="#{n(placement.y + radius + 16)}" text-anchor="middle" class="mm-orbit">#{format_orbit(moon.orbit)}</text>)
+              %(<text x="#{x}" y="#{n(placement.y + radius + 16)}" text-anchor="middle" class="mm-orbit">#{esc(format_distance(moon))}</text>)
 
     url = @link_builder&.call(moon)
     url ? %(<a href="#{esc(url)}" target="_top" class="mm-node">#{content}</a>) : "<g>#{content}</g>"

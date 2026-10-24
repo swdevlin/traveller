@@ -1306,6 +1306,60 @@
     @apply rounded-lg border border-outline bg-panel;
   }
 
+  .orbit-strip {
+    @apply overflow-x-auto pb-1;
+  }
+
+  .orbit-strip ol {
+    @apply m-0 flex list-none items-start p-0;
+  }
+
+  .orbit-strip-node {
+    @apply relative flex min-w-20 max-w-28 flex-1 shrink-0 justify-center px-1;
+  }
+
+  .orbit-strip-node::before {
+    content: '';
+    @apply absolute left-0 right-0 top-[11px] h-0.5 bg-outline;
+  }
+
+  .orbit-strip-node:first-child::before {
+    @apply left-1/2;
+  }
+
+  .orbit-strip-node:last-child::before {
+    @apply right-1/2;
+  }
+
+  .orbit-strip-node a {
+    @apply relative flex w-full min-w-0 flex-col items-center gap-1 text-fg-muted hover:text-fg-bright;
+  }
+
+  .orbit-strip-icon {
+    @apply relative mt-0.5 flex size-5 items-center justify-center rounded-full bg-bg text-sm text-fg-muted;
+  }
+
+  .orbit-strip-image {
+    @apply size-full rounded-full object-contain;
+  }
+
+  .orbit-strip-node a:hover .orbit-strip-icon {
+    @apply text-highlight-fg;
+  }
+
+  .orbit-strip-current .orbit-strip-icon {
+    @apply mt-0 size-6 text-base text-fg-bright;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-highlight);
+  }
+
+  .orbit-strip-label {
+    @apply block w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-xs;
+  }
+
+  .orbit-strip-current .orbit-strip-label {
+    @apply font-semibold text-fg-bright;
+  }
+
   .uwp-tab-bar {
     @apply flex flex-wrap gap-0 border-b border-outline mb-2;
   }

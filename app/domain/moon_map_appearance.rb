@@ -50,4 +50,11 @@ module MoonMapAppearance
     precision = orbit.to_f < 10 ? 1 : 0
     format("%.#{precision}f", orbit.to_f).sub(/\.0\z/, '')
   end
+
+  def format_distance(moon)
+    km = moon.distance_km
+    return format_orbit(moon.orbit) unless km
+
+    "#{ActiveSupport::NumberHelper.number_to_rounded(km, precision: 3, significant: true, delimiter: ',')} km"
+  end
 end

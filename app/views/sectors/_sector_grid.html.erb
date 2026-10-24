@@ -12,24 +12,28 @@
           <% if neighbour == sector %>
             <div class="relative aspect-[4/5] flex flex-col items-center justify-center overflow-hidden rounded-md border-2 border-highlight bg-highlight/10 px-1 py-1 text-center">
               <img src="<%= sector_map_backdrop_url(neighbour) %>" alt="" loading="lazy" aria-hidden="true"
-                   class="pointer-events-none absolute inset-0 h-full w-full object-contain opacity-30">
-              <div class="relative font-semibold text-[0.7rem] text-highlight-fg truncate w-full text-center [text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel)]">
-                <%= neighbour.name %>
-              </div>
-              <div class="relative text-[0.6rem] text-fg italic [text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel)]">
-                <%= x %>/<%= y %>
+                   class="pointer-events-none absolute inset-0 h-full w-full object-contain opacity-50">
+              <div class="relative w-full [-webkit-text-stroke:4px_var(--color-panel)] [paint-order:stroke_fill]">
+                <div class="relative font-semibold text-[0.7rem] text-highlight-fg truncate w-full text-center">
+                  <%= neighbour.name %>
+                </div>
+                <div class="relative text-[0.6rem] text-fg italic">
+                  <%= x %>/<%= y %>
+                </div>
               </div>
             </div>
           <% else %>
             <%= link_to sector_path(neighbour),
                         class: "relative aspect-[4/5] flex flex-col no-underline items-center justify-center overflow-hidden rounded-md border border-outline/70 bg-panel px-1 py-1 text-center hover:border-highlight hover:bg-panel transition" do %>
               <img src="<%= sector_map_backdrop_url(neighbour) %>" alt="" loading="lazy" aria-hidden="true"
-                   class="pointer-events-none absolute inset-0 h-full w-full object-contain opacity-30">
-              <div class="relative font-semibold text-[0.7rem] text-fg-bright truncate w-full text-center [text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel)]">
-                <%= neighbour.name %>
-              </div>
-              <div class="relative text-[0.6rem] text-fg italic [text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel)]">
-                <%= x %>/<%= y %>
+                   class="pointer-events-none absolute inset-0 h-full w-full object-contain opacity-50">
+              <div class="relative w-full [-webkit-text-stroke:4px_var(--color-panel)] [paint-order:stroke_fill]">
+                <div class="relative font-semibold text-[0.7rem] text-fg-bright truncate w-full text-center">
+                  <%= neighbour.name %>
+                </div>
+                <div class="relative text-[0.6rem] text-fg italic">
+                  <%= x %>/<%= y %>
+                </div>
               </div>
             <% end %>
           <% end %>
