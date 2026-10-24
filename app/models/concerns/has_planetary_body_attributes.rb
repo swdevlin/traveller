@@ -36,6 +36,14 @@ module HasPlanetaryBodyAttributes
       economics: 'economics'
     )
 
+    # store_accessor keeps whatever the form submits, so cast to integers or the starmap decoder gets strings.
+    %i[habitability_rating biomass_rating biocomplexity_rating biodiversity_rating
+       compatibility_rating resource_rating].each do |name|
+      define_method(:"#{name}=") do |value|
+        super(value.is_a?(String) && value.strip.match?(/\A-?\d+\z/) ? value.to_i : value)
+      end
+    end
+
     validates :size_code, inclusion: { in: StellarObject::SIZE_CODES }
 
     # The starmap (Elm) decoder cannot load a body without these, so every form must supply them.
