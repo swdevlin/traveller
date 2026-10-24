@@ -12,6 +12,11 @@ class ReleaseNote
     Date.ordinal(year_str.to_i, day_str.to_i)
   end
 
+  def title
+    heading = markdown[/^#+\s+(.+)$/, 1]
+    heading ? "#{date_code} — #{heading}" : date_code
+  end
+
   def self.all
     Dir[Rails.root.join('content/releases/*.md')]
       .map { |path| from_file(path) }

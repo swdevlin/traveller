@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   get '/fairuse', to: 'marketing#fairuse'
   get '/deltas',  to: 'release_notes#index'
+  get '/deltas/feed', to: 'release_notes#feed', as: :deltas_feed, defaults: { format: 'rss' }
   get '/help',       to: 'help#index'
   get '/help/:page', to: 'help#show',  as: :help_page
 

@@ -103,3 +103,5 @@ gem 'chunky_png'
 gem 'turbo_tour'
 
 gem 'faultline', git: 'https://github.com/dlt/faultline.git', ref: '711362c44b14483c1748b4acff8cd9aa773e3e59'
+
+gem 'rss'

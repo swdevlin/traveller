@@ -1,12 +1,12 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static values = { url: String, markdownUrl: String }
+  static values = { url: String, markdownUrl: String, icon: { type: String, default: 'fa-link' } }
   static targets = ['source', 'copyBtn']
 
   copy () {
     navigator.clipboard.writeText(this.urlValue).then(() => {
-      this.#flashIcon('fa-link', 'fa-check')
+      this.#flashIcon(this.iconValue, 'fa-check')
     })
   }
 

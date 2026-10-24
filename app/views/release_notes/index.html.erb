@@ -2,6 +2,23 @@
 <% content_for :page_kicker, "Operations Manual" %>
 <% content_for :page_title, "Deltas" %>
 
+<% content_for :head do %>
+  <%= auto_discovery_link_tag :rss, deltas_feed_url(campaign_slug: nil), title: 'My Traveller Universe Deltas' %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <button type='button'
+          title='Copy RSS feed URL'
+          aria-label='Copy RSS feed URL'
+          class='text-fg-muted hover:text-highlight-fg'
+          data-controller='clipboard'
+          data-clipboard-url-value='<%= deltas_feed_url(campaign_slug: nil) %>'
+          data-clipboard-icon-value='fa-rss'
+          data-action='click->clipboard#copy'>
+    <i class='fa-regular fa-rss'></i>
+  </button>
+<% end %>
+
 <%= render 'application/page' do %>
 
   <% @releases.each do |release| %>
