@@ -24,13 +24,13 @@
   <% @releases.each do |release| %>
     <article class='space-y-4 mb-6'>
       <div class='flex items-center gap-4'>
-        <div class='text-sm uppercase tracking-[0.22em] font-semibold text-fg-bright'>
+        <div class='text-2xl uppercase tracking-[0.22em] font-bold text-fg-bright'>
           <%= release.date_code %>
         </div>
         <div class='h-px flex-1 bg-panel'></div>
       </div>
 
-      <div class='release-markdown prose prose-theme max-w-none prose-headings:uppercase prose-headings:tracking-[0.2em] prose-headings:text-highlight-fg prose-p:text-fg prose-a:text-highlight-fg hover:prose-a:text-highlight-fg prose-img:rounded-2xl prose-img:border prose-img:border-outline/70'>
+      <div class='release-markdown prose prose-theme max-w-none prose-headings:uppercase prose-headings:tracking-[0.2em] prose-h3:text-sm prose-h3:font-semibold prose-headings:text-highlight-fg prose-p:text-fg prose-a:text-highlight-fg hover:prose-a:text-highlight-fg prose-img:rounded-2xl prose-img:border prose-img:border-outline/70'>
         <%= render_markdown(release.markdown) %>
       </div>
     </article>
