@@ -8,9 +8,28 @@ module SubwayMapRendering
   extend ActiveSupport::Concern
 
   # Bump when the subway map templates change, to invalidate cached output.
-  SUBWAY_MAP_TEMPLATE_VERSION = 1
+  SUBWAY_MAP_TEMPLATE_VERSION = 4
+
+  included do
+    helper_method :map_moons_mode
+    before_action :remember_map_moons, only: :show
+  end
 
   private
+
+  # ?moons=significant or ?moons=all adds each planet's moons to the map; anything else leaves them off
+  # (?moons=1 is the earlier spelling of significant). The show pages fall back to the last choice made
+  # in this session; map endpoints (including signed public links) depend on the parameter alone.
+  def map_moons_mode
+    case params.fetch(:moons) { (session[:map_moons] if action_name == 'show') }
+    when 'significant', '1' then :significant
+    when 'all' then :all
+    end
+  end
+
+  def remember_map_moons
+    session[:map_moons] = params[:moons].to_s if params.key?(:moons)
+  end
 
   def send_subway_map
     @show_map_links = owns_campaign?
@@ -26,7 +45,8 @@ module SubwayMapRendering
   end
 
   def map_cache_variant
-    owns_campaign? ? "auth_v#{SUBWAY_MAP_TEMPLATE_VERSION}" : "public_v#{SUBWAY_MAP_TEMPLATE_VERSION}"
+    audience = owns_campaign? ? 'auth' : 'public'
+    "#{audience}_v#{SUBWAY_MAP_TEMPLATE_VERSION}#{"_moons_#{map_moons_mode}" if map_moons_mode}"
   end
 
   def subway_map_cache_key(format)

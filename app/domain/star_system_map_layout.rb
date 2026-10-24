@@ -8,6 +8,8 @@ class StarSystemMapLayout
   ORBIT_STEP = 100
   STAR_TO_FIRST_BODY_GAP = 100
   VERTICAL_STEP = 100
+  MOON_STEP = 60
+  MOON_RADIUS = 9
 
   STAR_RADIUS = 28
   GAS_GIANT_RADIUS = 20
@@ -15,7 +17,7 @@ class StarSystemMapLayout
   PLANETOID_BELT_RADIUS = 18
   DEFAULT_BODY_RADIUS = 10
 
-  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, :vertical, :image, keyword_init: true)
+  Node = Struct.new(:id, :kind, :label, :x, :y, :radius, :colour, :url_target, :sublabel, :tooltip, :vertical, :image, :moon_axis, :moon, keyword_init: true)
   Edge = Struct.new(:x1, :y1, :x2, :y2, :kind, :au_label, keyword_init: true)
   JumpShadow = Struct.new(:x, :y, :x1, :x2, :vertical, :y1_branch, :y2_branch, :colour, :has_marker, keyword_init: true)
 
@@ -23,14 +25,18 @@ class StarSystemMapLayout
 
   # Map for just the objects orbiting a single star: any star orbiting it appears as a node,
   # but the objects orbiting that star do not.
-  def self.for_star(star)
-    new(star.star_system, root: star, nested: false)
+  def self.for_star(star, moons: nil)
+    new(star.star_system, root: star, nested: false, moons: moons)
   end
 
-  def initialize(star_system, root: nil, nested: true)
+  # With moons: :significant or :all, each planet's moons are drawn on a spur running perpendicular to the
+  # track the planet sits on (down from the main track, right from a vertical branch).
+  def initialize(star_system, root: nil, nested: true, moons: nil)
     @star_system = star_system
     @root = root
     @nested = nested
+    @moons = moons
+    @moons_for = {}
     @nodes = []
     @edges = []
     @jump_shadows = []
@@ -71,6 +77,7 @@ class StarSystemMapLayout
         layout_vertical_branch(body, current_x, star_y, primary_jump_x: primary_jump_x) if @nested
       else
         @nodes << make_body_node(body, current_x, star_y, star, vertical: false)
+        layout_moons(body, current_x, star_y, vertical_track: false)
       end
       track_end_x = current_x
       prev_x = current_x
@@ -105,6 +112,7 @@ class StarSystemMapLayout
         layout_vertical_branch(body, x, current_y, primary_jump_x: primary_jump_x)
       else
         @nodes << make_body_node(body, x, current_y, star, vertical: true)
+        layout_moons(body, x, current_y, vertical_track: true)
       end
       branch_end_y = current_y
       prev_y = current_y
@@ -132,6 +140,49 @@ class StarSystemMapLayout
         colour: star.colour
       )
     end
+  end
+
+  def moons_for(body)
+    return [] unless @moons && !body.is_a?(PlanetoidBelt)
+
+    @moons_for ||= {}
+    @moons_for[body.id] ||= (@moons == :all ? body.moons.order(:orbit, :id) : body.significant_moons).to_a
+  end
+
+  def layout_moons(body, x, y, vertical_track:)
+    prev_x = x
+    prev_y = y
+
+    moons_for(body).each_with_index do |moon, i|
+      step = (i + 1) * MOON_STEP
+      moon_x = vertical_track ? x + step : x
+      moon_y = vertical_track ? y : y + step
+
+      @edges << Edge.new(x1: prev_x, y1: prev_y, x2: moon_x, y2: moon_y, kind: :moon)
+      @nodes << make_moon_node(moon, moon_x, moon_y, vertical_track: vertical_track)
+      prev_x = moon_x
+      prev_y = moon_y
+      @max_x = [@max_x, moon_x + MOON_STEP].max
+      @max_y = [@max_y, moon_y + MOON_STEP].max
+    end
+  end
+
+  def make_moon_node(moon, x, y, vertical_track:)
+    Node.new(
+      id: "body-#{moon.id}",
+      kind: :terrestrial,
+      label: moon.name.presence || moon.orbit_sequence.presence,
+      x: x,
+      y: y,
+      radius: MOON_RADIUS,
+      colour: terrestrial_colour(moon),
+      image: terrestrial_image(moon),
+      url_target: moon,
+      sublabel: moon.uwp.presence,
+      # Moons hang off a vertical branch to the right, so their labels sit above the node rather than beside it
+      vertical: !vertical_track,
+      moon: true
+    )
   end
 
   def calculate_dimensions
@@ -170,7 +221,8 @@ class StarSystemMapLayout
       url_target: body,
       sublabel: body_sublabel(body),
       tooltip: body_tooltip(body, parent_star, !vertical),
-      vertical: vertical
+      vertical: vertical,
+      moon_axis: (vertical ? :horizontal : :vertical if moons_for(body).any?)
     )
   end
 

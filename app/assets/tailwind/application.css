@@ -1437,8 +1437,12 @@
     @apply border-danger/50;
   }
 
+  turbo-frame#subway-map {
+    @apply block min-w-0 max-w-full;
+  }
+
   .subway-map-container {
-    @apply overflow-x-auto overflow-y-hidden rounded-xl border border-outline bg-panel-muted p-4 shadow-xl;
+    @apply min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-xl border border-outline bg-panel-muted p-4 shadow-xl;
   }
 
   .subway-map {
@@ -1520,6 +1524,14 @@
   stroke-dasharray: 8 4;
 }
 
+.subway-moon {
+  stroke: var(--color-outline);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 6 4;
+  opacity: 0.6;
+}
+
 .subway-star {
   stroke: var(--color-panel);
   stroke-width: 2;
@@ -1577,6 +1589,13 @@
   font-family: var(--font-mono);
   font-size: 10px;
   fill: var(--color-fg);
+}
+
+/* UWP drawn over a moon spur: a halo in the panel colour keeps it legible */
+.subway-sublabel-halo {
+  stroke: var(--color-panel-muted);
+  stroke-width: 4px;
+  paint-order: stroke;
 }
 
 .subway-clickable {

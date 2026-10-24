@@ -87,8 +87,9 @@
   </div>
 
   <% if star_system %>
-    <div>
-      <div class='flex justify-end gap-3 mb-1'>
+    <%= turbo_frame_tag 'subway-map' do %>
+      <div class='flex justify-end items-center gap-3 mb-1'>
+        <%= render 'star_systems/moons_toggle' %>
         <%= link_to orbit_map_modal_star_path(star),
                     data: { turbo_frame: 'modal' },
                     title: 'Orbit map',
@@ -99,13 +100,13 @@
                 title='Copy public map link'
                 class='text-fg-muted hover:text-fg-bright'
                 data-controller='clipboard'
-                data-clipboard-url-value='<%= signed_map_url(map_star_path(star)) %>'
+                data-clipboard-url-value='<%= signed_map_url(map_star_path(star, moons: map_moons_mode)) %>'
                 data-action='click->clipboard#copy'>
           <i class='fa-regular fa-link'></i>
         </button>
       </div>
-      <%= render 'star_systems/system_map', star_system: star_system, layout: StarSystemMapLayout.for_star(star) %>
-    </div>
+      <%= render 'star_systems/system_map', star_system: star_system, layout: StarSystemMapLayout.for_star(star, moons: map_moons_mode) %>
+    <% end %>
   <% end %>
 
   <%= render 'orbiting_table', star: star, bodies: star.orbiting_bodies %>

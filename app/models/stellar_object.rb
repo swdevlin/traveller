@@ -69,6 +69,11 @@ class StellarObject < ApplicationRecord
     "#{base.presence || 'planet'}-moons.#{extension}"
   end
 
+  # Moons large enough to be worth showing on the subway map
+  def significant_moons
+    moons.where.not(size_code: %w[0 S]).order(:orbit, :id)
+  end
+
   # Moons and rings both orbit the planet, so they are listed together in orbit order. Rings are always
   # significant: the size filter only applies to moons.
   def moons_and_rings(significant_only: false)

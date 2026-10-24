@@ -158,8 +158,10 @@
         <% end %>
         <% if node.label %>
           <% if node.vertical %>
-            <text x="<%= node.x + node.radius + 10 %>" y="<%= node.y + 4 %>"
-                  text-anchor="start" class="subway-label">
+            <%# Planets on a vertical branch are named on the left, leaving the right clear for their moon spur %>
+            <% name_left = !node.moon %>
+            <text x="<%= name_left ? node.x - node.radius - 10 : node.x + node.radius + 10 %>" y="<%= node.moon_axis == :horizontal && !name_left ? node.y - 8 : node.y + 4 %>"
+                  text-anchor="<%= name_left ? 'end' : 'start' %>" class="subway-label">
               <%= node.label %>
             </text>
           <% else %>
@@ -170,8 +172,10 @@
           <% end %>
         <% end %>
         <% if node.sublabel %>
-          <text x="<%= node.x %>" y="<%= node.y + node.radius + 18 %>"
-                text-anchor="middle" class="subway-sublabel">
+          <% beside = node.moon && node.vertical %>
+          <text x="<%= beside ? node.x + node.radius + 10 : node.x %>"
+                y="<%= beside ? node.y + 17 : node.y + node.radius + 18 %>"
+                text-anchor="<%= beside ? 'start' : 'middle' %>" class="subway-sublabel<%= ' subway-sublabel-halo' if node.moon_axis == :vertical %>">
             <%= node.sublabel %>
           </text>
         <% end %>

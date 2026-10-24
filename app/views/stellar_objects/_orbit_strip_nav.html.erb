@@ -1,7 +1,7 @@
 <%# locals: nodes, index; wraps the page content, adds the strip and Left/Right arrow key navigation %>
 <% previous_body = nodes[index - 1] if index&.positive? %>
 <% next_body = nodes[index + 1] if index %>
-<div data-controller='sibling-nav'
+<div class='min-w-0 w-full' data-controller='sibling-nav'
      data-sibling-nav-previous-value='<%= previous_body && orbit_strip_path(previous_body) %>'
      data-sibling-nav-next-value='<%= next_body && orbit_strip_path(next_body) %>'>
   <% if index && nodes.size > 1 %>

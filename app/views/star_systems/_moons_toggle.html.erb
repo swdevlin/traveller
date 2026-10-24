@@ -1,0 +1,10 @@
+<% current = map_moons_mode %>
+<div class='flex items-center gap-2 text-xs text-fg-muted' role='group' aria-label='Moons on map'>
+  <span class='edit-label'>Moons</span>
+  <% [[nil, 'None', :none], [:significant, 'Significant', :significant], [:all, 'All', :all]].each do |mode, label, param| %>
+    <%= link_to label,
+                url_for(request.query_parameters.merge(moons: param)),
+                'aria-current': (current == mode ? 'true' : nil),
+                class: "inline-flex items-center rounded-full border bg-panel px-2 py-0.5 font-mono tracking-wide no-underline hover:underline #{current == mode ? 'border-fg-bright text-fg-bright' : 'border-outline text-fg-muted hover:text-fg-bright'}" %>
+  <% end %>
+</div>

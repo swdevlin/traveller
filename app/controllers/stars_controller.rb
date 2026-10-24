@@ -90,7 +90,7 @@ class StarsController < ApplicationController
   # covers the star's children as well as the star itself.
   def subway_map_record = @star.star_system
 
-  def subway_map_layout = StarSystemMapLayout.for_star(@star)
+  def subway_map_layout = StarSystemMapLayout.for_star(@star, moons: map_moons_mode)
 
   def star_not_found
     redirect_to root_path, alert: 'That star no longer exists.'

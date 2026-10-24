@@ -78,8 +78,10 @@
 
     <%= render 'main_world_details', star_system: star_system %>
 
-    <% map_path = map_star_system_path(star_system) %>
-    <div class='flex justify-end mb-1'>
+    <% map_path = map_star_system_path(star_system, moons: map_moons_mode) %>
+    <%= turbo_frame_tag 'subway-map' do %>
+    <div class='flex justify-end items-center gap-3 mb-1'>
+      <%= render 'star_systems/moons_toggle' %>
       <button type='button'
               title='Copy public map link'
               class='text-fg-muted hover:text-fg-bright'
@@ -90,6 +92,7 @@
       </button>
     </div>
     <%= render 'system_map', star_system: star_system %>
+    <% end %>
 
     <%= render 'stars_table', stars: star_system.ordered_stars %>
 
