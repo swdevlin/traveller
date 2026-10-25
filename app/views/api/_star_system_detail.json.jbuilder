@@ -20,6 +20,7 @@ if mw
   json.main_world do
     json.name mw.name
     json.uwp  mw.uwp
+    json.partial! 'api/records', record: mw, visible: player_visible
     json.gravity mw.gravity
     json.temperature mw.temperature
     json.native_sophont mw.native_sophont || false
