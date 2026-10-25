@@ -30,7 +30,7 @@ class GasGiant < StellarObject
 
   def self.permitted_params
     [
-      :name, :notes, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass,
+      :name, :player_notes, :referee_notes, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass,
       data: [:code, :period, :rotation, :axial_tilt]
     ]
   end

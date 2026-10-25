@@ -36,11 +36,7 @@
 
           <%= render 'stellar_objects/known_field', form: form, stellar_object: moon %>
 
-          <div class='edit-row-notes'>
-            <div class='edit-label'>Observations<%= required_icon(moon, :notes) %></div>
-            <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
-            <%= render 'application/field_error', form: form, attribute: :notes %>
-          </div>
+          <%= render 'application/records_fields', form: form, record: moon, wrapper_class: 'edit-row-notes' %>
 
           <div>
             <%= render 'application/edit_field', form: form, attribute: :reference_url, field_label: 'Reference link' do %>

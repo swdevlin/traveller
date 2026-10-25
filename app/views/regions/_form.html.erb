@@ -72,12 +72,7 @@
   <%= render 'application/boolean_toggle', form: form, attribute: :player_visible,
         checked: region.player_visible, label: 'Visible on player maps' %>
 
-  <div>
-    <%= form.label :notes, 'Notes', class: 'block text-sm font-semibold mb-1' %>
-    <p class='text-xs text-fg-muted mb-2'>Supports Markdown</p>
-    <%= form.text_area :notes, rows: 6, class: 'edit-base w-full resize-y' %>
-    <%= render 'application/field_error', form: form, attribute: :notes %>
-  </div>
+  <%= render 'application/records_fields', form: form, record: region %>
 
   <div class='flex flex-col sm:flex-row gap-2'>
     <%= form.submit region.persisted? ? 'Save' : 'Create Region', class: 'w-full sm:w-auto btn btn-primary' %>

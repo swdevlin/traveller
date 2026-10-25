@@ -131,11 +131,7 @@
       <% end %>
     </div>
 
-    <div class='edit-row-notes' data-tour-step='sector-observations'>
-      <div class='edit-label'>Observations</div>
-      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
-      <%= render 'application/field_error', form: form, attribute: :notes %>
-    </div>
+    <%= render 'application/records_fields', form: form, record: sector, wrapper_class: 'edit-row-notes', tour_step: 'sector-observations' %>
 
     <div class='pt-2 flex flex-row gap-2'>
       <%= form.submit sector.persisted? ? 'Update core' : 'Commit Core', class: 'btn btn-primary' %>

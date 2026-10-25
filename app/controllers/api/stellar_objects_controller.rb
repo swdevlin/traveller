@@ -4,6 +4,7 @@ class Api::StellarObjectsController < Api::BaseController
   helper ApplicationHelper, StellarObjectsHelper
 
   def show
+    authenticated_by_session?
     @stellar_object = StellarObject
                       .includes(:moons, :orbiting, :parsec, :allegiance, :tidal_lock_target)
                       .find_by(id: params[:id])

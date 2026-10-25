@@ -3,6 +3,7 @@ module Traveller.StarSystemDetail exposing (BaseFacility, MainWorldProfile, Star
 import Codec
 import Dict
 import Traveller.HexAddress as HexAddress exposing (HexAddress)
+import Traveller.Records as Records exposing (Records)
 import Traveller.StellarObject exposing (StarData, codecStarData, codecStellarObject)
 import Traveller.Sophont as Sophont exposing (Sophont)
 
@@ -52,6 +53,7 @@ type alias StarSystemDetail =
     , bases : List BaseFacility
     , tradeCodes : List String
     , referenceUrl : Maybe String
+    , records : Records
     }
 
 
@@ -77,6 +79,8 @@ type alias RawStarSystemDetail =
     , bases : List BaseFacility
     , tradeCodes : List String
     , referenceUrl : Maybe String
+    , surveyRecordsHtml : Maybe String
+    , classifiedRecordsHtml : Maybe String
     }
 
 
@@ -108,6 +112,7 @@ rawToFinal rawStarSystemDetail =
         , bases = rawStarSystemDetail.bases
         , tradeCodes = rawStarSystemDetail.tradeCodes
         , referenceUrl = rawStarSystemDetail.referenceUrl
+        , records = Records.fromHtml rawStarSystemDetail.surveyRecordsHtml rawStarSystemDetail.classifiedRecordsHtml
         }
 
 
@@ -134,6 +139,8 @@ finalToRaw starSystemDetail =
     , bases = starSystemDetail.bases
     , tradeCodes = starSystemDetail.tradeCodes
     , referenceUrl = starSystemDetail.referenceUrl
+    , surveyRecordsHtml = starSystemDetail.records.surveyHtml
+    , classifiedRecordsHtml = starSystemDetail.records.classifiedHtml
     }
 
 
@@ -190,4 +197,6 @@ rawCodec =
         |> Codec.field "bases" .bases (Codec.list baseFacilityCodec)
         |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
+        |> Codec.optionalNullableField "survey_records_html" .surveyRecordsHtml Codec.string
+        |> Codec.optionalNullableField "classified_records_html" .classifiedRecordsHtml Codec.string
         |> Codec.buildObject

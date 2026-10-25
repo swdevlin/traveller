@@ -32,9 +32,9 @@ class CometTest < ActiveSupport::TestCase
     comet = Comet.create!(
       parsec: parsecs(:one),
       comet_type: 'tiny',
-      notes: note
+      player_notes: note
     )
 
-    assert_equal note, comet.notes
+    assert_equal note, comet.player_notes
   end
 end

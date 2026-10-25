@@ -10,9 +10,10 @@ module ScrubsMailtoLinks
   private
 
   def scrub_mailto_links
-    return if notes.blank?
-
-    self.notes = scrub_mailto_from_markdown(notes)
+    %i[player_notes referee_notes].each do |attribute|
+      value = self[attribute]
+      self[attribute] = scrub_mailto_from_markdown(value) if value.present?
+    end
   end
 
   def scrub_mailto_from_markdown(text)

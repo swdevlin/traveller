@@ -152,7 +152,7 @@ class RogueObjectBuilderTest < ActiveSupport::TestCase
     rogue = builder(rogue_table: table).build!(@parsec, { 'type' => 'random' })
 
     assert_instance_of PhantomObject, rogue
-    assert_equal 'Sensor glitch; nothing present', rogue.notes
+    assert_equal 'Sensor glitch; nothing present', rogue.player_notes
   end
 
   test 'random comet carries the comet type from the table' do
@@ -162,7 +162,7 @@ class RogueObjectBuilderTest < ActiveSupport::TestCase
 
     assert_instance_of Comet, rogue
     assert_equal 'medium', rogue.comet_type
-    assert_equal 'Ice-bearing comet suitable for multiple refuelings', rogue.notes
+    assert_equal 'Ice-bearing comet suitable for multiple refuelings', rogue.player_notes
   end
 
   test 'random simple results map to their classes' do
@@ -176,7 +176,7 @@ class RogueObjectBuilderTest < ActiveSupport::TestCase
       rogue = builder(rogue_table: table).build!(@parsec, { 'type' => 'random' })
 
       assert_instance_of klass, rogue
-      assert_equal 'flavour', rogue.notes
+      assert_equal 'flavour', rogue.player_notes
     end
   end
 
@@ -187,7 +187,7 @@ class RogueObjectBuilderTest < ActiveSupport::TestCase
     rogue = builder(rogue_table: table).build!(@parsec, { 'type' => 'random' })
 
     assert_instance_of Planetoid, rogue
-    assert_equal 'Rogue Dwarf Planet', rogue.notes
+    assert_equal 'Rogue Dwarf Planet', rogue.player_notes
   end
 
   test 'random gas giant rolls a size and calls the generator' do

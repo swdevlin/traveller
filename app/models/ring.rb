@@ -15,7 +15,7 @@ class Ring < StellarObject
   end
 
   def self.permitted_params
-    [:name, :notes, :reference_url, :orbit, data: [:span]]
+    [:name, :player_notes, :referee_notes, :reference_url, :orbit, data: [:span]]
   end
 
   # The generator sends a ring as { orbit, span }.

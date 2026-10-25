@@ -1,5 +1,5 @@
 json.extract! stellar_object,
-              :id, :type, :name, :uwp, :notes, :size_code,
+              :id, :type, :name, :uwp, :size_code,
               :orbit, :orbit_x, :orbit_y, :orbit_sequence,
               :au, :mass, :diameter, :inclination, :eccentricity,
               :effective_hzco_deviation, :survey_index, :detect_si,
@@ -10,6 +10,7 @@ json.extract! stellar_object,
 # bodies created or edited in the UI (e.g. moons, which OrbitSequenceAssigner skips) can have no
 # orbit_sequence, and the starmap decoder requires a string
 json.orbit_sequence stellar_object.orbit_sequence || ''
+json.partial! 'api/records', record: stellar_object
 json.reference_url stellar_object.effective_reference_url(current_campaign)
 json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
 

@@ -9611,6 +9611,7 @@ update msg ( time, model ) =
                         buildStringGasGiant : GasGiantData -> AnalyisDetailGasGiantData
                         buildStringGasGiant ggdata =
                             { code = ggdata.code
+                            , records = ggdata.records
                             , jumpShadowKm = ggdata.jumpShadow
                             , physical =
                                 { au = rnd 2 ggdata.au
@@ -9777,6 +9778,7 @@ update msg ( time, model ) =
                                 planet : AnalyisDetailPlanetoidData
                                 planet =
                                     { uwp = pdata.uwp
+                                    , records = pdata.records
                                     , jumpShadowKm = pdata.jumpShadow
                                     , moons = 0
                                     , cityCount = pdata.cityCount
@@ -10094,6 +10096,7 @@ update msg ( time, model ) =
                                     techLevelDetail
                             in
                             { uwp = pdata.uwp
+                            , records = pdata.records
                             , jumpShadowKm = pdata.jumpShadow
                             , moons = List.length pdata.moons
                             , cityCount = pdata.cityCount

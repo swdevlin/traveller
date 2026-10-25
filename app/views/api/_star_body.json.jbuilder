@@ -1,5 +1,6 @@
 render_context = local_assigns[:render_context]
 
+json.partial! 'api/records', record: star
 json.colour                   star.colour
 json.stellar_class            star.stellar_class
 json.stellar_type             star.stellar_type

@@ -24,6 +24,7 @@ import Traveller.HexAddress as HexAddress exposing (HexAddress)
 import Traveller.LawLevel as LawLevel
 import Traveller.Parser exposing (UWP, uwp)
 import Traveller.Population as Population
+import Traveller.Records as Records exposing (Records)
 import Traveller.Sector exposing (SectorDict)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarSystemDetail exposing (BaseFacility, MainWorldProfile, StarSystemDetail)
@@ -683,6 +684,22 @@ viewBaseRow base =
         ]
 
 
+{-| The system's Survey Records and, for the referee, Classified Records. Nothing when neither has content.
+-}
+viewSystemRecords : Records -> Html msg
+viewSystemRecords records =
+    if isBlank records.surveyHtml && isBlank records.classifiedHtml then
+        none
+
+    else
+        column [ width fill, paddingXY 8 4 ] [ Records.view records ]
+
+
+isBlank : Maybe String -> Bool
+isBlank maybeHtml =
+    maybeHtml |> Maybe.map String.trim |> Maybe.withDefault "" |> String.isEmpty
+
+
 {-| View the system details in the sidebar.
 -}
 viewSystemDetailsSidebar :
@@ -709,6 +726,7 @@ viewSystemDetailsSidebar msgs starSystemDetail opts =
 
                     Nothing ->
                         none
+                , viewSystemRecords starSystemDetail.records
                 , case starSystemDetail.mainWorldProfile of
                     Just profile ->
                         column [ width fill ]

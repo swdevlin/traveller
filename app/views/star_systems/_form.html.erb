@@ -50,10 +50,7 @@
     <%= f.text_field :reference_url, class: 'w-full edit-base' %>
   </div>
 
-  <div>
-    <%= f.label :notes, 'Observations', class: 'block text-sm font-semibold mb-1' %>
-    <%= f.text_area :notes, rows: 6, class: 'w-full edit-base' %>
-  </div>
+  <%= render 'application/records_fields', form: f, record: @star_system %>
 
   <div class='pt-2 flex flex-col sm:flex-row gap-2'>
     <%= f.submit @submit_label, class: 'w-full sm:w-auto btn btn-primary' %>

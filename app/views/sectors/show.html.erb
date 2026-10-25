@@ -156,6 +156,6 @@
       <%= render 'subsector_cards', sector: @sector, backdrop_url: @map_backdrop_url %>
     </turbo-frame>
 
-    <%= render 'application/observation_block', notes: @sector.notes %>
+    <%= render 'application/records_block', record: @sector %>
   </div>
 <% end %>

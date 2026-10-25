@@ -6,6 +6,7 @@ import Json.Encode as JsEncode
 import Traveller.Atmosphere as Atmosphere exposing (StellarAtmosphere)
 import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
+import Traveller.Records as Records exposing (Records)
 import Traveller.Population as Population exposing (CultureTrait, StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
 import Traveller.TravelCalculations as TravelCalculations
@@ -150,6 +151,7 @@ type alias SharedPData =
     , planetoidBeltId : Maybe Int
     , mapUrl : Maybe String
     , referenceUrl : Maybe String
+    , records : Records
     }
 
 
@@ -219,6 +221,7 @@ type alias GasGiantData =
     , au : Float
     , name : Maybe String
     , id : Int
+    , records : Records
     }
 
 
@@ -270,6 +273,7 @@ type alias PlanetoidBeltData =
     , unrefinedFuelCost : Maybe Int
     , planetoidCount : Int
     , referenceUrl : Maybe String
+    , records : Records
     }
 
 
@@ -475,7 +479,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ sophont_ refUrl ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ sophont_ refUrl survey classified ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -523,6 +527,7 @@ codecPlanetoidBeltData =
             , planetoidCount = planetoidCount_
             , sophont = sophont_
             , referenceUrl = refUrl
+            , records = Records.fromHtml survey classified
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -584,13 +589,15 @@ codecPlanetoidBeltData =
         |> Codec.field "planetoid_count" .planetoidCount Codec.int
         |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
+        |> Codec.optionalNullableField "survey_records_html" (.records >> .surveyHtml) Codec.string
+        |> Codec.optionalNullableField "classified_records_html" (.records >> .classifiedHtml) Codec.string
         |> Codec.buildObject
 
 
 codecGasGiantData : Codec GasGiantData
 codecGasGiantData =
     Codec.object
-        (\pos inc ecc peri apo hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ringsM ->
+        (\pos inc ecc peri apo hzco code_ diam mass_ orb mns hasRingM tj axTilt per orbitSeq js ot au nm id_ ringsM survey classified ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -613,6 +620,7 @@ codecGasGiantData =
             , au = au
             , name = nm
             , id = id_
+            , records = Records.fromHtml survey classified
             }
         )
         |> Codec.field "orbit_position" .orbitPosition Point.codec
@@ -646,6 +654,8 @@ codecGasGiantData =
         |> Codec.optionalNullableField "name" .name Codec.string
         |> Codec.field "id" .id Codec.int
         |> Codec.optionalField "rings" (\d -> Just d.rings) (Codec.list ringCodec)
+        |> Codec.optionalNullableField "survey_records_html" (.records >> .surveyHtml) Codec.string
+        |> Codec.optionalNullableField "classified_records_html" (.records >> .classifiedHtml) Codec.string
         |> Codec.buildObject
 
 
@@ -762,7 +772,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM survey classified ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -821,6 +831,7 @@ codecSharedPData =
             , planetoidBeltId = beltId
             , mapUrl = mapUrl_
             , referenceUrl = refUrl
+            , records = Records.fromHtml survey classified
             }
         )
         |> Codec.field "atmosphere" .atmosphere Atmosphere.codec
@@ -908,6 +919,8 @@ codecSharedPData =
         |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
         |> Codec.optionalField "rings" (\d -> Just d.rings) (Codec.list ringCodec)
+        |> Codec.optionalNullableField "survey_records_html" (.records >> .surveyHtml) Codec.string
+        |> Codec.optionalNullableField "classified_records_html" (.records >> .classifiedHtml) Codec.string
         |> Codec.buildObject
 
 

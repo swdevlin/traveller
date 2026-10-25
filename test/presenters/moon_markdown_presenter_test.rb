@@ -79,4 +79,19 @@ class MoonMarkdownPresenterTest < ActiveSupport::TestCase
     assert_includes markdown, 'Ice Cap Edge Latitude | 54°'
     assert_includes markdown, 'Ice Cap Coverage | 19.1%'
   end
+
+  test 'renders survey records always and classified records only for the referee' do
+    moon = moons(:orbiting_gas_giant)
+    moon.update!(player_notes: 'Seen by all', referee_notes: 'Referee eyes only')
+
+    Current.campaign = campaigns(:one)
+    player_markdown = MoonMarkdownPresenter.new(moon).render
+    Current.session = Session.new(user: users(:one))
+    referee_markdown = MoonMarkdownPresenter.new(moon).render
+
+    assert_includes player_markdown, '## Survey Records'
+    assert_not_includes player_markdown, 'Referee eyes only'
+    assert_includes referee_markdown, '## Classified Records'
+    assert_includes referee_markdown, 'Referee eyes only'
+  end
 end

@@ -1,0 +1,42 @@
+<%# Survey Records are the player-visible notes; Classified Records are referee-only. Pass any record responding to player_notes and referee_notes. %>
+<% panels = [['Survey Records', record.player_notes]] %>
+<% panels << ['Classified Records', record.referee_notes] if owns_campaign? %>
+
+<div class='space-y-4'>
+  <% panels.each do |title, notes| %>
+    <div data-controller='collapsible'>
+      <div class='flex items-start justify-between gap-2 pb-2'>
+        <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
+          <%= title %>
+        </div>
+
+        <% if notes.present? %>
+          <button type='button'
+                  class='rounded-lg p-1 -mt-1 text-fg-muted hover:text-highlight-fg hover:bg-panel-muted'
+                  data-action='collapsible#toggle'
+                  aria-label='Collapse/expand <%= title.downcase %>'>
+            <i class='fa-regular fa-square-chevron-down' data-collapsible-target='icon'></i>
+          </button>
+        <% end %>
+      </div>
+
+      <div class='<%= notes.present? ? 'text-fg' : 'text-fg-muted italic' %>'>
+        <div class='rounded-2xl border border-outline bg-panel-muted p-2'>
+          <div data-collapsible-target='content'
+               class='prose prose-theme max-w-none
+                      prose-headings:tracking-[0.2em] prose-headings:uppercase
+                      prose-a:text-highlight-fg prose-a:no-underline hover:prose-a:underline
+                      prose-code:text-fg prose-code:bg-panel prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                      prose-pre:bg-bg prose-pre:border prose-pre:border-outline prose-pre:rounded-2xl
+                      <%= notes.present? ? 'max-h-14 overflow-hidden notes-fade' : '' %>'>
+            <% if notes.present? %>
+              <%= render_markdown(notes) %>
+            <% else %>
+              No findings reported.
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

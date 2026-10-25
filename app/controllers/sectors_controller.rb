@@ -391,7 +391,7 @@ class SectorsController < ApplicationController
     # Main worlds and stars are preloaded without their bulky text/jsonb columns (build log,
     # characteristics, notes): the map never reads them and they made that one query
     # take seconds on a full sector.
-    MAP_EXCLUDED_COLUMNS = %w[build_log characteristics notes].freeze
+    MAP_EXCLUDED_COLUMNS = %w[build_log characteristics player_notes referee_notes].freeze
 
     def sector_map_star_systems
       systems = StarSystem
@@ -473,7 +473,7 @@ class SectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def sector_params
-      params.expect(sector: [:name, :x, :y, :abbreviation, :notes, :build, :source, :language, :default_build_spec, :reference_url])
+      params.expect(sector: [:name, :x, :y, :abbreviation, :player_notes, :referee_notes, :build, :source, :language, :default_build_spec, :reference_url])
     end
 
     def build_option_params

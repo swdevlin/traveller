@@ -1140,7 +1140,7 @@ CREATE TABLE public.regions (
     data jsonb DEFAULT '{}'::jsonb NOT NULL,
     allegiance_id bigint,
     customized boolean DEFAULT false NOT NULL,
-    notes text,
+    player_notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     border_colour character varying,
@@ -1148,7 +1148,8 @@ CREATE TABLE public.regions (
     label_colour character varying,
     label_x integer,
     label_y integer,
-    player_visible boolean DEFAULT false NOT NULL
+    player_visible boolean DEFAULT false NOT NULL,
+    referee_notes text
 );
 
 
@@ -1311,14 +1312,15 @@ CREATE TABLE public.sectors (
     created_at timestamp(6) without time zone NOT NULL,
     discarded_at timestamp(6) without time zone,
     name character varying,
-    notes text,
+    player_notes text,
     source character varying DEFAULT 'manual'::character varying,
     star_chance double precision DEFAULT 50.0,
     updated_at timestamp(6) without time zone NOT NULL,
     x integer,
     y integer,
     language character varying,
-    reference_url character varying
+    reference_url character varying,
+    referee_notes text
 );
 
 
@@ -1521,7 +1523,7 @@ CREATE TABLE public.star_systems (
     main_world_id bigint,
     meta jsonb,
     name character varying,
-    notes text,
+    player_notes text,
     parsec_id bigint NOT NULL,
     survey_index integer DEFAULT 0,
     terrestrial_count integer DEFAULT 0 NOT NULL,
@@ -1533,7 +1535,8 @@ CREATE TABLE public.star_systems (
     language character varying,
     build_config text,
     known boolean DEFAULT false NOT NULL,
-    reference_url character varying
+    reference_url character varying,
+    referee_notes text
 );
 
 
@@ -1608,7 +1611,7 @@ CREATE TABLE public.stellar_objects (
     inclination double precision,
     mass double precision,
     name character varying,
-    notes text,
+    player_notes text,
     orbit double precision,
     orbit_sequence character varying,
     orbit_x double precision,
@@ -1625,6 +1628,7 @@ CREATE TABLE public.stellar_objects (
     language character varying,
     known boolean DEFAULT false NOT NULL,
     reference_url character varying,
+    referee_notes text,
     CONSTRAINT stellar_objects_parsec_xor_orbiting_present CHECK ((((type)::text = 'Star'::text) OR ((parsec_id IS NULL) <> (orbiting_id IS NULL))))
 );
 
@@ -1659,7 +1663,7 @@ CREATE TABLE public.subsectors (
     build_log jsonb,
     created_at timestamp(6) without time zone NOT NULL,
     name character varying,
-    notes text,
+    player_notes text,
     sector_id bigint NOT NULL,
     star_chance double precision DEFAULT 50.0,
     updated_at timestamp(6) without time zone NOT NULL,
@@ -1667,7 +1671,8 @@ CREATE TABLE public.subsectors (
     y integer NOT NULL,
     build_source character varying,
     language character varying,
-    reference_url character varying
+    reference_url character varying,
+    referee_notes text
 );
 
 
@@ -3657,6 +3662,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261025140000'),
 ('20261024160000'),
 ('20261019150000'),
 ('20261019140000'),

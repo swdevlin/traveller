@@ -1,0 +1,16 @@
+<%# Edit fields for Survey Records (player_notes) and Classified Records (referee_notes, referee-only). Both are Markdown. %>
+<div class='<%= local_assigns[:wrapper_class] %>'<%= tag.attributes(data: { tour_step: local_assigns[:tour_step] }.compact) if local_assigns[:tour_step] %>>
+  <div class='edit-label'>Survey Records<%= required_icon(record, :player_notes) %></div>
+  <p class='mt-1 text-sm text-fg-muted'>Markdown. Visible to players and the referee.</p>
+  <%= form.text_area :player_notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
+  <%= render 'application/field_error', form: form, attribute: :player_notes %>
+</div>
+
+<% if owns_campaign? %>
+  <div class='<%= local_assigns[:wrapper_class] %>'>
+    <div class='edit-label'>Classified Records</div>
+    <p class='mt-1 text-sm text-fg-muted'>Markdown. Only the referee sees these.</p>
+    <%= form.text_area :referee_notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
+    <%= render 'application/field_error', form: form, attribute: :referee_notes %>
+  </div>
+<% end %>

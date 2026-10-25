@@ -14,11 +14,7 @@
     <% end %>
 
     <% if show_core %>
-    <div class="<%= local_assigns[:notes_wrapper_class] %>">
-      <div class="edit-label">Observations<%= required_icon(stellar_object, :notes) if local_assigns.fetch(:show_notes_required_icon, false) %></div>
-      <%= form.text_area :notes, rows: 6, class: "edit-base mt-2 w-full resize-y" %>
-      <%= render 'application/field_error', form: form, attribute: :notes if local_assigns.fetch(:show_notes_field_error, false) %>
-    </div>
+    <%= render 'application/records_fields', form: form, record: stellar_object, wrapper_class: local_assigns[:notes_wrapper_class] %>
     <div>
       <%= render 'application/edit_field', form: form, attribute: :reference_url, field_label: 'Reference link' do %>
         <%= form.text_field :reference_url, class: 'w-full edit-base',

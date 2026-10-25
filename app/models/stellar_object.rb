@@ -125,7 +125,7 @@ class StellarObject < ApplicationRecord
   end
 
   def self.permitted_params
-    [:name, :notes, :language, :known, :reference_url]
+    [:name, :player_notes, :referee_notes, :language, :known, :reference_url]
   end
 
   def self.wiki_world_url(name)

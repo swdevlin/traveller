@@ -18,7 +18,7 @@ class PlanetoidBelt < StellarObject
 
   def self.permitted_params
     [
-      :name, :notes, :reference_url, :orbit, :inclination, :eccentricity, :sophont_id, :new_sophont_name,
+      :name, :player_notes, :referee_notes, :reference_url, :orbit, :inclination, :eccentricity, :sophont_id, :new_sophont_name,
       *uwp_attribute_names,
       data: [:m_type, :s_type, :c_type, :o_type, :resource_rating, :bulk, :span,
              :temperature, :retrograde, :period, :native_sophont, :extinct_sophont]

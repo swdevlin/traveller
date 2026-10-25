@@ -14,7 +14,7 @@ class Comet < StellarObject
   end
 
   def self.permitted_params
-    [:name, :notes, :reference_url, data: [:comet_type]]
+    [:name, :player_notes, :referee_notes, :reference_url, data: [:comet_type]]
   end
 
   def comet_type_description

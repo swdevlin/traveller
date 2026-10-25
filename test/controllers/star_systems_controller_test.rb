@@ -37,6 +37,25 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'show page labels the player notes Survey Records and shows Classified Records to the referee' do
+    @star_system.update!(player_notes: 'Seen by all', referee_notes: 'Referee eyes only')
+
+    get star_system_url(@star_system)
+
+    assert_response :success
+    assert_select 'div', text: /Survey Records/
+    assert_select 'div', text: /Classified Records/
+    assert_includes response.body, 'Seen by all'
+    assert_includes response.body, 'Referee eyes only'
+  end
+
+  test 'should save survey and classified records' do
+    patch star_system_url(@star_system), params: { star_system: { player_notes: 'Survey text', referee_notes: 'Classified text' } }
+
+    assert_equal 'Survey text', @star_system.reload.player_notes
+    assert_equal 'Classified text', @star_system.referee_notes
+  end
+
   test 'should get webp map' do
     get map_star_system_url(@star_system, format: :webp)
     assert_response :success

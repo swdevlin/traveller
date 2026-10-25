@@ -48,9 +48,17 @@
   %>
 
   <%= render 'application/data_block',
-             label: 'Notes',
+             label: 'Survey Records',
              value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
-             value: region.notes
+             value: region.player_notes
   %>
+
+  <% if owns_campaign? %>
+    <%= render 'application/data_block',
+               label: 'Classified Records',
+               value_wrap_class: 'mt-2 flex flex-wrap items-center gap-2 text-fg-bright',
+               value: region.referee_notes
+    %>
+  <% end %>
 
 </div>

@@ -58,8 +58,7 @@
         </div>
       <% end %>
 
-      <%= render 'application/observation_block',
-                 notes: @subsector.notes %>
+      <%= render 'application/records_block', record: @subsector %>
 
       <div>
         <%= render 'application/subsection', title: 'Subsector Statistics' %>

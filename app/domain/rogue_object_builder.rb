@@ -112,7 +112,7 @@ class RogueObjectBuilder
   def random_rogue
     result = @rogue_table.roll(dm: 0, roller: @roller)
     rogue = rogue_for_table_result(result)
-    rogue.notes = result[:description]
+    rogue.player_notes = result[:description]
     rogue
   end
 

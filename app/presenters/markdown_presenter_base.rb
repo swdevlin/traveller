@@ -178,9 +178,14 @@ class MarkdownPresenterBase
   end
 
   def notes_section
-    return [] if @obj.notes.blank?
+    records_section('Survey Records', @obj.player_notes) +
+      (Current.owns_campaign? ? records_section('Classified Records', @obj.referee_notes) : [])
+  end
 
-    ['## Notes', '', @obj.notes.strip, '']
+  def records_section(title, text)
+    return [] if text.blank?
+
+    ["## #{title}", '', text.strip, '']
   end
 
   def table_section(title, rows)

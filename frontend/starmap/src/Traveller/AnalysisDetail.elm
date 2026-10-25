@@ -31,6 +31,7 @@ import Round
 import Svg
 import Svg.Attributes as SA
 import Traveller.City exposing (CitiesPage)
+import Traveller.Records as Records exposing (Records)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
@@ -92,6 +93,7 @@ type alias CitiesTabConfig msg =
 
 type alias AnalyisDetailGasGiantData =
     { code : String
+    , records : Records
     , jumpShadowKm : Maybe Float
     , physical :
         { au : String
@@ -138,6 +140,7 @@ type alias CultureTraitItem =
 
 type alias AnalyisDetailPlanetoidData =
     { uwp : String
+    , records : Records
     , jumpShadowKm : Maybe Float
     , moons : Int
     , cityCount : Int
@@ -1560,7 +1563,9 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                     else
                         []
                    )
-                ++ [ { id = "cities", label = "Cities (" ++ String.fromInt data.cityCount ++ ")", code = "fa:fa-regular fa-city" } ]
+                ++ [ { id = "cities", label = "Cities (" ++ String.fromInt data.cityCount ++ ")", code = "fa:fa-regular fa-city" }
+                   , { id = "notes", label = "Notes", code = "fa:fa-regular fa-note-sticky" }
+                   ]
 
         safeTab =
             if List.any (\t -> t.id == activeTab && t.id /= "-") tabs then
@@ -1576,6 +1581,9 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
 
                 "cities" ->
                     viewCitiesTab citiesTabConfig
+
+                "notes" ->
+                    Records.view data.records
 
                 "map" ->
                     viewMapTab data.mapUrl
@@ -1867,6 +1875,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
             [ { id = "orbital", label = "Orbital", code = "⊕" }
             , { id = "physical", label = "Physical", code = "⊕" }
             , { id = "moons", label = "Moons (" ++ data.physical.moons ++ ")", code = "☾" }
+            , { id = "notes", label = "Notes", code = "fa:fa-regular fa-note-sticky" }
             ]
 
         safeTab =
@@ -1900,6 +1909,9 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
 
                 "moons" ->
                     viewMoonsTab onSelectObject moonsTabConfig
+
+                "notes" ->
+                    Records.view data.records
 
                 _ ->
                     column [ width fill ]
@@ -2535,6 +2547,7 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
             , { id = "tech", label = "Tech", code = uc 8 }
             , { id = "planetoids", label = "Planetoids (" ++ String.fromInt data.planetoidCount ++ ")", code = "svg:belt" }
             , { id = "cities", label = "Cities (" ++ String.fromInt pd.cityCount ++ ")", code = "fa:fa-regular fa-city" }
+            , { id = "notes", label = "Notes", code = "fa:fa-regular fa-note-sticky" }
             ]
 
         safeTab =
@@ -2551,6 +2564,9 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
 
                 "cities" ->
                     viewCitiesTab citiesTabConfig
+
+                "notes" ->
+                    Records.view pd.records
 
                 "starport" ->
                     column groupAttrs

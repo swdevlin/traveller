@@ -35,7 +35,7 @@
              extra_tabs: extra_tabs %>
 
   <%= render 'stellar_objects/known_toggle', stellar_object: planetoid_belt %>
-  <%= render 'application/observation_block', notes: planetoid_belt.notes %>
+  <%= render 'application/records_block', record: planetoid_belt %>
 
   <% if @planetoids %>
     <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>

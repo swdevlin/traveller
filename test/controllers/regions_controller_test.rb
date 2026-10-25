@@ -17,7 +17,7 @@ class RegionsControllerTest < AuthenticatedIntegrationTest
 
   test 'should create region' do
     assert_difference('Region.count') do
-      post regions_url, params: { region: { name: 'New Region', label: 'NR', source: 'manual', notes: '' } }
+      post regions_url, params: { region: { name: 'New Region', label: 'NR', source: 'manual', player_notes: '' } }
     end
 
     assert_redirected_to region_url(Region.last)
@@ -34,7 +34,7 @@ class RegionsControllerTest < AuthenticatedIntegrationTest
   end
 
   test 'should update region' do
-    patch region_url(@region), params: { region: { name: @region.name, label: @region.label, notes: @region.notes } }
+    patch region_url(@region), params: { region: { name: @region.name, label: @region.label, player_notes: @region.player_notes } }
     assert_redirected_to region_url(@region)
   end
 

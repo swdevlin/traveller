@@ -216,7 +216,75 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test 'star system detail serves survey and classified records to the referee' do
+    sign_in_as users(:one)
+    star_system = records_fixture
+
+    get "/c/#{campaigns(:one).slug}/api/star_systems/#{star_system.id}", as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 'System survey', body['survey_records']
+    assert_equal 'System classified', body['classified_records']
+    assert_equal 'Star survey', body['primary_star']['survey_records']
+    assert_equal 'Star classified', body['primary_star']['classified_records']
+    giant = find_json_object(body, @gas_giant.id)
+    assert_equal 'Giant survey', giant['survey_records']
+    assert_equal 'Giant classified', giant['classified_records']
+  end
+
+  test 'star system detail serves only survey records to players' do
+    star_system = records_fixture
+
+    get "/c/#{campaigns(:one).slug}/api/star_systems/#{star_system.id}", as: :json
+
+    assert_response :success
+    body = response.parsed_body
+    assert_equal 'System survey', body['survey_records']
+    assert_not body.key?('classified_records')
+    assert_equal 'Star survey', body['primary_star']['survey_records']
+    assert_not body['primary_star'].key?('classified_records')
+    giant = find_json_object(body, @gas_giant.id)
+    assert_equal 'Giant survey', giant['survey_records']
+    assert_not giant.key?('classified_records')
+  end
+
+  test 'star system detail withholds all records for a system players cannot see' do
+    star_system = records_fixture
+    star_system.update!(known: false, survey_index: 0)
+
+    get "/c/#{campaigns(:one).slug}/api/star_systems/#{star_system.id}", as: :json
+
+    assert_response :success
+    assert_nil response.parsed_body['survey_records']
+    assert_not response.parsed_body.key?('classified_records')
+  end
+
+  test 'stellar object show serves classified records only to the referee' do
+    records_fixture
+
+    get "/c/#{campaigns(:one).slug}/api/stellar_objects/#{@gas_giant.id}", as: :json
+    assert_equal 'Giant survey', response.parsed_body['survey_records']
+    assert_not response.parsed_body.key?('classified_records')
+    assert_not response.parsed_body.key?('classified_records_html')
+
+    sign_in_as users(:one)
+    get "/c/#{campaigns(:one).slug}/api/stellar_objects/#{@gas_giant.id}", as: :json
+    assert_equal 'Giant survey', response.parsed_body['survey_records']
+    assert_equal 'Giant classified', response.parsed_body['classified_records']
+    assert_includes response.parsed_body['survey_records_html'], 'Giant survey'
+    assert_includes response.parsed_body['classified_records_html'], 'Giant classified'
+  end
+
   private
+
+  def records_fixture
+    star_system = @gas_giant.star_system
+    star_system.update!(player_notes: 'System survey', referee_notes: 'System classified', known: true)
+    star_system.primary_star.update!(player_notes: 'Star survey', referee_notes: 'Star classified')
+    @gas_giant.update!(player_notes: 'Giant survey', referee_notes: 'Giant classified')
+    star_system
+  end
 
   def find_json_object(node, id)
     case node

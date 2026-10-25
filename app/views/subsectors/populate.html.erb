@@ -21,8 +21,7 @@
 
   <div class='flex flex-col md:flex-row md:items-start gap-6'>
     <div class='flex-1 min-w-0 space-y-6'>
-      <%= render 'application/observation_block',
-                 notes: @subsector.notes %>
+      <%= render 'application/records_block', record: @subsector %>
 
       <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
         <%= render 'application/data_block',

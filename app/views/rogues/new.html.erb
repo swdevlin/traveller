@@ -61,11 +61,7 @@
         <% end %>
       </div>
 
-      <div class='edit-row-notes'>
-        <div class='edit-label'>Observations</div>
-        <%= f.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
-        <%= render 'application/field_error', form: f, attribute: :notes %>
-      </div>
+      <%= render 'application/records_fields', form: f, record: @rogue, wrapper_class: 'edit-row-notes' %>
 
       <%= render 'application/boolean_toggle', form: f, attribute: :known,
             checked: f.object.known, label: 'Known' %>

@@ -9,10 +9,7 @@
       <%= form.text_field :reference_url, class: 'edit-base mt-2 w-full' %>
     </div>
 
-    <div class='edit-row-notes'>
-      <div class='edit-label'>Observations</div>
-      <%= form.text_area :notes, rows: 6, class: 'edit-base mt-2 w-full resize-y' %>
-    </div>
+    <%= render 'application/records_fields', form: form, record: subsector, wrapper_class: 'edit-row-notes' %>
 
     <%= render 'application/build_config', form: form, attribute: :build %>
     <%= render 'derive_build_button', subsector: subsector %>
