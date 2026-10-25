@@ -142,6 +142,7 @@ type alias AnalyisDetailPlanetoidData =
     , moons : Int
     , cityCount : Int
     , mapUrl : Maybe String
+    , referenceUrl : Maybe String
     , physical :
         { au : String
         , period : String
@@ -684,6 +685,30 @@ viewSectionHeader title =
         ]
 
 
+profileReferenceLink : Maybe String -> Html msg
+profileReferenceLink maybeUrl =
+    case maybeUrl of
+        Just url ->
+            row [ width fill, paddingEach { zeroEach | top = 3 } ]
+                [ el
+                    (fixedFlex 80 :: HtmlAttrs.class "text-fg-muted text-xs font-bold whitespace-nowrap self-start" :: [])
+                    (text "Library")
+                , Html.a
+                    [ HtmlAttrs.href url
+                    , HtmlAttrs.target "_blank"
+                    , HtmlAttrs.rel "noopener"
+                    , HtmlAttrs.style "margin" "0"
+                    , growFlex
+                    , shrinkable
+                    , HtmlAttrs.class "text-xs self-start text-fg-bright"
+                    ]
+                    [ text "Reference" ]
+                ]
+
+        Nothing ->
+            none
+
+
 viewPlanetaryProfile : (Sophont -> msg) -> AnalyisDetailPlanetoidData -> Html msg
 viewPlanetaryProfile onSophont data =
     column
@@ -724,6 +749,7 @@ viewPlanetaryProfile onSophont data =
 
             Nothing ->
                 none
+        , profileReferenceLink data.referenceUrl
         ]
 
 
@@ -760,6 +786,7 @@ viewBeltProfile data =
         , profileFieldDisplay "Stony" data.composition.sType
         , profileFieldDisplay "Carbonaceous" data.composition.cType
         , profileFieldDisplay "Other" data.composition.oType
+        , profileReferenceLink data.planet.referenceUrl
         ]
 
 
