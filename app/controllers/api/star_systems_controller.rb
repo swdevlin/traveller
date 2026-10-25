@@ -14,7 +14,8 @@ class Api::StarSystemsController < Api::BaseController
 
   def show
     authenticated_by_session?
-    @is_referee = Current.owns_campaign?
+    Current.api_token_authenticated = authenticated_by_token?
+    @is_referee = Current.referee_access?
     @star_system = StarSystem
                    .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,
                               { stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion,

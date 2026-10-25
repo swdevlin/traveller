@@ -20,7 +20,8 @@ class Api::StarSystemController < Api::BaseController
     end
 
     authenticated_by_session?
-    @is_referee = Current.owns_campaign?
+    Current.api_token_authenticated = authenticated_by_token?
+    @is_referee = Current.referee_access?
     @parsec = parsec
 
     @star_system = parsec.star_systems

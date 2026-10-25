@@ -7,7 +7,7 @@ survey = visible ? record.player_notes.presence : nil
 json.survey_records survey
 json.survey_records_html survey && render_markdown(survey)
 
-if visible && Current.owns_campaign?
+if visible && Current.referee_access?
   classified = record.referee_notes.presence
   json.classified_records classified
   json.classified_records_html classified && render_markdown(classified)
