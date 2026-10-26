@@ -23,6 +23,42 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     stub.to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: systems.to_json)
   end
 
+  test 'sets generated_at when generation succeeds' do
+    stub_subsector_generator([])
+    @subsector.update_columns(generated_at: nil)
+
+    GenerateSubsectorJob.perform_now(@subsector.id, "type: STANDARD\n")
+
+    @subsector.reload
+    assert_not_nil @subsector.generated_at
+    assert_equal "type: STANDARD\n", @subsector.build_log['build']
+    defaults = @subsector.build_log['defaults']
+    assert defaults.key?('maxTechLevel')
+    assert defaults.key?('sophontCheck')
+    assert_not defaults.key?('type')
+  end
+
+  test 'leaves generated_at unchanged when the generator returns an error' do
+    previous = 1.day.ago.change(usec: 0)
+    @subsector.update_columns(generated_at: previous)
+    stub_request(:post, "#{@base}/subsector").to_return(status: 500, body: 'boom')
+
+    GenerateSubsectorJob.perform_now(@subsector.id, "type: STANDARD\n")
+
+    assert_equal previous, @subsector.reload.generated_at
+  end
+
+  test 'leaves generated_at unset when the generator returns invalid JSON' do
+    @subsector.update_columns(generated_at: nil, build_log: nil)
+    stub_request(:post, "#{@base}/subsector").to_return(status: 200, body: 'not json')
+
+    GenerateSubsectorJob.perform_now(@subsector.id, "type: STANDARD\n")
+
+    @subsector.reload
+    assert_nil @subsector.generated_at
+    assert_nil @subsector.build_log
+  end
+
   test 'creates rogues at both levels and strips them from the generator payload' do
     rogue_parsec = create_parsec(3, 4)
     system_parsec = create_parsec(5, 2)

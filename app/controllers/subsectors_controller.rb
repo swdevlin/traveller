@@ -48,7 +48,12 @@ class SubsectorsController < ApplicationController
   end
 
   def generate
-    build_yaml = subsector_generate_params[:build]
+    build_yaml = params.dig(:subsector, :build).presence || @subsector.build.presence
+    unless build_yaml
+      return redirect_to populate_subsector_path(@subsector),
+                         notice: 'This subsector has no build configuration yet. Review the starting template below, then generate.'
+    end
+
     validator = BuildConfigValidator.new(build_yaml)
 
     unless validator.valid?
@@ -64,7 +69,7 @@ class SubsectorsController < ApplicationController
     @subsector.build_source ||= 'default'
     @subsector.save!
     GenerateSubsectorJob.perform_later(@subsector.id, normalized_yaml)
-    redirect_to subsector_path(@subsector), notice: 'Subsector population task created.'
+    redirect_to subsector_path(@subsector), notice: 'Subsector generation task created.'
   end
 
   def load_defaults
@@ -958,10 +963,6 @@ class SubsectorsController < ApplicationController
 
   def subsector_params
     params.expect(subsector: [:name, :x, :y, :player_notes, :referee_notes, :build, :language, :reference_url])
-  end
-
-  def subsector_generate_params
-    params.expect(subsector: [:build])
   end
 
   def populate_build_from_template!

@@ -19,13 +19,14 @@
                 edit_subsector_path(@subsector),
                 class: 'w-full sm:w-auto btn btn-primary' %>
 
-    <%= link_to 'Load Build Default',
-                defaults_source_subsector_path(@subsector),
-                class: 'w-full sm:w-auto btn' %>
-
-    <%= link_to 'Populate',
-                populate_subsector_path(@subsector),
-                class: 'w-full sm:w-auto btn' %>
+    <% generate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
+                                "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?"
+                              end %>
+    <%= button_to 'Generate',
+                  generate_subsector_path(@subsector),
+                  method: :post,
+                  class: 'w-full sm:w-auto btn',
+                  data: { turbo_confirm: generate_confirm_msg } %>
 
     <%= button_to 'Clear',
                   clear_subsector_path(@subsector),
@@ -49,6 +50,8 @@
      data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
   <%= render 'application/two_column_page' do %>
     <div class='space-y-6'>
+      <%= render 'subsectors/ungenerated_notice', subsector: @subsector %>
+
       <% if (reference_url = safe_external_url(@subsector.effective_reference_url(current_campaign))) %>
         <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
           <%= render 'application/data_block',

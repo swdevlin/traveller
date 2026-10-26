@@ -16,6 +16,10 @@ class Sector < ApplicationRecord
   validate :coordinates_unique_with_link
   validate :traveller_map_accessible, if: -> { source == 'traveller_map' && new_record? && x.present? && y.present? }
 
+  def ungenerated_subsectors
+    subsectors.reject { |subsector| subsector.generated? }
+  end
+
   def effective_language(campaign)
     language.presence || campaign.default_language.presence
   end

@@ -127,8 +127,17 @@
             </dd>
           </div>
           <div>
-            <dt class='font-semibold text-fg-bright'>Populate</dt>
+            <dt class='font-semibold text-fg-bright'>Generate</dt>
             <dd class='mt-1 text-fg'>Triggers generation of star systems across all subsectors using each subsector&rsquo;s build specification. Only empty parsecs receive new systems; existing content is preserved.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Generate Remaining</dt>
+            <dd class='mt-1 text-fg'>
+              A notice appears above the subsector cards while any subsector has not yet been generated.
+              <strong>Generate Sector</strong> is offered when none have been; <strong>Generate Remaining</strong>
+              when only some have. Either queues generation of just the ungenerated subsectors that have a build
+              specification. Generated subsectors are left untouched. The notice disappears once every subsector is generated.
+            </dd>
           </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Clear</dt>

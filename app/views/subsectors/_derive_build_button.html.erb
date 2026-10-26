@@ -1,4 +1,4 @@
-<div class='mt-2'>
+<div class='mt-2 flex flex-wrap gap-2'>
   <%= button_tag 'Derive Build from Survey',
                  type: 'submit',
                  formaction: derive_build_subsector_path(subsector),
@@ -7,4 +7,7 @@
                    controller: 'busy',
                    action: 'click->busy#start turbo:submit-end@window->busy#stop'
                  } %>
+  <%= link_to 'Load Build Default',
+              defaults_source_subsector_path(subsector),
+              class: 'btn text-xs no-underline' %>
 </div>

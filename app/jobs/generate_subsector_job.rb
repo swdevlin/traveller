@@ -25,6 +25,8 @@ class GenerateSubsectorJob < ApplicationJob
       config.delete(key) if value.compact.empty?
     end
 
+    submitted_keys = config.keys
+
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
     default = campaign&.charted_space? ? 'none' : 'standard'
     config[:sophontCheck] ||= campaign&.sophont_check.presence || default
@@ -33,6 +35,10 @@ class GenerateSubsectorJob < ApplicationJob
     config[:allowCaptiveGovernment] = campaign.allow_captive_government? if config[:allowCaptiveGovernment].nil? && campaign
     config[:realisticStarDistribution] = campaign.realistic_star_distribution? if config[:realisticStarDistribution].nil? && campaign
     config[:limitedMainWorldEccentricity] = campaign.limited_main_world_eccentricity? if config[:limitedMainWorldEccentricity].nil? && campaign
+    # Record the defaults separately from the submitted build so the run can be
+    # reconstructed even if the saved build is edited later.
+    applied_defaults = config.slice(*(config.keys - submitted_keys)).deep_dup
+
     BuildConfigValidator.convert_populated_government_types!(config[:populated])
 
     # The external generator knows nothing about rogues; pull them out of the
@@ -144,6 +150,8 @@ class GenerateSubsectorJob < ApplicationJob
     end
 
     import_jump_routes_with_neighbours(subsector.sector) if subsector.sector.source == 'traveller_map'
+
+    subsector.update_columns(generated_at: Time.current, build_log: { 'build' => definition, 'defaults' => applied_defaults })
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })
     ActionCable.server.broadcast(

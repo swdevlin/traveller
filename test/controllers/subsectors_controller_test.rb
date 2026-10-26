@@ -97,6 +97,57 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_no_match(/populated/, response.body)
   end
 
+  test 'show prompts to generate when the subsector has not been generated' do
+    @subsector.update_columns(generated_at: nil)
+
+    get subsector_url(@subsector)
+
+    assert_match 'Stellar data not generated', response.body
+    assert_select 'form[action=?] button, form[action=?] input[type=submit]', generate_subsector_path(@subsector), generate_subsector_path(@subsector)
+    assert_match 'Generate Subsector', response.body
+  end
+
+  test 'generate without params queues generation from the saved build' do
+    @subsector.update_columns(build: File.read(Rails.root.join('app/templates/subsectors/build_template.yml.erb')).then { |t| ERB.new(t).result_with_hash({}) })
+
+    assert_enqueued_with(job: GenerateSubsectorJob) do
+      post generate_subsector_url(@subsector)
+    end
+    assert_redirected_to subsector_url(@subsector)
+  end
+
+  test 'generate without a build configuration redirects to the build plan page with a banner' do
+    @subsector.update_columns(build: nil)
+
+    assert_no_enqueued_jobs(only: GenerateSubsectorJob) do
+      post generate_subsector_url(@subsector)
+    end
+    assert_redirected_to populate_subsector_url(@subsector)
+    follow_redirect!
+    assert_match 'no build configuration', response.body
+  end
+
+  test 'show has no generate notice once the subsector has been generated' do
+    @subsector.update_columns(generated_at: Time.current)
+
+    get subsector_url(@subsector)
+
+    assert_no_match 'Stellar data not generated', response.body
+  end
+
+  test 'show Generate button posts directly to generate' do
+    get subsector_url(@subsector)
+    assert_select 'form[action=?][method=post]', generate_subsector_path(@subsector)
+  end
+
+  test 'edit offers Load Build Default and show does not' do
+    get edit_subsector_url(@subsector)
+    assert_select 'a[href=?]', defaults_source_subsector_path(@subsector), text: 'Load Build Default'
+
+    get subsector_url(@subsector)
+    assert_select 'a[href=?]', defaults_source_subsector_path(@subsector), count: 0
+  end
+
   test 'should get edit' do
     get edit_subsector_url(@subsector)
     assert_response :success

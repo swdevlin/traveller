@@ -17,7 +17,7 @@
                                  "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?"
                                end %>
     <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
-      <%= form.submit 'Populate',
+      <%= form.submit 'Generate',
                       class: 'w-full sm:w-auto btn cursor-pointer',
                       data: { turbo_confirm: populate_confirm_msg, tour_step: 'sector-populate' } %>
     <% end %>
@@ -153,6 +153,7 @@
                  data-controller='ui-updates'
                  data-ui-updates-sector-id-value='<%= @sector.id %>'
                  data-ui-updates-src-value='<%= sector_path(@sector) %>'>
+      <%= render 'ungenerated_notice', sector: @sector %>
       <%= render 'subsector_cards', sector: @sector, backdrop_url: @map_backdrop_url %>
     </turbo-frame>
 

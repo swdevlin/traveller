@@ -1,0 +1,31 @@
+<%# locals: (sector:) %>
+
+<% total = sector.subsectors.size %>
+<% ungenerated = sector.ungenerated_subsectors.size %>
+
+<% if ungenerated.positive? %>
+  <% none_generated = ungenerated == total %>
+  <div class='mb-6 flex flex-col gap-4 rounded-xl border border-outline/60 bg-panel p-4 sm:flex-row sm:items-center sm:justify-between'
+       data-tour-step='sector-ungenerated-notice'>
+    <div class='flex items-start gap-4'>
+      <i class='fa-regular <%= none_generated ? 'fa-planet-ringed' : 'fa-circle-dashed' %> mt-1 text-xl text-fg-muted'></i>
+      <div>
+        <div class='font-semibold text-fg-bright'>
+          <%= none_generated ? 'Stellar data not generated' : 'Stellar records incomplete' %>
+        </div>
+        <p class='mt-1 text-sm text-fg-muted'>
+          <% if none_generated %>
+            The subsectors of <%= sector.name %> have not yet been generated. Generate star systems to complete the sector's initial stellar records.
+          <% else %>
+            <%= total - ungenerated %> of <%= total %> subsectors generated. Generate the remaining <%= ungenerated %> <%= 'subsector'.pluralize(ungenerated) %>.
+          <% end %>
+        </p>
+      </div>
+    </div>
+    <%= button_to none_generated ? 'Generate Sector' : 'Generate Remaining',
+                  generate_sector_path(sector, remaining: true),
+                  method: :post,
+                  form_class: 'shrink-0',
+                  class: 'w-full sm:w-auto btn btn-primary cursor-pointer' %>
+  </div>
+<% end %>

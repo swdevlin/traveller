@@ -1,0 +1,19 @@
+<%# locals: (subsector:) %>
+
+<% unless subsector.generated? %>
+  <div class='flex flex-col gap-4 rounded-xl border border-outline/60 bg-panel p-4 sm:flex-row sm:items-center sm:justify-between'>
+    <div class='flex items-start gap-4'>
+      <i class='fa-regular fa-planet-ringed mt-1 text-xl text-fg-muted'></i>
+      <div>
+        <div class='font-semibold text-fg-bright'>Stellar data not generated</div>
+        <p class='mt-1 text-sm text-fg-muted'>
+          <%= subsector.name.presence || 'This subsector' %> has not yet been generated. Generate star systems to complete the subsector's initial stellar records.
+        </p>
+      </div>
+    </div>
+    <%= button_to 'Generate Subsector',
+                  generate_subsector_path(subsector),
+                  method: :post,
+                  class: 'w-full shrink-0 sm:w-auto btn btn-primary' %>
+  </div>
+<% end %>

@@ -91,7 +91,14 @@ class StarSystemImporter
 
   private
 
-  def finish_import!(data, config_bases:)
+  # Touch cascades (object -> star -> system) would otherwise fire once per saved row, so they
+  # are suppressed during the import and the system is touched once at the end.
+  def finish_import!(data, config_bases:, &block)
+    ActiveRecord::Base.no_touching { import_bodies!(data, config_bases: config_bases, &block) }
+    @star_system.touch
+  end
+
+  def import_bodies!(data, config_bases:)
     set_star_system_facilities(data, config_bases)
 
     @deferred_belt_assignments = []
@@ -119,6 +126,10 @@ class StarSystemImporter
     @star_system.save!
     @star_system.recalculate_world_counts!
     @star_system.recalculate_sophont_flags!
+  end
+
+  def trade_code_lookup
+    @trade_code_lookup ||= TradeCode.pluck(:code, :id).to_h
   end
 
   def effective_campaign
@@ -253,7 +264,7 @@ def assign_cities(stellar_object, so_data)
           @deferred_tidal_lock_assignments << { object: moon, orbit_sequence: entry[:tidal_lock_orbit_seq] } if moon
         end
         import_rings(so, so_data['rings'])
-        StellarObjectTradeCode.assign_from_codes!(so, so_data['tradeCodes'])
+        StellarObjectTradeCode.assign_from_codes!(so, so_data['tradeCodes'], trade_code_lookup: trade_code_lookup)
         if klass == Planetoid && so_data['belt'].present?
           @deferred_belt_assignments << {
             planetoid: so,

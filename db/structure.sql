@@ -1672,7 +1672,8 @@ CREATE TABLE public.subsectors (
     build_source character varying,
     language character varying,
     reference_url character varying,
-    referee_notes text
+    referee_notes text,
+    generated_at timestamp(6) without time zone
 );
 
 
@@ -3662,6 +3663,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261026120000'),
 ('20261025140000'),
 ('20261024160000'),
 ('20261019150000'),

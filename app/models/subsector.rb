@@ -17,6 +17,10 @@ class Subsector < ApplicationRecord
     message: 'Subsector already exists'
   }
 
+  def generated?
+    generated_at.present?
+  end
+
   def effective_language(campaign)
     language.presence || sector.language.presence || campaign.default_language.presence
   end

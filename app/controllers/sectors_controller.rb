@@ -96,6 +96,7 @@ class SectorsController < ApplicationController
 
   def generate
     subsectors_with_build = @sector.subsectors.where.not(build: nil).where.not(build: '')
+    subsectors_with_build = subsectors_with_build.where(id: @sector.ungenerated_subsectors.map(&:id)) if params[:remaining].present?
     subsectors_with_build.each do |subsector|
       GenerateSubsectorJob.set(priority: job_priority(@sector, subsector)).perform_later(subsector.id, subsector.build)
     end

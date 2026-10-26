@@ -119,6 +119,27 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_select "turbo-frame##{ActionView::RecordIdentifier.dom_id(@sector, :statistics)}"
   end
 
+  test 'show prompts to generate when no subsectors have been generated' do
+    @sector.subsectors.update_all(generated_at: nil)
+    get sector_url(@sector)
+    assert_select 'button, input', text: 'Generate Sector'
+    assert_match 'Stellar data not generated', response.body
+  end
+
+  test 'show prompts to complete a partially generated sector' do
+    skip 'sector has fewer than two subsectors' if @sector.subsectors.size < 2
+    @sector.subsectors.update_all(generated_at: nil)
+    @sector.subsectors.first.update_columns(generated_at: Time.current)
+    get sector_url(@sector)
+    assert_match 'Stellar records incomplete', response.body
+  end
+
+  test 'show has no notice when every subsector is generated' do
+    @sector.subsectors.update_all(generated_at: Time.current)
+    get sector_url(@sector)
+    assert_no_match 'Stellar', response.body.scan(/Stellar (?:data not populated|records incomplete)/).join
+  end
+
   test 'show includes the highest population world in the summary line' do
     sector = Sector.create!(name: 'Population Test Sector', x: 9030, y: 9030, skip_subsector_creation: true)
     parsec = Parsec.create!(sector: sector, x: sector.x * 32, y: sector.y * 40)
