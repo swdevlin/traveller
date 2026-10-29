@@ -196,6 +196,9 @@ update pickerData msg model =
 defaultValuesForOperator : HighlightRule.PickerData -> Field -> Operator -> List String
 defaultValuesForOperator pickerData field operator =
     case field of
+        HighlightRule.Tags ->
+            List.head pickerData.tags |> Maybe.map (\option -> [ option.code ]) |> Maybe.withDefault []
+
         HighlightRule.Bases ->
             case List.head pickerData.facilities of
                 Just option ->
@@ -229,6 +232,14 @@ defaultValuesForOperator pickerData field operator =
                     []
 
         HighlightRule.Sophont ->
+            case List.head pickerData.sophonts of
+                Just option ->
+                    [ option.code ]
+
+                Nothing ->
+                    []
+
+        HighlightRule.ExtinctSophontType ->
             case List.head pickerData.sophonts of
                 Just option ->
                     [ option.code ]
@@ -543,6 +554,9 @@ valuePicker pickerData isOpen groupIdx condIdx condition =
     let
         options =
             case condition.field of
+                HighlightRule.Tags ->
+                    pickerData.tags |> List.map (\o -> { code = o.code, label = o.name })
+
                 HighlightRule.Bases ->
                     pickerData.facilities |> List.map (\o -> { code = o.code, label = o.name })
 
@@ -556,6 +570,9 @@ valuePicker pickerData isOpen groupIdx condIdx condition =
                     pickerData.subsectors |> List.map (\o -> { code = o.code, label = o.name })
 
                 HighlightRule.Sophont ->
+                    pickerData.sophonts |> List.map (\o -> { code = o.code, label = o.name })
+
+                HighlightRule.ExtinctSophontType ->
                     pickerData.sophonts |> List.map (\o -> { code = o.code, label = o.name })
 
                 _ ->

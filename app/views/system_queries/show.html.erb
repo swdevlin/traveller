@@ -6,7 +6,7 @@
 
 <%= render 'application/page' do %>
   <turbo-frame id='system_queries'>
-    <div class='flex items-start justify-between gap-4 pb-2'>
+    <div class='flex flex-col gap-4 pb-6 sm:flex-row sm:items-start sm:justify-between'>
       <%= render 'system_queries/filter_criteria', system_query: @system_query %>
 
       <div class='flex gap-2 shrink-0'>

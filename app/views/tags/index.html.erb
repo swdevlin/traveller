@@ -1,0 +1,57 @@
+<%= render 'stellar_objects/object_context', hierarchy: [['Data Cores', data_cores_path]] %>
+<% content_for :title, 'Tags' %>
+<% content_for :page_kicker, 'Reference Manual' %>
+<% content_for :page_title, 'Tags' %>
+
+<%= render 'application/page' do %>
+  <div class='table-card'>
+    <div class='table-scroll'>
+      <div class='table-banner'><p>Tag registry</p></div>
+      <% if @tags.empty? %>
+        <p class='p-4 text-fg-muted'>No tags yet. Add tags when editing an object.</p>
+      <% else %>
+        <div class='t-scroll-x'>
+          <table>
+            <thead>
+              <tr>
+                <th scope='col'>Name</th>
+                <th scope='col'>Description</th>
+                <th scope='col' class='text-right'>Uses</th>
+                <th scope='col' class='text-right'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @tags.each do |tag| %>
+                <% name = tag.name %>
+                <tr class='cursor-pointer'
+                    data-controller='row-link'
+                    data-row-link-url-value='<%= tag_path(name: name, page: params[:page]) %>'
+                    data-action='click->row-link#navigate'>
+                  <td><%= link_to name, tag_path(name: name, page: params[:page]), class: 't-link' %></td>
+                  <td class='text-fg-muted'><%= tag.description %></td>
+                  <td class='text-right'><%= tag.taggings.size %></td>
+                  <td class='actions-cell'>
+                    <div class='action-group'>
+                      <%= link_to edit_tag_path(name: name, page: params[:page]), class: 'action',
+                            title: "Edit #{name}", 'aria-label': "Edit #{name}" do %>
+                        <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i>
+                      <% end %>
+                      <%= button_to tags_path, method: :delete, params: { name: name, page: params[:page] },
+                            class: 'action danger', title: "Delete #{name}", 'aria-label': "Delete #{name}",
+                            data: { turbo_confirm: "Delete the tag ‘#{name}’ and remove it from every object in this campaign?" } do %>
+                        <i class='fa-regular fa-trash' aria-hidden='true'></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class='w-full pb-4'>
+          <%== @pagy.series_nav %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

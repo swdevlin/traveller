@@ -80,6 +80,7 @@ type alias RawStarSystemDetail =
     , tradeCodes : List String
     , referenceUrl : Maybe String
     , surveyRecordsHtml : Maybe String
+    , tags : Maybe (List String)
     , classifiedRecordsHtml : Maybe String
     }
 
@@ -112,7 +113,7 @@ rawToFinal rawStarSystemDetail =
         , bases = rawStarSystemDetail.bases
         , tradeCodes = rawStarSystemDetail.tradeCodes
         , referenceUrl = rawStarSystemDetail.referenceUrl
-        , records = Records.fromHtml rawStarSystemDetail.surveyRecordsHtml rawStarSystemDetail.classifiedRecordsHtml
+        , records = Records.fromHtml rawStarSystemDetail.surveyRecordsHtml rawStarSystemDetail.classifiedRecordsHtml |> Records.withTags rawStarSystemDetail.tags
         }
 
 
@@ -140,6 +141,7 @@ finalToRaw starSystemDetail =
     , tradeCodes = starSystemDetail.tradeCodes
     , referenceUrl = starSystemDetail.referenceUrl
     , surveyRecordsHtml = starSystemDetail.records.surveyHtml
+    , tags = Just starSystemDetail.records.tags
     , classifiedRecordsHtml = starSystemDetail.records.classifiedHtml
     }
 
@@ -198,5 +200,6 @@ rawCodec =
         |> Codec.field "trade_codes" .tradeCodes (Codec.list Codec.string)
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
         |> Codec.optionalNullableField "survey_records_html" .surveyRecordsHtml Codec.string
+        |> Codec.optionalNullableField "contained_tags" .tags (Codec.list Codec.string)
         |> Codec.optionalNullableField "classified_records_html" .classifiedRecordsHtml Codec.string
         |> Codec.buildObject

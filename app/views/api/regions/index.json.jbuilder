@@ -1,5 +1,6 @@
 json.array! @regions do |region|
   json.id             region.id
+  json.tags           Current.referee_access? ? region.tag_names : []
   json.name           region.name
   json.label          region.label
   json.colour         region.colour&.delete_prefix('#')

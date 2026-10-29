@@ -10,7 +10,7 @@
 
     <%= render 'application/edit_field', form: form, attribute: :orbit, field_label: 'Orbit #', required: true do %>
       <%= form.number_field :orbit,
-                            value: format_precision(stellar_object.orbit, precision: 5),
+                            value: stellar_object.orbit,
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any',
                             min: star.minimum_allowable_orbit %>
@@ -19,14 +19,14 @@
     <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
       <%= render 'application/edit_field', form: form, attribute: :period, required: true, unit: 'days' do %>
         <%= df.number_field :period,
-                            value: format_precision(stellar_object.period, precision: 5),
+                            value: stellar_object.period,
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :rotation, unit: 'hours' do %>
         <%= df.number_field :rotation,
-                            value: format_precision(stellar_object.rotation, precision: 5),
+                            value: stellar_object.rotation,
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
       <% end %>
@@ -34,14 +34,14 @@
 
     <%= render 'application/edit_field', form: form, attribute: :inclination, required: true, unit: '°' do %>
       <%= form.number_field :inclination,
-                            value: format_precision(stellar_object.inclination, precision: 5),
+                            value: stellar_object.inclination,
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
     <% end %>
 
     <%= render 'application/edit_field', form: form, attribute: :eccentricity, required: true do %>
       <%= form.number_field :eccentricity,
-                            value: format_precision(stellar_object.eccentricity, precision: 5),
+                            value: stellar_object.eccentricity,
                             class: 'edit-base sm:w-28 w-24',
                             step: 'any' %>
     <% end %>
@@ -62,7 +62,7 @@
 
     <%= render 'application/edit_field', form: form, attribute: :axial_tilt, field_label: 'Axial tilt', required: true, unit: '°' do %>
       <%= df.number_field :axial_tilt,
-                          value: format_precision(stellar_object.axial_tilt, precision: 5),
+                          value: stellar_object.axial_tilt,
                           class: 'edit-base sm:w-28 w-24',
                           step: 'any' %>
     <% end %>
@@ -70,14 +70,14 @@
 
   <%= render 'application/edit_field', form: form, attribute: :diameter, required: true, unit: 'km' do %>
     <%= form.number_field :diameter,
-                          value: format_precision(stellar_object.diameter, precision: 5),
+                          value: stellar_object.diameter,
                           class: 'edit-base sm:w-28 w-24',
                           step: 'any' %>
   <% end %>
 
   <%= render 'application/edit_field', form: form, attribute: :mass, field_label: 'Mass ☉' do %>
     <%= form.number_field :mass,
-                          value: format_precision(stellar_object.mass, precision: 5),
+                          value: stellar_object.mass,
                           class: 'edit-base sm:w-28 w-24',
                           step: 'any' %>
   <% end %>

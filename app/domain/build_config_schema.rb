@@ -142,6 +142,7 @@ SystemSchema = Dry::Schema.Params do
   optional(:primary).hash(StarSchema)
   optional(:surveyIndex).filled(:integer, gteq?: 0, lteq?: 12)
   optional(:bases).array(:string).each(:filled?)
+  optional(:nobility).array(:string).each(included_in?: Tag::NOBILITY.keys)
   optional(:known).filled(:bool)
   optional(:allegiance).filled(:string)
   optional(:travelZone).maybe(:string)

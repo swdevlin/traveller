@@ -1,0 +1,32 @@
+<div>
+  <p class='text-sm font-semibold text-highlight-fg mb-2'>Nobility Tags</p>
+  <div class='space-y-2 text-sm text-fg'>
+    <p>
+      The Nobility column of Traveller Map and T5 data is a string of single-character symbols, one per noble rank held
+      on the system's main world. When a build plan loaded from either source is generated, each symbol becomes a
+      <%= current_campaign ? link_to('tag', tags_path, class: 'no-underline hover:underline hover:underline-offset-2') : 'tag' %>
+      on the generated main world, created in the campaign if it does not already exist. Symbols are case-sensitive;
+      any symbol not listed below is ignored.
+    </p>
+    <table class='text-sm border-collapse'>
+      <thead>
+        <tr class='text-left text-xs uppercase tracking-[0.18em] text-fg-muted border-b border-outline'>
+          <th scope='col' class='pb-2 pr-8 font-semibold text-left'>Symbol</th>
+          <th scope='col' class='pb-2 font-semibold text-left'>Tag</th>
+        </tr>
+      </thead>
+      <tbody class='divide-y divide-outline'>
+        <% Tag::NOBILITY.each do |code, title| %>
+          <tr>
+            <td class='py-1 pr-8 text-left'><code class='text-fg-bright'><%= code %></code></td>
+            <td class='py-1 text-left'><%= title %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <p>
+      The same symbols are used by the <code class='text-fg'>nobility</code> parameter in the
+      <%= link_to 'star system specification', help_page_path('star_system_build_specification'), class: 'no-underline hover:underline hover:underline-offset-2' %>.
+    </p>
+  </div>
+</div>

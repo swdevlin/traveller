@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bin/dev",
+      "type": "shell",
+      "command": "bin/dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "watchers (no Rails server)",
+      "type": "shell",
+      "command": "foreman start -f Procfile.dev.nodebug",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

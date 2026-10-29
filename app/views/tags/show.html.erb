@@ -1,0 +1,28 @@
+<%= render 'stellar_objects/object_context', hierarchy: [['Data Cores', data_cores_path], ['Tags', tags_path(page: params[:page])]] %>
+<% content_for :title, @name %>
+<% content_for :page_kicker, 'Tag Data Core' %>
+<% content_for :page_title, @name %>
+
+<%= content_for :page_buttons do %>
+  <div class='mt-6 flex flex-col gap-4 sm:flex-row sm:items-center'>
+    <%= link_to 'Edit', edit_tag_path(name: @name, page: params[:page]), class: 'w-full sm:w-auto btn btn-primary' %>
+    <%= button_to 'Delete', tags_path, method: :delete, params: { name: @name, page: params[:page] },
+          form_class: 'w-full sm:w-auto inline-flex m-0', class: 'w-full sm:w-auto btn btn-danger',
+          data: { turbo_confirm: "Delete the tag ‘#{@name}’ and remove it from every object in this campaign?" } %>
+  </div>
+<% end %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6'>
+    <% if @tag.description.present? %>
+      <%= render 'application/data_block', label: 'Description', value: @tag.description %>
+    <% end %>
+    <%= render 'application/data_block', label: 'Total tagged objects', value: @total %>
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5' aria-label='Tagged object counts'>
+      <% @counts.each do |label, count| %>
+        <%= render 'application/data_block', label: label, value: count %>
+      <% end %>
+    </div>
+    <p class='text-sm text-fg-muted'>Counts include objects with this tag assigned directly. Stellar objects include stars, planets, moons, and other bodies.</p>
+  </div>
+<% end %>

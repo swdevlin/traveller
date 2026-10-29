@@ -1,4 +1,5 @@
 class Region < ApplicationRecord
+  include Taggable
   include HasWorldStatistics
 
   has_many :region_parsecs, dependent: :destroy

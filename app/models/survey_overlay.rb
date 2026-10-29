@@ -43,8 +43,10 @@ class SurveyOverlay < ApplicationRecord
     operator = condition[:operator]
     values = condition[:values] || []
 
+    return tags_condition_matches?(operator, values, star_system) if field == 'tags'
     return bases_condition_matches?(operator, values, star_system) if field == 'bases'
-    return sophont_condition_matches?(operator, values, star_system) if field == 'sophont'
+    return sophont_condition_matches?(operator, values, star_system.sophont_ids) if field == 'sophont'
+    return sophont_condition_matches?(operator, values, star_system.extinct_sophont_ids) if field == 'extinct_sophont_type'
 
     code = field_value(field, star_system)
     return false if code.nil?
@@ -61,6 +63,15 @@ class SurveyOverlay < ApplicationRecord
     end
   end
 
+  def tags_condition_matches?(operator, values, star_system)
+    tags = star_system.filter_tags
+    case operator
+    when 'has' then values.first.present? && tags.include?(values.first)
+    when 'has_one_of' then (tags & values).any?
+    else false
+    end
+  end
+
   def bases_condition_matches?(operator, values, star_system)
     base_codes = star_system.facilities.map(&:code)
     case operator
@@ -71,8 +82,7 @@ class SurveyOverlay < ApplicationRecord
   end
 
   # A system can have several sophont worlds, so like bases this is a containment check.
-  def sophont_condition_matches?(operator, values, star_system)
-    ids = star_system.sophont_ids
+  def sophont_condition_matches?(operator, values, ids)
     case operator
     when 'eq'     then values.first.present? && ids.include?(values.first)
     when 'one_of' then (ids & values).any?

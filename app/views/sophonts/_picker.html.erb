@@ -1,11 +1,18 @@
-<%# locals: form, stellar_object — choose an existing sophont, or name a new one (created with this system as its home). %>
-<%= render 'application/edit_field', form: form, attribute: :sophont_id, field_label: 'Sophont' do %>
+<%# locals: form, stellar_object, attribute (default :sophont_id), new_attribute (default :new_sophont_name), label (default 'Sophont'), toggle (the boolean field that reveals this picker, e.g. :native_sophont) — choose an existing sophont, or name a new one (created with this system as its home). %>
+<% attribute = local_assigns.fetch(:attribute, :sophont_id) %>
+<% new_attribute = local_assigns.fetch(:new_attribute, :new_sophont_name) %>
+<% label = local_assigns.fetch(:label, 'Sophont') %>
+<% toggle = local_assigns.fetch(:toggle) %>
+<% row_data = { controller: 'toggle-visibility', toggle_visibility_attribute_value: toggle } %>
+<%# Rendered hidden when the toggle is off so the row doesn't flash before the controller connects. %>
+<%= render 'application/edit_field', form: form, attribute: attribute, field_label: label, row_data: row_data,
+           row_class: ('hidden' unless stellar_object.public_send(toggle)) do %>
   <div class='flex flex-col gap-2 sm:flex-row sm:items-center'>
-    <%= form.select :sophont_id,
+    <%= form.select attribute,
                     Sophont.ordered.pluck(:name, :id),
-                    { include_blank: '— None —', selected: stellar_object.sophont_id },
+                    { include_blank: '— None —', selected: stellar_object.public_send(attribute) },
                     { class: 'edit-base' } %>
-    <%= form.text_field :new_sophont_name,
+    <%= form.text_field new_attribute,
                         placeholder: 'or name a new sophont',
                         autocomplete: 'off',
                         class: 'edit-base w-full sm:max-w-xs' %>

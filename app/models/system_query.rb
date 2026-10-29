@@ -24,12 +24,12 @@ class SystemQuery < ApplicationRecord
 
   # Order here drives both the checkbox layout on the query form and the
   # render order of the results table (see `display_columns`).
-  COLUMN_KEYS = %w[uwp trade_codes bases zone stars allegiance survey_index locked].freeze
+  COLUMN_KEYS = %w[uwp trade_codes bases zone stars allegiance survey_index locked tags].freeze
 
   COLUMN_LABELS = {
     'bases' => 'Bases', 'locked' => 'Locked', 'uwp' => 'UWP',
     'trade_codes' => 'Trade codes', 'stars' => 'Stars', 'allegiance' => 'Allegiance',
-    'zone' => 'Zone', 'survey_index' => 'Survey Index'
+    'zone' => 'Zone', 'survey_index' => 'Survey Index', 'tags' => 'Tags'
   }.freeze
 
   validates :name, presence: true

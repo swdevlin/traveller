@@ -305,8 +305,8 @@ class MarkdownPresenterBase
         rows << [label, number_with_delimiter(city.population)]
       end
     end
-    rows << ['Native Sophont', @obj.native_sophont ? ['Yes', @obj.sophont&.name].compact.join(' · ') : 'No']
-    rows << ['Extinct Sophont', @obj.extinct_sophont ? 'Yes' : 'No']
+    rows << ['Native Sophont', @obj.native_sophont ? (@obj.sophont&.name || 'Yes') : 'No']
+    rows << ['Extinct Sophont', @obj.extinct_sophont ? (@obj.extinct_sophont_record&.name || 'Yes') : 'No']
     StellarObjectsHelper::CULTURE_TRAIT_DATA.each do |trait|
       val = @obj.send(trait[:getter])
       next unless val.present?

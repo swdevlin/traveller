@@ -15,6 +15,18 @@ class Api::SurveyOverlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test 'another campaign referee cannot see tag criteria or modify overlays' do
+    overlay = SurveyOverlay.create!(name: 'Private tags', colour: '#123456',
+      rule_data: { groups: [[{ field: 'tags', operator: 'has', values: ['Private tag'] }]] })
+    sign_in_as users(:two)
+    get api_survey_overlays_url(campaign_slug: @campaign.slug), as: :json
+    assert_response :forbidden
+    assert_not_includes response.body, 'Private tag'
+    delete api_survey_overlay_url(overlay, campaign_slug: @campaign.slug), as: :json
+    assert_response :forbidden
+    assert SurveyOverlay.exists?(overlay.id)
+  end
+
   test 'index returns survey overlays for an authenticated session' do
     survey_overlay = SurveyOverlay.create!(name: 'Referee Overlay', colour: '#112233')
     sign_in_as users(:one)

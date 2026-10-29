@@ -1,4 +1,5 @@
 class Sector < ApplicationRecord
+  include Taggable
   include Discard::Model
   include ClearableParsecs
   include HasReferenceUrl

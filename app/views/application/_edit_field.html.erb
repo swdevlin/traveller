@@ -1,5 +1,5 @@
-<%# locals: form:, attribute:, field_label: nil, required: false, calculated: false, unit: nil %>
-<div class='edit-row'>
+<%# locals: form:, attribute:, field_label: nil, required: false, calculated: false, unit: nil, row_data: {}, row_class: nil %>
+<div class='<%= class_names('edit-row', local_assigns.fetch(:row_class, nil)) %>' <%= tag.attributes(data: local_assigns.fetch(:row_data, {})) %>>
   <div class='edit-label'>
     <%= local_assigns.fetch(:field_label, nil).presence || attribute.to_s.humanize %>
     <% if local_assigns.fetch(:required, false) %>

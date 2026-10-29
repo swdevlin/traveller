@@ -31,6 +31,28 @@ class CampaignTest < ActiveSupport::TestCase
     campaign&.destroy
   end
 
+  test 'creating a charted space campaign seeds the nobility tags' do
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      assert_equal Tag::NOBILITY.values.sort, Tag.pluck(:name).sort
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a homebrew campaign does not seed nobility tags' do
+    campaign = Campaign.create!(name: 'Homebrew', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'homebrew')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      assert_equal 0, Tag.count
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
   test 'creating a homebrew campaign does not seed sophonts' do
     campaign = Campaign.create!(name: 'Homebrew', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'homebrew')
 

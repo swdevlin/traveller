@@ -3,6 +3,7 @@ class Api::BaseController < ActionController::API
   include TokenAuthenticatable
 
   before_action :set_current_campaign
+  before_action :resolve_referee_access
 
   helper_method :current_campaign
   helper MarkdownHelper
@@ -12,6 +13,11 @@ class Api::BaseController < ActionController::API
   end
 
   private
+
+  def resolve_referee_access
+    authenticated_by_session?
+    Current.api_token_authenticated = authenticated_by_token?
+  end
 
   def set_current_campaign
     campaign = Campaign.find_by(slug: params[:campaign_slug])

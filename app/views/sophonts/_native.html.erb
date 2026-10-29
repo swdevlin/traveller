@@ -1,5 +1,4 @@
-<%# locals: stellar_object — the "Native Sophont" data block: Extinct / Extant / None, plus the linked sophont name when the world has a native sophont with one recorded. %>
+<%# locals: stellar_object — the "Native Sophont" data block: the linked sophont name when the world has a native sophont with one recorded, otherwise Extant / None. Extinct sophonts are shown by sophonts/_extinct. %>
 <% native = stellar_object.native_sophont %>
-<% status = if stellar_object.extinct_sophont then 'Extinct' elsif native then 'Extant' else 'None' end %>
-<%= render 'application/data_block', label: 'Native Sophont',
-           value: safe_join([status, (render('sophonts/name', stellar_object: stellar_object).presence if native)].compact, ' · ') %>
+<% name = (render('sophonts/name', stellar_object: stellar_object).presence if native) %>
+<%= render 'application/data_block', label: 'Native Sophont', value: name || (native ? 'Extant' : 'None') %>

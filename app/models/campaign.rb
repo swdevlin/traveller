@@ -147,7 +147,10 @@ class Campaign < ApplicationRecord
     Apartment::Migrator.migrate(schema_name)
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
-      Sophont.seed_defaults if charted_space?
+      if charted_space?
+        Sophont.seed_defaults
+        Tag.seed_nobility
+      end
     end
   rescue StandardError => e
     Apartment::Tenant.drop(schema_name) rescue nil

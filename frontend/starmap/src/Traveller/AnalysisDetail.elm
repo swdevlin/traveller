@@ -425,7 +425,7 @@ monospaceText someString =
 
 groupAttrs : List (Html.Attribute msg)
 groupAttrs =
-    [ paddingXY 5 0, width fill ]
+    [ paddingXY 5 0, width fill, HtmlAttrs.class "analysis-data-group" ]
 
 
 {-| Used by `textDisplay`/`textDisplayAttrs`, whose 150px-wide label column
@@ -436,7 +436,7 @@ value instead of wrapping, which is worse.
 -}
 headerAttrs : List (Html.Attribute msg)
 headerAttrs =
-    [ HtmlAttrs.class "text-fg-muted text-sm font-bold self-start" ]
+    [ HtmlAttrs.class "analysis-data-label text-fg-muted text-sm font-bold self-start" ]
 
 
 {-| Used by the grid-based narrow displays (`textDisplayNarrow`,
@@ -447,12 +447,12 @@ label needs, for any label length.
 -}
 headerAttrsNarrow : List (Html.Attribute msg)
 headerAttrsNarrow =
-    [ HtmlAttrs.class "text-fg-muted text-sm font-bold whitespace-nowrap self-start" ]
+    [ HtmlAttrs.class "analysis-data-label text-fg-muted text-sm font-bold whitespace-nowrap self-start" ]
 
 
 valueAttrs : List (Html.Attribute msg)
 valueAttrs =
-    [ HtmlAttrs.class "text-fg text-sm self-start" ]
+    [ HtmlAttrs.class "analysis-data-value text-fg text-sm self-start" ]
 
 
 {-| A two-column grid (label, value) whose first column is sized to the
@@ -466,6 +466,7 @@ narrowDisplayGrid : List (Html msg) -> Html msg
 narrowDisplayGrid children =
     Html.div
         [ HtmlAttrs.style "display" "grid"
+        , HtmlAttrs.class "analysis-data-grid"
         , HtmlAttrs.style "grid-template-columns" "max-content 1fr"
         , HtmlAttrs.style "column-gap" "12px"
         , HtmlAttrs.style "row-gap" "5px"
@@ -572,7 +573,7 @@ textDisplayMedium =
 
 profileFieldDisplay : String -> String -> Html msg
 profileFieldDisplay lbl val =
-    row [ width fill, paddingEach { zeroEach | top = 3 } ]
+    row [ width fill, HtmlAttrs.class "analysis-profile-field", paddingEach { zeroEach | top = 3 } ]
         [ el
             (fixedFlex 80 :: HtmlAttrs.class "text-fg-muted text-xs font-bold whitespace-nowrap self-start" :: [])
             (text lbl)
@@ -597,7 +598,7 @@ mutedTabColour =
 viewTabBar : String -> (String -> msg) -> List { id : String, label : String, code : String } -> Html msg
 viewTabBar activeTab setTab tabs =
     row
-        [ width fill, HtmlAttrs.class "border-b", outlineBorder ]
+        [ width fill, HtmlAttrs.class "analysis-tabs", HtmlAttrs.attribute "role" "group", HtmlAttrs.attribute "aria-label" "Object analysis sections" ]
         (List.map (viewOneTab activeTab setTab) tabs)
 
 
@@ -626,9 +627,17 @@ viewOneTab activeTab setTab tab =
                 else
                     mutedTabColour
         in
-        el
-            [ paddingEach { top = 8, left = 12, right = 12, bottom = 8 }
-            , HtmlAttrs.class "border-b-2"
+        Html.button
+            [ HtmlAttrs.type_ "button"
+            , HtmlAttrs.classList [ ( "analysis-tab", True ), ( "is-active", isActive ) ]
+            , HtmlAttrs.attribute "aria-pressed"
+                (if isActive then
+                    "true"
+
+                 else
+                    "false"
+                )
+            , paddingEach { top = 8, left = 12, right = 12, bottom = 8 }
             , HtmlAttrs.style "border-color"
                 (if isActive then
                     activeTabColour
@@ -640,11 +649,11 @@ viewOneTab activeTab setTab tab =
             , Html.Events.onClick (setTab tab.id)
             , pointerCursor
             ]
-            (column [ spacing 1, HtmlAttrs.style "align-items" "center" ]
+            [ column [ spacing 1, HtmlAttrs.style "align-items" "center" ]
                 [ el [ HtmlAttrs.style "font-size" "15px", HtmlAttrs.class "font-bold text-center", accentHeadingColour ] (viewTabCode tab.code)
                 , el [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.class "text-center" ] (text tab.label)
                 ]
-            )
+            ]
 
 
 {-| The planetoid belt's rock cluster from the star map (`belt-icon` in
@@ -692,7 +701,7 @@ profileReferenceLink : Maybe String -> Html msg
 profileReferenceLink maybeUrl =
     case maybeUrl of
         Just url ->
-            row [ width fill, paddingEach { zeroEach | top = 3 } ]
+            row [ width fill, HtmlAttrs.class "analysis-profile-field", paddingEach { zeroEach | top = 3 } ]
                 [ el
                     (fixedFlex 80 :: HtmlAttrs.class "text-fg-muted text-xs font-bold whitespace-nowrap self-start" :: [])
                     (text "Library")
@@ -719,7 +728,7 @@ viewPlanetaryProfile onSophont data =
         [ el
             [ centerSelf
             , HtmlAttrs.style "font-size" "15px"
-            , HtmlAttrs.class "font-mono"
+            , HtmlAttrs.class "analysis-uwp font-mono"
             , fontVar "--color-fg-bright"
             , paddingEach { zeroEach | top = 6, bottom = 6 }
             ]
@@ -745,7 +754,7 @@ viewPlanetaryProfile onSophont data =
         , profileFieldDisplay "Sophonts" data.life.sophonts
         , case data.life.sophont of
             Just sophont ->
-                row [ width fill, paddingEach { zeroEach | top = 3 } ]
+                row [ width fill, HtmlAttrs.class "analysis-profile-field", paddingEach { zeroEach | top = 3 } ]
                     [ el (fixedFlex 80 :: HtmlAttrs.class "text-fg-muted text-xs font-bold whitespace-nowrap self-start" :: []) (text "Sophont")
                     , el [ growFlex, shrinkable, HtmlAttrs.class "text-xs self-start text-fg-bright" ] (Sophont.view onSophont sophont)
                     ]
@@ -838,7 +847,7 @@ viewJumpShadowTable maybeKm =
                         in
                         cell [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.class "font-mono" ] (text t)
                 in
-                column [ width fill, paddingEach { zeroEach | top = 8 } ]
+                column [ width fill, HtmlAttrs.class "analysis-jump", paddingEach { zeroEach | top = 8 } ]
                     [ viewSectionHeader "Safe Jump Distance"
                     , row [] (List.map headerCell mDrives)
                     , row [] (List.map timeCell mDrives)
@@ -1035,8 +1044,8 @@ viewCultureGauge trait =
 
 {-| Main view for object analysis detail overlay.
 -}
-viewObjectAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> AnalysisDetail -> Html msg
-viewObjectAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex starMapResizeConfig data =
+viewObjectAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> StarOrbitMap.ResizeConfig msg -> Maybe Int -> AnalysisDetail -> Html msg
+viewObjectAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex starMapResizeConfig recordId data =
     case data of
         AnalyisDetailStar detailHeader starData ->
             StarOrbitMap.viewModal
@@ -1049,7 +1058,7 @@ viewObjectAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab i
                 starData.children
 
         _ ->
-            viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data
+            viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex recordId data
 
 
 starStatItems : AnalyisDetailStarData -> List StarOrbitMap.StatItem
@@ -1065,53 +1074,58 @@ starStatItems data =
     ]
 
 
-viewNonStarAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> AnalysisDetail -> Html msg
-viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex data =
+viewNonStarAnalysisDetail : (Sophont -> msg) -> Int -> msg -> msg -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> PlanetoidsTabConfig msg -> CitiesTabConfig msg -> Int -> Maybe Int -> AnalysisDetail -> Html msg
+viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab isReferee onSelectObject moonsTabConfig planetoidsTabConfig citiesTabConfig zIndex recordId data =
     let
-        profileLayout profile content_ =
-            row [ spacing 0 ]
+        profileLayout profile records content_ =
+            row [ HtmlAttrs.class "analysis-layout" ]
                 [ column
-                    [ fixedFlex 220
-                    , HtmlAttrs.class "border-r"
-                    , outlineBorder
-                    , alignTop
+                    [ HtmlAttrs.class "analysis-profile" ]
+                    [ el [ HtmlAttrs.class "analysis-eyebrow" ] (text "World profile")
+                    , profile
+                    , if isReferee then
+                        case recordId of
+                            Just id ->
+                                column [ width fill, HtmlAttrs.style "margin-top" "20px" ]
+                                    [ Records.viewEditor "StellarObject" id "analysis" ]
+
+                            Nothing ->
+                                none
+
+                      else
+                        none
                     ]
-                    [ profile ]
-                , column [ growFlex, shrinkable, paddingEach { zeroEach | left = 16 }, alignTop ]
+                , column [ growFlex, shrinkable, HtmlAttrs.class "analysis-content", alignTop ]
                     [ content_ ]
                 ]
 
         planetaryModalWidth =
-            if activeTab == "map" then
-                1280
-
-            else
-                960
+            1280
 
         ( header, content, modalWidth ) =
             case data of
                 AnalyisDetailTerrestialPlanet detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) sharedPData.records (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee True onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , planetaryModalWidth
                     )
 
                 AnalyisDetailPlanetoid detailHeader sharedPData ->
                     ( detailHeader.header
-                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
+                    , profileLayout (viewPlanetaryProfile onSophont sharedPData) sharedPData.records (viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee False onSelectObject moonsTabConfig citiesTabConfig sharedPData)
                     , planetaryModalWidth
                     )
 
                 AnalyisDetailGasGiant detailHeader sharedGGData ->
                     ( detailHeader.header
-                    , profileLayout (viewGasGiantProfile sharedGGData) (viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabConfig sharedGGData)
+                    , profileLayout (viewGasGiantProfile sharedGGData) sharedGGData.records (viewGasGiantAnalysisDetail timeChars activeTab setTab isReferee onSelectObject moonsTabConfig sharedGGData)
                     , 900
                     )
 
                 AnalyisDetailPlanetoidBelt detailHeader sharePBData ->
                     ( detailHeader.header
-                    , profileLayout (viewBeltProfile sharePBData) (viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig sharePBData)
-                    , 960
+                    , profileLayout (viewBeltProfile sharePBData) sharePBData.planet.records (viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee onSelectObject planetoidsTabConfig citiesTabConfig sharePBData)
+                    , 1280
                     )
 
                 AnalyisDetailStar detailHeader _ ->
@@ -1119,7 +1133,8 @@ viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab 
                     ( detailHeader.header, none, 750 )
     in
     Html.div
-        [ HtmlAttrs.style "position" "fixed"
+        [ HtmlAttrs.class "analysis-backdrop"
+        , HtmlAttrs.style "position" "fixed"
         , HtmlAttrs.style "inset" "0"
         , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "align-items" "center"
@@ -1136,32 +1151,25 @@ viewNonStarAnalysisDetail onSophont timeChars closeMsg noOpMsg activeTab setTab 
         ]
         [ column
             [ Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( noOpMsg, True ))
-            , bgVar "--color-panel"
-            , HtmlAttrs.class "border"
-            , outlineBorder
-            , HtmlAttrs.style "max-height" "92vh"
-            , HtmlAttrs.style "overflow-y" "auto"
+            , HtmlAttrs.class "analysis-console"
+            , HtmlAttrs.attribute "role" "dialog"
+            , HtmlAttrs.attribute "aria-modal" "true"
+            , HtmlAttrs.attribute "aria-label" (header ++ " — stellar object analysis")
             , width (px modalWidth)
-            , HtmlAttrs.style "max-width" "96vw"
-            , padding 20
-            , HtmlAttrs.class "rounded-md"
-            , HtmlAttrs.style "box-shadow" "0 8px 32px rgba(0, 0, 0, 0.25)"
             ]
             [ row
-                [ width fill
-                , paddingEach { zeroEach | bottom = 16 }
-                , HtmlAttrs.class "border-b justify-between items-center"
-                , outlineBorder
-                ]
-                [ el [ HtmlAttrs.style "font-size" "18px", fontVar "--color-fg-bright", HtmlAttrs.class "font-bold" ] (text header)
-                , el
-                    [ pointerCursor
-                    , HtmlAttrs.class "starmap-modal-close"
-                    , HtmlAttrs.style "font-size" "16px"
-                    , fontVar "--color-fg-muted"
+                [ width fill, HtmlAttrs.class "analysis-header" ]
+                [ column [ spacing 4 ]
+                    [ el [ HtmlAttrs.class "analysis-eyebrow" ] (text "Stellar cartography / object analysis")
+                    , Html.h2 [ HtmlAttrs.class "analysis-title" ] [ text header ]
+                    ]
+                , Html.button
+                    [ HtmlAttrs.type_ "button"
+                    , HtmlAttrs.class "analysis-close"
+                    , HtmlAttrs.attribute "aria-label" "Close object analysis"
                     , Html.Events.onClick closeMsg
                     ]
-                    (text "✕")
+                    [ text "✕" ]
                 ]
             , content
             ]
@@ -1583,7 +1591,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                     viewCitiesTab citiesTabConfig
 
                 "notes" ->
-                    Records.view data.records
+                    Records.viewForReferee isReferee (Records.withTags (Just []) data.records)
 
                 "map" ->
                     viewMapTab data.mapUrl
@@ -1824,12 +1832,12 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ HtmlAttrs.class "analysis-tab-content", width fill ] tabContent
         ]
 
 
-viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailGasGiantData -> Html msg
-viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabConfig data =
+viewGasGiantAnalysisDetail : Int -> String -> (String -> msg) -> Bool -> (StellarObject -> msg) -> MoonsTabConfig msg -> AnalyisDetailGasGiantData -> Html msg
+viewGasGiantAnalysisDetail timeChars activeTab setTab isReferee onSelectObject moonsTabConfig data =
     let
         firstTabIndex =
             case safeTab of
@@ -1911,7 +1919,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
                     viewMoonsTab onSelectObject moonsTabConfig
 
                 "notes" ->
-                    Records.view data.records
+                    Records.viewForReferee isReferee (Records.withTags (Just []) data.records)
 
                 _ ->
                     column [ width fill ]
@@ -1931,7 +1939,24 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab onSelectObject moonsTabCon
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ HtmlAttrs.class "analysis-tab-content", width fill ] tabContent
+        ]
+
+
+viewSignificantToggle : Bool -> msg -> Html msg
+viewSignificantToggle checked toggle =
+    Html.label [ HtmlAttrs.class "analysis-list-filter" ]
+        [ Html.input
+            [ HtmlAttrs.type_ "checkbox"
+            , HtmlAttrs.class "analysis-toggle-input"
+            , HtmlAttrs.attribute "role" "switch"
+            , HtmlAttrs.checked checked
+            , Html.Events.onCheck (\_ -> toggle)
+            ]
+            []
+        , Html.span [ HtmlAttrs.class "analysis-toggle-track", HtmlAttrs.attribute "aria-hidden" "true" ]
+            [ Html.span [ HtmlAttrs.class "analysis-toggle-knob" ] [] ]
+        , Html.span [] [ text "Significant only" ]
         ]
 
 
@@ -1939,23 +1964,7 @@ viewMoonsTab : (StellarObject -> msg) -> MoonsTabConfig msg -> Html msg
 viewMoonsTab onSelectObject moonsTabConfig =
     let
         checkboxRow =
-            row
-                [ spacing 6
-                , pointerCursor
-                , Html.Events.onClick moonsTabConfig.onToggleSignificant
-                , paddingEach { zeroEach | bottom = 8 }
-                ]
-                [ el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg" ]
-                    (text
-                        (if moonsTabConfig.significantOnly then
-                            "☑"
-
-                         else
-                            "☐"
-                        )
-                    )
-                , el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text "Significant only")
-                ]
+            viewSignificantToggle moonsTabConfig.significantOnly moonsTabConfig.onToggleSignificant
 
         headerCell alignAttrs label =
             el
@@ -2010,34 +2019,81 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 )
                 content
 
-        moonRow ( moonObj, pdata ) =
+        orbitKm diameter orbit =
+            diameter
+                |> Maybe.andThen
+                    (\value ->
+                        if value > 0 then
+                            let
+                                distance =
+                                    orbit * value
+
+                                decimalPlaces number =
+                                    if number == 0 then
+                                        0
+
+                                    else
+                                        2 - floor (logBase 10 (abs number))
+
+                                rounded =
+                                    Round.roundNum (decimalPlaces distance) distance
+                            in
+                            Just (format { usLocale | decimals = Exact (max 0 (decimalPlaces rounded)) } rounded)
+
+                        else
+                            Nothing
+                    )
+                |> Maybe.withDefault "—"
+
+        moonRow diameter ( moonObj, pdata ) =
             ( pdata.orbit
-            , [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
-              , bodyCell moonObj [ HtmlAttrs.class "text-right font-mono" ] (text (formatOrbit pdata.orbit))
-              , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+            , [ Html.div
+                    [ HtmlAttrs.class "analysis-moon-row"
+                    , HtmlAttrs.attribute "role" "button"
+                    , HtmlAttrs.tabindex 0
+                    , HtmlAttrs.attribute "aria-label" ("Inspect " ++ (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+                    , Html.Events.on "keydown"
+                        (Json.Decode.field "key" Json.Decode.string
+                            |> Json.Decode.andThen
+                                (\key ->
+                                    if key == "Enter" then
+                                        Json.Decode.succeed (onSelectObject moonObj)
+
+                                    else
+                                        Json.Decode.fail "Not an activation key"
+                                )
+                        )
+                    ]
+                    [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+                    , bodyCell moonObj [ HtmlAttrs.class "text-right font-mono" ] (text (orbitKm diameter pdata.orbit))
+                    , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+                    ]
               ]
             )
 
-        ringRow ring =
+        ringRow diameter ring =
             ( ring.orbit
-            , [ ringCell [] (text (ring.name |> Maybe.withDefault "Ring"))
-              , ringCell [ HtmlAttrs.class "text-right font-mono" ] (text (formatOrbit ring.orbit))
-              , ringCell [ HtmlAttrs.class "font-mono" ] (text ("Ring, span " ++ formatOrbit ring.span))
+            , [ Html.div [ HtmlAttrs.class "analysis-moon-row" ]
+                    [ ringCell [] (text (ring.name |> Maybe.withDefault "Ring"))
+                    , ringCell [ HtmlAttrs.class "text-right font-mono" ] (text (orbitKm diameter ring.orbit))
+                    , ringCell [ HtmlAttrs.class "font-mono" ] (text ("Ring, span " ++ formatOrbit ring.span))
+                    ]
               ]
             )
 
-        bodiesTable : List StellarObject -> List RingData -> Html msg
-        bodiesTable moons rings =
+        bodiesTable : Maybe Float -> List StellarObject -> List RingData -> Html msg
+        bodiesTable diameter moons rings =
             Html.div
                 [ HtmlAttrs.style "display" "grid"
-                , HtmlAttrs.style "grid-template-columns" "2fr 108px 2fr"
+                , HtmlAttrs.class "analysis-moon-table"
+                , HtmlAttrs.style "grid-template-columns" "minmax(0, 1fr) max-content minmax(120px, 1fr)"
                 , width fill
                 ]
                 (headerCell [] "Name"
-                    :: headerCell [ HtmlAttrs.class "text-right" ] "Orbit (diameters)"
+                    :: headerCell [ HtmlAttrs.class "text-right" ] "Orbit (km)"
                     :: headerCell [] "UWP"
-                    :: (List.map moonRow (List.filterMap asTerrestrialPlanet moons)
-                            ++ List.map ringRow rings
+                    :: (List.map (moonRow diameter) (List.filterMap asTerrestrialPlanet moons)
+                            ++ List.map (ringRow diameter) rings
                             |> List.sortBy Tuple.first
                             |> List.concatMap Tuple.second
                        )
@@ -2046,7 +2102,7 @@ viewMoonsTab onSelectObject moonsTabConfig =
         mutedText str =
             el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text str)
     in
-    column [ width fill ]
+    column [ width fill, HtmlAttrs.class "analysis-moons" ]
         [ checkboxRow
         , case moonsTabConfig.page of
             NotAsked ->
@@ -2064,7 +2120,7 @@ viewMoonsTab onSelectObject moonsTabConfig =
 
                 else
                     column [ width fill ]
-                        [ bodiesTable page.moons page.rings
+                        [ bodiesTable page.parentDiameterKm page.moons page.rings
                         , viewPager page.page page.pages moonsTabConfig.onSetPage
                         ]
         ]
@@ -2074,23 +2130,7 @@ viewPlanetoidsTab : (StellarObject -> msg) -> PlanetoidsTabConfig msg -> Html ms
 viewPlanetoidsTab onSelectObject planetoidsTabConfig =
     let
         checkboxRow =
-            row
-                [ spacing 6
-                , pointerCursor
-                , Html.Events.onClick planetoidsTabConfig.onToggleSignificant
-                , paddingEach { zeroEach | bottom = 8 }
-                ]
-                [ el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg" ]
-                    (text
-                        (if planetoidsTabConfig.significantOnly then
-                            "☑"
-
-                         else
-                            "☐"
-                        )
-                    )
-                , el [ HtmlAttrs.style "font-size" "13px", fontVar "--color-fg-muted" ] (text "Significant only")
-                ]
+            viewSignificantToggle planetoidsTabConfig.significantOnly planetoidsTabConfig.onToggleSignificant
 
         headerCell alignAttrs label =
             el
@@ -2237,7 +2277,7 @@ viewPager page pages onSetPage =
     row
         [ centerSelf, spacing 8, paddingEach { zeroEach | top = 16 } ]
         [ viewPagerArrow (page > 1) "‹" (onSetPage (page - 1))
-        , viewPagerPill [ bgVar "--color-panel-muted", fontVar "--color-fg-bright", outlineBorder ] (String.fromInt page)
+        , viewPagerPill [ bgVar "--color-panel-muted", fontVar "--color-fg-bright", outlineBorder ] ("Page " ++ String.fromInt page ++ " of " ++ String.fromInt pages)
         , viewPagerArrow (page < pages) "›" (onSetPage (page + 1))
         ]
 
@@ -2300,6 +2340,7 @@ viewCitiesTab citiesTabConfig =
         citiesTable cities =
             Html.div
                 [ HtmlAttrs.style "display" "grid"
+                , HtmlAttrs.class "analysis-city-table"
                 , HtmlAttrs.style "grid-template-columns" "2fr 2fr 1fr 110px"
                 , width fill
                 ]
@@ -2314,7 +2355,7 @@ viewCitiesTab citiesTabConfig =
                                         typeText =
                                             case city.typeLabel of
                                                 Just "Standard" ->
-                                                    ""
+                                                    "Standard"
 
                                                 Just other ->
                                                     other
@@ -2322,12 +2363,22 @@ viewCitiesTab citiesTabConfig =
                                                 Nothing ->
                                                     ""
                                     in
-                                    [ bodyCell [] (text city.name)
-                                    , bodyCell [] (text typeText)
-                                    , bodyCell [] (text (Maybe.withDefault "" city.capitalLabel))
-                                    , bodyCell
-                                        [ HtmlAttrs.class "text-right font-mono" ]
-                                        (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))
+                                    [ Html.div [ HtmlAttrs.class "analysis-city-row" ]
+                                        [ bodyCell [] (text city.name)
+                                        , bodyCell []
+                                            (text
+                                                (if typeText == "" then
+                                                    "—"
+
+                                                 else
+                                                    typeText
+                                                )
+                                            )
+                                        , bodyCell [] (text (Maybe.withDefault "—" city.capitalLabel))
+                                        , bodyCell
+                                            [ HtmlAttrs.class "text-right font-mono" ]
+                                            (text (format { usLocale | decimals = Exact 0 } (toFloat city.population)))
+                                        ]
                                     ]
                                 )
                        )
@@ -2566,7 +2617,7 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
                     viewCitiesTab citiesTabConfig
 
                 "notes" ->
-                    Records.view pd.records
+                    Records.viewForReferee isReferee (Records.withTags (Just []) pd.records)
 
                 "starport" ->
                     column groupAttrs
@@ -2763,5 +2814,5 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
     in
     column [ width fill ]
         [ viewTabBar safeTab setTab tabs
-        , el [ paddingEach { zeroEach | top = 16 }, width fill ] tabContent
+        , el [ HtmlAttrs.class "analysis-tab-content", width fill ] tabContent
         ]

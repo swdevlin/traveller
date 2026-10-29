@@ -237,6 +237,21 @@ class T5TabDelimitedParserTest < ActiveSupport::TestCase
     assert_equal ['S', 'N'], result['bases']
   end
 
+  test 'nobility codes become an array' do
+    result = build_system_definition(@systems.first)
+    assert_equal %w[B D e], result['nobility']
+  end
+
+  test 'blank nobility is omitted' do
+    @systems.first['Nobility'] = nil
+    assert_not build_system_definition(@systems.first).key?('nobility')
+  end
+
+  test 'unknown nobility codes are dropped' do
+    @systems.first['Nobility'] = 'BxC'
+    assert_equal %w[B C], build_system_definition(@systems.first)['nobility']
+  end
+
   test 'No allegiance is nil' do
     @systems.first['Allegiance'] = ''
     result = build_system_definition(@systems.first)

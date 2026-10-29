@@ -11,7 +11,8 @@
             Replaces this subsector's build plan with one from the sector's default
             source &mdash; TravellerMap (fetched live) if the sector was imported from
             Traveller Map, or the bundled Deepnight Books source data if that's available
-            for this sector. Only the source that applies to this sector is offered.
+            for this sector. Only the source that applies to this sector is offered. Importing from
+            TravellerMap carries each system's nobility across as tags on its main world (see Nobility Tags below).
           </dd>
         </div>
         <div>
@@ -38,5 +39,7 @@
         </div>
       </dl>
     </div>
+
+    <%= render 'help/nobility_tags' %>
   </div>
 <% end %>

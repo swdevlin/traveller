@@ -1,3 +1,4 @@
+<% preload_tags(@regions) %>
 <%= render 'stellar_objects/object_context', hierarchy: [['Data Cores', data_cores_path]] %>
 
 <%= content_for :title, "Regions" %>
@@ -25,6 +26,8 @@
             <th scope='col'>Colour</th>
             <th scope='col'>Label Position</th>
             <th scope='col'>Sectors</th>
+            <th scope='col'>Tags</th>
+            <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
           </tr>
         </thead>
 
@@ -71,11 +74,19 @@
                                 onclick: 'event.stopPropagation()' %><%= i < region.sectors.size - 1 ? ', ' : '' %>
                   <% end %>
                 </td>
+
+                <td><%= render 'application/tags', record: region %></td>
+
+                <td class='actions-cell'>
+                  <div class='action-group'>
+                    <%= render 'application/tag_action', record: region, label: region.name %>
+                  </div>
+                </td>
               </tr>
             <% end %>
           <% else %>
             <tr>
-              <td colspan='5'>No regions defined.</td>
+              <td colspan='7'>No regions defined.</td>
             </tr>
           <% end %>
         </tbody>

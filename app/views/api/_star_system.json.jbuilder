@@ -1,6 +1,8 @@
 parsec = star_system.parsec
 sector = parsec.sector
 
+json.tags Current.referee_access? ? star_system.tag_names : []
+json.filter_tags Current.referee_access? ? star_system.filter_tags : []
 json.id                star_system.id
 json.name              star_system.name.presence || ''
 json.survey_index      star_system.survey_index

@@ -1,16 +1,27 @@
 <% if system_query.groups.any? %>
-  <div class='text-sm text-fg mb-2 space-y-0.5'>
+  <div class='flex min-w-0 flex-col gap-3 text-sm' aria-label='Filter criteria'>
     <% system_query.groups.each_with_index do |group, group_index| %>
-      <div>
-        <% if group_index > 0 %>Or <% end %>
+      <% if group_index > 0 %>
+        <div class='text-xs uppercase tracking-widest text-fg-muted'>Or</div>
+      <% end %>
+      <div class='flex flex-wrap items-center gap-2'>
         <% group.each_with_index do |condition, condition_index| %>
-          <% if condition_index > 0 %>and <% end %>
-          <span><%= SystemQuery.field_label(condition[:field]) %></span>
-          <% if condition[:negate] %>not <% end %>
-          <%= SystemQuery.operator_label(condition[:operator]) %>
-          <span class='font-mono'>
-            <%= safe_join(Array(condition[:values]).map { |value| filter_value_display(condition[:field], value) }, ', ') %>
-          </span>
+          <% if condition_index > 0 %>
+            <span class='text-xs uppercase tracking-widest text-fg-muted'>And</span>
+          <% end %>
+          <div class='flex max-w-full flex-wrap items-center gap-2 rounded-lg border border-outline bg-panel-muted px-3 py-2'>
+            <span class='font-semibold text-fg-bright'><%= condition[:field] == 'tags' && condition[:operator] == 'has' ? 'Tag' : SystemQuery.field_label(condition[:field]) %></span>
+            <span class='text-fg-muted'><%= filter_operator_display(condition) %></span>
+            <% Array(condition[:values]).each do |value| %>
+              <% if condition[:field] == 'tags' %>
+                <%= filter_value_display(condition[:field], value) %>
+              <% else %>
+                <span class='rounded border border-outline bg-panel px-2 py-1 text-fg-bright break-words'>
+                  <%= filter_value_display(condition[:field], value) %>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
         <% end %>
       </div>
     <% end %>

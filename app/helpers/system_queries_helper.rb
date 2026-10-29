@@ -4,7 +4,24 @@ module SystemQueriesHelper
   # other field just gets its plain-text label (`SystemQuery.value_label`
   # also supplies the link text, so sector/subsector keep their richer
   # "name (sector)" formatting).
+  def filter_operator_display(condition)
+    if condition[:field] == 'tags'
+      if condition[:operator] == 'has'
+        condition[:negate] ? 'is not' : 'is'
+      else
+        condition[:negate] ? 'include none of' : 'include any of'
+      end
+    else
+      [condition[:negate] ? 'not' : nil, SystemQuery.operator_label(condition[:operator])].compact.join(' ')
+    end
+  end
+
   def filter_value_display(field, value)
+    if field == 'tags'
+      return link_to value, tag_path(name: value), data: { turbo_frame: '_top' },
+                     class: 'rounded border border-outline bg-panel px-2 py-1 text-highlight-fg break-words hover:underline underline-offset-2'
+    end
+
     record = linkable_filter_record(field, value)
     return SystemQuery.value_label(field, value) unless record
 

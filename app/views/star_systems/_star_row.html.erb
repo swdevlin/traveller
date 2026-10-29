@@ -30,9 +30,11 @@
     <%= star.spectral_classification %>
   </td>
 
+  <td><%= render 'application/tags', record: star %></td>
+
   <td class='actions-cell'>
     <div class='action-group'>
-      <%# buttons/links can go here later %>
+      <%= render 'application/tag_action', record: star, label: star.display_name %>
     </div>
   </td>
 </tr>

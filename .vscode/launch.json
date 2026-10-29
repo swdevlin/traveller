@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "rdbg",
+      "name": "Debug Rails server",
+      "request": "launch",
+      "command": "bin/rails",
+      "script": "server",
+      "args": [],
+      "env": { "PORT": "3000" },
+      "askParameters": false
+    }
+  ]
+}

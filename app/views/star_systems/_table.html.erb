@@ -1,3 +1,5 @@
+<% preload_tags(star_systems) %>
+<% preload_tags(star_systems.filter_map(&:main_world)) %>
 <% columns = local_assigns[:columns] || StarSystem::TABLE_COLUMNS %>
 <div class='table-card mt-4'>
   <div class='table-banner'>
@@ -41,6 +43,8 @@
             <th scope='col'>Zone</th>
           <% when 'survey_index' %>
             <th scope='col'>SI</th>
+          <% when 'tags' %>
+            <th scope='col'>Tags</th>
           <% end %>
         <% end %>
         <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
@@ -117,11 +121,21 @@
               <td class='whitespace-nowrap'>
                 <%= star_system.survey_index %>
               </td>
+            <% when 'tags' %>
+              <td>
+                <div class='flex flex-wrap gap-2'>
+                  <%= render 'application/tags', record: star_system %>
+                  <% if star_system.main_world %>
+                    <%= render 'application/tags', record: star_system.main_world %>
+                  <% end %>
+                </div>
+              </td>
             <% end %>
           <% end %>
 
           <td class='actions-cell'>
             <div class='action-group'>
+              <%= render 'application/tag_action', record: star_system, label: star_system.name %>
               <%= link_to edit_star_system_path(star_system), class: 'action', title: 'Edit' do %>
                 <i class='fa-regular fa-pen-to-square'></i>
               <% end %>

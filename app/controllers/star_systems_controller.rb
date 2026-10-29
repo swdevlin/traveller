@@ -506,7 +506,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_edit_params
-    params.expect(star_system: [:name, :player_notes, :referee_notes, :allegiance_id, :travel_zone_id, :survey_index, :locked, :known, :reference_url])
+    params.expect(star_system: [:name, :player_notes, :referee_notes, :tag_list, :allegiance_id, :travel_zone_id, :survey_index, :locked, :known, :reference_url])
   end
 
   def sophont_check_options
@@ -535,7 +535,7 @@ class StarSystemsController < ApplicationController
   end
 
   def star_system_params
-    params.expect(star_system: [:name, :parsec_id, :player_notes, :referee_notes, :survey_index, :language])
+    params.expect(star_system: [:name, :parsec_id, :player_notes, :referee_notes, :tag_list, :survey_index, :language])
   end
 
   def star_generator_params

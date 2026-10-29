@@ -1,0 +1,9 @@
+<%= turbo_frame_tag "starmap_tags_StarSystem_#{record.id}_map" do %>
+  <%= render 'application/tags_sidebar', record: record, tag_context: 'map_direct' %>
+  <% bodies.each do |body| %>
+    <div class='mt-3'>
+      <p class='text-xs text-fg-muted'><%= body.display_name %></p>
+      <%= render 'application/tags_sidebar', record: body, tag_context: 'map' %>
+    </div>
+  <% end %>
+<% end %>

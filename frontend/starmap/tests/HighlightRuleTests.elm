@@ -41,6 +41,8 @@ baseSystem =
     , sectorId = 42
     , subsectorId = Just 7
     , sophontIds = [ "3" ]
+    , extinctSophontIds = [ "5" ]
+    , filterTags = [ "Research", "Frontier" ]
     }
 
 
@@ -254,6 +256,19 @@ evaluateTests =
                         ruleFrom [ [ { field = Bases, operator = Has, negate = True, values = [ "N" ] } ] ]
                 in
                 Expect.equal False (HighlightRule.evaluate rule system)
+        , Test.test "Tags matches any system tag with containment operators" <|
+            \_ ->
+                Expect.equal [ True, True, False, False ]
+                    (List.map (\c -> HighlightRule.evaluate (ruleFrom [ [ c ] ]) baseSystem)
+                        [ condition Tags Has [ "Research" ]
+                        , condition Tags HasOneOf [ "Missing", "Frontier" ]
+                        , condition Tags Has [ "Missing" ]
+                        , { field = Tags, operator = Has, negate = True, values = [ "Research" ] }
+                        ]
+                    )
+        , Test.test "Tags only supports containment operators" <|
+            \_ ->
+                Expect.equal [ Has, HasOneOf ] (HighlightRule.operatorsFor Tags)
         , Test.test "HasOneOf matches when any target base code is present" <|
             \_ ->
                 let
@@ -379,6 +394,18 @@ evaluateTests =
         , Test.test "Sophont one of matches any listed sophont" <|
             \_ ->
                 ruleFrom [ [ condition Sophont OneOf [ "4", "3" ] ] ]
+                    |> evaluatesTo True
+        , Test.test "ExtinctSophontType matches the system's extinct sophont, not its native one" <|
+            \_ ->
+                ruleFrom [ [ condition ExtinctSophontType Eq [ "5" ] ] ]
+                    |> evaluatesTo True
+        , Test.test "ExtinctSophontType fails for the native sophont id" <|
+            \_ ->
+                ruleFrom [ [ condition ExtinctSophontType Eq [ "3" ] ] ]
+                    |> evaluatesTo False
+        , Test.test "ExtinctSophontType one of matches any listed sophont" <|
+            \_ ->
+                ruleFrom [ [ condition ExtinctSophontType OneOf [ "4", "5" ] ] ]
                     |> evaluatesTo True
         , Test.test "Subsector matches the system's subsector id" <|
             \_ ->

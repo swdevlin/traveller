@@ -1,0 +1,4 @@
+<%# locals: stellar_object — the "Extinct Sophont" data block: the linked sophont name when one is recorded, otherwise Yes / No. %>
+<% sophont = stellar_object.extinct_sophont_record %>
+<%= render 'application/data_block', label: 'Extinct Sophont',
+           value: (link_to(sophont.name, sophont_path(sophont), class: 'no-underline hover:underline') if sophont) || (stellar_object.extinct_sophont ? 'Yes' : 'No') %>

@@ -76,7 +76,7 @@ class SubsectorsController < ApplicationController
     source = @subsector.sector.default_build_source
 
     unless source
-      return redirect_to subsector_path(@subsector), alert: 'No default build source is configured for this sector.'
+      return redirect_to edit_subsector_path(@subsector), alert: 'No default build source is configured for this sector.'
     end
 
     if source == 'deepnight'
@@ -86,9 +86,9 @@ class SubsectorsController < ApplicationController
     end
 
     if @subsector.build.present? && @subsector.save
-      redirect_to subsector_path(@subsector), notice: 'Defaults loaded.'
+      redirect_to edit_subsector_path(@subsector), notice: 'Defaults loaded.'
     else
-      redirect_to subsector_path(@subsector), alert: 'No defaults found for this sector.'
+      redirect_to edit_subsector_path(@subsector), alert: 'No defaults found for this sector.'
     end
   end
 
@@ -99,18 +99,18 @@ class SubsectorsController < ApplicationController
   def upload_t5
     file = params[:t5_file]
     unless file.present?
-      return redirect_to subsector_path(@subsector), alert: 'Please choose a T5 Tab Delimited file.'
+      return redirect_to edit_subsector_path(@subsector), alert: 'Please choose a T5 Tab Delimited file.'
     end
 
     begin
       @subsector.load_t5_defaults!(file.read)
     rescue T5TabDelimitedParser::InvalidFile => e
-      return redirect_to subsector_path(@subsector), alert: e.message
+      return redirect_to edit_subsector_path(@subsector), alert: e.message
     end
     if @subsector.build.present? && @subsector.save
-      redirect_to subsector_path(@subsector), notice: 'T5 file loaded.'
+      redirect_to edit_subsector_path(@subsector), notice: 'T5 file loaded.'
     else
-      redirect_to subsector_path(@subsector), alert: 'No systems found in the uploaded file.'
+      redirect_to edit_subsector_path(@subsector), alert: 'No systems found in the uploaded file.'
     end
   end
 
@@ -962,7 +962,7 @@ class SubsectorsController < ApplicationController
   end
 
   def subsector_params
-    params.expect(subsector: [:name, :x, :y, :player_notes, :referee_notes, :build, :language, :reference_url])
+    params.expect(subsector: [:name, :x, :y, :player_notes, :referee_notes, :tag_list, :build, :language, :reference_url])
   end
 
   def populate_build_from_template!

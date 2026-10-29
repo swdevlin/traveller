@@ -110,6 +110,8 @@ type alias StarSystem =
     , sectorId : Int
     , subsectorId : Maybe Int
     , sophontIds : List String
+    , extinctSophontIds : List String
+    , filterTags : List String
     }
 
 
@@ -144,6 +146,8 @@ type alias FallibleStarSystem =
     , sectorId : Int
     , subsectorId : Maybe Int
     , sophontIds : List String
+    , extinctSophontIds : List String
+    , filterTags : List String
     }
 
 
@@ -184,6 +188,8 @@ starSystemCodec =
         |> Codec.field "sector_id" .sectorId Codec.int
         |> Codec.field "subsector_id" .subsectorId (Codec.nullable Codec.int)
         |> Codec.field "sophont_ids" .sophontIds (Codec.list Codec.string)
+        |> Codec.field "extinct_sophont_ids" .extinctSophontIds (Codec.list Codec.string)
+        |> Codec.field "filter_tags" .filterTags (Codec.list Codec.string)
         |> Codec.buildObject
 
 
@@ -248,3 +254,5 @@ fallibleStarSystemDecoder =
         |> optional "sector_id" Decode.int 0
         |> optional "subsector_id" (Decode.nullable Decode.int) Nothing
         |> optional "sophont_ids" (Decode.list Decode.string) []
+        |> optional "extinct_sophont_ids" (Decode.list Decode.string) []
+        |> optional "filter_tags" (Decode.list Decode.string) []

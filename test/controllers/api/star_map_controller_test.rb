@@ -9,6 +9,20 @@ class Api::StarMapControllerTest < ActionDispatch::IntegrationTest
     @bounds = { ulx: @parsec.x, uly: @parsec.y, lrx: @parsec.x, lry: @parsec.y }
   end
 
+  test 'map payload includes tags from the system, bodies, subsector and sector for overlay matching' do
+    sign_in_as users(:one)
+    system = StarSystem.create!(name: 'Tagged', parsec: @parsec)
+    Star.create!(star_system: system, tag_list: 'Star tag', colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V')
+    system.update!(tag_list: 'System tag')
+    regions(:one).update!(tag_list: 'Region tag')
+    @parsec.subsector.update!(tag_list: 'Subsector tag')
+    @parsec.sector.update!(tag_list: 'Sector tag')
+    get api_star_map_url(campaign_slug: @campaign.slug, **@bounds), as: :json
+    assert_response :success
+    entry = response.parsed_body.find { |row| row['id'] == system.id }
+    assert_equal ['Region tag', 'Sector tag', 'Star tag', 'Subsector tag', 'System tag'], entry['filter_tags'].sort
+  end
+
   test 'requires bounding box params' do
     get api_star_map_url(campaign_slug: @campaign.slug), as: :json
 

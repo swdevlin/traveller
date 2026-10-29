@@ -5,6 +5,19 @@ class RegionsControllerTest < AuthenticatedIntegrationTest
     @region = regions(:one)
   end
 
+  test 'region tags can be edited, linked and cleared' do
+    patch region_url(@region), params: { region: { tag_list: ' Research, Frontier, Research ' } }
+    assert_redirected_to region_url(@region)
+    assert_equal ['Frontier', 'Research'], @region.reload.tag_names
+    get edit_region_url(@region)
+    assert_response :success
+    assert_select 'input[name="region[tag_list]"][value="Frontier, Research"]'
+    get region_url(@region)
+    assert_select '[aria-label=Tags] a[href=?]', tag_path(name: 'Research'), text: 'Research'
+    patch region_url(@region), params: { region: { tag_list: '' } }
+    assert_equal [], @region.reload.tag_names
+  end
+
   test 'should get index' do
     get regions_url
     assert_response :success

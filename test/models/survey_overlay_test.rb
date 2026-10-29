@@ -246,7 +246,7 @@ class SurveyOverlayTest < ActiveSupport::TestCase
   FakeStarSystem = Struct.new(
     :main_world_uwp, :survey_index, :known, :gas_giant_count, :belt_count,
     :native_sophont, :extinct_sophont, :main_world_importance, :base_codes,
-    :allegiance, :parsec, :primary_star, :stars,
+    :allegiance, :parsec, :primary_star, :stars, :sophont_ids, :extinct_sophont_ids,
     keyword_init: true
   ) do
     def known?
@@ -347,6 +347,18 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     assert_not native.matches?(fake_star_system(native_sophont: false))
     assert extinct.matches?(fake_star_system(extinct_sophont: true))
     assert_not extinct.matches?(fake_star_system(extinct_sophont: false))
+  end
+
+  test 'matches? sophont fields check native and extinct sophont ids separately' do
+    native = overlay_with(field: 'sophont', operator: 'eq', values: ['4'])
+    extinct = overlay_with(field: 'extinct_sophont_type', operator: 'eq', values: ['4'])
+    extinct_one_of = overlay_with(field: 'extinct_sophont_type', operator: 'one_of', values: %w[4 9])
+
+    system = fake_star_system(sophont_ids: ['7'], extinct_sophont_ids: ['4'])
+    assert extinct.matches?(system)
+    assert extinct_one_of.matches?(system)
+    assert_not native.matches?(system)
+    assert_not extinct.matches?(fake_star_system(sophont_ids: ['4'], extinct_sophont_ids: []))
   end
 
   test 'matches? known and survey_index fields' do

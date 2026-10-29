@@ -1,3 +1,4 @@
+<% preload_tags(@sectors) %>
 <div id="sectors" class="w-full pb-4">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2">
     <%= form_with url: sectors_path,
@@ -49,6 +50,8 @@
           <th scope='col'>Allegiances</th>
           <th scope='col' class='text-center'>Charts</th>
           <th scope='col' class='text-center'>Reference</th>
+          <th scope='col'>Tags</th>
+          <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
         </tr>
         </thead>
 
@@ -80,11 +83,19 @@
               <td class='text-center'>
                 <%= traveller_wiki_link(sector, current_campaign) %>
               </td>
+
+              <td><%= render 'application/tags', record: sector %></td>
+
+              <td class='actions-cell'>
+                <div class='action-group'>
+                  <%= render 'application/tag_action', record: sector, label: sector.name %>
+                </div>
+              </td>
             </tr>
           <% end %>
         <% else %>
           <tr>
-            <td colspan='5'>No sectors recorded in this quadrant yet.</td>
+            <td colspan='7'>No sectors recorded in this quadrant yet.</td>
           </tr>
         <% end %>
         </tbody>

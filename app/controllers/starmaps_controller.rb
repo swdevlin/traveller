@@ -59,6 +59,7 @@ class StarmapsController < ApplicationController
       sectorOptions: sectors,
       subsectorOptions: subsectors,
       sophontOptions: sophonts,
+      tagOptions: Current.referee_access? ? Tag.names.map { |name| { code: name, name: name } } : [],
       theme: helpers.current_theme,
       themeIsLight: helpers.current_theme_light?,
       themeOptions: ApplicationHelper::THEMES.map { |key, info| { key: key, label: info[:label], light: info[:light] } }

@@ -8,6 +8,15 @@ class Api::RegionsControllerTest < ActionDispatch::IntegrationTest
     @parsec_one = parsecs(:one)
   end
 
+  test 'includes region tags in API responses' do
+    sign_in_as users(:one)
+    regions(:one).update!(tag_list: 'Frontier, Research')
+    get api_regions_url(campaign_slug: @campaign.slug, ulx: @parsec_one.x, uly: @parsec_one.y, lrx: @parsec_one.x, lry: @parsec_one.y), as: :json
+    assert_response :success
+    entry = response.parsed_body.find { |region| region['id'] == regions(:one).id }
+    assert_equal ['Frontier', 'Research'], entry['tags']
+  end
+
   test 'requires bounding box params' do
     get api_regions_url(campaign_slug: @campaign.slug), as: :json
 

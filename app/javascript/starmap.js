@@ -76,6 +76,19 @@ document.addEventListener('turbo:load', () => {
     }
   })
 
+  // Entry-link coordinates apply once. Leaving them in the URL would override
+  // the saved viewport on every refresh, even after navigating elsewhere.
+  if (serverFlags.centerOn) {
+    const url = new URL(window.location.href)
+    url.searchParams.delete('cx')
+    url.searchParams.delete('cy')
+    window.history.replaceState(window.history.state, '', url.toString())
+
+    // Turbo may restore this node without fetching fresh server flags.
+    delete serverFlags.centerOn
+    node.dataset.starmapFlags = JSON.stringify(serverFlags)
+  }
+
   if (elm.ports.storeInLocalStorage) {
     elm.ports.storeInLocalStorage.subscribe(value => {
       localStorage.setItem(upperLeftKey, JSON.stringify(value))

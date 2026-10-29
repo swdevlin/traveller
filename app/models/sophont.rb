@@ -43,8 +43,13 @@ class Sophont < ApplicationRecord
     StellarObject.where('data @> ?', { sophont_id: id }.to_json)
   end
 
+  # Stellar objects whose extinct sophont is this one.
+  def extinct_worlds
+    StellarObject.where('data @> ?', { extinct_sophont_id: id }.to_json)
+  end
+
   def in_use?
-    worlds.exists?
+    worlds.exists? || extinct_worlds.exists?
   end
 
   private

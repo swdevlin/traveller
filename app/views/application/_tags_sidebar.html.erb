@@ -1,0 +1,39 @@
+<% tag_context = local_assigns[:tag_context].presence || params[:tag_context].presence %>
+<% frame_id = tag_context ? "starmap_tags_#{record.class.base_class.name}_#{record.id}_#{tag_context}" : dom_id(record, :tags) %>
+<%= turbo_frame_tag frame_id do %>
+  <% if owns_campaign? %>
+    <section class='mb-6 space-y-3' aria-label='Object tags'>
+      <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Tags</div>
+      <% if local_assigns[:error].present? %>
+        <p role='alert' class='text-sm text-danger-text'><%= error %></p>
+      <% end %>
+      <div class='flex flex-wrap gap-2' aria-label='Tags'>
+        <% record.sorted_tags.each do |tag| %>
+          <%= render 'application/tag_chip', record: record, tag: tag, tag_context: tag_context, in_frame: true %>
+        <% end %>
+        <details class='tag-create' <%= 'open' if local_assigns[:error].present? %>
+                 data-controller='tag-picker' data-tag-picker-tags-value='<%= Tag.names.to_json %>'
+                 data-action='toggle->tag-picker#focusOnOpen'>
+          <summary class='tag-add' aria-label='Add tag'>+ Tag</summary>
+          <%= form_with url: object_tags_path, method: :post, class: 'space-y-2' do %>
+            <%= hidden_field_tag :record_type, record.class.base_class.name %>
+            <%= hidden_field_tag :record_id, record.id %>
+            <%= hidden_field_tag :tag_context, tag_context if tag_context %>
+            <%= label_tag dom_id(record, :new_tag), 'Add tags', class: 'sr-only' %>
+            <div class='flex items-center gap-2'>
+              <%= text_field_tag :tag_list, nil, id: dom_id(record, :new_tag), class: 'edit-base w-full min-w-0 !py-1.5 text-sm',
+                    placeholder: 'Add tags…', autocomplete: 'off',
+                    data: { tag_picker_target: 'input', action: 'input->tag-picker#suggest click->tag-picker#suggest focus->tag-picker#suggest keydown->tag-picker#keydown blur->tag-picker#dismiss' } %>
+              <%= submit_tag 'Add', class: 'btn btn-secondary btn-sm shrink-0' %>
+            </div>
+            <div aria-live='polite'>
+              <button type='button' hidden class='btn btn-secondary btn-sm' data-tag-picker-target='suggestion'
+                      data-action='mousedown->tag-picker#keepFocus click->tag-picker#accept'></button>
+            </div>
+            <p class='text-xs text-fg-muted'>Separate tags with commas. Tab accepts a suggestion.</p>
+          <% end %>
+        </details>
+      </div>
+    </section>
+  <% end %>
+<% end %>

@@ -135,6 +135,16 @@ Rails.application.routes.draw do
       end
     end
 
+    get 'object_tags', to: 'object_tags#show', as: :object_tags
+    post 'object_tags', to: 'object_tags#create'
+    delete 'object_tags', to: 'object_tags#destroy'
+
+    get 'tags/show', to: 'tags#show', as: :tag
+    get 'tags/edit', to: 'tags#edit', as: :edit_tag
+    get 'tags', to: 'tags#index', as: :tags
+    patch 'tags', to: 'tags#update'
+    delete 'tags', to: 'tags#destroy'
+
     resources :system_queries
 
     resources :tech_levels

@@ -23,7 +23,19 @@ class Api::StarMapController < Api::BaseController
     return render json: [] if ids.empty?
 
     authenticated_by_session?
-    is_referee = Current.owns_campaign?
+    is_referee = Current.referee_access?
+
+    region_tags = Tag.names_by_record('Region', RegionParsec.where(parsec_id: systems.map(&:parsec_id)).select(:region_id))
+    region_tags_by_parsec = RegionParsec.where(parsec_id: systems.map(&:parsec_id)).pluck(:parsec_id, :region_id)
+      .group_by(&:first).transform_values { |rows| rows.flat_map { |_, region_id| region_tags.fetch(region_id, []) }.uniq }
+
+    body_ids_by_system = StellarObject.where(star_system_id: ids).pluck(:star_system_id, :id).group_by(&:first)
+    body_tags = Tag.names_by_record('StellarObject', body_ids_by_system.values.flatten(1).map(&:last))
+    body_tags_by_system = body_ids_by_system.transform_values { |rows| rows.flat_map { |_, id| body_tags.fetch(id, []) }.uniq }
+
+    system_tags = Tag.names_by_record('StarSystem', ids)
+    sector_tags = Tag.names_by_record('Sector', systems.map { it.parsec.sector&.id }.compact.uniq)
+    subsector_tags = Tag.names_by_record('Subsector', systems.map { it.parsec.subsector&.id }.compact.uniq)
 
     main_world_ids = systems.filter_map(&:main_world_id)
 
@@ -49,6 +61,13 @@ class Api::StarMapController < Api::BaseController
       .where("data @> '{\"native_sophont\": true}'")
       .where("data ->> 'sophont_id' IS NOT NULL")
       .pluck(:star_system_id, Arel.sql("data ->> 'sophont_id'"))
+      .group_by(&:first).transform_values { |rows| rows.map(&:last).uniq }
+
+    extinct_sophont_ids_by_system = StellarObject
+      .where(star_system_id: ids)
+      .where("data @> '{\"extinct_sophont\": true}'")
+      .where("data ->> 'extinct_sophont_id' IS NOT NULL")
+      .pluck(:star_system_id, Arel.sql("data ->> 'extinct_sophont_id'"))
       .group_by(&:first).transform_values { |rows| rows.map(&:last).uniq }
 
     extinct_ids = StellarObject
@@ -141,7 +160,9 @@ class Api::StarMapController < Api::BaseController
         allegiance_name:   allegiance_visible ? ss.allegiance&.name : nil,
         native_sophont:    native_ids.include?(ss.id),
         extinct_sophont:   extinct_ids.include?(ss.id),
+        filter_tags: is_referee ? (system_tags.fetch(ss.id, []) + body_tags_by_system.fetch(ss.id, []) + sector_tags.fetch(sector.id, []) + subsector_tags.fetch(parsec.subsector&.id, []) + region_tags_by_parsec.fetch(parsec.id, [])).uniq : [],
         sophont_ids:       sophont_ids_by_system.fetch(ss.id, []),
+        extinct_sophont_ids: extinct_sophont_ids_by_system.fetch(ss.id, []),
         star_count:        (stars_by_system[ss.id] || []).size,
         tech_level:        tech_level,
         habitability_rating: habitability_rating,

@@ -46,6 +46,7 @@
     <% if lookup_context.template_exists?('sidebar_summary', [@stellar_object.class.name.underscore.pluralize], true) %>
       <%= render summary_partial, stellar_object: @stellar_object %>
     <% end %>
+    <%= render 'application/tags_sidebar', record: @stellar_object %>
     <% if subsector %>
       <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
     <% end %>

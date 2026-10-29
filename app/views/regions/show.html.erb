@@ -16,7 +16,11 @@
   </div>
 <% end %>
 
-<%= render 'application/page' do %>
+<% content_for :page_side do %>
+  <%= render 'application/tags_sidebar', record: @region %>
+<% end %>
+
+<%= render(owns_campaign? ? 'application/two_column_page' : 'application/page') do %>
   <div class='space-y-8'>
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
       <%= render 'application/data_block',

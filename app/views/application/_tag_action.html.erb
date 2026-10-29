@@ -1,0 +1,33 @@
+<%# Grid action: opens a dialog to add tags to `record`; `label` names it for assistive tech. %>
+<% if owns_campaign? && record.respond_to?(:taggings) %>
+  <%= shared_tag_names_tag %>
+  <span class='inline-flex' data-controller='tag-dialog' data-action='click->tag-dialog#stop'>
+    <button type='button' class='action cursor-pointer' title='Add tag' aria-label='Add tag to <%= label %>'
+            data-action='click->tag-dialog#open'>
+      <i class='fa-regular fa-tag' aria-hidden='true'></i>
+    </button>
+    <dialog class='tag-dialog' aria-label='Add tags to <%= label %>' data-tag-dialog-target='dialog'
+            data-action='click->tag-dialog#backdrop'>
+      <%= form_with url: object_tags_path, method: :post, class: 'block space-y-3',
+            data: { controller: 'tag-picker', tag_picker_source_value: 'shared-tag-names', turbo_frame: '_top' } do %>
+        <%= hidden_field_tag :record_type, record.class.base_class.name %>
+        <%= hidden_field_tag :record_id, record.id %>
+        <%= hidden_field_tag :return_to, request.fullpath %>
+        <h2 class='text-sm font-semibold text-fg-bright'>Add tags to <%= label %></h2>
+        <%= label_tag nil, 'Tags', for: dom_id(record, :grid_new_tag), class: 'sr-only' %>
+        <%= text_field_tag :tag_list, nil, id: dom_id(record, :grid_new_tag), class: 'edit-base w-full min-w-0 !py-1.5 text-sm',
+              placeholder: 'Add tags…', autocomplete: 'off', required: true,
+              data: { tag_dialog_target: 'input', tag_picker_target: 'input', action: 'input->tag-picker#suggest click->tag-picker#suggest focus->tag-picker#suggest keydown->tag-picker#keydown blur->tag-picker#dismiss' } %>
+        <div aria-live='polite'>
+          <button type='button' hidden class='btn btn-secondary btn-sm' data-tag-picker-target='suggestion'
+                  data-action='mousedown->tag-picker#keepFocus click->tag-picker#accept'></button>
+        </div>
+        <p class='text-xs text-fg-muted'>Separate tags with commas. Tab accepts a suggestion.</p>
+        <div class='flex gap-2'>
+          <%= submit_tag 'Add', class: 'btn btn-primary btn-sm' %>
+          <button type='button' class='btn btn-sm' data-action='click->tag-dialog#close'>Cancel</button>
+        </div>
+      <% end %>
+    </dialog>
+  </span>
+<% end %>

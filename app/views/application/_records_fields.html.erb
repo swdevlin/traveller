@@ -1,3 +1,18 @@
+<% if record.respond_to?(:tag_list) %>
+  <div class='<%= local_assigns[:wrapper_class] %>' data-controller='tag-picker'
+       data-tag-picker-tags-value='<%= Tag.names.to_json %>'>
+    <%= form.label :tag_list, 'Tags', class: 'edit-label' %>
+    <p id='<%= form.field_id(:tag_list, :hint) %>' class='mt-1 text-sm text-fg-muted'>Start typing a tag and press Tab to accept a match. Separate tags with commas.</p>
+    <%= form.text_field :tag_list, class: 'edit-base mt-2 w-full', placeholder: 'Separate tags with commas', autocomplete: 'off',
+          aria: { describedby: form.field_id(:tag_list, :hint) },
+          data: { tag_picker_target: 'input', action: 'input->tag-picker#suggest click->tag-picker#suggest focus->tag-picker#suggest keydown->tag-picker#keydown blur->tag-picker#dismiss' } %>
+    <div aria-live='polite'>
+      <button type='button' hidden class='mt-1 btn btn-secondary' data-tag-picker-target='suggestion'
+              data-action='mousedown->tag-picker#keepFocus click->tag-picker#accept'></button>
+    </div>
+  </div>
+<% end %>
+
 <%# Edit fields for Survey Records (player_notes) and Classified Records (referee_notes, referee-only). Both are Markdown. %>
 <div class='<%= local_assigns[:wrapper_class] %>'<%= tag.attributes(data: { tour_step: local_assigns[:tour_step] }.compact) if local_assigns[:tour_step] %>>
   <div class='edit-label'>Survey Records<%= required_icon(record, :player_notes) %></div>

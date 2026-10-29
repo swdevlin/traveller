@@ -1,3 +1,4 @@
+<% preload_tags(planetoids) %>
 <turbo-frame id="planetoids-table">
   <% significant_form = capture do %>
     <form class="text-sm text-fg">
@@ -33,12 +34,13 @@
             <% end %>
             <th scope="col"></th>
             <th scope="col">UWP</th>
+            <th scope="col">Tags</th>
             <th scope="col" class="text-right actions-cell">Actions</th>
           </tr>
         </thead>
         <tbody>
           <% if planetoids.empty? %>
-            <tr><td colspan="<%= 5 + (show_orbit_number? ? 1 : 0) + (show_au? ? 1 : 0) %>" class="text-fg-muted">No planetoids recorded.</td></tr>
+            <tr><td colspan="<%= 6 + (show_orbit_number? ? 1 : 0) + (show_au? ? 1 : 0) %>" class="text-fg-muted">No planetoids recorded.</td></tr>
           <% end %>
           <% planetoids.each do |planetoid| %>
             <tr class="cursor-pointer"
@@ -72,8 +74,10 @@
               <td class="whitespace-nowrap">
                 <%= planetoid.uwp %>
               </td>
+              <td><%= render 'application/tags', record: planetoid %></td>
               <td class="actions-cell">
                 <div class="action-group">
+                  <%= render 'application/tag_action', record: planetoid, label: planetoid.display_name %>
                   <%= link_to edit_stellar_object_path(planetoid), class: 'action', title: 'Edit planetoid', data: { turbo_frame: '_top' } do %>
                     <i class="fa-regular fa-pen-to-square"></i>
                   <% end %>

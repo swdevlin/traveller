@@ -38,6 +38,7 @@
 
 <% content_for :page_side do %>
   <%= render 'subsectors/map_embed', subsector: @subsector %>
+  <%= render 'application/tags_sidebar', record: @subsector %>
   <strong class='block font-medium mt-2 mb-2'>
     <%= link_to sector.name, sector, class: 'link-traveller-i' %>
   </strong>

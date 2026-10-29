@@ -64,14 +64,26 @@ class SystemQueryBuilder
     when 'star_count' then star_count_relation(operator, values)
     when 'primary_star' then primary_star_relation(operator, values)
     when 'primary_star_class' then primary_star_class_relation(operator, values)
+    when 'tags' then tags_relation(operator == 'has' ? values.first(1) : values)
     when 'bases' then bases_relation(values)
     when 'sophont' then sophont_relation(values)
+    when 'extinct_sophont_type' then extinct_sophont_relation(values)
     when 'allegiance' then allegiance_relation(values)
     when 'sector' then sector_relation(values)
     when 'subsector' then subsector_relation(values)
     when 'jump_route' then jump_route_relation(values)
     else StarSystem.none
     end
+  end
+
+  # A system matches on its own tags or the tags of any star, planet, moon or
+  # other body in it. Tags on the enclosing sector, subsector or region do not count.
+  def tags_relation(values)
+    return StarSystem.none if values.empty?
+
+    tagged = ->(type) { Tagging.joins(:tag).where(taggable_type: type, tags: { name: values }).select(:taggable_id) }
+    bodies = StellarObject.where(id: tagged.call('StellarObject')).select(:star_system_id)
+    StarSystem.where(id: tagged.call('StarSystem')).or(StarSystem.where(id: bodies))
   end
 
   # atmosphere/hydrographics/population/government/law_level/tech_level are
@@ -175,6 +187,12 @@ class SystemQueryBuilder
   def sophont_relation(values)
     StarSystem.where(id: StellarObject.where("stellar_objects.data @> '{\"native_sophont\": true}'")
                                       .where("stellar_objects.data ->> 'sophont_id' IN (?)", values)
+                                      .select(:star_system_id))
+  end
+
+  def extinct_sophont_relation(values)
+    StarSystem.where(id: StellarObject.where("stellar_objects.data @> '{\"extinct_sophont\": true}'")
+                                      .where("stellar_objects.data ->> 'extinct_sophont_id' IN (?)", values)
                                       .select(:star_system_id))
   end
 

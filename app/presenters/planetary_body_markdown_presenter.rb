@@ -41,7 +41,6 @@ class PlanetaryBodyMarkdownPresenter < MarkdownPresenterBase
     government = @obj.government ? Government.find_by(code: @obj.government.code) : nil
     law_level = @obj.law_level ? LawLevel.find_by(code: @obj.law_level.code) : nil
     tl = @obj.tech_level_code.present? ? TechLevel.find_by(code: @obj.tech_level_code) : nil
-    sophont_status = if @obj.extinct_sophont then 'Extinct' elsif @obj.native_sophont then 'Extant' else 'None' end
 
     rows = []
     rows << ['UWP', @obj.uwp] if @obj.uwp.present?
@@ -78,7 +77,8 @@ class PlanetaryBodyMarkdownPresenter < MarkdownPresenterBase
     elsif @obj.no_tech_level?
       rows << ['Tech Level', '—']
     end
-    rows << ['Native Sophont', @obj.native_sophont ? [sophont_status, @obj.sophont&.name].compact.join(' · ') : sophont_status]
+    rows << ['Native Sophont', @obj.native_sophont ? (@obj.sophont&.name || 'Extant') : 'None']
+    rows << ['Extinct Sophont', @obj.extinct_sophont_record&.name || 'Yes'] if @obj.extinct_sophont
 
     lines = table_section('Planetary Profile', rows)
 

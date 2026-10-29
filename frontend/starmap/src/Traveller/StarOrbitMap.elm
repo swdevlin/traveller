@@ -4,6 +4,7 @@ module Traveller.StarOrbitMap exposing
     , ResizeConfig
     , StatItem
     , buildChildren
+    , relativeOrbitPosition
     , viewModal
     )
 
@@ -19,6 +20,7 @@ import Html.Events.Extra.Mouse as Mouse
 import Json.Decode as JsDecode
 import List.Extra
 import Round
+import Traveller.Point exposing (StellarPoint)
 import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Svg.Events as SE
@@ -100,20 +102,22 @@ buildChildren surveyIndex centreStarData maybeCompanion stellarObjects =
                 orbit =
                     getStellarOrbit obj
 
-                -- Positions are absolute to the primary star; the map is centred on this star.
                 known =
                     orbit.orbitPosition.x /= 0 || orbit.orbitPosition.y /= 0
+
+                position =
+                    relativeOrbitPosition centre orbit.orbitPosition orbit.au
             in
             { stellarObject = obj
             , xKm =
                 if known then
-                    orbit.orbitPosition.x - centre.x
+                    position.x
 
                 else
                     0
             , yKm =
                 if known then
-                    orbit.orbitPosition.y - centre.y
+                    position.y
 
                 else
                     0
@@ -135,6 +139,27 @@ buildChildren surveyIndex centreStarData maybeCompanion stellarObjects =
         |> List.foldl assignSynthetic ( 0, [] )
         |> Tuple.second
         |> List.reverse
+
+
+{-| Imported bodies can have parent-relative positions, while recalculated
+positions include the parent's offset. Choose the frame whose radius matches
+the body's own semi-major axis most closely. Never subtract a distant secondary
+star's position from coordinates already local to that star.
+-}
+relativeOrbitPosition : StellarPoint -> StellarPoint -> Float -> StellarPoint
+relativeOrbitPosition centre position au =
+    let
+        offset =
+            { x = position.x - centre.x, y = position.y - centre.y }
+
+        radialError point =
+            abs (TravelCalculations.kmToAu (sqrt (point.x ^ 2 + point.y ^ 2)) - au)
+    in
+    if au > 0 && radialError position < radialError offset then
+        position
+
+    else
+        offset
 
 
 
@@ -887,12 +912,12 @@ renderMapNode onSelectObject { node, auDist } =
 
 headerHeight : Float
 headerHeight =
-    44
+    76
 
 
 statBarHeight : Float
 statBarHeight =
-    76
+    144
 
 
 viewModal : Config msg -> ResizeConfig msg -> String -> List StatItem -> Bool -> StarData -> List ChildNode -> Html msg
@@ -905,7 +930,8 @@ viewModal config resizeConfig title stats showNames primaryStarData children =
             max 100 (resizeConfig.height - headerHeight - statBarHeight)
     in
     Html.div
-        [ HtmlAttrs.style "position" "fixed"
+        [ HtmlAttrs.class "analysis-backdrop"
+        , HtmlAttrs.style "position" "fixed"
         , HtmlAttrs.style "inset" "0"
         , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "align-items" "center"
@@ -923,16 +949,16 @@ viewModal config resizeConfig title stats showNames primaryStarData children =
         ]
         [ Html.div
             [ HtmlAttrs.style "position" "relative"
+            , HtmlAttrs.class "analysis-console orbit-console"
+            , HtmlAttrs.attribute "role" "dialog"
+            , HtmlAttrs.attribute "aria-modal" "true"
+            , HtmlAttrs.attribute "aria-label" (title ++ " — orbit map")
             , HtmlAttrs.style "display" "flex"
             , HtmlAttrs.style "flex-direction" "column"
             , HtmlAttrs.style "width" (String.fromFloat resizeConfig.width ++ "px")
             , HtmlAttrs.style "height" (String.fromFloat resizeConfig.height ++ "px")
             , HtmlAttrs.style "max-width" "calc(100vw - 32px)"
             , HtmlAttrs.style "max-height" "calc(100vh - 32px)"
-            , HtmlAttrs.style "background-color" "var(--color-panel)"
-            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
-            , HtmlAttrs.style "border-radius" "6px"
-            , HtmlAttrs.style "box-shadow" "0 8px 32px rgba(0, 0, 0, 0.25)"
             , HtmlAttrs.style "overflow" "hidden"
             , Html.Events.stopPropagationOn "mousedown" (JsDecode.succeed ( config.noOp, True ))
             ]
@@ -940,11 +966,16 @@ viewModal config resizeConfig title stats showNames primaryStarData children =
             , viewStatBar stats
             , Html.div
                 [ HtmlAttrs.style "position" "relative"
+                , HtmlAttrs.class "orbit-map-stage"
                 , HtmlAttrs.style "flex" "1 1 auto"
                 , HtmlAttrs.style "min-height" "0"
                 , HtmlAttrs.style "overflow" "hidden"
                 ]
                 [ viewMap config.onSelectObject mapWidth mapHeight showNames primaryStarData children ]
+            , Html.div [ HtmlAttrs.class "orbit-map-footer" ]
+                [ Html.span [] [ Html.text "Select a body to inspect" ]
+                , Html.span [] [ Html.text "Distances in AU · Schematic orbit spacing" ]
+                ]
             , viewResizeHandle resizeConfig.onResizeStart
             ]
         ]
@@ -953,18 +984,18 @@ viewModal config resizeConfig title stats showNames primaryStarData children =
 viewHeader : msg -> String -> Html msg
 viewHeader closeMsg title =
     Html.div
-        [ HtmlAttrs.class "flex items-center justify-between px-4 py-2 border-b"
+        [ HtmlAttrs.class "analysis-header orbit-header"
         , HtmlAttrs.style "border-color" "var(--color-outline)"
         , HtmlAttrs.style "flex" "0 0 auto"
         ]
-        [ Html.span
-            [ HtmlAttrs.class "font-bold text-lg"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
+        [ Html.div []
+            [ Html.div [ HtmlAttrs.class "analysis-eyebrow" ] [ Html.text "Stellar cartography / orbital survey" ]
+            , Html.h2 [ HtmlAttrs.class "analysis-title" ] [ Html.text title ]
             ]
-            [ Html.text title ]
-        , Html.span
-            [ HtmlAttrs.class "starmap-modal-close cursor-pointer"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+        , Html.button
+            [ HtmlAttrs.class "analysis-close"
+            , HtmlAttrs.type_ "button"
+            , HtmlAttrs.attribute "aria-label" "Close orbit map"
             , Html.Events.onClick closeMsg
             ]
             [ Html.text "✕" ]
@@ -974,7 +1005,7 @@ viewHeader closeMsg title =
 viewStatBar : List StatItem -> Html msg
 viewStatBar stats =
     Html.div
-        [ HtmlAttrs.class "flex flex-wrap gap-x-6 gap-y-1 px-4 py-2 border-b"
+        [ HtmlAttrs.class "orbit-stats"
         , HtmlAttrs.style "border-color" "var(--color-outline)"
         , HtmlAttrs.style "flex" "0 0 auto"
         ]
@@ -984,10 +1015,11 @@ viewStatBar stats =
 viewStatItem : StatItem -> Html msg
 viewStatItem stat =
     Html.div
-        [ HtmlAttrs.style "display" "flex"
+        [ HtmlAttrs.class "orbit-stat"
+        , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "flex-direction" "column"
         ]
-        [ Html.span [ HtmlAttrs.class "edit-label" ] [ Html.text stat.label ]
+        [ Html.span [ HtmlAttrs.class "orbit-stat-label" ] [ Html.text stat.label ]
         , Html.span
             [ HtmlAttrs.class "font-mono text-sm"
             , HtmlAttrs.style "color" "var(--color-fg)"
@@ -999,7 +1031,9 @@ viewStatItem stat =
 viewResizeHandle : ({ startX : Float, startY : Float } -> msg) -> Html msg
 viewResizeHandle onResizeStart =
     Html.div
-        [ HtmlAttrs.style "position" "absolute"
+        [ HtmlAttrs.class "orbit-resize"
+        , HtmlAttrs.title "Drag to resize orbit map"
+        , HtmlAttrs.style "position" "absolute"
         , HtmlAttrs.style "right" "2px"
         , HtmlAttrs.style "bottom" "2px"
         , HtmlAttrs.style "width" "16px"

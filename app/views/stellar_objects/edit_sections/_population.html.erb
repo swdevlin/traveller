@@ -50,12 +50,16 @@
         checked: stellar_object.native_sophont, checked_value: 'true', unchecked_value: 'false' %>
 <% end %>
 
-<%= render 'sophonts/picker', form: form, stellar_object: stellar_object %>
+<%= render 'sophonts/picker', form: form, stellar_object: stellar_object, toggle: :native_sophont %>
 
 <%= render 'application/edit_field', form: form, attribute: :extinct_sophont, field_label: 'Extinct Sophont' do %>
   <%= render 'application/boolean_toggle', form: form, attribute: :extinct_sophont,
         checked: stellar_object.extinct_sophont, checked_value: 'true', unchecked_value: 'false' %>
 <% end %>
+
+<%= render 'sophonts/picker', form: form, stellar_object: stellar_object,
+           attribute: :extinct_sophont_id, new_attribute: :new_extinct_sophont_name, label: 'Extinct Sophont Species',
+           toggle: :extinct_sophont %>
 
 <%= render 'application/edit_field', form: form, attribute: :habitability_rating, field_label: 'Habitability Rating' do %>
   <%= form.number_field :habitability_rating,

@@ -2,6 +2,7 @@
 
 class Api::SurveyOverlaysController < Api::BaseController
   before_action :authenticate_user_or_token!
+  before_action :require_referee
   before_action :set_survey_overlay, only: %i[update destroy move_up move_down]
 
   # Survey overlays are a referee-only tool — there is no player-visible
@@ -45,6 +46,10 @@ class Api::SurveyOverlaysController < Api::BaseController
   end
 
   private
+
+  def require_referee
+    head :forbidden unless Current.referee_access?
+  end
 
   def set_survey_overlay
     @survey_overlay = SurveyOverlay.find(params[:id])

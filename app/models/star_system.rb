@@ -1,8 +1,20 @@
 class StarSystem < ApplicationRecord
+  include Taggable
   include HasReferenceUrl
 
   # The columns shown on `star_systems/_table`. Order here drives render order in the table.
-  TABLE_COLUMNS = %w[location name bases locked uwp trade_codes stars allegiance zone survey_index].freeze
+  TABLE_COLUMNS = %w[location name bases locked uwp trade_codes stars allegiance zone survey_index tags].freeze
+
+  # Include tags from stars, planets, moons, rings, and other system bodies.
+  def contained_tags
+    (tag_names + Tag.names_for('StellarObject', StellarObject.where(star_system_id: id).select(:id))).uniq.sort_by { [it.downcase, it] }
+  end
+
+  def filter_tags
+    region_ids = Region.joins(:region_parsecs).where(region_parsecs: { parsec_id: parsec_id }).select(:id)
+    (contained_tags + Array(parsec&.subsector&.tag_names) + Array(parsec&.sector&.tag_names) +
+      Tag.names_for('Region', region_ids)).uniq
+  end
 
   attr_accessor :build
 
@@ -108,6 +120,14 @@ class StarSystem < ApplicationRecord
                      .where("stellar_objects.data @> '{\"native_sophont\": true}'")
                      .where("stellar_objects.data ->> 'sophont_id' IS NOT NULL")
                      .pluck(Arel.sql("stellar_objects.data ->> 'sophont_id'")).uniq
+  end
+
+  # Ids (as strings) of the sophonts extinct on worlds in this system.
+  def extinct_sophont_ids
+    @extinct_sophont_ids ||= stellar_objects
+                             .where("stellar_objects.data @> '{\"extinct_sophont\": true}'")
+                             .where("stellar_objects.data ->> 'extinct_sophont_id' IS NOT NULL")
+                             .pluck(Arel.sql("stellar_objects.data ->> 'extinct_sophont_id'")).uniq
   end
 
   def recalculate_sophont_flags!

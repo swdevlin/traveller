@@ -220,6 +220,28 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert_equal [facilities(:one).code], star_system.facilities.pluck(:code)
   end
 
+  test 'tags the main world with the nobility ranks from the config, creating the tags in a homebrew campaign' do
+    system_parsec = create_parsec(5, 2)
+    system = JSON.parse(file_fixture('star_system_import_main_world_named.json').read).merge('x' => 5, 'y' => 2)
+    stub_subsector_generator([system])
+    campaigns(:one).update_column(:campaign_type, 'homebrew')
+
+    definition = <<~YAML
+      type: STANDARD
+      systems:
+        - x: 5
+          y: 2
+          nobility:
+            - B
+            - c
+    YAML
+
+    GenerateSubsectorJob.perform_now(@subsector.id, definition)
+
+    main_world = system_parsec.star_systems.sole.main_world
+    assert_equal %w[Baronet Knight], main_world.tag_names
+  end
+
   test 'skips rogues in hexes whose star system is locked' do
     star_systems(:in_one).update_column(:locked, true)
 

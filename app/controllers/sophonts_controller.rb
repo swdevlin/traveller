@@ -43,7 +43,7 @@ class SophontsController < ApplicationController
 
   def destroy
     if @sophont.in_use?
-      redirect_to sophonts_path, alert: "#{@sophont.name} is still the native sophont of #{@sophont.worlds.count} world(s).", status: :see_other
+      redirect_to sophonts_path, alert: "#{@sophont.name} is still the native or extinct sophont of #{@sophont.worlds.count + @sophont.extinct_worlds.count} world(s).", status: :see_other
     else
       @sophont.destroy!
       redirect_to sophonts_path, notice: 'Sophont was successfully destroyed.', status: :see_other

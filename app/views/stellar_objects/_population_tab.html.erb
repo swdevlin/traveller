@@ -21,7 +21,7 @@
       <% end %>
       <% if show_sophont %>
         <%= render 'sophonts/native', stellar_object: stellar_object %>
-        <%= render 'application/data_block', label: 'Extinct Sophont', value: stellar_object.extinct_sophont ? 'Yes' : 'No' %>
+        <%= render 'sophonts/extinct', stellar_object: stellar_object %>
       <% end %>
     </div>
   <% end %>

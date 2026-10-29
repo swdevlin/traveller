@@ -191,7 +191,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
   test 'load_defaults redirects with alert when the sector has no default build source' do
     post load_defaults_subsector_url(@subsector)
-    assert_redirected_to subsector_url(@subsector)
+    assert_redirected_to edit_subsector_url(@subsector)
     assert_match(/No default build source/, flash[:alert])
   end
 
@@ -202,7 +202,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post load_defaults_subsector_url(@subsector)
 
-    assert_redirected_to subsector_url(@subsector)
+    assert_redirected_to edit_subsector_url(@subsector)
     assert_equal 'Defaults loaded.', flash[:notice]
     @subsector.reload
     assert_equal 'traveller_map', @subsector.build_source
@@ -214,7 +214,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post load_defaults_subsector_url(subsector)
 
-    assert_redirected_to subsector_url(subsector)
+    assert_redirected_to edit_subsector_url(subsector)
     assert_equal 'Defaults loaded.', flash[:notice]
     subsector.reload
     assert_equal 'deepnight_books', subsector.build_source
@@ -226,7 +226,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post upload_t5_subsector_url(subsector), params: { t5_file: file }
 
-    assert_redirected_to subsector_url(subsector)
+    assert_redirected_to edit_subsector_url(subsector)
     subsector.reload
     assert_equal 'uploaded', subsector.build_source
     assert_match(/Efate/, subsector.build)
@@ -238,13 +238,13 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post upload_t5_subsector_url(subsector), params: { t5_file: file }
 
-    assert_redirected_to subsector_url(subsector)
+    assert_redirected_to edit_subsector_url(subsector)
     assert_match(/Line 4: missing or invalid Hex/, flash[:alert])
   end
 
   test 'upload_t5 redirects with alert when no file given' do
     post upload_t5_subsector_url(@subsector)
-    assert_redirected_to subsector_url(@subsector)
+    assert_redirected_to edit_subsector_url(@subsector)
     assert_match(/choose a T5/, flash[:alert])
   end
 
@@ -253,7 +253,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post upload_t5_subsector_url(@subsector), params: { t5_file: file }
 
-    assert_redirected_to subsector_url(@subsector)
+    assert_redirected_to edit_subsector_url(@subsector)
     assert_match(/No systems found/, flash[:alert])
   end
 
@@ -262,7 +262,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     post upload_t5_subsector_url(@subsector), params: { t5_file: file } # @subsector is letter A
 
-    assert_redirected_to subsector_url(@subsector)
+    assert_redirected_to edit_subsector_url(@subsector)
     assert_match(/No systems found/, flash[:alert])
     @subsector.reload
     assert_nil @subsector.build_source

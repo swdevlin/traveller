@@ -121,7 +121,7 @@ class RegionsController < ApplicationController
   end
 
   def region_params
-    params.expect(region: [:name, :label, :label_colour, :colour, :border_colour, :player_notes, :referee_notes, :player_visible])
+    params.expect(region: [:name, :label, :label_colour, :colour, :border_colour, :player_notes, :referee_notes, :tag_list, :player_visible])
   end
 
   def label_position_coords

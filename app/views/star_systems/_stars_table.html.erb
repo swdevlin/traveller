@@ -1,3 +1,4 @@
+<% preload_tags(stars) %>
 <div class='table-card'>
   <div class='table-banner'>
     <p>Stars</p>
@@ -19,6 +20,7 @@
         <th scope='col' class='text-right'>Ecc</th>
         <th scope='col' class='text-right'>Period</th>
         <th scope='col' class='text-right'>HZCO</th>
+        <th scope='col'>Tags</th>
         <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
       </thead>
@@ -48,8 +50,11 @@
           <td class='text-right'><%= format_period(star.period) %></td>
           <td class='text-right'><%= format_precision(star.hzco) %></td>
 
+          <td><%= render 'application/tags', record: star %></td>
+
           <td class='actions-cell'>
             <div class='action-group'>
+              <%= render 'application/tag_action', record: star, label: star.display_name %>
               <%= link_to edit_star_path(star), class: 'action', title: 'Edit' do %>
                 <i class='fa-regular fa-pen-to-square'></i>
               <% end %>

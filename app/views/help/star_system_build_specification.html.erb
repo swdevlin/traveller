@@ -108,6 +108,23 @@ rogues:</code></pre>
           </div>
 
           <div>
+            <dt>nobility</dt>
+            <dd class='space-y-2'>
+              <p>Imperial noble ranks held on the system's main world, as a YAML array of Second Survey codes. Each rank becomes a
+                <%= current_campaign ? link_to('tag', tags_path, class: 'hover:underline underline-offset-4') : 'tag' %> on the main world,
+                created if it does not already exist. Codes are case-sensitive.</p>
+              <pre class='text-fg'><code>nobility:
+  - B
+  - c
+  - C</code></pre>
+              <p>The codes are <code class='text-fg'>B</code> Knight, <code class='text-fg'>c</code> Baronet, <code class='text-fg'>C</code> Baron,
+                <code class='text-fg'>D</code> Marquis, <code class='text-fg'>e</code> Viscount, <code class='text-fg'>E</code> Count,
+                <code class='text-fg'>f</code> Duke, <code class='text-fg'>F</code> Subsector Duke, <code class='text-fg'>G</code> Archduke
+                and <code class='text-fg'>H</code> Emperor.</p>
+            </dd>
+          </div>
+
+          <div>
             <dt>primary</dt>
             <dd>Optional star definition for the primary star. When laying out the structure of
               a star system, the primary star is the root; all other stellar objects in the star system are nested

@@ -474,7 +474,7 @@ class SectorsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def sector_params
-      params.expect(sector: [:name, :x, :y, :abbreviation, :player_notes, :referee_notes, :build, :source, :language, :default_build_spec, :reference_url])
+      params.expect(sector: [:name, :x, :y, :abbreviation, :player_notes, :referee_notes, :tag_list, :build, :source, :language, :default_build_spec, :reference_url])
     end
 
     def build_option_params

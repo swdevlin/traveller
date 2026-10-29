@@ -11,6 +11,31 @@ class SystemQueriesControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'the query form offers a tags display column' do
+    get new_system_query_url
+    assert_select 'input[type=checkbox][value=tags]'
+  end
+
+  test 'show renders a tags column when chosen' do
+    @star_system.update!(tag_list: 'Column tag')
+    @system_query.update!(columns: %w[tags])
+    get system_query_url(@system_query)
+    assert_select 'th', text: 'Tags'
+    assert_select 'td [aria-label=Tags] a', text: 'Column tag'
+  end
+
+  test 'show matches a system whose body carries the tag' do
+    body = StellarObject.where(star_system_id: @star_system.id).first || StellarObject.where.not(star_system_id: nil).first!
+    system = StarSystem.find(body.star_system_id)
+    body.update!(tag_list: 'Body tag')
+    @system_query.update!(rule_data: {
+      groups: [[{ field: 'tags', operator: 'has', values: ['Body tag'], negate: false }]]
+    })
+    get system_query_url(@system_query)
+    assert_response :success
+    assert_includes @response.body, system.name
+  end
+
   test 'should get new' do
     get new_system_query_url
     assert_response :success
@@ -37,6 +62,27 @@ class SystemQueriesControllerTest < AuthenticatedIntegrationTest
 
     assert_response :success
     assert_includes @response.body, @star_system.name
+  end
+
+  test 'show returns tagged systems but not neighbours that only share an enclosing area tag' do
+    @star_system.update!(tag_list: 'A Thd Tag')
+    @star_system.parsec.subsector.update!(tag_list: 'A Thd Tag')
+    @star_system.parsec.sector.update!(tag_list: 'A Thd Tag')
+    regions(:one).update!(tag_list: 'A Thd Tag')
+    untagged_system = StarSystem.create!(name: 'Untagged neighbour', parsec: @star_system.parsec)
+    @system_query.update!(rule_data: {
+      groups: [[{ field: 'tags', operator: 'has', values: ['A Thd Tag'], negate: false }]]
+    })
+
+    get system_query_url(@system_query)
+    assert_response :success
+    assert_select 'tbody', text: /#{Regexp.escape(@star_system.name)}/
+    assert_select 'tbody', text: /#{Regexp.escape(untagged_system.name)}/, count: 0
+
+    @star_system.update!(tag_list: '')
+    get system_query_url(@system_query)
+    assert_response :success
+    assert_select 'tbody', text: /#{Regexp.escape(@star_system.name)}/, count: 0
   end
 
   test 'show always renders the combined sector/location column and name first, even when not chosen' do
@@ -76,6 +122,23 @@ class SystemQueriesControllerTest < AuthenticatedIntegrationTest
     assert_includes @response.body, "href=\"#{allegiance_path(allegiances(:one))}\""
     assert_includes @response.body, "href=\"#{sector_path(sectors(:one))}\""
     assert_includes @response.body, "href=\"#{subsector_path(subsectors(:subsector_1_1))}\""
+  end
+
+  test 'tag filter badges link to the tag show page outside the query frame' do
+    @star_system.update!(tag_list: 'Research, Frontier')
+    @system_query.update!(rule_data: {
+      groups: [[{ field: 'tags', operator: 'has_one_of', values: ['Research', 'Frontier'] }]]
+    })
+    [system_queries_url, system_query_url(@system_query)].each do |url|
+      get url
+      assert_response :success
+      ['Research', 'Frontier'].each do |name|
+        assert_select '[aria-label="Filter criteria"] a[data-turbo-frame="_top"][href=?]', tag_path(name: name), text: name
+      end
+    end
+    get tag_url(name: 'Research')
+    assert_response :success
+    assert_select '.page-title', text: 'Research'
   end
 
   test 'filter criteria falls back to plain text for a jump_route id that no longer exists' do

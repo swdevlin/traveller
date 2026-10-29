@@ -1,0 +1,17 @@
+<%# The one place a tag is rendered in Rails. `in_frame`: the chip lives in a Turbo frame (the sidebar) that re-renders itself; otherwise removing returns to the current page. %>
+<% in_frame = local_assigns[:in_frame] %>
+<div class='tag-chip' title='<%= tag.description %>'>
+  <%= content_tag :i, '', class: 'fa-regular fa-tag tag-chip-icon', 'aria-hidden': true %>
+  <%= link_to tag.name, tag_path(name: tag.name), class: 'hover:underline', data: { turbo_frame: '_top' } %>
+  <% if owns_campaign? %>
+    <% remove_params = { record_type: record.class.base_class.name, record_id: record.id, tag: tag.name } %>
+    <% remove_params[:tag_context] = local_assigns[:tag_context] if local_assigns[:tag_context] %>
+    <% remove_params[:return_to] = request.fullpath unless in_frame %>
+    <%= button_to object_tags_path, method: :delete, params: remove_params,
+          form_class: 'tag-chip-remove inline-flex m-0', class: 'rounded text-fg-muted hover:text-danger-text cursor-pointer',
+          form: (in_frame ? {} : { data: { turbo_frame: '_top' } }),
+          title: "Remove #{tag.name}", 'aria-label': "Remove #{tag.name}" do %>
+      <i class='fa-regular fa-trash-can text-xs' aria-hidden='true'></i>
+    <% end %>
+  <% end %>
+</div>

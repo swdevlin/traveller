@@ -1,3 +1,4 @@
+<% preload_tags(bodies) %>
 <div class='table-card'>
   <div class='table-banner'>
     <p>Orbiting bodies</p>
@@ -31,6 +32,7 @@
           <th scope='col'>AU</th>
         <% end %>
         <th scope='col'>UWP</th>
+        <th scope='col'>Tags</th>
         <th scope='col' class='text-right actions-cell'>Actions</th>
       </tr>
       </thead>
@@ -75,8 +77,11 @@
             <% end %>
           </td>
 
+          <td><%= render 'application/tags', record: body %></td>
+
           <td class='actions-cell'>
             <div class='action-group'>
+              <%= render 'application/tag_action', record: body, label: body.display_name %>
               <% if body.is_a?(Star) %>
                 <%= link_to edit_star_path(body), class: 'action', title: 'Edit' do %>
                   <i class='fa-regular fa-pen-to-square'></i>

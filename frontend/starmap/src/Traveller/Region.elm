@@ -16,6 +16,7 @@ type alias Region =
     , playerVisible : Bool
     , labelPosition : Maybe HexAddress
     , hexes : List HexAddress
+    , tags : List String
     , borderHexes : List HexAddress
     }
 
@@ -47,8 +48,8 @@ codecMaybeColour =
 codec : Codec Region
 codec =
     Codec.object
-        (\mx my id colour borderColour name label playerVisible hexes borderHexes ->
-            Region id colour borderColour name label playerVisible (Maybe.map2 (\x y -> { x = x, y = y }) mx my) hexes borderHexes
+        (\mx my id colour borderColour name label playerVisible hexes borderHexes tags ->
+            Region id colour borderColour name label playerVisible (Maybe.map2 (\x y -> { x = x, y = y }) mx my) hexes (Maybe.withDefault [] tags) borderHexes
         )
         |> Codec.field "label_x" (.labelPosition >> Maybe.map .x) (Codec.maybe Codec.int)
         |> Codec.field "label_y" (.labelPosition >> Maybe.map .y) (Codec.maybe Codec.int)
@@ -60,4 +61,5 @@ codec =
         |> Codec.field "player_visible" .playerVisible Codec.bool
         |> Codec.field "hexes" .hexes (Codec.list HexAddress.codec)
         |> Codec.field "border_hexes" .borderHexes (Codec.list HexAddress.codec)
+        |> Codec.optionalNullableField "tags" (.tags >> Just) (Codec.list Codec.string)
         |> Codec.buildObject

@@ -77,6 +77,48 @@ class SophontTest < ActiveSupport::TestCase
     assert_includes sophont.worlds, planet
   end
 
+  test 'a world with a new extinct sophont name creates the sophont with its system as home' do
+    planet = stellar_objects(:two)
+    planet.update!(**WORLD, parsec: nil, orbiting: stars(:star_one), extinct_sophont: true, new_extinct_sophont_name: 'Ancients')
+
+    sophont = Sophont.find_by_name('ancients')
+    assert_not_nil sophont
+    assert_equal planet.star_system_id, sophont.home_system_id
+    assert_equal sophont, planet.reload.extinct_sophont_record
+    assert_nil planet.sophont
+  end
+
+  test 'an extinct sophont is optional and ignored when the world is not flagged extinct' do
+    sophont = Sophont.create!(name: 'Ancients')
+    planet = stellar_objects(:two)
+
+    planet.update!(**WORLD, extinct_sophont: true)
+    assert_nil planet.reload.extinct_sophont_record
+
+    planet.update!(**WORLD, extinct_sophont: false, extinct_sophont_id: sophont.id.to_s)
+    assert_equal sophont.id, planet.reload.data['extinct_sophont_id']
+    assert_nil planet.extinct_sophont_record
+  end
+
+  test 'a world can have different native and extinct sophonts' do
+    native = Sophont.create!(name: 'Vilani')
+    extinct = Sophont.create!(name: 'Ancients')
+    planet = stellar_objects(:two)
+    planet.update!(**WORLD, native_sophont: true, sophont_id: native.id, extinct_sophont: true, extinct_sophont_id: extinct.id)
+
+    assert_equal native, planet.reload.sophont
+    assert_equal extinct, planet.extinct_sophont_record
+    assert_includes extinct.extinct_worlds, planet
+    assert_not_includes native.extinct_worlds, planet
+  end
+
+  test 'in_use? is true for an extinct sophont reference' do
+    sophont = Sophont.create!(name: 'Ancients')
+    assert_not sophont.in_use?
+    stellar_objects(:two).update!(**WORLD, extinct_sophont: true, extinct_sophont_id: sophont.id)
+    assert sophont.in_use?
+  end
+
   test 'in_use? reflects worlds referencing the sophont' do
     sophont = Sophont.create!(name: 'Hiver')
     assert_not sophont.in_use?

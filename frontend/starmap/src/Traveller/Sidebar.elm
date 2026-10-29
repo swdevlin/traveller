@@ -692,7 +692,7 @@ viewSystemRecords records =
         none
 
     else
-        column [ width fill, paddingXY 8 4 ] [ Records.view records ]
+        column [ width fill, paddingXY 8 4 ] [ Records.view { records | tags = [] } ]
 
 
 isBlank : Maybe String -> Bool
@@ -755,6 +755,12 @@ viewSystemDetailsSidebar msgs starSystemDetail opts =
                 , onClick = msgs.toggleTravelTable
                 }
             ]
+        , if opts.isReferee then
+            column [ width fill, paddingXY 8 12 ]
+                [ Records.viewEditor "StarSystem" starSystemDetail.id "map" ]
+
+          else
+            none
         ]
 
 
@@ -773,7 +779,7 @@ viewSidebarColumn :
             | selectedHex : Maybe HexAddress
             , starSystemStatus : Maybe String
             , sectors : SectorDict
-            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, label : Maybe String, playerVisible : Bool, colour : Maybe Color }
+            , regions : Dict.Dict k { b | hexes : List HexAddress, name : String, label : Maybe String, playerVisible : Bool, colour : Maybe Color, tags : List String }
             , selectedSystem : Maybe StarSystemDetail
             , isReferee : Bool
             , allSectorsMapUrl : Maybe String
@@ -930,12 +936,17 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
                                                                 Nothing ->
                                                                     []
                                                     in
-                                                    text labelText
-                                                        |> el (fontSize 12 :: centerX :: colourAttrs)
+                                                    column [ centerX ]
+                                                        [ text labelText |> el (fontSize 12 :: centerX :: colourAttrs)
+                                                        , if isReferee then Records.viewTags (Records.empty |> Records.withTags (Just region.tags)) else none
+                                                        ]
                                                         |> Just
 
                                                 Nothing ->
-                                                    Nothing
+                                                    if not isReferee || List.isEmpty region.tags then
+                                                        Nothing
+                                                    else
+                                                        Just (Records.viewTags (Records.empty |> Records.withTags (Just region.tags)))
 
                                         else
                                             Nothing

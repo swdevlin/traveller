@@ -13,7 +13,8 @@
             subsector) if the sector was imported from Traveller Map, or the bundled
             Deepnight Books source data if that's available for this sector. Only the
             source that applies to this sector is offered. Subsectors with no matching
-            data for the chosen source are left unchanged.
+            data for the chosen source are left unchanged. Importing from TravellerMap carries each
+            system's nobility across as tags on its main world (see Nobility Tags below).
           </dd>
         </div>
         <div>
@@ -41,5 +42,7 @@
         </div>
       </dl>
     </div>
+
+    <%= render 'help/nobility_tags' %>
   </div>
 <% end %>

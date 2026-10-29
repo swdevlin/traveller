@@ -55,6 +55,7 @@
 <% end %>
 
 <% content_for :page_side do %>
+  <%= render 'application/tags_sidebar', record: @sector %>
   <div>
     <div class='text-xs uppercase tracking-[0.22em] text-fg-muted mb-2'>
       Neighbouring sectors

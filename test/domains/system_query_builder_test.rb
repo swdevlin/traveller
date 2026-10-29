@@ -85,6 +85,20 @@ class SystemQueryBuilderTest < ActiveSupport::TestCase
     assert_includes relation_for(field: 'gas_giant_count', operator: 'eq', values: ['3']), star_system
   end
 
+  test 'extinct_sophont_type matches systems with a world whose extinct sophont is chosen' do
+    ancients = Sophont.create!(name: 'Ancients')
+    other = Sophont.create!(name: 'Other')
+    star_system = build_star_system(extinct_sophont: true, extinct_sophont_id: ancients.id)
+    plain = build_star_system
+
+    relation = relation_for(field: 'extinct_sophont_type', operator: 'eq', values: [ancients.id.to_s])
+    assert_includes relation, star_system
+    assert_not_includes relation, plain
+    assert_not_includes relation_for(field: 'extinct_sophont_type', operator: 'one_of', values: [other.id.to_s]), star_system
+    assert_includes relation_for(field: 'extinct_sophont_type', operator: 'one_of', values: [other.id.to_s, ancients.id.to_s]), star_system
+    assert_not_includes relation_for(field: 'sophont', operator: 'eq', values: [ancients.id.to_s]), star_system
+  end
+
   test 'known, native_sophont and extinct_sophont are boolean columns' do
     star_system = build_star_system
     star_system.update!(known: true, native_sophont: true, extinct_sophont: false)
@@ -287,4 +301,57 @@ class SystemQueryBuilderTest < ActiveSupport::TestCase
                    "expected SQL and Ruby evaluators to agree for #{condition.inspect}"
     end
   end
+  test 'system queries match tags on the system and its bodies while overlays also include enclosing areas' do
+    system = build_star_system
+    sources = [system, system.main_world, system.parsec.subsector, system.parsec.sector, regions(:one)]
+    sources.each do |source|
+      source.update!(tag_list: "Research / O'Brien, Frontier")
+      system.reload
+      [
+        ['has', ["Research / O'Brien"], false, true],
+        ['has_one_of', ['Missing', 'Frontier'], false, true],
+        ['has', ['Missing'], false, false],
+        ['has', ['research'], false, false],
+        ['has', ['Frontier'], true, false],
+        ['has', ['Missing'], true, true]
+      ].each do |operator, values, negate, expected|
+        condition = { field: 'tags', operator: operator, values: values, negate: negate }
+        rule = { groups: [[condition]] }
+        overlay = SurveyOverlay.new(name: 'Tags', colour: '#123456', rule_data: rule)
+        query = SystemQuery.new(name: 'Tags', rule_data: rule)
+        assert overlay.valid?, overlay.errors.full_messages.inspect
+        assert query.valid?, query.errors.full_messages.inspect
+        assert_equal expected, overlay.matches?(system), "Ruby #{source.class} #{condition}"
+        direct_match = if [system, system.main_world].include?(source)
+                         expected
+                       else
+                         negate
+                       end
+        assert_equal direct_match, query.matching_star_systems.exists?(system.id), "SQL #{source.class} #{condition}"
+      end
+      source.update!(tag_list: '')
+    end
+  end
+
+  test 'tag containment excludes unrelated systems and does not duplicate matches' do
+    system = build_star_system
+    other = build_star_system
+    system.update!(tag_list: 'Research')
+    system.main_world.update!(tag_list: 'Research')
+    relation = relation_for(field: 'tags', operator: 'has_one_of', values: ['Research', 'Frontier'])
+    assert_includes relation, system
+    assert_not_includes relation, other
+    assert_equal 1, relation.where(id: system.id).count
+  end
+
+  test 'tag pickers use existing campaign tags and reject ordering operators' do
+    sectors(:one).update!(tag_list: 'Frontier')
+    [SurveyOverlay, SystemQuery].each do |type|
+      assert_includes type.picker_options['tags'], ['Frontier', 'Frontier']
+      attrs = { name: 'Test', rule_data: { groups: [[{ field: 'tags', operator: 'gt', values: ['Frontier'] }]] } }
+      attrs[:colour] = '#123456' if type == SurveyOverlay
+      assert_not type.new(attrs).valid?
+    end
+  end
+
 end

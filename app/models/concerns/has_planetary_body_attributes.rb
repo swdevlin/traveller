@@ -56,10 +56,10 @@ module HasPlanetaryBodyAttributes
   class_methods do
     def permitted_params
       [
-        :name, :player_notes, :referee_notes, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
+        :name, :player_notes, :referee_notes, :tag_list, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
         :period, :rotation, :retrograde, :density, :gravity,
         :temperature, :axial_tilt, :albedo, :greenhouse,
-        :native_sophont, :sophont_id, :new_sophont_name, :extinct_sophont, :habitability_rating, :biomass_rating,
+        :native_sophont, :sophont_id, :new_sophont_name, :extinct_sophont, :extinct_sophont_id, :new_extinct_sophont_name, :habitability_rating, :biomass_rating,
         :biodiversity_rating, :biocomplexity_rating, :compatibility_rating, :resource_rating,
         *uwp_attribute_names
       ]

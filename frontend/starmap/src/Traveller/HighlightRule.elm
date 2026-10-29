@@ -61,11 +61,13 @@ type Field
     | Sector
     | Subsector
     | Sophont
+    | ExtinctSophontType
+    | Tags
 
 
 allFields : List Field
 allFields =
-    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, PrimaryStar, PrimaryStarClass, Sector, Size, Sophont, StarCount, Starport, Subsector, SurveyIndex, TechLevel ]
+    [ Allegiance, Atmosphere, BaseCount, Bases, ExtinctSophont, ExtinctSophontType, GasGiantCount, Government, Hydrographics, Importance, Known, LawLevel, NativeSophont, PlanetoidBeltCount, Population, PrimaryStar, PrimaryStarClass, Sector, Size, Sophont, StarCount, Starport, Subsector, SurveyIndex, Tags, TechLevel ]
 
 
 {-| The (code, name) shape of a live, server-loaded option list - bases
@@ -86,6 +88,7 @@ type alias PickerData =
     , allegiances : List Option
     , sectors : List Option
     , subsectors : List Option
+    , tags : List Option
     , sophonts : List Option
     }
 
@@ -138,6 +141,9 @@ fieldLabel field =
         Importance ->
             "Importance"
 
+        Tags ->
+            "Tags"
+
         Bases ->
             "Bases"
 
@@ -164,6 +170,9 @@ fieldLabel field =
 
         Sophont ->
             "Sophont"
+
+        ExtinctSophontType ->
+            "Extinct Sophont Species"
 
 
 type Operator
@@ -225,6 +234,9 @@ operatorsFor field =
         ExtinctSophont ->
             [ Eq ]
 
+        Tags ->
+            [ Has, HasOneOf ]
+
         Bases ->
             [ Has, HasOneOf ]
 
@@ -238,6 +250,9 @@ operatorsFor field =
             [ Eq, OneOf ]
 
         Sophont ->
+            [ Eq, OneOf ]
+
+        ExtinctSophontType ->
             [ Eq, OneOf ]
 
         PrimaryStar ->
@@ -398,6 +413,9 @@ fieldOptions field =
             , { code = "VII", label = "VII (White dwarf)" }
             ]
 
+        Tags ->
+            []
+
         Bases ->
             []
 
@@ -411,6 +429,9 @@ fieldOptions field =
             []
 
         Sophont ->
+            []
+
+        ExtinctSophontType ->
             []
 
 
@@ -530,6 +551,9 @@ uwpFieldAccessor field fields =
         Importance ->
             Nothing
 
+        Tags ->
+            Nothing
+
         Bases ->
             Nothing
 
@@ -555,6 +579,9 @@ uwpFieldAccessor field fields =
             Nothing
 
         Sophont ->
+            Nothing
+
+        ExtinctSophontType ->
             Nothing
 
 
@@ -595,6 +622,9 @@ getFieldValue field system =
         PrimaryStarClass ->
             primaryStarData system |> Maybe.map .stellarClass
 
+        Tags ->
+            Nothing
+
         Bases ->
             Nothing
 
@@ -634,6 +664,9 @@ getFieldValue field system =
         Sophont ->
             Nothing
 
+        ExtinctSophontType ->
+            Nothing
+
         _ ->
             system.mainWorldUwp
                 |> Maybe.andThen parseUwp
@@ -662,6 +695,17 @@ conditionMatches system condition =
     let
         result =
             case condition.field of
+                Tags ->
+                    case ( condition.operator, condition.values ) of
+                        ( Has, target :: _ ) ->
+                            List.member target system.filterTags
+
+                        ( HasOneOf, targets ) ->
+                            List.any (\tag -> List.member tag system.filterTags) targets
+
+                        _ ->
+                            False
+
                 Bases ->
                     case ( condition.operator, condition.values ) of
                         ( Has, target :: _ ) ->
@@ -681,6 +725,17 @@ conditionMatches system condition =
 
                         ( OneOf, targets ) ->
                             List.any (\t -> List.member t system.sophontIds) targets
+
+                        _ ->
+                            False
+
+                ExtinctSophontType ->
+                    case ( condition.operator, condition.values ) of
+                        ( Eq, target :: _ ) ->
+                            List.member target system.extinctSophontIds
+
+                        ( OneOf, targets ) ->
+                            List.any (\t -> List.member t system.extinctSophontIds) targets
 
                         _ ->
                             False
@@ -821,6 +876,9 @@ fieldToString field =
         Importance ->
             "importance"
 
+        Tags ->
+            "tags"
+
         Bases ->
             "bases"
 
@@ -847,6 +905,9 @@ fieldToString field =
 
         Sophont ->
             "sophont"
+
+        ExtinctSophontType ->
+            "extinct_sophont_type"
 
 
 fieldFromString : String -> Maybe Field
@@ -897,6 +958,9 @@ fieldFromString s =
         "importance" ->
             Just Importance
 
+        "tags" ->
+            Just Tags
+
         "bases" ->
             Just Bases
 
@@ -923,6 +987,9 @@ fieldFromString s =
 
         "sophont" ->
             Just Sophont
+
+        "extinct_sophont_type" ->
+            Just ExtinctSophontType
 
         _ ->
             Nothing

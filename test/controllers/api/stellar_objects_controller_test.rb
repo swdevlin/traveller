@@ -13,6 +13,7 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal 2, response.parsed_body['count']
+    assert_equal @gas_giant.diameter, response.parsed_body['parent_diameter_km']
   end
 
   test 'moons without an orbit sequence serialise it as an empty string' do

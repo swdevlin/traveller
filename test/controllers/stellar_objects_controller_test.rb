@@ -276,6 +276,40 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to stellar_object_url(@gas_giant)
   end
 
+  test 'submitting the gas giant form for a tag edit preserves orbit precision and skips recalculation' do
+    @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I', orbit: 1.234567891, eccentricity: 0.123456789)
+    get edit_stellar_object_url(@gas_giant)
+    assert_response :success
+    form = css_select('form').find { |element| element['action'] == stellar_object_path(@gas_giant) }
+    orbit = form.at_css('input[name="stellar_object[orbit]"]')['value']
+    eccentricity = form.at_css('input[name="stellar_object[eccentricity]"]')['value']
+    assert_equal @gas_giant.reload.orbit.to_s, orbit
+    assert_equal @gas_giant.eccentricity.to_s, eccentricity
+    assert_nil form.at_css('input[type=submit]')['disabled']
+
+    fields = form.css('input[name], textarea[name], select[name]').filter_map do |element|
+      next unless element['name'].start_with?('stellar_object[')
+      value = case element.name
+              when 'textarea' then element.text
+              when 'select' then (element.at_css('option[selected]') || element.at_css('option'))&.[]('value')
+              else element['value']
+              end
+      [element['name'], value.to_s]
+    end
+    attributes = Rack::Utils.parse_nested_query(URI.encode_www_form(fields))
+    attributes['stellar_object']['tag_list'] = 'Research'
+    base = Rails.application.config.x.generator_service
+    mechanics = stub_request(:post, "#{base}/orbit_mechanics")
+
+    patch stellar_object_url(@gas_giant), params: attributes
+
+    assert_redirected_to stellar_object_url(@gas_giant)
+    assert_equal ['Research'], @gas_giant.reload.tag_names
+    assert_equal orbit, @gas_giant.orbit.to_s
+    assert_equal eccentricity, @gas_giant.eccentricity.to_s
+    assert_not_requested mechanics
+  end
+
   test 'unrelated field change does not trigger orbit mechanics recalculation' do
     @gas_giant.update_columns(star_system_id: @star_system.id, orbit_sequence: 'I')
     base = Rails.application.config.x.generator_service

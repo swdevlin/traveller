@@ -58,3 +58,6 @@ bin/deploy
 bin/announce_release
 /.mcp.json
 /system.json
+
+# Fizzy
+.fizzy.yaml

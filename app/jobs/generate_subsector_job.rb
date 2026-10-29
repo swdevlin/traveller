@@ -92,6 +92,11 @@ class GenerateSubsectorJob < ApplicationJob
 
       h[[entry[:x], entry[:y]]] = entry[:bases]
     end
+    nobility_by_xy = all_input_systems.each_with_object({}) do |entry, h|
+      names = Tag.nobility_names(entry[:nobility])
+      h[[entry[:x], entry[:y]]] = names if names.any?
+    end
+    Tag.seed_nobility if nobility_by_xy.any?
     subsector_language = config[:language].presence
     inherited_language = subsector.effective_language(campaign)
     name_by_xy = all_input_systems.each_with_object({}) do |entry, h|
@@ -133,6 +138,9 @@ class GenerateSubsectorJob < ApplicationJob
         if zone_code && (tz = TravelZone.find_by(code: zone_code))
           star_system.update_column(:travel_zone_id, tz.id)
         end
+
+        nobility = nobility_by_xy[[s['x'], s['y']]]
+        star_system.main_world.tags |= Tag.where(name: nobility) if nobility && star_system.main_world
       rescue StandardError => e
         Rails.logger.error "#{uri} Error importing system #{s['name']}: #{e.message}"
       end

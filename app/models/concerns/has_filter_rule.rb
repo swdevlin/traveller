@@ -11,6 +11,7 @@ module HasFilterRule
     ['base_count', 'Base Count'],
     ['bases', 'Bases'],
     ['extinct_sophont', 'Extinct Sophont'],
+    ['extinct_sophont_type', 'Extinct Sophont Species'],
     ['gas_giant_count', 'Gas Giants'],
     ['government', 'Government'],
     ['hydrographics', 'Hydrographics'],
@@ -29,6 +30,7 @@ module HasFilterRule
     ['starport', 'Starport'],
     ['subsector', 'Subsector'],
     ['survey_index', 'Survey Index'],
+    ['tags', 'Tags'],
     ['tech_level', 'Tech Level']
   ].freeze
 
@@ -50,11 +52,13 @@ module HasFilterRule
     'known'           => %w[eq],
     'native_sophont'  => %w[eq],
     'extinct_sophont' => %w[eq],
+    'tags'            => %w[has has_one_of],
     'bases'           => %w[has has_one_of],
     'allegiance'      => %w[eq one_of],
     'sector'          => %w[eq one_of],
     'subsector'       => %w[eq one_of],
     'sophont'         => %w[eq one_of],
+    'extinct_sophont_type' => %w[eq one_of],
     'primary_star'    => %w[eq one_of]
   }.freeze
 
@@ -106,7 +110,8 @@ module HasFilterRule
       Allegiance.order(:code).pluck(:code, :name)
     end
 
-    # A system matches when any of its native sophont worlds is the chosen sophont.
+    # A system matches when any of its native (or, for extinct_sophont_type, extinct) sophont
+    # worlds is the chosen sophont.
     def sophont_options
       Sophont.ordered.pluck(:id, :name).map { |id, name| [id.to_s, name] }
     end
@@ -125,11 +130,13 @@ module HasFilterRule
     # per-field value picker in the form.
     def picker_options
       FIELD_OPTIONS.merge(
+        'tags'       => Tag.names.map { |name| [name, name] },
         'bases'      => bases_options,
         'allegiance' => allegiance_options,
         'sector'     => sector_options,
         'subsector'  => subsector_options,
-        'sophont'    => sophont_options
+        'sophont'    => sophont_options,
+        'extinct_sophont_type' => sophont_options
       )
     end
 

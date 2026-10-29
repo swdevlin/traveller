@@ -93,6 +93,13 @@ if sophont
   end
 end
 
+extinct_sophont_record = stellar_object.extinct_sophont_record
+if extinct_sophont_record
+  json.extinct_sophont_record do
+    json.partial! 'sophonts/sophont', sophont: extinct_sophont_record
+  end
+end
+
 if stellar_object.is_a?(HasUwp)
   json.partial! 'stellar_objects/uwp_details', stellar_object: stellar_object, render_context: render_context
 end

@@ -5,6 +5,7 @@ player_visible = @is_referee || star_system.known? || star_system.survey_index >
 
 json.known star_system.known?
 json.partial! 'api/records', record: star_system, visible: player_visible
+json.contained_tags player_visible && Current.referee_access? ? star_system.contained_tags : []
 json.reference_url player_visible ? star_system.effective_reference_url(current_campaign) : nil
 json.bases(player_visible ? star_system.facilities.to_a.sort_by(&:code) : []) do |facility|
   json.code facility.code
@@ -30,6 +31,12 @@ if mw
     if mw_sophont
       json.sophont do
         json.partial! 'sophonts/sophont', sophont: mw_sophont
+      end
+    end
+    mw_extinct_sophont = mw.extinct_sophont_record
+    if mw_extinct_sophont
+      json.extinct_sophont_record do
+        json.partial! 'sophonts/sophont', sophont: mw_extinct_sophont
       end
     end
     json.survival_requirement atmosphere_survival_requirement(

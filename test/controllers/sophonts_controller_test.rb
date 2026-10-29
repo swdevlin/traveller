@@ -112,6 +112,19 @@ class SophontsControllerTest < AuthenticatedIntegrationTest
     assert_response :not_found
   end
 
+  test 'editing a world can name a new extinct sophont' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: { extinct_sophont: 'true', new_extinct_sophont_name: 'Ancients', size_code: '5', atmosphere_code: 5, hydrographics_code: 5 }
+    }
+    assert_redirected_to stellar_object_url(planet)
+    assert_equal 'Ancients', planet.reload.extinct_sophont_record&.name
+
+    get stellar_object_url(planet)
+    assert_response :success
+    assert_match 'Ancients', response.body
+  end
+
   test 'editing a world can name a new sophont' do
     planet = stellar_objects(:two)
     patch stellar_object_url(planet), params: {

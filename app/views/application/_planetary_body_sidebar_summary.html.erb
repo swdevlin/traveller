@@ -82,8 +82,15 @@
   <% end %>
 
   <%= render 'sophonts/native', stellar_object: stellar_object %>
+  <%= render 'sophonts/extinct', stellar_object: stellar_object if stellar_object.extinct_sophont %>
   <%= render 'stellar_objects/reference_link_block', stellar_object: stellar_object %>
 </div>
+
+<% if local_assigns.fetch(:show_tags, false) && stellar_object.tags.any? %>
+  <div class='mt-3'>
+    <%= render 'application/tags', record: stellar_object %>
+  </div>
+<% end %>
 
 <% unless local_assigns.fetch(:hide_transit_times, false) %>
   <%= render 'stellar_objects/jump_shadow_times', stellar_object: stellar_object, times_only: true %>

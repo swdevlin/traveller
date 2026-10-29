@@ -1,4 +1,5 @@
 class Subsector < ApplicationRecord
+  include Taggable
   include ClearableParsecs
   include HasReferenceUrl
   include HasWorldStatistics

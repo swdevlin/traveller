@@ -1,3 +1,4 @@
+<% preload_tags(moons) %>
 <turbo-frame id="moons-table">
   <% add_moon_button = link_to new_stellar_object_moon_path(@stellar_object), class: 'btn-header', title: 'Add moon', aria: { label: 'Add moon' }, data: { turbo_frame: '_top' } do %>
     <i class="fa-regular fa-plus"></i> Moon
@@ -38,12 +39,13 @@
             <th scope="col" class="w-px text-right cursor-help" title="Distance from the parent planet's centre, in kilometres">Distance</th>
             <th scope="col" class="w-px text-right cursor-help" title="Ring span, in planetary diameters">Span</th>
             <th scope="col">UWP</th>
+            <th scope="col">Tags</th>
             <th scope="col" class="text-right actions-cell">Actions</th>
           </tr>
         </thead>
         <tbody>
           <% if moons.empty? %>
-            <tr><td colspan="6" class="text-fg-muted">No moons recorded.</td></tr>
+            <tr><td colspan="7" class="text-fg-muted">No moons recorded.</td></tr>
           <% end %>
           <% moons.each do |moon| %>
             <tr class="cursor-pointer"
@@ -67,8 +69,10 @@
               <td>
                 <%= moon.is_a?(Ring) ? 'Ring' : moon.uwp %>
               </td>
+              <td><%= render 'application/tags', record: moon %></td>
               <td class="actions-cell">
                 <div class="action-group">
+                  <%= render 'application/tag_action', record: moon, label: moon.display_name %>
                   <% if moon.is_a?(Ring) %>
                     <%= link_to edit_ring_path(moon), class: 'action', title: 'Edit ring', data: { turbo_frame: 'modal' } do %>
                       <i class="fa-regular fa-pen-to-square"></i>

@@ -1,6 +1,7 @@
 require 'set'
 
 class StellarObject < ApplicationRecord
+  include Taggable
   SIZE_CODES = %w[0 S 1 2 3 4 5 6 7 8 9 A B C D E F G H J K L M].freeze
   WORLD_COUNT_TYPES = %w[TerrestrialPlanet PlanetoidBelt GasGiant].freeze
   POPULATED_WORLD_TYPES = %w[TerrestrialPlanet Moon PlanetoidBelt Planetoid].freeze
@@ -125,7 +126,7 @@ class StellarObject < ApplicationRecord
   end
 
   def self.permitted_params
-    [:name, :player_notes, :referee_notes, :language, :known, :reference_url]
+    [:name, :player_notes, :referee_notes, :tag_list, :language, :known, :reference_url]
   end
 
   def self.wiki_world_url(name)
@@ -213,6 +214,10 @@ class StellarObject < ApplicationRecord
   end
 
   def sophont
+    nil
+  end
+
+  def extinct_sophont_record
     nil
   end
 

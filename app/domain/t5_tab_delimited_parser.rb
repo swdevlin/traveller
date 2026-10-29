@@ -150,6 +150,8 @@ class T5TabDelimitedParser
     entry['bases'] = sys['Bases'].present? ? sys['Bases'].chars : []
     entry['allegiance'] = sys['Allegiance'].presence
     entry['travelZone'] = sys['Zone'].presence
+    nobility = sys['Nobility'].to_s.chars.select { Tag::NOBILITY.key?(it) }.uniq
+    entry['nobility'] = nobility if nobility.any?
 
     entry.compact
   end

@@ -1051,6 +1051,7 @@ type alias ModelData =
     , allegianceOptions : List HighlightRule.Option
     , sectorOptions : List HighlightRule.Option
     , subsectorOptions : List HighlightRule.Option
+    , tagOptions : List HighlightRule.Option
     , sophontOptions : List HighlightRule.Option
     , displayMode : DisplayMode
     , regionDisplay : RegionDisplay
@@ -1464,6 +1465,7 @@ type alias Flags =
     , allegianceOptions : List HighlightRule.Option
     , sectorOptions : List HighlightRule.Option
     , subsectorOptions : List HighlightRule.Option
+    , tagOptions : List HighlightRule.Option
     , sophontOptions : List HighlightRule.Option
     , shipLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
@@ -1825,6 +1827,7 @@ init viewport settings key hostConfig referee =
             , allegianceOptions = settings.allegianceOptions |> List.sortBy .name
             , sectorOptions = settings.sectorOptions |> List.sortBy .name
             , subsectorOptions = settings.subsectorOptions |> List.sortBy .name
+            , tagOptions = settings.tagOptions
             , sophontOptions = settings.sophontOptions |> List.sortBy .name
             , searchState = { query = "", results = RemoteData.NotAsked, dropdownOpen = False }
             , theme = settings.theme
@@ -5569,6 +5572,7 @@ pickerData model =
     , allegiances = model.allegianceOptions
     , sectors = model.sectorOptions
     , subsectors = model.subsectorOptions
+    , tags = model.tagOptions
     , sophonts = model.sophontOptions
     }
 
@@ -6791,6 +6795,13 @@ view ( time, model ) =
                                     , height = model.starMapModalSize.height
                                     , onResizeStart = StarMapResizeStart
                                     }
+                                    (case entry.stellarObject of
+                                        GasGiant body -> Just body.id
+                                        TerrestrialPlanet body -> Just body.id
+                                        Planetoid body -> Just body.id
+                                        PlanetoidBelt body -> Just body.id
+                                        _ -> Nothing
+                                    )
                                     entry.data
                                 )
                     )
@@ -7916,6 +7927,8 @@ update msg ( time, model ) =
                                             , sectorId = fallibleSystem.sectorId
                                             , subsectorId = fallibleSystem.subsectorId
                                             , sophontIds = fallibleSystem.sophontIds
+                                            , extinctSophontIds = fallibleSystem.extinctSophontIds
+                                            , filterTags = fallibleSystem.filterTags
                                             }
                                     in
                                     ( ( HexAddress.toKey fallibleSystem.address

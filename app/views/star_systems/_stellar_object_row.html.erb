@@ -76,8 +76,11 @@
     <% end %>
   </td>
 
+  <td><%= render 'application/tags', record: stellar_object %></td>
+
   <td class='actions-cell'>
     <div class='action-group'>
+      <%= render 'application/tag_action', record: stellar_object, label: stellar_object.display_name %>
       <%= link_to edit_stellar_object_path(stellar_object),
                   class: 'action',
                   title: 'Edit' do %>

@@ -1,0 +1,26 @@
+<%= render 'stellar_objects/object_context', hierarchy: [['Data Cores', data_cores_path], ['Tags', tags_path(page: params[:page])]] %>
+<% content_for :title, "Editing #{@name}" %>
+<% content_for :page_kicker, 'Tag Data Core' %>
+<% content_for :page_title, "Editing #{@name}" %>
+
+<%= render 'application/page' do %>
+  <%= form_with url: tags_path, method: :patch, class: 'contents' do %>
+    <%= hidden_field_tag :name, @name %>
+    <%= hidden_field_tag :page, params[:page] if params[:page].present? %>
+    <div class='space-y-2 pb-10'>
+      <div class='edit-row'>
+        <%= label_tag :replacement, 'Name', class: 'edit-label' %>
+        <%= text_field_tag :replacement, @replacement, required: true, class: 'edit-base w-full sm:w-96' %>
+      </div>
+      <div class='edit-row'>
+        <%= label_tag :description, 'Description', class: 'edit-label' %>
+        <%= text_area_tag :description, @tag.description, rows: 3, class: 'edit-base w-full sm:w-96' %>
+      </div>
+      <p class='text-sm text-fg-muted'>Renaming updates every object using this tag in the campaign. Renaming to an existing tag merges them.</p>
+      <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+        <%= submit_tag 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
+        <%= link_to 'Cancel', tags_path(page: params[:page]), class: 'w-full sm:w-auto btn' %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

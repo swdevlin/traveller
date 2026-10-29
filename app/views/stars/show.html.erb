@@ -24,19 +24,16 @@
   subsector = parsec&.subsector
 %>
 
+<% content_for :page_side do %>
+  <%= render 'application/tags_sidebar', record: @star %>
+  <% if subsector %>
+    <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
+  <% end %>
+<% end %>
+
 <% nodes = orbit_strip_nodes(@star) %>
 <%= render 'stellar_objects/orbit_strip_nav', nodes: nodes, index: nodes.index(@star) do %>
-  <%= render 'application/page' do %>
-    <div class='flex flex-col md:flex-row md:items-start gap-6'>
-      <div class='flex-1 min-w-0'>
-        <%= render @star %>
-      </div>
-
-      <% if subsector %>
-        <div class='w-full md:w-[300px] shrink-0'>
-          <%= render 'subsectors/map_embed', subsector: subsector, highlight: parsec.id %>
-        </div>
-      <% end %>
-    </div>
+  <%= render(subsector || owns_campaign? ? 'application/two_column_page' : 'application/page') do %>
+    <%= render @star %>
   <% end %>
 <% end %>

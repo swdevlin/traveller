@@ -7,6 +7,7 @@
   max_y = sectors.max_by(&:y).y
   col_count = max_x - min_x + 1
   sectors_by_pos = sectors.index_by { |s| [s.x, s.y] }
+  preload_tags(sectors) if owns_campaign?
 %>
 
 <div class="flex-1 overflow-auto rounded-xl cursor-grab"
@@ -31,6 +32,10 @@
               <%= sector.name %>
             </div>
             <div class="text-[0.6rem] text-fg-muted italic"><%= x %>/<%= y %></div>
+            <% if owns_campaign? && sector.tags.any? %>
+              <% tag_names = sector.tag_names.join(', ') %>
+              <div class="mt-1 w-full line-clamp-2 break-words text-[0.6rem] text-highlight-fg" title="<%= tag_names %>" aria-label="Tags"><%= tag_names %></div>
+            <% end %>
           <% end %>
         <% else %>
           <div class="aspect-[4/5] rounded-md border border-outline/20 bg-panel/20"></div>
