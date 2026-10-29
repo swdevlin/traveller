@@ -5,7 +5,7 @@ player_visible = @is_referee || star_system.known? || star_system.survey_index >
 
 json.known star_system.known?
 json.partial! 'api/records', record: star_system, visible: player_visible
-json.contained_tags player_visible && Current.referee_access? ? star_system.contained_tags : []
+json.contained_tags(player_visible && Current.referee_access? ? star_system.contained_tags : [])
 json.reference_url player_visible ? star_system.effective_reference_url(current_campaign) : nil
 json.bases(player_visible ? star_system.facilities.to_a.sort_by(&:code) : []) do |facility|
   json.code facility.code

@@ -117,7 +117,7 @@ class ObjectTagsControllerTest < AuthenticatedIntegrationTest
 
   test 'grid add ignores external return paths' do
     record = sectors(:one)
-    [ 'https://evil.example/', '//evil.example/x' ].each do |target|
+    ['https://evil.example/', '//evil.example/x'].each do |target|
       post object_tags_url, params: tag_params(record, tag_list: 'Grid tag', return_to: target)
       assert_redirected_to sector_path(record)
     end

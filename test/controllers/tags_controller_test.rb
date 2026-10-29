@@ -58,7 +58,6 @@ class TagsControllerTest < AuthenticatedIntegrationTest
     records_and_paths = [
       [sectors(:one), sector_url(sectors(:one))],
       [subsectors(:subsector_1_1), subsector_url(subsectors(:subsector_1_1))],
-      [star_systems(:in_one), star_system_url(star_systems(:in_one))],
       [gas_giants(:small), stellar_object_url(gas_giants(:small))],
       [stars(:star_one), star_url(stars(:star_one))],
       [regions(:one), region_url(regions(:one))]
@@ -71,6 +70,15 @@ class TagsControllerTest < AuthenticatedIntegrationTest
       # Grid rows list their own tags; the page's own tags only appear in the sidebar.
       assert_empty css_select('.page-main [aria-label=Tags]').reject { |node| node.ancestors('td').any? }
     end
+  end
+
+  test 'star system detail page displays tags once in the header grid' do
+    star_system = star_systems(:in_one)
+    star_system.update!(tag_list: 'Header tag')
+    get star_system_url(star_system)
+    assert_response :success
+    assert_select '.page-main [aria-label="Object tags"] a[href=?]', tag_path(name: 'Header tag'), text: 'Header tag', count: 1
+    assert_select '.page-side [aria-label="Object tags"] a[href=?]', tag_path(name: 'Header tag'), count: 0
   end
 
   test 'registry paginates tags alphabetically' do

@@ -1,0 +1,5 @@
+---
+ignore:
+  # mcp is pinned to < 1.0 by the faultline gem (mcp ~> 0.15), which is only used for
+  # the Faultline error-tracking MCP server. Revisit when faultline allows mcp >= 1.2.
+  - GHSA-4m5j-jjfc-97gx

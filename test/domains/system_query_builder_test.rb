@@ -324,9 +324,9 @@ class SystemQueryBuilderTest < ActiveSupport::TestCase
         assert_equal expected, overlay.matches?(system), "Ruby #{source.class} #{condition}"
         direct_match = if [system, system.main_world].include?(source)
                          expected
-                       else
+        else
                          negate
-                       end
+        end
         assert_equal direct_match, query.matching_star_systems.exists?(system.id), "SQL #{source.class} #{condition}"
       end
       source.update!(tag_list: '')
@@ -353,5 +353,4 @@ class SystemQueryBuilderTest < ActiveSupport::TestCase
       assert_not type.new(attrs).valid?
     end
   end
-
 end

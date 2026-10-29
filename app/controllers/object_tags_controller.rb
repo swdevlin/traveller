@@ -51,10 +51,10 @@ class ObjectTagsController < ApplicationController
       redirect_to path, status: :see_other
     else
       path = case @record
-             when Star then star_path(@record)
-             when StellarObject then stellar_object_path(@record)
-             else polymorphic_path(@record)
-             end
+      when Star then star_path(@record)
+      when StellarObject then stellar_object_path(@record)
+      else polymorphic_path(@record)
+      end
       redirect_to path, status: :see_other
     end
   end

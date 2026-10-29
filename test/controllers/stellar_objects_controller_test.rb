@@ -290,10 +290,10 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     fields = form.css('input[name], textarea[name], select[name]').filter_map do |element|
       next unless element['name'].start_with?('stellar_object[')
       value = case element.name
-              when 'textarea' then element.text
-              when 'select' then (element.at_css('option[selected]') || element.at_css('option'))&.[]('value')
-              else element['value']
-              end
+      when 'textarea' then element.text
+      when 'select' then (element.at_css('option[selected]') || element.at_css('option'))&.[]('value')
+      else element['value']
+      end
       [element['name'], value.to_s]
     end
     attributes = Rack::Utils.parse_nested_query(URI.encode_www_form(fields))
