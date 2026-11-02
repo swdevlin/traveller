@@ -165,10 +165,11 @@ Rails.application.routes.draw do
       member do
         post :regenerate_characteristics
         post :generate_map
+        post :upload_map
+        delete :clear_map
         get  :map
         get  :daily_traffic
         post :generate_daily_traffic
-        get  :world_map
         get  :moon_orbit_map
         get  :moon_orbit_map_modal
       end

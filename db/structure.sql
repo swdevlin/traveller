@@ -1069,7 +1069,8 @@ CREATE TABLE public.planet_maps (
     stellar_object_id bigint NOT NULL,
     inputs_digest character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    source character varying DEFAULT 'generated'::character varying NOT NULL
 );
 
 
@@ -3794,6 +3795,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261030100000'),
 ('20261028100000'),
 ('20261027130000'),
 ('20261027120000'),

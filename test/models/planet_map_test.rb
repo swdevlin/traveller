@@ -8,6 +8,15 @@ class PlanetMapTest < ActiveSupport::TestCase
     @planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
   end
 
+  PNG = Base64.decode64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==')
+
+  def upload(content: PNG, type: 'image/png', name: 'world.png')
+    file = Tempfile.new(['world', File.extname(name)], binmode: true)
+    file.write(content)
+    file.rewind
+    Rack::Test::UploadedFile.new(file.path, type, true, original_filename: name)
+  end
+
   test 'requires a webp' do
     assert_not PlanetMap.new(stellar_object: @planet, inputs_digest: 'x').valid?
   end
@@ -81,5 +90,53 @@ class PlanetMapTest < ActiveSupport::TestCase
       planetoid.size_code = size
       assert_not planetoid.map_supported?
     end
+  end
+
+  test 'store_uploaded_map keeps the image as supplied' do
+    assert_nil @planet.store_uploaded_map(upload)
+    map = @planet.reload.planet_map
+
+    assert map.uploaded?
+    assert_equal 'image/png', map.webp.content_type
+    assert_equal PNG, map.webp_data
+  end
+
+  test 'an upload replaces a generated map and is never stale' do
+    @planet.store_map(SAMPLE_SVG)
+    @planet.store_uploaded_map(upload)
+
+    assert_equal 1, PlanetMap.where(stellar_object: @planet).count
+    assert @planet.planet_map.uploaded?
+    @planet.update!(name: 'Renamed')
+    assert_not @planet.reload.map_stale?
+  end
+
+  test 'regenerating replaces an upload' do
+    @planet.store_uploaded_map(upload)
+    @planet.store_map(SAMPLE_SVG)
+
+    assert @planet.reload.planet_map.generated?
+    assert_equal 'RIFF', @planet.planet_map.webp_data[0, 4]
+  end
+
+  test 'store_uploaded_map rejects unsupported types and keeps the existing map' do
+    @planet.store_map(SAMPLE_SVG)
+    key = @planet.reload.planet_map.webp.key
+
+    assert_match(/PNG, JPEG, WebP or GIF/, @planet.store_uploaded_map(upload(content: '<svg/>', type: 'image/svg+xml', name: 'x.svg')))
+    assert_equal key, @planet.reload.planet_map.webp.key
+  end
+
+  test 'store_uploaded_map requires a file' do
+    assert_match(/Choose an image/, @planet.store_uploaded_map(nil))
+  end
+
+  test 'clear_map removes a generated or uploaded map' do
+    @planet.store_map(SAMPLE_SVG)
+    assert_difference('PlanetMap.count', -1) { @planet.clear_map }
+
+    @planet.reload.store_uploaded_map(upload)
+    assert_difference('PlanetMap.count', -1) { @planet.reload.clear_map }
+    assert_nil @planet.reload.planet_map
   end
 end

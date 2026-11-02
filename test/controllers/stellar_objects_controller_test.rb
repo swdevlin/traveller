@@ -434,6 +434,50 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_not planet.planet_map.respond_to?(:svg)
   end
 
+  test 'upload_map stores the image, replacing a generated map, and map serves it' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+    png = Base64.decode64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==')
+    file = Tempfile.new(['world', '.png'], binmode: true)
+    file.write(png)
+    file.close
+
+    assert_no_difference('PlanetMap.count') do
+      post upload_map_stellar_object_url(planet), params: { map_image: fixture_file_upload(file.path, 'image/png') }, as: :turbo_stream
+    end
+    assert_match(/Remove map/, response.body)
+    assert planet.reload.planet_map.uploaded?
+
+    get map_stellar_object_url(planet)
+    assert_equal 'image/png', response.media_type
+    assert_equal png, response.body.b
+  end
+
+  test 'upload_map reports an unusable file' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    file = Tempfile.new(['notes', '.txt'])
+    file.write('hello')
+    file.close
+
+    assert_no_difference('PlanetMap.count') do
+      post upload_map_stellar_object_url(planet), params: { map_image: fixture_file_upload(file.path, 'text/plain') }, as: :turbo_stream
+    end
+    assert_match(/PNG, JPEG, WebP or GIF/, response.body)
+  end
+
+  test 'clear_map removes the map' do
+    planet = stellar_objects(:two)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)
+    planet.store_map(SAMPLE_SVG)
+
+    assert_difference('PlanetMap.count', -1) do
+      delete clear_map_stellar_object_url(planet), as: :turbo_stream
+    end
+    assert_match(/Generate Map/, response.body)
+  end
+
   test 'generate_map failure leaves an existing map intact' do
     planet = stellar_objects(:two)
     planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5)

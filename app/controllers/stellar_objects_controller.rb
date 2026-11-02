@@ -189,32 +189,14 @@ class StellarObjectsController < ApplicationController
     redirect_to stellar_object_path(@stellar_object), alert: 'Could not regenerate characteristics at this time.'
   end
 
-  # GET /stellar_objects/1/world_map
-  def world_map
-    unless @stellar_object.is_a?(TerrestrialPlanet)
-      return redirect_to stellar_object_path(@stellar_object), alert: 'World maps are only available for terrestrial planets.'
-    end
-
-    payload = JSON.parse(render_to_string(template: 'stellar_objects/show', formats: [:json]))
-    payload['trade_codes'] = @stellar_object.star_system&.trade_codes&.order(:code)&.pluck(:code) || []
-    result = generator_service.world_map(payload)
-
-    unless result.success?
-      return redirect_to stellar_object_path(@stellar_object), alert: result.errors.to_sentence
-    end
-
-    send_data result.value, type: 'image/svg+xml', disposition: 'inline'
-  rescue StandardError => e
-    Rails.logger.error "world_map failed: #{e.class} - #{e.message}\n#{e.backtrace.first(5).join("\n")}"
-    redirect_to stellar_object_path(@stellar_object), alert: 'Could not generate world map at this time.'
-  end
-
   # GET /stellar_objects/1/map
   def map
     planet_map = @stellar_object.try(:planet_map)
     return head :not_found unless planet_map&.webp&.attached?
 
-    send_data planet_map.webp_data, type: 'image/webp', disposition: 'inline', filename: @stellar_object.map_download_filename
+    extension = Mime::Type.lookup(planet_map.webp.content_type).symbol || :webp
+    send_data planet_map.webp_data, type: planet_map.webp.content_type, disposition: 'inline',
+                                    filename: @stellar_object.map_download_filename(extension)
   end
 
   # POST /stellar_objects/1/generate_map
@@ -240,6 +222,26 @@ class StellarObjectsController < ApplicationController
     @map_error = 'Could not generate the map at this time.'
     respond_to do |format|
       format.turbo_stream
+    end
+  end
+
+  # POST /stellar_objects/1/upload_map
+  def upload_map
+    unless @stellar_object.try(:map_supported?)
+      return redirect_to stellar_object_path(@stellar_object), alert: 'Maps can only be set for terrestrial planets, planetoids and moons of size 1 or greater.'
+    end
+
+    @map_error = @stellar_object.store_uploaded_map(params[:map_image])
+    respond_to do |format|
+      format.turbo_stream { render :generate_map }
+    end
+  end
+
+  # DELETE /stellar_objects/1/clear_map
+  def clear_map
+    @stellar_object.try(:clear_map)
+    respond_to do |format|
+      format.turbo_stream { render :generate_map }
     end
   end
 

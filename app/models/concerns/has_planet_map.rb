@@ -18,7 +18,7 @@ module HasPlanetMap
   end
 
   def map_stale?
-    planet_map.present? && planet_map.inputs_digest != map_inputs_digest
+    planet_map&.generated? && planet_map.inputs_digest != map_inputs_digest
   end
 
   # Rasterises first so a failure leaves any existing map untouched. Only the WebP is kept.
@@ -27,6 +27,26 @@ module HasPlanetMap
     map = planet_map || build_planet_map
     map.webp.attach(io: StringIO.new(data), filename: 'map.webp', content_type: 'image/webp')
     map.inputs_digest = map_inputs_digest
+    map.source = :generated
     map.save!
+  end
+
+  # Replaces any existing map (generated or uploaded) with the user's own image, kept as supplied.
+  # Returns an error message, or nil on success.
+  def store_uploaded_map(upload)
+    error = PlanetMap.upload_error(upload)
+    return error if error
+
+    map = planet_map || build_planet_map
+    map.webp.attach(io: upload.tempfile, filename: upload.original_filename, content_type: upload.content_type)
+    map.inputs_digest = map_inputs_digest
+    map.source = :uploaded
+    map.save!
+    nil
+  end
+
+  def clear_map
+    planet_map&.destroy
+    association(:planet_map).reset
   end
 end

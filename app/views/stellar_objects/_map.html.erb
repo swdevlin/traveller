@@ -1,5 +1,5 @@
 <% planet_map = stellar_object.planet_map %>
-<div id="<%= dom_id(stellar_object, :map) %>" class="space-y-2">
+<div id="<%= dom_id(stellar_object, :map) %>" class="space-y-2" data-controller='tag-dialog'>
   <% if planet_map %>
     <% if stellar_object.map_stale? %>
       <div class='flex items-start gap-3 rounded-2xl border-2 border-warning bg-warning/25 p-4 text-fg-bright shadow-sm' role='alert'>
@@ -14,7 +14,14 @@
     <% end %>
     <%= image_tag map_stellar_object_path(stellar_object, v: planet_map.updated_at.to_i), alt: 'Surface map', class: 'block max-w-full h-auto' %>
     <div class='flex items-center justify-between'>
-      <%= button_to 'Regenerate map', generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary btn-sm' %>
+      <div class='flex gap-2'>
+        <%= button_to planet_map.uploaded? ? 'Replace with generated map' : 'Regenerate map',
+                      generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary btn-sm' %>
+        <%= button_to 'Remove map', clear_map_stellar_object_path(stellar_object), method: :delete,
+                      class: 'btn btn-secondary btn-sm',
+                      form: { data: { turbo_confirm: 'Remove this map? This cannot be undone.', confirm_label: 'Remove map' } } %>
+        <button type='button' class='btn btn-secondary btn-sm' data-action='click->tag-dialog#open'><%= planet_map ? 'Replace with upload' : 'Upload image' %></button>
+      </div>
       <div class='flex gap-3 text-fg-muted'>
         <button type='button'
                 title='Copy public map link'
@@ -24,8 +31,8 @@
                 data-action='click->clipboard#copy'>
           <i class='fa-regular fa-link'></i>
         </button>
-        <%= link_to map_stellar_object_path(stellar_object, format: :webp),
-                    download: stellar_object.map_download_filename,
+        <%= link_to map_stellar_object_path(stellar_object, format: Mime::Type.lookup(planet_map.webp.content_type).symbol),
+                    download: stellar_object.map_download_filename(Mime::Type.lookup(planet_map.webp.content_type).symbol),
                     class: 'hover:text-fg-bright',
                     title: 'Download map' do %>
           <i class='fa-regular fa-download'></i>
@@ -40,9 +47,25 @@
       </div>
     </div>
   <% else %>
-    <%= button_to 'Generate Map', generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary' %>
-    <p class="text-fg-muted text-sm">Click Generate Map to render this world's surface map.</p>
+    <div class='flex flex-wrap gap-2'>
+      <%= button_to 'Generate Map', generate_map_stellar_object_path(stellar_object), method: :post, class: 'btn btn-secondary' %>
+      <button type='button' class='btn btn-secondary' data-action='click->tag-dialog#open'>Upload image</button>
+    </div>
+    <p class="text-fg-muted text-sm">Click Generate Map to render this world's surface map, or upload your own image.</p>
   <% end %>
+  <dialog class='tag-dialog' aria-label='Upload a map image' data-tag-dialog-target='dialog'
+          data-action='click->tag-dialog#backdrop'>
+    <%= form_with url: upload_map_stellar_object_path(stellar_object), method: :post, multipart: true,
+                  class: 'space-y-4', data: { controller: 'file-select' } do %>
+      <h2 class='text-lg font-semibold text-fg-bright'>Upload map image</h2>
+      <%= render 'application/file_field', name: :map_image, accept: PlanetMap::PICTURE_TYPES.join(','), required: true, compact: true,
+                 data: { tag_dialog_target: 'input', file_select_target: 'input', action: 'file-select#toggle' } %>
+      <div class='flex justify-end gap-2'>
+        <button type='button' class='btn btn-sm' data-action='click->tag-dialog#close'>Cancel</button>
+        <%= submit_tag 'Upload', class: 'btn btn-primary btn-sm', data: { file_select_target: 'submit' } %>
+      </div>
+    <% end %>
+  </dialog>
   <% if local_assigns[:error].present? %>
     <p class="text-red-400 text-sm"><%= error %></p>
   <% end %>

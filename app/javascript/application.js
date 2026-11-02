@@ -1,6 +1,7 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import { Turbo } from "@hotwired/turbo-rails"
 import "controllers"
+import "confirm_dialog"
 
 Turbo.StreamActions.select_new_ship = function() {
   const select = document.getElementById('jump_log_ship_id')

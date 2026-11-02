@@ -2175,6 +2175,22 @@
   white-space: normal;
 }
 .tag-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
+.confirm-dialog {
+  margin: auto;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: 1px solid var(--color-outline);
+  border-radius: 0.5rem;
+  background: var(--color-panel);
+  color: var(--color-fg);
+  text-align: left;
+  white-space: normal;
+}
+.confirm-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
+.confirm-dialog-title { margin: 0 0 0.5rem; font-size: 1.125rem; font-weight: 600; color: var(--color-fg-bright); }
+.confirm-dialog-message { margin: 0 0 1.25rem; }
+.confirm-dialog-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+.confirm-dialog-actions .btn { margin-right: 0; }
 .tag-create { max-width: 100%; }
 .tag-create[open] { flex-basis: 100%; }
 .tag-add {
