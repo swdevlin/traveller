@@ -40,7 +40,7 @@ PrePush:
   BundlerAudit:
     enabled: true
     description: "Run bundler-audit"
-    command: ["bash", "-lc", "bundle exec bundler-audit check --update"]
+    command: ["bash", "-lc", "bundle exec bundler-audit check --update --config config/bundler-audit.yml"]
 
 #PostCheckout:
 #  ALL: # Special hook name that customizes all hooks of this type
