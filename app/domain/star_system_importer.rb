@@ -118,8 +118,10 @@ class StarSystemImporter
 
     main_world_orbit_sequence = data['mainWorldOrbitSequence']
     @star_system.main_world =
-      @star_system.stellar_objects.find_by(orbit_sequence: main_world_orbit_sequence) ||
-      Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
+      if main_world_orbit_sequence.present?
+        @star_system.stellar_objects.where.not(type: 'Ring').find_by(orbit_sequence: main_world_orbit_sequence) ||
+          Moon.find_by(star_system_id: @star_system.id, orbit_sequence: main_world_orbit_sequence)
+      end
 
     yield
 

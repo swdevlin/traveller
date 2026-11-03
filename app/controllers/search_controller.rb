@@ -129,13 +129,7 @@ class SearchController < ApplicationController
   end
 
   def deduplicated(rows)
-    seen = Set.new
-    rows.each_with_object([]) do |r, acc|
-      next if seen.include?(r['id'])
-      seen << r['id']
-      acc << r
-      break if acc.length >= LIMIT
-    end
+    rows.uniq { |r| r['id'] }.first(LIMIT)
   end
 
   def star_system_name_results(q)
