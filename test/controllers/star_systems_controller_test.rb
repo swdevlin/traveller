@@ -193,6 +193,17 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_system_url(StarSystem.order(:created_at).last)
   end
 
+  test 'build configuration create keeps the entered build text when invalid' do
+    build = 'name: [unclosed'
+
+    post subsector_star_systems_url(@subsector), params: {
+      star_system: { parsec_id: @parsec.id, create_mode: 'build_configuration', build: build }
+    }
+
+    assert_response :unprocessable_entity
+    assert_select 'textarea', text: build
+  end
+
   test 'build configuration create adds rogues and strips them from the generator payload' do
     base = Rails.application.config.x.generator_service
     body = file_fixture('star_system_import_minimal.json').read

@@ -253,6 +253,7 @@ class StarSystemsController < ApplicationController
         flash.now[:alert] = [flash.now[:alert], message].compact.join(' ')
       end
 
+      @star_system.build = create_params[:build]
       return render :new, status: :unprocessable_entity
     end
 
