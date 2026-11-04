@@ -40,6 +40,7 @@ class StarSystem < ApplicationRecord
   has_many :gas_giants, through: :stars, source: :stellar_objects, class_name: 'GasGiant'
 
   validate :main_world_must_be_in_system
+  validate :main_world_cannot_be_ring
 
   def effective_language(campaign)
     language.presence ||
@@ -162,6 +163,11 @@ class StarSystem < ApplicationRecord
     @main_world_uwp ||= main_world&.uwp
   end
 
+  # A ring has no UWP, so it can never be the main world; callers rendering main world detail use this.
+  def main_world_with_uwp?
+    main_world.present? && !main_world.is_a?(Ring)
+  end
+
   def main_world_importance
     main_world.respond_to?(:importance) ? main_world.importance : nil
   end
@@ -223,6 +229,10 @@ class StarSystem < ApplicationRecord
     return nil unless sector
 
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_(world)?sector=#{ERB::Util.url_encode(sector.name)}&hex=#{parsec.hex_code}"
+  end
+
+  def main_world_cannot_be_ring
+    errors.add(:main_world, 'cannot be a ring') if main_world.is_a?(Ring)
   end
 
   def main_world_must_be_in_system

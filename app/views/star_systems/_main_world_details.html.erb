@@ -1,5 +1,5 @@
 <% main_world = star_system.main_world %>
-<% return unless main_world&.respond_to?(:uwp) %>
+<% return unless star_system.main_world_with_uwp? %>
 
 <%= render 'application/subsection', title: 'Main World' %>
 

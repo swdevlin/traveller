@@ -2,6 +2,7 @@
 
 # A ring orbits its parent planet like a moon does. Both `orbit` (the distance of the ring's centre from
 # the planet) and `span` (its radial width) are in planetary diameters.
+# Rings have no UWP and are never main world candidates (StarSystem validates this).
 class Ring < StellarObject
   store_accessor :data, :span
 

@@ -42,12 +42,15 @@ class StarSystemsController < ApplicationController
   end
 
   def select_main_world
-    @worlds = @star_system.stellar_objects.where.not(uwp: nil).order(:orbit_sequence)
+    @worlds = @star_system.stellar_objects.where.not(uwp: nil).where.not(type: 'Ring').order(:orbit_sequence)
   end
 
   def set_main_world
-    @star_system.update(main_world_id: params[:main_world_id].presence)
-    redirect_to @star_system, status: :see_other
+    if @star_system.update(main_world_id: params[:main_world_id].presence)
+      redirect_to @star_system, status: :see_other
+    else
+      redirect_to @star_system, status: :see_other, alert: @star_system.errors.full_messages.to_sentence
+    end
   end
 
   def edit_bases

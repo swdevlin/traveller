@@ -46,7 +46,7 @@
 <% end %>
 
 <%= content_for :page_side do %>
-  <% if @star_system.main_world.respond_to?(:atmosphere) %>
+  <% if @star_system.main_world_with_uwp? && @star_system.main_world.respond_to?(:atmosphere) %>
     <div class='mb-6'>
       <%= render 'application/planetary_body_sidebar_summary',
                  stellar_object: @star_system.main_world,

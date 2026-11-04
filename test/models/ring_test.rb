@@ -69,4 +69,15 @@ class RingTest < ActiveSupport::TestCase
     assert_in_delta 127_000, ring.distance_km, 0.001
     assert_in_delta 12_000, ring.width_km, 0.001
   end
+
+  test 'a ring can never be a star system main world' do
+    ring = build_ring(star_system_id: @planet.star_system_id)
+    ring.save!
+    star_system = StarSystem.find(@planet.star_system_id)
+    star_system.main_world = ring
+
+    assert_not star_system.valid?
+    assert_includes star_system.errors[:main_world], 'cannot be a ring'
+    assert_not star_system.main_world_with_uwp?
+  end
 end
