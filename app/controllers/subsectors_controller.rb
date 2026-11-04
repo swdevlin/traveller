@@ -178,6 +178,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_max_updated.to_i,
@@ -303,6 +304,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
@@ -410,6 +412,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
@@ -516,6 +519,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
@@ -620,6 +624,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
@@ -724,6 +729,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
@@ -834,6 +840,7 @@ class SubsectorsController < ApplicationController
     version = Digest::SHA256.hexdigest([
       @subsector.updated_at.to_i,
       max_updated.to_i,
+      @star_systems.size,
       max_parsec_updated.to_i,
       region_max_updated.to_i,
       jump_route_link_max.to_i,
