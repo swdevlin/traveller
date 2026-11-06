@@ -32,7 +32,8 @@
              shadow_km: shadow_km,
              shadow_source: shadow_source,
              physical_tab: 'planetoid_belts/physical_belt_tab',
-             extra_tabs: extra_tabs %>
+             extra_tabs: extra_tabs,
+             show_transit: false %>
 
   <%= render 'stellar_objects/known_toggle', stellar_object: planetoid_belt %>
   <%= render 'application/records_block', record: planetoid_belt %>
@@ -40,4 +41,9 @@
   <% if @planetoids %>
     <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
   <% end %>
+
+  <div class="space-y-2 pt-4">
+    <%= render 'application/subsection', title: 'Transit Times' %>
+    <%= render 'stellar_objects/transit_times_table', stellar_object: planetoid_belt %>
+  </div>
 </div>

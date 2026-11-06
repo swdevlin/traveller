@@ -128,15 +128,15 @@
       <% end %>
     <% end %>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit jump_route.persisted? ? 'Update' : 'Commit', class: 'w-full sm:w-auto btn btn-primary' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit jump_route.persisted? ? 'Update' : 'Commit', class: 'btn btn-primary' %>
       <%= link_to 'Cancel',
                   if @return_to == 'starmap'
                     campaign_starmap_path
                   else
                     jump_route.persisted? ? jump_route : jump_routes_path
                   end,
-                  class: 'w-full sm:w-auto btn' %>
+                  class: 'btn' %>
     </div>
   </div>
 <% end %>

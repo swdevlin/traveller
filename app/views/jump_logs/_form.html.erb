@@ -6,7 +6,7 @@
                                        jump_form_new_record_value: jump_log.new_record? }) do |form| %>
   <div class='space-y-6 pb-10'>
     <% if jump_log.errors.any? %>
-      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+      <div class='card accent'>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
         <div class='mt-1 text-sm font-semibold text-fg-bright'>
           <%= pluralize(jump_log.errors.count, 'error') %> prevented this jump log from being saved
@@ -125,12 +125,10 @@
       <div class='edit-label mb-2'>Depart</div>
       <div class='flex flex-row gap-2'>
         <%= form.number_field :depart_year, placeholder: 'Year',
-                              class: ['edit-base w-28', { 'border-gray-400': jump_log.errors[:depart_year].none?,
-                                                          'border-red-400': jump_log.errors[:depart_year].any? }],
+                              class: 'edit-base w-28', aria: { invalid: jump_log.errors[:depart_year].any? },
                               data: { jump_dates_target: 'departYear' } %>
         <%= form.number_field :depart_day, placeholder: 'Day', min: 1, max: 365,
-                              class: ['edit-base w-24', { 'border-gray-400': jump_log.errors[:depart_day].none?,
-                                                          'border-red-400': jump_log.errors[:depart_day].any? }],
+                              class: 'edit-base w-24', aria: { invalid: jump_log.errors[:depart_day].any? },
                               data: { jump_dates_target: 'departDay' } %>
       </div>
     </div>
@@ -140,12 +138,10 @@
       <div class='edit-label mb-2'>Arrive</div>
       <div class='flex flex-row gap-2'>
         <%= form.number_field :arrive_year, placeholder: 'Year',
-                              class: ['edit-base w-28', { 'border-gray-400': jump_log.errors[:arrive_year].none?,
-                                                          'border-red-400': jump_log.errors[:arrive_year].any? }],
+                              class: 'edit-base w-28', aria: { invalid: jump_log.errors[:arrive_year].any? },
                               data: { jump_dates_target: 'arriveYear' } %>
         <%= form.number_field :arrive_day, placeholder: 'Day', min: 1, max: 365,
-                              class: ['edit-base w-24', { 'border-gray-400': jump_log.errors[:arrive_day].none?,
-                                                          'border-red-400': jump_log.errors[:arrive_day].any? }],
+                              class: 'edit-base w-24', aria: { invalid: jump_log.errors[:arrive_day].any? },
                               data: { jump_dates_target: 'arriveDay' } %>
       </div>
     </div>
@@ -153,16 +149,15 @@
     <div>
       <%= form.label :notes, 'Notes', class: 'edit-label' %>
       <%= form.text_area :notes, rows: 4,
-                         class: ['w-full edit-base mt-2 resize-y',
-                                 { 'border-gray-400': jump_log.errors[:notes].none?,
-                                   'border-red-400': jump_log.errors[:notes].any? }] %>
+                         class: 'w-full edit-base mt-2 resize-y',
+                         aria: { invalid: jump_log.errors[:notes].any? } %>
     </div>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
+    <div class='form-actions pt-2'>
       <%= form.submit jump_log.persisted? ? 'Update log' : 'Create log',
-                      class: 'w-full sm:w-auto btn btn-primary' %>
+                      class: 'btn btn-primary' %>
       <%= link_to 'Cancel', jump_log.persisted? ? jump_log : jump_logs_path,
-                  class: 'w-full sm:w-auto btn' %>
+                  class: 'btn' %>
     </div>
   </div>
 <% end %>

@@ -250,22 +250,22 @@
       </div>
     </div>
 
-    <div class='mt-6 flex flex-col sm:flex-row gap-2'>
-      <%= link_to edit_campaign_settings_path, class: 'w-full sm:w-auto btn btn-primary' do %>
+    <div class='form-actions mt-6'>
+      <%= link_to edit_campaign_settings_path, class: 'btn btn-primary' do %>
         <i class='fa-regular fa-pencil mr-1.5'></i> Edit
       <% end %>
 
       <% if @campaign.deepnight_revelation? %>
         <%= button_to populate_deepnight_campaign_settings_path,
               method: :post,
-              class: 'w-full sm:w-auto btn' do %>
+              class: 'btn' do %>
           <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
         <% end %>
       <% end %>
 
       <%= button_to assign_builds_campaign_settings_path,
             method: :post,
-            class: 'w-full sm:w-auto btn',
+            class: 'btn',
             disabled: @campaign.sector_source.nil? do %>
         <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
       <% end %>
@@ -273,7 +273,7 @@
       <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
       <%= button_to populate_empty_campaign_settings_path,
             method: :post,
-            class: 'w-full sm:w-auto btn',
+            class: 'btn',
             disabled: !@has_empty_sectors,
             data: { turbo_confirm: empty_confirm } do %>
         <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
@@ -285,7 +285,7 @@
             class: 'w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-2',
             data: { turbo_confirm: regenerate_confirm } do |f| %>
         <%= f.button type: 'submit',
-              class: 'w-full sm:w-auto btn',
+              class: 'btn',
               disabled: @subsector_count.zero? do %>
           <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
         <% end %>

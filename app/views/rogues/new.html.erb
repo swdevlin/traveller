@@ -52,7 +52,7 @@
                 <label class="flex items-start gap-3 rounded-lg border border-outline bg-panel px-3 py-2 hover:bg-panel cursor-pointer">
                   <%= df.radio_button :comet_type, value,
                                       checked: current_type == value,
-                                      class: 'mt-1 h-4 w-4 text-red-600 bg-panel border-outline focus:ring-highlight' %>
+                                      class: 'mt-1 h-4 w-4 text-highlight bg-panel border-outline focus:ring-highlight' %>
                   <span class="text-sm text-fg-bright"><%= label %></span>
                 </label>
               <% end %>
@@ -66,8 +66,8 @@
       <%= render 'application/boolean_toggle', form: f, attribute: :known,
             checked: f.object.known, label: 'Known' %>
 
-      <div class="pt-2 flex flex-col sm:flex-row gap-2">
-        <%= f.submit 'Add rogue', class: 'w-full sm:w-auto btn btn-primary' %>
+      <div class="form-actions pt-2">
+        <%= f.submit 'Add rogue', class: 'btn btn-primary' %>
       </div>
     </div>
   <% end %>

@@ -8,35 +8,35 @@
 
 <% content_for :page_buttons do %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
-  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+  <div class='form-actions mt-6'>
     <%= link_to 'Edit',
                 edit_sector_path(@sector),
-                class: 'w-full sm:w-auto btn btn-primary' %>
+                class: 'btn btn-primary' %>
 
     <% populate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
                                  "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?"
                                end %>
     <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
       <%= form.submit 'Generate',
-                      class: 'w-full sm:w-auto btn cursor-pointer',
+                      class: 'btn cursor-pointer',
                       data: { turbo_confirm: populate_confirm_msg, tour_step: 'sector-populate' } %>
     <% end %>
 
     <%= button_to 'Clear',
                   clear_sector_path(@sector),
                   method: 'post',
-                  class: 'w-full sm:w-auto btn',
+                  class: 'btn',
                   data: { turbo_confirm: confirm_msg, tour_step: 'sector-clear' } %>
 
     <%= link_to 'Load Build Default',
                 defaults_source_sector_path(@sector),
-                class: 'w-full sm:w-auto btn' %>
+                class: 'btn' %>
 
     <% if @sector.source == 'traveller_map' %>
       <%= button_to 'Refresh Jump Routes',
                     import_jump_routes_sector_path(@sector),
                     method: 'post',
-                    class: 'w-full sm:w-auto btn',
+                    class: 'btn',
                     data: { tour_step: 'sector-import-jump-routes' } %>
     <% end %>
 
@@ -49,7 +49,7 @@
                   @sector,
                   method: :delete,
                   form_class: 'w-full sm:w-auto',
-                  class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                  class: 'btn btn-danger cursor-pointer',
                   data: { turbo_confirm: 'Are you sure?', tour_step: 'sector-delete' } %>
   </div>
 <% end %>

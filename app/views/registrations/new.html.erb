@@ -38,8 +38,8 @@
       <%= render 'application/field_error', form: form, attribute: :password_confirmation %>
     </div>
 
-    <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
-      <%= form.submit 'Enrol', class: 'w-full sm:w-auto btn btn-primary' %>
+    <div class='form-actions sm:items-center gap-4 pt-2'>
+      <%= form.submit 'Enrol', class: 'btn btn-primary' %>
       <%= link_to 'Sign in instead', new_session_path, class: 't-link text-sm' %>
     </div>
   <% end %>

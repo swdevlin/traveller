@@ -42,11 +42,11 @@
     </ul>
     <%== @pagy.series_nav %>
 
-    <div class='flex flex-col sm:flex-row gap-2'>
-      <%= link_to 'Edit', edit_sophont_path(@sophont), class: 'w-full sm:w-auto btn btn-primary' %>
+    <div class='form-actions'>
+      <%= link_to 'Edit', edit_sophont_path(@sophont), class: 'btn btn-primary' %>
       <%= button_to 'Delete', @sophont, method: :delete,
                     form_class: 'w-full sm:w-auto inline-flex m-0',
-                    class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                    class: 'btn btn-danger cursor-pointer',
                     data: { turbo_confirm: "Delete #{@sophont.name}?" } %>
     </div>
   </div>

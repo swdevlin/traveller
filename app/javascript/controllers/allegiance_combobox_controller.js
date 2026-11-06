@@ -78,22 +78,22 @@ export default class extends Controller {
     this.listTarget.innerHTML = ''
     if (results.length === 0) {
       const empty = document.createElement('li')
-      empty.className = 'px-3 py-2 text-slate-400 text-sm'
+      empty.className = 'px-3 py-2 text-fg-muted text-sm'
       empty.textContent = 'No matches'
       this.listTarget.appendChild(empty)
     } else {
       results.forEach(a => {
         const li = document.createElement('li')
-        li.className = 'px-3 py-2 cursor-pointer hover:bg-slate-700 text-sm flex items-center gap-2'
+        li.className = 'px-3 py-2 cursor-pointer hover:bg-dropdown-hover text-sm flex items-center gap-2'
         li.dataset.allegianceId = a.id
         li.dataset.allegianceText = `${a.code} — ${a.name}`
 
         const code = document.createElement('span')
-        code.className = 'font-mono text-slate-300'
+        code.className = 'font-mono text-fg'
         code.textContent = a.code
 
         const name = document.createElement('span')
-        name.className = 'text-slate-400'
+        name.className = 'text-fg-muted'
         name.textContent = a.name
 
         li.appendChild(code)

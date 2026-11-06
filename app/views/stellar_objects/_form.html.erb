@@ -1,57 +1,57 @@
 <%= form_with(model: stellar_object, url: stellar_object.persisted? ? stellar_object_path(stellar_object) : stellar_objects_path, class: "contents") do |form| %>
   <% if stellar_object.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(stellar_object.errors.count, "error") %> prohibited this stellar_object from being saved:</h2>
+    <div id="error_explanation" class="card danger">
+      <p><%= pluralize(stellar_object.errors.count, "error") %> prohibited this stellar_object from being saved:</p>
 
-      <ul class="list-disc ml-6">
+      <ul class="error-list mt-3">
         <% stellar_object.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+          <li><span><%= error.full_message %></span></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
   <div class="my-5">
-    <%= form.label :orbit_x %>
-    <%= form.number_field :orbit_x, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit_x].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit_x].any?}] %>
+    <%= form.label :orbit_x, class: 'edit-label' %>
+    <%= form.number_field :orbit_x, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:orbit_x].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :orbit_y %>
-    <%= form.number_field :orbit_y, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit_y].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit_y].any?}] %>
+    <%= form.label :orbit_y, class: 'edit-label' %>
+    <%= form.number_field :orbit_y, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:orbit_y].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :parsec_id %>
-    <%= form.text_field :parsec_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:parsec_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:Parsec_id].any?}] %>
+    <%= form.label :parsec_id, class: 'edit-label' %>
+    <%= form.text_field :parsec_id, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:parsec_id].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :orbiting_id %>
-    <%= form.text_field :orbiting_id, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbiting_id].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbiting_id].any?}] %>
+    <%= form.label :orbiting_id, class: 'edit-label' %>
+    <%= form.text_field :orbiting_id, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:orbiting_id].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :inclination %>
-    <%= form.text_field :inclination, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:inclination].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:inclination].any?}] %>
+    <%= form.label :inclination, class: 'edit-label' %>
+    <%= form.text_field :inclination, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:inclination].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :eccentricity %>
-    <%= form.text_field :eccentricity, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:eccentricity].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:eccentricity].any?}] %>
+    <%= form.label :eccentricity, class: 'edit-label' %>
+    <%= form.text_field :eccentricity, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:eccentricity].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :orbit %>
-    <%= form.text_field :orbit, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:orbit].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:orbit].any?}] %>
+    <%= form.label :orbit, class: 'edit-label' %>
+    <%= form.text_field :orbit, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:orbit].any? } %>
   </div>
 
   <div class="my-5">
-    <%= form.label :effective_hzco_deviation %>
-    <%= form.text_field :effective_hzco_deviation, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": stellar_object.errors[:effective_hzco_deviation].none?, "border-red-400 focus:outline-red-600": stellar_object.errors[:effective_hzco_deviation].any?}] %>
+    <%= form.label :effective_hzco_deviation, class: 'edit-label' %>
+    <%= form.text_field :effective_hzco_deviation, class: "edit-base mt-2 w-full", aria: { invalid: stellar_object.errors[:effective_hzco_deviation].any? } %>
   </div>
 
   <div class="inline">
-    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 <% end %>

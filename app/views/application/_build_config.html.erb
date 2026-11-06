@@ -12,9 +12,9 @@
   </div>
 
   <% if errors.any? %>
-    <ul class='mt-2 space-y-1 text-sm text-danger-text'>
+    <ul class='error-list mt-2 text-danger-text'>
       <% errors.each do |message| %>
-        <li class='flex gap-2'><span class='select-none text-red-300'>&bull;</span><span class='font-mono break-words'><%= message %></span></li>
+        <li><span><%= message %></span></li>
       <% end %>
     </ul>
   <% end %>
@@ -24,12 +24,6 @@
                        rows: 16,
                        aria: { label: 'Build plan YAML' },
                        data: local_assigns.fetch(:textarea_data, {}),
-                       class: [
-                         'font-mono edit-base w-full resize-y mt-2',
-                         {
-                           'border-gray-400 focus:outline-blue-600': errors.none?,
-                           'border-red-400 focus:outline-red-600': errors.any?
-                         }
-                       ] %>
+                       class: 'font-mono edit-base w-full resize-y mt-2', aria: { invalid: errors.any? } %>
   </div>
 </div>

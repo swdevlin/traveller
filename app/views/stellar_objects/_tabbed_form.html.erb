@@ -50,9 +50,9 @@
       </div>
     <% end %>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit local_assigns.fetch(:submit_label, 'Commit core'), class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', cancel_url, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit local_assigns.fetch(:submit_label, 'Commit core'), class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', cancel_url, class: 'btn' %>
     </div>
   </div>
 <% end %>

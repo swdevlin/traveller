@@ -2,13 +2,10 @@
   <div class='space-y-6 pb-10'>
     <% base_errors = sector.errors.where(:base) %>
     <% if base_errors.any? %>
-      <div class="rounded-2xl border border-red-900/50 bg-red-950/30 p-4">
-        <ul class="space-y-1 text-sm text-red-100">
+      <div class="card danger">
+        <ul class="error-list">
           <% base_errors.each do |error| %>
-            <li class="flex gap-2">
-              <span class="select-none text-red-300">&bull;</span>
-              <span class="font-mono break-words"><%= error.full_message.html_safe %></span>
-            </li>
+            <li><span><%= error.full_message.html_safe %></span></li>
           <% end %>
         </ul>
       </div>

@@ -71,8 +71,8 @@
         <button type='submit'
                 role='switch'
                 aria-checked='<%= star_system.locked? %>'
-                class='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none <%= star_system.locked? ? 'bg-toggle-on' : 'bg-toggle-off' %>'>
-          <span class='pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out <%= star_system.locked? ? 'translate-x-5 bg-toggle-knob-on' : 'translate-x-0 bg-toggle-knob-off' %>'></span>
+                class='toggle'>
+          <span></span>
         </button>
         <span class='text-xs text-fg-muted italic'>Locked systems are preserved during subsector generation.</span>
       </div>

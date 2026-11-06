@@ -36,18 +36,12 @@
       <%= form.label :notes, class: 'text-xs uppercase tracking-[0.18em] text-fg-muted' %>
       <%= form.text_area :notes,
                           rows: 4,
-                          class: [
-                            'w-full edit-base mt-2 resize-y',
-                            {
-                              'border-gray-400 focus:outline-blue-600': law_level.errors[:notes].none?,
-                              'border-red-400 focus:outline-red-600': law_level.errors[:notes].any?
-                            }
-                          ] %>
+                          class: 'w-full edit-base mt-2 resize-y', aria: { invalid: law_level.errors[:notes].any? } %>
     </div>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', law_level.persisted? ? law_level : law_levels_path, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit 'Update core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', law_level.persisted? ? law_level : law_levels_path, class: 'btn' %>
     </div>
   </div>
 <% end %>

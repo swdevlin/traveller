@@ -17,7 +17,7 @@ module SectorsHelper
             rel: 'noopener',
             title: 'Star chart',
             aria: { label: "#{sector.name} star chart" },
-            class: 'text-slate-400 hover:text-traveller-red no-underline hover:underline transition-colors' do
+            class: 'text-fg-muted hover:text-link-hover no-underline hover:underline transition-colors' do
       tag.i(class: 'fa-regular fa-telescope', aria: { hidden: true })
     end
   end
@@ -28,7 +28,7 @@ module SectorsHelper
             rel: 'noopener',
             title: 'Traveller Map',
             aria: { label: "#{sector.name} on Traveller Map" },
-            class: 'text-slate-400 hover:text-traveller-red no-underline hover:underline transition-colors' do
+            class: 'text-fg-muted hover:text-link-hover no-underline hover:underline transition-colors' do
       tag.i(class: 'fa-regular fa-map', aria: { hidden: true })
     end
   end
@@ -42,7 +42,7 @@ module SectorsHelper
             rel: 'noopener',
             title: 'Reference',
             aria: { label: "#{sector.name} reference link" },
-            class: 'text-slate-400 hover:text-traveller-red no-underline hover:underline transition-colors' do
+            class: 'text-fg-muted hover:text-link-hover no-underline hover:underline transition-colors' do
       tag.i(class: 'fa-regular fa-book-open', aria: { hidden: true })
     end
   end

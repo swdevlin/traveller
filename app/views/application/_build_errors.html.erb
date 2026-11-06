@@ -1,0 +1,13 @@
+<%# locals: errors: %>
+<div class='card danger'>
+  <header>
+    <h3>Build errors</h3>
+    <span class='identifier'><%= pluralize(errors.size, 'issue') %></span>
+  </header>
+
+  <ul class='error-list'>
+    <% errors.each do |err| %>
+      <li><span><%= err %></span></li>
+    <% end %>
+  </ul>
+</div>

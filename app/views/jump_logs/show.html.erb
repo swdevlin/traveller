@@ -18,8 +18,8 @@
 <%= render 'application/two_column_page' do %>
   <%= render @jump_log %>
 
-  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
-    <%= link_to 'Edit', edit_jump_log_path(@jump_log), class: 'w-full sm:w-auto btn btn-primary' %>
+  <div class='form-actions mt-6'>
+    <%= link_to 'Edit', edit_jump_log_path(@jump_log), class: 'btn btn-primary' %>
     <%= render 'application/back_button',
                path: jump_logs_path,
                label: 'Jump logs',
@@ -28,7 +28,7 @@
                   @jump_log,
                   method: :delete,
                   form_class: 'w-full sm:w-auto inline-flex m-0',
-                  class: 'w-full sm:w-auto btn btn-danger cursor-pointer',
+                  class: 'btn btn-danger cursor-pointer',
                   data: { turbo_confirm: 'Are you sure?' } %>
   </div>
 <% end %>

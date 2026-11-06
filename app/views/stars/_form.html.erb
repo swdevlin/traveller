@@ -118,9 +118,9 @@
       <% end %>
     <% end %>
 
-    <div class="pt-2 flex flex-col sm:flex-row gap-2">
-      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', star_path(star), class: 'w-full sm:w-auto btn' %>
+    <div class="form-actions pt-2">
+      <%= form.submit 'Update core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', star_path(star), class: 'btn' %>
     </div>
   </div>
 <% end %>

@@ -1,6 +1,6 @@
 <%= form_with(model: region, class: 'space-y-8') do |form| %>
   <% if region.errors[:base].any? %>
-    <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+    <div class='card accent'>
       <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
       <ul class='mt-3 list-disc ml-6 text-sm text-fg space-y-1'>
         <% region.errors[:base].each do |msg| %>
@@ -74,8 +74,8 @@
 
   <%= render 'application/records_fields', form: form, record: region %>
 
-  <div class='flex flex-col sm:flex-row gap-2'>
-    <%= form.submit region.persisted? ? 'Save' : 'Create Region', class: 'w-full sm:w-auto btn btn-primary' %>
-    <%= link_to 'Cancel', region.persisted? ? region : regions_path, class: 'w-full sm:w-auto btn' %>
+  <div class='form-actions'>
+    <%= form.submit region.persisted? ? 'Save' : 'Create Region', class: 'btn btn-primary' %>
+    <%= link_to 'Cancel', region.persisted? ? region : regions_path, class: 'btn' %>
   </div>
 <% end %>

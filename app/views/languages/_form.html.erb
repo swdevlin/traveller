@@ -13,13 +13,7 @@
       </p>
       <%= form.text_area :corpus,
                          rows: 12,
-                         class: [
-                           'w-full edit-base mt-2 resize-y',
-                           {
-                             'border-gray-400 focus:outline-blue-600': language.errors[:corpus].none?,
-                             'border-red-400 focus:outline-red-600': language.errors[:corpus].any?
-                           }
-                         ] %>
+                         class: 'w-full edit-base mt-2 resize-y', aria: { invalid: language.errors[:corpus].any? } %>
       <%= render 'application/field_error', form: form, attribute: :corpus %>
     </div>
 
@@ -32,11 +26,11 @@
                  form: form, attribute: :corpus_file, accept: '.txt,text/plain', wrapper_class: 'mt-2' %>
     </div>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit language.persisted? ? 'Update language' : 'Create language', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', languages_path, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit language.persisted? ? 'Update language' : 'Create language', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', languages_path, class: 'btn' %>
       <% if language.persisted? %>
-        <%= link_to 'Download word list', download_language_path(language), class: 'w-full sm:w-auto btn' %>
+        <%= link_to 'Download word list', download_language_path(language), class: 'btn' %>
       <% end %>
     </div>
   </div>

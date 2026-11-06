@@ -26,8 +26,8 @@
             class: 'edit-base w-full mt-1' %>
     </div>
 
-    <div class='flex flex-col sm:flex-row sm:items-center gap-4 pt-2'>
-      <%= form.submit 'Sign In', class: 'w-full sm:w-auto btn btn-primary' %>
+    <div class='form-actions sm:items-center gap-4 pt-2'>
+      <%= form.submit 'Sign In', class: 'btn btn-primary' %>
       <%= link_to 'Forgot password?', new_password_path, class: 't-link text-sm' %>
     </div>
   <% end %>

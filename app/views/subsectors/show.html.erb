@@ -14,10 +14,10 @@
 
 <% content_for :page_buttons do %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
-  <div class='mt-6 flex flex-col sm:flex-row gap-2'>
+  <div class='form-actions mt-6'>
     <%= link_to 'Edit',
                 edit_subsector_path(@subsector),
-                class: 'w-full sm:w-auto btn btn-primary' %>
+                class: 'btn btn-primary' %>
 
     <% generate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
                                 "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?"
@@ -25,13 +25,13 @@
     <%= button_to 'Generate',
                   generate_subsector_path(@subsector),
                   method: :post,
-                  class: 'w-full sm:w-auto btn',
+                  class: 'btn',
                   data: { turbo_confirm: generate_confirm_msg } %>
 
     <%= button_to 'Clear',
                   clear_subsector_path(@subsector),
                   method: 'post',
-                  class: 'w-full sm:w-auto btn btn-danger',
+                  class: 'btn btn-danger',
                   data: { turbo_confirm: confirm_msg } %>
   </div>
 <% end %>

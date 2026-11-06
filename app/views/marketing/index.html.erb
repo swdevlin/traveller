@@ -41,7 +41,7 @@
                     class: 't-link' %>.
       </p>
 
-      <div class='flex flex-col sm:flex-row sm:items-center gap-4'>
+      <div class='form-actions sm:items-center gap-4'>
         <% unless authenticated? %>
           <%= link_to 'Sign up', new_registration_path, class: 'btn btn-primary' %>
         <% end %>

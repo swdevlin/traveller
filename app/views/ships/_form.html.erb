@@ -1,7 +1,7 @@
 <%= form_with(model: ship, class: 'contents') do |form| %>
   <div class='space-y-6 pb-10'>
     <% if ship.errors.any? %>
-      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+      <div class='card accent'>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>
           Validation
         </div>
@@ -20,42 +20,24 @@
     <div class='mt-4'>
       <%= form.label :name, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
       <%= form.text_field :name,
-                          class: [
-                            'w-full edit-base mt-2 sm:w-1/2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': ship.errors[:name].none?,
-                              'border-red-400 focus:outline-red-600': ship.errors[:name].any?
-                            }
-                          ] %>
+                          class: 'w-full edit-base mt-2 sm:w-1/2', aria: { invalid: ship.errors[:name].any? } %>
     </div>
 
     <div>
       <%= form.label :jump_drive, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
       <%= form.number_field :jump_drive,
-                          class: [
-                            'w-full edit-base mt-2 sm:w-1/2',
-                            {
-                              'border-gray-400 focus:outline-blue-600': ship.errors[:jump_drive].none?,
-                              'border-red-400 focus:outline-red-600': ship.errors[:jump_drive].any?
-                            }
-                          ] %>
+                          class: 'w-full edit-base mt-2 sm:w-1/2', aria: { invalid: ship.errors[:jump_drive].any? } %>
     </div>
 
     <div>
       <%= form.label :m_drive, class: 'text-xs uppercase tracking-[0.22em] text-fg-muted' %>
       <%= form.number_field :m_drive, in: 0..10,
-                            class: [
-                              'w-full edit-base mt-2 sm:w-1/2',
-                              {
-                                'border-gray-400 focus:outline-blue-600': ship.errors[:m_drive].none?,
-                                'border-red-400 focus:outline-red-600': ship.errors[:m_drive].any?
-                              }
-                            ] %>
+                            class: 'w-full edit-base mt-2 sm:w-1/2', aria: { invalid: ship.errors[:m_drive].any? } %>
     </div>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', ship.persisted? ? ship : ships_path, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit 'Update core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', ship.persisted? ? ship : ships_path, class: 'btn' %>
     </div>
   </div>
 <% end %>

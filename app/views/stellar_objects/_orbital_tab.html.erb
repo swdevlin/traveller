@@ -90,6 +90,8 @@
     <% end %>
   </div>
 
-  <%= render 'application/subsection', title: 'Transit Times' %>
-  <%= render 'stellar_objects/transit_times_table', stellar_object: stellar_object %>
+  <% if local_assigns.fetch(:show_transit, true) %>
+    <%= render 'application/subsection', title: 'Transit Times' %>
+    <%= render 'stellar_objects/transit_times_table', stellar_object: stellar_object %>
+  <% end %>
 </div>

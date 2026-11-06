@@ -14,9 +14,9 @@
           class: 'edit-base w-32' %>
     <% end %>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit travel_zone.persisted? ? 'Update core' : 'Commit core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', travel_zone.persisted? ? travel_zone : travel_zones_path, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit travel_zone.persisted? ? 'Update core' : 'Commit core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', travel_zone.persisted? ? travel_zone : travel_zones_path, class: 'btn' %>
     </div>
   </div>
 <% end %>

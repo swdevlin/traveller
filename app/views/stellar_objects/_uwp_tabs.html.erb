@@ -3,6 +3,7 @@
   physical_partial = local_assigns.fetch(:physical_tab, 'stellar_objects/physical_tab')
   extra_tabs = local_assigns.fetch(:extra_tabs, [])
   hide_orbital = local_assigns.fetch(:hide_orbital, false)
+  show_transit = local_assigns.fetch(:show_transit, true)
   storage_key = "uwp_tabs_#{dom_id(stellar_object)}"
 
   uwp_tab_defs = [
@@ -76,7 +77,8 @@
                  parsec: local_assigns[:parsec],
                  allegiance: local_assigns[:allegiance],
                  shadow_km: local_assigns[:shadow_km],
-                 shadow_source: local_assigns[:shadow_source] %>
+                 shadow_source: local_assigns[:shadow_source],
+                 show_transit: show_transit %>
     </div>
   <% end %>
 

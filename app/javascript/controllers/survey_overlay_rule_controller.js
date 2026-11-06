@@ -116,16 +116,9 @@ export default class extends Controller {
   setNegate(conditionEl, checked) {
     const checkbox = conditionEl.querySelector('[data-negate]');
     const button = conditionEl.querySelector('[data-negate-toggle]');
-    const indicator = conditionEl.querySelector('[data-negate-indicator]');
 
     checkbox.checked = checked;
     button.setAttribute('aria-checked', String(checked));
-    button.classList.toggle('bg-toggle-on', checked);
-    button.classList.toggle('bg-toggle-off', !checked);
-    indicator.classList.toggle('translate-x-5', checked);
-    indicator.classList.toggle('bg-toggle-knob-on', checked);
-    indicator.classList.toggle('translate-x-0', !checked);
-    indicator.classList.toggle('bg-toggle-knob-off', !checked);
   }
 
   #updateOperatorOptions(conditionEl, selectedOperator = null) {

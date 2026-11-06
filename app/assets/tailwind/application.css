@@ -5,9 +5,6 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-  --color-traveller-red: #e10600;
-  --color-traveller-red-foreground: #fff5f7;
-
   --color-fg: #cbd5e1;
   --color-fg-muted: #94a3b8;
   --color-fg-bright: #f1f5f9;
@@ -28,7 +25,7 @@
 
   --color-button-primary: #de8034;
   --color-button-primary-outline: #f59e0b;
-  --color-button-primary-fg: var(--color-traveller-red-foreground);
+  --color-button-primary-fg: #fff5f7;
   --color-button: #334155;
   --color-button-outline: #64748b;
 
@@ -1016,7 +1013,7 @@
   }
 
   .iiss-form {
-    @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.18em] text-fg-muted;
+    @apply pt-2 text-right uppercase font-mono text-xs tracking-[0.22em] text-fg-muted;
   }
 
   .edit-label {
@@ -1030,6 +1027,10 @@
   .edit-base {
     @apply block shadow-sm rounded-md px-3 py-2 bg-panel-muted border-control-outline text-fg
     disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .edit-base[aria-invalid='true'] {
+    @apply border-danger focus:outline-danger;
   }
 
   select.edit-base {
@@ -1092,6 +1093,114 @@
 
   .page-side {
     @apply w-full md:w-[380px] shrink-0;
+  }
+
+  /* Toggle switch: <button class='toggle' aria-checked> with a child <span> as the knob */
+  .toggle {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-toggle-off transition-colors duration-200 ease-in-out focus:outline-none;
+
+    > span {
+      @apply pointer-events-none inline-block h-5 w-5 translate-x-0 rounded-full bg-toggle-knob-off shadow ring-0 transition duration-200 ease-in-out;
+    }
+
+    &[aria-checked='true'] {
+      @apply bg-toggle-on;
+
+      > span {
+        @apply translate-x-5 bg-toggle-knob-on;
+      }
+    }
+
+    &.sm {
+      @apply h-5 w-9;
+
+      > span {
+        @apply h-4 w-4;
+      }
+
+      &[aria-checked='true'] > span {
+        @apply translate-x-4;
+      }
+    }
+  }
+
+  /* Hint select: custom select driven by the hint-select Stimulus controller.
+     Trigger button (with a chevron <i>), then a panel of option buttons.
+     Width overrides (w-60, w-80 ...) stay as utilities on the trigger/panel. */
+  .hint-select {
+    @apply relative;
+
+    > [data-hint-select-target='trigger'] {
+      @apply flex items-center justify-between gap-2 border w-full text-left;
+
+      > i {
+        @apply text-xs text-fg-muted shrink-0;
+      }
+    }
+
+    > [data-hint-select-target='panel'] {
+      @apply absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-outline bg-dropdown shadow-xl;
+
+      > button {
+        @apply w-full text-left px-3 py-2.5 border-b border-outline hover:bg-dropdown-hover last:border-b-0;
+      }
+    }
+  }
+
+  /* Form actions: stacked buttons on mobile, inline from sm up. Spacing (pt-2, mt-6) stays a utility. */
+  .form-actions {
+    @apply flex flex-col gap-2 sm:flex-row;
+
+    .btn {
+      @apply w-full sm:w-auto;
+    }
+  }
+
+  /* Card: panel container with .accent (form sections) and .danger (error lists) modifiers */
+  .card {
+    @apply rounded-2xl border border-outline bg-panel p-4;
+
+    &.accent {
+      @apply border-highlight/40;
+    }
+
+    &.danger {
+      @apply border-danger-outline bg-danger-bg text-danger-fg;
+
+      > header {
+        @apply flex items-center justify-between gap-3;
+
+        > h3 {
+          @apply text-xs uppercase tracking-[0.22em] text-danger-muted;
+        }
+
+        > .identifier {
+          @apply border-danger-outline bg-danger-bg text-danger-fg;
+        }
+      }
+
+      > header + .error-list {
+        @apply mt-3;
+      }
+    }
+  }
+
+  /* Error list: <ul class='error-list'><li><span>message</span></li></ul> */
+  .error-list {
+    @apply flex flex-col gap-1 text-sm;
+
+    > li {
+      @apply flex gap-2;
+
+      &::before {
+        content: '\2022';
+        @apply select-none text-danger-muted;
+      }
+
+      > span {
+        @apply font-mono wrap-break-word;
+      }
+    }
   }
 
   /* Table components */

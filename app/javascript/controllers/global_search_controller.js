@@ -51,13 +51,13 @@ export default class extends Controller {
 
     if (results.length === 0) {
       const empty = document.createElement('li')
-      empty.className = 'px-3 py-2 text-slate-400 text-sm'
+      empty.className = 'px-3 py-2 text-fg-muted text-sm'
       empty.textContent = 'No matches'
       this.listTarget.appendChild(empty)
     } else {
       results.forEach(result => {
         const li = document.createElement('li')
-        li.className = 'px-3 py-2 cursor-pointer hover:bg-slate-700/60 transition'
+        li.className = 'px-3 py-2 cursor-pointer hover:bg-dropdown-hover transition'
         li.dataset.url = result.url
         li.addEventListener('click', () => { window.location.href = result.url })
 
@@ -65,11 +65,11 @@ export default class extends Controller {
         top.className = 'flex items-baseline justify-between gap-2'
 
         const name = document.createElement('span')
-        name.className = 'text-sm text-slate-200 truncate'
+        name.className = 'text-sm text-fg-bright truncate'
         name.textContent = result.name
 
         const badge = document.createElement('span')
-        badge.className = 'shrink-0 text-[10px] uppercase tracking-wider text-slate-500'
+        badge.className = 'shrink-0 text-[10px] uppercase tracking-wider text-fg-muted'
         badge.textContent = result.type
 
         top.appendChild(name)
@@ -78,7 +78,7 @@ export default class extends Controller {
 
         if (result.meta) {
           const meta = document.createElement('div')
-          meta.className = 'text-xs text-slate-400 mt-0.5 truncate'
+          meta.className = 'text-xs text-fg-muted mt-0.5 truncate'
           meta.textContent = result.meta
           li.appendChild(meta)
         }

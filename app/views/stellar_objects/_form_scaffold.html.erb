@@ -23,9 +23,9 @@
     </div>
     <% end %>
 
-    <div class="pt-2 flex flex-col sm:flex-row gap-2">
-      <%= form.submit local_assigns[:submit_label] || 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', local_assigns[:cancel_url] || stellar_object_path(stellar_object), class: 'w-full sm:w-auto btn' %>
+    <div class="form-actions pt-2">
+      <%= form.submit local_assigns[:submit_label] || 'Update core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', local_assigns[:cancel_url] || stellar_object_path(stellar_object), class: 'btn' %>
     </div>
   </div>
 <% end %>

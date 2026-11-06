@@ -170,8 +170,7 @@ end
 # Tokens introduced for accessibility fall back to the token they split from, so the audit
 # also runs against a stylesheet that has not been migrated yet.
 FALLBACKS = {
-  'highlight-fg' => 'highlight', 'control-outline' => 'outline', 'danger-text' => 'danger',
-  'button-primary-fg' => 'traveller-red-foreground'
+  'highlight-fg' => 'highlight', 'control-outline' => 'outline', 'danger-text' => 'danger'
 }.freeze
 
 # --- theme loading -----------------------------------------------------------------------
@@ -353,14 +352,14 @@ def suggest(themes)
     pending['danger'] = r if r
 
     r = choose_foreground(themes, theme, 'button-primary-fg',
-                          ['traveller-red-foreground', 'fg-bright', 'bg', '#111111', '#ffffff', '#000000'])
+                          ['button-primary-fg', 'fg-bright', 'bg', '#111111', '#ffffff', '#000000'])
     if r == :none
       # No readable foreground at the current fill (usually the 90% hover blend): nudge the fill instead.
-      themes.set(theme, 'button-primary-fg', to_hex(themes.resolve(theme, 'traveller-red-foreground')))
+      themes.set(theme, 'button-primary-fg', to_hex(themes.resolve(theme, 'fg-bright')))
       fill = solve_token(themes, theme, 'button-primary', pairs: pairs_for('button-primary-fg'))
       pending['button-primary'] = fill if fill
       pending['button-primary-fg'] = themes.raw(theme, 'button-primary-fg')
-    elsif r != themes.raw(theme, 'traveller-red-foreground')
+    elsif r != themes.raw(theme, 'button-primary-fg')
       pending['button-primary-fg'] = r
     end
 

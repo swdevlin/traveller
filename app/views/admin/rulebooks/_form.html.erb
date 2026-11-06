@@ -50,9 +50,9 @@
                          rows: 4, class: 'edit-base w-full font-mono text-xs' %>
     <% end %>
 
-    <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-      <%= form.submit rulebook.persisted? ? 'Update rulebook' : 'Create Core', class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Cancel', rulebook.persisted? ? admin_rulebook_path(rulebook) : admin_rulebooks_path, class: 'w-full sm:w-auto btn' %>
+    <div class='form-actions pt-2'>
+      <%= form.submit rulebook.persisted? ? 'Update rulebook' : 'Create Core', class: 'btn btn-primary' %>
+      <%= link_to 'Cancel', rulebook.persisted? ? admin_rulebook_path(rulebook) : admin_rulebooks_path, class: 'btn' %>
     </div>
   </div>
 <% end %>

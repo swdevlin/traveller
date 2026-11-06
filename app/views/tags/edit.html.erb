@@ -17,9 +17,9 @@
         <%= text_area_tag :description, @tag.description, rows: 3, class: 'edit-base w-full sm:w-96' %>
       </div>
       <p class='text-sm text-fg-muted'>Renaming updates every object using this tag in the campaign. Renaming to an existing tag merges them.</p>
-      <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-        <%= submit_tag 'Update core', class: 'w-full sm:w-auto btn btn-primary' %>
-        <%= link_to 'Cancel', tags_path(page: params[:page]), class: 'w-full sm:w-auto btn' %>
+      <div class='form-actions pt-2'>
+        <%= submit_tag 'Update core', class: 'btn btn-primary' %>
+        <%= link_to 'Cancel', tags_path(page: params[:page]), class: 'btn' %>
       </div>
     </div>
   <% end %>

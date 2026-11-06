@@ -5,7 +5,7 @@
 <%= form_with model: city, url: url, data: { controller: 'stop-propagation', action: 'turbo:submit-end->stop-propagation#stop' } do |f| %>
   <div class='space-y-6'>
     <% if city.errors.any? %>
-      <div class='rounded-2xl border border-highlight/40 bg-panel p-4'>
+      <div class='card accent'>
         <div class='text-xs uppercase tracking-[0.22em] text-fg-muted'>Validation</div>
         <div class='mt-1 text-sm font-semibold text-fg-bright'>
           <%= pluralize(city.errors.count, 'error') %> prevented this city from being saved
@@ -29,11 +29,11 @@
 
     <div class='edit-row'>
       <%= f.label :city_type, 'City type', class: 'edit-label' %>
-      <div data-controller='hint-select' class='edit-field relative w-72'>
+      <div data-controller='hint-select' class='hint-select edit-field w-72'>
         <%= f.hidden_field :city_type, data: { hint_select_target: 'input' } %>
 
         <button type='button'
-                class='edit-base border w-full text-left flex items-center justify-between gap-2'
+                class='edit-base'
                 data-hint-select-target='trigger'
                 data-action='click->hint-select#toggle'>
           <span>
@@ -44,13 +44,12 @@
               <%= city_type_options.find { |o| o[:value] == city.city_type }&.dig(:meta) %>
             </span>
           </span>
-          <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+          <i class='fa-solid fa-chevron-down'></i>
         </button>
 
-        <div class='hidden absolute z-50 top-full mt-1 w-max min-w-full max-w-md rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden max-h-72 overflow-y-auto'
+        <div class='hidden w-max min-w-full max-w-md max-h-72 overflow-y-auto'
              data-hint-select-target='panel'>
           <button type='button'
-                  class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline'
                   data-action='click->hint-select#select'
                   data-value=''
                   data-label='Standard'
@@ -59,7 +58,6 @@
           </button>
           <% city_type_options.each do |opt| %>
             <button type='button'
-                    class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                     data-action='click->hint-select#select'
                     data-value='<%= opt[:value] %>'
                     data-label='<%= opt[:label] %>'
@@ -74,11 +72,11 @@
 
     <div class='edit-row'>
       <%= f.label :capital_designation, 'Capital designation', class: 'edit-label' %>
-      <div data-controller='hint-select' class='edit-field relative w-72'>
+      <div data-controller='hint-select' class='hint-select edit-field w-72'>
         <%= f.hidden_field :capital_designation, data: { hint_select_target: 'input' } %>
 
         <button type='button'
-                class='edit-base border w-full text-left flex items-center justify-between gap-2'
+                class='edit-base'
                 data-hint-select-target='trigger'
                 data-action='click->hint-select#toggle'>
           <span>
@@ -89,13 +87,12 @@
               <%= capital_designation_options.find { |o| o[:value] == city.capital_designation }&.dig(:meta) %>
             </span>
           </span>
-          <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+          <i class='fa-solid fa-chevron-down'></i>
         </button>
 
-        <div class='hidden absolute z-50 top-full mt-1 w-max min-w-full max-w-md rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+        <div class='hidden w-max min-w-full max-w-md'
              data-hint-select-target='panel'>
           <button type='button'
-                  class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline'
                   data-action='click->hint-select#select'
                   data-value=''
                   data-label='None'
@@ -104,7 +101,6 @@
           </button>
           <% capital_designation_options.each do |opt| %>
             <button type='button'
-                    class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                     data-action='click->hint-select#select'
                     data-value='<%= opt[:value] %>'
                     data-label='<%= opt[:label] %>'

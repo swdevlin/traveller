@@ -1,11 +1,11 @@
 <%= form_with(model: parsec, class: 'space-y-8') do |form| %>
   <% if parsec.errors.any? %>
-    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
-      <h2><%= pluralize(parsec.errors.count, 'error') %> prohibited this hex from being saved:</h2>
+    <div id="error_explanation" class="card danger">
+      <p><%= pluralize(parsec.errors.count, 'error') %> prohibited this hex from being saved:</p>
 
-      <ul class="list-disc ml-6">
+      <ul class="error-list mt-3">
         <% parsec.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+          <li><span><%= error.full_message %></span></li>
         <% end %>
       </ul>
     </div>

@@ -52,7 +52,7 @@
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :campaign_type do %>
-        <div data-controller='hint-select' class='relative'>
+        <div data-controller='hint-select' class='hint-select'>
           <%= form.hidden_field :campaign_type,
                                 data: {
                                   hint_select_target: 'input',
@@ -60,20 +60,19 @@
                                 } %>
 
           <button type='button'
-                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  class='edit-base w-60'
                   data-hint-select-target='trigger'
                   data-action='click->hint-select#toggle'>
             <span data-hint-select-target='label'>
               <%= campaign_type_options.find { |o| o[:value] == @campaign.campaign_type }&.dig(:label) %>
             </span>
-            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+            <i class='fa-solid fa-chevron-down'></i>
           </button>
 
-          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+          <div class='hidden w-80'
                data-hint-select-target='panel'>
             <% campaign_type_options.each do |opt| %>
               <button type='button'
-                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'
                       data-label='<%= opt[:label] %>'
@@ -89,25 +88,24 @@
       <div data-campaign-form-target='sectorSource'
            class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
         <%= render 'application/edit_field', form: form, attribute: :sector_source do %>
-          <div data-controller='hint-select' class='relative'>
+          <div data-controller='hint-select' class='hint-select'>
             <%= form.hidden_field :sector_source,
                                   data: { hint_select_target: 'input' } %>
 
             <button type='button'
-                    class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                    class='edit-base w-60'
                     data-hint-select-target='trigger'
                     data-action='click->hint-select#toggle'>
               <span data-hint-select-target='label'>
                 <%= sector_source_options.find { |o| o[:value] == @campaign.sector_source }&.dig(:label) || 'Select a source' %>
               </span>
-              <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+              <i class='fa-solid fa-chevron-down'></i>
             </button>
 
-            <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+            <div class='hidden w-80'
                  data-hint-select-target='panel'>
               <% sector_source_options.each do |opt| %>
                 <button type='button'
-                        class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                         data-action='click->hint-select#select'
                         data-value='<%= opt[:value] %>'
                         data-label='<%= opt[:label] %>'
@@ -130,26 +128,25 @@
       <%= render 'application/subsection', title: 'System Generation' %>
 
       <%= render 'application/edit_field', form: form, attribute: :sophont_check, field_label: 'Sophont Check' do %>
-        <div data-controller='hint-select' class='relative'>
+        <div data-controller='hint-select' class='hint-select'>
           <%= form.hidden_field :sophont_check,
                                 data: { hint_select_target: 'input' } %>
 
           <button type='button'
-                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  class='edit-base w-60'
                   data-hint-select-target='trigger'
                   data-action='click->hint-select#toggle'>
             <span data-hint-select-target='label'>
               <% default_sophont = @campaign.charted_space? ? 'none' : 'standard' %>
               <%= sophont_check_options.find { |o| o[:value] == (@campaign.sophont_check.presence || default_sophont) }&.dig(:label) %>
             </span>
-            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+            <i class='fa-solid fa-chevron-down'></i>
           </button>
 
-          <div class='hidden absolute z-50 top-full mt-1 w-96 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+          <div class='hidden w-96'
                data-hint-select-target='panel'>
             <% sophont_check_options.each do |opt| %>
               <button type='button'
-                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'
                       data-label='<%= opt[:label] %>'
@@ -198,25 +195,24 @@
       <%= render 'application/subsection', title: 'Display Preferences' %>
 
       <%= render 'application/edit_field', form: form, attribute: :orbit_distance_display, field_label: 'Distance Display' do %>
-        <div data-controller='hint-select' class='relative'>
+        <div data-controller='hint-select' class='hint-select'>
           <%= form.hidden_field :orbit_distance_display,
                                 data: { hint_select_target: 'input' } %>
 
           <button type='button'
-                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  class='edit-base w-60'
                   data-hint-select-target='trigger'
                   data-action='click->hint-select#toggle'>
             <span data-hint-select-target='label'>
               <%= orbit_display_options.find { |o| o[:value] == (@campaign.orbit_distance_display.presence || 'au') }&.dig(:label) %>
             </span>
-            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+            <i class='fa-solid fa-chevron-down'></i>
           </button>
 
-          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+          <div class='hidden w-80'
                data-hint-select-target='panel'>
             <% orbit_display_options.each do |opt| %>
               <button type='button'
-                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'
                       data-label='<%= opt[:label] %>'
@@ -230,25 +226,24 @@
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :date_format, field_label: 'Date Format' do %>
-        <div data-controller='hint-select' class='relative'>
+        <div data-controller='hint-select' class='hint-select'>
           <%= form.hidden_field :date_format,
                                 data: { hint_select_target: 'input' } %>
 
           <button type='button'
-                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  class='edit-base w-60'
                   data-hint-select-target='trigger'
                   data-action='click->hint-select#toggle'>
             <span data-hint-select-target='label'>
               <%= date_format_options.find { |o| o[:value] == (@campaign.date_format.presence || 'traveller') }&.dig(:label) %>
             </span>
-            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+            <i class='fa-solid fa-chevron-down'></i>
           </button>
 
-          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+          <div class='hidden w-80'
                data-hint-select-target='panel'>
             <% date_format_options.each do |opt| %>
               <button type='button'
-                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'
                       data-label='<%= opt[:label] %>'
@@ -276,25 +271,24 @@
       <% end %>
 
       <%= render 'application/edit_field', form: form, attribute: :hex_size, field_label: 'Hex Size' do %>
-        <div data-controller='hint-select' class='relative'>
+        <div data-controller='hint-select' class='hint-select'>
           <%= form.hidden_field :hex_size,
                                 data: { hint_select_target: 'input' } %>
 
           <button type='button'
-                  class='edit-base border w-60 text-left flex items-center justify-between gap-2'
+                  class='edit-base w-60'
                   data-hint-select-target='trigger'
                   data-action='click->hint-select#toggle'>
             <span data-hint-select-target='label'>
               <%= hex_size_options.find { |o| o[:value] == (@campaign.hex_size.presence || 'medium') }&.dig(:label) %>
             </span>
-            <i class='fa-solid fa-chevron-down text-xs text-fg-muted flex-shrink-0'></i>
+            <i class='fa-solid fa-chevron-down'></i>
           </button>
 
-          <div class='hidden absolute z-50 top-full mt-1 w-80 rounded-md border border-outline bg-dropdown shadow-xl overflow-hidden'
+          <div class='hidden w-80'
                data-hint-select-target='panel'>
             <% hex_size_options.each do |opt| %>
               <button type='button'
-                      class='w-full text-left px-3 py-2.5 hover:bg-dropdown-hover border-b border-outline last:border-b-0'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'
                       data-label='<%= opt[:label] %>'
@@ -432,9 +426,9 @@
                               step: 1 %>
       <% end %>
 
-      <div class='pt-2 flex flex-col sm:flex-row gap-2'>
-        <%= form.submit 'Save Changes', class: 'w-full sm:w-auto btn btn-primary' %>
-        <%= link_to 'Cancel', campaign_settings_path, class: 'w-full sm:w-auto btn' %>
+      <div class='form-actions pt-2'>
+        <%= form.submit 'Save Changes', class: 'btn btn-primary' %>
+        <%= link_to 'Cancel', campaign_settings_path, class: 'btn' %>
       </div>
     </div>
   <% end %>
