@@ -45,8 +45,5 @@
 
   <%= render 'application/records_block', record: terrestrial_planet %>
 
-  <div class="space-y-2 pt-4">
-    <%= render 'application/subsection', title: 'Transit Times' %>
-    <%= render 'stellar_objects/transit_times_table', stellar_object: terrestrial_planet %>
-  </div>
+  <%= render 'stellar_objects/transit_times_section', stellar_object: terrestrial_planet %>
 </div>

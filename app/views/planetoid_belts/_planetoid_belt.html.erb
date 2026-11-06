@@ -42,8 +42,5 @@
     <%= render 'planetoid_belts/planetoids_table', planetoids: @planetoids, pagy: @pagy %>
   <% end %>
 
-  <div class="space-y-2 pt-4">
-    <%= render 'application/subsection', title: 'Transit Times' %>
-    <%= render 'stellar_objects/transit_times_table', stellar_object: planetoid_belt %>
-  </div>
+  <%= render 'stellar_objects/transit_times_section', stellar_object: planetoid_belt %>
 </div>

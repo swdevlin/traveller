@@ -35,8 +35,11 @@
              allegiance: allegiance,
              shadow_km: shadow_km,
              shadow_source: shadow_source,
-             extra_tabs: extra_tabs %>
+             extra_tabs: extra_tabs,
+             show_transit: false %>
 
   <%= render 'stellar_objects/known_toggle', stellar_object: planetoid %>
   <%= render 'application/records_block', record: planetoid %>
+
+  <%= render 'stellar_objects/transit_times_section', stellar_object: planetoid %>
 </div>
