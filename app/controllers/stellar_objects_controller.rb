@@ -1,5 +1,6 @@
 class StellarObjectsController < ApplicationController
   include RecalculatesOrbitMechanics
+  include HexMoveModal
 
   ALLOWED_STI_CLASSES = (StellarObject::STI_TYPES - ['Star']).to_h { |name| [name, name.constantize] }.freeze
 
@@ -243,6 +244,24 @@ class StellarObjectsController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render :generate_map }
     end
+  end
+
+  # GET /stellar_objects/1/move_modal (rogues only)
+  def move_modal
+    return head :unprocessable_entity unless @stellar_object.parsec_id.present?
+
+    render_move_modal(@stellar_object, move_path: move_stellar_object_path(@stellar_object),
+                                       modal_path: move_modal_stellar_object_path(@stellar_object),
+                                       label: @stellar_object.display_name)
+  end
+
+  # PATCH /stellar_objects/1/move (rogues only)
+  def move
+    return head :unprocessable_entity unless @stellar_object.parsec_id.present?
+
+    result = hex_mover_for(@stellar_object).call
+    flash_move_result(result, @stellar_object.display_name)
+    redirect_to local_return_path || stellar_object_path(@stellar_object), status: :see_other
   end
 
   # DELETE /stellar_objects/1 or /stellar_objects/1.json

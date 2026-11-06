@@ -1187,6 +1187,27 @@
     @apply text-fg-muted hover:text-danger-text cursor-pointer;
   }
 
+  .row-menu {
+    @apply inline-block text-left;
+  }
+
+  .row-menu-button {
+    @apply px-1 text-sm;
+  }
+
+  .row-menu-list {
+    @apply fixed z-50 min-w-40 rounded-lg border border-outline bg-dropdown py-1 shadow-xl;
+  }
+
+  .row-menu-item {
+    @apply flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-fg no-underline
+    bg-transparent border-0 cursor-pointer hover:bg-panel hover:text-fg-bright hover:no-underline;
+  }
+
+  .row-menu-item.danger {
+    @apply hover:text-danger-text;
+  }
+
   .t-pill {
     @apply inline-flex items-center rounded-full border border-highlight bg-panel
     px-2 py-0.5 font-mono tracking-wide text-fg;

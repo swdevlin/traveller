@@ -1,0 +1,38 @@
+<%= modal(title: "Move #{@move_label}", padding: true, advance: false, overlay: false) do %>
+  <div class='mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-fg-muted'>
+    <span>Radius</span>
+    <% HexMoveModal::MOVE_RADII.each do |n| %>
+      <%= link_to n, "#{@modal_path}?#{{ radius: n, return_to: @return_to }.compact.to_query}",
+                  class: "pill no-underline hover:underline #{'pill-toggle-active' if n == @radius}",
+                  data: { turbo_frame: 'modal' }, aria: { current: (n == @radius ? 'true' : nil) } %>
+    <% end %>
+  </div>
+
+  <p class='mb-2 text-sm text-fg-muted'>Click a hex to move there. The current hex is highlighted<%= @record.is_a?(StarSystem) ? '; hexes that already hold a star system cannot be chosen' : '' %>.</p>
+  <div class='mb-4 overflow-auto' data-controller='hex-move'>
+    <div style='zoom: 0.75; line-height: 0;'>
+      <%= @map_svg.html_safe %>
+    </div>
+  </div>
+
+  <p class='mb-3 text-center text-xs uppercase tracking-widest text-fg-muted'>or</p>
+
+  <%= form_with url: @move_path, method: :patch, class: 'block space-y-3', data: { turbo_frame: '_top' } do %>
+    <%= hidden_field_tag :return_to, @return_to if @return_to.present? %>
+    <div class='grid grid-cols-1 gap-3 sm:grid-cols-2'>
+      <div>
+        <%= label_tag :move_sector_id, 'Sector', class: 'edit-label' %>
+        <%= select_tag :sector_id, options_from_collection_for_select(@sectors, :id, :name, @sector.id),
+              id: 'move_sector_id', class: 'edit-base w-full min-w-0 !py-1.5 text-sm' %>
+      </div>
+      <div>
+        <%= label_tag :move_hex_code, 'Hex', class: 'edit-label' %>
+        <%= text_field_tag :hex_code, @hex_code, id: 'move_hex_code', required: true,
+              pattern: '\d{4}', inputmode: 'numeric', maxlength: 4, autocomplete: 'off',
+              class: 'edit-base w-full min-w-0 !py-1.5 text-sm font-mono' %>
+      </div>
+    </div>
+    <p class='text-xs text-fg-muted'>Four-digit sector hex, e.g. 0305. Choose another sector to cross a border.</p>
+    <%= submit_tag 'Move', class: 'btn btn-primary btn-sm' %>
+  <% end %>
+<% end %>

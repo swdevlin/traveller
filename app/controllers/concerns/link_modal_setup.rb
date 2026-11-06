@@ -3,7 +3,7 @@
 module LinkModalSetup
   extend ActiveSupport::Concern
 
-  include HexMapOverlays
+  include HexViewport
 
   private
 
@@ -17,45 +17,7 @@ module LinkModalSetup
 
     parsec = @star_system.parsec
     max_jump = @max_jump = @selected_jump_route&.max_jump || 3
-
-    ulx = parsec.x - max_jump
-    ulx -= 1 if ulx.odd?
-    uly = parsec.y + max_jump
-
-    @cols = parsec.x + max_jump - ulx + 1
-    @rows = max_jump * 2 + 1
-    @ul = Coordinate.new(ulx, uly)
-    @highlight_pos = [parsec.x - ulx + 1, max_jump + 1]
-    @jump_highlight_positions = Set.new
-
-    viewport_parsecs = Parsec.includes(:sector)
-                             .where(x: ulx..(ulx + @cols - 1), y: (uly - @rows + 1)..uly)
-                             .load
-
-    viewport_parsec_ids = viewport_parsecs.map(&:id)
-
-    star_systems = StarSystem.where(parsec_id: viewport_parsec_ids)
-                             .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone, stars: [], main_world: :trade_codes)
-                             .load
-
-    systems_by_parsec_id = star_systems.index_by(&:parsec_id)
-
-    @parsecs_by_pos = {}
-    @systems_by_pos = {}
-
-    viewport_parsecs.each do |p|
-      col = p.x - ulx + 1
-      row = uly - p.y + 1
-      @parsecs_by_pos[[col, row]] = { id: p.id, hex_code: p.hex_code, label: p.label, label_colour: p.label_colour }
-      sys = systems_by_parsec_id[p.id]
-      @systems_by_pos[[col, row]] = sys if sys
-    end
-
-    @region_fills_by_pos, @region_labels, @region_borders = helpers.regions_for_map(
-      viewport_parsecs, @ul,
-      visible_col: 1..@cols, visible_row: 1..@rows,
-      authenticated: true
-    )
+    _viewport_parsecs, star_systems = build_hex_viewport(parsec, max_jump)
 
     viewport_system_ids = star_systems.map(&:id)
 

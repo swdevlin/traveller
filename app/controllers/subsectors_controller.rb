@@ -171,6 +171,7 @@ class SubsectorsController < ApplicationController
       .where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil)
       .where.not(type: %w[GasGiant Comet Star])
       .maximum(:updated_at)
+    rogue_count = StellarObject.where(parsec_id: subsector_parsecs.select(:id), orbiting_id: nil).count
     facility_max_updated = StarSystemFacility
       .where(star_system_id: star_system_subquery)
       .maximum(:updated_at)
@@ -185,6 +186,7 @@ class SubsectorsController < ApplicationController
       jump_route_link_max_updated.to_i,
       rogue_max_updated.to_i,
       rogue_object_max_updated.to_i,
+      rogue_count,
       facility_max_updated.to_i,
       current_campaign.updated_at.to_i,
       SurveyOverlay.maximum(:updated_at).to_i,

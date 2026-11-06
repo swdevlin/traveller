@@ -125,6 +125,8 @@
     .system-name { font-family: "Inter", system-ui, sans-serif; font-size: <%= system_name_font_size %>px; fill: #333333; font-weight: bold; }
     .clickable { cursor: pointer; }
     .clickable:hover { opacity: 0.7; }
+    .move-target { fill: transparent; cursor: pointer; }
+    .move-target:hover { fill: rgba(245, 158, 11, 0.35); stroke: #f59e0b; stroke-width: 2; }
     <% if @subsector_overlays %>
     .subsector-boundary { fill: none; stroke: #888888; stroke-width: 1.5; stroke-dasharray: 5,3; }
     .subsector-label { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 18px; fill: rgba(200,200,200,0.25);
@@ -606,4 +608,16 @@
       </text>
     <% end %>
   </g>
+
+  <%# Topmost layer: click targets for moving an object to a hex (see HexMoveModal) %>
+  <% if @hex_move_urls&.any? %>
+    <g>
+      <% @hex_move_urls.each do |(col, row), target| %>
+        <% cx, cy = hex_center(col, row) %>
+        <a href="<%= target[:url] %>" data-hex-move data-hex-move-confirm="<%= target[:confirm] %>">
+          <polygon class="move-target" points="<%= hex_polygon_points(cx, cy) %>"/>
+        </a>
+      <% end %>
+    </g>
+  <% end %>
 </svg>

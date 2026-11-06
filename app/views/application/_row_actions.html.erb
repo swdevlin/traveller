@@ -1,0 +1,33 @@
+<%# Grid row menu (hamburger). Locals: record, label, edit_url, delete_url, delete_confirm, move_url + move_modal_url (optional). %>
+<% owner = owns_campaign? %>
+<% taggable = owner && record.respond_to?(:taggings) %>
+<td class='actions-cell'>
+  <div class='row-menu' data-controller='row-menu'>
+    <button type='button' class='action row-menu-button cursor-pointer' aria-haspopup='menu' aria-expanded='false'
+            aria-label='Actions for <%= label %>' data-row-menu-target='button' data-action='row-menu#toggle'>
+      <i class='fa-regular fa-bars' aria-hidden='true'></i>
+    </button>
+    <div class='row-menu-list hidden' role='menu' data-row-menu-target='menu'>
+      <%= link_to edit_url, class: 'row-menu-item', role: 'menuitem' do %>
+        <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+      <% end %>
+      <% if taggable %>
+        <button type='button' class='row-menu-item' role='menuitem'
+                data-action='row-menu#openDialog' data-row-menu-dialog-param='<%= dom_id(record, :tag_dialog) %>'>
+          <i class='fa-regular fa-tag' aria-hidden='true'></i> Add tag
+        </button>
+      <% end %>
+      <% if owner && local_assigns[:move_modal_url] %>
+        <%= link_to "#{move_modal_url}?#{{ return_to: local_assigns[:return_to] || request.fullpath }.to_query}", class: 'row-menu-item', role: 'menuitem',
+                    data: { turbo_frame: 'modal', action: 'row-menu#close' } do %>
+          <i class='fa-regular fa-arrows-up-down-left-right' aria-hidden='true'></i> Move
+        <% end %>
+      <% end %>
+      <%= button_to delete_url, method: :delete, class: 'row-menu-item danger', role: 'menuitem',
+                    form: { class: 'block' }, data: { turbo_confirm: delete_confirm } do %>
+        <i class='fa-regular fa-trash' aria-hidden='true'></i> Delete
+      <% end %>
+    </div>
+  </div>
+  <%= render 'application/tag_action', record: record, label: label, dialog_only: true if taggable %>
+</td>

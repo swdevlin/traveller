@@ -9,6 +9,7 @@ class StarSystemsController < ApplicationController
   include HexMapBases
   include UrlTokenVerification
   include LinkModalSetup
+  include HexMoveModal
   include SubwayMapRendering
   optional_authentication only: [:map, :jump_map]
   before_action :set_star_system, except: %i[index new create]
@@ -271,6 +272,19 @@ class StarSystemsController < ApplicationController
         format.json { render json: @star_system.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # GET /star_systems/1/move_modal
+  def move_modal
+    render_move_modal(@star_system, move_path: move_star_system_path(@star_system),
+                                    modal_path: move_modal_star_system_path(@star_system), label: @star_system.name)
+  end
+
+  # PATCH /star_systems/1/move
+  def move
+    result = hex_mover_for(@star_system).call
+    flash_move_result(result, @star_system.name)
+    redirect_to local_return_path || star_system_path(@star_system), status: :see_other
   end
 
   # DELETE /star_systems/1 or /star_systems/1.json

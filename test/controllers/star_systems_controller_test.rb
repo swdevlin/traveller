@@ -103,6 +103,67 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_system_url(@star_system)
   end
 
+  test 'moves a star system to an empty hex' do
+    target = parsecs(:four)
+    patch move_star_system_url(@star_system), params: { sector_id: target.sector_id, hex_code: target.hex_code }
+
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal target, @star_system.reload.parsec
+  end
+
+  test 'moves a star system to a hex picked from the grid' do
+    target = parsecs(:four)
+    patch move_star_system_url(@star_system), params: { parsec_id: target.id }
+
+    assert_equal target, @star_system.reload.parsec
+  end
+
+  test 'move modal renders a map with click targets, excluding the current and occupied hexes' do
+    get move_modal_star_system_url(@star_system, return_to: subsector_path(@subsector))
+
+    assert_response :success
+    assert_select 'a[data-hex-move]' do |anchors|
+      hrefs = anchors.map { |a| a['href'] }
+      assert(hrefs.any? { |h| h.include?("parsec_id=#{parsecs(:four).id}") })
+      assert(hrefs.none? { |h| h.include?("parsec_id=#{@parsec.id}&") || h.include?("parsec_id=#{star_systems(:in_two).parsec_id}&") })
+    end
+    assert_select 'input[name=return_to][value=?]', subsector_path(@subsector)
+  end
+
+  test 'moves a star system into another sector and returns to the page it came from' do
+    target = Parsec.create!(sector: sectors(:two), x: 34, y: 79, q: 34, r: 63, s: -97)
+    patch move_star_system_url(@star_system),
+          params: { sector_id: target.sector_id, hex_code: target.hex_code, return_to: subsector_path(@subsector) }
+
+    assert_redirected_to subsector_path(@subsector)
+    assert_equal target, @star_system.reload.parsec
+  end
+
+  test 'ignores a return_to that is not a local path' do
+    target = parsecs(:four)
+    patch move_star_system_url(@star_system),
+          params: { sector_id: target.sector_id, hex_code: target.hex_code, return_to: '//evil.example' }
+
+    assert_redirected_to star_system_url(@star_system)
+  end
+
+  test 'refuses to move a star system into an occupied hex' do
+    occupied = star_systems(:in_two).parsec
+    patch move_star_system_url(@star_system), params: { sector_id: occupied.sector_id, hex_code: occupied.hex_code }
+
+    assert_equal @parsec, @star_system.reload.parsec
+    assert_match(/already contains a star system/, flash[:alert])
+  end
+
+  test 'refuses to move a star system to an invalid or missing hex' do
+    patch move_star_system_url(@star_system), params: { sector_id: @parsec.sector_id, hex_code: 'abc' }
+    assert_equal @parsec, @star_system.reload.parsec
+    assert flash[:alert].present?
+
+    patch move_star_system_url(@star_system), params: { sector_id: @parsec.sector_id, hex_code: '9999' }
+    assert_equal @parsec, @star_system.reload.parsec
+  end
+
   test 'should destroy star_system' do
     assert_difference('StarSystem.count', -1) do
       delete star_system_url(@star_system)

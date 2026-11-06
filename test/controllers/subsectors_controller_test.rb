@@ -16,6 +16,16 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'move links in the subsector tables return to the subsector page, including in the refreshed frame' do
+    expected = CGI.escape(subsector_path(@subsector))
+
+    [subsector_url(@subsector), star_systems_table_subsector_url(@subsector)].each do |url|
+      get url
+      assert_response :success
+      assert_select "a[href*='move_modal'][href*='return_to=#{expected}']"
+    end
+  end
+
   test 'edit is forbidden for a logged-in user who does not referee this campaign' do
     sign_out
     sign_in_as users(:two)

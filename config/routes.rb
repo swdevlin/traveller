@@ -172,6 +172,8 @@ Rails.application.routes.draw do
         post :generate_daily_traffic
         get  :moon_orbit_map
         get  :moon_orbit_map_modal
+        get   :move_modal
+        patch :move
       end
       resources :cities, only: %i[new create edit update destroy], shallow: true
       resources :moons, only: %i[new create]
@@ -221,6 +223,8 @@ Rails.application.routes.draw do
         get  :quick_link
         get  :jump_map
         get  :jump_map_modal
+        get   :move_modal
+        patch :move
       end
     end
 

@@ -51,6 +51,25 @@ class ApplicationController < ActionController::Base
     ahoy.track 'Viewed page', campaign_id: Current.campaign.id
   end
 
+  # Only local paths are honoured, so a crafted return_to cannot redirect off-site.
+  def local_return_path
+    path = params[:return_to].to_s
+    path if path.start_with?('/') && !path.start_with?('//') && !path.include?("\n")
+  end
+
+  def hex_mover_for(record)
+    HexMover.new(record, parsec_id: params[:parsec_id], sector: Sector.kept.find_by(id: params[:sector_id]),
+                         hex_code: params[:hex_code])
+  end
+
+  def flash_move_result(result, name)
+    if result.success?
+      flash[:notice] = "#{name} moved to #{result.parsec.sector.name} #{result.parsec.hex_code}."
+    else
+      flash[:alert] = "Could not move #{name}: #{result.error}"
+    end
+  end
+
   def generator_service
     GeneratorService.new(campaign_id: current_campaign&.id)
   end

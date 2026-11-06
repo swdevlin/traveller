@@ -14,6 +14,30 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
   #   assert_response :success
   # end
 
+  test 'moves a rogue to another hex' do
+    rogue = stellar_objects(:rogue)
+    target = parsecs(:four)
+    patch move_stellar_object_url(rogue), params: { sector_id: target.sector_id, hex_code: target.hex_code }
+
+    assert_equal target.id, rogue.reload.parsec_id
+  end
+
+  test 'rogue move modal renders, and is refused for an orbiting object' do
+    neighbour = Parsec.create!(sector: sectors(:two), x: 33, y: 78, q: 33, r: 62, s: -95)
+    get move_modal_stellar_object_url(stellar_objects(:rogue))
+    assert_response :success
+    assert_select 'a[data-hex-move][href*=?]', "parsec_id=#{neighbour.id}"
+
+    get move_modal_stellar_object_url(@gas_giant)
+    assert_response :unprocessable_entity
+  end
+
+  test 'refuses to move an object that orbits a star' do
+    patch move_stellar_object_url(@gas_giant), params: { sector_id: @parsec.sector_id, hex_code: parsecs(:four).hex_code }
+
+    assert_response :unprocessable_entity
+  end
+
   test 'moon orbit map is served as a webp, for planets only' do
     get moon_orbit_map_stellar_object_url(stellar_objects(:moons_test_gas_giant), format: :webp)
     assert_response :success

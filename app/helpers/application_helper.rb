@@ -1,4 +1,9 @@
 module ApplicationHelper
+  # Sectors offered as move destinations; memoised so a grid of rows queries once.
+  def move_sector_options
+    @move_sector_options ||= Sector.kept.order(:name).to_a
+  end
+
   THEMES = {
     'dark' => { label: 'Dark', light: false },
     'light' => { label: 'Light', light: true },

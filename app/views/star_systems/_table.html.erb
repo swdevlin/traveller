@@ -47,7 +47,7 @@
             <th scope='col'>Tags</th>
           <% end %>
         <% end %>
-        <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'>Actions</th>
+        <th scope='col' class='text-right whitespace-nowrap w-16 actions-cell'><span class='sr-only'>Actions</span></th>
       </tr>
       </thead>
 
@@ -133,22 +133,10 @@
             <% end %>
           <% end %>
 
-          <td class='actions-cell'>
-            <div class='action-group'>
-              <%= render 'application/tag_action', record: star_system, label: star_system.name %>
-              <%= link_to edit_star_system_path(star_system), class: 'action', title: 'Edit' do %>
-                <i class='fa-regular fa-pen-to-square'></i>
-              <% end %>
-
-              <%= button_to star_system_path(star_system),
-                            method: :delete,
-                            class: 'action danger',
-                            title: 'Delete',
-                            data: { turbo_confirm: 'Delete this star system?' } do %>
-                <i class='fa-regular fa-trash'></i>
-              <% end %>
-            </div>
-          </td>
+          <%= render 'application/row_actions', record: star_system, label: star_system.name,
+                edit_url: edit_star_system_path(star_system), delete_url: star_system_path(star_system),
+                delete_confirm: 'Delete this star system?', move_modal_url: move_modal_star_system_path(star_system),
+                return_to: (@subsector ? subsector_path(@subsector) : request.fullpath) %>
         </tr>
       <% end %>
       </tbody>
