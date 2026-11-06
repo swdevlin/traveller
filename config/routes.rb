@@ -160,6 +160,7 @@ Rails.application.routes.draw do
     end
 
     resource :trade_goods, only: %i[edit update]
+    resource :trade_settings, only: %i[edit update]
 
     resources :stellar_objects do
       member do

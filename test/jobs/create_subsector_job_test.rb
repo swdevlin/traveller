@@ -48,4 +48,58 @@ class CreateSubsectorJobTest < ActiveJob::TestCase
       CreateSubsectorJob.perform_now(sector.id, 'A', 1, 1, 'Mapped A', nil, 'default', true)
     end
   end
+
+  def create_incognita_citerior
+    sector = Sector.new(name: 'Incognita Citerior', abbreviation: 'IC', x: -10, y: -2, source: 'deepnight')
+    sector.skip_subsector_creation = true
+    sector.save!
+    sector
+  end
+
+  test 'seeds the Revelation ship at Demnan, dated 1105-001, for Incognita Citerior subsector L in a deepnight_revelation campaign' do
+    campaigns(:one).update_column(:campaign_type, 'deepnight_revelation')
+    sector = create_incognita_citerior
+
+    CreateSubsectorJob.perform_now(sector.id, 'L', 4, 3, 'IC L')
+
+    ship = Ship.find_by!(name: 'Revelation')
+    assert_equal 4, ship.jump_drive
+    assert_equal 4, ship.m_drive
+
+    jump_log = ship.jump_logs.first
+    assert jump_log
+    assert_equal jump_log.from_parsec, jump_log.to_parsec
+    assert_equal '3124', jump_log.to_parsec.hex_code
+    assert_equal 1105, jump_log.depart_year
+    assert_equal 1, jump_log.depart_day
+    assert_equal 1105, jump_log.arrive_year
+    assert_equal 1, jump_log.arrive_day
+  end
+
+  test 'does not seed a ship for subsectors other than Demnan\'s' do
+    campaigns(:one).update_column(:campaign_type, 'deepnight_revelation')
+    sector = create_incognita_citerior
+
+    CreateSubsectorJob.perform_now(sector.id, 'A', 1, 1, 'IC A')
+
+    assert_nil Ship.find_by(name: 'Revelation')
+  end
+
+  test 'does not seed a ship for non-deepnight_revelation campaigns' do
+    sector = create_incognita_citerior
+
+    CreateSubsectorJob.perform_now(sector.id, 'L', 4, 3, 'IC L')
+
+    assert_nil Ship.find_by(name: 'Revelation')
+  end
+
+  test 'does not seed a second ship if one already exists' do
+    campaigns(:one).update_column(:campaign_type, 'deepnight_revelation')
+    Ship.create!(name: 'Revelation', jump_drive: 4, m_drive: 4)
+    sector = create_incognita_citerior
+
+    assert_no_difference -> { Ship.count } do
+      CreateSubsectorJob.perform_now(sector.id, 'L', 4, 3, 'IC L')
+    end
+  end
 end

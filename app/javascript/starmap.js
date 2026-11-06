@@ -72,6 +72,7 @@ document.addEventListener('turbo:load', () => {
       routePlan,
       hiddenJumpRouteIds,
       centerOn: null,
+      homeLocation: null,
       ...serverFlags
     }
   })

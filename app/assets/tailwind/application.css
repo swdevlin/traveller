@@ -1611,16 +1611,12 @@
     @apply pr-8;
   }
 
-  .menu-card {
-    @apply overflow-hidden rounded-xl border border-outline bg-panel shadow-xl;
-  }
-
   .menu-list {
-    @apply divide-y divide-outline bg-panel-muted;
+    @apply lg:columns-2 lg:gap-x-8;
   }
 
   .menu-row {
-    @apply flex items-center justify-between p-4 transition hover:bg-panel no-underline hover:no-underline;
+    @apply flex items-center justify-between gap-4 rounded-lg p-4 mb-1 transition hover:bg-panel no-underline hover:no-underline break-inside-avoid;
   }
 
   .menu-icon {

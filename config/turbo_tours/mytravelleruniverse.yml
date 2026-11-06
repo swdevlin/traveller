@@ -119,7 +119,7 @@ journeys:
 
     - name: sector_populate
       target: sector-populate
-      title: "Populate"
+      title: "Generate"
       body: "Generate star systems for the sector using the rules in the World Builder's Handbook. Any existing data will be replaced."
 
     - name: sector_clear

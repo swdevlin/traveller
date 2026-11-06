@@ -1468,6 +1468,7 @@ type alias Flags =
     , tagOptions : List HighlightRule.Option
     , sophontOptions : List HighlightRule.Option
     , shipLocation : Maybe ( Int, Int )
+    , homeLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
     , showSectorLines : Maybe Bool
@@ -1601,12 +1602,12 @@ init viewport settings key hostConfig referee =
                                             HexAddress (sx - deltaX // 2) (sy + deltaY // 2)
 
                                         Nothing ->
-                                            toUniversalAddress
-                                                { sectorX = -10
-                                                , sectorY = -2
-                                                , x = 21
-                                                , y = 12
-                                                }
+                                            case settings.homeLocation of
+                                                Just ( hx, hy ) ->
+                                                    HexAddress (hx - deltaX // 2) (hy + deltaY // 2)
+
+                                                Nothing ->
+                                                    HexAddress (0 - deltaX // 2) (0 + deltaY // 2)
 
                 lowerRightHex =
                     upperLeftHex
@@ -1784,7 +1785,13 @@ init viewport settings key hostConfig referee =
             , hostConfig = hostConfig
             , sectors = Dict.empty
             , route = []
-            , currentAddress = toUniversalAddress { sectorX = -10, sectorY = -2, x = 31, y = 24 }
+            , currentAddress =
+                case settings.homeLocation of
+                    Just ( hx, hy ) ->
+                        HexAddress hx hy
+
+                    Nothing ->
+                        HexAddress 0 0
             , regions = Dict.empty
             , regionsCoverage = initState.regionsCoverage
             , regionLabels = Dict.empty

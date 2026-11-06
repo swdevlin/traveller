@@ -136,93 +136,6 @@
                  value: "#{(@campaign.hex_size.presence || 'medium').capitalize} (#{@campaign.hex_size_value}px)" %>
     </div>
 
-    <%= render 'application/subsection', title: 'Passenger Traffic' %>
-
-    <%
-      dms = PassengerTrafficDms.for(@campaign)
-      passenger_dm_groups = [
-        ['Starport', %w[A B C D E X].map { |c| [:"starport_#{c.downcase}", c] }],
-        ['Travel Zone', [[:zone_amber, 'Amber'], [:zone_red, 'Red']]],
-        ['Journey', [[:high_passenger, 'High passage'], [:low_passenger, 'Low passage'],
-                     [:per_parsec, 'Each parsec after first']]]
-      ]
-    %>
-    <div class='grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4'>
-      <%= render 'campaign_settings/dm_box', title: 'Population' do %>
-        <% (1..12).each do |n| %>
-          <div class='flex items-center justify-between gap-3'>
-            <span class='text-sm text-fg-muted'><%= n <= 1 ? '≤1' : n %></span>
-            <span class='text-fg-bright font-mono'><%= format('%+d', dms[:population][n <= 1 ? 0 : n - 1]) %></span>
-          </div>
-        <% end %>
-      <% end %>
-
-      <% passenger_dm_groups.each do |title, fields| %>
-        <%= render 'campaign_settings/dm_box', title: title do %>
-          <% fields.each do |key, field_label| %>
-            <div class='flex items-center justify-between gap-3'>
-              <span class='text-sm text-fg-muted'><%= field_label %></span>
-              <span class='text-fg-bright font-mono'><%= format('%+d', dms[key]) %></span>
-            </div>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
-
-    <%= render 'application/subsection', title: 'Freight Traffic' %>
-
-    <%
-      freight_dms = FreightTrafficDms.for(@campaign)
-      freight_dm_groups = [
-        ['Starport', %w[A B C D E X].map { |c| [:"starport_#{c.downcase}", c] }],
-        ['Travel Zone', [[:zone_amber, 'Amber'], [:zone_red, 'Red']]],
-        ['Cargo', [[:major_cargo, 'Major cargo'], [:incidental_cargo, 'Incidental cargo'],
-                   [:per_parsec, 'Each parsec after first']]]
-      ]
-    %>
-    <div class='grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4'>
-      <%= render 'campaign_settings/dm_box', title: 'Population' do %>
-        <% (1..12).each do |n| %>
-          <div class='flex items-center justify-between gap-3'>
-            <span class='text-sm text-fg-muted'><%= n <= 1 ? '≤1' : n %></span>
-            <span class='text-fg-bright font-mono'><%= format('%+d', freight_dms[:population][n <= 1 ? 0 : n - 1]) %></span>
-          </div>
-        <% end %>
-      <% end %>
-
-      <%= render 'campaign_settings/dm_box', title: 'Tech Level' do %>
-        <% (0..16).each do |n| %>
-          <div class='flex items-center justify-between gap-3'>
-            <span class='text-sm text-fg-muted'><%= n %></span>
-            <span class='text-fg-bright font-mono'><%= format('%+d', freight_dms[:tech_level][n]) %></span>
-          </div>
-        <% end %>
-      <% end %>
-
-      <% freight_dm_groups.each do |title, fields| %>
-        <%= render 'campaign_settings/dm_box', title: title do %>
-          <% fields.each do |key, field_label| %>
-            <div class='flex items-center justify-between gap-3'>
-              <span class='text-sm text-fg-muted'><%= field_label %></span>
-              <span class='text-fg-bright font-mono'><%= format('%+d', freight_dms[key]) %></span>
-            </div>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
-
-    <%= render 'application/subsection', title: 'Speculative Trade' %>
-
-    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
-      <%= render 'application/data_block',
-                 label: 'Local Broker Level',
-                 value: @campaign.local_broker_level_value %>
-
-      <%= render 'application/data_block',
-                 label: 'Local Broker Fee %',
-                 value: "#{number_with_precision(@campaign.local_broker_fee_percentage_value, precision: 2, strip_insignificant_zeros: true)}%" %>
-    </div>
-
     <%= render 'application/subsection', title: 'API Access' %>
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
@@ -256,9 +169,11 @@
       <% end %>
 
       <% if @campaign.deepnight_revelation? %>
+        <% create_sectors_confirm = 'This will create all the sectors for the Deepnight Revelation campaign and queue star system generation. Are you sure?" %>
         <%= button_to populate_deepnight_campaign_settings_path,
               method: :post,
-              class: 'btn' do %>
+              class: 'btn',
+              data: { turbo_confirm: create_sectors_confirm, confirm_style: 'primary' } do %>
           <i class='fa-regular fa-globe mr-1.5'></i> Create Sectors
         <% end %>
       <% end %>

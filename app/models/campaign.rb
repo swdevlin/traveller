@@ -22,12 +22,15 @@ class Campaign < ApplicationRecord
 
   HEX_SIZES = { 'small' => 30, 'medium' => 40, 'large' => 50 }.freeze
 
+  # Where the Deepnight Revelation campaign's starting ship, the Revelation, is based.
+  DEEPNIGHT_HOME_SECTOR = { x: -10, y: -2 }.freeze
+
   store_accessor :settings, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
                             :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
                             :default_language, :date_format, :trade_good_base_prices,
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
-                            :limited_main_world_eccentricity,
+                            :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
 
   def exploration?
@@ -71,6 +74,19 @@ class Campaign < ApplicationRecord
     HEX_SIZES.fetch(hex_size, HEX_SIZES.fetch('medium'))
   end
 
+  def starting_sector
+    if starting_sector_x.present? && starting_sector_y.present?
+      Sector.kept.find_by(x: starting_sector_x.to_i, y: starting_sector_y.to_i) || Sector.kept.nearest_to_origin
+    else
+      Sector.kept.nearest_to_origin
+    end
+  end
+
+  def starting_location
+    sector = starting_sector
+    sector ? [sector.centre_coordinate.x, sector.centre_coordinate.y] : [0, 0]
+  end
+
   def native_tech_level?
     ActiveModel::Type::Boolean.new.cast(native_tech_level)
   end
@@ -99,6 +115,7 @@ class Campaign < ApplicationRecord
                    if: -> { new_record? || slug_changed? }
   validates_hex_colour :sector_capital_colour, :subsector_capital_colour, allow_blank: true
   validates :hex_size, inclusion: { in: HEX_SIZES.keys }, allow_blank: true
+  validates :starting_sector_x, :starting_sector_y, numericality: { only_integer: true }, allow_blank: true
 
   def token_for(path)
     OpenSSL::HMAC.hexdigest('SHA256', token_secret, path)
@@ -113,12 +130,21 @@ class Campaign < ApplicationRecord
   private
 
   def default_sector_source
-    self.sector_source = 'traveller_map' if charted_space? && sector_source.blank?
+    return if sector_source.present?
+
+    self.sector_source = 'traveller_map' if charted_space?
+    self.sector_source = 'deepnight_defaults' if deepnight_revelation?
   end
 
   def set_defaults
     self.exploration            = deepnight_revelation? if exploration.nil?
-    self.sophont_check          = charted_space? ? 'none' : 'standard'
+    self.sophont_check          = if charted_space?
+      'none'
+    elsif deepnight_revelation?
+      'rareEarth'
+    else
+      'standard'
+    end
     self.max_tech_level         = 16
     self.native_tech_level      = false
     self.token_secret           = SecureRandom.hex(32)
@@ -130,6 +156,10 @@ class Campaign < ApplicationRecord
     self.local_broker_level        = 2
     self.local_broker_fee_percentage = 10
     self.hex_size                  = 'medium'
+    if deepnight_revelation?
+      self.starting_sector_x = DEEPNIGHT_HOME_SECTOR[:x]
+      self.starting_sector_y = DEEPNIGHT_HOME_SECTOR[:y]
+    end
   end
 
   def set_schema_name
@@ -147,6 +177,7 @@ class Campaign < ApplicationRecord
     Apartment::Migrator.migrate(schema_name)
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
+      load Rails.root.join('db/seeds/sectors.rb') unless homebrew? || deepnight_revelation?
       if charted_space?
         Sophont.seed_defaults
         Tag.seed_nobility

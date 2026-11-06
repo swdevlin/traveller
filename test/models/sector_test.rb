@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class SectorTest < ActiveSupport::TestCase
+  include ActionCable::TestHelper
+
   test 'effective_language returns own language when set' do
     campaign = campaigns(:one)
     sector = Sector.new(x: 99, y: 99, language: 'aslan')
@@ -156,6 +158,41 @@ class SectorTest < ActiveSupport::TestCase
     assert_equal 1, sector.number_of_populated_worlds
     assert_equal 5_000_000, sector.total_population
     assert_equal 'Populated', sector.highest_tech_level_world.name
+  end
+
+  test 'centre_coordinate returns the midpoint of the sector hex range' do
+    sector = Sector.new(x: 2, y: 3)
+    ul, lr = sector.universal_coordinates
+
+    centre = sector.centre_coordinate
+
+    assert_equal (ul.x + lr.x) / 2, centre.x
+    assert_equal (ul.y + lr.y) / 2, centre.y
+  end
+
+  test 'nearest_to_origin returns the kept sector closest to (0, 0)' do
+    near = Sector.create!(x: 0, y: 0, skip_subsector_creation: true)
+
+    assert_equal near, Sector.nearest_to_origin
+  end
+
+  test 'nearest_to_origin ignores discarded sectors' do
+    near = Sector.create!(x: 0, y: 0, skip_subsector_creation: true)
+    near.discard!
+
+    assert_not_equal near, Sector.nearest_to_origin
+  end
+
+  test 'creating a sector broadcasts a sector_created event so the index page can live-reload' do
+    sector = nil
+
+    assert_broadcasts('ui_updates', 1) do
+      sector = Sector.create!(x: 60, y: 60, skip_subsector_creation: true)
+    end
+
+    message = ActiveSupport::JSON.decode(broadcasts('ui_updates').last)
+    assert_equal 'sector_created', message['event']
+    assert_equal sector.id, message['sector_id']
   end
 
   private

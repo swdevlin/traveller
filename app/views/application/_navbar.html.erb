@@ -25,16 +25,11 @@
         </div>
       <% end %>
 
-      <% if current_campaign %>
-        <% starmap_params = @starmap_center ? { cx: @starmap_center[0], cy: @starmap_center[1] } : {} %>
-        <div data-tour-step="nav-starmap" class='shrink-0 font-medium'>
-          <%= link_to 'Starmap', campaign_starmap_path(starmap_params), class: 'text-nav-fg hover:text-nav-hover hover:underline hover:underline-offset-2', target: '_blank', rel: 'noopener' %>
-        </div>
-
-        <div class='shrink-0 font-medium'>
-          <%= link_to 'Systems', system_queries_path, class: 'text-nav-fg hover:text-nav-hover hover:underline hover:underline-offset-2' %>
-        </div>
-      <% end %>
+      <nav class='hidden lg:block'>
+        <ul class='flex items-center gap-6 font-medium'>
+          <%= render 'application/navbar_links' %>
+        </ul>
+      </nav>
 
       <div class='lg:hidden' data-controller='dropdown'>
         <button data-action='dropdown#toggle'
@@ -50,30 +45,24 @@
           </ul>
         </div>
       </div>
-
-      <nav class='hidden lg:block'>
-        <ul class='flex items-center gap-6 font-medium'>
-          <%= render 'application/navbar_links' %>
-        </ul>
-      </nav>
     </div>
   <% end %>
 
   <div class='justify-self-end flex items-center gap-4'>
     <% if authenticated? %>
-      <div class='ml-6'
-           data-controller='job-count'
-           data-job-count-schema-name-value='<%= current_campaign&.schema_name %>'>
-        <span class='inline-flex items-center gap-1 text-fg cursor-default'
-              data-job-count-target='container'
-              title='Background tasks'
-              hidden>
-          <i class='fa-regular fa-spinner-third fa-spin text-xs'></i>
-          <span class='text-xs' data-job-count-target='count'>0</span>
-        </span>
-      </div>
-
       <% if current_campaign %>
+        <div class='ml-6'
+             data-controller='job-count'
+             data-job-count-schema-name-value='<%= current_campaign.schema_name %>'>
+          <span class='inline-flex items-center gap-1 text-fg cursor-default'
+                data-job-count-target='container'
+                title='Background tasks'
+                hidden>
+            <i class='fa-regular fa-spinner-third fa-spin text-xs'></i>
+            <span class='text-xs' data-job-count-target='count'>0</span>
+          </span>
+        </div>
+
         <div  data-tour-step="nav-campaign" class='relative' data-controller='dropdown'>
           <button data-action='dropdown#toggle'
                   class='inline-flex items-center gap-1 text-nav-fg hover:text-nav-hover cursor-pointer bg-transparent border-0 p-0 font-medium'>

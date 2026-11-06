@@ -3,6 +3,14 @@
 class CreateSubsectorJob < ApplicationJob
   queue_as :subsector_creation
 
+  # Where the Deepnight Revelation campaign's starting ship is seeded: Demnan,
+  # hex 3124 of the Incognita Citerior sector.
+  DEMNAN_SECTOR = { x: -10, y: -2 }.freeze
+  DEMNAN_SUBSECTOR_LETTER = 'L'
+  DEMNAN_HEX = '3124'
+  CAMPAIGN_START_YEAR = 1105
+  CAMPAIGN_START_DAY = 1
+
   def perform(sector_id, letter, x, y, subsector_name = nil, default_build_spec = nil, build_source = 'default', populate = false)
     sector = Sector.find(sector_id)
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
@@ -46,6 +54,7 @@ class CreateSubsectorJob < ApplicationJob
     end
 
     queue_population(sector, subsector) if populate && subsector.build.present?
+    seed_deepnight_starting_ship(campaign, sector, letter, subsector)
 
     ActionCable.server.broadcast(
       'ui_updates',
@@ -71,6 +80,25 @@ class CreateSubsectorJob < ApplicationJob
   def queue_population(sector, subsector)
     priority = sector.x.abs * 1000 + sector.y.abs * 10 + subsector.y + subsector.x
     GenerateSubsectorJob.set(priority: priority).perform_later(subsector.id, subsector.build)
+  end
+
+  def seed_deepnight_starting_ship(campaign, sector, letter, subsector)
+    return unless campaign&.deepnight_revelation?
+    return unless sector.x == DEMNAN_SECTOR[:x] && sector.y == DEMNAN_SECTOR[:y]
+    return unless letter == DEMNAN_SUBSECTOR_LETTER
+    return if Ship.exists?(name: 'Revelation')
+
+    address = Parsec.new(sector: sector)
+    address.hex_code = DEMNAN_HEX
+    demnan_parsec = subsector.parsecs.find_by(x: address.x, y: address.y)
+    return unless demnan_parsec
+
+    ship = Ship.create!(name: 'Revelation', jump_drive: 4, m_drive: 4)
+    JumpLog.create!(
+      ship: ship, from_parsec: demnan_parsec, to_parsec: demnan_parsec,
+      depart_year: CAMPAIGN_START_YEAR, depart_day: CAMPAIGN_START_DAY,
+      arrive_year: CAMPAIGN_START_YEAR, arrive_day: CAMPAIGN_START_DAY
+    )
   end
 
   def create_parsecs(sector, subsector)

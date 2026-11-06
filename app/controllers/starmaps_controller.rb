@@ -53,6 +53,7 @@ class StarmapsController < ApplicationController
       allSectorsMapUrl: all_sectors_map_url,
       rogueObjectPathData: rogue_icon&.path_data,
       shipLocation: last_parsec ? [last_parsec.x, last_parsec.y] : nil,
+      homeLocation: Current.campaign&.starting_location,
       facilityIcons: facility_icons,
       facilities: facilities,
       allegianceOptions: allegiances,

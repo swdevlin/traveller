@@ -73,6 +73,7 @@ type alias Flags =
     , tagOptions : List { code : String, name : String }
     , sophontOptions : List { code : String, name : String }
     , shipLocation : Maybe ( Int, Int )
+    , homeLocation : Maybe ( Int, Int )
     , displayMode : Maybe String
     , regionDisplay : Maybe String
     , showSectorLines : Maybe Bool
@@ -213,6 +214,7 @@ update msg model =
                                 , tagOptions = model.flags.tagOptions
                                 , sophontOptions = model.flags.sophontOptions
                                 , shipLocation = model.flags.shipLocation
+                                , homeLocation = model.flags.homeLocation
                                 , displayMode = model.flags.displayMode
                                 , regionDisplay = model.flags.regionDisplay
                                 , showSectorLines = model.flags.showSectorLines

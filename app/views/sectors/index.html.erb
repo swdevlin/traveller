@@ -27,7 +27,10 @@
     </div>
 
     <div data-sectors-view-target="listPanel" >
-      <turbo-frame id="sectors">
+      <turbo-frame id="sectors"
+                   data-controller='ui-updates'
+                   data-ui-updates-event-value='sector_created subsector_populated'
+                   data-ui-updates-src-value='<%= sectors_path %>'>
         <%= render "list", sectors: @sectors, pagy: @pagy %>
       </turbo-frame>
     </div>

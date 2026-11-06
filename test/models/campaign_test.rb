@@ -62,6 +62,65 @@ class CampaignTest < ActiveSupport::TestCase
     campaign&.destroy
   end
 
+  test 'creating a charted space campaign seeds the Foreven sector' do
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      assert Sector.exists?(x: -5, y: 1)
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a deepnight_revelation campaign does not seed the Foreven sector' do
+    campaign = Campaign.create!(name: 'Deepnight', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'deepnight_revelation')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      assert_not Sector.exists?(x: -5, y: 1)
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a deepnight_revelation campaign defaults the starting sector to Incognita Citerior' do
+    campaign = Campaign.create!(name: 'Deepnight', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'deepnight_revelation')
+
+    assert_equal(-10, campaign.starting_sector_x)
+    assert_equal(-2, campaign.starting_sector_y)
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a deepnight_revelation campaign defaults sophont_check to the rare earth universe variant' do
+    campaign = Campaign.create!(name: 'Deepnight', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'deepnight_revelation')
+
+    assert_equal 'rareEarth', campaign.sophont_check
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a charted_space campaign still defaults sophont_check to none' do
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+
+    assert_equal 'none', campaign.sophont_check
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a homebrew campaign still defaults sophont_check to standard' do
+    campaign = Campaign.create!(name: 'Homebrew', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'homebrew')
+
+    assert_equal 'standard', campaign.sophont_check
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
   test 'creating a campaign with no existing rulebooks does not error' do
     Rulebook.delete_all
     campaign = Campaign.create!(name: 'Empty Books Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one))
@@ -162,7 +221,7 @@ class CampaignTest < ActiveSupport::TestCase
     assert_equal 'traveller_map', campaign.sector_source
   end
 
-  test 'sector_source is left untouched for non-charted_space campaigns' do
+  test 'sector_source is left untouched for homebrew campaigns' do
     campaign = campaigns(:one)
     campaign.campaign_type = 'homebrew'
     campaign.sector_source = nil
@@ -170,6 +229,25 @@ class CampaignTest < ActiveSupport::TestCase
     campaign.save!
 
     assert_nil campaign.sector_source
+  end
+
+  test 'deepnight_revelation campaigns default sector_source to deepnight_defaults on create' do
+    campaign = Campaign.create!(name: 'Deepnight', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'deepnight_revelation')
+
+    assert_equal 'deepnight_defaults', campaign.sector_source
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'deepnight_revelation campaigns with a blank sector_source pick it up on the next save' do
+    campaign = campaigns(:one)
+    campaign.campaign_type = 'deepnight_revelation'
+    campaign.sector_source = nil
+
+    campaign.save!
+
+    assert_equal 'deepnight_defaults', campaign.sector_source
   end
 
   test 'sector_source is not overwritten once set' do
@@ -214,5 +292,65 @@ class CampaignTest < ActiveSupport::TestCase
     campaign.limited_main_world_eccentricity = true
 
     assert campaign.limited_main_world_eccentricity?
+  end
+
+  # starting_sector_x / starting_sector_y / starting_sector / starting_location
+
+  test 'starting_sector_x and starting_sector_y allow blank' do
+    campaign = campaigns(:one)
+    campaign.starting_sector_x = ''
+    campaign.starting_sector_y = nil
+
+    assert campaign.valid?
+  end
+
+  test 'starting_sector_x and starting_sector_y reject non-integer values' do
+    campaign = campaigns(:one)
+    campaign.starting_sector_x = 'abc'
+
+    assert_not campaign.valid?
+    assert_includes campaign.errors[:starting_sector_x], 'is not a number'
+  end
+
+  test 'starting_sector returns the explicitly configured sector' do
+    campaign = campaigns(:one)
+    sector = sectors(:one)
+    campaign.starting_sector_x = sector.x
+    campaign.starting_sector_y = sector.y
+
+    assert_equal sector, campaign.starting_sector
+  end
+
+  test 'starting_sector falls back to the sector nearest the origin when unset' do
+    campaign = campaigns(:one)
+    campaign.starting_sector_x = nil
+    campaign.starting_sector_y = nil
+
+    assert_equal Sector.nearest_to_origin, campaign.starting_sector
+  end
+
+  test 'starting_sector falls back to the sector nearest the origin when the configured sector does not exist' do
+    campaign = campaigns(:one)
+    campaign.starting_sector_x = 9999
+    campaign.starting_sector_y = 9999
+
+    assert_equal Sector.nearest_to_origin, campaign.starting_sector
+  end
+
+  test 'starting_location returns the centre of the starting sector' do
+    campaign = campaigns(:one)
+    sector = sectors(:one)
+    campaign.starting_sector_x = sector.x
+    campaign.starting_sector_y = sector.y
+
+    centre = sector.centre_coordinate
+    assert_equal [centre.x, centre.y], campaign.starting_location
+  end
+
+  test 'starting_location falls back to universal (0, 0) when the campaign has no sectors' do
+    Sector.delete_all
+    campaign = campaigns(:one)
+
+    assert_equal [0, 0], campaign.starting_location
   end
 end

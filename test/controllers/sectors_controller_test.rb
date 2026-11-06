@@ -10,6 +10,13 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'index listens for sector_created and subsector_populated so the list live-reloads' do
+    get sectors_url
+    assert_response :success
+
+    assert_select "turbo-frame#sectors[data-ui-updates-event-value='sector_created subsector_populated']"
+  end
+
   test 'should get new' do
     get new_sector_url
     assert_response :success

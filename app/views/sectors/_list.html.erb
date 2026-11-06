@@ -58,7 +58,10 @@
         <tbody>
         <% if @sectors.any? %>
           <% @sectors.each do |sector| %>
-            <tr>
+            <tr class='cursor-pointer'
+                data-controller='row-link'
+                data-row-link-url-value='<%= sector_path(sector) %>'
+                data-action='click->row-link#navigate'>
               <td>
                 <%= link_to sector_path(sector),
                             data: { turbo_frame: '_top' },

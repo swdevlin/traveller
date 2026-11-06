@@ -12,6 +12,7 @@ class Sector < ApplicationRecord
   attr_accessor :skip_subsector_creation, :default_build_spec, :t5_build_specs, :populate_subsectors,
             :density, :settled, :systems_known, :max_tech_level, :creation_mode, :subsector_settings, :campaign_slug
   after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation
+  after_create_commit :broadcast_created
   after_update_commit :shift_parsec_coordinates, if: -> { saved_change_to_x? || saved_change_to_y? }
 
   validate :coordinates_unique_with_link
@@ -60,6 +61,15 @@ class Sector < ApplicationRecord
         .index_by { |s| [s.x, s.y] }
   end
 
+  def centre_coordinate
+    ul, lr = universal_coordinates
+    Coordinate.new((ul.x + lr.x) / 2, (ul.y + lr.y) / 2)
+  end
+
+  def self.nearest_to_origin
+    kept.order(Arel.sql('(x * x) + (y * y)')).first
+  end
+
   def get_allegiances
     Allegiance
       .joins(star_systems: :parsec)
@@ -77,6 +87,10 @@ class Sector < ApplicationRecord
   end
 
   private
+
+  def broadcast_created
+    ActionCable.server.broadcast('ui_updates', { event: 'sector_created', sector_id: id })
+  end
 
   def default_reference_url
     "https://wiki.travellerrpg.com/#{name.tr(' ', '_')}_Sector"
