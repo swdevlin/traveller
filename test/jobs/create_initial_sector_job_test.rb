@@ -54,7 +54,7 @@ class CreateInitialSectorJobTest < ActiveJob::TestCase
     campaign_id = campaign.id
 
     assert_broadcast_on(CampaignProvisioningChannel.broadcasting_for(campaign),
-                        event: 'failed', message: "Could not find “Nonexistent Sector” on Traveller Map.") do
+                        event: 'failed', message: 'Could not find “Nonexistent Sector” on Traveller Map.') do
       CreateInitialSectorJob.perform_now(campaign_id)
     end
 
