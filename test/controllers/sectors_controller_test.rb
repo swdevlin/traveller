@@ -17,6 +17,87 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_select "turbo-frame#sectors[data-ui-updates-event-value='sector_created subsector_populated']"
   end
 
+  test 'Deepnight registry tracks only catalogue coordinates and offers missing sectors' do
+    campaigns(:one).update!(campaign_type: 'deepnight_revelation')
+    home = PopulateDeepnightCampaignJob::HOME_SECTOR
+    Sector.create!(name: 'Starting sector', **home, skip_subsector_creation: true)
+    get sectors_url
+
+    total = DeepnightDefaults.sectors.size
+    assert_select 'h2', text: 'Additional Deepnight sectors available'
+    assert_match "1 of #{total} created", response.body
+    assert_select "aside form[action='#{populate_deepnight_campaign_settings_path}'] button", text: /Create Sectors/
+
+    missing = DeepnightDefaults.sectors.reject { |data| Sector.exists?(x: data['X'], y: data['Y']) }
+    first = missing.shift
+    Sector.create!(name: first['name'], x: first['X'], y: first['Y'], skip_subsector_creation: true)
+    get sectors_url
+    assert_select 'h2', text: 'Additional Deepnight sectors available'
+    assert_match "2 of #{total} created", response.body
+
+    Sector.insert_all!(missing.map { |data| { name: data['name'], x: data['X'], y: data['Y'] } })
+    get sectors_url
+    assert_select 'h2', text: 'Additional Deepnight sectors available', count: 0
+    assert_match "#{total} of #{total} created", response.body
+  end
+
+  test 'ordinary campaigns do not offer predefined sectors' do
+    get sectors_url
+    assert_select 'h2', text: 'Additional Deepnight sectors available', count: 0
+    assert_select "form[action='#{populate_deepnight_campaign_settings_path}']", count: 0
+    assert_no_match 'Deepnight Sectors:', response.body
+    post populate_deepnight_campaign_settings_url
+    assert_response :unprocessable_entity
+  end
+
+  test 'registry creation queues the existing Deepnight job' do
+    campaigns(:one).update!(campaign_type: 'deepnight_revelation')
+    assert_enqueued_with(job: PopulateDeepnightCampaignJob, args: [campaigns(:one).id, { remaining: true }]) do
+      post populate_deepnight_campaign_settings_url, params: { registry: '1' }
+    end
+    assert_redirected_to sectors_url
+  end
+
+  test 'predefined creation is forbidden for another campaigns referee' do
+    campaigns(:one).update!(campaign_type: 'deepnight_revelation')
+    sign_out
+    sign_in_as users(:two)
+    assert_no_enqueued_jobs only: PopulateDeepnightCampaignJob do
+      post populate_deepnight_campaign_settings_url, params: { registry: '1' }
+    end
+    assert_response :forbidden
+  end
+
+  test 'operations preserve disabled states and regeneration confirmation' do
+    Subsector.update_all(build: nil)
+    get sectors_url
+    assert_select '#sector-operations' do
+      assert_select "form[action='#{populate_empty_sectors_path}'] button[disabled]"
+      assert_select "form[action='#{regenerate_all_sectors_path}'][data-turbo-confirm]", /Regenerate All Sectors/
+      assert_select 'input[name="exclude_visited"][checked]'
+      assert_select "form[action='#{regenerate_all_sectors_path}'] button[disabled]"
+    end
+
+    subsectors(:subsector_1_1).update!(build: 'type: STANDARD')
+    Sector.create!(name: 'Empty', x: 999, y: 999, skip_subsector_creation: true).tap do |sector|
+      Subsector.create!(sector: sector, name: 'Empty A', x: 1, y: 1, build: 'type: STANDARD')
+    end
+    get sectors_url
+    assert_select "form[action='#{populate_empty_sectors_path}'] button:not([disabled])"
+    assert_select "form[action='#{regenerate_all_sectors_path}'] button:not([disabled])"
+  end
+
+  test 'pagination is shown only for multiple pages and resets with filtering' do
+    get sectors_url
+    assert_select 'nav.pagy', count: 0
+    11.times { |i| Sector.create!(name: "Pagination #{i}", x: 800 + i, y: 800, skip_subsector_creation: true) }
+    get sectors_url
+    assert_select 'nav.pagy'
+    get sectors_url, params: { q: 'Pagination 10' }
+    assert_select 'nav.pagy', count: 0
+    assert_select 'tbody tr', count: 1
+  end
+
   test 'should get new' do
     get new_sector_url
     assert_response :success

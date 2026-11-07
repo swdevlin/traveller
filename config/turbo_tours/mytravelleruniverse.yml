@@ -25,15 +25,20 @@ journeys:
       title: "Search"
       body: "Search for planets, subsectors, or sectors"
 
-    - name: nav_jumps
-      target: nav-jumps
-      title: "Jumps"
-      body: "Use Jumps to track your player's jumps. Jumps are displayed on the maps."
-
     - name: nav_starmap
       target: nav-starmap
       title: "Starmap"
       body: "Starmap displays a full starmap, similar to TravellerMap. Players can access the map URL. For exploration campaigns, you can limit the data displayed to players via the survey index of systems."
+
+    - name: nav_systems
+      target: nav-systems
+      title: "Systems"
+      body: "Build and save queries across every star system in your universe, then browse the matching results."
+
+    - name: nav_jumps
+      target: nav-jumps
+      title: "Jumps"
+      body: "Use Jumps to track your player's jumps. Jumps are displayed on the maps."
 
     - name: nav_route
       target: nav-route
@@ -66,6 +71,11 @@ journeys:
       title: "Imperial coordinates"
       body: "The sector's position in the Imperial grid. X increases coreward, Y increases spinward. Each sector occupies a unique position."
 
+    - name: sector_creation_mode
+      target: sector-creation-mode
+      title: "Creation method"
+      body: "Choose how the subsectors are set up. Same for every subsector applies one set of choices to the whole sector. Set each subsector separately lets you name each one and give it its own density, settled space and systems known. T5 import seeds the subsectors from a T5 Tab Delimited file."
+
     - name: sector_density
       target: sector-density
       title: "Star system density"
@@ -85,11 +95,6 @@ journeys:
       target: sector-systems-known
       title: "Systems known"
       body: "Enable this if the players already have the data for these systems (survey index 10). Leave it off for exploration, where each system must be surveyed before its details are available (survey index 3)."
-
-    - name: sector_creation_mode
-      target: sector-creation-mode
-      title: "Creation method"
-      body: "Choose how the subsectors are set up. Same for every subsector applies one set of choices to the whole sector. Set each subsector separately lets you name each one and give it its own density, settled space and systems known. T5 import seeds the subsectors from a T5 Tab Delimited file."
 
     - name: sector_populate
       target: sector-populate

@@ -1,0 +1,42 @@
+<% content_for :title, 'Sector Registry' %>
+
+<%= render 'help/page', title: 'Sector Registry' do %>
+  <div class='space-y-6'>
+    <div class='space-y-3 text-sm text-fg'>
+      <p>
+        The sector registry lists every sector on file for the campaign, with a chart view for
+        navigating the galactic grid directly.
+      </p>
+    </div>
+
+    <div>
+      <p class='text-sm font-semibold text-highlight-fg mb-2'>Bulk Operations</p>
+      <dl class='space-y-5 text-sm'>
+        <div>
+          <dt class='font-semibold text-fg-bright'>Regenerate All Sectors</dt>
+          <dd class='mt-1 text-fg'>
+            Enqueues generation jobs for every subsector in the campaign that has a build
+            configuration assigned, regardless of whether the sector already contains star systems.
+            Existing systems are replaced. Locked systems are always left untouched. The
+            <span class='font-mono text-fg-bright'>Exclude visited subsectors</span> toggle next to
+            the button is on by default; while on, any subsector containing a parsec the players
+            have travelled to or from, per the jump log, is skipped entirely.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Populate Empty Sectors</dt>
+          <dd class='mt-1 text-fg'>
+            Enqueues generation jobs only for subsectors belonging to sectors that contain no star
+            systems. Sectors that have already been generated are left untouched. The confirmation
+            prompt displays the number of empty sectors and subsectors that will be affected.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class='iiss-form'>
+      REFERENCE 0619SR
+    </div>
+  </div>
+<% end %>

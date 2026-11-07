@@ -95,6 +95,7 @@ class Campaign < ApplicationRecord
     ActiveModel::Type::Boolean.new.cast(limited_main_world_eccentricity) || false
   end
 
+  before_validation :downcase_slug
   before_validation :default_sector_source
   before_create :set_defaults
   after_create :set_schema_name
@@ -128,6 +129,10 @@ class Campaign < ApplicationRecord
   end
 
   private
+
+  def downcase_slug
+    self.slug = slug.downcase if slug.present?
+  end
 
   def default_sector_source
     return if sector_source.present?

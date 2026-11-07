@@ -169,7 +169,7 @@
       <% end %>
 
       <% if @campaign.deepnight_revelation? %>
-        <% create_sectors_confirm = 'This will create all the sectors for the Deepnight Revelation campaign and queue star system generation. Are you sure?" %>
+        <% create_sectors_confirm = 'This will create all the sectors for the Deepnight Revelation campaign and queue star system generation. Are you sure?' %>
         <%= button_to populate_deepnight_campaign_settings_path,
               method: :post,
               class: 'btn',
@@ -183,32 +183,6 @@
             class: 'btn',
             disabled: @campaign.sector_source.nil? do %>
         <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
-      <% end %>
-
-      <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
-      <%= button_to populate_empty_campaign_settings_path,
-            method: :post,
-            class: 'btn',
-            disabled: !@has_empty_sectors,
-            data: { turbo_confirm: empty_confirm } do %>
-        <i class='fa-regular fa-circle-dot mr-1.5'></i> Populate Empty Sectors
-      <% end %>
-
-      <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Locked systems are always left untouched. Are you sure?" %>
-      <%= form_with url: regenerate_all_campaign_settings_path,
-            method: :post,
-            class: 'w-full sm:w-auto flex flex-col sm:flex-row sm:items-center gap-2',
-            data: { turbo_confirm: regenerate_confirm } do |f| %>
-        <%= f.button type: 'submit',
-              class: 'btn',
-              disabled: @subsector_count.zero? do %>
-          <i class='fa-regular fa-rotate mr-1.5'></i> Regenerate All Sectors
-        <% end %>
-        <%= render 'application/boolean_toggle',
-                   form: f,
-                   attribute: :exclude_visited,
-                   checked: true,
-                   label: 'Exclude visited subsectors' %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,16 @@
+<%= button_to populate_deepnight_campaign_settings_path,
+      method: :post,
+      params: { registry: '1' },
+      class: button_class,
+      form: { data: { turbo_frame: '_top' } },
+      data: { turbo_confirm: 'This will create the missing Deepnight Revelation sectors and queue star system generation. Existing sectors will be left untouched. Are you sure?', confirm_style: 'primary' } do %>
+  <% unless local_assigns[:hide_icon] %>
+    <i class="fa-regular fa-globe mt-1" aria-hidden="true"></i>
+  <% end %>
+  <span>
+    <span class="block"><%= label %></span>
+    <% if local_assigns[:hint] %>
+      <span class="block mt-0.5 text-xs text-fg-muted font-normal"><%= hint %></span>
+    <% end %>
+  </span>
+<% end %>

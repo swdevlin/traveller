@@ -18,6 +18,27 @@ class PopulateDeepnightCampaignJobTest < ActiveJob::TestCase
     assert_equal 'deepnight', sector.source
   end
 
+  test 'remaining creation preserves existing data and repeated requests are idempotent' do
+    perform_for_campaign
+    sector = Sector.find_by!(PopulateDeepnightCampaignJob::HOME_SECTOR)
+    sector.update!(name: 'Keep this name', referee_notes: 'Keep these notes')
+    before = sector.attributes
+    clear_enqueued_jobs
+    expected = DeepnightDefaults.sectors.count { |data| !Sector.exists?(x: data['X'], y: data['Y']) }
+
+    assert_difference('Sector.count', expected) do
+      PopulateDeepnightCampaignJob.new.perform(campaigns(:one).id, remaining: true)
+    end
+    assert_equal before, sector.reload.attributes
+    assert enqueued_jobs.any? { |job| job['job_class'] == 'CreateSubsectorJob' }
+    clear_enqueued_jobs
+
+    assert_no_difference('Sector.count') do
+      PopulateDeepnightCampaignJob.new.perform(campaigns(:one).id, remaining: true)
+    end
+    assert_no_enqueued_jobs only: CreateSubsectorJob
+  end
+
   test 'enqueues subsector creation for all sixteen subsectors with populate: true' do
     perform_for_campaign
 

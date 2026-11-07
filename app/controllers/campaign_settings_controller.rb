@@ -5,14 +5,9 @@ class CampaignSettingsController < ApplicationController
     @campaign = current_campaign
     @sector_count = Sector.count
     @subsector_count = Subsector.where.not(build: nil).count
-    populated_sector_ids = Sector.joins(parsecs: :star_systems).select(:id)
-    empty_sector_ids = Sector.kept.where.not(id: populated_sector_ids).select(:id)
-    @empty_sector_count = Sector.kept.where(id: empty_sector_ids).count
-    @empty_subsector_count = Subsector.where(sector_id: empty_sector_ids).where.not(build: nil).count
     @extinct_sophont_count = StellarObject.where("data->>'extinct_sophont' = 'true'").count
     @native_sophont_count = StellarObject.where("data->>'native_sophont' = 'true'").count
     @star_system_count = StarSystem.count
-    @has_empty_sectors = @empty_subsector_count > 0
   end
 
   def edit
@@ -29,27 +24,17 @@ class CampaignSettingsController < ApplicationController
   end
 
   def populate_deepnight
+    return head :unprocessable_entity unless current_campaign.deepnight_revelation?
+
     Apartment::Tenant.switch(current_campaign.schema_name) do
-      PopulateDeepnightCampaignJob.perform_later(current_campaign.id)
+      PopulateDeepnightCampaignJob.perform_later(current_campaign.id, remaining: true)
     end
-    redirect_to campaign_settings_path, notice: 'Deepnight sector population queued.'
+    redirect_to(params[:registry].present? ? sectors_path : campaign_settings_path, notice: 'Deepnight sector population queued.')
   end
 
   def assign_builds
     AssignBuildConfigsJob.perform_later(current_campaign.sector_source)
     redirect_to campaign_settings_path, notice: 'Build script assignment queued.'
-  end
-
-  def regenerate_all
-    exclude_visited = ActiveModel::Type::Boolean.new.cast(params[:exclude_visited])
-    RegenerateAllSectorsJob.perform_later(exclude_visited: exclude_visited)
-    notice = exclude_visited ? 'Sector regeneration queued. Visited parsecs will be preserved.' : 'Sector regeneration queued.'
-    redirect_to campaign_settings_path, notice: notice
-  end
-
-  def populate_empty
-    PopulateEmptySectorsJob.perform_later
-    redirect_to campaign_settings_path, notice: 'Empty sector population queued.'
   end
 
   def generate_all_sectors_map

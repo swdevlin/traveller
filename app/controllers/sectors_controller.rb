@@ -7,10 +7,16 @@ class SectorsController < ApplicationController
   include HexMapOverlays
   include HexMapParsecLabels
   optional_authentication only: %i[map poster]
-  before_action :set_sector, except: %i[index new new_from_traveller_map create]
+  before_action :set_sector, except: %i[index new new_from_traveller_map create regenerate_all populate_empty]
 
   # GET /sectors or /sectors.json
   def index
+    if current_campaign.deepnight_revelation?
+      coordinates = DeepnightDefaults.sectors.map { |data| [data['X'], data['Y']] }.uniq
+      @predefined_sector_count = coordinates.size
+      @created_predefined_sector_count = (coordinates & Sector.kept.pluck(:x, :y)).size
+    end
+
     @q = params[:q].to_s.strip
     scope = Sector.kept
                   .select('sectors.*, COUNT(star_systems.id) AS star_system_count')
@@ -29,6 +35,25 @@ class SectorsController < ApplicationController
       .order('allegiances.code')
       .distinct
       .group_by(&:sector_id)
+
+    @subsector_count = Subsector.where.not(build: nil).count
+    populated_sector_ids = Sector.joins(parsecs: :star_systems).select(:id)
+    empty_sector_ids = Sector.kept.where.not(id: populated_sector_ids).select(:id)
+    @empty_sector_count = Sector.kept.where(id: empty_sector_ids).count
+    @empty_subsector_count = Subsector.where(sector_id: empty_sector_ids).where.not(build: nil).count
+    @has_empty_sectors = @empty_subsector_count > 0
+  end
+
+  def regenerate_all
+    exclude_visited = ActiveModel::Type::Boolean.new.cast(params[:exclude_visited])
+    RegenerateAllSectorsJob.perform_later(exclude_visited: exclude_visited)
+    notice = exclude_visited ? 'Sector regeneration queued. Visited parsecs will be preserved.' : 'Sector regeneration queued.'
+    redirect_to sectors_path, notice: notice
+  end
+
+  def populate_empty
+    PopulateEmptySectorsJob.perform_later
+    redirect_to sectors_path, notice: 'Empty sector population queued.'
   end
 
   def load_defaults

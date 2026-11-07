@@ -13,12 +13,23 @@ export default class extends Controller {
   }
 
   toggle () {
-    this.menuTarget.classList.toggle('hidden')
+    const hidden = this.menuTarget.classList.toggle('hidden')
+    this.element.querySelector('[aria-expanded]')?.setAttribute('aria-expanded', String(!hidden))
+  }
+
+  close () {
+    this.menuTarget.classList.add('hidden')
+    const trigger = this.element.querySelector('[aria-expanded]')
+    trigger?.setAttribute('aria-expanded', 'false')
+    trigger?.focus()
   }
 
   _handleOutsideClick (event) {
+    if (event.target.closest('[data-turbo-tour-panel]')) return
+
     if (!this.element.contains(event.target)) {
       this.menuTarget.classList.add('hidden')
+      this.element.querySelector('[aria-expanded]')?.setAttribute('aria-expanded', 'false')
     }
   }
 }

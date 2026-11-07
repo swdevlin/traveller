@@ -36,7 +36,11 @@
       <%= form.text_field :slug,
                           required: true,
                           placeholder: 'e.g. my-campaign',
-                          class: 'edit-base w-full mt-1' %>
+                          class: 'edit-base w-full mt-1',
+                          data: {
+                            campaign_form_target: 'slug',
+                            action: 'input->campaign-form#sanitizeSlug'
+                          } %>
       <%= render 'application/field_error', form: form, attribute: :slug %>
     </div>
 

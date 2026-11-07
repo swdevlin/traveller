@@ -1,0 +1,18 @@
+<% if @predefined_sector_count && local_assigns.fetch(:show_deepnight_creation, true) %>
+  <%= render 'create_predefined', label: 'Create Sectors', button_class: item_class, hint: 'Add missing Deepnight sectors and queue their generation.' %>
+<% end %>
+<%= link_to new_sector_path, data: { tour_step: 'new-sector-blank', turbo_frame: '_top' }, class: item_class do %>
+  <i class='fa-regular fa-plus mt-1' aria-hidden='true'></i>
+  <span>
+    <span class="block">Blank</span>
+    <span class="block mt-0.5 text-xs text-fg-muted font-normal">Create a homebrewed sector, built by hand.</span>
+  </span>
+<% end %>
+
+<%= link_to new_from_traveller_map_sectors_path, data: { tour_step: 'new-sector-import', turbo_frame: '_top' }, class: item_class do %>
+  <i class='fa-regular fa-cloud-arrow-down mt-1' aria-hidden='true'></i>
+  <span>
+    <span class="block">Import</span>
+    <span class="block mt-0.5 text-xs text-fg-muted font-normal">Find and import a sector from Traveller Map.</span>
+  </span>
+<% end %>

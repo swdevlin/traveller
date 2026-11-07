@@ -1,12 +1,27 @@
 import { Controller } from '@hotwired/stimulus'
 
 export default class extends Controller {
-  static targets = ['sectorSource', 'campaignType', 'explorationToggle']
+  static targets = ['sectorSource', 'campaignType', 'explorationToggle', 'slug']
 
   connect () {
     if (this.hasCampaignTypeTarget) {
       this.#syncExploration(this.campaignTypeTarget.value)
     }
+  }
+
+  sanitizeSlug (event) {
+    const input = event.target
+    const cursorFromEnd = input.value.length - input.selectionEnd
+    const sanitized = input.value
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/-{2,}/g, '-')
+
+    if (sanitized === input.value) return
+
+    input.value = sanitized
+    const position = Math.max(0, sanitized.length - cursorFromEnd)
+    input.setSelectionRange(position, position)
   }
 
   toggleSectorSource (event) {

@@ -1,0 +1,51 @@
+<% menu_id = local_assigns.fetch(:menu_id, 'sector-operations') %>
+<% item_class = 'flex w-full items-start gap-2 px-4 py-2 text-left text-sm text-nav-fg no-underline hover:bg-dropdown-hover hover:text-nav-hover focus-visible:bg-dropdown-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent' %>
+<div class="relative" data-controller="dropdown" data-action="keydown.esc->dropdown#close">
+  <button type="button" class="btn-header" data-action="dropdown#toggle" aria-expanded="false" aria-controls="<%= menu_id %>">
+    Sector Operations <i class="fa-regular fa-chevron-down ml-1" aria-hidden="true"></i>
+  </button>
+  <div id="<%= menu_id %>" data-dropdown-target="menu" class="hidden absolute right-0 mt-2 py-1 w-80 max-w-[85vw] rounded-lg border border-outline bg-dropdown shadow-xl z-50">
+    <div class="border-b border-outline mb-1 pb-1">
+      <%= render 'creation_actions', item_class: item_class, show_deepnight_creation: local_assigns.fetch(:show_deepnight_creation, true) %>
+    </div>
+
+    <% empty_confirm = "This will generate star systems for #{pluralize(@empty_subsector_count, 'subsector')} across #{pluralize(@empty_sector_count, 'empty sector')}. Are you sure?" %>
+    <%= button_to populate_empty_sectors_path,
+          method: :post,
+          class: item_class,
+          disabled: !@has_empty_sectors,
+          form: { data: { turbo_frame: '_top' } },
+          data: { turbo_confirm: empty_confirm } do %>
+      <i class='fa-regular fa-circle-dot mt-1' aria-hidden='true'></i>
+      <span>
+        <span class="block">Populate Empty Sectors</span>
+        <span class="block mt-0.5 text-xs text-fg-muted font-normal">Generate systems in empty sectors with build configurations.</span>
+      </span>
+    <% end %>
+
+    <% regenerate_confirm = "This will regenerate all #{pluralize(@subsector_count, 'subsector')} using the current generator. Locked systems are always left untouched. Are you sure?" %>
+    <%= form_with url: regenerate_all_sectors_path,
+          namespace: menu_id,
+          method: :post,
+          class: 'w-full',
+          data: { turbo_confirm: regenerate_confirm, turbo_frame: '_top' } do |f| %>
+      <%= f.button type: 'submit',
+            class: item_class,
+            disabled: @subsector_count.zero? do %>
+        <i class='fa-regular fa-rotate mt-1' aria-hidden='true'></i>
+        <span>
+          <span class="block">Regenerate All Sectors</span>
+          <span class="block mt-0.5 text-xs text-fg-muted font-normal">Rebuild configured subsectors. Locked systems are preserved.</span>
+        </span>
+      <% end %>
+      <div class="px-4 pb-1">
+        <%= render 'application/boolean_toggle',
+                 form: f,
+                 attribute: :exclude_visited,
+                 checked: true,
+                 label: 'Exclude visited subsectors',
+                 hint: 'Skip subsectors containing a journey recorded in the jump log.' %>
+      </div>
+    <% end %>
+  </div>
+</div>

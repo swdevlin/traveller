@@ -4,16 +4,20 @@ class PopulateDeepnightCampaignJob < ApplicationJob
   queue_as :default
 
   # The campaign's ship starts here. The rest of the Deepnight-defaults sectors
-  # are created on demand (the "new sector" flow already picks up Deepnight
-  # build data for any coordinate it has it for) rather than pre-seeded here.
+  # are created on demand via the registry, using the same subsector jobs.
   HOME_SECTOR = { x: -10, y: -2 }.freeze
 
-  def perform(campaign_id)
+  def perform(campaign_id, remaining: false)
     campaign = Campaign.find(campaign_id)
+    return unless campaign.deepnight_revelation?
+
     source = campaign.source_deepnight_defaults? ? 'deepnight' : 'traveller_map'
 
-    create_allegiances
-    create_home_sector(source)
+    campaign.with_lock do
+      create_allegiances
+      catalogue = remaining ? DeepnightDefaults.sectors : [home_sector_data]
+      catalogue.each { |data| create_sector(source, data) }
+    end
   end
 
   private
@@ -29,10 +33,12 @@ class PopulateDeepnightCampaignJob < ApplicationJob
     end
   end
 
-  def create_home_sector(source)
+  def home_sector_data
     path = Rails.root.join('db', 'data', 'sector_defaults', "#{HOME_SECTOR[:x]}_#{HOME_SECTOR[:y]}.yaml")
-    data = YAML.safe_load(File.read(path))
+    YAML.safe_load(File.read(path))
+  end
 
+  def create_sector(source, data)
     sector = Sector.find_or_initialize_by(x: data['X'], y: data['Y'])
     return unless sector.new_record?
 

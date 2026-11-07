@@ -16,6 +16,7 @@
     <button type='button'
             role='switch'
             aria-checked='<%= checked %>'
+            <%= tag.attributes(aria: { label: label_text }) if label_text %>
             data-action='boolean-toggle#toggle'
             data-boolean-toggle-target='button'
             class='toggle'>

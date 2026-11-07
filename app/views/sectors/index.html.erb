@@ -36,7 +36,7 @@
     </div>
 
     <div data-sectors-view-target="chartPanel" class="hidden">
-      <div class="flex items-center gap-2 mb-3">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
         <input type="text"
                placeholder="Find sector…"
                autocomplete="off"
@@ -48,14 +48,7 @@
             <option value="<%= s.name %>"></option>
           <% end %>
         </datalist>
-        <%= link_to new_sector_path, data: { tour_step: 'new-sector-blank', turbo_frame: '_top' }, class: 'btn-header' do %>
-          <i class='fa-regular fa-plus'></i>
-          <span>Blank</span>
-        <% end %>
-        <%= link_to new_from_traveller_map_sectors_path, data: { tour_step: 'new-sector-import', turbo_frame: '_top' }, class: 'btn-header' do %>
-          <i class='fa-regular fa-cloud-arrow-down'></i>
-          <span>Import</span>
-        <% end %>
+        <%= render 'operations', menu_id: 'chart-sector-operations' %>
       </div>
       <div data-sectors-view-target="chartWrapper" class="flex flex-col">
         <%= render 'chart', sectors: @chart_sectors %>
