@@ -24,7 +24,10 @@ class ApplicationController < ActionController::Base
     return if params[:campaign_slug].blank?
 
     @current_campaign = Campaign.find_by(slug: params[:campaign_slug])
-    return redirect_to root_path unless @current_campaign
+    # A literal path, not root_path: default_url_options re-injects this very
+    # request's (invalid) campaign_slug into any path helper, which would turn
+    # this escape hatch into a self-redirect loop.
+    return redirect_to '/' unless @current_campaign
 
     Current.campaign = @current_campaign
   end

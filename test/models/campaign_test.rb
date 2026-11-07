@@ -407,4 +407,31 @@ class CampaignTest < ActiveSupport::TestCase
 
     assert_equal [0, 0], campaign.starting_location
   end
+
+  PNG = Base64.decode64('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==')
+
+  test 'destroying a campaign removes its uploaded files and drops its tenant schema' do
+    campaign = Campaign.create!(name: 'Homebrew', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'homebrew')
+    storage_dir = Rails.root.join('tmp/storage', campaign.storage_key)
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      sophont = Sophont.create!(name: 'Teardown Test')
+      sophont.picture.attach(io: StringIO.new(PNG), filename: 'test.png', content_type: 'image/png')
+    end
+
+    assert storage_dir.exist?
+    assert schema_exists?(campaign.schema_name)
+
+    campaign.destroy
+
+    assert_not storage_dir.exist?
+    assert_not schema_exists?(campaign.schema_name)
+  end
+
+  private
+
+  def schema_exists?(schema_name)
+    quoted = ActiveRecord::Base.connection.quote(schema_name)
+    ActiveRecord::Base.connection.select_value("SELECT 1 FROM information_schema.schemata WHERE schema_name = #{quoted}").present?
+  end
 end

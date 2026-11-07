@@ -1,0 +1,30 @@
+<% content_for :title, 'Delete Account' %>
+<% content_for :page_kicker, 'Danger Zone' %>
+<% content_for :page_title, 'Delete Account' %>
+
+<%= render 'application/page' do %>
+  <div class='space-y-6 max-w-lg'>
+    <p class='text-sm text-fg-muted'>
+      This permanently deletes your account and every campaign you referee. This cannot be undone.
+    </p>
+
+    <%= form_with model: @user, url: account_deletion_path, method: :delete, class: 'space-y-6' do |form| %>
+      <div>
+        <div class='edit-label'>Password</div>
+        <%= form.password_field :password,
+              required: true,
+              autofocus: true,
+              autocomplete: 'new-password',
+              placeholder: 'Enter your password',
+              maxlength: 72,
+              class: 'edit-base w-full mt-1' %>
+        <%= render 'application/field_error', form: form, attribute: :password %>
+      </div>
+
+      <div class='form-actions sm:items-center gap-4 pt-2'>
+        <%= form.submit 'Permanently Delete My Account', class: 'btn btn-danger' %>
+        <%= link_to 'Cancel', request.referer.presence || root_path, class: 'btn' %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

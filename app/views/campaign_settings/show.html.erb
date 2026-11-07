@@ -185,5 +185,12 @@
         <i class='fa-regular fa-file-code mr-1.5'></i> Set Build Scripts
       <% end %>
     </div>
+
+    <%= render 'application/subsection', title: 'Danger Zone' %>
+
+    <div class='flex items-center justify-between gap-4'>
+      <p class='text-sm text-fg-muted'>Permanently delete your account and every campaign you referee.</p>
+      <%= link_to 'Delete My Account', new_account_deletion_path, class: 'btn btn-danger shrink-0' %>
+    </div>
   </div>
 <% end %>

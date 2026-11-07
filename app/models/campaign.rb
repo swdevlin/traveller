@@ -102,6 +102,7 @@ class Campaign < ApplicationRecord
   after_create :set_schema_name
   after_create_commit :create_tenant
   after_create_commit :enqueue_deepnight_setup, if: :deepnight_revelation?
+  before_destroy :teardown_tenant
 
   RESERVED_SLUGS = %w[
     www
@@ -193,6 +194,19 @@ class Campaign < ApplicationRecord
     Apartment::Tenant.drop(schema_name) rescue nil
     destroy
     raise e
+  end
+
+  def teardown_tenant
+    return if schema_name.blank?
+
+    if storage_key.present?
+      root = Rails.env.test? ? Rails.root.join('tmp/storage') : Rails.root.join('storage')
+      FileUtils.rm_rf(root.join(storage_key))
+    end
+
+    Apartment.connection.execute(%(DROP SCHEMA IF EXISTS "#{schema_name}" CASCADE))
+  rescue StandardError => e
+    Rails.logger.error("Failed to tear down tenant #{schema_name}: #{e.message}")
   end
 
   def create_initial_sector
