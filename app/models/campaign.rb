@@ -31,6 +31,7 @@ class Campaign < ApplicationRecord
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
                             :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
+                            :initial_sector_name,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
 
   def exploration?
@@ -182,8 +183,8 @@ class Campaign < ApplicationRecord
     Apartment::Migrator.migrate(schema_name)
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
-      load Rails.root.join('db/seeds/sectors.rb') unless homebrew? || deepnight_revelation?
       if charted_space?
+        create_initial_sector
         Sophont.seed_defaults
         Tag.seed_nobility
       end
@@ -192,5 +193,25 @@ class Campaign < ApplicationRecord
     Apartment::Tenant.drop(schema_name) rescue nil
     destroy
     raise e
+  end
+
+  def create_initial_sector
+    return if initial_sector_name.blank?
+
+    x, y = starting_sector_x, starting_sector_y
+    if x.blank? || y.blank?
+      match = TravellerMap.new.find_sectors(name: initial_sector_name).find { |s| s['Name'] == initial_sector_name }
+      return if match.blank?
+
+      x, y = match['SectorX'], match['SectorY']
+    end
+
+    Sector.create!(
+      name: initial_sector_name,
+      x: x.to_i,
+      y: y.to_i,
+      source: 'traveller_map',
+      populate_subsectors: true
+    )
   end
 end

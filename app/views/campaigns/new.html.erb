@@ -1,6 +1,6 @@
 <% content_for :title, 'Create Campaign' %>
 <% content_for :page_kicker, 'New Mission Briefing' %>
-<% content_for :page_title, 'Create Your Campaign' %>
+<% content_for :page_title, 'Create My Traveller Universe' %>
 
 <%
   campaign_type_options = [
@@ -13,120 +13,176 @@
     { label: 'TravellerMap', value: 'traveller_map', hint: 'Import build configurations from TravellerMap.' },
     { label: 'Deepnight Books', value: 'deepnight_defaults', hint: 'Use pre-configured build settings from the Deepnight Revelation sourcebook.' }
   ]
+
+  known_sector_names = ['Core', 'Deneb', 'Foreven', 'Hanstone', 'Solomani Rim', 'Spinward Marches', 'Trojan Reach']
+
+  is_custom_initial_sector = @campaign.initial_sector_name.present? && known_sector_names.exclude?(@campaign.initial_sector_name)
 %>
 
 <%= render 'application/page' do %>
-  <%= form_with model: @campaign,
-                data: { controller: 'campaign-form' },
-                class: 'space-y-6 max-w-lg' do |form| %>
-    <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
+  <div data-controller='campaign-form'
+       data-campaign-form-search-url-value='<%= search_sectors_campaigns_path %>'>
+    <%= form_with model: @campaign, class: 'space-y-6 max-w-lg' do |form| %>
+      <%= render 'application/form_errors', errors: @campaign.errors.where(:base) if @campaign.errors.any? %>
 
-    <div>
-      <div class='edit-label'>Campaign Name</div>
-      <%= form.text_field :name,
-                          required: true,
-                          autofocus: true,
-                          placeholder: 'Enter a name for your campaign',
-                          class: 'edit-base w-full mt-1' %>
-      <%= render 'application/field_error', form: form, attribute: :name %>
-    </div>
-
-    <div>
-      <div class='edit-label'>Slug</div>
-      <%= form.text_field :slug,
-                          required: true,
-                          placeholder: 'e.g. my-campaign',
-                          class: 'edit-base w-full mt-1',
-                          data: {
-                            campaign_form_target: 'slug',
-                            action: 'input->campaign-form#sanitizeSlug'
-                          } %>
-      <%= render 'application/field_error', form: form, attribute: :slug %>
-    </div>
-
-    <div>
-      <div class='edit-label mb-2'>Campaign Type</div>
-      <div data-controller='hint-select' class='hint-select'>
-        <%= form.hidden_field :campaign_type,
-                              data: {
-                                hint_select_target: 'input',
-                                campaign_form_target: 'campaignType',
-                                action: 'change->campaign-form#toggleSectorSource'
-                              } %>
-
-        <button type='button'
-                class='edit-base'
-                data-hint-select-target='trigger'
-                data-action='click->hint-select#toggle'>
-          <span data-hint-select-target='label'>
-            <%= campaign_type_options.find { |o| o[:value] == @campaign.campaign_type }&.dig(:label) || 'Select a type' %>
-          </span>
-          <i class='fa-solid fa-chevron-down'></i>
-        </button>
-
-        <div class='hidden'
-             data-hint-select-target='panel'>
-          <% campaign_type_options.each do |opt| %>
-            <button type='button'
-                    data-action='click->hint-select#select'
-                    data-value='<%= opt[:value] %>'
-                    data-label='<%= opt[:label] %>'
-                    data-hint='<%= opt[:hint] %>'>
-              <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
-              <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
-            </button>
-          <% end %>
-        </div>
+      <div>
+        <div class='edit-label'>Campaign Name</div>
+        <%= form.text_field :name,
+                            required: true,
+                            autofocus: true,
+                            placeholder: 'Enter a name for your campaign',
+                            class: 'edit-base w-full mt-1' %>
+        <%= render 'application/field_error', form: form, attribute: :name %>
       </div>
-      <%= render 'application/field_error', form: form, attribute: :campaign_type %>
-    </div>
 
-    <div data-campaign-form-target='sectorSource'
-         class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
-      <div class='edit-label mb-2'>Sector Data Source</div>
-      <div data-controller='hint-select' class='hint-select'>
-        <%= form.hidden_field :sector_source,
-                              data: { hint_select_target: 'input' } %>
-
-        <button type='button'
-                class='edit-base'
-                data-hint-select-target='trigger'
-                data-action='click->hint-select#toggle'>
-          <span data-hint-select-target='label'>
-            <%= sector_source_options.find { |o| o[:value] == @campaign.sector_source }&.dig(:label) || 'Select a source' %>
-          </span>
-          <i class='fa-solid fa-chevron-down'></i>
-        </button>
-
-        <div class='hidden'
-             data-hint-select-target='panel'>
-          <% sector_source_options.each do |opt| %>
-            <button type='button'
-                    data-action='click->hint-select#select'
-                    data-value='<%= opt[:value] %>'
-                    data-label='<%= opt[:label] %>'
-                    data-hint='<%= opt[:hint] %>'>
-              <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
-              <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
-            </button>
-          <% end %>
-        </div>
+      <div>
+        <div class='edit-label'>Slug</div>
+        <%= form.text_field :slug,
+                            required: true,
+                            placeholder: 'e.g. my-campaign',
+                            class: 'edit-base w-full mt-1',
+                            data: {
+                              campaign_form_target: 'slug',
+                              action: 'input->campaign-form#sanitizeSlug'
+                            } %>
+        <%= render 'application/field_error', form: form, attribute: :slug %>
       </div>
-      <%= render 'application/field_error', form: form, attribute: :sector_source %>
-    </div>
 
-    <div data-campaign-form-target='explorationToggle'>
-      <%= render 'application/boolean_toggle',
-                 form: form,
-                 attribute: :exploration,
-                 checked: @campaign.exploration?,
-                 label: 'Exploration Campaign',
-                 hint: 'Enable exploration if the players are mostly travelling to uncharted systems. Disable exploration if players are mostly travelling in known space.' %>
-      <%= render 'application/field_error', form: form, attribute: :exploration %>
-    </div>
+      <div>
+        <div class='edit-label mb-2'>Campaign Type</div>
+        <div data-controller='hint-select' class='hint-select'>
+          <%= form.hidden_field :campaign_type,
+                                data: {
+                                  hint_select_target: 'input',
+                                  campaign_form_target: 'campaignType',
+                                  action: 'change->campaign-form#toggleSectorSource'
+                                } %>
 
-    <div class='form-actions sm:items-center gap-4 pt-2'>
-      <%= form.submit 'Create Campaign', class: 'btn btn-primary' %>
-    </div>
-  <% end %>
+          <button type='button'
+                  class='edit-base'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= campaign_type_options.find { |o| o[:value] == @campaign.campaign_type }&.dig(:label) || 'Select a type' %>
+            </span>
+            <i class='fa-solid fa-chevron-down'></i>
+          </button>
+
+          <div class='hidden'
+               data-hint-select-target='panel'>
+            <% campaign_type_options.each do |opt| %>
+              <button type='button'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
+                <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+        <%= render 'application/field_error', form: form, attribute: :campaign_type %>
+      </div>
+
+      <div data-campaign-form-target='sectorSource'
+           class='<%= 'hidden' unless @campaign.deepnight_revelation? %>'>
+        <div class='edit-label mb-2'>Sector Data Source</div>
+        <div data-controller='hint-select' class='hint-select'>
+          <%= form.hidden_field :sector_source,
+                                data: { hint_select_target: 'input' } %>
+
+          <button type='button'
+                  class='edit-base'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= sector_source_options.find { |o| o[:value] == @campaign.sector_source }&.dig(:label) || 'Select a source' %>
+            </span>
+            <i class='fa-solid fa-chevron-down'></i>
+          </button>
+
+          <div class='hidden'
+               data-hint-select-target='panel'>
+            <% sector_source_options.each do |opt| %>
+              <button type='button'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
+                <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+        <%= render 'application/field_error', form: form, attribute: :sector_source %>
+      </div>
+
+      <div data-campaign-form-target='initialSector'
+           class='<%= 'hidden' unless @campaign.charted_space? %>'>
+        <div class='edit-label mb-2'>Initial Sector</div>
+
+        <div class='space-y-2 mb-3'>
+          <label class='flex items-center gap-2 text-sm text-fg-bright'>
+            <%= radio_button_tag :initial_sector_choice, '', false,
+                                 data: { kind: 'none', action: 'change->campaign-form#selectSectorOption' } %>
+            None
+          </label>
+
+          <% known_sector_names.each do |sector_name| %>
+            <label class='flex items-center gap-2 text-sm text-fg-bright'>
+              <%= radio_button_tag :initial_sector_choice, sector_name, @campaign.initial_sector_name == sector_name,
+                                   data: { kind: 'preset', action: 'change->campaign-form#selectSectorOption' } %>
+              <%= sector_name %>
+            </label>
+          <% end %>
+
+          <label class='flex items-center gap-2 text-sm text-fg-bright'>
+            <%= radio_button_tag :initial_sector_choice, 'other', is_custom_initial_sector,
+                                 data: { kind: 'search', action: 'change->campaign-form#selectSectorOption' } %>
+            Or search for a sector:
+          </label>
+        </div>
+
+        <div class='mb-3'>
+          <%= text_field_tag :q, nil,
+                             placeholder: 'Search sectors (min 3 characters)...',
+                             autocomplete: 'off',
+                             disabled: !is_custom_initial_sector,
+                             data: {
+                               campaign_form_target: 'sectorSearchInput',
+                               action: 'input->campaign-form#queueSectorSearch'
+                             },
+                             class: 'input w-full px-4 text-fg-bright disabled:opacity-50' %>
+        </div>
+
+        <turbo-frame id='initial_sector_results' data-campaign-form-target='sectorResultsFrame'>
+          <%= render 'initial_sector_results', sectors: [], query: nil %>
+        </turbo-frame>
+
+        <%= form.hidden_field :initial_sector_name, data: { campaign_form_target: 'sectorName' } %>
+        <%= form.hidden_field :starting_sector_x, data: { campaign_form_target: 'sectorX' } %>
+        <%= form.hidden_field :starting_sector_y, data: { campaign_form_target: 'sectorY' } %>
+        <%= render 'application/field_error', form: form, attribute: :initial_sector_name %>
+      </div>
+
+      <div data-campaign-form-target='explorationToggle'>
+        <%= render 'application/boolean_toggle',
+                   form: form,
+                   attribute: :exploration,
+                   checked: @campaign.exploration?,
+                   label: 'Exploration Campaign',
+                   hint: 'Enable exploration if the players are mostly travelling to uncharted systems. Disable exploration if players are mostly travelling in known space.' %>
+        <%= render 'application/field_error', form: form, attribute: :exploration %>
+      </div>
+
+      <div class='form-actions sm:items-center gap-4 pt-2'>
+        <%= form.submit 'Create',
+                        class: 'btn btn-primary',
+                        disabled: @campaign.charted_space? && @campaign.initial_sector_name.blank?,
+                        data: { campaign_form_target: 'submit' } %>
+      </div>
+    <% end %>
+  </div>
 <% end %>

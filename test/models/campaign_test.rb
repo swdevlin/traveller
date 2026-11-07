@@ -1,8 +1,15 @@
 require 'test_helper'
 
 class CampaignTest < ActiveSupport::TestCase
+  def stub_sector_metadata(x, y, status: 200, body: nil)
+    stub_request(:get, "https://travellermap.com/api/metadata?sx=#{x}&sy=#{-y}")
+      .to_return(status: status, body: body || { 'Subsectors' => [] }.to_json)
+  end
+
   test 'creating a campaign seeds a CampaignRulebook for every existing rulebook' do
-    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one))
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one),
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     Apartment::Tenant.switch(campaign.schema_name) do
       assert_equal Rulebook.count, CampaignRulebook.count
@@ -21,7 +28,9 @@ class CampaignTest < ActiveSupport::TestCase
   end
 
   test 'creating a charted space campaign seeds the default sophonts' do
-    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     Apartment::Tenant.switch(campaign.schema_name) do
       assert_equal Sophont::DEFAULT_NAMES.sort, Sophont.pluck(:name).sort
@@ -32,7 +41,9 @@ class CampaignTest < ActiveSupport::TestCase
   end
 
   test 'creating a charted space campaign seeds the nobility tags' do
-    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     Apartment::Tenant.switch(campaign.schema_name) do
       assert_equal Tag::NOBILITY.values.sort, Tag.pluck(:name).sort
@@ -62,11 +73,46 @@ class CampaignTest < ActiveSupport::TestCase
     campaign&.destroy
   end
 
-  test 'creating a charted space campaign seeds the Foreven sector' do
+  test 'creating a charted space campaign creates the chosen initial sector' do
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      sector = Sector.find_by(x: 10, y: 10)
+      assert sector
+      assert_equal 'Spinward Marches', sector.name
+      assert_equal 'traveller_map', sector.source
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'creating a charted space campaign with no initial sector chosen does not create a sector' do
     campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
 
     Apartment::Tenant.switch(campaign.schema_name) do
-      assert Sector.exists?(x: -5, y: 1)
+      assert_equal 0, Sector.count
+    end
+  ensure
+    Apartment::Tenant.drop(campaign.schema_name) rescue nil
+    campaign&.destroy
+  end
+
+  test 'choosing a preset sector name without coordinates resolves them from Traveller Map' do
+    stub_request(:get, 'https://travellermap.com/api/search?q=Spinward%20Marches')
+      .to_return(status: 200, body: {
+        'Results' => { 'Items' => [{ 'Sector' => { 'Name' => 'Spinward Marches', 'SectorX' => -4, 'SectorY' => -1 } }] }
+      }.to_json)
+    stub_sector_metadata(-4, 1)
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches')
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      sector = Sector.find_by(x: -4, y: 1)
+      assert sector
+      assert_equal 'Spinward Marches', sector.name
     end
   ensure
     Apartment::Tenant.drop(campaign.schema_name) rescue nil
@@ -104,7 +150,9 @@ class CampaignTest < ActiveSupport::TestCase
   end
 
   test 'creating a charted_space campaign still defaults sophont_check to none' do
-    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     assert_equal 'none', campaign.sophont_check
   ensure
@@ -123,7 +171,9 @@ class CampaignTest < ActiveSupport::TestCase
 
   test 'creating a campaign with no existing rulebooks does not error' do
     Rulebook.delete_all
-    campaign = Campaign.create!(name: 'Empty Books Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one))
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'Empty Books Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one),
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     Apartment::Tenant.switch(campaign.schema_name) do
       assert_equal 0, CampaignRulebook.count
@@ -162,7 +212,9 @@ class CampaignTest < ActiveSupport::TestCase
   # hex_size
 
   test 'hex_size defaults to medium on create' do
-    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one))
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one),
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     assert_equal 'medium', campaign.hex_size
     assert_equal 40, campaign.hex_size_value
@@ -203,7 +255,9 @@ class CampaignTest < ActiveSupport::TestCase
   # sector_source
 
   test 'charted_space campaigns default sector_source to traveller_map on create' do
-    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space')
+    stub_sector_metadata(10, 10)
+    campaign = Campaign.create!(name: 'New Campaign', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
 
     assert_equal 'traveller_map', campaign.sector_source
   ensure

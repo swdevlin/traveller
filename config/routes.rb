@@ -4,7 +4,11 @@ Rails.application.routes.draw do
   resource :session
   resources :registrations
   resources :passwords, param: :token
-  resources :campaigns, only: %i[new create]
+  resources :campaigns, only: %i[new create] do
+    collection do
+      get :search_sectors
+    end
+  end
   resource :tour_completion, only: [:create]
 
   get '/fairuse', to: 'marketing#fairuse'

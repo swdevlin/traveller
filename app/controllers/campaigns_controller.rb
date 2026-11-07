@@ -14,9 +14,15 @@ class CampaignsController < ApplicationController
     end
   end
 
+  def search_sectors
+    @query = params[:q].to_s.strip
+    @sectors = @query.length >= 3 ? TravellerMap.new.find_sectors(name: @query) : []
+  end
+
   private
 
   def campaign_params
-    params.expect(campaign: [:name, :slug, :campaign_type, :sector_source, :exploration])
+    params.expect(campaign: [:name, :slug, :campaign_type, :sector_source, :exploration,
+                              :initial_sector_name, :starting_sector_x, :starting_sector_y])
   end
 end
