@@ -8,17 +8,22 @@
           <i class="fa-regular fa-solar-system text-lg text-notice-fg" aria-hidden="true"></i>
           <div>
             <h2 id="additional-deepnight-sectors" class="text-base font-normal text-notice-fg">
-              <%= pluralize(remaining_predefined_sector_count, 'additional Deepnight sector') %> available
+              Additional Deepnight sectors available
             </h2>
             <p class="mt-1 text-notice-fg">
               Incognita Citerior, the starting sector, is ready.
-              <%= @created_predefined_sector_count %> of <%= @predefined_sector_count %> sectors are created &mdash;
+              <%= @created_predefined_sector_count %> of <%= @predefined_sector_count %> created &mdash;
               create the remaining <%= remaining_predefined_sector_count %> to extend the expedition registry.
             </p>
           </div>
         </div>
-        <%= render 'create_predefined', label: 'Create Campaign Sectors', hide_icon: true, button_class: 'inline-flex items-center gap-2 whitespace-nowrap rounded-lg border border-notice-outline bg-notice/10 px-3 py-2 text-sm text-notice-fg hover:bg-notice/20' %>
+        <%= render 'create_predefined', label: 'Create Sectors', hide_icon: true, button_class: 'inline-flex items-center gap-2 whitespace-nowrap rounded-lg border border-notice-outline bg-notice/10 px-3 py-2 text-sm text-notice-fg hover:bg-notice/20' %>
       </aside>
+    <% else %>
+      <p class="mb-4 text-sm text-fg-muted">
+        Incognita Citerior and the full Deepnight expedition registry are ready.
+        <%= @created_predefined_sector_count %> of <%= @predefined_sector_count %> created.
+      </p>
     <% end %>
   <% end %>
 
