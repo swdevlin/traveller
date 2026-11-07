@@ -96,6 +96,10 @@ class Campaign < ApplicationRecord
     ActiveModel::Type::Boolean.new.cast(limited_main_world_eccentricity) || false
   end
 
+  def awaiting_initial_sector?
+    charted_space? && initial_sector_name.present?
+  end
+
   before_validation :downcase_slug
   before_validation :default_sector_source
   before_create :set_defaults
@@ -185,13 +189,12 @@ class Campaign < ApplicationRecord
     Apartment::Tenant.switch(schema_name) do
       load Rails.root.join('db/seeds/tenant.rb')
       if charted_space?
-        create_initial_sector
         Sophont.seed_defaults
         Tag.seed_nobility
+        CreateInitialSectorJob.perform_later(id) if awaiting_initial_sector?
       end
     end
   rescue StandardError => e
-    Apartment::Tenant.drop(schema_name) rescue nil
     destroy
     raise e
   end
@@ -207,25 +210,5 @@ class Campaign < ApplicationRecord
     Apartment.connection.execute(%(DROP SCHEMA IF EXISTS "#{schema_name}" CASCADE))
   rescue StandardError => e
     Rails.logger.error("Failed to tear down tenant #{schema_name}: #{e.message}")
-  end
-
-  def create_initial_sector
-    return if initial_sector_name.blank?
-
-    x, y = starting_sector_x, starting_sector_y
-    if x.blank? || y.blank?
-      match = TravellerMap.new.find_sectors(name: initial_sector_name).find { |s| s['Name'] == initial_sector_name }
-      return if match.blank?
-
-      x, y = match['SectorX'], match['SectorY']
-    end
-
-    Sector.create!(
-      name: initial_sector_name,
-      x: x.to_i,
-      y: y.to_i,
-      source: 'traveller_map',
-      populate_subsectors: true
-    )
   end
 end

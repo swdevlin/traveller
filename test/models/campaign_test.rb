@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class CampaignTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   def stub_sector_metadata(x, y, status: 200, body: nil)
     stub_request(:get, "https://travellermap.com/api/metadata?sx=#{x}&sy=#{-y}")
       .to_return(status: status, body: body || { 'Subsectors' => [] }.to_json)
@@ -75,8 +77,11 @@ class CampaignTest < ActiveSupport::TestCase
 
   test 'creating a charted space campaign creates the chosen initial sector' do
     stub_sector_metadata(10, 10)
-    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
-                                 initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
+    campaign = nil
+    perform_enqueued_jobs do
+      campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                   initial_sector_name: 'Spinward Marches', starting_sector_x: 10, starting_sector_y: 10)
+    end
 
     Apartment::Tenant.switch(campaign.schema_name) do
       sector = Sector.find_by(x: 10, y: 10)
@@ -106,8 +111,11 @@ class CampaignTest < ActiveSupport::TestCase
         'Results' => { 'Items' => [{ 'Sector' => { 'Name' => 'Spinward Marches', 'SectorX' => -4, 'SectorY' => -1 } }] }
       }.to_json)
     stub_sector_metadata(-4, 1)
-    campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
-                                 initial_sector_name: 'Spinward Marches')
+    campaign = nil
+    perform_enqueued_jobs do
+      campaign = Campaign.create!(name: 'Charted', slug: "camp-#{SecureRandom.hex(4)}", referee: users(:one), campaign_type: 'charted_space',
+                                   initial_sector_name: 'Spinward Marches')
+    end
 
     Apartment::Tenant.switch(campaign.schema_name) do
       sector = Sector.find_by(x: -4, y: 1)

@@ -1,0 +1,23 @@
+<% content_for :title, 'Setting Up Campaign' %>
+<% content_for :page_kicker, 'Campaign Setup' %>
+<% content_for :page_title, @campaign.name %>
+
+<%= render 'application/page' do %>
+  <div class='flex flex-col items-center justify-center gap-3 py-24 text-center'
+       data-controller='campaign-provisioning'
+       data-campaign-provisioning-campaign-id-value='<%= @campaign.id %>'
+       data-campaign-provisioning-sectors-url-value='<%= sectors_path(campaign_slug: @campaign.slug) %>'>
+    <div data-campaign-provisioning-target='pending'>
+      <i class='fa-regular fa-spinner-third fa-spin text-3xl text-fg-muted'></i>
+      <p class='mt-4 text-fg-bright'>Setting up <%= @campaign.name %>…</p>
+      <p class='mt-1 text-sm text-fg-muted'>
+        Creating the <%= @campaign.initial_sector_name %> sector and importing data from Traveller Map.
+      </p>
+    </div>
+
+    <div data-campaign-provisioning-target='failed' hidden>
+      <p class='text-danger-text' data-campaign-provisioning-target='message'></p>
+      <%= link_to 'Try Again', new_campaign_path, class: 'btn mt-4' %>
+    </div>
+  </div>
+<% end %>

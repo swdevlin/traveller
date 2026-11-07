@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :registrations
   resources :passwords, param: :token
   resource :account_deletion, only: %i[new destroy]
-  resources :campaigns, only: %i[new create] do
+  resources :campaigns, only: %i[new create show] do
     collection do
       get :search_sectors
     end
