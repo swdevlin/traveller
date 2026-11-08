@@ -4683,12 +4683,12 @@ viewHexes config =
                     ++ [ keyedRuleOverlays ]
                     ++ [ keyedHexBorders ]
                     ++ [ singlePolyHex ]
-                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
-                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] previewRouteLines ]
                     ++ [ keyedHexForegrounds ]
                     ++ subsectorLinesList
                     ++ sectorOutlines
                     ++ regionBorderLines
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] previewRouteLines ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
                     ++ labels
                     ++ mapLabelSvgs
