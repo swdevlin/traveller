@@ -598,7 +598,7 @@ getFieldValue field system =
                 )
 
         SurveyIndex ->
-            Just (String.fromInt system.surveyIndex)
+            Just (String.fromInt system.actualSurveyIndex)
 
         Importance ->
             Maybe.map String.fromInt system.importance

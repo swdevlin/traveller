@@ -16,6 +16,7 @@ baseSystem =
     , name = "Testworld"
     , scanPoints = 0
     , surveyIndex = 6
+    , actualSurveyIndex = 6
     , gasGiantCount = 0
     , terrestrialPlanetCount = 1
     , planetoidBeltCount = 0
@@ -202,6 +203,13 @@ evaluateTests =
             \_ ->
                 ruleFrom [ [ condition SurveyIndex Eq [ "6" ] ] ]
                     |> evaluatesTo True
+        , Test.test "SurveyIndex comparisons use the real index, not the referee display sentinel" <|
+            \_ ->
+                let
+                    system =
+                        { baseSystem | surveyIndex = 99, actualSurveyIndex = 10 }
+                in
+                Expect.equal True (HighlightRule.evaluate (ruleFrom [ [ condition SurveyIndex Gte [ "5" ] ] ]) system)
         , Test.test "GasGiantCount supports numeric comparisons" <|
             \_ ->
                 let
@@ -319,7 +327,7 @@ evaluateTests =
             \_ ->
                 let
                     system =
-                        { baseSystem | surveyIndex = 10 }
+                        { baseSystem | surveyIndex = 10, actualSurveyIndex = 10 }
 
                     rule =
                         ruleFrom

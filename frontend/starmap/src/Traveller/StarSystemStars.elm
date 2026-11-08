@@ -85,6 +85,7 @@ type alias StarSystem =
     , name : String
     , scanPoints : Int
     , surveyIndex : Int
+    , actualSurveyIndex : Int
     , gasGiantCount : Int
     , terrestrialPlanetCount : Int
     , planetoidBeltCount : Int
@@ -155,7 +156,7 @@ starSystemCodec : Codec StarSystem
 starSystemCodec =
     Codec.object
         (\ox oy sname name sp si ggc tpc ppc al stars ->
-            StarSystem { x = ox, y = oy } sname name sp si ggc tpc ppc al stars
+            StarSystem { x = ox, y = oy } sname name sp si si ggc tpc ppc al stars
         )
         |> Codec.field "origin_x" (.address >> .x) Codec.int
         |> Codec.field "origin_y" (.address >> .y) Codec.int

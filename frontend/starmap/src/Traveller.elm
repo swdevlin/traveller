@@ -7924,6 +7924,7 @@ update msg ( time, model ) =
                                             , name = fallibleSystem.name
                                             , scanPoints = fallibleSystem.scanPoints
                                             , surveyIndex = si
+                                            , actualSurveyIndex = fallibleSystem.surveyIndex
                                             , gasGiantCount = fallibleSystem.gasGiantCount
                                             , terrestrialPlanetCount = fallibleSystem.terrestrialPlanetCount
                                             , planetoidBeltCount = fallibleSystem.planetoidBeltCount
