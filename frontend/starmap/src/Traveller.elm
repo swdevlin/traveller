@@ -7811,17 +7811,34 @@ update msg ( time, model ) =
                 clearedJumpRouteLinksCoverage =
                     unmarkCovered model.hexRect model.jumpRouteLinksCoverage
 
-                ( newModel, starSystemCmds ) =
+                inRefreshRect x y =
+                    x >= model.hexRect.upperLeftHex.x && x <= model.hexRect.lowerRightHex.x && y <= model.hexRect.upperLeftHex.y && y >= model.hexRect.lowerRightHex.y
+
+                clearedJumpRouteLinks =
+                    model.jumpRouteLinks
+                        |> Dict.filter (\_ link -> not (inRefreshRect link.fromX link.fromY || inRefreshRect link.toX link.toY))
+
+                ( ( newTime, newModel ), starSystemCmds ) =
                     update DownloadStarSystems
                         (withTime
                             { model
                                 | starSystems = clearedStarSystems
                                 , regionsCoverage = clearedRegionsCoverage
                                 , jumpRouteLinksCoverage = clearedJumpRouteLinksCoverage
+                                , jumpRouteLinks = clearedJumpRouteLinks
                             }
                         )
+
+                ( routeReqEntry, ( routeStarSystems, routeRequestHistory ) ) =
+                    prepNextRequest ( newModel.starSystems, newModel.requestHistory ) model.hexRect
             in
-            ( newModel, Cmd.batch [ starSystemCmds, sendJumpRouteLayersRequest model.hostConfig ] )
+            ( ( newTime, { newModel | starSystems = routeStarSystems, requestHistory = routeRequestHistory } )
+            , Cmd.batch
+                [ starSystemCmds
+                , sendJumpRouteLayersRequest model.hostConfig
+                , sendRouteRequest routeReqEntry model.hostConfig
+                ]
+            )
 
         DownloadStarSystems ->
             let
