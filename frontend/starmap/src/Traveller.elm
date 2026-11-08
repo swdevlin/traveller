@@ -4110,21 +4110,27 @@ viewHexes config =
         -- above the background-name watermark (see `keyedRuleOverlays`) rather
         -- than folded into `computeHexColour`'s base fill, so the highlight
         -- colour isn't obscured by the subsector/sector name text.
-        ruleOverlayFill : String -> Maybe String
-        ruleOverlayFill hexKey =
-            HighlightRule.matchColour config.highlightRules
-                (Dict.get hexKey config.starSystemDict
-                    |> Maybe.andThen
-                        (\remote ->
-                            case remote of
-                                LoadedStarSystem system ->
-                                    Just system
+        -- Hexes filled by the jump log (or the current address) keep that
+        -- colour, so the overlay is suppressed there.
+        ruleOverlayFill : HexAddress -> String -> Maybe String
+        ruleOverlayFill hexAddr hexKey =
+            if hexAddr == config.currentAddress || (config.showJumpLogFill && isOnRoute config.route hexAddr) then
+                Nothing
 
-                                _ ->
-                                    Nothing
-                        )
-                )
-                |> Maybe.map Color.Convert.colorToHex
+            else
+                HighlightRule.matchColour config.highlightRules
+                    (Dict.get hexKey config.starSystemDict
+                        |> Maybe.andThen
+                            (\remote ->
+                                case remote of
+                                    LoadedStarSystem system ->
+                                        Just system
+
+                                    _ ->
+                                        Nothing
+                            )
+                    )
+                    |> Maybe.map Color.Convert.colorToHex
 
         defaultBg =
             if config.themeIsLight then
@@ -4162,7 +4168,7 @@ viewHexes config =
                                 else
                                     acc
                         in
-                        case ruleOverlayFill hexKey of
+                        case ruleOverlayFill hexAddr hexKey of
                             Just overlayColour ->
                                 Set.insert overlayColour withHexColour
 
@@ -4330,7 +4336,7 @@ viewHexes config =
                                         hexKey =
                                             HexAddress.toKey hexAddr
                                     in
-                                    ruleOverlayFill hexKey
+                                    ruleOverlayFill hexAddr hexKey
                                         |> Maybe.map
                                             (\fillColour ->
                                                 let
