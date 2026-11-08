@@ -58,6 +58,7 @@ module HasPlanetaryBodyAttributes
       [
         :name, :player_notes, :referee_notes, :tag_list, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass, :size_code,
         :period, :rotation, :retrograde, :density, :gravity,
+        :tidal_lock_target_id, :sidereal_day, :twilight_zone, :tidal_lock_note,
         :temperature, :axial_tilt, :albedo, :greenhouse,
         :native_sophont, :sophont_id, :new_sophont_name, :extinct_sophont, :extinct_sophont_id, :new_extinct_sophont_name, :habitability_rating, :biomass_rating,
         :biodiversity_rating, :biocomplexity_rating, :compatibility_rating, :resource_rating,

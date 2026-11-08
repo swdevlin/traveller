@@ -93,6 +93,11 @@ class StellarObject < ApplicationRecord
     EDIT_SECTIONS
   end
 
+  # Bodies this object can be tidally locked to: the body it orbits and, for a moon, that body's star.
+  def tidal_lock_target_candidates
+    [orbiting, orbiting&.orbiting].select { |body| body.is_a?(Star) || body == orbiting }.compact.uniq
+  end
+
   def orbit_siblings
     orbiting.is_a?(Star) ? orbiting.orbiting_bodies : []
   end

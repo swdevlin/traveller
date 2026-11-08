@@ -27,6 +27,29 @@
                         step: 'any' %>
 <% end %>
 
+<%= render 'application/edit_field', form: form, attribute: :tidal_lock_target_id, field_label: 'Tidally locked to' do %>
+  <%= form.select :tidal_lock_target_id,
+                  stellar_object.tidal_lock_target_candidates.map { |body| [body.display_name, body.id] },
+                  { include_blank: 'Not locked' },
+                  class: 'edit-base w-48' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :sidereal_day, unit: 'hours' do %>
+  <%= form.number_field :sidereal_day,
+                        value: format_precision(stellar_object.sidereal_day, precision: 5),
+                        class: 'edit-base sm:w-28 w-24',
+                        step: 'any' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :twilight_zone do %>
+  <%= render 'application/boolean_toggle', form: form, attribute: :twilight_zone,
+        checked: stellar_object.twilight_zone, checked_value: 'true', unchecked_value: 'false' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :tidal_lock_note do %>
+  <%= form.text_field :tidal_lock_note, value: stellar_object.tidal_lock_note, class: 'edit-base w-full' %>
+<% end %>
+
 <%= render 'application/edit_field', form: form, attribute: :inclination, required: true, unit: '°' do %>
   <%= form.number_field :inclination,
                         value: format_precision(stellar_object.inclination, precision: 5),

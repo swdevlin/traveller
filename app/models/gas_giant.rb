@@ -31,16 +31,18 @@ class GasGiant < StellarObject
   def self.permitted_params
     [
       :name, :player_notes, :referee_notes, :tag_list, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass,
-      data: [:code, :period, :rotation, :axial_tilt]
+      :tidal_lock_target_id,
+      data: [:code, :period, :rotation, :axial_tilt, :sidereal_day, :twilight_zone, :tidal_lock_note]
     ]
   end
 
   private
 
   def normalize_data_types
-    %i[period rotation diameter axial_tilt].each do |field|
+    %i[period rotation diameter axial_tilt sidereal_day].each do |field|
       value = public_send(field)
       public_send(:"#{field}=", value.presence&.to_f)
     end
+    self.twilight_zone = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(twilight_zone) || false
   end
 end

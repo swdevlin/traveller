@@ -14,6 +14,7 @@ module NormalizesPlanetaryData
     axial_tilt
     albedo
     greenhouse
+    sidereal_day
   ].freeze
 
   INTEGER_FIELDS = %i[
@@ -30,6 +31,7 @@ module NormalizesPlanetaryData
 
   BOOLEAN_FIELDS = %i[
     retrograde
+    twilight_zone
     native_sophont
     extinct_sophont
   ].freeze

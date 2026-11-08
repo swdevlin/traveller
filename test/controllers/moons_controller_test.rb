@@ -16,6 +16,25 @@ class MoonsControllerTest < AuthenticatedIntegrationTest
     end
   end
 
+  test 'editing a moon updates its tidal lock properties' do
+    moon = stellar_objects(:moons_test_significant_moon)
+    stub_request(:post, "#{Rails.application.config.x.generator_service}/orbit_mechanics")
+      .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: { 'primaryStar' => { 'orbitSequence' => 'A', 'stellarObjects' => [] } }.to_json)
+
+    get edit_stellar_object_url(moon)
+    assert_select "select[name='stellar_object[tidal_lock_target_id]']"
+
+    patch stellar_object_url(moon), params: { stellar_object: {
+      tidal_lock_target_id: @planet.id, sidereal_day: '12.5', twilight_zone: 'true', tidal_lock_note: 'Locked'
+    } }
+    moon.reload
+
+    assert_equal @planet, moon.tidal_lock_target
+    assert_in_delta 12.5, moon.sidereal_day
+    assert moon.twilight_zone
+    assert_equal 'Locked', moon.tidal_lock_note
+  end
+
   test 'new moon page links to the moon edit help' do
     get new_stellar_object_moon_url(@planet)
 

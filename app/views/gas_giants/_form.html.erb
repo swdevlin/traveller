@@ -32,6 +32,28 @@
       <% end %>
     <% end %>
 
+    <%= render 'application/edit_field', form: form, attribute: :tidal_lock_target_id, field_label: 'Tidally locked to' do %>
+      <%= form.select :tidal_lock_target_id,
+                      stellar_object.tidal_lock_target_candidates.map { |body| [body.display_name, body.id] },
+                      { include_blank: 'Not locked' },
+                      class: 'edit-base w-48' %>
+    <% end %>
+
+    <%= form.fields_for :data, (stellar_object.data || {}) do |df| %>
+      <%= render 'application/edit_field', form: form, attribute: :sidereal_day, unit: 'hours' do %>
+        <%= df.number_field :sidereal_day, value: stellar_object.sidereal_day, class: 'edit-base sm:w-28 w-24', step: 'any' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :twilight_zone do %>
+        <%= render 'application/boolean_toggle', form: df, attribute: :twilight_zone,
+              checked: stellar_object.twilight_zone, checked_value: 'true', unchecked_value: 'false' %>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :tidal_lock_note do %>
+        <%= df.text_field :tidal_lock_note, value: stellar_object.tidal_lock_note, class: 'edit-base w-full' %>
+      <% end %>
+    <% end %>
+
     <%= render 'application/edit_field', form: form, attribute: :inclination, required: true, unit: '°' do %>
       <%= form.number_field :inclination,
                             value: stellar_object.inclination,
