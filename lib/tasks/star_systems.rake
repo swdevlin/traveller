@@ -1,6 +1,27 @@
 include ActionView::Helpers::NumberHelper
 
 namespace :star_systems do
+  desc 'Recomputes orbit positions of every body in a system: star_systems:recompute_orbit_positions[campaign_slug,star_system_id,dry_run]'
+  task :recompute_orbit_positions, [:campaign, :star_system_id, :dry_run] => :environment do |_task, args|
+    campaign = Campaign.find_by!(slug: args[:campaign])
+    dry_run = %w[dry_run true 1].include?(args[:dry_run].to_s)
+
+    Apartment::Tenant.switch(campaign.schema_name) do
+      star_system = StarSystem.find(args[:star_system_id])
+      recomputer = OrbitPositionRecomputer.new(star_system).call(apply: !dry_run)
+
+      recomputer.changes.each do |change|
+        puts "#{change.body.orbit_sequence.presence || change.body.id}: " \
+             "#{change.from.map(&:round)} -> #{change.to.map(&:round)}"
+      end
+      recomputer.skipped.each do |body|
+        puts "SKIPPED #{body.orbit_sequence.presence || body.id}: no orbit to place it by"
+      end
+      puts "#{star_system.display_name}: #{recomputer.changes.size} #{dry_run ? 'would be ' : ''}placed, " \
+           "#{recomputer.skipped.size} skipped"
+    end
+  end
+
   task :gwp, [:campaign, :allegiance] => :environment do |_task, args|
     campaign = Campaign.find_by!(slug: args[:campaign])
     schema = "camp#{campaign.id}"
