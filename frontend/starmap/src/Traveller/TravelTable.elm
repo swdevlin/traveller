@@ -21,7 +21,7 @@ import Json.Decode
 import Traveller.StarSystemDetail exposing (StarSystemDetail)
 import Traveller.StarSystemMap exposing (MapNode, systemNodes)
 import Traveller.StellarObject exposing (getStellarOrbit)
-import Traveller.TravelCalculations exposing (calcDistance2F, travelTimeHoursDays, travelTimeInSeconds)
+import Traveller.TravelCalculations exposing (calcDistance2F, transmissionTimeInSeconds, transmissionTimeText, travelTimeHoursDays, travelTimeInSeconds)
 import Traveller.UI
     exposing
         ( fontVar
@@ -31,18 +31,19 @@ import Traveller.UI
 
 type alias Msgs msg =
     { setMDrive : Int -> msg
+    , setTransmit : Bool -> msg
     , close : msg
     , noOp : msg
     }
 
 
-view : Msgs msg -> Int -> StarSystemDetail -> Element msg
-view _ mDrive starSystemDetail =
-    viewGrid (systemNodes True starSystemDetail) mDrive
+view : Msgs msg -> Int -> Bool -> StarSystemDetail -> Element msg
+view _ mDrive transmit starSystemDetail =
+    viewGrid (systemNodes True starSystemDetail) mDrive transmit
 
 
-viewModal : Msgs msg -> Int -> StarSystemDetail -> Element msg
-viewModal msgs mDrive starSystemDetail =
+viewModal : Msgs msg -> Int -> Bool -> StarSystemDetail -> Element msg
+viewModal msgs mDrive transmit starSystemDetail =
     el
         [ width fill
         , height fill
@@ -64,7 +65,8 @@ viewModal msgs mDrive starSystemDetail =
                 , Border.widthEach { zeroEach | bottom = 1 }
                 , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
                 ]
-                [ el [ Font.size 16, fontVar "--color-fg-bright", Font.bold ] (text "Travel Times")
+                [ el [ Font.size 16, fontVar "--color-fg-bright", Font.bold ]
+                    (text "Travel Times")
                 , el
                     [ Element.alignRight
                     , Events.onClick msgs.close
@@ -79,19 +81,19 @@ viewModal msgs mDrive starSystemDetail =
                 [ Element.paddingEach { zeroEach | top = 12 }
                 , Element.spacing 12
                 ]
-                [ viewMDriveSelector msgs mDrive
-                , view msgs mDrive starSystemDetail
+                [ viewMDriveSelector msgs mDrive transmit
+                , view msgs mDrive transmit starSystemDetail
                 ]
             ]
 
 
-viewMDriveSelector : Msgs msg -> Int -> Element msg
-viewMDriveSelector msgs currentMDrive =
+viewMDriveSelector : Msgs msg -> Int -> Bool -> Element msg
+viewMDriveSelector msgs currentMDrive transmit =
     let
         driveButton n =
             let
                 isActive =
-                    n == currentMDrive
+                    not transmit && n == currentMDrive
 
                 bgColour =
                     if isActive then
@@ -119,15 +121,42 @@ viewMDriveSelector msgs currentMDrive =
                 , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
                 ]
                 (text (String.fromInt n))
+
+        transmitButton =
+            el
+                [ Element.paddingXY 8 4
+                , Element.htmlAttribute (HtmlAttrs.style "background-color" (activeBg transmit))
+                , Element.htmlAttribute (HtmlAttrs.style "color" (activeFg transmit))
+                , Border.rounded 3
+                , Font.size 13
+                , Events.onClick (msgs.setTransmit True)
+                , Element.htmlAttribute <| HtmlAttrs.style "cursor" "pointer"
+                ]
+                (text "Transmit")
+
+        activeBg isActive =
+            if isActive then
+                "var(--color-button-primary)"
+
+            else
+                "color-mix(in srgb, var(--color-outline) 12%, transparent)"
+
+        activeFg isActive =
+            if isActive then
+                "var(--color-fg-bright)"
+
+            else
+                "var(--color-fg)"
     in
     row [ Element.spacing 6, Element.centerY ]
         (el [ Font.size 13, fontVar "--color-fg-muted" ] (text "M-Drive")
             :: List.map driveButton (List.range 1 10)
+            ++ [ transmitButton ]
         )
 
 
-viewGrid : List MapNode -> Int -> Element msg
-viewGrid nodes mDrive =
+viewGrid : List MapNode -> Int -> Bool -> Element msg
+viewGrid nodes mDrive transmit =
     Element.html <|
         Html.table
             [ HtmlAttrs.class "travel-table" ]
@@ -165,10 +194,14 @@ viewGrid nodes mDrive =
                                                         (getStellarOrbit rowNode.stellarObject).orbitPosition
                                                         (getStellarOrbit colNode.stellarObject).orbitPosition
 
-                                                secs =
-                                                    travelTimeInSeconds dist mDrive
+                                                label =
+                                                    if transmit then
+                                                        transmissionTimeText (transmissionTimeInSeconds dist)
+
+                                                    else
+                                                        travelTimeHoursDays (travelTimeInSeconds dist mDrive)
                                             in
-                                            Html.td [ HtmlAttrs.class "travel-table-cell" ] [ Html.text (travelTimeHoursDays secs) ]
+                                            Html.td [ HtmlAttrs.class "travel-table-cell" ] [ Html.text label ]
                                     )
                                     nodes
                     )

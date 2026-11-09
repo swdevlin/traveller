@@ -6,6 +6,8 @@ module Traveller.TravelCalculations exposing
     , kmToAu
     , safeJumpTimeFromShadow
     , secondsToDaysWatches
+    , transmissionTimeInSeconds
+    , transmissionTimeText
     , travelTime
     , travelTimeHoursDays
     , travelTimeInSeconds
@@ -34,6 +36,37 @@ kmToAu km =
 travelTimeInSeconds : Float -> Int -> Float
 travelTimeInSeconds kms mdrive =
     2 * sqrt (kms * 1000 / (toFloat mdrive * 9.8))
+
+
+{-| Time in seconds for a light-speed message to cross a distance in km
+-}
+transmissionTimeInSeconds : Float -> Float
+transmissionTimeInSeconds kms =
+    kms / 299792.458
+
+
+{-| Format a transmission time: seconds, minutes+seconds, or hours/days.
+-}
+transmissionTimeText : Float -> String
+transmissionTimeText secs =
+    if secs < 60 then
+        String.fromInt (ceiling secs) ++ "s"
+
+    else if secs < 3600 then
+        let
+            total =
+                round secs
+
+            m =
+                total // 60
+
+            sec =
+                total - m * 60
+        in
+        String.fromInt m ++ "m " ++ String.fromInt sec ++ "s"
+
+    else
+        travelTimeHoursDays secs
 
 
 {-| Convert seconds to a "days and watches" string format

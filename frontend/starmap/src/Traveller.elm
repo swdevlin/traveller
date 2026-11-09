@@ -1010,6 +1010,7 @@ type alias ModelData =
         }
     , showTravelTable : Bool
     , travelTableMDrive : Int
+    , travelTableTransmit : Bool
     , showShipTraffic : Bool
     , shipTraffic : RemoteData Http.Error ShipTraffic.ShipTraffic
     , shipTrafficFrontier : Bool
@@ -1116,6 +1117,7 @@ type Msg
     | GotResize Int Int
     | ToggleTravelTable
     | SetTravelTableMDrive Int
+    | SetTravelTableTransmit Bool
     | OpenShipTraffic
     | CloseShipTraffic
     | RerollShipTraffic
@@ -1777,6 +1779,7 @@ init viewport settings key hostConfig referee =
             , key = key
             , showTravelTable = False
             , travelTableMDrive = settings.ship |> Maybe.andThen .mDrive |> Maybe.withDefault 2
+            , travelTableTransmit = False
             , showShipTraffic = False
             , shipTraffic = RemoteData.NotAsked
             , shipTrafficFrontier = False
@@ -6730,6 +6733,7 @@ view ( time, model ) =
         travelTableMsgs : TravelTable.Msgs Msg
         travelTableMsgs =
             { setMDrive = SetTravelTableMDrive
+            , setTransmit = SetTravelTableTransmit
             , close = ToggleTravelTable
             , noOp = NoOpMsg
             }
@@ -6835,7 +6839,7 @@ view ( time, model ) =
                     Element.htmlAttribute <| HtmlAttrs.class ""
                , case ( model.showTravelTable, model.selectedSystem ) of
                     ( True, Just starSystemDetail ) ->
-                        Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive starSystemDetail
+                        Element.inFront <| TravelTable.viewModal travelTableMsgs model.travelTableMDrive model.travelTableTransmit starSystemDetail
 
                     _ ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -8461,7 +8465,12 @@ update msg ( time, model ) =
             )
 
         SetTravelTableMDrive n ->
-            ( withTime { model | travelTableMDrive = n }
+            ( withTime { model | travelTableMDrive = n, travelTableTransmit = False }
+            , Cmd.none
+            )
+
+        SetTravelTableTransmit transmit ->
+            ( withTime { model | travelTableTransmit = transmit }
             , Cmd.none
             )
 
