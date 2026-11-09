@@ -214,12 +214,12 @@ class SubsectorsController < ApplicationController
     subsector_parsec_ids = @parsecs_by_pos.values.map { |v| v[:id] }
     subsector_parsec_subquery = @subsector.parsecs.select(:id)
 
-    jump_parsec_ids = JumpLog
+    jump_pairs = JumpLog
       .where(from_parsec_id: subsector_parsec_subquery)
       .or(JumpLog.where(to_parsec_id: subsector_parsec_subquery))
       .pluck(:from_parsec_id, :to_parsec_id)
-      .flatten
-      .to_set & subsector_parsec_ids.to_set
+    jump_parsec_ids = jump_pairs.flatten.to_set & subsector_parsec_ids.to_set
+    build_jump_log_overlay(jump_pairs, sub_ul)
 
     parsec_id_to_pos = @parsecs_by_pos.each_with_object({}) { |(pos, data), h| h[data[:id]] = pos }
     @jump_highlight_positions = jump_parsec_ids.filter_map { |pid| parsec_id_to_pos[pid] }.to_set

@@ -1,0 +1,24 @@
+<%# locals: display: (hash from Campaign#jump_log_display_settings) %>
+<%
+  fill = %w[fill both].include?(display[:display])
+  line = %w[line both].include?(display[:display])
+  size = 30
+  left = [40, 40]
+  right = [200, 40]
+%>
+<svg viewBox='0 0 240 80' class='h-20 w-60' role='img'
+     aria-label='Preview of a jump between two hexes'>
+  <% [left, right].each do |cx, cy| %>
+    <polygon points='<%= hex_polygon_points(cx, cy, size) %>'
+             fill='<%= fill ? display[:fill_colour] : 'none' %>'
+             class='stroke-control-outline'
+             stroke-width='1.5' />
+  <% end %>
+  <% if line %>
+    <line x1='<%= left[0] %>' y1='<%= left[1] %>' x2='<%= right[0] %>' y2='<%= right[1] %>'
+          stroke='<%= display[:line_colour] %>'
+          stroke-width='<%= display[:line_width] %>'
+          stroke-linecap='round'
+          <%= tag.attributes('stroke-dasharray': display[:line_dasharray]) if display[:line_dasharray] %> />
+  <% end %>
+</svg>

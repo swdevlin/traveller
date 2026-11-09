@@ -1,0 +1,60 @@
+<% content_for :title, 'Starmap Display' %>
+
+<%= render 'help/page', title: 'Starmap Display' do %>
+  <div class='space-y-8'>
+
+    <p class='text-fg-muted'>
+      The gear icon on the interactive starmap opens the Map Display dialogue. Choices made there are
+      stored in your browser for this campaign and apply only to you.
+    </p>
+
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight-fg mb-4'>Jump Log</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Display</dt>
+          <dd class='mt-1 text-fg'>
+            How the ship&rsquo;s recorded jumps are drawn. <span class='font-semibold text-fg-bright'>Fill</span>
+            colours each hex the ship has visited, <span class='font-semibold text-fg-bright'>Line</span> draws a
+            line from the origin hex to the destination hex of every jump,
+            <span class='font-semibold text-fg-bright'>Fill and line</span> does both, and
+            <span class='font-semibold text-fg-bright'>None</span> hides the jump log.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Fill Colour</dt>
+          <dd class='mt-1 text-fg'>
+            The colour of visited hexes. Shown when the display includes a fill.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Line Colour, Style and Width</dt>
+          <dd class='mt-1 text-fg'>
+            The appearance of the jump lines, set the same way as for jump routes: a colour, a style
+            (solid, dashed, dotted and so on) and a width from 1 to 20. Shown when the display includes a line.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Campaign Defaults</dt>
+          <dd class='mt-1 text-fg'>
+            Until you change a value, the starmap uses the referee&rsquo;s campaign setting for it. Once you
+            change a value, yours always takes precedence, even if the referee later changes the campaign
+            setting. <span class='font-semibold text-fg-bright'>Use campaign defaults</span> discards all of
+            your jump log choices at once.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
+    <div class='iiss-form'>
+      REFERENCE 0709SD
+    </div>
+
+  </div>
+<% end %>

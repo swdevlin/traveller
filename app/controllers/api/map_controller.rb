@@ -56,6 +56,7 @@ class Api::MapController < ApplicationController
       .pluck(:from_parsec_id, :to_parsec_id)
 
     jump_ids = jump_pairs.flatten.to_set & viewport_parsec_ids.to_set
+    build_jump_log_overlay(jump_pairs, @ul)
 
     @jump_highlight_positions = Set.new
     viewport_parsecs.each do |parsec|

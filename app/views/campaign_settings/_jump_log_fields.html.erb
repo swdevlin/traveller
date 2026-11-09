@@ -1,0 +1,43 @@
+<%# locals: form: %>
+<% jump_log = @campaign.jump_log_display_settings %>
+
+<div class='space-y-2' data-controller='jump-log-display'>
+
+<%= render 'application/edit_field', form: form, attribute: :jump_log_display, field_label: 'Display' do %>
+  <%= form.select :jump_log_display,
+                  [['Fill', 'fill'], ['Line', 'line'], ['Fill and line', 'both'], ['None', 'none']],
+                  { selected: jump_log[:display] },
+                  { class: 'edit-base w-40',
+                    data: { jump_log_display_target: 'mode', action: 'change->jump-log-display#toggle' } } %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :jump_log_fill_colour, field_label: 'Fill Colour',
+           row_data: { jump_log_display_target: 'fill' } do %>
+  <%= form.text_field :jump_log_fill_colour, value: jump_log[:fill_colour],
+                      data: { controller: 'coloris' },
+                      class: 'edit-base w-32' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :jump_log_line_colour, field_label: 'Line Colour',
+           row_data: { jump_log_display_target: 'line' } do %>
+  <%= form.text_field :jump_log_line_colour, value: jump_log[:line_colour],
+                      data: { controller: 'coloris' },
+                      class: 'edit-base w-32' %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :jump_log_line_style, field_label: 'Line Style',
+           row_data: { jump_log_display_target: 'line' } do %>
+  <%= form.select :jump_log_line_style,
+                  JumpRoute::LINE_STYLES.map { |s| [s.humanize, s] },
+                  { selected: jump_log[:line_style] },
+                  { class: 'edit-base w-40' } %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :jump_log_line_width, field_label: 'Line Width',
+           row_data: { jump_log_display_target: 'line' } do %>
+  <%= form.number_field :jump_log_line_width, value: jump_log[:line_width], min: 1, max: 20, class: 'edit-base w-28' %>
+<% end %>
+
+</div>
+
+<p class='text-xs italic text-fg-muted'>Defaults for everyone. Players can override these in the starmap options.</p>

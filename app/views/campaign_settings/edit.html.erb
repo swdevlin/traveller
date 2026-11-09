@@ -311,6 +311,11 @@
 
       <p class='text-xs italic text-fg-muted'>Leave blank to default to the sector nearest the origin (0, 0).</p>
 
+      <%= render 'application/subsection', title: 'Jump Log' %>
+
+      <%= render 'campaign_settings/jump_log_fields', form: form %>
+
+
       <%= render 'application/subsection', title: 'Name Generation' %>
 
       <%= render 'application/edit_field', form: form, attribute: :default_language, field_label: 'Default Language' do %>

@@ -136,6 +136,10 @@
                  value: "#{(@campaign.hex_size.presence || 'medium').capitalize} (#{@campaign.hex_size_value}px)" %>
     </div>
 
+    <%= render 'application/subsection', title: 'Jump Log' %>
+
+    <%= render 'jump_logs/display_preview', display: @campaign.jump_log_display_settings %>
+
     <%= render 'application/subsection', title: 'API Access' %>
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>

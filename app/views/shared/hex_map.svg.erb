@@ -11,6 +11,12 @@
   rogues_by_pos            = @rogues_by_pos            || {}
   region_fills_by_pos      = @region_fills_by_pos      || {}
   jump_highlight_positions = @jump_highlight_positions  || Set.new
+  # Only maps that draw the real jump log set @jump_log_display; others (e.g. the two-system
+  # commerce map) reuse the highlight positions and always fill.
+  jump_display   = @jump_log_display
+  jump_fill      = jump_display.nil? || %w[fill both].include?(jump_display[:display])
+  jump_line      = jump_display.present? && %w[line both].include?(jump_display[:display]) && @jump_segments.present?
+  jump_fill_colour = jump_display ? jump_display[:fill_colour] : Campaign::JUMP_LOG_DEFAULTS[:fill_colour]
   highlight_pos            = @highlight_pos
   ul                       = @ul
   valid_positions          = @valid_positions
@@ -39,7 +45,7 @@
   # Every colour that needs an edge-to-centre fade — region fills (layer 1b)
   # are deliberately excluded, they stay solid.
   fade_colours = Set.new(bg_by_pos.values)
-  fade_colours << '#ffedd5' if jump_highlight_positions.any?
+  fade_colours << jump_fill_colour if jump_fill && jump_highlight_positions.any?
   fade_colours << '#fef3c7' if highlight_pos
   fade_colours << '#14532d' if @linked_positions&.any?
 
@@ -211,11 +217,11 @@
   <% end %>
 
   <%# Layer 1c: Jump highlights %>
-  <% if jump_highlight_positions.any? %>
+  <% if jump_fill && jump_highlight_positions.any? %>
     <g>
       <% jump_highlight_positions.each do |col, row| %>
         <% cx, cy = hex_center(col, row) %>
-        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:url(#<%= hex_fade_gradient_id('#ffedd5') %>);stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
+        <polygon points="<%= hex_polygon_points(cx, cy) %>" style="fill:url(#<%= hex_fade_gradient_id(jump_fill_colour) %>);stroke:#f97316;stroke-width:1.5;pointer-events:none" opacity="0.75"/>
       <% end %>
     </g>
   <% end %>
@@ -325,6 +331,26 @@
           pointer-events="none"/>
   <% end %>
   </g>
+
+  <%# Layer 1h: Jump log lines %>
+  <% if jump_line %>
+    <g clip-path="url(#map-viewport-clip)">
+    <% @jump_segments.each do |from_col, from_row, to_col, to_row| %>
+      <%
+        from_cx, from_cy = hex_center(from_col, from_row)
+        to_cx,   to_cy   = hex_center(to_col, to_row)
+      %>
+      <line x1="<%= from_cx.round(2) %>" y1="<%= from_cy.round(2) %>"
+            x2="<%= to_cx.round(2) %>"   y2="<%= to_cy.round(2) %>"
+            stroke="<%= jump_display[:line_colour] %>"
+            stroke-width="<%= jump_display[:line_width] %>"
+            stroke-opacity="0.7"
+            stroke-linecap="round"
+            <% if jump_display[:line_dasharray] %>stroke-dasharray="<%= jump_display[:line_dasharray] %>"<% end %>
+            pointer-events="none"/>
+    <% end %>
+    </g>
+  <% end %>
 
   <%# Layer 3: Star circles (drawn under text) %>
   <g>

@@ -42,6 +42,30 @@ class CampaignSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal '#00ff00', @campaign.subsector_capital_colour
   end
 
+  test 'update stores the jump log display settings' do
+    sign_in_as users(:one)
+
+    patch campaign_settings_url, params: {
+      campaign: {
+        name: @campaign.name,
+        jump_log_display: 'both',
+        jump_log_fill_colour: '#112233',
+        jump_log_line_colour: '#445566',
+        jump_log_line_style: 'dotted',
+        jump_log_line_width: '6'
+      }
+    }
+
+    assert_redirected_to campaign_settings_url
+    settings = @campaign.reload.jump_log_display_settings
+
+    assert_equal 'both', settings[:display]
+    assert_equal '#112233', settings[:fill_colour]
+    assert_equal '#445566', settings[:line_colour]
+    assert_equal 'dotted', settings[:line_style]
+    assert_equal 6, settings[:line_width]
+  end
+
   test 'update stores the hex size' do
     sign_in_as users(:one)
 

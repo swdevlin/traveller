@@ -92,14 +92,20 @@ class JumpRoute < ApplicationRecord
     (max_x - min_x + 1) <= SECTOR_COLS && (max_y - min_y + 1) <= SECTOR_ROWS
   end
 
+  DASHARRAYS = {
+    'dashed' => '16,10',
+    'dotted' => '3,7',
+    'dash_dot' => '16,7,3,7',
+    'dash_dot_dot' => '16,7,3,7,3,7',
+    'long_dash' => '28,10',
+    'short_dash' => '8,7'
+  }.freeze
+
+  def self.dasharray_for(line_style)
+    DASHARRAYS[line_style.to_s]
+  end
+
   def stroke_dasharray
-    case line_style
-    when 'dashed'       then '16,10'
-    when 'dotted'       then '3,7'
-    when 'dash_dot'     then '16,7,3,7'
-    when 'dash_dot_dot' then '16,7,3,7,3,7'
-    when 'long_dash'    then '28,10'
-    when 'short_dash'   then '8,7'
-    end
+    self.class.dasharray_for(line_style)
   end
 end

@@ -86,6 +86,7 @@ import Traveller.HighlightRule as HighlightRule
 import Traveller.HighlightRuleEditor as HighlightRuleEditor
 import Traveller.Hydrographics exposing (hydrographicsCoverageDescription, surfaceDistributionDescription)
 import Traveller.JumpRouteLayer as JumpRouteLayer
+import Traveller.JumpLogDisplay as JumpLogDisplay
 import Traveller.JumpRouteLayerEditor as JumpRouteLayerEditor
 import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
@@ -1062,7 +1063,8 @@ type alias ModelData =
     , showSectorLines : Bool
     , showSubsectorLines : Bool
     , showBackgroundNames : Bool
-    , showJumpLogFill : Bool
+    , jumpLogCampaign : JumpLogDisplay.Settings
+    , jumpLogOverride : JumpLogDisplay.Override
     , searchState : SearchState
     , theme : String
     , themeIsLight : Bool
@@ -1170,7 +1172,12 @@ type Msg
     | ToggleSectorLines
     | ToggleSubsectorLines
     | ToggleBackgroundNames
-    | ToggleJumpLogFill
+    | SetJumpLogMode String
+    | SetJumpLogFillColour String
+    | SetJumpLogLineColour String
+    | SetJumpLogLineStyle String
+    | SetJumpLogLineWidth String
+    | ResetJumpLogDisplay
     | SearchInput String
     | GotSearchResults (Result Http.Error (List SearchResult))
     | SelectSearchResult SearchResult
@@ -1476,7 +1483,8 @@ type alias Flags =
     , showSectorLines : Maybe Bool
     , showSubsectorLines : Maybe Bool
     , showBackgroundNames : Maybe Bool
-    , showJumpLogFill : Maybe Bool
+    , jumpLogDisplay : JsDecode.Value
+    , jumpLogOverride : JsDecode.Value
     , theme : String
     , themeIsLight : Bool
     , themeOptions : List ThemeOption
@@ -1731,8 +1739,13 @@ init viewport settings key hostConfig referee =
         initialShowBackgroundNames =
             settings.showBackgroundNames |> Maybe.withDefault False
 
-        initialShowJumpLogFill =
-            settings.showJumpLogFill |> Maybe.withDefault True
+        initialJumpLogCampaign =
+            Codec.decodeValue JumpLogDisplay.campaignCodec settings.jumpLogDisplay
+                |> Result.withDefault JumpLogDisplay.defaultSettings
+
+        initialJumpLogOverride =
+            Codec.decodeValue JumpLogDisplay.overrideCodec settings.jumpLogOverride
+                |> Result.withDefault JumpLogDisplay.emptyOverride
 
         -- Referee overlays are DB-backed (fetched via `sendSurveyOverlaysRequest`
         -- once init completes) and never available to non-referees; players keep
@@ -1827,7 +1840,8 @@ init viewport settings key hostConfig referee =
             , showSectorLines = initialShowSectorLines
             , showSubsectorLines = initialShowSubsectorLines
             , showBackgroundNames = initialShowBackgroundNames
-            , showJumpLogFill = initialShowJumpLogFill
+            , jumpLogCampaign = initialJumpLogCampaign
+            , jumpLogOverride = initialJumpLogOverride
             , sidebarOpen = False
             , jumpRouteLinks = Dict.empty
             , jumpRouteLinksCoverage = initState.jumpRouteLinksCoverage
@@ -4003,7 +4017,7 @@ type alias ViewHexesConfig =
     , showSubsectorLines : Bool
     , sectors : SectorDict
     , showBackgroundNames : Bool
-    , showJumpLogFill : Bool
+    , jumpLog : JumpLogDisplay.Settings
     , themeIsLight : Bool
     , highlightRules : List HighlightRule.Rule
     , previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String }
@@ -4077,8 +4091,8 @@ viewHexes config =
             if hexAddr == config.currentAddress then
                 ( currentAddressHexBg, False )
 
-            else if config.showJumpLogFill && isOnRoute config.route hexAddr then
-                ( routeHexBg, False )
+            else if JumpLogDisplay.showsFill config.jumpLog && isOnRoute config.route hexAddr then
+                ( config.jumpLog.fillColour, False )
 
             else
                 let
@@ -4117,7 +4131,7 @@ viewHexes config =
         -- colour, so the overlay is suppressed there.
         ruleOverlayFill : HexAddress -> String -> Maybe String
         ruleOverlayFill hexAddr hexKey =
-            if hexAddr == config.currentAddress || (config.showJumpLogFill && isOnRoute config.route hexAddr) then
+            if hexAddr == config.currentAddress || (JumpLogDisplay.showsFill config.jumpLog && isOnRoute config.route hexAddr) then
                 Nothing
 
             else
@@ -4638,6 +4652,43 @@ viewHexes config =
                             )
                             visibleLinks
 
+                    jumpLogLines =
+                        if JumpLogDisplay.showsLine config.jumpLog then
+                            let
+                                dasharray =
+                                    JumpLogDisplay.dasharrayFor config.jumpLog.lineStyle
+                                        |> Maybe.map (\value -> [ SvgAttrs.strokeDasharray value ])
+                                        |> Maybe.withDefault []
+                            in
+                            config.route
+                                |> List.map
+                                    (\jump ->
+                                        let
+                                            ( fx, fy ) =
+                                                calcVisualOrigin config.hexSize { row = jump.from.y, col = jump.from.x }
+
+                                            ( tx, ty ) =
+                                                calcVisualOrigin config.hexSize { row = jump.address.y, col = jump.address.x }
+                                        in
+                                        Svg.line
+                                            ([ SvgAttrs.x1 (String.fromInt fx)
+                                             , SvgAttrs.y1 (String.fromInt fy)
+                                             , SvgAttrs.x2 (String.fromInt tx)
+                                             , SvgAttrs.y2 (String.fromInt ty)
+                                             , SvgAttrs.stroke config.jumpLog.lineColour
+                                             , SvgAttrs.strokeWidth (String.fromInt config.jumpLog.lineWidth)
+                                             , SvgAttrs.strokeOpacity "0.7"
+                                             , SvgAttrs.strokeLinecap "round"
+                                             , SvgAttrs.pointerEvents "none"
+                                             ]
+                                                ++ dasharray
+                                            )
+                                            []
+                                    )
+
+                        else
+                            []
+
                     -- width "8" and dasharray "16,10" mirror JumpRoute's plotted-route
                     -- save defaults (line_width: 8, line_style: 'dashed'), so the preview
                     -- doesn't change appearance the moment it's saved - only the colour differs.
@@ -4696,6 +4747,7 @@ viewHexes config =
                     ++ subsectorLinesList
                     ++ sectorOutlines
                     ++ regionBorderLines
+                    ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpLogLines ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] jumpRouteLinkLines ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none" ] previewRouteLines ]
                     ++ [ Svg.g [ SvgAttrs.pointerEvents "none", SvgAttrs.style "transform: translateZ(0)" ] systemLabels ]
@@ -6058,7 +6110,8 @@ type alias DisplaySettingsConfig =
     , showSectorLines : Bool
     , showSubsectorLines : Bool
     , showBackgroundNames : Bool
-    , showJumpLogFill : Bool
+    , jumpLog : JumpLogDisplay.Settings
+    , jumpLogIsOverridden : Bool
     , showMapDisplayDropdown : Bool
     , showRegionDropdown : Bool
     }
@@ -6313,7 +6366,6 @@ viewDisplaySettingsModalHtml config =
             [ dsCheckboxRow config.showSectorLines "Sector lines" ToggleSectorLines
             , dsCheckboxRow config.showSubsectorLines "Subsector lines" ToggleSubsectorLines
             , dsCheckboxRow config.showBackgroundNames "Names" ToggleBackgroundNames
-            , dsCheckboxRow config.showJumpLogFill "Jump log" ToggleJumpLogFill
             ]
     in
     Html.div
@@ -6371,8 +6423,164 @@ viewDisplaySettingsModalHtml config =
                 }
             , Html.div [ HtmlAttrs.style "margin-top" "8px" ]
                 (dsFieldLabel "Overlays" :: overlayRows)
+            , viewJumpLogDisplayControls config
             ]
         ]
+
+
+jumpLogSettings : ModelData -> JumpLogDisplay.Settings
+jumpLogSettings model =
+    JumpLogDisplay.resolve model.jumpLogCampaign model.jumpLogOverride
+
+
+updateJumpLogOverride : ModelData -> (JumpLogDisplay.Override -> JumpLogDisplay.Override) -> ( ModelData, Cmd Msg )
+updateJumpLogOverride model change =
+    let
+        override =
+            change model.jumpLogOverride
+    in
+    ( { model | jumpLogOverride = override }
+    , storeJumpLogDisplay (Codec.encodeToValue JumpLogDisplay.overrideCodec override)
+    )
+
+
+viewJumpLogDisplayControls : DisplaySettingsConfig -> Html Msg
+viewJumpLogDisplayControls config =
+    let
+        jumpLog =
+            config.jumpLog
+
+        fieldWrapper label control =
+            Html.div [ HtmlAttrs.style "min-width" "0" ]
+                [ dsFieldLabel label, control ]
+
+        modeOption ( mode, label ) =
+            Html.option
+                [ HtmlAttrs.value (JumpLogDisplay.modeToString mode)
+                , HtmlAttrs.selected (mode == jumpLog.mode)
+                ]
+                [ Html.text label ]
+
+        colourInput msg value =
+            Html.input
+                [ HtmlAttrs.type_ "color"
+                , HtmlAttrs.value value
+                , Html.Events.onInput msg
+                , HtmlAttrs.style "width" "100%"
+                , HtmlAttrs.style "height" "32px"
+                , HtmlAttrs.style "padding" "0"
+                , HtmlAttrs.style "cursor" "pointer"
+                ]
+                []
+
+        twoColumns children =
+            Html.div
+                [ HtmlAttrs.style "display" "grid"
+                , HtmlAttrs.style "grid-template-columns" "1fr 1fr"
+                , HtmlAttrs.style "gap" "10px"
+                , HtmlAttrs.style "margin-top" "10px"
+                ]
+                children
+
+        colourFields =
+            (if JumpLogDisplay.showsFill jumpLog then
+                [ fieldWrapper "Fill colour" (colourInput SetJumpLogFillColour jumpLog.fillColour) ]
+
+             else
+                []
+            )
+                ++ (if JumpLogDisplay.showsLine jumpLog then
+                        [ fieldWrapper "Line colour" (colourInput SetJumpLogLineColour jumpLog.lineColour) ]
+
+                    else
+                        []
+                   )
+
+        lineFields =
+            if JumpLogDisplay.showsLine jumpLog then
+                [ fieldWrapper "Line style"
+                    (Html.select
+                        (Html.Events.onInput SetJumpLogLineStyle :: JumpRouteLayerEditor.textInputStyles)
+                        (List.map
+                            (\style ->
+                                Html.option [ HtmlAttrs.value style, HtmlAttrs.selected (style == jumpLog.lineStyle) ]
+                                    [ Html.text (JumpRouteLayerEditor.lineStyleLabel style) ]
+                            )
+                            JumpRouteLayerEditor.lineStyles
+                        )
+                    )
+                , fieldWrapper "Line width"
+                    (Html.input
+                        (HtmlAttrs.type_ "number"
+                            :: HtmlAttrs.min "1"
+                            :: HtmlAttrs.max "20"
+                            :: HtmlAttrs.value (String.fromInt jumpLog.lineWidth)
+                            :: Html.Events.onInput SetJumpLogLineWidth
+                            :: JumpRouteLayerEditor.textInputStyles
+                        )
+                        []
+                    )
+                ]
+
+            else
+                []
+
+        groupIf fields =
+            if List.isEmpty fields then
+                []
+
+            else
+                [ twoColumns fields ]
+    in
+    Html.div
+        [ HtmlAttrs.style "margin-top" "16px" ]
+        ([ Html.div
+            [ HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "align-items" "center"
+            , HtmlAttrs.style "gap" "10px"
+            , HtmlAttrs.style "margin-bottom" "10px"
+            ]
+            [ Html.span
+                [ HtmlAttrs.style "font-size" "11px"
+                , HtmlAttrs.style "text-transform" "uppercase"
+                , HtmlAttrs.style "letter-spacing" "0.15em"
+                , HtmlAttrs.style "font-weight" "700"
+                , HtmlAttrs.style "color" "var(--color-highlight-fg)"
+                ]
+                [ Html.text "Jump log" ]
+            , Html.span
+                [ HtmlAttrs.style "flex" "1"
+                , HtmlAttrs.style "height" "1px"
+                , HtmlAttrs.style "background-color" "var(--color-outline)"
+                ]
+                []
+            , if config.jumpLogIsOverridden then
+                Html.span
+                    [ HtmlAttrs.class "starmap-display-option"
+                    , HtmlAttrs.style "font-size" "11px"
+                    , HtmlAttrs.style "color" "var(--color-fg-muted)"
+                    , HtmlAttrs.style "cursor" "pointer"
+                    , HtmlAttrs.title "Discard your changes and follow the campaign settings"
+                    , Html.Events.onClick ResetJumpLogDisplay
+                    ]
+                    [ Html.text "Use campaign defaults" ]
+
+              else
+                Html.text ""
+            ]
+         , Html.select
+            (Html.Events.onInput SetJumpLogMode :: JumpRouteLayerEditor.textInputStyles)
+            (List.map modeOption
+                [ ( JumpLogDisplay.Fill, "Fill" )
+                , ( JumpLogDisplay.Line, "Line" )
+                , ( JumpLogDisplay.Both, "Fill and line" )
+                , ( JumpLogDisplay.Off, "None" )
+                ]
+            )
+         ]
+            ++ groupIf colourFields
+            ++ groupIf lineFields
+        )
 
 
 viewHexMap : ModelData -> Element Msg
@@ -6427,7 +6635,7 @@ viewHexMap model =
         , showSubsectorLines = model.showSubsectorLines
         , sectors = model.sectors
         , showBackgroundNames = model.showBackgroundNames
-        , showJumpLogFill = model.showJumpLogFill
+        , jumpLog = jumpLogSettings model
         , themeIsLight = model.themeIsLight
         , highlightRules = model.highlightRules
         , previewRoute = activePreviewRoute model
@@ -6909,7 +7117,8 @@ view ( time, model ) =
                                 , showSectorLines = model.showSectorLines
                                 , showSubsectorLines = model.showSubsectorLines
                                 , showBackgroundNames = model.showBackgroundNames
-                                , showJumpLogFill = model.showJumpLogFill
+                                , jumpLog = jumpLogSettings model
+                                , jumpLogIsOverridden = not (JumpLogDisplay.isEmptyOverride model.jumpLogOverride)
                                 , showMapDisplayDropdown = model.showMapDisplayDropdown
                                 , showRegionDropdown = model.showRegionDropdown
                                 }
@@ -7500,7 +7709,7 @@ port storeSubsectorLines : Bool -> Cmd msg
 port storeBackgroundNames : Bool -> Cmd msg
 
 
-port storeJumpLogFill : Bool -> Cmd msg
+port storeJumpLogDisplay : Encode.Value -> Cmd msg
 
 
 port storeHighlightRules : Encode.Value -> Cmd msg
@@ -9052,10 +9261,34 @@ update msg ( time, model ) =
             , storeBackgroundNames (not model.showBackgroundNames)
             )
 
-        ToggleJumpLogFill ->
-            ( withTime { model | showJumpLogFill = not model.showJumpLogFill }
-            , storeJumpLogFill (not model.showJumpLogFill)
-            )
+        SetJumpLogMode value ->
+            updateJumpLogOverride model (\o -> { o | mode = JumpLogDisplay.modeFromString value })
+                |> Tuple.mapFirst withTime
+
+        SetJumpLogFillColour value ->
+            updateJumpLogOverride model (\o -> { o | fillColour = Just value })
+                |> Tuple.mapFirst withTime
+
+        SetJumpLogLineColour value ->
+            updateJumpLogOverride model (\o -> { o | lineColour = Just value })
+                |> Tuple.mapFirst withTime
+
+        SetJumpLogLineStyle value ->
+            updateJumpLogOverride model (\o -> { o | lineStyle = Just value })
+                |> Tuple.mapFirst withTime
+
+        SetJumpLogLineWidth value ->
+            case String.toInt value of
+                Just width ->
+                    updateJumpLogOverride model (\o -> { o | lineWidth = Just (clamp 1 20 width) })
+                        |> Tuple.mapFirst withTime
+
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+        ResetJumpLogDisplay ->
+            updateJumpLogOverride model (always JumpLogDisplay.emptyOverride)
+                |> Tuple.mapFirst withTime
 
         SearchInput query ->
             let

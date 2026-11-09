@@ -313,6 +313,18 @@
         </div>
 
         <div>
+          <dt class='font-semibold text-fg-bright'>Jump Log</dt>
+          <dd class='mt-1 text-fg'>
+            How the ship's jump log is drawn on maps. <span class='font-semibold text-fg-bright'>Display</span>
+            chooses between filling visited hexes, drawing a line for each jump between the hexes, both, or
+            neither. The fill has its own colour; the line has a colour, style and width, set the same way as
+            for jump routes. These values apply to the subsector, sector and all-sectors maps and are the
+            starting point for the interactive starmap. Players can override them for themselves in the
+            starmap options (see <%= link_to 'Starmap Display', help_page_path('starmap_display'), class: 'no-underline hover:underline' %>), and their own choices always take precedence in their browser.
+          </dd>
+        </div>
+
+        <div>
           <dt class='font-semibold text-fg-bright'>Subsector Capital Colour</dt>
           <dd class='mt-1 text-fg'>
             Colours the name label of any star system whose main world carries the

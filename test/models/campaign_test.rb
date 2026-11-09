@@ -217,6 +217,50 @@ class CampaignTest < ActiveSupport::TestCase
     assert_includes campaign.errors[:sector_capital_colour], 'must be a hex colour (#rrggbb)'
   end
 
+  # jump log display
+
+  test 'jump_log_display_settings falls back to the defaults' do
+    settings = campaigns(:one).jump_log_display_settings
+
+    assert_equal 'fill', settings[:display]
+    assert_equal '#ffedd5', settings[:fill_colour]
+    assert_equal '#f97316', settings[:line_colour]
+    assert_equal 'solid', settings[:line_style]
+    assert_equal 4, settings[:line_width]
+    assert_nil settings[:line_dasharray]
+  end
+
+  test 'jump_log_display_settings uses stored values and the dasharray for the style' do
+    campaign = campaigns(:one)
+    campaign.assign_attributes(jump_log_display: 'both', jump_log_line_style: 'dashed', jump_log_line_width: '8',
+                               jump_log_fill_colour: '#112233', jump_log_line_colour: '#445566')
+    settings = campaign.jump_log_display_settings
+
+    assert_equal 'both', settings[:display]
+    assert_equal '16,10', settings[:line_dasharray]
+    assert_equal 8, settings[:line_width]
+    assert_equal '#112233', settings[:fill_colour]
+    assert_equal '#445566', settings[:line_colour]
+  end
+
+  test 'jump log settings are validated' do
+    campaign = campaigns(:one)
+    campaign.assign_attributes(jump_log_display: 'sparkly', jump_log_line_style: 'wavy', jump_log_line_width: '0',
+                               jump_log_fill_colour: 'red', jump_log_line_colour: 'blue')
+
+    assert_not campaign.valid?
+    %i[jump_log_display jump_log_line_style jump_log_line_width jump_log_fill_colour jump_log_line_colour].each do |attr|
+      assert campaign.errors[attr].any?, "expected an error on #{attr}"
+    end
+  end
+
+  test 'blank jump log settings are valid' do
+    campaign = campaigns(:one)
+    campaign.assign_attributes(jump_log_display: '', jump_log_line_width: '', jump_log_fill_colour: '')
+
+    assert campaign.valid?
+  end
+
   # hex_size
 
   test 'hex_size defaults to medium on create' do

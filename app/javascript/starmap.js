@@ -36,6 +36,7 @@ document.addEventListener('turbo:load', () => {
   const subsectorLinesKey = `showSubsectorLines_${slug}`
   const backgroundNamesKey = `showBackgroundNames_${slug}`
   const jumpLogFillKey = `showJumpLogFill_${slug}`
+  const jumpLogDisplayKey = `jumpLogDisplay_${slug}`
   const highlightRulesKey = `highlightRules_${slug}`
   const routePlanKey = `routePlan_${slug}`
   const hiddenJumpRouteIdsKey = `hiddenJumpRouteIds_${slug}`
@@ -49,7 +50,12 @@ document.addEventListener('turbo:load', () => {
   const showSectorLines = JSON.parse(localStorage.getItem(sectorLinesKey) ?? 'null')
   const showSubsectorLines = JSON.parse(localStorage.getItem(subsectorLinesKey) ?? 'null')
   const showBackgroundNames = JSON.parse(localStorage.getItem(backgroundNamesKey) ?? 'null')
-  const showJumpLogFill = JSON.parse(localStorage.getItem(jumpLogFillKey) ?? 'null')
+  // Personal jump log choices override the campaign's, field by field. null = not set.
+  // The old on/off toggle migrates to "none" when it was switched off.
+  let jumpLogOverride = JSON.parse(localStorage.getItem(jumpLogDisplayKey) ?? 'null')
+  if (!jumpLogOverride && JSON.parse(localStorage.getItem(jumpLogFillKey) ?? 'null') === false) {
+    jumpLogOverride = { mode: 'none', fillColour: null, lineColour: null, lineStyle: null, lineWidth: null }
+  }
   const highlightRules = JSON.parse(localStorage.getItem(highlightRulesKey) ?? '[]')
   const routePlan = JSON.parse(localStorage.getItem(routePlanKey) ?? 'null')
   const hiddenJumpRouteIds = JSON.parse(localStorage.getItem(hiddenJumpRouteIdsKey) ?? '[]')
@@ -67,7 +73,8 @@ document.addEventListener('turbo:load', () => {
       showSectorLines,
       showSubsectorLines,
       showBackgroundNames,
-      showJumpLogFill,
+      jumpLogOverride,
+      jumpLogDisplay: null,
       highlightRules,
       routePlan,
       hiddenJumpRouteIds,
@@ -150,9 +157,11 @@ document.addEventListener('turbo:load', () => {
     })
   }
 
-  if (elm.ports.storeJumpLogFill) {
-    elm.ports.storeJumpLogFill.subscribe(value => {
-      localStorage.setItem(jumpLogFillKey, JSON.stringify(value))
+  if (elm.ports.storeJumpLogDisplay) {
+    elm.ports.storeJumpLogDisplay.subscribe(value => {
+      localStorage.setItem(jumpLogDisplayKey, JSON.stringify(value))
+      // The legacy toggle is superseded once the new setting has been written.
+      localStorage.removeItem(jumpLogFillKey)
     })
   }
 

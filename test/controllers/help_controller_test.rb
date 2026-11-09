@@ -16,6 +16,11 @@ class HelpControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'should get starmap_display' do
+    get help_page_url('starmap_display')
+    assert_response :success
+  end
+
   test 'should get commerce_show' do
     get help_page_url('commerce_show')
     assert_response :success

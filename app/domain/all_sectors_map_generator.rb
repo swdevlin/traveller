@@ -4,7 +4,6 @@ class AllSectorsMapGenerator
   PIXEL_SIZE = 4
   COLOUR_BACKGROUND = ChunkyPNG::Color.rgb(0, 0, 0)
   COLOUR_STAR        = ChunkyPNG::Color.rgb(140, 140, 140)
-  COLOUR_ROUTE       = ChunkyPNG::Color.rgb(255, 100, 0)
   COLOUR_SECTOR_GRID = ChunkyPNG::Color.rgb(60, 60, 60)
   COLOUR_SUB_GRID    = ChunkyPNG::Color.rgb(25, 25, 25)
   LABEL_RGB          = [255, 120, 120].freeze
@@ -83,9 +82,15 @@ class AllSectorsMapGenerator
     end
   end
 
+  # At this scale a jump line is indistinguishable from a filled hex, so line modes plot the
+  # visited hexes in the line colour and fill mode in the fill colour.
   def plot_routes(image)
+    display = @campaign.jump_log_display_settings
+    return if display[:display] == 'none'
+
+    colour = ChunkyPNG::Color.from_hex(display[display[:display] == 'fill' ? :fill_colour : :line_colour])
     fetch_route_coords.each do |px, py|
-      fill_hex(image, px, py, COLOUR_ROUTE, size: PIXEL_SIZE)
+      fill_hex(image, px, py, colour, size: PIXEL_SIZE)
     end
   end
 

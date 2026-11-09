@@ -5,7 +5,8 @@ import Traveller.HexAddress exposing (HexAddress)
 
 
 type alias Route =
-    { address : HexAddress
+    { from : HexAddress
+    , address : HexAddress
     , shipId : Int
     , year : Int
     , day : Int
@@ -19,13 +20,16 @@ type alias RouteList =
 codec : Codec.Codec Route
 codec =
     Codec.object
-        (\toX toY shipId arriveYear arriveDay ->
-            { address = { x = toX, y = toY }
+        (\fromX fromY toX toY shipId arriveYear arriveDay ->
+            { from = { x = fromX, y = fromY }
+            , address = { x = toX, y = toY }
             , shipId = shipId
             , year = arriveYear
             , day = arriveDay
             }
         )
+        |> Codec.field "from_x" (.from >> .x) Codec.int
+        |> Codec.field "from_y" (.from >> .y) Codec.int
         |> Codec.field "to_x" (.address >> .x) Codec.int
         |> Codec.field "to_y" (.address >> .y) Codec.int
         |> Codec.field "ship_id" .shipId Codec.int

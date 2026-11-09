@@ -45,6 +45,54 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     refute_equal owner_etag, response.headers['ETag']
   end
 
+  def create_logged_jump
+    ul, = @subsector.universal_coordinates
+    from = Parsec.create!(sector: @sector, x: ul.x + 2, y: ul.y - 2)
+    to = Parsec.create!(sector: @sector, x: ul.x + 4, y: ul.y - 3)
+    JumpLog.create!(ship: ships(:one), from_parsec: from, to_parsec: to,
+                    depart_year: 1105, depart_day: 1, arrive_year: 1105, arrive_day: 8)
+  end
+
+  test 'map fills jump log hexes by default and draws no jump line' do
+    create_logged_jump
+
+    get map_subsector_url(@subsector, format: :svg)
+
+    assert_includes response.body, 'stroke:#f97316;stroke-width:1.5'
+    assert_not_includes response.body, 'stroke="#f97316"'
+  end
+
+  test 'map draws a styled jump line when the campaign display is line' do
+    create_logged_jump
+    campaigns(:one).update!(jump_log_display: 'line', jump_log_line_colour: '#445566',
+                            jump_log_line_style: 'dashed', jump_log_line_width: 7)
+
+    get map_subsector_url(@subsector, format: :svg)
+
+    assert_not_includes response.body, 'stroke:#f97316;stroke-width:1.5'
+    assert_match(/stroke="#445566"\s+stroke-width="7"\s+stroke-opacity="0.7"\s+stroke-linecap="round"\s+stroke-dasharray="16,10"/, response.body)
+  end
+
+  test 'map draws both fill and line when the campaign display is both' do
+    create_logged_jump
+    campaigns(:one).update!(jump_log_display: 'both')
+
+    get map_subsector_url(@subsector, format: :svg)
+
+    assert_includes response.body, 'stroke:#f97316;stroke-width:1.5'
+    assert_includes response.body, 'stroke="#f97316"'
+  end
+
+  test 'map draws neither fill nor line when the campaign display is none' do
+    create_logged_jump
+    campaigns(:one).update!(jump_log_display: 'none')
+
+    get map_subsector_url(@subsector, format: :svg)
+
+    assert_not_includes response.body, 'stroke:#f97316;stroke-width:1.5'
+    assert_not_includes response.body, 'stroke="#f97316"'
+  end
+
   test 'map colours a sector capital system name when the campaign colour is set' do
     campaigns(:one).update!(sector_capital_colour: '#ff0000')
 

@@ -22,6 +22,15 @@ class Campaign < ApplicationRecord
 
   HEX_SIZES = { 'small' => 30, 'medium' => 40, 'large' => 50 }.freeze
 
+  JUMP_LOG_DISPLAYS = %w[fill line both none].freeze
+  JUMP_LOG_DEFAULTS = {
+    display: 'fill',
+    fill_colour: '#ffedd5',
+    line_colour: '#f97316',
+    line_style: 'solid',
+    line_width: 4
+  }.freeze
+
   # Where the Deepnight Revelation campaign's starting ship, the Revelation, is based.
   DEEPNIGHT_HOME_SECTOR = { x: -10, y: -2 }.freeze
 
@@ -32,6 +41,8 @@ class Campaign < ApplicationRecord
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
                             :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
                             :initial_sector_name,
+                            :jump_log_display, :jump_log_fill_colour, :jump_log_line_colour,
+                            :jump_log_line_style, :jump_log_line_width,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
 
   def exploration?
@@ -122,7 +133,25 @@ class Campaign < ApplicationRecord
                    if: -> { new_record? || slug_changed? }
   validates_hex_colour :sector_capital_colour, :subsector_capital_colour, allow_blank: true
   validates :hex_size, inclusion: { in: HEX_SIZES.keys }, allow_blank: true
+  validates_hex_colour :jump_log_fill_colour, :jump_log_line_colour, allow_blank: true
+  validates :jump_log_display, inclusion: { in: JUMP_LOG_DISPLAYS }, allow_blank: true
+  validates :jump_log_line_style, inclusion: { in: JumpRoute::LINE_STYLES }, allow_blank: true
+  validates :jump_log_line_width, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 20 },
+                                  allow_blank: true
   validates :starting_sector_x, :starting_sector_y, numericality: { only_integer: true }, allow_blank: true
+
+  # Jump log display settings with defaults applied, used by the Rails maps and the starmap.
+  def jump_log_display_settings
+    style = jump_log_line_style.presence || JUMP_LOG_DEFAULTS[:line_style]
+    {
+      display: jump_log_display.presence || JUMP_LOG_DEFAULTS[:display],
+      fill_colour: jump_log_fill_colour.presence || JUMP_LOG_DEFAULTS[:fill_colour],
+      line_colour: jump_log_line_colour.presence || JUMP_LOG_DEFAULTS[:line_colour],
+      line_style: style,
+      line_width: (jump_log_line_width.presence || JUMP_LOG_DEFAULTS[:line_width]).to_i,
+      line_dasharray: JumpRoute.dasharray_for(style)
+    }
+  end
 
   def token_for(path)
     OpenSSL::HMAC.hexdigest('SHA256', token_secret, path)

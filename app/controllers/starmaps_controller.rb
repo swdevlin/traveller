@@ -48,6 +48,7 @@ class StarmapsController < ApplicationController
       campaignName: Current.campaign&.name,
       sectorCapitalColour: Current.campaign&.sector_capital_colour,
       subsectorCapitalColour: Current.campaign&.subsector_capital_colour,
+      jumpLogDisplay: Current.campaign&.jump_log_display_settings&.transform_keys { |k| k.to_s.camelize(:lower) },
       ship: ship && { name: ship.name, jDrive: ship.jump_drive, mDrive: ship.m_drive },
       apiBaseUrl: "/c/#{params[:campaign_slug]}/api",
       allSectorsMapUrl: all_sectors_map_url,

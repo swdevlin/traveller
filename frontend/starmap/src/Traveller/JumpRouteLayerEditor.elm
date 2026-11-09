@@ -1,4 +1,4 @@
-module Traveller.JumpRouteLayerEditor exposing (Config, Model, Msg(..), init, update, view)
+module Traveller.JumpRouteLayerEditor exposing (Config, Model, Msg(..), init, lineStyleLabel, lineStyles, textInputStyles, update, view)
 
 {-| The quick edit modal for an existing "network" jump route, opened from the
 Jump Route Layers panel in `Traveller.elm`. Covers only the quick-edit field

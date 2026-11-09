@@ -17,6 +17,7 @@ class CampaignSettingsController < ApplicationController
   def update
     @campaign = current_campaign
     if @campaign.update(campaign_settings_params)
+      GenerateAllSectorsMapJob.perform_later(@campaign.id) if @campaign.saved_change_to_settings?
       redirect_to campaign_settings_path, notice: 'Campaign updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -52,6 +53,8 @@ class CampaignSettingsController < ApplicationController
   def campaign_settings_params
     params.expect(campaign: [:name, :campaign_type, :sector_source, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :limited_main_world_eccentricity, :default_language, :date_format,
                               :sector_capital_colour, :subsector_capital_colour, :hex_size,
+                              :jump_log_display, :jump_log_fill_colour, :jump_log_line_colour,
+                              :jump_log_line_style, :jump_log_line_width,
                               :starting_sector_x, :starting_sector_y])
   end
 end
