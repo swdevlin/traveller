@@ -6448,6 +6448,57 @@ viewHexMap model =
         |> Element.html
 
 
+{-| Coreward / Spinward / Rimward / Trailing labels pinned to the middle of each
+edge of the map viewport, as on TravellerMap. HTML chrome (not SVG), so they stay
+fixed while the map pans and zooms. Coloured from the active theme.
+-}
+viewDirectionLabels : Html Msg
+viewDirectionLabels =
+    let
+        base =
+            [ HtmlAttrs.style "position" "absolute"
+            , HtmlAttrs.style "font-size" "12px"
+            , HtmlAttrs.style "font-weight" "600"
+            , HtmlAttrs.style "letter-spacing" "0.08em"
+            , HtmlAttrs.style "text-transform" "uppercase"
+            , HtmlAttrs.style "color" "var(--color-highlight-fg)"
+            , HtmlAttrs.style "white-space" "nowrap"
+            , HtmlAttrs.style "pointer-events" "none"
+            ]
+
+        label extra txt =
+            Html.div (base ++ extra) [ Html.text txt ]
+    in
+    Html.div []
+        [ label
+            [ HtmlAttrs.style "top" "47px"
+            , HtmlAttrs.style "left" "50%"
+            , HtmlAttrs.style "transform" "translateX(-50%)"
+            ]
+            "Coreward"
+        , label
+            [ HtmlAttrs.style "bottom" "2px"
+            , HtmlAttrs.style "left" "50%"
+            , HtmlAttrs.style "transform" "translateX(-50%)"
+            ]
+            "Rimward"
+        , label
+            [ HtmlAttrs.style "left" "2px"
+            , HtmlAttrs.style "top" "50%"
+            , HtmlAttrs.style "transform" "translateY(-50%) rotate(180deg)"
+            , HtmlAttrs.style "writing-mode" "vertical-rl"
+            ]
+            "Spinward"
+        , label
+            [ HtmlAttrs.style "right" "2px"
+            , HtmlAttrs.style "top" "50%"
+            , HtmlAttrs.style "transform" "translateY(-50%)"
+            , HtmlAttrs.style "writing-mode" "vertical-rl"
+            ]
+            "Trailing"
+        ]
+
+
 {-| A small translucent label pinned to the bottom-centre of the map area,
 showing the visible hex range. Positioned as HTML chrome over the map (not an
 SVG node), so it stays fixed to the viewport rather than panning/zooming with
@@ -6462,7 +6513,7 @@ viewMapRangeOverlay model =
     Html.div
         [ HtmlAttrs.class "starmap-glass-panel"
         , HtmlAttrs.style "position" "absolute"
-        , HtmlAttrs.style "bottom" "12px"
+        , HtmlAttrs.style "bottom" "24px"
         , HtmlAttrs.style "left" "50%"
         , HtmlAttrs.style "transform" "translateX(-50%)"
         , HtmlAttrs.style "border-radius" "6px"
@@ -6907,6 +6958,12 @@ view ( time, model ) =
         [ el
             [ Element.alignTop
             , width fill
+            , case model.viewMode of
+                HexMap ->
+                    Element.inFront (Element.html viewDirectionLabels)
+
+                FullJourney ->
+                    Element.htmlAttribute <| HtmlAttrs.class ""
             , Element.inFront (viewStatusRow model)
             , if model.sidebarOpen then
                 Element.inFront sidebarOverlay
