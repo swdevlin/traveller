@@ -27,10 +27,13 @@ class Api::BaseController < ActionController::API
   end
 
   # Require authentication for endpoints that modify data. Accepts either a
-  # valid session cookie (logged-in user) or a Bearer API token.
+  # valid session cookie belonging to the campaign's referee or a Bearer API
+  # token.
   def authenticate_user_or_token!
-    return if authenticated_by_session?
+    return if authenticated_by_session? && Current.owns_campaign?
     return if authenticated_by_token?
+
+    return render json: { error: 'Forbidden' }, status: :forbidden if Current.session
 
     render json: { error: 'Unauthorised' }, status: :unauthorized
   end

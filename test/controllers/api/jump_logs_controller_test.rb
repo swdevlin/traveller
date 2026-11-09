@@ -49,6 +49,41 @@ class Api::JumpLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :created
   end
 
+  test 'create with session of a non-referee user is forbidden' do
+    sign_in_as users(:two)
+    assert_no_difference 'JumpLog.count' do
+      post api_jumps_url(campaign_slug: @campaign.slug),
+           params: { jump_log: {
+             ship_id:        ships(:one).id,
+             from_parsec_id: parsecs(:one).id,
+             to_parsec_id:   parsecs(:two).id,
+             depart_year: 1105, depart_day: 100,
+             arrive_year: 1105, arrive_day: 107
+           } },
+           as: :json
+    end
+    assert_response :forbidden
+  end
+
+  test 'update with session of a non-referee user is forbidden' do
+    sign_in_as users(:two)
+    jump = jump_logs(:one)
+    assert_no_changes -> { jump.reload.notes } do
+      patch api_jump_url(jump, campaign_slug: @campaign.slug),
+            params: { jump_log: { notes: 'tampered' } },
+            as: :json
+    end
+    assert_response :forbidden
+  end
+
+  test 'destroy with session of a non-referee user is forbidden' do
+    sign_in_as users(:two)
+    assert_no_difference 'JumpLog.count' do
+      delete api_jump_url(jump_logs(:one), campaign_slug: @campaign.slug), as: :json
+    end
+    assert_response :forbidden
+  end
+
   test 'create without credentials returns unauthorised' do
     assert_no_difference 'JumpLog.count' do
       post api_jumps_url(campaign_slug: @campaign.slug),
