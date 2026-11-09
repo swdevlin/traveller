@@ -16,4 +16,7 @@ json.array! @jumps do |jump|
   json.to_sector_name jump.to_sector_name
   json.to_hex_code Parsec.hex_address_from_coords(jump.to_x, jump.to_y, jump.to_sector_x, jump.to_sector_y)
   json.ship_id jump.ship_id
+  json.ship_name jump.ship_name
+  json.sequence jump.sequence
+  json.notes jump.notes if Current.referee_access?
 end

@@ -94,11 +94,13 @@ class CreateSubsectorJob < ApplicationJob
     return unless demnan_parsec
 
     ship = Ship.create!(name: 'Revelation', jump_drive: 4, m_drive: 4)
-    JumpLog.create!(
+    # The ship's starting position, not a journey: it departs and arrives in the
+    # same hex on the same day, so the minimum travel time does not apply.
+    JumpLog.new(
       ship: ship, from_parsec: demnan_parsec, to_parsec: demnan_parsec,
       depart_year: CAMPAIGN_START_YEAR, depart_day: CAMPAIGN_START_DAY,
       arrive_year: CAMPAIGN_START_YEAR, arrive_day: CAMPAIGN_START_DAY
-    )
+    ).save!(validate: false)
   end
 
   def create_parsecs(sector, subsector)

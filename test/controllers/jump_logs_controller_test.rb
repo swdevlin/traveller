@@ -17,7 +17,7 @@ class JumpLogsControllerTest < AuthenticatedIntegrationTest
 
   test 'should create jump_log' do
     assert_difference('JumpLog.count') do
-      post jump_logs_url, params: { jump_log: { arrive_day: @jump_log.arrive_day, arrive_year: @jump_log.arrive_year, depart_day: @jump_log.depart_day, depart_year: @jump_log.depart_year, from_parsec_id: @jump_log.from_parsec_id, notes: @jump_log.notes, ship_id: @jump_log.ship_id, to_parsec_id: @jump_log.to_parsec_id, misjump: false } }
+      post jump_logs_url, params: { jump_log: { arrive_day: 8, arrive_year: 1106, depart_day: 1, depart_year: 1106, from_parsec_id: @jump_log.from_parsec_id, notes: @jump_log.notes, ship_id: @jump_log.ship_id, to_parsec_id: @jump_log.to_parsec_id, misjump: false } }
     end
 
     assert_redirected_to jump_logs_url
@@ -25,7 +25,7 @@ class JumpLogsControllerTest < AuthenticatedIntegrationTest
 
   test 'should create misjump' do
     assert_difference('JumpLog.count') do
-      post jump_logs_url, params: { jump_log: { arrive_day: @jump_log.arrive_day, arrive_year: @jump_log.arrive_year, depart_day: @jump_log.depart_day, depart_year: @jump_log.depart_year, from_parsec_id: @jump_log.from_parsec_id, notes: @jump_log.notes, ship_id: @jump_log.ship_id, to_parsec_id: @jump_log.to_parsec_id, misjump: true } }
+      post jump_logs_url, params: { jump_log: { arrive_day: 1, arrive_year: 1106, depart_day: 1, depart_year: 1106, from_parsec_id: @jump_log.from_parsec_id, notes: @jump_log.notes, ship_id: @jump_log.ship_id, to_parsec_id: @jump_log.to_parsec_id, misjump: true } }
     end
 
     assert JumpLog.last.misjump?

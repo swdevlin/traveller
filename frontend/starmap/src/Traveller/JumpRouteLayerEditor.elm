@@ -1,7 +1,7 @@
 module Traveller.JumpRouteLayerEditor exposing (Config, Model, Msg(..), init, lineStyleLabel, lineStyles, textInputStyles, update, view)
 
 {-| The quick edit modal for an existing "network" jump route, opened from the
-Jump Route Layers panel in `Traveller.elm`. Covers only the quick-edit field
+Route Planner panel in `Traveller.elm`. Covers only the quick-edit field
 subset accepted by `Api::JumpRoutesController` - name, colour, line style,
 line width, known and notes. Editing a "plotted" route, or any field outside
 this set, is handled by `Traveller.elm` linking out to the existing Rails

@@ -87,6 +87,7 @@ import Traveller.HighlightRuleEditor as HighlightRuleEditor
 import Traveller.Hydrographics exposing (hydrographicsCoverageDescription, surfaceDistributionDescription)
 import Traveller.JumpRouteLayer as JumpRouteLayer
 import Traveller.JumpLogDisplay as JumpLogDisplay
+import Traveller.JumpLogPanel as JumpLogPanel
 import Traveller.JumpRouteLayerEditor as JumpRouteLayerEditor
 import Traveller.LawLevel as LawLevel
 import Traveller.Lifeforms exposing (bioChemistryCompatibilityDescription, biocomplexityDescription, biodiversityDescription, biomassDescription, habitabilityColour, habitabilityDescription)
@@ -1083,6 +1084,7 @@ type alias ModelData =
     , jumpRouteLayers : List JumpRouteLayer.Route
     , showJumpRouteLayersMenu : Bool
     , jumpRouteLayerEditor : Maybe JumpRouteLayerEditor.Model
+    , jumpLogPanel : Maybe JumpLogPanel.Model
     , pendingDeleteJumpRouteId : Maybe Int
     , hiddenJumpRouteIds : Set.Set Int
     , rulebookSearch : RulebookSearch.Model
@@ -1215,6 +1217,8 @@ type Msg
     | DeleteJumpRouteLayer Int
     | DeletedJumpRouteLayer Int (Result Http.Error ())
     | JumpRouteLayerEditorMsg JumpRouteLayerEditor.Msg
+    | ToggleJumpLogPanel
+    | JumpLogPanelMsg JumpLogPanel.Msg
     | DownloadedJumpRouteLayers (Result Http.Error (List JumpRouteLayer.Route))
     | RulebookSearchMsg RulebookSearch.Msg
 
@@ -1871,6 +1875,7 @@ init viewport settings key hostConfig referee =
             , jumpRouteLayers = []
             , showJumpRouteLayersMenu = False
             , jumpRouteLayerEditor = Nothing
+            , jumpLogPanel = Nothing
             , pendingDeleteJumpRouteId = Nothing
             , hiddenJumpRouteIds = initialHiddenJumpRouteIds
             , rulebookSearch = RulebookSearch.init
@@ -3590,6 +3595,32 @@ rogueResponseItemDecoder =
         (JsDecode.field "parsec_id" JsDecode.int)
 
 
+{-| Raise the survey index of the star system or rogue hex cached at a hex to at
+least `minimum`, as the server does when a ship jumps there. Anything else
+cached at the hex is left alone.
+-}
+raiseCachedSurveyIndex : Int -> String -> StarSystemDict -> StarSystemDict
+raiseCachedSurveyIndex minimum key =
+    Dict.update key
+        (Maybe.map
+            (\remote ->
+                case remote of
+                    LoadedStarSystem system ->
+                        LoadedStarSystem
+                            { system
+                                | surveyIndex = max minimum system.surveyIndex
+                                , actualSurveyIndex = max minimum system.actualSurveyIndex
+                            }
+
+                    LoadedRogueHex rogue ->
+                        LoadedRogueHex { rogue | surveyIndex = max minimum rogue.surveyIndex }
+
+                    other ->
+                        other
+            )
+        )
+
+
 type RemoteStarSystem
     = LoadedStarSystem StarSystem
     | LoadedEmptyHex
@@ -5258,6 +5289,7 @@ viewSearchField model =
                 , HtmlAttrs.class "starmap-navbar-search"
                 , HtmlAttrs.value model.searchState.query
                 , HtmlAttrs.placeholder "Search… [/]"
+                , HtmlAttrs.title "Search systems [/]"
                 , HtmlAttrs.style "width" "200px"
                 , HtmlAttrs.style "font-size" "13px"
                 , HtmlAttrs.style "border-radius" "4px"
@@ -5464,16 +5496,27 @@ viewStatusRowHtml model =
                 , HtmlAttrs.style "cursor" "pointer"
                 , HtmlAttrs.style "display" "inline-flex"
                 , HtmlAttrs.style "align-items" "center"
+                , HtmlAttrs.title
+                    (case targetMode of
+                        HexMap ->
+                            "Hex map"
+
+                        FullJourney ->
+                            "Journey map"
+                    )
                 , Html.Events.onClick (SetViewMode targetMode)
                 ]
                 [ faIcon (iconStyle ++ " " ++ iconName) 16 ]
 
         backToRailsButton =
             if model.isReferee then
-                [ navbarIcon { title = "Return to Rails app", icon = "fa-regular fa-house", onClick = GoToRailsApp } ]
+                [ navbarIcon { title = "Astrographic Database", icon = "fa-sharp fa-regular fa-database", onClick = GoToRailsApp } ]
 
             else
                 []
+
+        jumpLogIcon =
+            [ navbarIcon { title = "Jump log", icon = "fa-regular fa-arrow-progress", onClick = ToggleJumpLogPanel } ]
 
         rulebookSearchIcon =
             [ navbarIcon
@@ -5543,7 +5586,7 @@ viewStatusRowHtml model =
                         , HtmlAttrs.style "cursor" "pointer"
                         , HtmlAttrs.style "display" "inline-flex"
                         , HtmlAttrs.style "align-items" "center"
-                        , HtmlAttrs.title "Jump Route Layers"
+                        , HtmlAttrs.title "Jump Routes"
                         , Html.Events.onClick ToggleJumpRouteLayersMenu
                         ]
                         [ faIcon "fa-regular fa-route" 16 ]
@@ -5557,6 +5600,9 @@ viewStatusRowHtml model =
 
             else
                 []
+
+        navSeparator =
+            [ Html.div [ HtmlAttrs.class "starmap-navbar-separator" ] [] ]
 
         mapAreaSpacer =
             Html.div [ HtmlAttrs.style "flex" "1" ] []
@@ -5579,12 +5625,15 @@ viewStatusRowHtml model =
          , viewModeIcon FullJourney "fa-map"
          ]
             ++ backToRailsButton
+            ++ navSeparator
+            ++ highlightRulesIcon
+            ++ jumpRouteLayersIcon
+            ++ jumpLogIcon
+            ++ navSeparator
             ++ rulebookSearchIcon
             ++ viewSearchField model
             ++ extras
             ++ [ mapAreaSpacer ]
-            ++ highlightRulesIcon
-            ++ jumpRouteLayersIcon
             ++ themeSwatchIcon
             ++ displaySettingsGear
         )
@@ -5657,6 +5706,11 @@ routePlanFormConfig model =
 commerceFormConfig : ModelData -> CommerceForm.Config
 commerceFormConfig model =
     { hostConfig = model.hostConfig }
+
+
+jumpLogPanelConfig : ModelData -> JumpLogPanel.Config
+jumpLogPanelConfig model =
+    { hostConfig = model.hostConfig, isReferee = model.isReferee }
 
 
 jumpRouteLayerEditorConfig : ModelData -> JumpRouteLayerEditor.Config
@@ -5911,7 +5965,7 @@ viewDeleteRuleConfirmModal rule =
         ]
 
 
-{-| The "Jump Route Layers" dropdown: lists every `JumpRoute`, with a toggle
+{-| The "Route Planner" dropdown: lists every `JumpRoute`, with a toggle
 switch that hides/shows that route's lines on this browser only (never
 persisted server-side). Referees additionally get click-to-edit rows and a
 two-step delete confirm; non-referees see a read-only list. Everyone gets the
@@ -7159,6 +7213,12 @@ view ( time, model ) =
                , case model.jumpRouteLayerEditor of
                     Just editorModel ->
                         Element.inFront <| Element.map JumpRouteLayerEditorMsg (Element.html (JumpRouteLayerEditor.view editorModel))
+
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.jumpLogPanel of
+                    Just panelModel ->
+                        Element.inFront <| Element.map JumpLogPanelMsg (Element.html (JumpLogPanel.view (jumpLogPanelConfig model) panelModel))
 
                     Nothing ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -9788,6 +9848,99 @@ update msg ( time, model ) =
                             in
                             ( withTime { model | jumpRouteLayerEditor = Just newEditor }
                             , Cmd.map JumpRouteLayerEditorMsg editorCmd
+                            )
+
+        ToggleJumpLogPanel ->
+            case model.jumpLogPanel of
+                Just _ ->
+                    ( withTime { model | jumpLogPanel = Nothing }, Cmd.none )
+
+                Nothing ->
+                    let
+                        ( panelModel, panelCmd ) =
+                            JumpLogPanel.init (jumpLogPanelConfig model)
+                    in
+                    ( withTime { model | jumpLogPanel = Just panelModel }
+                    , Cmd.map JumpLogPanelMsg panelCmd
+                    )
+
+        JumpLogPanelMsg panelMsg ->
+            case model.jumpLogPanel of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just panelModel ->
+                    case panelMsg of
+                        JumpLogPanel.Close ->
+                            ( withTime { model | jumpLogPanel = Nothing }, Cmd.none )
+
+                        _ ->
+                            let
+                                ( newPanel, panelCmd ) =
+                                    JumpLogPanel.update (jumpLogPanelConfig model) panelMsg panelModel
+
+                                -- A saved jump raises the survey index of its destination. Patch
+                                -- just that hex in the cache, and re-fetch its detail if it is the
+                                -- selected system, rather than refreshing the whole map.
+                                savedDestination =
+                                    case panelMsg of
+                                        JumpLogPanel.GotSaveResult (Ok ()) ->
+                                            newPanel.lastDestination
+                                                |> Maybe.map (\( x, y ) -> { x = x, y = y })
+
+                                        _ ->
+                                            Nothing
+
+                                patchedStarSystems =
+                                    case savedDestination of
+                                        Just hex ->
+                                            raiseCachedSurveyIndex 10 (HexAddress.toKey hex) model.starSystems
+
+                                        Nothing ->
+                                            model.starSystems
+
+                                detailCmd =
+                                    case ( savedDestination, model.selectedSystem ) of
+                                        ( Just hex, Just selected ) ->
+                                            if selected.address == hex then
+                                                fetchStarSystemDetailRequest model.hostConfig (toSectorAddress hex)
+
+                                            else
+                                                Cmd.none
+
+                                        _ ->
+                                            Cmd.none
+
+                                -- A saved or deleted jump changes the route lines.
+                                routeChanged =
+                                    case panelMsg of
+                                        JumpLogPanel.GotSaveResult (Ok ()) ->
+                                            True
+
+                                        JumpLogPanel.GotDeleteResult (Ok ()) ->
+                                            True
+
+                                        _ ->
+                                            False
+
+                                ( routeCmd, newStarSystems, newRequestHistory ) =
+                                    if routeChanged then
+                                        let
+                                            ( routeReqEntry, ( routeStarSystems, routeRequestHistory ) ) =
+                                                prepNextRequest ( patchedStarSystems, model.requestHistory ) model.hexRect
+                                        in
+                                        ( sendRouteRequest routeReqEntry model.hostConfig, routeStarSystems, routeRequestHistory )
+
+                                    else
+                                        ( Cmd.none, patchedStarSystems, model.requestHistory )
+                            in
+                            ( withTime
+                                { model
+                                    | jumpLogPanel = Just newPanel
+                                    , starSystems = newStarSystems
+                                    , requestHistory = newRequestHistory
+                                }
+                            , Cmd.batch [ Cmd.map JumpLogPanelMsg panelCmd, routeCmd, detailCmd ]
                             )
 
         DownloadedJumpRouteLayers (Ok routes) ->

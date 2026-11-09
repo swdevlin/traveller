@@ -1818,6 +1818,13 @@
   color: var(--color-fg-bright);
 }
 
+.starmap-navbar-separator {
+  align-self: center;
+  width: 1px;
+  height: 18px;
+  background-color: var(--color-outline);
+}
+
 .starmap-navbar-search {
   background-color: var(--color-panel-muted);
   border: 1px solid color-mix(in srgb, var(--color-outline) 50%, transparent);
@@ -2245,6 +2252,35 @@
 .analysis-tab-content .analysis-data-group > div:hover {
   background: color-mix(in srgb, var(--console-accent) 4%, transparent);
 }
+/* Starmap jump log table, styled to match the stellar object console. */
+.jump-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.jump-log-table th {
+  padding: 6px 12px 8px;
+  text-align: left;
+  font-family: Tomorrow, ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--console-accent);
+  border-bottom: 1px solid color-mix(in srgb, var(--console-accent) 45%, var(--color-outline));
+}
+.jump-log-table td {
+  padding: 7px 12px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--color-fg-bright);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-outline) 45%, transparent);
+}
+.jump-log-table tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--console-accent) 3%, transparent); }
+.jump-log-table tbody tr:hover td { background: color-mix(in srgb, var(--console-accent) 10%, var(--color-panel)); }
+.jump-log-table tbody tr:hover td:first-child { box-shadow: inset 2px 0 var(--console-accent); }
 .analysis-jump { margin-top: 20px; padding: 12px !important; border: 1px solid var(--color-outline); background: var(--color-panel-muted); }
 .analysis-jump > .dg-subsection { margin-top: 0; }
 .analysis-jump > div:last-child > div { padding-top: 10px !important; color: var(--color-fg-bright); }

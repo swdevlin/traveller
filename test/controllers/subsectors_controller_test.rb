@@ -49,7 +49,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
     ul, = @subsector.universal_coordinates
     from = Parsec.create!(sector: @sector, x: ul.x + 2, y: ul.y - 2)
     to = Parsec.create!(sector: @sector, x: ul.x + 4, y: ul.y - 3)
-    JumpLog.create!(ship: ships(:one), from_parsec: from, to_parsec: to,
+    JumpLog.create!(ship: ships(:two), from_parsec: from, to_parsec: to,
                     depart_year: 1105, depart_day: 1, arrive_year: 1105, arrive_day: 8)
   end
 

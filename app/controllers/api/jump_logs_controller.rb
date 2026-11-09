@@ -1,5 +1,5 @@
 class Api::JumpLogsController < Api::BaseController
-  before_action :authenticate_user_or_token!, only: %i[create]
+  before_action :authenticate_user_or_token!, only: %i[create update destroy]
 
   def index
     @jumps = JumpLog
@@ -7,10 +7,12 @@ class Api::JumpLogsController < Api::BaseController
         'INNER JOIN parsecs from_parsecs ON from_parsecs.id = jump_logs.from_parsec_id ' \
         'INNER JOIN sectors from_sectors ON from_sectors.id = from_parsecs.sector_id ' \
         'INNER JOIN parsecs to_parsecs ON to_parsecs.id = jump_logs.to_parsec_id ' \
-        'INNER JOIN sectors to_sectors ON to_sectors.id = to_parsecs.sector_id'
+        'INNER JOIN sectors to_sectors ON to_sectors.id = to_parsecs.sector_id ' \
+        'INNER JOIN ships ON ships.id = jump_logs.ship_id'
       )
       .select(
         'jump_logs.*',
+        'ships.name AS ship_name',
         'from_parsecs.x AS from_x',
         'from_parsecs.y AS from_y',
         'to_parsecs.x AS to_x',
@@ -29,10 +31,34 @@ class Api::JumpLogsController < Api::BaseController
     jump_log = JumpLog.new(jump_log_params)
 
     if jump_log.save
-      StarSystem.where(parsec_id: jump_log.to_parsec_id).where('survey_index < ?', 10).update_all(survey_index: 10)
+      jump_log.raise_destination_survey_index
       render json: jump_log, status: :created
     else
       render json: { errors: jump_log.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    jump_log = JumpLog.find(params[:id])
+
+    if jump_log.update(jump_log_params)
+      jump_log.raise_destination_survey_index
+      render json: jump_log
+    else
+      render json: { errors: jump_log.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # Only a ship's most recent jump can be removed: deleting one from the middle
+  # of its route would leave a gap between the jumps either side of it.
+  def destroy
+    jump_log = JumpLog.find(params[:id])
+
+    if jump_log.most_recent_for_ship?
+      jump_log.destroy!
+      head :no_content
+    else
+      render json: { errors: ["Only the most recent jump of #{jump_log.ship.name} can be deleted"] }, status: :unprocessable_entity
     end
   end
 

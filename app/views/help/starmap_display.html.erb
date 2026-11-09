@@ -52,6 +52,49 @@
       </dl>
     </div>
 
+    <div>
+      <p class=' uppercase tracking-[0.22em] text-highlight-fg mb-4'>Jump Log Table</p>
+
+      <dl class='space-y-6'>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Viewing</dt>
+          <dd class='mt-1 text-fg'>
+            The arrow icon in the starmap navigation bar opens the jump log: every recorded jump, newest first,
+            showing the ship, the date it departed and the origin, then the date it arrived and the destination. A misjump is marked beside its
+            destination. Anyone viewing the campaign can read the table, and the Ship selector above it narrows the list to one
+            vessel.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Adding and Editing</dt>
+          <dd class='mt-1 text-fg'>
+            The referee sees an <span class='font-semibold text-fg-bright'>Add jump</span> button and a pencil
+            icon on each row to edit it. If a ship is selected in the table, Add jump starts with that ship. Choosing a ship fills in its
+            last known position and departure date, and the arrival date follows the departure by seven days.
+            The destination sector and hex lists offer only places within the ship&rsquo;s jump rating of its origin
+            (4 if the ship has no rating), unless the jump is marked as a misjump.
+            Unless the jump is a misjump, the arrival must be at least six days after the departure, and the
+            departure cannot be earlier than the ship&rsquo;s previous arrival. The form shows the earliest departure and arrival
+            allowed and will not accept earlier dates. A misjump may arrive on any date.
+            Editing a jump adjusts the neighbouring jumps of the same ship so the log stays continuous, and the
+            lines on the map are redrawn once the change is saved.
+          </dd>
+        </div>
+
+        <div>
+          <dt class='font-semibold text-fg-bright'>Deleting</dt>
+          <dd class='mt-1 text-fg'>
+            A ship&rsquo;s most recent jump also has a bin icon. Selecting it asks you to
+            confirm before anything is removed. Only a ship&rsquo;s most recent jump can be deleted; its earlier
+            jumps can be edited but not removed.
+          </dd>
+        </div>
+
+      </dl>
+    </div>
+
     <div class='iiss-form'>
       REFERENCE 0709SD
     </div>
