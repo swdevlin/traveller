@@ -38,6 +38,7 @@ SURFACES.each do |s|
   add "heading accent (highlight, h1/h2/page-title) on #{s}", 'highlight', s, :large
   add "notice text on #{s}", 'notice', s
   add "danger text on #{s}", 'danger-text', s
+  add "warning text on #{s}", 'warning-text', s
   add "gauge line on #{s}", 'gauge-line', s, :ui
 end
 
@@ -170,7 +171,7 @@ end
 # Tokens introduced for accessibility fall back to the token they split from, so the audit
 # also runs against a stylesheet that has not been migrated yet.
 FALLBACKS = {
-  'highlight-fg' => 'highlight', 'control-outline' => 'outline', 'danger-text' => 'danger'
+  'highlight-fg' => 'highlight', 'control-outline' => 'outline', 'danger-text' => 'danger', 'warning-text' => 'warning'
 }.freeze
 
 # --- theme loading -----------------------------------------------------------------------
@@ -363,7 +364,7 @@ def suggest(themes)
       pending['button-primary-fg'] = r
     end
 
-    %w[highlight-fg danger-text].each do |t|
+    %w[highlight-fg danger-text warning-text].each do |t|
       r = solve_token(themes, theme, t)
       pending[t] = r if r
     end
@@ -391,7 +392,7 @@ def suggest(themes)
 end
 
 ANCHORS = {
-  'button-primary-fg' => 'button-primary-outline', 'highlight-fg' => 'highlight', 'danger-text' => 'danger',
+  'button-primary-fg' => 'button-primary-outline', 'highlight-fg' => 'highlight', 'danger-text' => 'danger', 'warning-text' => 'warning',
   'control-outline' => 'outline', 'nav-hover' => 'nav-fg'
 }.freeze
 

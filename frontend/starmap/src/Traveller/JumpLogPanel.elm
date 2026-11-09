@@ -1068,10 +1068,34 @@ viewTable config model =
                     ]
 
         Failure _ ->
-            message "Could not load the jump log."
+            viewLoadFailure
 
         _ ->
-            message "Loading…"
+            viewLoading
+
+
+viewLoadFailure : Html Msg
+viewLoadFailure =
+    Html.div [ HtmlAttrs.class "jump-log-failure", HtmlAttrs.attribute "role" "alert" ]
+        [ Html.i [ HtmlAttrs.class "fa-regular fa-triangle-exclamation", HtmlAttrs.attribute "aria-hidden" "true" ] []
+        , Html.span [] [ Html.text "NAVIGATION RECORDS UNAVAILABLE" ]
+        ]
+
+
+viewLoading : Html Msg
+viewLoading =
+    Html.div
+        [ HtmlAttrs.class "jump-log-loading"
+        , HtmlAttrs.attribute "role" "status"
+        , HtmlAttrs.attribute "aria-live" "polite"
+        ]
+        [ Html.div [ HtmlAttrs.class "jump-log-loading-dots", HtmlAttrs.attribute "aria-hidden" "true" ]
+            [ Html.span [ HtmlAttrs.class "hex-dot hex-dot-1" ] []
+            , Html.span [ HtmlAttrs.class "hex-dot hex-dot-2" ] []
+            , Html.span [ HtmlAttrs.class "hex-dot hex-dot-3" ] []
+            ]
+        , Html.div [ HtmlAttrs.class "status-scan" ] [ Html.text "RETRIEVING NAVIGATION RECORDS…" ]
+        ]
 
 
 columns : Config -> List String

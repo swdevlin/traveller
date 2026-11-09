@@ -36,6 +36,7 @@
   --color-warning: #fffacd;
   --color-danger: #e10600;
   --color-danger-text: var(--color-danger);
+  --color-warning-text: var(--color-warning);
 
   --color-toggle-on: #0369a1;
   --color-toggle-off: #475569;
@@ -168,6 +169,7 @@
 
   --color-tip: #14b8a633;
   --color-warning: #fef3c7;
+  --color-warning-text: #7c6402;
   --color-danger: #b91c1c;
 
   --color-toggle-on: #0f766e;
@@ -229,6 +231,7 @@
 
   --color-tip: #7dd3fc44;
   --color-warning: #fde68a;
+  --color-warning-text: #7a6202;
   --color-danger: #dc2626;
   --color-danger-text: #c42020;
 
@@ -289,6 +292,7 @@
 
   --color-tip: #dc681844;
   --color-warning: #a85b18;
+  --color-warning-text: #854813;
   --color-danger: #a23636;
   --color-danger-text: #9c3434;
 
@@ -495,6 +499,7 @@
 
   --color-tip: #86efac33;
   --color-warning: #facc15;
+  --color-warning-text: #7f6603;
   --color-danger: #b91c1c;
 
   --color-toggle-on: #7b983c;
@@ -553,6 +558,7 @@
 
   --color-tip: #10b98133;
   --color-warning: #fef3c7;
+  --color-warning-text: #836902;
   --color-danger: #dc2626;
   --color-danger-text: #c31f1f;
 
@@ -834,6 +840,7 @@
 
   --color-tip: #c4b5fd44;
   --color-warning: #fde68a;
+  --color-warning-text: #826802;
   --color-danger: #dc2626;
   --color-danger-text: #c82020;
 
@@ -2251,6 +2258,44 @@
 }
 .analysis-tab-content .analysis-data-group > div:hover {
   background: color-mix(in srgb, var(--console-accent) 4%, transparent);
+}
+/* Jump log loading indicator: three pulsing hexes above a scanning status line. */
+.jump-log-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+.jump-log-loading-dots {
+  display: flex;
+  gap: 10px;
+}
+.jump-log-loading-dots .hex-dot {
+  display: block;
+  width: 14px;
+  height: 16px;
+  background: var(--color-highlight);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .jump-log-loading-dots .hex-dot, .jump-log-loading .status-scan { animation: none; opacity: 1; }
+}
+/* Warning colour is pale in most themes, so it marks the icon and rule; the text stays in fg. */
+.jump-log-failure {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-warning-text);
+  color: var(--color-fg);
+  font-family: Tomorrow, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.jump-log-failure i {
+  color: var(--color-warning-text);
+  font-size: 14px;
 }
 /* Starmap jump log table, styled to match the stellar object console. */
 .jump-log-table {
