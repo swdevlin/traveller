@@ -25,4 +25,24 @@ class AhoyTrackingTest < ActionDispatch::IntegrationTest
 
     assert_equal users(:one).id, visit.reload.user_id
   end
+
+  test 'a Rails page records a Viewed page event' do
+    get rulebook_search_url, params: { q: 'jump drive' }, headers: { 'User-Agent' => BROWSER_USER_AGENT }
+
+    assert_equal 1, Ahoy::Event.where(name: 'Viewed page').count
+    assert_equal 0, Ahoy::Event.where(name: 'Used starmap').count
+  end
+
+  test 'the starmap records a Used starmap event and not Viewed page' do
+    sign_in_as users(:one)
+    # The all-sectors raster is irrelevant here (and slow to build).
+    generator = Struct.new(:output_path, :call).new(Rails.root.join('Gemfile'), nil)
+    stub_new(AllSectorsMapGenerator, generator) do
+      get campaign_starmap_url, headers: { 'User-Agent' => BROWSER_USER_AGENT }
+    end
+    assert_response :success
+
+    assert_equal 1, Ahoy::Event.where(name: 'Used starmap').count
+    assert_equal 0, Ahoy::Event.where(name: 'Viewed page').count
+  end
 end

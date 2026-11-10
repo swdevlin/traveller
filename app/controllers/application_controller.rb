@@ -51,7 +51,13 @@ class ApplicationController < ActionController::Base
 
     return if Current.campaign.blank?
 
-    ahoy.track 'Viewed page', campaign_id: Current.campaign.id
+    ahoy.track page_view_event_name, campaign_id: Current.campaign.id
+  end
+
+  # Overridden by controllers whose page loads should be counted separately
+  # (the Elm starmap), so admin usage can be split by UI.
+  def page_view_event_name
+    'Viewed page'
   end
 
   # Only local paths are honoured, so a crafted return_to cannot redirect off-site.

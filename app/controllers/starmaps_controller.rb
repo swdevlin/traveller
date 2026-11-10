@@ -70,4 +70,10 @@ class StarmapsController < ApplicationController
       @starmap_flags[:centerOn] = [params[:cx].to_i, params[:cy].to_i]
     end
   end
+
+  private
+
+  def page_view_event_name
+    'Used starmap'
+  end
 end
