@@ -22,6 +22,10 @@ class Subsector < ApplicationRecord
     generated_at.present?
   end
 
+  def generation_queued?
+    JobQueueStatus.pending_subsector_ids.include?(id)
+  end
+
   def effective_language(campaign)
     language.presence || sector.language.presence || campaign.default_language.presence
   end

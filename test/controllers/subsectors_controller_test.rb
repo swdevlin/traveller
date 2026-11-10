@@ -160,7 +160,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     get subsector_url(@subsector)
 
-    assert_match 'Stellar data not generated', response.body
+    assert_match 'Stellar survey not commissioned', response.body
     assert_select 'form[action=?] button, form[action=?] input[type=submit]', generate_subsector_path(@subsector), generate_subsector_path(@subsector)
     assert_match 'Generate Subsector', response.body
   end
@@ -190,7 +190,7 @@ class SubsectorsControllerTest < AuthenticatedIntegrationTest
 
     get subsector_url(@subsector)
 
-    assert_no_match 'Stellar data not generated', response.body
+    assert_no_match 'Stellar survey not commissioned', response.body
   end
 
   test 'show Generate button posts directly to generate' do

@@ -1,23 +1,25 @@
 <%# locals: (sector:) %>
 
 <% total = sector.subsectors.size %>
-<% ungenerated = sector.ungenerated_subsectors.size %>
+<% incomplete = sector.incomplete_subsectors.size %>
+<% generating = sector.generating_subsectors.size %>
+<% generated = total - incomplete - generating %>
 
-<% if ungenerated.positive? %>
-  <% none_generated = ungenerated == total %>
+<% if incomplete.positive? %>
+  <% none_generated = generated.zero? && generating.zero? %>
   <div class='mb-6 flex flex-col gap-4 rounded-xl border border-outline/60 bg-panel p-4 sm:flex-row sm:items-center sm:justify-between'
        data-tour-step='sector-ungenerated-notice'>
     <div class='flex items-start gap-4'>
       <i class='fa-regular <%= none_generated ? 'fa-planet-ringed' : 'fa-circle-dashed' %> mt-1 text-xl text-fg-muted'></i>
       <div>
         <div class='font-semibold text-fg-bright'>
-          <%= none_generated ? 'Stellar data not generated' : 'Stellar records incomplete' %>
+          <%= none_generated ? 'Stellar survey not commissioned' : 'Stellar survey incomplete' %>
         </div>
         <p class='mt-1 text-sm text-fg-muted'>
           <% if none_generated %>
-            The subsectors of <%= sector.name %> have not yet been generated. Generate star systems to complete the sector's initial stellar records.
+            No survey teams have yet been assigned to the subsectors of <%= sector.name %>. Commission a survey to compile the sector's initial stellar records.
           <% else %>
-            <%= total - ungenerated %> of <%= total %> subsectors generated. Generate the remaining <%= ungenerated %> <%= 'subsector'.pluralize(ungenerated) %>.
+            <%= generated %> of <%= total %> subsectors charted<%= ", #{generating} under survey" if generating.positive? %>. <%= incomplete %> <%= 'subsector'.pluralize(incomplete) %> still awaiting survey.
           <% end %>
         </p>
       </div>
@@ -27,5 +29,16 @@
                   method: :post,
                   form_class: 'shrink-0',
                   class: 'w-full sm:w-auto btn btn-primary cursor-pointer' %>
+  </div>
+<% elsif generating.positive? %>
+  <div class='mb-6 flex items-start gap-4 rounded-xl border border-outline/60 bg-panel p-4'
+       data-tour-step='sector-ungenerated-notice'>
+    <i class='fa-regular fa-spinner-third fa-spin mt-1 text-xl text-fg-muted'></i>
+    <div>
+      <div class='font-semibold text-fg-bright'>Stellar survey in progress</div>
+      <p class='mt-1 text-sm text-fg-muted'>
+        Survey teams have been dispatched to <%= generating %> of <%= total %> <%= 'subsector'.pluralize(generating) %>. Stand by for records. <%= generated %> <%= generated == 1 ? 'subsector' : 'subsectors' %> already charted.
+      </p>
+    </div>
   </div>
 <% end %>

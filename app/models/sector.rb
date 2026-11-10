@@ -22,6 +22,23 @@ class Sector < ApplicationRecord
     subsectors.reject { |subsector| subsector.generated? }
   end
 
+  # Ungenerated subsectors with no generation job queued or running; these are
+  # the ones the user still needs to be prompted to generate.
+  def incomplete_subsectors
+    queued = queued_subsector_ids
+    ungenerated_subsectors.reject { |subsector| queued.include?(subsector.id) }
+  end
+
+  # Ungenerated subsectors whose generation is queued or running.
+  def generating_subsectors
+    queued = queued_subsector_ids
+    ungenerated_subsectors.select { |subsector| queued.include?(subsector.id) }
+  end
+
+  def queued_subsector_ids
+    @queued_subsector_ids ||= JobQueueStatus.pending_subsector_ids
+  end
+
   def effective_language(campaign)
     language.presence || campaign.default_language.presence
   end

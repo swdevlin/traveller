@@ -211,7 +211,7 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     @sector.subsectors.update_all(generated_at: nil)
     get sector_url(@sector)
     assert_select 'button, input', text: 'Generate Sector'
-    assert_match 'Stellar data not generated', response.body
+    assert_match 'Stellar survey not commissioned', response.body
   end
 
   test 'show prompts to complete a partially generated sector' do
@@ -219,7 +219,7 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     @sector.subsectors.update_all(generated_at: nil)
     @sector.subsectors.first.update_columns(generated_at: Time.current)
     get sector_url(@sector)
-    assert_match 'Stellar records incomplete', response.body
+    assert_match 'Stellar survey incomplete', response.body
   end
 
   test 'show has no notice when every subsector is generated' do
