@@ -2,6 +2,10 @@ source 'https://rubygems.org'
 
 gem 'erb', '>= 6.0.4'
 
+# Prism 2.x removed Prism::MissingNode, which refract (via phlex) needs at boot.
+# Remove the pin once refract supports Prism 2.
+gem 'prism', '~> 1.9'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 8.1.4'
 gem 'csv'
