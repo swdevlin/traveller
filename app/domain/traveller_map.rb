@@ -69,7 +69,7 @@ class TravellerMap
       return nil
     end
 
-    response.body
+    response.body.dup.force_encoding(Encoding::UTF_8)
   end
 
   def search(term:)
@@ -90,6 +90,6 @@ class TravellerMap
       return nil
     end
 
-    response.body
+    response.body.dup.force_encoding(Encoding::UTF_8)
   end
 end

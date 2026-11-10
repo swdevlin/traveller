@@ -17,6 +17,7 @@ class GenerateSubsectorJob < ApplicationJob
       ) || {}
 
     config = config.deep_symbolize_keys if config.respond_to?(:deep_symbolize_keys)
+    config = utf8_strings(config)
     %i[exclude required systems rogues].each do |key|
       value = config[key]
 
@@ -51,10 +52,6 @@ class GenerateSubsectorJob < ApplicationJob
     end
 
     SubsectorChannel.broadcast_to(subsector, { event: 'populating' })
-    Subsector.transaction do
-      subsector.clear(exclude_locked: true)
-    end
-
     base = Rails.application.config.x.generator_service
     uri  = URI.join(base.end_with?('/') ? base : "#{base}/", 'subsector')
 
@@ -80,6 +77,12 @@ class GenerateSubsectorJob < ApplicationJob
       rescue JSON::ParserError => e
         Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response.body}" and return
       end
+
+    # Only clear once the generator has returned usable data, so a failed
+    # request cannot leave the subsector empty.
+    Subsector.transaction do
+      subsector.clear(exclude_locked: true)
+    end
 
     # Build lookups from the original input systems (generator does not echo these back)
     all_input_systems = (config[:systems] || []) + (config[:required] || [])
@@ -169,6 +172,18 @@ class GenerateSubsectorJob < ApplicationJob
   end
 
   private
+
+  # Builds saved before the TravellerMap fetch was fixed can contain `!binary`
+  # YAML strings, which load as ASCII-8BIT and cannot be serialised to JSON.
+  def utf8_strings(value)
+    case value
+    when Hash then value.to_h { |k, v| [utf8_strings(k), utf8_strings(v)] }
+    when Array then value.map { |v| utf8_strings(v) }
+    when String
+      value.encoding == Encoding::BINARY ? value.dup.force_encoding(Encoding::UTF_8) : value
+    else value
+    end
+  end
 
   # TravellerMap only records a cross-border route once, in the metadata of the sector on
   # one side of the border. When that sector is populated first, the far system may not exist

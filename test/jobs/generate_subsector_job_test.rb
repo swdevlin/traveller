@@ -59,6 +59,27 @@ class GenerateSubsectorJobTest < ActiveJob::TestCase
     assert_nil @subsector.build_log
   end
 
+  test 'does not clear the subsector when the generator returns an error' do
+    parsec = create_parsec(3, 4)
+    system = star_systems(:in_one)
+    system.update_columns(parsec_id: parsec.id)
+    stub_request(:post, "#{@base}/subsector").to_return(status: 500, body: 'boom')
+
+    GenerateSubsectorJob.perform_now(@subsector.id, "type: STANDARD\n")
+
+    assert StarSystem.exists?(system.id)
+  end
+
+  test 'sends !binary YAML strings to the generator as UTF-8' do
+    posted = nil
+    stub_subsector_generator([]) { |req| posted = JSON.parse(req.body) }
+    yaml = "type: STANDARD\nsystems:\n- x: 1\n  \"y\": 2\n  name: !binary |-\n    RmVycsOp\n"
+
+    GenerateSubsectorJob.perform_now(@subsector.id, yaml)
+
+    assert_equal 'Ferré', posted['systems'].first['name']
+  end
+
   test 'creates rogues at both levels and strips them from the generator payload' do
     rogue_parsec = create_parsec(3, 4)
     system_parsec = create_parsec(5, 2)
