@@ -34,6 +34,7 @@ class Admin::DashboardController < AdminController
                      .group("(properties->>'campaign_id')::bigint")
 
     Campaign.includes(:referee)
+            .select('campaigns.*', 'campaign_activity.last_active_at')
             .joins("LEFT JOIN (#{last_activity.to_sql}) AS campaign_activity ON campaign_activity.campaign_id = campaigns.id")
             .order(Arel.sql('campaign_activity.last_active_at DESC NULLS LAST, campaigns.created_at DESC'))
   end

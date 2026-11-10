@@ -43,6 +43,7 @@
             <th scope='col' class='text-right'>Player views (7d)</th>
             <th scope='col' class='text-right'>Starmap users (7d)</th>
             <th scope='col'>Created</th>
+            <th scope='col'>Last accessed</th>
           </tr>
           </thead>
 
@@ -60,6 +61,7 @@
               <td class='text-right'><%= row[:player_views] || 'n/a' %></td>
               <td class='text-right'><%= row[:starmap_users] || 'n/a' %></td>
               <td><%= campaign.created_at.to_date.iso8601 %></td>
+              <td><%= campaign.last_active_at&.to_date&.iso8601 || 'Never' %></td>
             </tr>
           <% end %>
           </tbody>
