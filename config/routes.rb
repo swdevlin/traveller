@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   # Public routes — no campaign slug
   root 'marketing#index'
-  resource :session
-  resources :registrations
-  resources :passwords, param: :token
+  resource :session, only: %i[new create destroy]
+  resources :registrations, only: %i[new create]
+  resources :passwords, param: :token, only: %i[new create edit update]
   resource :account_deletion, only: %i[new destroy]
   resources :campaigns, only: %i[new create show] do
     collection do
