@@ -142,6 +142,21 @@ module TradeGoodsTable
     GOODS
   end
 
+  # Purchase and sale DMs for every good that the given trade codes (and zone keys 'ZA'/'ZR')
+  # affect. As in the rulebook, the largest matching DM applies in each direction.
+  #
+  # @param codes [Array<String>]
+  # @return [Array<Hash>] rows of { d66:, name:, purchase_dm:, sale_dm: }, in table order
+  def self.dms_for(codes)
+    GOODS.filter_map do |good|
+      purchase = good[:purchase_dms].values_at(*codes).compact.max || 0
+      sale = good[:sale_dms].values_at(*codes).compact.max || 0
+      next if purchase.zero? && sale.zero?
+
+      { d66: good[:d66], name: good[:name], purchase_dm: purchase, sale_dm: sale }
+    end
+  end
+
   # @return [Array<Integer>] every d66 code except Exotics (66), which has no price to override
   def self.priceable_d66_codes
     GOODS.reject { |row| row[:base_price].nil? }.map { |row| row[:d66] }

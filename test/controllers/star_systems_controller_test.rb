@@ -32,9 +32,14 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_system_url(star_system)
   end
 
-  test 'should show star_system' do
-    get star_system_url(@star_system)
+  test 'handout renders a PDF' do
+    get handout_star_system_url(@star_system, format: :pdf)
+
     assert_response :success
+    assert_equal 'application/pdf', response.media_type
+    assert response.body.start_with?('%PDF'), 'expected a PDF body'
+    assert_match(/attachment/, response.headers['Content-Disposition'])
+    assert_match(/handout\.pdf/, response.headers['Content-Disposition'])
   end
 
   test 'show page labels the player notes Survey Records and shows Classified Records to the referee' do

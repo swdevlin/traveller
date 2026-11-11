@@ -32,6 +32,11 @@
     { label: 'Large', value: 'large', hint: 'Larger hexes (50px) — easier to read icons and labels.' }
   ]
 
+  handout_paper_size_options = [
+    { label: 'Letter', value: 'letter', hint: 'US Letter, 11 × 8.5 in.' },
+    { label: 'A4', value: 'a4', hint: 'A4, 297 × 210 mm.' }
+  ]
+
   date_format_options = [
     { label: 'Traveller Standard', value: 'traveller', hint: 'Day-year format, e.g. 001-1105.' },
     { label: 'ISO 8601', value: 'iso', hint: 'Year-day format, e.g. 1105-001.' }
@@ -243,6 +248,37 @@
           <div class='hidden w-80'
                data-hint-select-target='panel'>
             <% date_format_options.each do |opt| %>
+              <button type='button'
+                      data-action='click->hint-select#select'
+                      data-value='<%= opt[:value] %>'
+                      data-label='<%= opt[:label] %>'
+                      data-hint='<%= opt[:hint] %>'>
+                <div class='text-sm text-fg-bright'><%= opt[:label] %></div>
+                <div class='text-xs italic text-fg-muted mt-0.5'><%= opt[:hint] %></div>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= render 'application/edit_field', form: form, attribute: :handout_paper_size, field_label: 'Handout Paper Size' do %>
+        <div data-controller='hint-select' class='hint-select'>
+          <%= form.hidden_field :handout_paper_size,
+                                data: { hint_select_target: 'input' } %>
+
+          <button type='button'
+                  class='edit-base w-60'
+                  data-hint-select-target='trigger'
+                  data-action='click->hint-select#toggle'>
+            <span data-hint-select-target='label'>
+              <%= handout_paper_size_options.find { |o| o[:value] == @campaign.handout_paper_size_or_default }&.dig(:label) %>
+            </span>
+            <i class='fa-solid fa-chevron-down'></i>
+          </button>
+
+          <div class='hidden w-80'
+               data-hint-select-target='panel'>
+            <% handout_paper_size_options.each do |opt| %>
               <button type='button'
                       data-action='click->hint-select#select'
                       data-value='<%= opt[:value] %>'

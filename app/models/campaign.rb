@@ -21,6 +21,7 @@ class Campaign < ApplicationRecord
   MAIL_DM_SETTINGS      = MailTrafficDms::DEFAULTS.keys.map { |key| :"mail_dm_#{key}" }.freeze
 
   HEX_SIZES = { 'small' => 30, 'medium' => 40, 'large' => 50 }.freeze
+  HANDOUT_PAPER_SIZES = %w[letter a4].freeze
 
   JUMP_LOG_DISPLAYS = %w[fill line both none].freeze
   JUMP_LOG_DEFAULTS = {
@@ -36,7 +37,7 @@ class Campaign < ApplicationRecord
 
   store_accessor :settings, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :token_secret,
                             :allow_captive_government, :orbit_distance_display, :realisticStarDistribution,
-                            :default_language, :date_format, :trade_good_base_prices,
+                            :default_language, :date_format, :trade_good_base_prices, :handout_paper_size,
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
                             :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
@@ -60,6 +61,10 @@ class Campaign < ApplicationRecord
 
   def show_au?
     orbit_distance_display.presence != 'orbit_number'
+  end
+
+  def handout_paper_size_or_default
+    handout_paper_size.presence || 'letter'
   end
 
   def traveller_date_format?
@@ -133,6 +138,7 @@ class Campaign < ApplicationRecord
                    if: -> { new_record? || slug_changed? }
   validates_hex_colour :sector_capital_colour, :subsector_capital_colour, allow_blank: true
   validates :hex_size, inclusion: { in: HEX_SIZES.keys }, allow_blank: true
+  validates :handout_paper_size, inclusion: { in: HANDOUT_PAPER_SIZES }, allow_blank: true
   validates_hex_colour :jump_log_fill_colour, :jump_log_line_colour, allow_blank: true
   validates :jump_log_display, inclusion: { in: JUMP_LOG_DISPLAYS }, allow_blank: true
   validates :jump_log_line_style, inclusion: { in: JumpRoute::LINE_STYLES }, allow_blank: true

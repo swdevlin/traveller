@@ -219,6 +219,7 @@ Rails.application.routes.draw do
         post :derive_build
         post :generate_maps
         get  :map
+        get  :handout
         get  :select_main_world
         patch :set_main_world
         patch :update

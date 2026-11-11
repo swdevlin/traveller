@@ -310,10 +310,7 @@ class SectorsController < ApplicationController
     @hex_map_svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
 
     poster_svg = render_to_string('sectors/poster', formats: [:svg], layout: false)
-    pdf_data, status = Open3.capture2('rsvg-convert', '-f', 'pdf', stdin_data: poster_svg)
-    raise 'rsvg-convert failed' unless status.success?
-
-    send_data pdf_data,
+    send_data SvgPdf.render(poster_svg),
               type: 'application/pdf',
               disposition: 'attachment',
               filename: "#{@sector.name.parameterize}-sector-poster.pdf"

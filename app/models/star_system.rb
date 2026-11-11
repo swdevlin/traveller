@@ -74,6 +74,17 @@ class StarSystem < ApplicationRecord
     main_world&.trade_codes || TradeCode.none
   end
 
+  # Keys into TradeGoodsTable's DM hashes: the main world's trade codes, plus 'ZA'/'ZR' for an
+  # Amber or Red travel zone.
+  def trade_dm_codes
+    zone_codes = case travel_zone&.code
+    when 'A' then ['ZA']
+    when 'R' then ['ZR']
+    else []
+    end
+    trade_codes.pluck(:code) + zone_codes
+  end
+
   def sector_capital?
     trade_codes.any? { |tc| tc.code == 'Cs' }
   end

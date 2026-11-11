@@ -26,6 +26,9 @@ class City < ApplicationRecord
     'Cr' => 'Regional capital'
   }.freeze
 
+  scope :largest_first, -> { order(population: :desc) }
+  scope :capitals, -> { where.not(capital_designation: [nil, '']) }
+
   validates :language, inclusion: { in: -> { WordGenerator.languages.map(&:to_s) }, allow_blank: true }
   validates :population, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :city_type, inclusion: { in: TYPES.keys }, allow_blank: true

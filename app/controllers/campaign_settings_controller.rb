@@ -51,7 +51,7 @@ class CampaignSettingsController < ApplicationController
   private
 
   def campaign_settings_params
-    params.expect(campaign: [:name, :campaign_type, :sector_source, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :limited_main_world_eccentricity, :default_language, :date_format,
+    params.expect(campaign: [:name, :campaign_type, :sector_source, :exploration, :sophont_check, :max_tech_level, :native_tech_level, :allow_captive_government, :orbit_distance_display, :realisticStarDistribution, :limited_main_world_eccentricity, :default_language, :date_format, :handout_paper_size,
                               :sector_capital_colour, :subsector_capital_colour, :hex_size,
                               :jump_log_display, :jump_log_fill_colour, :jump_log_line_colour,
                               :jump_log_line_style, :jump_log_line_width,

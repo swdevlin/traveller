@@ -19,13 +19,27 @@ class SvgRasteriser
 
   # Swaps references to the bundled /stellar_objects/*.webp images for inline data URIs, so
   # the SVG renders without fetching them: needed to rasterise it, or to serve it standalone.
-  def self.embed_images(svg)
+  #
+  # With +max_pixels+ the images are shrunk to fit that many pixels and embedded as PNG instead.
+  # PDF output stores every embedded image at full size, so print output should not use the
+  # bundled textures as they are.
+  def self.embed_images(svg, max_pixels: nil)
     svg.gsub(%r{href="(/stellar_objects/[^"]+\.webp)"}) do
       path = Rails.root.join('public', Regexp.last_match(1).delete_prefix('/'))
       next Regexp.last_match(0) unless File.exist?(path)
 
-      "href=\"data:image/webp;base64,#{Base64.strict_encode64(File.binread(path))}\""
+      if max_pixels
+        "href=\"data:image/png;base64,#{Base64.strict_encode64(downscaled_png(path, max_pixels))}\""
+      else
+        "href=\"data:image/webp;base64,#{Base64.strict_encode64(File.binread(path))}\""
+      end
     end
+  end
+
+  def self.downscaled_png(path, max_pixels)
+    @downscaled ||= {}
+    @downscaled[[path.to_s, max_pixels]] ||=
+      Vips::Image.new_from_file(path.to_s).thumbnail_image(max_pixels, size: :down).pngsave_buffer
   end
 
   def initialize(svg)

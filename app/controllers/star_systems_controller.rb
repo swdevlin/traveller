@@ -42,6 +42,17 @@ class StarSystemsController < ApplicationController
     send_subway_map
   end
 
+  # One-page PDF of the system for handing to players.
+  def handout
+    @handout = StarSystemHandout.new(@star_system, current_campaign, theme: helpers.current_theme)
+    svg = render_to_string('star_systems/handout', formats: [:svg], layout: false)
+
+    send_data SvgPdf.render(SvgRasteriser.embed_images(svg, max_pixels: 192)),
+              type: 'application/pdf',
+              disposition: 'attachment',
+              filename: @handout.filename
+  end
+
   def select_main_world
     @worlds = @star_system.stellar_objects.where.not(uwp: nil).where.not(type: 'Ring').order(:orbit_sequence)
   end
