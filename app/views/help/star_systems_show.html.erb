@@ -56,10 +56,21 @@
 
       <div>
         <p class='text-sm font-semibold text-highlight-fg mb-2'>Page Actions</p>
+        <p class='text-sm text-fg mb-3'>
+          <strong>Edit</strong> sits beside the system name. Everything else is gathered under the <strong>Actions</strong> menu.
+        </p>
         <dl class='space-y-5 text-sm'>
           <div>
             <dt class='font-semibold text-fg-bright'>Replace</dt>
             <dd class='mt-1 text-fg'>Regenerates this system from scratch. Disabled while the system is locked.</dd>
+          </div>
+          <div>
+            <dt class='font-semibold text-fg-bright'>Generate Maps</dt>
+            <dd class='mt-1 text-fg'>
+              Queues a map for every terrestrial planet, planetoid and moon of size 1 or greater that does not yet have one.
+              Existing maps, including uploaded ones, are never replaced. Maps are produced in the background and appear on
+              each world&rsquo;s page when ready. Disabled when there is nothing to generate.
+            </dd>
           </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Social Characteristics</dt>
@@ -71,7 +82,7 @@
           </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Copy As Markdown</dt>
-            <dd class='mt-1 text-fg'>Markdown icon beside the page buttons &mdash; copies a full Markdown write-up of this system to the clipboard.</dd>
+            <dd class='mt-1 text-fg'>Copies a full Markdown write-up of this system to the clipboard.</dd>
           </div>
           <div>
             <dt class='font-semibold text-fg-bright'>Delete</dt>

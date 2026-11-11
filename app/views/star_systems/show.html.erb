@@ -13,36 +13,11 @@
 <%= content_for :page_kicker, 'IISS Class III Survey' %>
 <%= content_for :page_title, @star_system.name.presence || "#{sector.name}/#{parsec.hex_code}" %>
 <%= content_for :iiss_form, '0421D' %>
-<%= content_for :page_buttons do %>
-  <div class='flex items-center justify-between'>
-    <div class='flex flex-wrap gap-2'>
-      <%= link_to 'Edit', edit_star_system_path(@star_system), class: 'w-full sm:w-auto btn btn-primary' %>
-      <%= link_to 'Replace', replace_star_system_path(@star_system),
-                  class: "w-full sm:w-auto btn btn-secondary #{@star_system.locked? ? 'opacity-50 pointer-events-none' : ''}",
-                  title: @star_system.locked? ? 'Unlock this star system to replace it' : nil %>
-      <%= link_to 'Commerce', commerce_path(from_id: @star_system.id),
-                  class: 'w-full sm:w-auto btn btn-secondary' %>
-      <% unless @star_system.has_populated_world? %>
-        <%= link_to 'Social Characteristics', assign_social_characteristics_star_system_path(@star_system),
-                    class: 'w-full sm:w-auto btn btn-secondary',
-                    data: { turbo_frame: 'modal' } %>
-      <% end %>
-      <%= button_to 'Delete',
-                    @star_system,
-                    method: :delete,
-                    form_class: 'inline-block',
-                    class: 'w-full btn btn-danger',
-                    data: { turbo_confirm: 'Are you sure?' } %>
-    </div>
-    <button type='button'
-            title='Copy as markdown'
-            class='text-fg-muted hover:text-fg-bright'
-            data-controller='clipboard'
-            data-clipboard-markdown-url-value='<%= star_system_path(@star_system, format: :md) %>'
-            data-action='click->clipboard#copyMarkdown'>
-      <i class='fa-brands fa-markdown'></i>
-    </button>
-  </div>
+<%= content_for :page_actions do %>
+  <%= link_to edit_star_system_path(@star_system), class: 'btn-header' do %>
+    <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+  <% end %>
+  <%= render 'star_systems/actions_menu', star_system: @star_system %>
 <% end %>
 
 <%= content_for :page_side do %>
@@ -103,6 +78,6 @@
   </div>
 <% end %>
 
-<%= render 'application/two_column_page' do %>
+<%= render 'application/two_column_page', header_in_main: true do %>
   <%= render @star_system %>
 <% end %>

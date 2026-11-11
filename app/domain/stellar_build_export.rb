@@ -3,6 +3,10 @@
 # Shared star/body/rogue export logic included by SubsectorBuildConfigExporter
 # and StarSystemBuildConfigExporter.
 module StellarBuildExport
+  # UWP_CODE is a top-level constant defined in build_config_schema.rb, which Zeitwerk only loads when
+  # BuildConfigSchema is referenced. Reference it here so the exporter works however it is reached.
+  BuildConfigSchema # rubocop:disable Lint/Void
+
   GAS_GIANT_SIZE_MAP = {
     'GS' => 'small gas giant',
     'GM' => 'medium gas giant',

@@ -1,0 +1,9 @@
+<%# Header "Actions" menu. Use as a layout: render layout: 'application/actions_dropdown', locals: { menu_id: 'x' } do ... end %>
+<div class='relative' data-controller='dropdown' data-action='keydown.esc->dropdown#close'>
+  <button type='button' class='btn-header' data-action='dropdown#toggle' aria-expanded='false' aria-controls='<%= menu_id %>'>
+    Actions <i class='fa-regular fa-chevron-down ml-1' aria-hidden='true'></i>
+  </button>
+  <div id='<%= menu_id %>' data-dropdown-target='menu' class='hidden absolute right-0 mt-2 py-1 w-64 max-w-[85vw] rounded-lg border border-outline bg-dropdown shadow-xl z-50'>
+    <%= yield %>
+  </div>
+</div>

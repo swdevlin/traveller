@@ -14,26 +14,23 @@
 <%= content_for :page_kicker, "IISS Class IV Survey" %>
 <%= content_for :page_title, @stellar_object.display_name %>
 <%= content_for :iiss_form, '0407F-IV PART P' %>
-<%= content_for :page_buttons do %>
-  <div class='flex items-center justify-between'>
-    <div class='flex gap-2'>
-      <%= link_to 'Edit', edit_stellar_object_path(@stellar_object), class: 'w-full sm:w-auto btn btn-primary',
-                data: { controller: 'edit-section', edit_section_storage_key_value: "uwp_tabs_#{dom_id(@stellar_object)}", action: 'click->edit-section#go' } %>
-      <% if (@stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)) && @stellar_object.orbiting.is_a?(Star) %>
-        <%= button_to 'Regenerate', regenerate_characteristics_stellar_object_path(@stellar_object),
-              method: :post, class: 'btn btn-secondary',
-              data: { turbo_confirm: 'Replace all characteristics from the current UWP? Existing moons will be replaced.' } %>
+<%= content_for :page_actions do %>
+  <%= link_to edit_stellar_object_path(@stellar_object), class: 'btn-header',
+              data: { controller: 'edit-section', edit_section_storage_key_value: "uwp_tabs_#{dom_id(@stellar_object)}", action: 'click->edit-section#go' } do %>
+    <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+  <% end %>
+  <%= render layout: 'application/actions_dropdown', locals: { menu_id: 'stellar-object-actions' } do %>
+    <% if (@stellar_object.is_a?(TerrestrialPlanet) || @stellar_object.is_a?(PlanetoidBelt)) && @stellar_object.orbiting.is_a?(Star) %>
+      <%= button_to regenerate_characteristics_stellar_object_path(@stellar_object),
+                    method: :post,
+                    class: actions_menu_item_class,
+                    form: { class: 'w-full' },
+                    data: { turbo_confirm: 'Replace all characteristics from the current UWP? Existing moons will be replaced.' } do %>
+        <i class='fa-regular fa-rotate mt-1' aria-hidden='true'></i> Regenerate
       <% end %>
-    </div>
-    <button type='button'
-            title='Copy as markdown'
-            class='text-fg-muted hover:text-fg-bright'
-            data-controller='clipboard'
-            data-clipboard-markdown-url-value='<%= stellar_object_path(@stellar_object, format: :md) %>'
-            data-action='click->clipboard#copyMarkdown'>
-      <i class='fa-brands fa-markdown'></i>
-    </button>
-  </div>
+    <% end %>
+    <%= render 'application/copy_markdown_item', url: stellar_object_path(@stellar_object, format: :md) %>
+  <% end %>
 <% end %>
 
 <%= content_for :page_side do %>
@@ -55,7 +52,7 @@
 <% nodes = orbit_strip_nodes(@stellar_object) %>
 <% index = nodes.index(@stellar_object) %>
 <%= render 'stellar_objects/orbit_strip_nav', nodes: nodes, index: index do %>
-  <%= render 'application/two_column_page' do %>
+  <%= render 'application/two_column_page', header_in_main: true do %>
     <%= render @stellar_object %>
   <% end %>
 <% end %>

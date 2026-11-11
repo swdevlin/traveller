@@ -76,6 +76,15 @@ class StarSystemsController < ApplicationController
     end
   end
 
+  # POST /star_systems/1/generate_maps
+  def generate_maps
+    bodies = @star_system.mappable_bodies_without_map.to_a
+    bodies.each { GeneratePlanetMapJob.enqueue(it, base_url: request.base_url) }
+
+    notice = bodies.empty? ? 'No maps to generate.' : "#{helpers.pluralize(bodies.size, 'planet map')} queued."
+    redirect_to star_system_path(@star_system), notice: notice
+  end
+
   def do_replace
     if @star_system.locked?
       flash.now[:alert] = 'This star system is locked and cannot be replaced.'

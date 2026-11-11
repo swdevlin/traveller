@@ -506,4 +506,40 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to star_system_url(@star_system)
     assert_equal 'Select a main world before editing trade codes.', flash[:alert]
   end
+
+  test 'generate_maps queues a job for each mappable body without a map' do
+    planet = stellar_objects(:planet_near_primary)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5, orbit: 3.0)
+    system = StarSystem.find(planet.star_system_id)
+    expected = system.mappable_bodies_without_map.pluck(:id)
+    assert_includes expected, planet.id
+
+    assert_enqueued_jobs expected.size, only: GeneratePlanetMapJob do
+      post generate_maps_star_system_url(system)
+    end
+    assert_redirected_to star_system_url(system)
+  end
+
+  test 'generate_maps skips bodies that already have a map' do
+    planet = stellar_objects(:planet_near_primary)
+    planet.update!(size_code: '5', atmosphere_code: 5, hydrographics_code: 5, orbit: 3.0)
+    planet.store_map('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="5" height="5"/></svg>')
+    system = StarSystem.find(planet.star_system_id)
+
+    assert_not_includes system.mappable_bodies_without_map.pluck(:id), planet.id
+    post generate_maps_star_system_url(system)
+    assert_not(enqueued_jobs.any? { it['arguments'].first == planet.id })
+  end
+
+  test 'show has a disabled generate maps item when there is nothing to map' do
+    StellarObject.where(star_system_id: @star_system.id).where.not(type: 'Star').find_each do |body|
+      body.update_columns(size_code: 'S') if body.respond_to?(:map_supported?)
+    end
+
+    get star_system_url(@star_system)
+
+    assert_response :success
+    assert_select 'button[disabled][title*="already have maps"]', text: /Generate maps/
+    assert_select 'button', text: /Delete/
+  end
 end

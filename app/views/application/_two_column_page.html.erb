@@ -1,25 +1,16 @@
+<%# Locals: header_in_main (optional) - render the title and actions above the main column only, not across both columns. %>
+<% header_in_main = local_assigns.fetch(:header_in_main, false) %>
 <div class="w-full">
   <div class="page-shell">
-    <div class="page-header">
-      <div>
-        <% if content_for?(:page_kicker) %>
-          <div class="page-kicker">
-            <%= yield :page_kicker %>
-          </div>
-        <% end %>
-
-        <div class="page-title">
-          <%= yield :page_title %>
-        </div>
-      </div>
-
-      <div class="page-actions">
-        <%= yield :page_actions if content_for?(:page_actions) %>
-      </div>
-    </div>
+    <%= render 'application/page_header' unless header_in_main %>
 
     <div class="page-body">
       <div class="page-main">
+        <% if header_in_main %>
+          <div class='mb-4'>
+            <%= render 'application/page_header' %>
+          </div>
+        <% end %>
         <%= yield %>
         <% if content_for?(:iiss_form) %>
           <div class="iiss-form pt-6">

@@ -2,20 +2,13 @@
 <%= content_for :page_kicker, "IISS Class 0/I Survey" %>
 <%= content_for :page_title, @star.display_name %>
 <%= content_for :iiss_form, 'FORM 0421B-0I' %>
-<%= content_for :page_buttons do %>
-  <div class='flex items-center justify-between'>
-    <div>
-      <%= link_to 'Edit', edit_star_path(@star), class: 'w-full sm:w-auto btn btn-primary' %>
-    </div>
-    <button type='button'
-            title='Copy as markdown'
-            class='text-fg-muted hover:text-fg-bright'
-            data-controller='clipboard'
-            data-clipboard-markdown-url-value='<%= star_path(@star, format: :md) %>'
-            data-action='click->clipboard#copyMarkdown'>
-      <i class='fa-brands fa-markdown'></i>
-    </button>
-  </div>
+<%= content_for :page_actions do %>
+  <%= link_to edit_star_path(@star), class: 'btn-header' do %>
+    <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+  <% end %>
+  <%= render layout: 'application/actions_dropdown', locals: { menu_id: 'star-actions' } do %>
+    <%= render 'application/copy_markdown_item', url: star_path(@star, format: :md) %>
+  <% end %>
 <% end %>
 
 <%
@@ -33,7 +26,7 @@
 
 <% nodes = orbit_strip_nodes(@star) %>
 <%= render 'stellar_objects/orbit_strip_nav', nodes: nodes, index: nodes.index(@star) do %>
-  <%= render(subsector || owns_campaign? ? 'application/two_column_page' : 'application/page') do %>
+  <%= render(subsector || owns_campaign? ? 'application/two_column_page' : 'application/page', header_in_main: true) do %>
     <%= render @star %>
   <% end %>
 <% end %>

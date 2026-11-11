@@ -12,28 +12,34 @@
   <%= @subsector.name %><span class='text-fg-muted'>, <%= sector.name %></span>
 <% end %>
 
-<% content_for :page_buttons do %>
+<% content_for :page_actions do %>
+  <% item_class = actions_menu_item_class %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to clear the subsector?" %>
-  <div class='form-actions mt-6'>
-    <%= link_to 'Edit',
-                edit_subsector_path(@subsector),
-                class: 'btn btn-primary' %>
-
-    <% generate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
-                                "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?"
-                              end %>
-    <%= button_to 'Generate',
-                  generate_subsector_path(@subsector),
+  <% generate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
+                              "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the subsector. Are you sure you wish to replace them?"
+                            end %>
+  <%= link_to edit_subsector_path(@subsector), class: 'btn-header' do %>
+    <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+  <% end %>
+  <%= render layout: 'application/actions_dropdown', locals: { menu_id: 'subsector-actions' } do %>
+    <%= button_to generate_subsector_path(@subsector),
                   method: :post,
-                  class: 'btn',
-                  data: { turbo_confirm: generate_confirm_msg } %>
+                  class: item_class,
+                  form: { class: 'w-full' },
+                  data: { turbo_confirm: generate_confirm_msg } do %>
+      <i class='fa-regular fa-stars mt-1' aria-hidden='true'></i> Generate
+    <% end %>
 
-    <%= button_to 'Clear',
-                  clear_subsector_path(@subsector),
-                  method: 'post',
-                  class: 'btn btn-danger',
-                  data: { turbo_confirm: confirm_msg } %>
-  </div>
+    <div class='border-t border-outline mt-1 pt-1'>
+      <%= button_to clear_subsector_path(@subsector),
+                    method: :post,
+                    class: actions_menu_item_class(danger: true),
+                    form: { class: 'w-full' },
+                    data: { turbo_confirm: confirm_msg } do %>
+        <i class='fa-regular fa-eraser mt-1' aria-hidden='true'></i> Clear
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
 
 <% content_for :page_side do %>
@@ -49,7 +55,7 @@
 
 <div data-controller="subsector-refresh"
      data-subsector-refresh-subsector-id-value="<%= @subsector.id %>">
-  <%= render 'application/two_column_page' do %>
+  <%= render 'application/two_column_page', header_in_main: true do %>
     <div class='space-y-6'>
       <%= render 'subsectors/ungenerated_notice', subsector: @subsector %>
 

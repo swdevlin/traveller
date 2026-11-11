@@ -1,0 +1,8 @@
+<%# Actions menu item. Locals: url (the .md URL). %>
+<button type='button'
+        class='<%= actions_menu_item_class %>'
+        data-controller='clipboard'
+        data-clipboard-markdown-url-value='<%= url %>'
+        data-action='click->clipboard#copyMarkdown'>
+  <i class='fa-brands fa-markdown mt-1' aria-hidden='true'></i> Copy as markdown
+</button>

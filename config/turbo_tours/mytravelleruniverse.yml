@@ -122,17 +122,7 @@ journeys:
       title: "Poster"
       body: "Generate a poster map PDF for the sector. This is suitable for sending to a print shop."
 
-    - name: sector_populate
-      target: sector-populate
-      title: "Generate"
-      body: "Generate star systems for the sector using the rules in the World Builder's Handbook. Any existing data will be replaced."
-
-    - name: sector_clear
-      target: sector-clear
-      title: "Clear"
-      body: "Use this button to clear out all generated data and start again. The sector and its subsectors are retained."
-
-    - name: sector_delete
-      target: sector-delete
-      title: "Delete"
-      body: "Delete the sector and its associated data."
+    - name: sector_actions
+      target: sector-actions
+      title: "Actions"
+      body: "Generate creates star systems for the sector using the rules in the World Builder's Handbook, replacing any existing data. Clear removes all generated data so you can start again, keeping the sector and its subsectors. Delete removes the sector and its associated data."

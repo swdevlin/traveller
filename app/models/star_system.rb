@@ -42,6 +42,14 @@ class StarSystem < ApplicationRecord
   validate :main_world_must_be_in_system
   validate :main_world_cannot_be_ring
 
+  # Planets, planetoids and moons that can have a map but don't have one yet. Existing maps
+  # (generated or uploaded) are never included, so they are never replaced.
+  def mappable_bodies_without_map
+    StellarObject.where(star_system_id: id, type: %w[TerrestrialPlanet Planetoid Moon])
+                 .where.not(size_code: HasPlanetMap::UNMAPPABLE_SIZE_CODES)
+                 .where.not(id: PlanetMap.select(:stellar_object_id))
+  end
+
   def effective_language(campaign)
     language.presence ||
       allegiance&.language.presence ||

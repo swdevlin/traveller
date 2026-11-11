@@ -1,4 +1,11 @@
 module ApplicationHelper
+  # Classes for an item in an `application/actions_dropdown` menu. Pass danger: true for destructive items.
+  ACTIONS_MENU_ITEM_CLASS = 'flex w-full items-start gap-2 px-4 py-2 text-left text-sm text-nav-fg no-underline hover:bg-dropdown-hover hover:text-nav-hover focus-visible:bg-dropdown-hover disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent'.freeze
+
+  def actions_menu_item_class(danger: false)
+    danger ? ACTIONS_MENU_ITEM_CLASS.sub('text-nav-fg', 'text-danger-text') : ACTIONS_MENU_ITEM_CLASS
+  end
+
   # Sectors offered as move destinations; memoised so a grid of rows queries once.
   def move_sector_options
     @move_sector_options ||= Sector.kept.order(:name).to_a

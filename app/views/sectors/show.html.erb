@@ -6,51 +6,56 @@
 <% content_for :iiss_form, '0398D-0' %>
 <%= turbo_tour "sectors" unless Current.user&.tour_completed?('sectors') %>
 
-<% content_for :page_buttons do %>
+<% content_for :page_actions do %>
+  <% item_class = actions_menu_item_class %>
   <% confirm_msg = "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to clear the sector?" %>
-  <div class='form-actions mt-6'>
-    <%= link_to 'Edit',
-                edit_sector_path(@sector),
-                class: 'btn btn-primary' %>
+  <% populate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
+                               "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?"
+                             end %>
+  <%= link_to edit_sector_path(@sector), class: 'btn-header' do %>
+    <i class='fa-regular fa-pen-to-square' aria-hidden='true'></i> Edit
+  <% end %>
+  <div data-tour-step='sector-actions'>
+    <%= render layout: 'application/actions_dropdown', locals: { menu_id: 'sector-actions' } do %>
+      <%= button_to generate_sector_path(@sector),
+                    method: :post,
+                    class: item_class,
+                    form: { class: 'w-full' },
+                    data: { turbo_confirm: populate_confirm_msg } do %>
+        <i class='fa-regular fa-circle-dot mt-1' aria-hidden='true'></i> Generate
+      <% end %>
 
-    <% populate_confirm_msg = if @star_system_count.positive? || @rogue_count.positive?
-                                 "There are #{pluralize(@star_system_count, 'star system')} and #{pluralize(@rogue_count, 'rogue stellar object')} in the sector. Are you sure you wish to replace them?"
-                               end %>
-    <%= form_with(url: generate_sector_path(@sector), method: :post, class: 'contents') do |form| %>
-      <%= form.submit 'Generate',
-                      class: 'btn cursor-pointer',
-                      data: { turbo_confirm: populate_confirm_msg, tour_step: 'sector-populate' } %>
+      <%= button_to clear_sector_path(@sector),
+                    method: :post,
+                    class: item_class,
+                    form: { class: 'w-full' },
+                    data: { turbo_confirm: confirm_msg } do %>
+        <i class='fa-regular fa-eraser mt-1' aria-hidden='true'></i> Clear
+      <% end %>
+
+      <%= link_to defaults_source_sector_path(@sector), class: item_class do %>
+        <i class='fa-regular fa-file-import mt-1' aria-hidden='true'></i> Load Build Default
+      <% end %>
+
+      <% if @sector.source == 'traveller_map' %>
+        <%= button_to import_jump_routes_sector_path(@sector),
+                      method: :post,
+                      class: item_class,
+                      form: { class: 'w-full' } do %>
+          <i class='fa-regular fa-route mt-1' aria-hidden='true'></i> Refresh Jump Routes
+        <% end %>
+      <% end %>
+
+      <div class='border-t border-outline mt-1 pt-1'>
+        <%= button_to @sector,
+                      method: :delete,
+                      class: actions_menu_item_class(danger: true),
+                      form: { class: 'w-full' },
+                      data: { turbo_confirm: 'Are you sure?' } do %>
+          <i class='fa-regular fa-trash mt-1' aria-hidden='true'></i> Delete
+        <% end %>
+      </div>
     <% end %>
-
-    <%= button_to 'Clear',
-                  clear_sector_path(@sector),
-                  method: 'post',
-                  class: 'btn',
-                  data: { turbo_confirm: confirm_msg, tour_step: 'sector-clear' } %>
-
-    <%= link_to 'Load Build Default',
-                defaults_source_sector_path(@sector),
-                class: 'btn' %>
-
-    <% if @sector.source == 'traveller_map' %>
-      <%= button_to 'Refresh Jump Routes',
-                    import_jump_routes_sector_path(@sector),
-                    method: 'post',
-                    class: 'btn',
-                    data: { tour_step: 'sector-import-jump-routes' } %>
-    <% end %>
-
-    <%= render 'application/back_button',
-               path: sectors_path(page: @page),
-               label: 'Sectors',
-               class: 'w-full sm:w-auto' %>
-
-    <%= button_to 'Delete',
-                  @sector,
-                  method: :delete,
-                  form_class: 'w-full sm:w-auto',
-                  class: 'btn btn-danger cursor-pointer',
-                  data: { turbo_confirm: 'Are you sure?', tour_step: 'sector-delete' } %>
   </div>
 <% end %>
 
@@ -64,7 +69,7 @@
   </div>
 <% end %>
 
-<%= render 'application/two_column_page' do %>
+<%= render 'application/two_column_page', header_in_main: true do %>
   <div class='space-y-6'>
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
       <%= render 'application/data_block',
