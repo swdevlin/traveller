@@ -59,6 +59,30 @@ class Admin::DashboardControllerTest < ActionDispatch::IntegrationTest
     assert_select 'td.text-right', text: '3', count: 1
   end
 
+  test 'counts rule search views, searches and result views separately per campaign' do
+    visit = Ahoy::Visit.create!(visit_token: SecureRandom.uuid, started_at: 1.day.ago)
+    2.times do
+      Ahoy::Event.create!(visit: visit, name: 'Viewed rule search', time: 1.day.ago,
+                           properties: { campaign_id: @campaign.id })
+    end
+    5.times do
+      Ahoy::Event.create!(visit: visit, name: 'Searched rules', time: 1.day.ago,
+                           properties: { campaign_id: @campaign.id, result_count: 4, source: 'web' })
+    end
+    3.times do
+      Ahoy::Event.create!(visit: visit, name: 'Expanded rule results', time: 1.day.ago,
+                           properties: { campaign_id: @campaign.id, rulebook_id: 1 })
+    end
+    Ahoy::Event.create!(visit: visit, name: 'Searched rules', time: 2.weeks.ago,
+                         properties: { campaign_id: @campaign.id })
+
+    sign_in_as users(:admin)
+    get admin_root_url
+
+    assert_response :success
+    assert_select 'td.text-right', text: '2 / 5 / 3', count: 1
+  end
+
   test 'shows referee and player page view counts for the last week' do
     referee_visit = Ahoy::Visit.create!(visit_token: SecureRandom.uuid, user: users(:one), started_at: 1.day.ago)
     Ahoy::Event.create!(visit: referee_visit, name: 'Viewed page', time: 1.day.ago,

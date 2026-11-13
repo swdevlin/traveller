@@ -1266,6 +1266,19 @@
     @apply px-4 py-3 align-middle text-fg;
   }
 
+  /* Denser variant for wide admin tables: smaller type, tighter rows. */
+  .table-card.compact table {
+    @apply text-xs;
+  }
+
+  .table-card.compact th {
+    @apply px-3 py-2;
+  }
+
+  .table-card.compact td {
+    @apply px-3 py-1.5;
+  }
+
   .table-card .pill {
     @apply inline-flex items-center rounded-full border border-outline bg-panel
     px-2 py-0.5 font-mono tracking-wide text-fg;

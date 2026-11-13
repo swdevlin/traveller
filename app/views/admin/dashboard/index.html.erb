@@ -16,32 +16,37 @@
       <%= render 'application/data_block', label: 'Referees', value: @referee_count %>
     </div>
 
-    <div class='grid grid-cols-2 gap-4 sm:grid-cols-6'>
+    <div class='grid grid-cols-2 gap-4 sm:grid-cols-4'>
       <%= render 'application/data_block', label: 'New this week', value: @campaigns_created_this_week %>
       <%= render 'application/data_block', label: 'New this month', value: @campaigns_created_this_month %>
       <%= render 'application/data_block', label: 'Referee page views (7d)', value: @referee_views_7d %>
       <%= render 'application/data_block', label: 'Player page views (7d)', value: @player_views_7d %>
       <%= render 'application/data_block', label: 'Starmap users (7d)', value: @starmap_users_7d %>
+      <%= render 'application/data_block', label: 'Rule search views (7d)', value: @rule_search_totals_7d[:views] %>
+      <%= render 'application/data_block', label: 'Rule searches (7d)', value: @rule_search_totals_7d[:searches] %>
+      <%= render 'application/data_block', label: 'Rule result views (7d)', value: @rule_search_totals_7d[:expansions] %>
     </div>
 
-    <div class='table-card'>
+    <div class='table-card compact'>
       <div class='table-banner'>
         <p>Campaign registry</p>
+        <div class='actions'>
+          <span class='text-xs uppercase tracking-wide text-fg-muted'>Last 7 days</span>
+        </div>
       </div>
 
       <div class='table-scroll'>
         <table>
           <thead>
           <tr>
-            <th scope='col'>Name</th>
-            <th scope='col'>Slug</th>
-            <th scope='col'>Referee</th>
+            <th scope='col'>Campaign</th>
             <th scope='col'>Type</th>
             <th scope='col' class='text-right'>Sectors</th>
-            <th scope='col' class='text-right'>Star systems</th>
-            <th scope='col' class='text-right'>Referee views (7d)</th>
-            <th scope='col' class='text-right'>Player views (7d)</th>
-            <th scope='col' class='text-right'>Starmap users (7d)</th>
+            <th scope='col' class='text-right'>Systems</th>
+            <th scope='col' class='text-right'>Referee</th>
+            <th scope='col' class='text-right'>Player</th>
+            <th scope='col' class='text-right'>Starmap</th>
+            <th scope='col' class='text-right'>Rule lookup<br><span class='normal-case font-normal'>views / searches / results</span></th>
             <th scope='col'>Created</th>
             <th scope='col'>Last accessed</th>
           </tr>
@@ -51,15 +56,19 @@
           <% @campaigns.each do |row| %>
             <% campaign = row[:campaign] %>
             <tr>
-              <td><%= campaign.name %></td>
-              <td><%= campaign.slug %></td>
-              <td><%= campaign.referee.email_address %></td>
+              <td>
+                <span class='font-medium' title='<%= campaign.referee.email_address %>'><%= campaign.slug %></span><br>
+                <span class='text-fg-muted'><%= campaign.name %></span>
+              </td>
               <td><span class='pill'><%= campaign.campaign_type.humanize %></span></td>
               <td class='text-right'><%= row[:sector_count] || 'n/a' %></td>
               <td class='text-right'><%= row[:star_system_count] || 'n/a' %></td>
               <td class='text-right'><%= row[:referee_views] || 'n/a' %></td>
               <td class='text-right'><%= row[:player_views] || 'n/a' %></td>
               <td class='text-right'><%= row[:starmap_users] || 'n/a' %></td>
+              <td class='text-right whitespace-nowrap'>
+                <%= row[:rule_search_views] ? "#{row[:rule_search_views]} / #{row[:rule_searches]} / #{row[:rule_result_views]}" : 'n/a' %>
+              </td>
               <td><%= campaign.created_at.to_date.iso8601 %></td>
               <td><%= campaign.last_active_at&.to_date&.iso8601 || 'Never' %></td>
             </tr>

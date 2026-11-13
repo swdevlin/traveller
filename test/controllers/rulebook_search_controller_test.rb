@@ -1,6 +1,10 @@
 require 'test_helper'
 
 class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
+  # Ahoy skips bot-looking user agents, which includes the Rails test client's default.
+  BROWSER_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' \
+                       '(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+
   setup do
     self.default_url_options = { campaign_slug: campaigns(:one).slug }
   end
@@ -44,6 +48,42 @@ class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
     get rulebook_search_url, params: { q: 'zzz_no_such_term_zzz' }
     assert_response :success
     assert_includes @response.body, 'No matches'
+  end
+
+  test 'opening the search page tracks a view, not a search' do
+    assert_difference -> { Ahoy::Event.where(name: 'Viewed rule search').count }, 1 do
+      assert_no_difference -> { Ahoy::Event.where(name: 'Searched rules').count } do
+        get rulebook_search_url, headers: { 'User-Agent' => BROWSER_USER_AGENT }
+      end
+    end
+    assert_equal campaigns(:one).id, Ahoy::Event.where(name: 'Viewed rule search').last.properties['campaign_id']
+  end
+
+  test 'running a search tracks a search with campaign and result count, not a view' do
+    assert_difference -> { Ahoy::Event.where(name: 'Searched rules').count }, 1 do
+      assert_no_difference -> { Ahoy::Event.where(name: 'Viewed rule search').count } do
+        get rulebook_search_url, params: { q: 'jump drive' }, headers: { 'User-Agent' => BROWSER_USER_AGENT }
+      end
+    end
+    properties = Ahoy::Event.where(name: 'Searched rules').last.properties
+    assert_equal campaigns(:one).id, properties['campaign_id']
+    assert_equal 'web', properties['source']
+    assert_kind_of Integer, properties['result_count']
+    assert_not_includes properties.keys, 'query'
+  end
+
+  test 'expanding a rulebook\'s results tracks an expansion, not a search or view' do
+    rulebook = campaign_rulebooks(:core_enabled).rulebook
+
+    assert_difference -> { Ahoy::Event.where(name: 'Expanded rule results').count }, 1 do
+      assert_no_difference -> { Ahoy::Event.where(name: ['Searched rules', 'Viewed rule search']).count } do
+        get more_rulebook_search_url, params: { q: 'jump drive', rulebook_id: rulebook.id },
+                                      headers: { 'User-Agent' => BROWSER_USER_AGENT }
+      end
+    end
+    properties = Ahoy::Event.where(name: 'Expanded rule results').last.properties
+    assert_equal campaigns(:one).id, properties['campaign_id']
+    assert_equal rulebook.id, properties['rulebook_id']
   end
 
   test 'handles a malformed query safely' do

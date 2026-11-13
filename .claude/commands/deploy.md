@@ -26,3 +26,7 @@ Perform a Kamal deployment with the following steps:
    - Comment out the `RAILS_MASTER_KEY` line (add `#` prefix)
 
 **Important**: Always restore the `.env` file even if the deploy fails.
+
+## Options
+
+- `nopost`: if specified, skip the Discord and Bluesky announcements (`bin/deploy nopost`).
