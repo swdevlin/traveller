@@ -1249,6 +1249,14 @@
     @apply divide-y divide-outline bg-panel-muted;
   }
 
+  .table-card tfoot {
+    @apply bg-panel;
+  }
+
+  .table-card tfoot td {
+    @apply font-semibold;
+  }
+
   .table-card.no-row-dividers table,
   .table-card.no-row-dividers tbody {
     @apply divide-y-0;

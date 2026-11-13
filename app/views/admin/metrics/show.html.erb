@@ -1,0 +1,23 @@
+<% content_for :title, 'Metrics' %>
+<% content_for :page_kicker, 'Administration' %>
+<% content_for :page_title, 'Metrics' %>
+
+<%= render 'application/page' do %>
+  <%= render 'admin/nav' %>
+
+  <div class='space-y-6'>
+    <nav aria-label='Time window'>
+      <ul class='flex items-center gap-6 text-sm font-medium'>
+        <% @windows.each do |key, info| %>
+          <li>
+            <%= link_to info[:label], admin_metrics_path(window: key),
+                        'aria-current': (key == @window ? 'page' : nil),
+                        class: "no-underline hover:underline hover:underline-offset-2 #{key == @window ? 'text-highlight-fg' : 'text-fg hover:text-highlight-fg'}" %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+
+    <%= render @metrics %>
+  </div>
+<% end %>

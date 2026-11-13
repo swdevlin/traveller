@@ -21,11 +21,12 @@
       <%= render 'application/data_block', label: 'New this month', value: @campaigns_created_this_month %>
       <%= render 'application/data_block', label: 'Referee page views (7d)', value: @referee_views_7d %>
       <%= render 'application/data_block', label: 'Player page views (7d)', value: @player_views_7d %>
-      <%= render 'application/data_block', label: 'Starmap users (7d)', value: @starmap_users_7d %>
-      <%= render 'application/data_block', label: 'Rule search views (7d)', value: @rule_search_totals_7d[:views] %>
-      <%= render 'application/data_block', label: 'Rule searches (7d)', value: @rule_search_totals_7d[:searches] %>
-      <%= render 'application/data_block', label: 'Rule result views (7d)', value: @rule_search_totals_7d[:expansions] %>
+      <%= render 'application/data_block', label: 'Starmap users (7d)', value: @feature_totals_7d[:starmap_users] %>
+      <%= render 'application/data_block', label: 'Rule searches (7d)', value: @feature_totals_7d[:rule_searches] %>
+      <%= render 'application/data_block', label: 'Handouts (7d)', value: @feature_totals_7d[:handouts] %>
     </div>
+
+    <p class='text-sm text-fg-muted'>Per-campaign feature usage is on the <%= link_to 'Metrics', admin_metrics_path, class: 'no-underline hover:underline text-highlight-fg' %> page.</p>
 
     <div class='table-card compact'>
       <div class='table-banner'>
@@ -45,8 +46,6 @@
             <th scope='col' class='text-right'>Systems</th>
             <th scope='col' class='text-right'>Referee</th>
             <th scope='col' class='text-right'>Player</th>
-            <th scope='col' class='text-right'>Starmap</th>
-            <th scope='col' class='text-right'>Rule lookup<br><span class='normal-case font-normal'>views / searches / results</span></th>
             <th scope='col'>Created</th>
             <th scope='col'>Last accessed</th>
           </tr>
@@ -65,10 +64,6 @@
               <td class='text-right'><%= row[:star_system_count] || 'n/a' %></td>
               <td class='text-right'><%= row[:referee_views] || 'n/a' %></td>
               <td class='text-right'><%= row[:player_views] || 'n/a' %></td>
-              <td class='text-right'><%= row[:starmap_users] || 'n/a' %></td>
-              <td class='text-right whitespace-nowrap'>
-                <%= row[:rule_search_views] ? "#{row[:rule_search_views]} / #{row[:rule_searches]} / #{row[:rule_result_views]}" : 'n/a' %>
-              </td>
               <td><%= campaign.created_at.to_date.iso8601 %></td>
               <td><%= campaign.last_active_at&.to_date&.iso8601 || 'Never' %></td>
             </tr>

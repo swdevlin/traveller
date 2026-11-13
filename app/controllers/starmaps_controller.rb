@@ -74,6 +74,6 @@ class StarmapsController < ApplicationController
   private
 
   def page_view_event_name
-    'Used starmap'
+    FeatureUsage::StarmapMetric::EVENT
   end
 end

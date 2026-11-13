@@ -46,6 +46,7 @@ class StarSystemsController < ApplicationController
   def handout
     @handout = StarSystemHandout.new(@star_system, current_campaign, theme: helpers.current_theme, moons: map_moons_mode)
     svg = render_to_string('star_systems/handout', formats: [:svg], layout: false)
+    ahoy.track FeatureUsage::HandoutsMetric::EVENT, campaign_id: current_campaign.id, star_system_id: @star_system.id
 
     send_data SvgPdf.render(SvgRasteriser.embed_images(svg, max_pixels: 192)),
               type: 'application/pdf',

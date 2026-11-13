@@ -7,9 +7,9 @@ class RulebookSearchController < ApplicationController
   MAX_RESULTS_PER_RULEBOOK = 10
   MORE_RESULTS_PER_RULEBOOK = 100
 
-  VIEWED_EVENT = 'Viewed rule search'
-  SEARCHED_EVENT = 'Searched rules'
-  EXPANDED_EVENT = 'Expanded rule results'
+  VIEWED_EVENT = FeatureUsage::RuleLookupMetric::VIEWED_EVENT
+  SEARCHED_EVENT = FeatureUsage::RuleLookupMetric::SEARCHED_EVENT
+  EXPANDED_EVENT = FeatureUsage::RuleLookupMetric::EXPANDED_EVENT
 
   before_action :set_noindex
 

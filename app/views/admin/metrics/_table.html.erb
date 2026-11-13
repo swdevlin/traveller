@@ -1,0 +1,47 @@
+<%= render 'application/subsection', title: table.title %>
+
+<div class='table-card compact'>
+  <div class='table-scroll'>
+    <table>
+      <thead>
+      <tr>
+        <% table.headers.each do |header| %>
+          <th scope='col' class='<%= 'text-right' if header.numeric %>'><%= header.label %></th>
+        <% end %>
+      </tr>
+      </thead>
+      <tbody>
+      <% if table.rows.empty? %>
+        <tr>
+          <td colspan='<%= table.headers.size %>' class='text-fg-muted'><%= table.empty_message %></td>
+        </tr>
+      <% end %>
+      <% table.rows.each do |cells| %>
+        <tr>
+          <% cells.each do |cell| %>
+            <td class='<%= 'text-right' if cell.numeric %>'>
+              <% if cell.subtext %>
+                <span class='font-medium'><%= cell.text %></span><br>
+                <span class='text-fg-muted'><%= cell.subtext %></span>
+              <% else %>
+                <%= cell.text %>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+      </tbody>
+      <tfoot>
+      <tr>
+        <% table.footer.each_with_index do |cell, index| %>
+          <% if index.zero? %>
+            <th scope='row'><%= cell.text %></th>
+          <% else %>
+            <td class='<%= 'text-right' if cell.numeric %>'><%= cell.text %></td>
+          <% end %>
+        <% end %>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

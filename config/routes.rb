@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: 'dashboard#index'
+    resource :metrics, only: :show
 
     resources :rulebooks do
       member do

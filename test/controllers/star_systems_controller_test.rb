@@ -49,6 +49,19 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_match(/handout\.pdf/, response.headers['Content-Disposition'])
   end
 
+  test 'handout records a tracking event for the campaign and system' do
+    # Ahoy skips bot-looking user agents, which includes the Rails test client's default.
+    browser = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+
+    assert_difference -> { Ahoy::Event.where(name: 'Generated handout').count }, 1 do
+      get handout_star_system_url(@star_system, format: :pdf), headers: { 'User-Agent' => browser }
+    end
+
+    properties = Ahoy::Event.where(name: 'Generated handout').last.properties
+    assert_equal @star_system.id, properties['star_system_id']
+    assert_equal campaigns(:one).id, properties['campaign_id']
+  end
+
   test 'show page labels the player notes Survey Records and shows Classified Records to the referee' do
     @star_system.update!(player_notes: 'Seen by all', referee_notes: 'Referee eyes only')
 
