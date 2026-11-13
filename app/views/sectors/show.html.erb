@@ -137,7 +137,7 @@
             <%= safe_join([
               pluralize(@star_system_count, 'system'),
               "#{@populated_world_count} populated",
-              population_summary_fragment(@sector, @sector_highest_population_world),
+              population_summary_fragment(@stats, @sector_highest_population_world),
               safe_join(['Highest tech level ', (@sector_highest_tech_level_code ? HexDigit.hex_digit(@sector_highest_tech_level_code) : '—')]),
               pluralize(@allegiance_count, 'allegiance'),
               pluralize(@rogue_count, 'rogue')
@@ -160,7 +160,7 @@
                  data-ui-updates-sector-id-value='<%= @sector.id %>'
                  data-ui-updates-src-value='<%= sector_path(@sector) %>'>
       <%= render 'ungenerated_notice', sector: @sector %>
-      <%= render 'subsector_cards', sector: @sector, backdrop_url: @map_backdrop_url %>
+      <%= render 'subsector_cards', sector: @sector, stats: @stats, backdrop_url: @map_backdrop_url %>
     </turbo-frame>
 
     <%= render 'application/records_block', record: @sector %>

@@ -12,6 +12,13 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'jump_map renders a PNG' do
+    get jump_map_star_system_url(@star_system, format: :png)
+    assert_response :success
+    assert_equal 'image/png', response.media_type
+    assert_equal "\x89PNG".b, response.body.b[0, 4]
+  end
+
   test 'should get new' do
     get new_star_system_url
     assert_response :success

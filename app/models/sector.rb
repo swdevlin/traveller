@@ -133,6 +133,9 @@ class Sector < ApplicationRecord
   def shift_parsec_coordinates
     x_old, x_new = saved_changes['x'] || [x, x]
     y_old, y_new = saved_changes['y'] || [y, y]
+    # A touch in the same transaction that created the sector leaves the create's changes (nil -> value) behind.
+    return if x_old.nil? || y_old.nil?
+
     x_delta = (x_new - x_old) * 32
     y_delta = (y_new - y_old) * 40
     return if x_delta.zero? && y_delta.zero?

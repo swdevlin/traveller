@@ -10,6 +10,9 @@ module SubwayMapRendering
   # Bump when the subway map templates change, to invalidate cached output.
   SUBWAY_MAP_TEMPLATE_VERSION = 4
 
+  # Actions that follow the moons choice last made in the UI when no parameter is given.
+  SESSION_MOONS_ACTIONS = %w[show handout].freeze
+
   included do
     helper_method :map_moons_mode
     before_action :remember_map_moons, only: :show
@@ -18,10 +21,10 @@ module SubwayMapRendering
   private
 
   # ?moons=significant or ?moons=all adds each planet's moons to the map; anything else leaves them off
-  # (?moons=1 is the earlier spelling of significant). The show pages fall back to the last choice made
+  # (?moons=1 is the earlier spelling of significant). The show pages and the handout fall back to the last choice made
   # in this session; map endpoints (including signed public links) depend on the parameter alone.
   def map_moons_mode
-    case params.fetch(:moons) { (session[:map_moons] if action_name == 'show') }
+    case params.fetch(:moons) { (session[:map_moons] if SESSION_MOONS_ACTIONS.include?(action_name)) }
     when 'significant', '1' then :significant
     when 'all' then :all
     end

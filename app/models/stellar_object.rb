@@ -37,9 +37,9 @@ class StellarObject < ApplicationRecord
 
   before_validation :normalize_size_code
 
-  belongs_to :parsec, optional: true
+  belongs_to :parsec, optional: true, touch: true
   belongs_to :orbiting, class_name: 'StellarObject', foreign_key: :orbiting_id, optional: true, touch: true
-  belongs_to :star_system, optional: true
+  belongs_to :star_system, optional: true, touch: true
 
   has_many :stellar_object_trade_codes, dependent: :destroy
   has_many :trade_codes, through: :stellar_object_trade_codes

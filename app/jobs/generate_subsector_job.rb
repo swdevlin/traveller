@@ -162,6 +162,9 @@ class GenerateSubsectorJob < ApplicationJob
 
     import_jump_routes_with_neighbours(subsector.sector) if subsector.sector.source == 'traveller_map'
 
+    # Bulk writes above (update_column) skip touch callbacks; make sure map caches are invalidated.
+    Sector.where(id: subsector.sector_id).touch_all
+
     subsector.update_columns(generated_at: Time.current, build_log: { 'build' => definition, 'defaults' => applied_defaults })
 
     SubsectorChannel.broadcast_to(subsector, { event: 'finished' })

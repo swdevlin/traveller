@@ -44,7 +44,7 @@ class StarSystemsController < ApplicationController
 
   # One-page PDF of the system for handing to players.
   def handout
-    @handout = StarSystemHandout.new(@star_system, current_campaign, theme: helpers.current_theme)
+    @handout = StarSystemHandout.new(@star_system, current_campaign, theme: helpers.current_theme, moons: map_moons_mode)
     svg = render_to_string('star_systems/handout', formats: [:svg], layout: false)
 
     send_data SvgPdf.render(SvgRasteriser.embed_images(svg, max_pixels: 192)),
@@ -171,8 +171,7 @@ class StarSystemsController < ApplicationController
         png = Rails.cache.fetch("jump_map_png/#{cache_key}") do
           build_jump_map_ivars(radius)
           svg = render_to_string('shared/hex_map', formats: [:svg], layout: false)
-          image = Vips::Image.new_from_buffer(svg, '')
-          image.pngsave_buffer
+          SvgRasteriser.new(SvgRasteriser.embed_images(svg)).png
         end
         send_data png, type: 'image/png', disposition: 'inline'
       end

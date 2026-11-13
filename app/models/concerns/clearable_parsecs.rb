@@ -23,5 +23,8 @@ module ClearableParsecs
     JumpRouteLink.where(to_star_system_id: star_system_ids).delete_all
     star_system_scope.delete_all
     stellar_object_scope.delete_all
+
+    # delete_all skips the touch: true callbacks, so invalidate the map caches by hand.
+    Sector.where(id: scope.select(:sector_id)).touch_all
   end
 end

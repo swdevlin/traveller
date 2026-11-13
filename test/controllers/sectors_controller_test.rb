@@ -201,6 +201,30 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     refute_equal owner_etag, response.headers['ETag']
   end
 
+  test 'statistics panel is cached until the sector changes' do
+    original = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+
+    get statistics_sector_url(@sector)
+    assert_response :success
+
+    queries = []
+    counter = ->(*, payload) { queries << payload[:sql] if payload[:sql].include?('stellar_objects') && !payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record') do
+      get statistics_sector_url(@sector)
+    end
+    assert_response :success
+    assert_empty queries, 'second request should be served from the cache'
+
+    @sector.touch
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record') do
+      get statistics_sector_url(@sector)
+    end
+    assert_not_empty queries, 'touching the sector should invalidate the cached panel'
+  ensure
+    Rails.cache = original
+  end
+
   test 'statistics renders the world statistics partial without a layout' do
     get statistics_sector_url(@sector)
     assert_response :success

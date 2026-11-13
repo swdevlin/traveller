@@ -20,7 +20,7 @@ class StarSystem < ApplicationRecord
 
   normalizes *(attribute_names - %w[native_sophont extinct_sophont known]), with: -> { it.presence }
 
-  belongs_to :parsec
+  belongs_to :parsec, touch: true
   belongs_to :main_world, class_name: 'StellarObject', optional: true
   belongs_to :allegiance, optional: true
   belongs_to :travel_zone, optional: true

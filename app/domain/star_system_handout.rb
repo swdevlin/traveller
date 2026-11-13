@@ -19,7 +19,7 @@ class StarSystemHandout
   ADVISORY_LABEL = 'STARPORT CONTROL // PUBLIC ADVISORY'
 
   # The fixed colours; the accent and its tints come from the viewer's theme (HandoutPalette).
-  BASE_COLOURS = { ink: '#1b2733', muted: '#5b6b7a', warn: '#b45f06' }.freeze
+  BASE_COLOURS = { ink: '#1b2733', muted: '#5b6b7a' }.freeze
 
   Block = HandoutCanvas::Block
 
@@ -42,7 +42,18 @@ class StarSystemHandout
   # The schematic is for flavour, so it stays a short strip unless a side panel would show it
   # at least this many times larger.
   SIDE_PANEL_ADVANTAGE = 2.0
-  MIN_ROWS_SHOWN = 2
+  DM_RUNS = 3
+  # A list longer than this is always set in at least two columns, to leave the surface map more height.
+  DM_TWO_COLUMN_MIN_GOODS = 6
+  # Type sizes tried for the commodity list, largest first (capped, so a short list is not blown up
+  # to fill the space). The first group keeps the usual line spacing; the smaller sizes are a last resort and are set tighter.
+  DM_STEPS = (15..24).map { |tenths| tenths / 10.0 }.reverse.freeze
+  DM_SMALL_STEPS = [1.4, 1.3, 1.2, 1.1, 1.0].freeze
+  # Characters kept for the "+1 / +2" figures (seven, and one more for a two-digit DM) and a gap.
+  DM_FIGURE_COLS = 8
+  DM_NAME_GAP_COLS = 1
+  # Without a height limit, a column is filled to this many rows before another is started.
+  DM_NATURAL_ROWS = 12
   ROW_GAP = 0.3
   # Under the main world's node on the schematic: the layout puts its UWP this many units below
   # the node, and the year and day lines follow it at this size and spacing (mm).
@@ -83,8 +94,9 @@ class StarSystemHandout
 
   attr_reader :width, :height, :omitted
 
-  def initialize(star_system, campaign, theme: nil)
+  def initialize(star_system, campaign, theme: nil, moons: nil)
     @system = star_system
+    @moons = moons
     @campaign = campaign
     @world = star_system.main_world
     @width, @height = PAPER_SIZES.fetch(campaign.handout_paper_size_or_default) { PAPER_SIZES.fetch('letter') }
@@ -137,7 +149,7 @@ class StarSystemHandout
     @items << text(MARGIN, MARGIN + 2.4, "#{@campaign.name} // system survey record".upcase,
                    size: 2.0, fill: :accent, spacing: 0.3)
     @items << text(right, MARGIN + 2.4, ADVISORY_LABEL,
-                   size: 2.0, fill: :warn, weight: 'bold', anchor: 'end', spacing: 0.3)
+                   size: 2.0, fill: :accent, weight: 'bold', anchor: 'end', spacing: 0.3)
     @items << text(MARGIN, MARGIN + 12.0, name, size: name_size, font: :display, weight: 'bold')
     @items << text(MARGIN, MARGIN + 17.5, location_line, size: 2.4, fill: :muted)
 
@@ -213,7 +225,7 @@ class StarSystemHandout
   end
 
   def compose_subway(top)
-    layout = StarSystemMapLayout.new(@system)
+    layout = StarSystemMapLayout.new(@system, moons: @moons)
     box = subway_view_box(layout)
     box_width = box[2]
     box_height = box[3]
@@ -278,7 +290,7 @@ class StarSystemHandout
     return if @omitted.empty?
 
     @items << text(@width / 2, base - 1.2, "Omitted for space: #{@omitted.join(', ')}".upcase,
-                   size: 1.6, fill: :warn, anchor: 'middle')
+                   size: 1.6, fill: :accent, anchor: 'middle')
   end
 
   # ---- player layout -------------------------------------------------------------------------
@@ -317,11 +329,11 @@ class StarSystemHandout
     @omitted << 'Trade & commerce' if trade.nil? && @system.trade_dm_codes.any?
   end
 
-  # Trade goes under the jump shadow, taking at most 45% of the column so that the map keeps room.
+  # Trade goes under the jump shadow, taking at most 60% of the column so that the map keeps room.
   def trade_block_for_player(width, column_room)
     return unless @system.trade_dm_codes.any?
 
-    trade_section(width, [column_room * 0.45, trade_section(width, nil)&.height.to_f].min)
+    trade_section(width, [column_room * 0.6, trade_section(width, nil)&.height.to_f].min)
   end
 
   def place_player_notes(x, top, width, bottom)
@@ -568,7 +580,7 @@ class StarSystemHandout
       x = index * cell_width
       [
         text(x, 2.2, "#{g}G", size: 1.8, fill: :muted),
-        text(x, 6.0, time, size: 2.8, font: :display, weight: 'bold')
+        text(x, 5.8, time, size: 2.3, font: :display, weight: 'bold')
       ]
     end
     source = @world.effective_jump_shadow_source
@@ -617,45 +629,89 @@ class StarSystemHandout
     Block.new(items, (line + 1) * line_height(size))
   end
 
-  # The goods listed in two or three side-by-side runs, as many as fit; the rest are summarised.
+  # Every good, in as many side-by-side runs (one to three) as it takes, and never abbreviated: the
+  # type and line spacing shrink, a step at a time, until the longest name and every row fit. If
+  # they cannot fit even at the smallest step the block is left out.
   def dm_block(goods, width, max_height)
-    line_height = 3.0
     if goods.empty?
       return Block.new([text(0, VALUE_SIZE, 'No commodity DMs for these codes.', size: VALUE_SIZE, fill: :muted)], 3.0)
     end
 
-    ups = width >= 130 ? 3 : 2
-    balanced = (goods.size.to_f / ups).ceil
-    per_column = max_height ? [((max_height - 4.0) / line_height).floor, balanced].min : balanced
-    return if per_column < MIN_ROWS_SHOWN
+    layout = dm_layout(goods, width, max_height)
+    return unless layout
 
-    capacity = per_column * ups
-    shown = goods.size > capacity ? goods.first(capacity - 1) : goods
-    extra = goods.size - shown.size
-    run_width = (width - (COLUMN_GAP * (ups - 1))) / ups
-    name_cols = ((run_width - 12.0) / char_width(VALUE_SIZE)).floor
+    runs, size, line_height = layout
+    per_column = (goods.size.to_f / runs).ceil
+    run_width = (width - (COLUMN_GAP * (runs - 1))) / runs
+    header_size = [size, 1.7].min
 
     items = []
-    ups.times do |run|
+    runs.times do |run|
       x = run * (run_width + COLUMN_GAP)
-      items << text(x, 2.0, 'COMMODITY', size: 1.7, fill: :muted, weight: 'bold')
-      items << text(x + run_width - 6.5, 2.0, 'BUY', size: 1.7, fill: :muted, weight: 'bold', anchor: 'end')
-      items << text(x + run_width, 2.0, 'SELL', size: 1.7, fill: :muted, weight: 'bold', anchor: 'end')
+      items << text(x, 2.0, 'COMMODITY', size: header_size, fill: :muted, weight: 'bold')
+      items.concat(dm_header_items(x + run_width, size, header_size))
     end
-    shown.each_with_index do |good, index|
+    goods.each_with_index do |good, index|
       x = (index / per_column) * (run_width + COLUMN_GAP)
-      baseline = 4.0 + ((index % per_column) * line_height) + VALUE_SIZE
-      items << text(x, baseline, truncate_plain(good[:name], name_cols), size: VALUE_SIZE)
-      items << text(x + run_width - 6.5, baseline, format_dm(good[:purchase_dm]), size: VALUE_SIZE, anchor: 'end')
-      items << text(x + run_width, baseline, format_dm(good[:sale_dm]), size: VALUE_SIZE, anchor: 'end')
+      baseline = 4.0 + ((index % per_column) * line_height) + size
+      items << text(x, baseline, good[:name], size: size)
+      items.concat(dm_pair_items(x + run_width, baseline, good, size))
     end
-    slots = shown.size + (extra.positive? ? 1 : 0)
-    if extra.positive?
-      x = (shown.size / per_column) * (run_width + COLUMN_GAP)
-      baseline = 4.0 + ((shown.size % per_column) * line_height) + VALUE_SIZE
-      items << text(x, baseline, "+ #{extra} more", size: VALUE_SIZE, fill: :muted, italic: true)
+    Block.new(items, 4.0 + (per_column * line_height))
+  end
+
+  # The runs and type size, the largest type with the fewest runs, at which the rows and the longest name fit:
+  # [runs, type size, line height], or nil if nothing fits.
+  def dm_layout(goods, width, max_height)
+    longest = goods.map { |good| good[:name].to_s.length }.max
+    limit = max_height || (4.0 + (DM_NATURAL_ROWS * 3.0))
+    usual = DM_STEPS.map { |size| [size, size * 1.5] } + [[DM_STEPS.last, DM_STEPS.last * 1.3]]
+    small = DM_SMALL_STEPS.map { |size| [size, size * 1.3] }
+
+    fewest_runs = goods.size > DM_TWO_COLUMN_MIN_GOODS ? 2 : 1
+    fits = (fewest_runs..DM_RUNS).filter_map do |runs|
+      found = dm_fit(usual, goods.size, runs, width, longest, limit)
+      [runs, *found] if found
     end
-    Block.new(items, 4.0 + ([slots, per_column].min * line_height))
+    # The largest type wins; on a tie, the fewest columns (two at the least for a long list).
+    best = fits.max_by { |runs, size, _line| [size, -runs] }
+    return best if best
+    found = dm_fit(small, goods.size, DM_RUNS, width, longest, limit)
+    return [DM_RUNS, *found] if found
+
+    # With no height limit the block has to be measured whatever it comes to.
+    [DM_RUNS, DM_SMALL_STEPS.last, DM_SMALL_STEPS.last * 1.3] unless max_height
+  end
+
+  def dm_fit(steps, count, runs, width, longest, limit)
+    rows = (count.to_f / runs).ceil
+    run_width = (width - (COLUMN_GAP * (runs - 1))) / runs
+    steps.find do |size, line|
+      4.0 + (rows * line) <= limit &&
+        (run_width / char_width(size)) >= longest + DM_FIGURE_COLS + DM_NAME_GAP_COLS
+    end
+  end
+
+  # The buy and sell DMs as separate right-aligned fields either side of a slash, so that they line up
+  # from row to row whatever the glyphs ("—" is often drawn from a fallback font of another width).
+  def dm_pair_items(right, baseline, good, size)
+    char = char_width(size)
+    [
+      text(right - (4 * char), baseline, format_dm(good[:purchase_dm]), size: size, anchor: 'end'),
+      text(right - (3 * char), baseline, '/', size: size, anchor: 'middle'),
+      text(right, baseline, format_dm(good[:sale_dm]), size: size, anchor: 'end')
+    ]
+  end
+
+  # "B / S" over the buy and sell fields, positioned to match dm_pair_items.
+  def dm_header_items(right, size, header_size)
+    char = char_width(size)
+    style = { size: header_size, fill: :muted, weight: 'bold' }
+    [
+      text(right - (4 * char), 2.0, 'B', anchor: 'end', **style),
+      text(right - (3 * char), 2.0, '/', anchor: 'middle', **style),
+      text(right, 2.0, 'S', anchor: 'end', **style)
+    ]
   end
 
   def format_dm(value)

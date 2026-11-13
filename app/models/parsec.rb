@@ -2,7 +2,7 @@ class Parsec < ApplicationRecord
   include FontAwesomeIconField
 
   validates :x, :y, :sector, presence: true
-  belongs_to :sector
+  belongs_to :sector, touch: true
   has_many :star_systems, dependent: :destroy
   has_many :stellar_objects, dependent: :destroy
 

@@ -146,8 +146,8 @@ class SectorsController < ApplicationController
 
   # GET /sectors/1 or /sectors/1.json
   def show
-    @star_system_count =
-      StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).count
+    @stats = SectorStatistics.new(@sector)
+    @star_system_count = @stats.number_of_star_systems
 
     @rogue_count =
       StellarObject
@@ -156,11 +156,10 @@ class SectorsController < ApplicationController
         .where(orbiting_id: nil)
         .count
 
-    @populated_world_count = @sector.number_of_populated_worlds
-    @sector_total_population = @sector.total_population
-    @sector_highest_tech_level_code = @sector.highest_tech_level_world&.tech_level_code
-    @sector_highest_population_world = @sector.highest_population_world
-    @allegiance_count = @sector.get_allegiances.count
+    @populated_world_count = @stats.number_of_populated_worlds
+    @sector_highest_tech_level_code = @stats.highest_tech_level_code
+    @sector_highest_population_world = @stats.highest_population_world
+    @allegiance_count = @stats.allegiance_count
     @map_backdrop_url = helpers.sector_map_backdrop_url(@sector)
 
     position = Sector.kept.where('LOWER(name) < ?', @sector.name.downcase).count + 1
@@ -169,16 +168,28 @@ class SectorsController < ApplicationController
     @starmap_center = [ul.x + 16, ul.y - 20]
   end
 
-  def statistics
-    @governments_by_code  = Government.all.index_by(&:code)
-    @law_levels_by_code   = LawLevel.all.index_by(&:code)
-    @tech_levels_by_code  = TechLevel.all.index_by(&:code)
-    @allegiances_by_id    = Allegiance.all.index_by(&:id)
-    @travel_zones_by_id   = TravelZone.all.index_by(&:id)
-    @facilities_by_id     = Facility.all.index_by(&:id)
-    @trade_codes_by_id    = TradeCode.all.index_by(&:id)
+  STATISTICS_LOOKUPS = [Government, LawLevel, TechLevel, Allegiance, TravelZone, Facility, TradeCode].freeze
 
-    render layout: false
+  # The distributions only change when something in the sector does (which touches
+  # Sector#updated_at) or when a label they display is edited, so the rendered panel
+  # is cached against both. The markup has nothing user-specific in it.
+  def statistics
+    key = ['sector_statistics_panel', Apartment::Tenant.current, @sector.cache_key_with_version,
+           *STATISTICS_LOOKUPS.map { |model| model.maximum(:updated_at)&.utc&.iso8601(6) }]
+
+    html = Rails.cache.fetch(key) do
+      @governments_by_code  = Government.all.index_by(&:code)
+      @law_levels_by_code   = LawLevel.all.index_by(&:code)
+      @tech_levels_by_code  = TechLevel.all.index_by(&:code)
+      @allegiances_by_id    = Allegiance.all.index_by(&:id)
+      @travel_zones_by_id   = TravelZone.all.index_by(&:id)
+      @facilities_by_id     = Facility.all.index_by(&:id)
+      @trade_codes_by_id    = TradeCode.all.index_by(&:id)
+
+      render_to_string(layout: false)
+    end
+
+    render html: html.html_safe, layout: false
   end
 
   def new_from_traveller_map

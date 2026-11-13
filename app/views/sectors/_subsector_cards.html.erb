@@ -1,4 +1,4 @@
-<%# locals: (sector:, backdrop_url: nil) %>
+<%# locals: (sector:, stats:, backdrop_url: nil) %>
 
 <% subsectors_by_coord = sector.subsectors.index_by { |s| [s.x, s.y] } %>
 <%
@@ -32,7 +32,8 @@
       <% subsector = subsectors_by_coord[[col, row]] %>
 
       <% if subsector %>
-        <% highest_tl_code = subsector.highest_tech_level_world&.tech_level_code %>
+        <% summary = stats.summary_for(subsector) %>
+        <% highest_tl_code = summary.highest_tech_level_code %>
         <div data-controller='row-link'
              data-row-link-url-value='<%= subsector_path(subsector) %>'
              data-action='click->row-link#navigate'
@@ -47,12 +48,12 @@
 
             <div class='relative grid grid-cols-2 gap-3 py-2'>
               <div class='h-fit w-fit justify-self-center text-center lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
-                <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_star_systems %></div>
+                <div class='text-2xl font-semibold text-fg-bright'><%= summary.number_of_star_systems %></div>
                 <div class='mt-0.5 text-sm text-fg'>Systems</div>
               </div>
               <% if show_population_count? %>
                 <div class='h-fit w-fit justify-self-center text-center lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
-                  <div class='text-2xl font-semibold text-fg-bright'><%= subsector.number_of_populated_star_systems %></div>
+                  <div class='text-2xl font-semibold text-fg-bright'><%= summary.number_of_populated_star_systems %></div>
                   <div class='mt-0.5 text-sm text-fg'>Inhabited</div>
                 </div>
               <% end %>
@@ -63,7 +64,7 @@
                 <div class='flex items-baseline justify-between'>
                   <dt class='text-fg lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>Population</dt>
                   <dd class='font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
-                    <%= subsector.worlds_with_known_census_count.positive? ? abbreviated_population(subsector.total_population.to_i) : '—' %>
+                    <%= summary.worlds_with_known_census_count.positive? ? abbreviated_population(summary.total_population.to_i) : '—' %>
                   </dd>
                 </div>
                 <div class='flex items-baseline justify-between'>
@@ -75,7 +76,7 @@
                 <dt class='text-fg lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>Allegiances</dt>
                 <dd class='text-right font-semibold text-fg-bright lg:[text-shadow:0_0_3px_var(--color-panel),0_0_6px_var(--color-panel),0_0_10px_var(--color-panel)]'>
                   <%= safe_join(
-                        subsector.allegiances.order(:code).map { |a|
+                        summary.allegiances.map { |a|
                           link_to a.code, allegiance_path(a), class: 'no-underline hover:underline', title: a.name
                         },
                         ', '
