@@ -4,7 +4,7 @@ class FeatureUsageCatalogueTest < ActiveSupport::TestCase
   test 'lists every concrete metric and not the abstract bases' do
     classes = FeatureUsage::Catalogue.all.map(&:class)
 
-    assert_equal [FeatureUsage::HandoutsMetric, FeatureUsage::RuleLookupMetric, FeatureUsage::StarmapMetric], classes
+    assert_equal [FeatureUsage::HandoutsMetric, FeatureUsage::HelpMetric, FeatureUsage::RuleLookupMetric, FeatureUsage::StarmapMetric], classes
   end
 
   test 'totals merge every metric column' do

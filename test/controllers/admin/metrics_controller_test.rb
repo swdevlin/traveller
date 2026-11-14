@@ -59,6 +59,22 @@ class Admin::MetricsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'tbody td.text-right', text: '3', count: 1
   end
 
+  test 'counts help views and distinct campaigns per page' do
+    other = campaigns(:two)
+    3.times { track('Viewed help', page: 'star_systems_show') }
+    Ahoy::Event.create!(visit: @visit, name: 'Viewed help', time: 1.day.ago,
+                        properties: { campaign_id: other.id, page: 'star_systems_show' })
+    track('Viewed help', page: 'index')
+
+    sign_in_as users(:admin)
+    get admin_metrics_url
+
+    assert_response :success
+    assert_select 'tbody tr', text: /Star Systems Show\s*4\s*2/
+    assert_select 'tbody tr', text: /Help index\s*1\s*1/
+    assert_select 'tfoot td.text-right', text: '5', count: 1
+  end
+
   test 'the window limits the counts' do
     track('Generated handout', star_system_id: 1)
     track('Generated handout', time: 20.days.ago, star_system_id: 2)
