@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Api::RoutePlansController < Api::BaseController
-  LIMIT = 12
-
   before_action :authenticate_user_or_token!, only: %i[save]
 
   def plan
@@ -94,16 +92,6 @@ class Api::RoutePlansController < Api::BaseController
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
-  def systems
-    q = params[:q].to_s.strip
-    return render json: [] if q.length < 3
-
-    authenticated_by_session?
-    is_referee = Current.owns_campaign?
-
-    render json: search_systems(q, is_referee)
-  end
-
   private
 
   def system_json(system)
@@ -123,30 +111,5 @@ class Api::RoutePlansController < Api::BaseController
       transit_hours:     timing.transit_hours,
       elapsed_avg_hours: timing.elapsed_avg_hours
     }
-  end
-
-  HEX_CODE_SQL = <<~SQL.squish.freeze
-    LPAD((parsecs.x - sec.x * 32 + 1)::text, 2, '0') ||
-    LPAD((sec.y * 40 - parsecs.y + 1)::text, 2, '0')
-  SQL
-
-  def search_systems(q, is_referee)
-    visibility = is_referee ? '' : 'AND (ss.known = true OR ss.survey_index >= 10)'
-
-    sql = <<~SQL
-      SELECT ss.id, ss.name,
-             word_similarity($1, ss.name) AS score,
-             sec.name || ' · ' || #{HEX_CODE_SQL} AS meta
-      FROM star_systems ss
-      JOIN parsecs ON parsecs.id = ss.parsec_id
-      JOIN sectors sec ON sec.id = parsecs.sector_id
-      WHERE ss.name IS NOT NULL AND $1 <% ss.name
-        #{visibility}
-      ORDER BY score DESC, ss.name ASC
-      LIMIT #{LIMIT}
-    SQL
-
-    rows = ActiveRecord::Base.connection.exec_query(sql, 'RoutePlanSystemSearch', [q])
-    rows.map { |r| { id: r['id'], name: r['name'], meta: r['meta'] } }
   end
 end

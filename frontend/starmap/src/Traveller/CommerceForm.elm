@@ -666,7 +666,7 @@ sendSystemsRequest ( urlRoot, urlPath ) query toMsg =
         , headers = []
         , url =
             Url.Builder.crossOrigin urlRoot
-                (urlPath ++ [ "route_plan", "systems" ])
+                (urlPath ++ [ "star_systems" ])
                 [ Url.Builder.string "q" query ]
         , body = Http.emptyBody
         , expect = Http.expectJson toMsg (JsDecode.list RoutePlan.routePlanSystemResultDecoder)

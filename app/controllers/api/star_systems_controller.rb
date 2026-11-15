@@ -12,6 +12,17 @@ class Api::StarSystemsController < Api::BaseController
     end
   end
 
+  # Finds systems by name, hex code or sector name; see StarSystemFinder.
+  def search
+    sector_id = nil
+    if params[:sector_id].present?
+      sector_id = Integer(params[:sector_id].to_s, exception: false)
+      return render json: { error: 'sector_id must be a whole number' }, status: :bad_request unless sector_id
+    end
+
+    render json: StarSystemFinder.new(query: params[:q], referee: Current.referee_access?, sector_id: sector_id).call
+  end
+
   def show
     authenticated_by_session?
     Current.api_token_authenticated = authenticated_by_token?

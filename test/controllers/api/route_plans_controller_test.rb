@@ -97,17 +97,4 @@ class Api::RoutePlansControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :created
   end
-
-  test 'systems excludes unsurveyed systems for anonymous requests and includes them for the referee' do
-    build_star_system(60, 0, name: 'Zeta Prime', known: false, survey_index: 0)
-
-    get api_route_plan_systems_url(campaign_slug: @campaign.slug, q: 'Zeta Prime'), as: :json
-    assert_response :success
-    assert_empty response.parsed_body
-
-    sign_in_as users(:one)
-    get api_route_plan_systems_url(campaign_slug: @campaign.slug, q: 'Zeta Prime'), as: :json
-    assert_response :success
-    assert_equal 1, response.parsed_body.size
-  end
 end

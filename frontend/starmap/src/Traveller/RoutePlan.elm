@@ -146,7 +146,7 @@ travelZoneOptionDecoder =
         |> required "colour" Decode.string
 
 
-{-| One row returned by the from/to system picker (`api/route_plan/systems`).
+{-| One row returned by the from/to system picker (`api/star_systems`).
 -}
 type alias RoutePlanSystemResult =
     { id : Int

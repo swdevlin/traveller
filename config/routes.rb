@@ -71,6 +71,7 @@ Rails.application.routes.draw do
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
       patch 'star_systems/:id', to: 'star_systems#update', defaults: { format: :json }
+      get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
@@ -89,7 +90,6 @@ Rails.application.routes.draw do
       get 'subsector_at',  to: 'subsector_lookup#show', defaults: { format: :json }
       get  'route_plan',         to: 'route_plans#plan',    defaults: { format: :json }
       post 'route_plan/save',    to: 'route_plans#save',    defaults: { format: :json }
-      get  'route_plan/systems', to: 'route_plans#systems', defaults: { format: :json }
       get  'passenger_traffic',        to: 'passenger_traffic#calculate', defaults: { format: :json }
       get  'passenger_traffic/system', to: 'passenger_traffic#system',    defaults: { format: :json }
       get  'freight_traffic',        to: 'freight_traffic#calculate', defaults: { format: :json }
@@ -291,7 +291,6 @@ Rails.application.routes.draw do
     end
 
     get '/search',              to: 'search#query'
-    get '/search/star-systems', to: 'search#star_systems', as: :search_star_systems
     resource :route_plan, only: [:new] do
       collection do
         post :save
