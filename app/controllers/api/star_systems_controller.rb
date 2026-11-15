@@ -19,12 +19,7 @@ class Api::StarSystemsController < Api::BaseController
     authenticated_by_session?
     Current.api_token_authenticated = authenticated_by_token?
     @is_referee = Current.referee_access?
-    @star_system = StarSystem
-                   .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,
-                              { stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion,
-                                        { stars: [{ stellar_objects: [{ moons: %i[allegiance orbiting] }, :allegiance, :orbiting] }, :companion] }] },
-                              main_world: :trade_codes)
-                   .find_by(id: params[:id])
+    @star_system = StarSystemDetailLoader.new(StarSystem.where(id: params[:id]), referee: @is_referee).load
     render json: { error: 'star system not found' }, status: :not_found unless @star_system
   end
 

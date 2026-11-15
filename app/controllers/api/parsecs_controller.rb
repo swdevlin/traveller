@@ -32,12 +32,7 @@ class Api::ParsecsController < Api::BaseController
     Current.api_token_authenticated = authenticated_by_token?
     @is_referee = Current.referee_access?
 
-    @star_system = @parsec.star_systems
-                          .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,
-                                    { stars: [{ stellar_objects: :moons }, :companion,
-                                              { stars: [{ stellar_objects: :moons }, :companion] }] },
-                                    main_world: :trade_codes)
-                          .first
+    @star_system = StarSystemDetailLoader.new(@parsec.star_systems, referee: @is_referee).load
   end
 
   def update

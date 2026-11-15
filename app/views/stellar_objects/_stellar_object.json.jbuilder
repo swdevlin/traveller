@@ -16,7 +16,7 @@ json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
 
 deep_snake = ->(val) {
   case val
-  when Hash  then val.transform_keys { |k| k.to_s.underscore }.transform_values(&deep_snake)
+  when Hash  then val.transform_keys { |k| StellarObjectsHelper.snake_key(k) }.transform_values(&deep_snake)
   when Array then val.map(&deep_snake)
   else val
   end
@@ -28,7 +28,7 @@ stellar_data = stellar_object.data&.except('periapsis_temperature', 'apoapsis_te
 if stellar_data&.dig('population').is_a?(Hash)
   stellar_data = stellar_data.merge('population' => stellar_data['population'].except('majorCityPopulations'))
 end
-stellar_data&.each { |key, value| json.set! key.to_s.underscore, deep_snake.call(value) }
+stellar_data&.each { |key, value| json.set! StellarObjectsHelper.snake_key(key), deep_snake.call(value) }
 
 if stellar_object.respond_to?(:periapsis_temperature)
   json.current_temperature stellar_object.current_temperature
