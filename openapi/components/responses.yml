@@ -1,4 +1,6 @@
 # Reusable responses
+NotModified:
+  description: The copy identified by `If-None-Match` is still current. There is no body.
 CampaignNotFound:
   description: No campaign exists with the given slug.
   content:

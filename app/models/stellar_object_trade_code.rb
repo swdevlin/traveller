@@ -1,5 +1,5 @@
 class StellarObjectTradeCode < ApplicationRecord
-  belongs_to :stellar_object
+  belongs_to :stellar_object, touch: true
   belongs_to :trade_code
 
   # Pass a precomputed trade_code_lookup (code => id) when assigning for many objects to

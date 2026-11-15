@@ -13,7 +13,8 @@ module HasPlanetMap
   # Fingerprint of everything the map is generated from. Cities are records rather than
   # part of `data`, so they are folded in explicitly.
   def map_inputs_digest
-    inputs = as_json.merge('cities' => cities.order(:id).as_json(only: %i[id name city_type capital_designation population]))
+    # updated_at is not an input, and storing a map touches the object that owns it.
+    inputs = as_json.except('updated_at').merge('cities' => cities.order(:id).as_json(only: %i[id name city_type capital_designation population]))
     Digest::SHA256.hexdigest(inputs.to_json)
   end
 

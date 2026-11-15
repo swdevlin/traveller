@@ -55,14 +55,21 @@
       Details the players have not discovered are withheld: unless the
       system is known or its survey index is at least 10, the response omits
       survey records, bases, trade codes and similar fields.
+
+      The response has an `ETag`. Send it back as `If-None-Match` to get `304`
+      with no body while the system is unchanged, which is much faster.
     parameters:
       - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/IfNoneMatch' }
     responses:
       '200':
         description: The star system.
+        headers:
+          ETag: { description: Identifies this version of the response., schema: { type: string } }
         content:
           application/json:
             schema: { $ref: '#/components/schemas/StarSystemDetail' }
+      '304': { $ref: '#/components/responses/NotModified' }
       '404':
         description: No star system has this id.
         content:

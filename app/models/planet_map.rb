@@ -2,7 +2,7 @@ class PlanetMap < ApplicationRecord
   PICTURE_TYPES = %w[image/png image/jpeg image/webp image/gif].freeze
   MAX_PICTURE_BYTES = 10.megabytes
 
-  belongs_to :stellar_object
+  belongs_to :stellar_object, touch: true
 
   enum :source, { generated: 'generated', uploaded: 'uploaded' }
 

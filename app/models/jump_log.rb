@@ -40,10 +40,11 @@ class JumpLog < ApplicationRecord
     systems = StarSystem.where(parsec_id: to_parsec_id)
 
     if systems.exists?
-      systems.where('survey_index < ?', minimum).update_all(survey_index: minimum)
+      # updated_at is set by hand: update_all skips it, and what is cached against it would go stale.
+      systems.where('survey_index < ?', minimum).update_all(survey_index: minimum, updated_at: Time.current)
     else
       Parsec.where(id: to_parsec_id).where('survey_index IS NULL OR survey_index < ?', minimum)
-            .update_all(survey_index: minimum)
+            .update_all(survey_index: minimum, updated_at: Time.current)
     end
   end
 
@@ -112,9 +113,9 @@ class JumpLog < ApplicationRecord
     return unless to_parsec
     star_system = to_parsec.star_systems.first
     if star_system
-      star_system.update_column(:survey_index, destination_survey_index.to_i)
+      star_system.update_columns(survey_index: destination_survey_index.to_i, updated_at: Time.current)
     else
-      to_parsec.update_column(:survey_index, destination_survey_index.to_i)
+      to_parsec.update_columns(survey_index: destination_survey_index.to_i, updated_at: Time.current)
     end
   end
 

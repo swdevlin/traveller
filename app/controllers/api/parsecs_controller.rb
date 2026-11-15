@@ -1,4 +1,6 @@
 class Api::ParsecsController < Api::BaseController
+  include StarSystemDetailCaching
+
   helper ApplicationHelper, StellarObjectsHelper
 
   before_action :authenticate_user_or_token!, only: %i[update]
@@ -32,7 +34,10 @@ class Api::ParsecsController < Api::BaseController
     Current.api_token_authenticated = authenticated_by_token?
     @is_referee = Current.referee_access?
 
-    @star_system = StarSystemDetailLoader.new(@parsec.star_systems, referee: @is_referee).load
+    star_system = @parsec.star_systems.first
+    return render :lookup unless star_system  # an empty hex: nothing worth caching
+
+    render_star_system_detail(star_system, template: 'api/parsecs/lookup', parsec: @parsec)
   end
 
   def update

@@ -1,5 +1,7 @@
 # Tags belong to the current campaign's tenant, like the objects that use them.
 class Tag < ApplicationRecord
+  include TouchesStarSystems
+
   OBJECT_TYPES = %w[Sector Subsector StarSystem StellarObject Region].freeze
 
   # Second Survey nobility codes, as found in the Traveller Map Nobility column.

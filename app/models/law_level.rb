@@ -1,4 +1,6 @@
 class LawLevel < ApplicationRecord
+  include TouchesStarSystems
+
   validates :code,
             presence: true,
             uniqueness: true,

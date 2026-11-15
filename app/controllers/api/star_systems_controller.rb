@@ -1,4 +1,6 @@
 class Api::StarSystemsController < Api::BaseController
+  include StarSystemDetailCaching
+
   helper ApplicationHelper
   helper StellarObjectsHelper
 
@@ -19,8 +21,10 @@ class Api::StarSystemsController < Api::BaseController
     authenticated_by_session?
     Current.api_token_authenticated = authenticated_by_token?
     @is_referee = Current.referee_access?
-    @star_system = StarSystemDetailLoader.new(StarSystem.where(id: params[:id]), referee: @is_referee).load
-    render json: { error: 'star system not found' }, status: :not_found unless @star_system
+    star_system = StarSystem.find_by(id: params[:id])
+    return render json: { error: 'star system not found' }, status: :not_found unless star_system
+
+    render_star_system_detail(star_system, template: 'api/star_systems/show')
   end
 
   def update

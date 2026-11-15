@@ -1,4 +1,12 @@
 # Reusable parameters
+IfNoneMatch:
+  name: If-None-Match
+  in: header
+  description: |
+    The `ETag` of a copy you already have. If it is still current the response
+    is `304` with no body. The `ETag` depends on who is asking, so it is only
+    valid for the same credentials.
+  schema: { type: string }
 Id:
   name: id
   in: path
