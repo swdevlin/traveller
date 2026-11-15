@@ -8,6 +8,27 @@ class Api::BaseController < ActionController::API
   helper_method :current_campaign
   helper MarkdownHelper
 
+  # The largest bounding box a limited endpoint accepts: a 2x2 block of
+  # subsectors (a subsector is 8x10).
+  MAX_BOUNDING_BOX_COLUMNS = 16
+  MAX_BOUNDING_BOX_ROWS = 20
+
+  # Rejects a bounding box (ulx, uly, lrx, lry) larger than 16 columns by 20
+  # rows with a 400. Only the box is limited: a request that gives a sector
+  # (sx, sy) is unaffected, since viewport_bounds uses the sector and a sector
+  # is already no larger than 32x40. Takes before_action options.
+  def self.limit_bounding_box(**options)
+    before_action(**options) do
+      columns = params[:lrx].to_i - params[:ulx].to_i + 1
+      rows = params[:uly].to_i - params[:lry].to_i + 1
+      sector_given = params[:sx].present? && params[:sy].present?
+      next if sector_given || (columns <= MAX_BOUNDING_BOX_COLUMNS && rows <= MAX_BOUNDING_BOX_ROWS)
+
+      render json: { error: "bounding box must be no larger than #{MAX_BOUNDING_BOX_COLUMNS} columns by #{MAX_BOUNDING_BOX_ROWS} rows" },
+             status: :bad_request
+    end
+  end
+
   def default_url_options
     params[:campaign_slug].present? ? { campaign_slug: params[:campaign_slug] } : {}
   end
