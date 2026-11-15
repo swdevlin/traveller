@@ -1,0 +1,87 @@
+# Paths: Map
+/star_map:
+  get:
+    operationId: getStarMap
+    tags: [Map]
+    summary: Systems in an area, for plotting
+    description: |
+      The systems in an area, with the fields needed to plot them on a map.
+      Strategic data is included when `display_mode` is `Strategic` or `Resource`.
+      Fields the players have not discovered are `null`, or empty for lists.
+
+      A bounding box may be at most 16 columns by 20 rows (a 2x2 block of
+      subsectors). Larger areas should be fetched as several requests. A whole sector (`sx`, `sy`) is
+      always accepted; if both a sector and a box are sent, the sector is used.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+      - name: display_mode
+        in: query
+        description: Set to `Strategic` or `Resource` to include the `strategic` block.
+        schema: { type: string }
+    responses:
+      '200':
+        description: Systems in the viewport.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/StarMapSystem' }
+      '400': { $ref: '#/components/responses/LimitedViewportRequired' }
+/map_labels:
+  get:
+    operationId: listMapLabels
+    tags: [Map]
+    summary: List map labels in a viewport
+    description: |
+      Parsec labels and icons. Labels the players have not discovered are `null`.
+
+      A bounding box may be at most 16 columns by 20 rows (a 2x2 block of
+      subsectors). Larger areas should be fetched as several requests. A whole sector (`sx`, `sy`) is
+      always accepted; if both a sector and a box are sent, the sector is used.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Labelled parsecs.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/MapLabel' }
+      '400': { $ref: '#/components/responses/LimitedViewportRequired' }
+/map:
+  get:
+    operationId: getMapSvg
+    tags: [Map]
+    summary: Rendered hex map
+    description: |
+      An SVG of the hex map for a bounding box. Unlike the rest of the API,
+      this endpoint does **not** accept the API token: it needs a signed-in
+      browser session, and an unauthenticated request is redirected to the
+      sign-in page, so it is not usable from external tools. The response is
+      cached and sent with an `ETag`.
+    parameters:
+      - { name: ulx, in: query, required: true, description: Upper-left x., schema: { type: integer } }
+      - { name: uly, in: query, required: true, description: Upper-left y., schema: { type: integer } }
+      - { name: lrx, in: query, required: true, description: Lower-right x., schema: { type: integer } }
+      - { name: lry, in: query, required: true, description: Lower-right y., schema: { type: integer } }
+    responses:
+      '200':
+        description: The map.
+        content:
+          image/svg+xml:
+            schema: { type: string }
+      '302':
+        description: Not signed in; redirected to the sign-in page.
+      '304':
+        description: Unchanged since the `ETag` supplied in `If-None-Match`.

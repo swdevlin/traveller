@@ -1,0 +1,152 @@
+# Paths: Sectors
+/sectors:
+  get:
+    operationId: listSectors
+    tags: [Sectors]
+    summary: List sectors
+    description: |
+      Returns every sector in the campaign with its subsectors. `tags` are
+      empty unless the request has referee access.
+    responses:
+      '200':
+        description: The campaign's sectors.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Sector' }
+      '404': { $ref: '#/components/responses/CampaignNotFound' }
+/subsectors/{id}:
+  get:
+    operationId: getSubsector
+    tags: [Sectors]
+    summary: Get a subsector
+    description: A subsector with its parent sector and a summary of each star system in it.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The subsector.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Subsector' }
+      '404':
+        description: No subsector has this id, or the campaign does not exist.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'subsector not found' }
+/subsector_at:
+  get:
+    operationId: getSubsectorAt
+    tags: [Sectors]
+    summary: Find the subsector at a coordinate
+    description: Returns the campaign path of the subsector containing a parsec.
+    parameters:
+      - name: x
+        in: query
+        required: true
+        description: Universal x coordinate.
+        schema: { type: integer }
+      - name: y
+        in: query
+        required: true
+        description: Universal y coordinate.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: The path of the subsector's page on the site.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  examples: [/c/my-campaign/subsectors/42]
+      '404':
+        description: There is no subsector at this coordinate.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'No subsector at this point' }
+/parsecs:
+  get:
+    operationId: listParsecs
+    tags: [Sectors]
+    summary: List a sector's parsecs
+    parameters:
+      - name: sector_id
+        in: query
+        required: true
+        description: The sector's id.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: Parsecs ordered by x, then y descending.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/ParsecSummary' }
+/parsecs/{id}:
+  patch:
+    operationId: updateParsec
+    tags: [Sectors]
+    summary: Update a parsec
+    description: Sets the parsec's survey index. Requires authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              survey_index: { type: integer }
+    responses:
+      '200':
+        description: The parsec was updated.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [survey_index]
+              properties:
+                survey_index: { type: [integer, 'null'] }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404':
+        description: No parsec has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'parsec not found' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+/regions:
+  get:
+    operationId: listRegions
+    tags: [Sectors]
+    summary: List regions in a viewport
+    description: |
+      Regions (political or cultural areas) that touch the viewport, with the
+      hexes they cover within it. The viewport is padded by one hex.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Regions in the viewport.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Region' }
+      '400': { $ref: '#/components/responses/ViewportRequired' }

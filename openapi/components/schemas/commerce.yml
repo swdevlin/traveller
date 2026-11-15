@@ -1,0 +1,88 @@
+# Schemas: commerce
+TrafficSystem:
+  type: object
+  properties:
+    uwp: { type: [string, 'null'] }
+    trade_codes:
+      type: array
+      items: { type: string }
+    travel_zone: { type: [string, 'null'] }
+    modifiers: { description: "The system's DMs, each with a label and a value." }
+PassengerTraffic:
+  type: object
+  properties:
+    from: { $ref: '#/components/schemas/SystemRef' }
+    to: { $ref: '#/components/schemas/SystemRef' }
+    parsec_distance: { type: [number, 'null'] }
+    broker_effect: { type: integer }
+    chief_steward_skill: { type: integer }
+    referee_modifier: { type: integer, description: The extra DM the referee applied to the check. }
+    shared_modifiers: { description: 'DMs common to every passenger class, each with a label and a value.' }
+    passenger_types:
+      type: object
+      description: Results keyed by passenger class.
+      additionalProperties:
+        type: object
+        properties:
+          passengers: { type: [integer, 'null'] }
+          modifiers: { description: 'The DMs applied, each with a label and a value.' }
+          qualifying_roll: { $ref: '#/components/schemas/Roll' }
+          count_roll:
+            oneOf:
+              - { $ref: '#/components/schemas/Roll' }
+              - { type: 'null' }
+FreightTraffic:
+  type: object
+  properties:
+    from: { $ref: '#/components/schemas/SystemRef' }
+    to: { $ref: '#/components/schemas/SystemRef' }
+    parsec_distance: { type: [number, 'null'] }
+    broker_effect: { type: integer }
+    referee_modifier: { type: integer, description: The extra DM the referee applied to the check. }
+    shared_modifiers: { description: 'DMs common to every lot type, each with a label and a value.' }
+    lot_types:
+      type: object
+      description: Results keyed by lot type.
+      additionalProperties:
+        type: object
+        properties:
+          lots: { type: [integer, 'null'] }
+          total_tons: { type: [integer, 'null'] }
+          modifiers: { description: 'The DMs applied, each with a label and a value.' }
+          qualifying_roll: { $ref: '#/components/schemas/Roll' }
+          lots_roll:
+            oneOf:
+              - { $ref: '#/components/schemas/Roll' }
+              - { type: 'null' }
+          lot_size_rolls:
+            type: array
+            items:
+              allOf:
+                - { $ref: '#/components/schemas/Roll' }
+                - type: object
+                  properties:
+                    tons: { type: integer }
+MailTraffic:
+  type: object
+  properties:
+    from: { $ref: '#/components/schemas/SystemRef' }
+    to: { $ref: '#/components/schemas/SystemRef' }
+    parsec_distance: { type: [number, 'null'] }
+    freight_traffic_dm: { type: [integer, 'null'] }
+    ship_armed: { type: [boolean, 'null'] }
+    naval_or_scout_rank: { type: integer }
+    soc_dm: { type: integer }
+    referee_modifier: { type: integer, description: The extra DM the referee applied to the check. }
+    modifiers: { description: 'The DMs applied, each with a label and a value.' }
+    result:
+      type: object
+      properties:
+        available: { type: [boolean, 'null'] }
+        containers: { type: [integer, 'null'] }
+        total_tons: { type: [number, 'null'] }
+        total_payment: { type: [number, 'null'] }
+        qualifying_roll: { $ref: '#/components/schemas/Roll' }
+        containers_roll:
+          oneOf:
+            - { $ref: '#/components/schemas/Roll' }
+            - { type: 'null' }

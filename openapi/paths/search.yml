@@ -1,0 +1,66 @@
+# Paths: Search
+/search:
+  get:
+    operationId: search
+    tags: [Search]
+    summary: Search universe data
+    description: |
+      Fuzzy name search across star systems, stellar objects, sectors and
+      subsectors, returning up to 12 results. Returns an empty list for
+      queries shorter than three characters. Players see only known or
+      surveyed systems. To find only star systems, including by hex code or
+      within a sector, use `GET /star_systems`.
+    parameters:
+      - { $ref: '#/components/parameters/Query' }
+    responses:
+      '200':
+        description: Matches, best first.
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 12
+              items: { $ref: '#/components/schemas/SearchResult' }
+/rulebooks/search:
+  get:
+    operationId: searchRulebooks
+    tags: [Search]
+    summary: Search rulebooks
+    description: |
+      Full-text search of the campaign's rulebooks, grouped by rulebook.
+      Referee-only material is included for the referee. Using a token marks
+      the search as an API search in usage metrics.
+    parameters:
+      - { $ref: '#/components/parameters/Query' }
+      - name: rulebook_ids[]
+        in: query
+        description: Limit the search to these rulebooks. Repeat the parameter for several.
+        style: form
+        explode: true
+        schema: { type: array, items: { type: integer } }
+      - name: rulebook_ids
+        in: query
+        description: Limit the search to a single rulebook. Use `rulebook_ids[]` for several.
+        schema: { type: integer }
+      - name: categories[]
+        in: query
+        description: Limit the search to rulebooks in these categories. Repeat the parameter for several.
+        style: form
+        explode: true
+        schema: { type: array, items: { type: string } }
+      - name: categories
+        in: query
+        description: Limit the search to rulebooks in a single category. Use `categories[]` for several.
+        schema: { type: string }
+      - name: per_rulebook_limit
+        in: query
+        description: Hits to return per rulebook, 1 to 10.
+        schema: { type: integer, minimum: 1, maximum: 10, default: 3 }
+    responses:
+      '200':
+        description: Results grouped by rulebook.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/RulebookSearchGroup' }

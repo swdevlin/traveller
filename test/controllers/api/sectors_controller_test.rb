@@ -46,4 +46,9 @@ class Api::SectorsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal queries_for_one, queries_for_many
   end
+
+  test 'index returns 404 for an unknown campaign' do
+    get api_sectors_url(campaign_slug: 'no-such-campaign'), as: :json
+    assert_response :not_found
+  end
 end

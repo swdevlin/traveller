@@ -1,0 +1,138 @@
+# Paths: Stellar objects
+/stellar_objects/{id}:
+  get:
+    operationId: getStellarObject
+    tags: [Stellar objects]
+    summary: Get a stellar object
+    description: |
+      A planet, belt, moon, station or other body. The fields present depend
+      on the object's `type`; the schema lists those common to all of them.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The stellar object.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StellarObject' }
+      '404':
+        description: No stellar object has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'stellar object not found' }
+/stellar_objects/{id}/moons:
+  get:
+    operationId: listStellarObjectMoons
+    tags: [Stellar objects]
+    summary: List a body's moons and rings
+    description: Ten per page, in orbit order.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/Page' }
+      - { $ref: '#/components/parameters/SignificantOnly' }
+    responses:
+      '200':
+        description: A page of moons and the body's rings.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, moons, rings]
+              properties:
+                count: { type: integer, description: Total moons and rings. }
+                page: { type: integer }
+                pages: { type: integer }
+                parent_diameter_km: { type: [number, 'null'] }
+                moons:
+                  type: array
+                  items: { $ref: '#/components/schemas/StellarObject' }
+                rings:
+                  type: array
+                  items: { $ref: '#/components/schemas/StellarObject' }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/stellar_objects/{id}/planetoids:
+  get:
+    operationId: listPlanetoidBeltPlanetoids
+    tags: [Stellar objects]
+    summary: List the planetoids in a belt
+    description: Ten per page. Only planetoid belts have planetoids.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/Page' }
+      - { $ref: '#/components/parameters/SignificantOnly' }
+    responses:
+      '200':
+        description: A page of planetoids.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, planetoids]
+              properties:
+                count: { type: integer }
+                page: { type: integer }
+                pages: { type: integer }
+                planetoids:
+                  type: array
+                  items: { $ref: '#/components/schemas/StellarObject' }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/stellar_objects/{id}/cities:
+  get:
+    operationId: listStellarObjectCities
+    tags: [Stellar objects]
+    summary: List a world's cities
+    description: Ten per page, largest first.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/Page' }
+    responses:
+      '200':
+        description: A page of cities.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, cities]
+              properties:
+                count: { type: integer }
+                page: { type: integer }
+                pages: { type: integer }
+                cities:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, population]
+                    properties:
+                      name: { type: string }
+                      type_label: { type: [string, 'null'] }
+                      capital_label: { type: [string, 'null'] }
+                      population: { type: [integer, 'null'] }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/rogues:
+  get:
+    operationId: listRogues
+    tags: [Stellar objects]
+    summary: List rogue bodies in a viewport
+    description: |
+      Bodies that are not in a star system and are not orbiting a star.
+
+      A bounding box may be at most 16 columns by 20 rows (a 2x2 block of
+      subsectors). Larger areas should be fetched as several requests. A whole sector (`sx`, `sy`) is
+      always accepted; if both a sector and a box are sent, the sector is used.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Rogue bodies.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Rogue' }
+      '400': { $ref: '#/components/responses/LimitedViewportRequired' }

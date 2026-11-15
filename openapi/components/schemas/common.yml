@@ -1,0 +1,35 @@
+# Schemas: common
+Error:
+  type: object
+  required: [error]
+  properties:
+    error:
+      type: string
+ValidationErrors:
+  type: object
+  required: [errors]
+  properties:
+    errors:
+      type: array
+      items: { type: string }
+Tags:
+  type: array
+  description: Referee-only tags. Empty for everyone else.
+  items: { type: string }
+SystemRef:
+  type: object
+  required: [id, name]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+Roll:
+  type: object
+  description: A dice roll and its result.
+  properties:
+    dice: { type: integer }
+    sides: { type: integer }
+    dm: { type: integer }
+    rolls:
+      type: array
+      items: { type: integer }
+    total: { type: integer }

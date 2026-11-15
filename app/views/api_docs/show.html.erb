@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html data-theme='<%= current_theme %>'>
+<head>
+  <title>MTU API</title>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+
+  <link rel='preconnect' href='https://fonts.googleapis.com'>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+  <link
+    href='https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap'
+    rel='stylesheet'
+  >
+  <%# Supplies the theme tokens (--color-*, --font-*) mapped onto Scalar below. %>
+  <%= stylesheet_link_tag :app %>
+
+  <style>
+    :root,
+    .light-mode,
+    .dark-mode,
+    .light-mode .t-doc__sidebar,
+    .dark-mode .t-doc__sidebar {
+      --scalar-font: var(--font-sans);
+      --scalar-font-code: var(--font-mono);
+
+      --scalar-background-1: var(--color-bg);
+      --scalar-background-2: var(--color-panel);
+      --scalar-background-3: var(--color-table-hover);
+      --scalar-background-accent: var(--color-table-hover);
+
+      --scalar-color-1: var(--color-fg-bright);
+      --scalar-color-2: var(--color-fg);
+      --scalar-color-3: var(--color-fg-muted);
+      --scalar-color-accent: var(--color-highlight-fg);
+
+      --scalar-border-color: var(--color-outline);
+
+      --scalar-button-1: var(--color-button-primary);
+      --scalar-button-1-hover: var(--color-button-primary-outline);
+      --scalar-button-1-color: var(--color-button-primary-fg);
+
+      --scalar-color-red: var(--color-danger-text);
+      --scalar-color-orange: var(--color-warning-text);
+      --scalar-color-green: var(--color-notice);
+
+      --scalar-sidebar-background-1: var(--color-panel);
+      --scalar-sidebar-color-1: var(--color-fg-bright);
+      --scalar-sidebar-color-2: var(--color-fg-muted);
+      --scalar-sidebar-border-color: var(--color-outline);
+      --scalar-sidebar-item-hover-background: var(--color-table-hover);
+      --scalar-sidebar-item-hover-color: var(--color-fg-bright);
+      --scalar-sidebar-item-active-background: var(--color-table-hover);
+      --scalar-sidebar-color-active: var(--color-highlight-fg);
+      --scalar-sidebar-search-background: var(--color-bg);
+      --scalar-sidebar-search-border-color: var(--color-control-outline);
+      --scalar-sidebar-search-color: var(--color-fg-muted);
+    }
+  </style>
+</head>
+<body>
+  <script
+    id='api-reference'
+    data-url='<%= api_spec_path(campaign: @campaign_slug) %>'
+    data-configuration='<%= {
+      theme: 'none',
+      withDefaultFonts: false,
+      hideDarkModeToggle: true,
+      documentDownloadType: 'yaml',
+      forceDarkModeState: current_theme_light? ? 'light' : 'dark',
+      layout: 'modern'
+    }.to_json %>'
+  ></script>
+  <script src='https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.78.1'></script>
+</body>
+</html>

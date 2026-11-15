@@ -1,0 +1,21 @@
+# Paths: Reference
+/travel_zones:
+  get:
+    operationId: listTravelZones
+    tags: [Reference]
+    summary: List travel zones
+    responses:
+      '200':
+        description: Travel zones.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required: [id, code, name, colour]
+                properties:
+                  id: { type: integer }
+                  code: { type: string }
+                  name: { type: string }
+                  colour: { type: [string, 'null'] }

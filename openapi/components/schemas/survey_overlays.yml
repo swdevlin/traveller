@@ -1,0 +1,181 @@
+# Schemas: survey overlays
+SurveyOverlayInput:
+  type: object
+  properties:
+    name: { type: string }
+    colour: { type: string, description: 'Hex colour, such as `#E87040`.' }
+    enabled: { type: boolean }
+    rule_data:
+      description: |
+        The overlay's rules. When sent, this **replaces** the whole rule; leave
+        it out to keep the existing rules. See `SurveyOverlayRules` for the
+        structure.
+      $ref: '#/components/schemas/SurveyOverlayRules'
+SurveyOverlayUpdateInput:
+  allOf:
+    - { $ref: '#/components/schemas/SurveyOverlayInput' }
+    - type: object
+      properties:
+        position:
+          type: integer
+          minimum: 1
+          description: |
+            Move the overlay to this place in the list, where 1 is first. The
+            others shift to make room, and the list is renumbered 1 to n.
+            Leave it out to keep the overlay where it is. A value that is not
+            a whole number from 1 to the number of overlays is rejected with a
+            `422`, and nothing in the request is applied.
+SurveyOverlay:
+  type: object
+  required: [id, name, enabled, position]
+  properties:
+    id: { type: integer }
+    name: { type: string }
+    colour: { type: [string, 'null'] }
+    enabled: { type: boolean }
+    rule_data:
+      oneOf:
+        - { $ref: '#/components/schemas/SurveyOverlayRules' }
+        - { type: 'null' }
+    position: { type: integer, description: 'Place in the list, where 1 is first. Overlays are applied in this order, and the first one that matches a system sets its colour.' }
+SurveyOverlayRules:
+  type: object
+  description: |
+    The rules that decide which systems an overlay highlights.
+
+    A rule is a list of **groups**. A system matches the overlay if **any**
+    group matches (OR), and a group matches if **every** condition in it
+    matches (AND). A rule with no groups, or no `rule_data`, matches nothing.
+
+    ```json
+    { "groups": [
+        [ { "field": "starport",     "operator": "one_of", "negate": false, "values": ["A", "B", "C"] },
+          { "field": "population",   "operator": "gt",     "negate": false, "values": ["8"] } ],
+        [ { "field": "survey_index", "operator": "eq",     "negate": false, "values": ["10"] } ]
+    ] }
+    ```
+
+    This highlights systems with (Starport A, B or C **and** Population above
+    8) **or** (Survey Index 10).
+
+    Each condition compares one **field** of the system to its **values**
+    using an **operator**; see `SurveyOverlayCondition` for the fields and the
+    values each accepts. Anything that does not validate is rejected with a
+    `422` that says which group and condition is wrong.
+  properties:
+    groups:
+      type: array
+      description: Groups of conditions. Any one matching group is enough.
+      items:
+        type: array
+        description: Conditions that must all match.
+        items: { $ref: '#/components/schemas/SurveyOverlayCondition' }
+  examples:
+    - groups:
+        - - { field: starport, operator: one_of, negate: false, values: [A, B, C] }
+          - { field: population, operator: gt, negate: false, values: ['8'] }
+        - - { field: survey_index, operator: eq, negate: false, values: ['10'] }
+SurveyOverlayCondition:
+  type: object
+  required: [field, operator, values]
+  description: |
+    One test against a system.
+
+    ## Values
+
+    `values` is always a list of **strings**, including numbers (`"8"`) and
+    booleans (`"true"`). Which values are valid depends on the field.
+
+    **Ordered fields** take the operators `eq`, `lt`, `lte`, `gt`, `gte`,
+    `between` and `one_of`. Values are compared by their position in the
+    list below, so `gt` `"8"` means above 8. Codes are Traveller extended hex:
+    the digits `0`-`9`, then `A`, `B`, `C` and so on, skipping `I` and `O`.
+
+    | Field | Values, lowest to highest |
+    |---|---|
+    | `starport` | `X`, `E`, `D`, `C`, `B`, `A` (A is the best, so `gt` `"C"` matches A and B) |
+    | `size` | `0`-`F` |
+    | `atmosphere` | `0`-`H` |
+    | `hydrographics` | `0`-`A` |
+    | `population` | `0`-`C` |
+    | `government` | `0`-`F` |
+    | `law_level` | `0`-`J` |
+    | `tech_level` | `0`-`G` |
+    | `survey_index` | `0`-`12` |
+    | `gas_giant_count` | `0`-`10` |
+    | `planetoid_belt_count` | `0`-`10` |
+    | `base_count` | `0`-`10` |
+    | `importance` | `-3`-`5` |
+    | `star_count` | `1`-`8` |
+    | `primary_star_class` | `0`, `Ia`, `Iab`, `Ib`, `II`, `III`, `IV`, `V`, `VI`, `VII` |
+
+    The UWP fields (`starport` to `tech_level`) read the main world's UWP, and
+    `importance` its importance. A system with no main world never matches
+    such a condition (a negated one does).
+
+    **Other fields** accept only the operators shown.
+
+    | Field | Operators | Values |
+    |---|---|---|
+    | `known`, `native_sophont`, `extinct_sophont` | `eq` | `"true"` or `"false"` |
+    | `primary_star` | `eq`, `one_of` | `O`, `B`, `A`, `F`, `G`, `K`, `M`, `L`, `T`, `Y`, or `BD`, `D`, `BH`, `PSR`, `NS`, `NB`, `PS`, `AN` for a brown dwarf, white dwarf, black hole, pulsar, neutron star, nebula, protostar or anomaly |
+    | `allegiance` | `eq`, `one_of` | An allegiance code defined in the campaign |
+    | `sector`, `subsector` | `eq`, `one_of` | The record's id, as a string |
+    | `sophont` | `eq`, `one_of` | A sophont's id, as a string. Matches a system with a native world of that sophont |
+    | `extinct_sophont_type` | `eq`, `one_of` | A sophont's id, as a string. Matches a system with an extinct world of that sophont |
+    | `tags` | `has`, `has_one_of` | A tag name. Matches tags on the system, its bodies, its subsector, its sector or its regions |
+    | `bases` | `has`, `has_one_of` | A base code defined in the campaign |
+
+    ## Operators
+
+    - `eq`: the field equals the single value.
+    - `one_of`: the field equals any of the values.
+    - `lt`, `lte`, `gt`, `gte`: the field is below, at or below, above, or at
+      or above the single value, in the order above.
+    - `between`: exactly two values; the field is between them, inclusive, in
+      either order.
+    - `has`: the system's tags or bases include the single value.
+    - `has_one_of`: they include any of the values.
+
+    Every operator except `between` needs at least one value; `between` needs
+    exactly two. With `negate: true` the condition's result is inverted.
+  properties:
+    field:
+      type: string
+      enum:
+        - allegiance
+        - atmosphere
+        - base_count
+        - bases
+        - extinct_sophont
+        - extinct_sophont_type
+        - gas_giant_count
+        - government
+        - hydrographics
+        - importance
+        - known
+        - law_level
+        - native_sophont
+        - planetoid_belt_count
+        - population
+        - primary_star
+        - primary_star_class
+        - sector
+        - size
+        - sophont
+        - star_count
+        - starport
+        - subsector
+        - survey_index
+        - tags
+        - tech_level
+    operator:
+      type: string
+      enum: [eq, lt, lte, gt, gte, between, one_of, has, has_one_of]
+    negate:
+      type: boolean
+      default: false
+      description: Invert the result of this condition. Optional; defaults to `false`.
+    values:
+      type: array
+      items: { type: string }

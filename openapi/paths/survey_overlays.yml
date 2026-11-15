@@ -1,0 +1,77 @@
+# Paths: Survey overlays
+/survey_overlays:
+  get:
+    operationId: listSurveyOverlays
+    tags: [Survey overlays]
+    summary: List survey overlays
+    description: Referee only.
+    security: [{ bearerToken: [] }]
+    responses:
+      '200':
+        description: Overlays in display order.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/SurveyOverlay' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+  post:
+    operationId: createSurveyOverlay
+    tags: [Survey overlays]
+    summary: Create a survey overlay
+    description: Referee only. The new overlay is added to the end of the list; use `PATCH` with a `position` to move it.
+    security: [{ bearerToken: [] }]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SurveyOverlayInput' }
+    responses:
+      '201':
+        description: The overlay was created.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SurveyOverlay' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+/survey_overlays/{id}:
+  patch:
+    operationId: updateSurveyOverlay
+    tags: [Survey overlays]
+    summary: Update a survey overlay
+    description: |
+      Referee only. Only the fields sent are changed. Send `position` to move
+      the overlay to a place in the list, where 1 is first; the others shift to
+      make room. Overlays are applied in list order.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SurveyOverlayUpdateInput' }
+    responses:
+      '200':
+        description: The updated overlay.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SurveyOverlay' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+  delete:
+    operationId: deleteSurveyOverlay
+    tags: [Survey overlays]
+    summary: Delete a survey overlay
+    description: Referee only.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '204':
+        description: The overlay was deleted.
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }

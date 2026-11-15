@@ -1,0 +1,88 @@
+# Root of the MTU API description. The paths and components live in the
+# files beside this one; OpenapiBundle merges them into the single
+# document served at /api/openapi.yml. See openapi/README.md.
+openapi: 3.1.0
+info:
+  title: My Traveller Universe API
+  version: 0.1.0
+  description: |
+    JSON API for a Traveller campaign's universe data.
+
+    ## Stability
+
+    > [!WARNING]
+    > This API is **pre-release**: until version 1.0 there may be breaking
+    > changes, such as endpoints or fields being renamed, moved or removed, or
+    > their behaviour changing. Check the version above before relying on it,
+    > and expect to update your integration as the API settles.
+
+    From version 1.0 there will be no breaking changes. Later versions will
+    only add to the API, with new endpoints, optional parameters and response
+    fields, so clients should ignore response fields they do not recognise.
+
+    ## Campaigns
+
+    Every endpoint is scoped to a campaign: requests are made to
+    `/c/{campaign_slug}/api/...`. Replace `{campaign_slug}` with the slug of
+    the campaign. An unknown slug returns `404` with `{"error": "Campaign not found"}`.
+
+    ## Authentication
+
+    Most read endpoints are public and return only what players may see.
+    Referee-only content (tags, classified records, referee notes and so on)
+    is returned only to the campaign's referee. The referee identifies
+    themselves with the campaign's API token, which they can copy from the
+    campaign's settings page.
+
+    Endpoints that change data, and the referee tools (traffic, trade, survey
+    overlays, orbit maps), require authentication. Send the token as a bearer
+    token:
+
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    A request without a valid token is rejected with `401`. (A signed-in
+    referee's browser session is accepted too, which is what lets the
+    "Test Request" button on this page work without a token. External tools
+    should use the token.)
+
+    ## Viewports
+
+    Endpoints that return map data for a region take either a sector
+    (`sx`, `sy`) or a bounding box in universal coordinates
+    (`ulx`, `uly`, `lrx`, `lry`). If neither is supplied they return `400`.
+
+    ## Errors
+
+    Errors are JSON: `{"error": "message"}` for a single failure, or
+    `{"errors": ["message", ...]}` for validation failures.
+servers:
+  - url: /c/{campaign_slug}/api
+    description: Campaign-scoped API
+    variables:
+      campaign_slug:
+        default: my-campaign
+        description: The campaign's URL slug.
+tags:
+  - name: Sectors
+    description: Sectors, subsectors and parsecs.
+  - name: Star systems
+    description: Star systems and the stars within them.
+  - name: Stellar objects
+    description: Planets, belts, moons and other bodies, rogue or in-system.
+  - name: Map
+    description: Systems and labels for plotting an area, and rendered maps.
+  - name: Jumps
+    description: Ship jump logs and the ships that make them.
+  - name: Routes
+    description: Jump routes, route links and route planning.
+  - name: Commerce
+    description: Referee tools for passengers, freight, mail and speculative trade.
+  - name: Survey overlays
+    description: Referee-only rules that highlight systems on the map.
+  - name: Search
+    description: Searching universe data and rulebooks.
+  - name: Reference
+    description: Reference tables.
+security: []

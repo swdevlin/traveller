@@ -1,0 +1,80 @@
+# Schemas: sectors
+Sector:
+  type: object
+  required: [id, name, x, y, abbreviation, tags, subsectors]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    x: { type: [integer, 'null'], description: Universal sector x coordinate. }
+    y: { type: [integer, 'null'], description: Universal sector y coordinate. }
+    abbreviation: { type: [string, 'null'] }
+    tags: { $ref: '#/components/schemas/Tags' }
+    subsectors:
+      type: array
+      items: { $ref: '#/components/schemas/SubsectorSummary' }
+SubsectorSummary:
+  type: object
+  required: [x, y, name, tags]
+  properties:
+    x: { type: integer }
+    y: { type: integer }
+    name: { type: [string, 'null'] }
+    tags: { $ref: '#/components/schemas/Tags' }
+Subsector:
+  type: object
+  required: [id, name, x, y, letter, tags, sector, star_systems]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    x: { type: integer, description: Column within the sector, 1 to 4. }
+    y: { type: integer, description: Row within the sector, 1 to 4. }
+    letter: { type: string, description: 'The subsector''s letter, A to P.', examples: [A] }
+    tags: { $ref: '#/components/schemas/Tags' }
+    sector:
+      type: object
+      required: [id, name, x, y, tags]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+        x: { type: [integer, 'null'] }
+        y: { type: [integer, 'null'] }
+        tags: { $ref: '#/components/schemas/Tags' }
+    star_systems:
+      type: array
+      items: { $ref: '#/components/schemas/StarSystemListItem' }
+ParsecSummary:
+  type: object
+  required: [id, hex_code, x, y]
+  properties:
+    id: { type: integer }
+    hex_code: { type: [string, 'null'], description: 'Hex within the sector, such as `1910`.' }
+    x: { type: integer }
+    y: { type: integer }
+    system_name: { type: [string, 'null'], description: The name of the star system in the parsec, if it has one. }
+Region:
+  type: object
+  required: [id, tags, name, label, colour, border_colour, player_visible, hexes, border_hexes]
+  properties:
+    id: { type: integer }
+    tags: { $ref: '#/components/schemas/Tags' }
+    name: { type: [string, 'null'] }
+    label: { type: [string, 'null'] }
+    colour: { type: [string, 'null'], description: Hex colour without the leading `#`. }
+    border_colour: { type: [string, 'null'], description: Hex colour without the leading `#`. }
+    player_visible: { type: boolean }
+    label_x: { type: [number, 'null'] }
+    label_y: { type: [number, 'null'] }
+    hexes:
+      type: array
+      description: Hexes covered, within the viewport.
+      items: { $ref: '#/components/schemas/HexCoordinate' }
+    border_hexes:
+      type: array
+      description: Border hexes in drawing order, within the viewport.
+      items: { $ref: '#/components/schemas/HexCoordinate' }
+HexCoordinate:
+  type: object
+  required: [x, y]
+  properties:
+    x: { type: integer }
+    y: { type: integer }

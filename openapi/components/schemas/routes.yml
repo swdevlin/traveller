@@ -1,0 +1,69 @@
+# Schemas: routes
+JumpRoute:
+  type: object
+  required: [id, name, known, route_type, link_count]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    colour: { type: [string, 'null'] }
+    line_style: { type: [string, 'null'] }
+    line_width: { type: [integer, 'null'] }
+    known: { type: boolean }
+    route_type: { type: string, description: '`network` or `plotted`.' }
+    max_jump: { type: [integer, 'null'] }
+    link_count: { type: integer }
+    notes: { type: [string, 'null'], description: Referee only; `null` for everyone else. }
+JumpRouteLink:
+  type: object
+  properties:
+    id: { type: integer }
+    jump_route_id: { type: integer }
+    colour: { type: [string, 'null'] }
+    known: { type: boolean }
+    route_type: { type: string }
+    stroke_dasharray: { type: string }
+    line_width: { type: [integer, 'null'] }
+    from_survey_index: { type: integer }
+    to_survey_index: { type: integer }
+    from_x: { type: integer }
+    from_y: { type: integer }
+    to_x: { type: integer }
+    to_y: { type: integer }
+RoutePlan:
+  type: object
+  required: [found, from, to, hops]
+  properties:
+    found: { type: boolean }
+    from: { $ref: '#/components/schemas/SystemRef' }
+    to: { $ref: '#/components/schemas/SystemRef' }
+    jump_range: { type: integer }
+    refueling: { type: string }
+    excluded_travel_zone_ids:
+      type: array
+      items: { type: integer }
+    m_drive: { type: integer }
+    hops:
+      type: array
+      items:
+        type: object
+        properties:
+          system:
+            type: object
+            properties:
+              id: { type: integer }
+              name: { type: [string, 'null'] }
+              hex_label: { type: [string, 'null'] }
+              x: { type: integer }
+              y: { type: integer }
+          distance: { type: number }
+          transit_hours: { type: [number, 'null'] }
+          elapsed_avg_hours: { type: [number, 'null'] }
+    total_distance: { type: [number, 'null'] }
+    parsec_distance: { type: [number, 'null'] }
+    total_jump_avg_hours: { type: [number, 'null'] }
+    total_jump_min_hours: { type: [number, 'null'] }
+    total_jump_max_hours: { type: [number, 'null'] }
+    total_transit_hours: { type: [number, 'null'] }
+    total_avg_hours: { type: [number, 'null'] }
+    total_min_hours: { type: [number, 'null'] }
+    total_max_hours: { type: [number, 'null'] }

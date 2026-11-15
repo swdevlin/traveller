@@ -1,0 +1,93 @@
+# Reusable parameters
+Id:
+  name: id
+  in: path
+  required: true
+  description: The record's id.
+  schema: { type: integer }
+SystemId:
+  name: id
+  in: query
+  required: true
+  description: Star system id.
+  schema: { type: integer }
+FromId:
+  name: from_id
+  in: query
+  required: true
+  description: Origin star system id.
+  schema: { type: integer }
+ToId:
+  name: to_id
+  in: query
+  required: true
+  description: Destination star system id. Must differ from `from_id`.
+  schema: { type: integer }
+BrokerEffect:
+  name: broker_effect
+  in: query
+  description: Effect of the Broker check, applied as a DM.
+  schema: { type: integer, default: 0 }
+RefereeModifier:
+  name: referee_modifier
+  in: query
+  description: Any extra DM the referee applies to the check.
+  schema: { type: integer, default: 0 }
+Query:
+  name: q
+  in: query
+  required: true
+  description: The text to search for.
+  schema: { type: string }
+Page:
+  name: page
+  in: query
+  description: Page number, starting at 1.
+  schema: { type: integer, minimum: 1, default: 1 }
+SignificantOnly:
+  name: significant_only
+  in: query
+  description: If present, list only significant bodies.
+  allowEmptyValue: true
+  schema: { type: string }
+OrbitMapTheme:
+  name: theme
+  in: query
+  description: The colour theme to draw with.
+  schema: { type: string }
+OrbitMapDownload:
+  name: download
+  in: query
+  description: If present, the response is sent as a download rather than inline.
+  allowEmptyValue: true
+  schema: { type: string }
+Sx:
+  name: sx
+  in: query
+  description: Sector x. Use with `sy` to select a whole sector.
+  schema: { type: integer }
+Sy:
+  name: sy
+  in: query
+  description: Sector y. Use with `sx`.
+  schema: { type: integer }
+Ulx:
+  name: ulx
+  in: query
+  description: Bounding box upper-left x (universal coordinates).
+  schema: { type: integer }
+Uly:
+  name: uly
+  in: query
+  description: Bounding box upper-left y.
+  schema: { type: integer }
+Lrx:
+  name: lrx
+  in: query
+  description: Bounding box lower-right x.
+  schema: { type: integer }
+Lry:
+  name: lry
+  in: query
+  description: Bounding box lower-right y.
+  schema: { type: integer }

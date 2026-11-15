@@ -1,0 +1,115 @@
+# Schemas: stellar objects
+StellarObject:
+  type: object
+  additionalProperties: true
+  description: |
+    A body in space. Besides the fields below, the object carries
+    type-specific fields (for example `atmosphere`, `hydrographics`,
+    `population`, `government` and `starport` on worlds), returned as
+    snake_case keys. `moons` is present on bodies that can have them.
+  required: [id, type]
+  properties:
+    id: { type: integer }
+    type:
+      type: string
+      description: The object's class.
+      enum:
+        - Comet
+        - GasCloud
+        - GasGiant
+        - GravityAnomaly
+        - InterstellarWreck
+        - Moon
+        - PhantomObject
+        - PlanetoidBelt
+        - Planetoid
+        - RadiationCloud
+        - Relic
+        - Ring
+        - SpaceStation
+        - Star
+        - TerrestrialPlanet
+        - UnusualObject
+    name: { type: [string, 'null'] }
+    uwp: { type: [string, 'null'] }
+    size_code: { type: [string, 'null'] }
+    orbit: { type: [number, 'null'] }
+    orbit_sequence: { type: string }
+    au: { type: [number, 'null'] }
+    mass: { type: [number, 'null'] }
+    diameter: { type: [number, 'null'] }
+    inclination: { type: [number, 'null'] }
+    eccentricity: { type: [number, 'null'] }
+    survey_index: { type: [integer, 'null'] }
+    parsec_id: { type: [integer, 'null'] }
+    star_system_id: { type: [integer, 'null'] }
+    orbiting_id: { type: [integer, 'null'] }
+    allegiance_id: { type: [integer, 'null'] }
+    created_at: { type: string, format: date-time }
+    updated_at: { type: string, format: date-time }
+    tags: { $ref: '#/components/schemas/Tags' }
+    survey_records: { type: [string, 'null'] }
+    survey_records_html: { type: [string, 'null'] }
+    classified_records: { type: [string, 'null'], description: Referee only. }
+    classified_records_html: { type: [string, 'null'], description: Referee only. }
+    reference_url: { type: [string, 'null'] }
+    hex: { type: [string, 'null'] }
+    star_system_name: { type: [string, 'null'] }
+    subsector_name: { type: [string, 'null'] }
+    sector_name: { type: [string, 'null'] }
+    allegiance:
+      type: object
+      properties:
+        code: { type: string }
+        name: { type: string }
+    orbit_position:
+      type: object
+      properties:
+        x: { type: number }
+        y: { type: number }
+    periapsis: { type: [number, 'null'] }
+    apoapsis: { type: [number, 'null'] }
+    is_moon: { type: boolean }
+    orbiting_name: { type: [string, 'null'] }
+    jump_shadow:
+      oneOf:
+        - type: object
+          properties:
+            distance_km: { type: integer }
+            source_id: { type: [integer, 'null'] }
+            source_name: { type: [string, 'null'] }
+            travel_times:
+              type: object
+              description: Flip-and-burn hours to leave the shadow, keyed by acceleration (`1g` to `6g`).
+              additionalProperties: { type: [number, 'null'] }
+        - { type: 'null' }
+    map_url: { type: [string, 'null'], description: A signed URL for the world map image. }
+    url: { type: string, format: uri }
+    sophont: { $ref: '#/components/schemas/Sophont' }
+    extinct_sophont_record: { $ref: '#/components/schemas/Sophont' }
+Sophont:
+  type: object
+  properties:
+    id: { type: integer }
+    name: { type: string }
+    reference_url: { type: [string, 'null'] }
+    picture_url: { type: [string, 'null'] }
+    player_notes: { type: [string, 'null'] }
+    player_notes_html: { type: [string, 'null'] }
+    referee_notes: { type: [string, 'null'], description: Referee only. }
+    referee_notes_html: { type: [string, 'null'], description: Referee only. }
+Rogue:
+  type: object
+  required: [type, name, x, y, parsec_id]
+  properties:
+    type: { type: string }
+    name: { type: string }
+    x: { type: integer }
+    y: { type: integer }
+    survey_index: { type: [integer, 'null'] }
+    known: { type: [boolean, 'null'] }
+    parsec_id: { type: integer }
+    comet_type: { type: [string, integer, 'null'], description: Comets only. }
+    code: { type: [string, 'null'], description: Gas giants only. }
+    diameter: { type: [number, 'null'], description: Gas giants only. }
+    mass: { type: [number, 'null'], description: Gas giants only. }

@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   get '/help',       to: 'help#index'
   get '/help/:page', to: 'help#show',  as: :help_page
 
+  get '/api',             to: 'api_docs#show', as: :api_docs
+  get '/api/openapi.yml', to: 'api_docs#spec', as: :api_spec, defaults: { format: 'yml' }
+
   get 'up' => 'rails/health#show', as: :rails_health_check
 
   mount MissionControl::Jobs::Engine, at: '/jobs'
@@ -68,10 +71,10 @@ Rails.application.routes.draw do
         end
       end
       get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
+      get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
       patch 'star_systems/:id', to: 'star_systems#update', defaults: { format: :json }
-      get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
