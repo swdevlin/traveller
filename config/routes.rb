@@ -70,7 +70,6 @@ Rails.application.routes.draw do
           get :last_jump
         end
       end
-      get 'starsystems', to: 'star_systems#index', defaults: { format: :json }
       get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
       get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
@@ -80,7 +79,6 @@ Rails.application.routes.draw do
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
       get 'stellar_objects/:id/planetoids', to: 'stellar_objects#planetoids', as: :stellar_object_planetoids, defaults: { format: :json }
       get 'stellar_objects/:id/cities', to: 'stellar_objects#cities', as: :stellar_object_cities, defaults: { format: :json }
-      resources :stars, only: %i[index update]
       get 'stars/:id/orbit_map', to: 'star_orbit_maps#show', as: :star_orbit_map, defaults: { format: :svg }
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }

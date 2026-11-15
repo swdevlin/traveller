@@ -1,25 +1,4 @@
 # Paths: Star systems
-/starsystems:
-  get:
-    operationId: listStarSystemsInViewport
-    tags: [Star systems]
-    summary: List star systems in a viewport
-    parameters:
-      - { $ref: '#/components/parameters/Sx' }
-      - { $ref: '#/components/parameters/Sy' }
-      - { $ref: '#/components/parameters/Ulx' }
-      - { $ref: '#/components/parameters/Uly' }
-      - { $ref: '#/components/parameters/Lrx' }
-      - { $ref: '#/components/parameters/Lry' }
-    responses:
-      '200':
-        description: Star system summaries.
-        content:
-          application/json:
-            schema:
-              type: array
-              items: { $ref: '#/components/schemas/StarSystemListItem' }
-      '400': { $ref: '#/components/responses/ViewportRequired' }
 /starsystem:
   get:
     operationId: getStarSystemAtHex
@@ -139,7 +118,9 @@
     operationId: updateStarSystem
     tags: [Star systems]
     summary: Update a star system
-    description: Sets whether the system is known and its survey index. Requires authentication.
+    description: |
+      Renames the system and sets whether the players know it and its survey
+      index. Only the fields sent are changed. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/Id' }
@@ -150,17 +131,19 @@
           schema:
             type: object
             properties:
+              name: { type: string }
               known: { type: boolean }
               survey_index: { type: integer }
     responses:
       '200':
-        description: The updated values.
+        description: The system's values after the update.
         content:
           application/json:
             schema:
               type: object
-              required: [known, survey_index]
+              required: [name, known, survey_index]
               properties:
+                name: { type: [string, 'null'] }
                 known: { type: boolean }
                 survey_index: { type: [integer, 'null'] }
       '401': { $ref: '#/components/responses/Unauthorised' }
@@ -208,72 +191,6 @@
           application/json:
             schema: { $ref: '#/components/schemas/Error' }
             example: { error: 'no main world' }
-/stars:
-  get:
-    operationId: listStarsInViewport
-    tags: [Star systems]
-    summary: List systems and their stars in a viewport
-    description: A lean listing of each system with its stars, for drawing the map.
-    parameters:
-      - { $ref: '#/components/parameters/Sx' }
-      - { $ref: '#/components/parameters/Sy' }
-      - { $ref: '#/components/parameters/Ulx' }
-      - { $ref: '#/components/parameters/Uly' }
-      - { $ref: '#/components/parameters/Lrx' }
-      - { $ref: '#/components/parameters/Lry' }
-    responses:
-      '200':
-        description: Systems with their stars.
-        content:
-          application/json:
-            schema:
-              type: array
-              items: { $ref: '#/components/schemas/StarMapSystem' }
-      '400': { $ref: '#/components/responses/ViewportRequired' }
-/stars/{id}:
-  patch:
-    operationId: updateStarSystemName
-    tags: [Star systems]
-    summary: Rename a star system or set its survey index
-    description: |
-      Despite the path, `id` is a **star system** id. Requires authentication.
-    security: [{ bearerToken: [] }]
-    parameters:
-      - { $ref: '#/components/parameters/Id' }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            required: [star]
-            properties:
-              star:
-                type: object
-                properties:
-                  name: { type: string }
-                  survey_index: { type: integer }
-    responses:
-      '200':
-        description: The updated star system record.
-        content:
-          application/json:
-            schema:
-              type: object
-              additionalProperties: true
-              properties:
-                id: { type: integer }
-                name: { type: [string, 'null'] }
-                survey_index: { type: [integer, 'null'] }
-      '401': { $ref: '#/components/responses/Unauthorised' }
-      '403': { $ref: '#/components/responses/Forbidden' }
-      '404':
-        description: No star system has this id.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'not found' }
-      '422': { $ref: '#/components/responses/ValidationErrors' }
 /stars/{id}/orbit_map:
   get:
     operationId: getStarOrbitMapSvg

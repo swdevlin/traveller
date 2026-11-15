@@ -87,12 +87,4 @@ class Api::BaseController < ActionController::API
     bounds = viewport_bounds
     Parsec.where(x: bounds[:x], y: bounds[:y]) if bounds
   end
-
-  def star_systems_in_region
-    parsecs = parsecs_in_region
-    return nil if parsecs.nil?
-
-    StarSystem.where(parsec: parsecs)
-              .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities, stars: :stellar_objects, main_world: :trade_codes)
-  end
 end

@@ -189,9 +189,10 @@ StarMapSystem:
   type: object
   additionalProperties: true
   description: |
-    A star system with the fields needed to plot it on a map. `/stars` returns a lean subset;
-    `/star_map` adds discovery-gated fields (`wtn`, `gwp`, `importance`,
-    `trade_codes`, `bases`, `government_*`, `strategic`).
+    A star system with the fields needed to plot it on a map, including
+    discovery-gated fields (`wtn`, `gwp`, `importance`, `trade_codes`, `bases`,
+    `government_*`, `strategic`), which are empty for systems the players do
+    not know.
   properties:
     id: { type: integer }
     name: { type: string }

@@ -40,8 +40,6 @@ class Api::DocumentedErrorResponsesTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     patch "#{@base}/star_systems/#{star_system.id}", params: { survey_index: 3 }, as: :json
     assert_response :forbidden
-    patch "#{@base}/stars/#{star_system.id}", params: { star: { survey_index: 3 } }, as: :json
-    assert_response :forbidden
     patch "#{@base}/jump_routes/#{route.id}", params: { name: 'Renamed' }, as: :json
     assert_response :forbidden
     delete "#{@base}/jump_routes/#{route.id}", as: :json
@@ -74,7 +72,7 @@ class Api::DocumentedErrorResponsesTest < ActionDispatch::IntegrationTest
   # ---- 401: no credentials at all
 
   test 'a star system rename without credentials is unauthorised' do
-    patch "#{@base}/stars/#{star_systems(:in_one).id}", params: { star: { survey_index: 3 } }, as: :json
+    patch "#{@base}/star_systems/#{star_systems(:in_one).id}", params: { survey_index: 3 }, as: :json
     assert_response :unauthorized
   end
 
@@ -115,8 +113,8 @@ class Api::DocumentedErrorResponsesTest < ActionDispatch::IntegrationTest
   end
 
   test 'a star system update with an invalid survey index is unprocessable' do
-    patch "#{@base}/stars/#{star_systems(:in_one).id}",
-          params: { star: { survey_index: 99 } }, headers: @token_headers, as: :json
+    patch "#{@base}/star_systems/#{star_systems(:in_one).id}",
+          params: { survey_index: 99 }, headers: @token_headers, as: :json
     assert_response :unprocessable_entity
   end
 

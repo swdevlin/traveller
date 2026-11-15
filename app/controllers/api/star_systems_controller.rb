@@ -4,14 +4,6 @@ class Api::StarSystemsController < Api::BaseController
 
   before_action :authenticate_user_or_token!, only: %i[update]
 
-  def index
-    @star_systems = star_systems_in_region
-    if @star_systems.nil?
-      render json: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' },
-             status: :bad_request
-    end
-  end
-
   # Finds systems by name, hex code or sector name; see StarSystemFinder.
   def search
     sector_id = nil
@@ -41,7 +33,7 @@ class Api::StarSystemsController < Api::BaseController
     return render json: { error: 'star system not found' }, status: :not_found unless star_system
 
     if star_system.update(star_system_params)
-      render json: { known: star_system.known?, survey_index: star_system.survey_index }
+      render json: { name: star_system.name, known: star_system.known?, survey_index: star_system.survey_index }
     else
       render json: { errors: star_system.errors.full_messages }, status: :unprocessable_entity
     end
@@ -69,6 +61,6 @@ class Api::StarSystemsController < Api::BaseController
   private
 
   def star_system_params
-    params.permit(:known, :survey_index)
+    params.permit(:name, :known, :survey_index)
   end
 end
