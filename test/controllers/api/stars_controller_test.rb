@@ -35,4 +35,33 @@ class Api::StarsControllerTest < AuthenticatedIntegrationTest
     patch api_star_url(id: 0), params: { star: { survey_index: 5 } }, as: :json
     assert_response :not_found
   end
+
+  test 'update without credentials is unauthorised and changes nothing' do
+    sign_out
+
+    patch api_star_url(@star_system), params: { star: { survey_index: 5 } }, as: :json
+
+    assert_response :unauthorized
+    assert_not_equal 5, @star_system.reload.survey_index
+  end
+
+  test 'update by a signed-in user who is not the referee is forbidden' do
+    sign_out
+    sign_in_as users(:two)
+
+    patch api_star_url(@star_system), params: { star: { survey_index: 5 } }, as: :json
+
+    assert_response :forbidden
+    assert_not_equal 5, @star_system.reload.survey_index
+  end
+
+  test 'update with the campaign API token succeeds' do
+    sign_out
+
+    patch api_star_url(@star_system), params: { star: { survey_index: 5 } },
+                                      headers: { 'Authorization' => "Bearer #{campaigns(:one).api_token}" }, as: :json
+
+    assert_response :success
+    assert_equal 5, @star_system.reload.survey_index
+  end
 end

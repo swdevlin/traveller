@@ -1,4 +1,6 @@
 class Api::StarsController < Api::BaseController
+  before_action :authenticate_user_or_token!, only: %i[update]
+
   def index
     parsec_scope = parsecs_in_region
     if parsec_scope.nil?
