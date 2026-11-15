@@ -3,7 +3,7 @@
 class Api::SurveyOverlaysController < Api::BaseController
   before_action :authenticate_user_or_token!
   before_action :require_referee
-  before_action :set_survey_overlay, only: %i[update destroy move_up move_down]
+  before_action :set_survey_overlay, only: %i[update destroy]
 
   # Survey overlays are a referee-only tool — there is no player-visible
   # subset, so every action here requires authentication.
@@ -23,7 +23,10 @@ class Api::SurveyOverlaysController < Api::BaseController
   end
 
   def update
-    if @survey_overlay.update(survey_overlay_params)
+    attributes = survey_overlay_params
+    attributes[:target_position] = params[:position] if params.key?(:position)
+
+    if @survey_overlay.update(attributes)
       render json: serialize_survey_overlay(@survey_overlay)
     else
       render json: { errors: @survey_overlay.errors.full_messages }, status: :unprocessable_entity
@@ -33,16 +36,6 @@ class Api::SurveyOverlaysController < Api::BaseController
   def destroy
     @survey_overlay.destroy!
     head :no_content
-  end
-
-  def move_up
-    @survey_overlay.move_up!
-    render json: serialize_survey_overlay(@survey_overlay.reload)
-  end
-
-  def move_down
-    @survey_overlay.move_down!
-    render json: serialize_survey_overlay(@survey_overlay.reload)
   end
 
   private

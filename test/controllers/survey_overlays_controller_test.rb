@@ -71,27 +71,30 @@ class SurveyOverlaysControllerTest < AuthenticatedIntegrationTest
     assert_redirected_to survey_overlays_url
   end
 
-  test 'move_up swaps position with the previous survey overlay' do
+  test 'the list buttons move an overlay by patching its position' do
     other = survey_overlays(:two)
     survey_overlay_position = @survey_overlay.position
     other_position = other.position
 
-    patch move_up_survey_overlay_url(other)
+    patch survey_overlay_url(other), params: { survey_overlay: { position: survey_overlay_position } }
 
     assert_redirected_to survey_overlays_url
     assert_equal other_position, @survey_overlay.reload.position
     assert_equal survey_overlay_position, other.reload.position
   end
 
-  test 'move_down swaps position with the next survey overlay' do
-    other = survey_overlays(:two)
-    survey_overlay_position = @survey_overlay.position
-    other_position = other.position
-
-    patch move_down_survey_overlay_url(@survey_overlay)
+  test 'a reorder that is out of range returns to the list with the reason' do
+    patch survey_overlay_url(@survey_overlay), params: { survey_overlay: { position: 0 } }
 
     assert_redirected_to survey_overlays_url
-    assert_equal other_position, @survey_overlay.reload.position
-    assert_equal survey_overlay_position, other.reload.position
+    assert_match(/between 1 and/, flash[:alert])
+  end
+
+  test 'the list renders up and down buttons that patch a position' do
+    get survey_overlays_url
+
+    assert_response :success
+    assert_select "form[action='#{survey_overlay_path(@survey_overlay)}'] input[name='survey_overlay[position]']"
+    assert_select "form[action*='move_']", count: 0
   end
 end

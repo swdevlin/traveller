@@ -165,6 +165,7 @@ module HasFilterRule
   end
 
   included do
+    before_validation :default_condition_negation
     validate :rule_data_shape_is_valid
   end
 
@@ -175,6 +176,23 @@ module HasFilterRule
   end
 
   private
+
+  # A condition without `negate` means "not negated". The starmap needs the key
+  # present to read a rule, so it is stored explicitly rather than left implied.
+  def default_condition_negation
+    groups = rule_data.is_a?(Hash) ? (rule_data['groups'] || rule_data[:groups]) : nil
+    return unless groups.is_a?(Array)
+
+    groups.each do |group|
+      next unless group.is_a?(Array)
+
+      group.each do |condition|
+        next unless condition.is_a?(Hash)
+
+        condition['negate'] = false unless condition.key?('negate') || condition.key?(:negate)
+      end
+    end
+  end
 
   def rule_data_shape_is_valid
     unless rule_data.is_a?(Hash)

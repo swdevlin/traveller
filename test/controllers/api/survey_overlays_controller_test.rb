@@ -170,31 +170,106 @@ class Api::SurveyOverlaysControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
   end
 
-  test 'move_up without credentials returns unauthorised' do
+  test 'update with a position without credentials returns unauthorised' do
     survey_overlay = SurveyOverlay.create!(name: 'Overlay', colour: '#112233')
 
-    patch move_up_api_survey_overlay_url(campaign_slug: @campaign.slug, id: survey_overlay.id), as: :json
+    patch api_survey_overlay_url(campaign_slug: @campaign.slug, id: survey_overlay.id), params: { position: 1 }, as: :json
 
     assert_response :unauthorized
   end
 
-  test 'move_up and move_down swap position with the adjacent survey overlay' do
-    sign_in_as users(:one)
-    first = SurveyOverlay.create!(name: 'First', colour: '#111111')
-    second = SurveyOverlay.create!(name: 'Second', colour: '#222222')
-    first_position = first.position
-    second_position = second.position
+  test 'create stores a condition without negate as not negated' do
+    post api_survey_overlays_url(campaign_slug: @campaign.slug),
+         params: { name: 'Port overlay', colour: '#112233',
+                   rule_data: { groups: [[{ field: 'starport', operator: 'eq', values: ['A'] }]] } },
+         headers: { 'Authorization' => "Bearer #{@campaign.api_token}" }, as: :json
 
-    patch move_up_api_survey_overlay_url(campaign_slug: @campaign.slug, id: second.id), as: :json
+    assert_response :created
+    assert_equal false, response.parsed_body.dig('rule_data', 'groups', 0, 0, 'negate')
+  end
+
+  def token_headers
+    { 'Authorization' => "Bearer #{@campaign.api_token}" }
+  end
+
+  def three_overlays
+    SurveyOverlay.destroy_all
+    %w[A B C].map { |name| SurveyOverlay.create!(name: name, colour: '#112233') }
+  end
+
+  test 'update with a position moves the overlay in one call' do
+    _, _, c = three_overlays
+
+    patch api_survey_overlay_url(c, campaign_slug: @campaign.slug),
+          params: { position: 1 }, headers: token_headers, as: :json
 
     assert_response :success
-    assert_equal second_position, first.reload.position
-    assert_equal first_position, second.reload.position
+    assert_equal 1, response.parsed_body['position']
+    assert_equal %w[C A B], SurveyOverlay.ordered.pluck(:name)
+  end
 
-    patch move_down_api_survey_overlay_url(campaign_slug: @campaign.slug, id: second.id), as: :json
+  test 'update can rename and move together' do
+    a, = three_overlays
+
+    patch api_survey_overlay_url(a, campaign_slug: @campaign.slug),
+          params: { name: 'Renamed', position: 3 }, headers: token_headers, as: :json
 
     assert_response :success
-    assert_equal first_position, first.reload.position
-    assert_equal second_position, second.reload.position
+    assert_equal %w[B C Renamed], SurveyOverlay.ordered.pluck(:name)
+  end
+
+  test 'update without a position leaves the order alone' do
+    a, = three_overlays
+
+    patch api_survey_overlay_url(a, campaign_slug: @campaign.slug),
+          params: { name: 'Renamed' }, headers: token_headers, as: :json
+
+    assert_response :success
+    assert_equal %w[Renamed B C], SurveyOverlay.ordered.pluck(:name)
+  end
+
+  test 'update rejects a position outside the list' do
+    a, = three_overlays
+
+    [0, -1, 4].each do |position|
+      patch api_survey_overlay_url(a, campaign_slug: @campaign.slug),
+            params: { position: position }, headers: token_headers, as: :json
+
+      assert_response :unprocessable_entity, "position #{position}"
+      assert_equal ['Position must be a whole number between 1 and 3'], response.parsed_body['errors']
+    end
+    assert_equal %w[A B C], SurveyOverlay.ordered.pluck(:name)
+  end
+
+  test 'update rejects a position that is not a whole number' do
+    a, = three_overlays
+
+    ['two', '1.5', ''].each do |position|
+      patch api_survey_overlay_url(a, campaign_slug: @campaign.slug),
+            params: { position: position }, headers: token_headers, as: :json
+
+      assert_response :unprocessable_entity, "position #{position.inspect}"
+    end
+  end
+
+  test 'a rejected position does not apply the other changes' do
+    a, = three_overlays
+
+    patch api_survey_overlay_url(a, campaign_slug: @campaign.slug),
+          params: { name: 'Renamed', position: 0 }, headers: token_headers, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal 'A', a.reload.name
+  end
+
+  test 'create without a position adds the overlay to the end of the list' do
+    three_overlays
+
+    post api_survey_overlays_url(campaign_slug: @campaign.slug),
+         params: { name: 'D', colour: '#445566' }, headers: token_headers, as: :json
+
+    assert_response :created
+    assert_equal 4, response.parsed_body['position']
+    assert_equal %w[A B C D], SurveyOverlay.ordered.pluck(:name)
   end
 end

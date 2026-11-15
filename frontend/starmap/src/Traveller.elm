@@ -5770,6 +5770,16 @@ moveRule ruleId delta rules =
             rules
 
 
+{-| The 1-based place in the list the rule would have after moving `delta`
+places (-1 is up, 1 is down). For a referee the list is the server's whole list
+in order, so this is the `position` to ask the server for.
+-}
+rulePositionAfterMove : String -> Int -> List HighlightRule.Rule -> Maybe Int
+rulePositionAfterMove ruleId delta rules =
+    List.Extra.findIndex (\r -> r.id == ruleId) rules
+        |> Maybe.map (\index -> index + delta + 1)
+
+
 {-| Referee overlay ids are the `SurveyOverlay` row's real integer id (see
 `HighlightRule.apiRulesDecoder`), stringified only because `Rule.id` is
 shared with the player's locally-generated `"rule-N"` ids - this looks the
@@ -9580,11 +9590,11 @@ update msg ( time, model ) =
 
         MoveRuleUp ruleId ->
             if model.isReferee then
-                case String.toInt ruleId of
-                    Just id ->
-                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id True )
+                case ( String.toInt ruleId, rulePositionAfterMove ruleId -1 model.highlightRules ) of
+                    ( Just id, Just position ) ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id position )
 
-                    Nothing ->
+                    _ ->
                         ( withTime model, Cmd.none )
 
             else
@@ -9598,11 +9608,11 @@ update msg ( time, model ) =
 
         MoveRuleDown ruleId ->
             if model.isReferee then
-                case String.toInt ruleId of
-                    Just id ->
-                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id False )
+                case ( String.toInt ruleId, rulePositionAfterMove ruleId 1 model.highlightRules ) of
+                    ( Just id, Just position ) ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id position )
 
-                    Nothing ->
+                    _ ->
                         ( withTime model, Cmd.none )
 
             else
@@ -11385,26 +11395,20 @@ sendDeleteSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id =
         }
 
 
-sendMoveSurveyOverlayRequest : HostConfig -> Int -> Bool -> Cmd Msg
-sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id moveUp =
+{-| Moves a survey overlay to `position` in the list, where 1 is first. The
+server shifts the others to make room.
+-}
+sendMoveSurveyOverlayRequest : HostConfig -> Int -> Int -> Cmd Msg
+sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id position =
     Http.request
         { method = "PATCH"
         , headers = []
-        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id, moveAction moveUp ]) []
-        , body = Http.emptyBody
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
+        , body = Http.jsonBody (Encode.object [ ( "position", Encode.int position ) ])
         , expect = Http.expectWhatever SurveyOverlayMutated
         , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
-
-
-moveAction : Bool -> String
-moveAction moveUp =
-    if moveUp then
-        "move_up"
-
-    else
-        "move_down"
 
 
 sendDeleteJumpRouteRequest : HostConfig -> Int -> Cmd Msg

@@ -30,28 +30,6 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     assert_equal 2, second.position
   end
 
-  test 'move_up! swaps position with the previous survey overlay' do
-    SurveyOverlay.destroy_all
-    first = SurveyOverlay.create!(name: 'First', colour: '#123456')
-    second = SurveyOverlay.create!(name: 'Second', colour: '#654321')
-
-    second.move_up!
-
-    assert_equal 2, first.reload.position
-    assert_equal 1, second.reload.position
-  end
-
-  test 'move_down! swaps position with the next survey overlay' do
-    SurveyOverlay.destroy_all
-    first = SurveyOverlay.create!(name: 'First', colour: '#123456')
-    second = SurveyOverlay.create!(name: 'Second', colour: '#654321')
-
-    first.move_down!
-
-    assert_equal 2, first.reload.position
-    assert_equal 1, second.reload.position
-  end
-
   test 'a rule with no groups is valid' do
     survey_overlay = SurveyOverlay.new(name: 'Test', colour: '#123456', rule_data: {})
 
@@ -468,5 +446,141 @@ class SurveyOverlayTest < ActiveSupport::TestCase
     overlay = overlay_with(field: 'starport', operator: 'eq', values: ['A'])
 
     assert_nil SurveyOverlay.colour_for(fake_star_system(main_world_uwp: 'B788899-C'), [overlay])
+  end
+
+  test 'a condition without negate is stored as not negated' do
+    survey_overlay = SurveyOverlay.create!(
+      name: 'Test', colour: '#123456',
+      rule_data: { 'groups' => [[{ 'field' => 'starport', 'operator' => 'eq', 'values' => ['A'] }]] }
+    )
+
+    assert_equal false, survey_overlay.reload.rule_data['groups'][0][0]['negate']
+  end
+
+  test 'an explicit negate is kept' do
+    survey_overlay = SurveyOverlay.create!(
+      name: 'Test', colour: '#123456',
+      rule_data: { 'groups' => [[{ 'field' => 'starport', 'operator' => 'eq', 'negate' => true, 'values' => ['A'] }]] }
+    )
+
+    assert_equal true, survey_overlay.reload.rule_data['groups'][0][0]['negate']
+  end
+
+  test 'rules with no groups are left alone' do
+    survey_overlay = SurveyOverlay.create!(name: 'Test', colour: '#123456', rule_data: {})
+
+    assert_equal({}, survey_overlay.reload.rule_data)
+  end
+
+  def overlays(count)
+    SurveyOverlay.destroy_all
+    Array.new(count) { |i| SurveyOverlay.create!(name: "Overlay #{i + 1}", colour: '#123456') }
+  end
+
+  def names_in_order
+    SurveyOverlay.ordered.pluck(:name)
+  end
+
+  test 'moves to the first place, shifting the others down' do
+    one, two, three = overlays(3)
+
+    assert three.update(target_position: 1)
+
+    assert_equal ['Overlay 3', 'Overlay 1', 'Overlay 2'], names_in_order
+    assert_equal [1, 2, 3], SurveyOverlay.ordered.pluck(:position)
+    assert_equal 1, three.position
+    assert_equal 2, one.reload.position
+    assert_equal 3, two.reload.position
+  end
+
+  test 'moves to the last place, shifting the others up' do
+    one, = overlays(3)
+
+    assert one.update(target_position: 3)
+
+    assert_equal ['Overlay 2', 'Overlay 3', 'Overlay 1'], names_in_order
+  end
+
+  test 'moves to a middle place' do
+    one, = overlays(4)
+
+    assert one.update(target_position: 3)
+
+    assert_equal ['Overlay 2', 'Overlay 3', 'Overlay 1', 'Overlay 4'], names_in_order
+  end
+
+  test 'moving to its own place changes nothing' do
+    _, two, = overlays(3)
+
+    assert two.update(target_position: 2)
+
+    assert_equal ['Overlay 1', 'Overlay 2', 'Overlay 3'], names_in_order
+  end
+
+  test 'closes up gaps left by deleted overlays' do
+    one, two, three = overlays(3)
+    two.destroy!
+
+    assert three.update(target_position: 1)
+
+    assert_equal [1, 2], SurveyOverlay.ordered.pluck(:position)
+    assert_equal ['Overlay 3', 'Overlay 1'], names_in_order
+    assert_equal 2, one.reload.position
+  end
+
+  test 'every overlay that moves has updated_at touched, so cached maps are refreshed' do
+    one, two, three = overlays(3)
+    stamp = 1.day.ago.change(usec: 0)
+    SurveyOverlay.update_all(updated_at: stamp)
+
+    three.update!(target_position: 1)
+
+    assert_operator one.reload.updated_at, :>, stamp
+    assert_operator two.reload.updated_at, :>, stamp
+    assert_operator three.reload.updated_at, :>, stamp
+  end
+
+  test 'an overlay that does not move is not touched' do
+    one, two, three = overlays(3)
+    stamp = 1.day.ago.change(usec: 0)
+    SurveyOverlay.update_all(updated_at: stamp)
+
+    three.update!(target_position: 2)
+
+    assert_equal stamp, one.reload.updated_at
+  end
+
+  test 'rejects a position outside the list' do
+    one, = overlays(3)
+
+    [0, 4, -1].each do |position|
+      assert_not one.update(target_position: position), "position #{position}"
+      assert_includes one.errors[:position].first, 'between 1 and 3'
+    end
+    assert_equal ['Overlay 1', 'Overlay 2', 'Overlay 3'], names_in_order
+  end
+
+  test 'rejects a position that is not a whole number' do
+    one, = overlays(3)
+
+    ['two', '1.5', ''].each do |position|
+      assert_not one.update(target_position: position), "position #{position.inspect}"
+    end
+  end
+
+  test 'accepts a position given as a string' do
+    one, = overlays(3)
+
+    assert one.update(target_position: '3')
+
+    assert_equal 'Overlay 1', SurveyOverlay.ordered.last.name
+  end
+
+  test 'saving without a target position leaves the order alone' do
+    one, = overlays(3)
+
+    one.update!(name: 'Renamed')
+
+    assert_equal ['Renamed', 'Overlay 2', 'Overlay 3'], names_in_order
   end
 end

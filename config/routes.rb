@@ -81,12 +81,7 @@ Rails.application.routes.draw do
       get 'map', to: 'map#show'
       get 'jump_route_links', to: 'jump_route_links#index', defaults: { format: :json }
       resources :jump_routes, only: %i[index update destroy], defaults: { format: :json }
-      resources :survey_overlays, only: %i[index create update destroy], defaults: { format: :json } do
-        member do
-          patch :move_up
-          patch :move_down
-        end
-      end
+      resources :survey_overlays, only: %i[index create update destroy], defaults: { format: :json }
       get 'rogues',        to: 'rogues#index',        defaults: { format: :json }
       get 'map_labels',    to: 'map_labels#index',    defaults: { format: :json }
       get 'star_map',      to: 'star_map#index',      defaults: { format: :json }
@@ -136,12 +131,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :survey_overlays do
-      member do
-        patch :move_up
-        patch :move_down
-      end
-    end
+    resources :survey_overlays
 
     get 'object_tags', to: 'object_tags#show', as: :object_tags
     post 'object_tags', to: 'object_tags#create'
