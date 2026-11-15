@@ -1,49 +1,4 @@
 # Paths: Star systems
-/starsystem:
-  get:
-    operationId: getStarSystemAtHex
-    tags: [Star systems]
-    summary: Get the star system at a sector hex
-    description: |
-      Looks a system up by sector and hex position. `hx` and `hy` are the
-      hex's column and row within the sector (1-32 and 1-40). The `parsec`
-      is always returned; `star_system` is `null` when the hex is empty.
-    parameters:
-      - { name: sx, in: query, required: true, description: Sector x., schema: { type: integer } }
-      - { name: sy, in: query, required: true, description: Sector y., schema: { type: integer } }
-      - { name: hx, in: query, required: true, description: Hex column within the sector., schema: { type: integer } }
-      - { name: hy, in: query, required: true, description: Hex row within the sector., schema: { type: integer } }
-    responses:
-      '200':
-        description: The hex's parsec and, if it has one, its star system.
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [star_system, parsec]
-              properties:
-                star_system:
-                  oneOf:
-                    - { $ref: '#/components/schemas/StarSystemDetail' }
-                    - { type: 'null' }
-                parsec:
-                  type: object
-                  required: [id, survey_index]
-                  properties:
-                    id: { type: integer }
-                    survey_index: { type: [integer, 'null'] }
-      '400':
-        description: One of `sx`, `sy`, `hx`, `hy` is missing.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'sx, sy, hx, hy required' }
-      '404':
-        description: There is no such parsec.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'solar system not found' }
 /star_systems:
   get:
     operationId: findStarSystems

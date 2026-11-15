@@ -1,4 +1,6 @@
 class Api::ParsecsController < Api::BaseController
+  helper ApplicationHelper, StellarObjectsHelper
+
   before_action :authenticate_user_or_token!, only: %i[update]
 
   def index
@@ -9,6 +11,33 @@ class Api::ParsecsController < Api::BaseController
       system_name = p.star_systems.first&.name.presence
       { id: p.id, hex_code: p.hex_code, x: p.x, y: p.y, system_name: system_name }
     }
+  end
+
+  # What is at a hex: its parsec, with the star system in it if there is one.
+  # `hx` and `hy` are the hex's column and row within the sector (1-based).
+  def lookup
+    unless %i[sx sy hx hy].all? { |key| params[key].present? }
+      return render json: { error: 'sx, sy, hx, hy required' }, status: :bad_request
+    end
+
+    sx = params[:sx].to_i
+    sy = params[:sy].to_i
+
+    @parsec = Parsec.joins(:sector).find_by(x: sx * 32 + params[:hx].to_i - 1,
+                                            y: sy * 40 - params[:hy].to_i + 1,
+                                            sectors: { x: sx, y: sy })
+    return render json: { error: 'parsec not found' }, status: :not_found unless @parsec
+
+    authenticated_by_session?
+    Current.api_token_authenticated = authenticated_by_token?
+    @is_referee = Current.referee_access?
+
+    @star_system = @parsec.star_systems
+                          .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities,
+                                    { stars: [{ stellar_objects: :moons }, :companion,
+                                              { stars: [{ stellar_objects: :moons }, :companion] }] },
+                                    main_world: :trade_codes)
+                          .first
   end
 
   def update

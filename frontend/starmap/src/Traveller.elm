@@ -1111,7 +1111,7 @@ type Msg
     | RefreshMap
     | DownloadedStarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
     | ClearAllErrors
-    | FetchedStarSystemDetail (Result Http.Error StarSystemDetailResponse)
+    | FetchedParsecLookup (Result Http.Error ParsecLookupResponse)
     | DownloadedSectors ( RequestEntry, String ) (Result Http.Error (List Sector))
     | DownloadedRegions ( HexRect, String ) (Result Http.Error (List Region))
     | HoveringHex HexAddress ( Float, Float )
@@ -7436,23 +7436,23 @@ sendRouteRequest requestEntry hostConfig =
     requestCmd
 
 
-type alias StarSystemDetailResponse =
+type alias ParsecLookupResponse =
     { starSystem : Maybe StarSystemDetail
     , parsecId : Int
     , parsecSurveyIndex : Int
     }
 
 
-starSystemDetailResponseDecoder : JsDecode.Decoder StarSystemDetailResponse
-starSystemDetailResponseDecoder =
-    JsDecode.map3 StarSystemDetailResponse
+parsecLookupDecoder : JsDecode.Decoder ParsecLookupResponse
+parsecLookupDecoder =
+    JsDecode.map3 ParsecLookupResponse
         (JsDecode.field "star_system" (JsDecode.nullable (StarSystemDetail.codec |> Codec.decoder)))
-        (JsDecode.at [ "parsec", "id" ] JsDecode.int)
-        (JsDecode.at [ "parsec", "survey_index" ] JsDecode.int)
+        (JsDecode.field "id" JsDecode.int)
+        (JsDecode.field "survey_index" JsDecode.int)
 
 
-fetchStarSystemDetailRequest : HostConfig -> SectorHexAddress -> Cmd Msg
-fetchStarSystemDetailRequest hostConfig hex =
+fetchParsecLookupRequest : HostConfig -> SectorHexAddress -> Cmd Msg
+fetchParsecLookupRequest hostConfig hex =
     let
         ( urlHostRoot, urlHostPath ) =
             hostConfig
@@ -7460,7 +7460,7 @@ fetchStarSystemDetailRequest hostConfig hex =
         url =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "starsystem" ])
+                (urlHostPath ++ [ "parsecs", "lookup" ])
                 [ Url.Builder.int "sx" hex.sectorX
                 , Url.Builder.int "sy" hex.sectorY
                 , Url.Builder.int "hx" <| hex.x + 1
@@ -7474,7 +7474,7 @@ fetchStarSystemDetailRequest hostConfig hex =
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson FetchedStarSystemDetail starSystemDetailResponseDecoder
+                , expect = Http.expectJson FetchedParsecLookup parsecLookupDecoder
                 , timeout = Just 5000
                 , tracker = Nothing
                 }
@@ -8519,7 +8519,7 @@ update msg ( time, model ) =
             -- covered so the next pan over it naturally retries the fetch.
             ( withTime { model | jumpRouteLinksCoverage = unmarkCovered hexRect model.jumpRouteLinksCoverage }, Cmd.none )
 
-        FetchedStarSystemDetail (Ok response) ->
+        FetchedParsecLookup (Ok response) ->
             case response.starSystem of
                 Nothing ->
                     if model.pendingCtrlNavigation then
@@ -8571,10 +8571,10 @@ update msg ( time, model ) =
                         , Cmd.none
                         )
 
-        FetchedStarSystemDetail (Err (Http.BadBody err)) ->
+        FetchedParsecLookup (Err (Http.BadBody err)) ->
             ( withTime { model | pendingCtrlNavigation = False, newStarSystemErrors = model.newStarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
 
-        FetchedStarSystemDetail (Err err) ->
+        FetchedParsecLookup (Err err) ->
             ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
 
         SetKnown known ->
@@ -8792,7 +8792,7 @@ update msg ( time, model ) =
                     , newStarSystemErrors = focusedErrors
                     , sidebarOpen = True
                 }
-            , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+            , fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
             )
 
         ToggleTravelTable ->
@@ -8998,7 +8998,7 @@ update msg ( time, model ) =
                                             | dragMode = NoDragging
                                             , pendingCtrlNavigation = True
                                         }
-                                    , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+                                    , fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                                 else
@@ -9062,7 +9062,7 @@ update msg ( time, model ) =
                                             Cmd.none
 
                                         Nothing ->
-                                            fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+                                            fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                             Nothing ->
@@ -9913,7 +9913,7 @@ update msg ( time, model ) =
                                     case ( savedDestination, model.selectedSystem ) of
                                         ( Just hex, Just selected ) ->
                                             if selected.address == hex then
-                                                fetchStarSystemDetailRequest model.hostConfig (toSectorAddress hex)
+                                                fetchParsecLookupRequest model.hostConfig (toSectorAddress hex)
 
                                             else
                                                 Cmd.none

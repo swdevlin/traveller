@@ -16,7 +16,7 @@ class Api::TagPrivacyTest < ActionDispatch::IntegrationTest
     @endpoints = [
       api_sectors_url,
       api_subsector_url(subsectors(:subsector_1_1)),
-      api_starsystem_url(sx: 1, sy: 1, hx: 1, hy: 1),
+      api_parsecs_lookup_url(sx: 1, sy: 1, hx: 1, hy: 1),
       "/c/#{@campaign.slug}/api/star_systems/#{@system.id}",
       "/c/#{@campaign.slug}/api/stellar_objects/#{@body.id}",
       api_star_map_url(sx: 1, sy: 1),

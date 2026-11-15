@@ -90,6 +90,40 @@
             schema:
               type: array
               items: { $ref: '#/components/schemas/ParsecSummary' }
+/parsecs/lookup:
+  get:
+    operationId: lookupParsec
+    tags: [Sectors]
+    summary: Look up what is at a hex
+    description: |
+      Finds a hex by sector and hex position and returns its parsec, with the
+      star system in it nested as `star_system`, or `null` if the hex is
+      empty. `hx` and `hy` are the hex's column and row within the sector (1-32
+      and 1-40). Details of the system that the players have not discovered are
+      withheld, as for `GET /star_systems/{id}`.
+    parameters:
+      - { name: sx, in: query, required: true, description: Sector x., schema: { type: integer } }
+      - { name: sy, in: query, required: true, description: Sector y., schema: { type: integer } }
+      - { name: hx, in: query, required: true, description: Hex column within the sector., schema: { type: integer } }
+      - { name: hy, in: query, required: true, description: Hex row within the sector., schema: { type: integer } }
+    responses:
+      '200':
+        description: The hex's parsec and, if it has one, its star system.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Parsec' }
+      '400':
+        description: One of `sx`, `sy`, `hx`, `hy` is missing.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'sx, sy, hx, hy required' }
+      '404':
+        description: There is no such parsec.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'parsec not found' }
 /parsecs/{id}:
   patch:
     operationId: updateParsec

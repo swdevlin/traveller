@@ -51,6 +51,20 @@ ParsecSummary:
     x: { type: integer }
     y: { type: integer }
     system_name: { type: [string, 'null'], description: The name of the star system in the parsec, if it has one. }
+Parsec:
+  type: object
+  required: [id, hex_code, x, y, survey_index, star_system]
+  properties:
+    id: { type: integer }
+    hex_code: { type: [string, 'null'], description: 'Hex within the sector, such as `1910`.' }
+    x: { type: integer, description: Universal x coordinate. }
+    y: { type: integer, description: Universal y coordinate. }
+    survey_index: { type: [integer, 'null'], description: How thoroughly the hex has been surveyed, 0 to 12. }
+    star_system:
+      description: The star system in the parsec, or `null` if it is empty.
+      oneOf:
+        - { $ref: '#/components/schemas/StarSystemDetail' }
+        - { type: 'null' }
 Region:
   type: object
   required: [id, tags, name, label, colour, border_colour, player_visible, hexes, border_hexes]

@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       resources :subsectors, only: :show, defaults: { format: :json }
       resources :regions, only: :index, defaults: { format: :json }
       resources :parsecs, only: :index
+      get 'parsecs/lookup', to: 'parsecs#lookup', defaults: { format: :json }
       patch 'parsecs/:id', to: 'parsecs#update', defaults: { format: :json }
       get  'jumps',       to: 'jump_logs#index', defaults: { format: :json }
       post 'jumps',       to: 'jump_logs#create', defaults: { format: :json }
@@ -71,7 +72,6 @@ Rails.application.routes.draw do
         end
       end
       get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
-      get 'starsystem',  to: 'star_system#show', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
       patch 'star_systems/:id', to: 'star_systems#update', defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
