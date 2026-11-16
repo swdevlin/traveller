@@ -35,8 +35,8 @@ info:
     campaign's settings page.
 
     Endpoints that change data, and the referee tools (traffic, trade, survey
-    overlays, orbit maps), require authentication. Send the token as a bearer
-    token:
+    overlays, orbit maps), can only be called by the owner of the campaign.
+    Send the token as a bearer token:
 
     ```
     Authorization: Bearer <token>

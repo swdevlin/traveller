@@ -4,7 +4,7 @@
     operationId: calculatePassengerTraffic
     tags: [Commerce]
     summary: Passenger traffic between two systems
-    description: Rolls the passengers available in each class. Requires authentication.
+    description: Rolls the passengers available in each class. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/FromId' }
@@ -26,7 +26,7 @@
     operationId: calculateFreightTraffic
     tags: [Commerce]
     summary: Freight traffic between two systems
-    description: Rolls the freight lots available. Requires authentication.
+    description: Rolls the freight lots available. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/FromId' }
@@ -47,7 +47,7 @@
     operationId: calculateMailTraffic
     tags: [Commerce]
     summary: Mail between two systems
-    description: Rolls the mail containers available. Requires authentication.
+    description: Rolls the mail containers available. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/FromId' }

@@ -82,7 +82,7 @@
     summary: Update a star system
     description: |
       Renames the system and sets whether the players know it and its survey
-      index. Only the fields sent are changed. Requires authentication.
+      index. Only the fields sent are changed. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -122,7 +122,7 @@
     operationId: getStarSystemPassengerTraffic
     tags: [Star systems]
     summary: Passenger DMs for one system
-    description: A system's UWP and the DMs it contributes to passenger traffic. Requires authentication.
+    description: A system's UWP and the DMs it contributes to passenger traffic. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -140,7 +140,7 @@
     operationId: getStarSystemFreightTraffic
     tags: [Star systems]
     summary: Freight DMs for one system
-    description: Requires authentication.
+    description: The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -158,7 +158,7 @@
     operationId: getStarSystemMailTraffic
     tags: [Star systems]
     summary: Mail DMs for one system
-    description: Requires authentication.
+    description: The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -178,8 +178,8 @@
     summary: Goods available for purchase
     description: |
       Rolls the goods on offer at a system. Keep the returned `seed` and send
-      it back to get the same list again; omit it to roll a new one. Requires
-      authentication.
+      it back to get the same list again; omit it to roll a new one. The caller must be
+      the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -215,7 +215,7 @@
     summary: Purchase or sale prices
     description: |
       Rolls the price of each requested good, or of every priceable good if
-      `d66s` is omitted. Requires authentication.
+      `d66s` is omitted. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarSystemId' }
@@ -321,7 +321,7 @@
     summary: Orbit map (SVG)
     description: |
       A diagram of the star's orbits, as SVG by default (a `.svg` suffix is
-      also accepted). Here `id` is a **star** id. Requires authentication.
+      also accepted). Here `id` is a **star** id. The caller must be the owner of the campaign.
       An SVG fetched with the API token contains no hyperlinks, so it can be
       embedded in other sites and tools.
     security: [{ bearerToken: [] }]
@@ -348,7 +348,7 @@
     operationId: getStarOrbitMapWebp
     tags: [Star systems]
     summary: Orbit map (WebP)
-    description: The same diagram as a WebP image. Requires authentication.
+    description: The same diagram as a WebP image. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/StarId' }

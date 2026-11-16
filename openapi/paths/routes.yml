@@ -21,7 +21,7 @@
     tags: [Routes]
     summary: Update a jump route
     description: |
-      Requires authentication. Plotted routes cannot be changed through the
+      The caller must be the owner of the campaign. Plotted routes cannot be changed through the
       API; they are edited on the website.
     security: [{ bearerToken: [] }]
     parameters:
@@ -60,7 +60,7 @@
     operationId: deleteJumpRoute
     tags: [Routes]
     summary: Delete a jump route
-    description: Requires authentication.
+    description: The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/JumpRouteId' }
@@ -137,7 +137,7 @@
     operationId: saveRoutePlan
     tags: [Routes]
     summary: Save a planned route
-    description: Stores the route as a plotted jump route. Requires authentication.
+    description: Stores the route as a plotted jump route. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     requestBody:
       required: true

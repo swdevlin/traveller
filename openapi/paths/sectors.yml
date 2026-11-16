@@ -162,7 +162,7 @@
     operationId: updateParsec
     tags: [Sectors]
     summary: Update a parsec
-    description: Sets the parsec's survey index. Requires authentication.
+    description: Sets the parsec's survey index. The caller must be the owner of the campaign.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/ParsecId' }

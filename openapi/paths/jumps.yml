@@ -25,7 +25,7 @@
     operationId: createJump
     tags: [Jumps]
     summary: Log a jump
-    description: Requires authentication. Raises the destination's survey index where appropriate.
+    description: The caller must be the owner of the campaign. Raises the destination's survey index where appropriate.
     security: [{ bearerToken: [] }]
     requestBody:
       required: true
@@ -47,7 +47,7 @@
     tags: [Jumps]
     summary: Update a jump
     description: |
-      Requires authentication.
+      The caller must be the owner of the campaign.
 
       Changing a jump's dates or locations also changes the other jumps of the
       same ship, so that its route stays continuous. The response contains only
@@ -90,7 +90,7 @@
     tags: [Jumps]
     summary: Delete a jump
     description: |
-      Requires authentication. Only a ship's most recent jump can be deleted,
+      The caller must be the owner of the campaign. Only a ship's most recent jump can be deleted,
       so that its route has no gap.
     security: [{ bearerToken: [] }]
     parameters:
