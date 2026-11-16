@@ -100,6 +100,7 @@ Rails.application.routes.draw do
       get  'freight_traffic',        to: 'freight_traffic#calculate', defaults: { format: :json }
       get  'mail_traffic',        to: 'mail_traffic#calculate', defaults: { format: :json }
       resources :travel_zones, only: :index, defaults: { format: :json }
+      get 'rulebooks', to: 'rulebooks#index', defaults: { format: :json }
       get 'rulebooks/search', to: '/rulebook_search#index', as: :rulebook_search, defaults: { format: :json }
     end
 

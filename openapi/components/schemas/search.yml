@@ -15,6 +15,17 @@ SearchResult:
     sector_y: { type: [integer, 'null'], description: Sectors and subsectors. }
     subsector_x: { type: [integer, 'null'], description: Subsectors. }
     subsector_y: { type: [integer, 'null'], description: Subsectors. }
+Rulebook:
+  type: object
+  required: [id, title, category]
+  properties:
+    id: { type: integer }
+    title: { type: string }
+    short_title: { type: [string, 'null'] }
+    edition: { type: [string, 'null'] }
+    category:
+      type: string
+      enum: [rulebook, supplement, adventure, setting, alien_module, other]
 RulebookSearchGroup:
   type: object
   properties:
@@ -22,7 +33,9 @@ RulebookSearchGroup:
     title: { type: string }
     short_title: { type: [string, 'null'] }
     edition: { type: [string, 'null'] }
-    category: { type: [string, 'null'] }
+    category:
+      type: [string, 'null']
+      enum: [rulebook, supplement, adventure, setting, alien_module, other, null]
     total_matches: { type: integer }
     relevant_matches: { type: integer }
     hits:

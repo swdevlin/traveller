@@ -21,6 +21,24 @@
               type: array
               maxItems: 12
               items: { $ref: '#/components/schemas/SearchResult' }
+/rulebooks:
+  get:
+    operationId: listRulebooks
+    tags: [Search]
+    summary: List rulebooks
+    description: |
+      The rulebooks the campaign has enabled, ordered by title. Use the `id`
+      values with `rulebook_ids` on `GET /rulebooks/search`. The campaign
+      owner sees every enabled rulebook; everyone else sees only those the
+      owner has made searchable by players.
+    responses:
+      '200':
+        description: Rulebooks available to the caller.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Rulebook' }
 /rulebooks/search:
   get:
     operationId: searchRulebooks
@@ -43,7 +61,11 @@
         description: Limit the search to rulebooks in these categories, as a comma-separated list.
         style: form
         explode: false
-        schema: { type: array, items: { type: string } }
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [rulebook, supplement, adventure, setting, alien_module, other]
       - name: per_rulebook_limit
         in: query
         description: Hits to return per rulebook, 1 to 10.
