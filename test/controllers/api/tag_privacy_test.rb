@@ -55,4 +55,16 @@ class Api::TagPrivacyTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, SECRET_TAG
   end
+
+  test 'a player sees a subsector\'s survey records but not its classified records' do
+    subsector = subsectors(:subsector_1_1)
+    subsector.update!(player_notes: 'Players know this', referee_notes: 'Referee secret 4471')
+    sign_in_as users(:two)
+    get api_subsector_url(subsector), as: :json
+    assert_response :success
+    assert_equal 'Players know this', response.parsed_body['survey_records']
+    assert_not response.parsed_body.key?('classified_records')
+    assert_not response.parsed_body.key?('classified_records_html')
+    assert_not_includes response.body, 'Referee secret 4471'
+  end
 end

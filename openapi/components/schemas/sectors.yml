@@ -27,9 +27,26 @@ SubsectorSummary:
     name: { type: [string, 'null'] }
     x: { type: integer, description: Column within the sector, 1 to 4. }
     y: { type: integer, description: Row within the sector, 1 to 4. }
+SubsectorLookup:
+  type: object
+  required: [id, name, letter, sector]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    letter: { type: string, description: 'The subsector''s letter, A to P.', examples: [A] }
+    sector:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
 Subsector:
   type: object
-  required: [id, name, x, y, letter, tags, sector, star_systems]
+  required: [id, name, x, y, letter, tags, survey_records, sector, star_systems]
+  allOf:
+    - $ref: '#/components/schemas/Records'
+    - type: object
+      description: The `*_html` renders are not included in this response.
   properties:
     id: { type: integer }
     name: { type: [string, 'null'] }

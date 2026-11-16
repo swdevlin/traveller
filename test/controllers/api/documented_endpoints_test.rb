@@ -100,17 +100,33 @@ class Api::DocumentedEndpointsTest < AuthenticatedIntegrationTest
     assert_response :success
   end
 
+  test 'subsector includes survey and classified records for the referee' do
+    subsector = parsecs(:one).subsector
+    subsector.update!(player_notes: 'Players know this', referee_notes: 'Secret')
+
+    get api_subsector_url(id: subsector.id), as: :json
+    assert_response :success
+    assert_equal 'Players know this', response.parsed_body['survey_records']
+    assert_not response.parsed_body.key?('survey_records_html')
+    assert_not response.parsed_body.key?('classified_records_html')
+    assert_equal 'Secret', response.parsed_body['classified_records']
+  end
+
   test 'subsector_at returns not found for an empty coordinate' do
     get api_subsector_at_url(x: 999_999, y: 999_999), as: :json
     assert_response :not_found
   end
 
-  test 'subsector_at returns the subsector path' do
+  test 'subsector_at returns the subsector id, name, letter and sector' do
     parsec = Parsec.all.detect(&:subsector)
     skip 'no fixture parsec has a subsector' unless parsec
 
     get api_subsector_at_url(x: parsec.x, y: parsec.y), as: :json
     assert_response :success
+    assert_equal parsec.subsector.id, response.parsed_body['id']
+    assert_equal parsec.subsector.letter, response.parsed_body['letter']
+    assert_equal parsec.subsector.sector.id, response.parsed_body.dig('sector', 'id')
+    assert_not response.parsed_body.key?('url')
   end
 
   test 'search returns matches' do

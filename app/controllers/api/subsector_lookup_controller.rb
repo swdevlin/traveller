@@ -3,9 +3,15 @@ class Api::SubsectorLookupController < Api::BaseController
     x = params[:x].to_i
     y = params[:y].to_i
     subsector = Parsec.find_by(x: x, y: y)&.subsector
+    sector = subsector&.sector
 
     if subsector
-      render json: { url: "/c/#{current_campaign.slug}/subsectors/#{subsector.id}" }
+      render json: {
+        id: subsector.id,
+        name: subsector.name,
+        letter: subsector.letter,
+        sector: { id: sector.id, name: sector.name }
+      }
     else
       render json: { error: 'No subsector at this point' }, status: :not_found
     end

@@ -1,4 +1,4 @@
-json.tags   Current.referee_access? ? @subsector.tag_names : []
+json.partial! 'api/records', record: @subsector, html: false
 json.id     @subsector.id
 json.name   @subsector.name
 json.x      @subsector.x

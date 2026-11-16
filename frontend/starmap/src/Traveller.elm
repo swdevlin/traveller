@@ -1200,7 +1200,7 @@ type Msg
     | MoveRuleDown String
     | HighlightRuleEditorMsg HighlightRuleEditor.Msg
     | GoToRailsApp
-    | GotSubsectorLookupUrl (Result Http.Error String)
+    | GotSubsectorLookupUrl (Result Http.Error Int)
     | GotSurveyOverlays (Result Http.Error (List HighlightRule.Rule))
     | SurveyOverlayMutated (Result Http.Error ())
     | OpenRoutePlanner
@@ -7381,13 +7381,25 @@ sendSubsectorLookupRequest hostConfig x y =
     in
     Http.get
         { url = url
-        , expect = Http.expectJson GotSubsectorLookupUrl (JsDecode.field "url" JsDecode.string)
+        , expect = Http.expectJson GotSubsectorLookupUrl (JsDecode.field "id" JsDecode.int)
         }
 
 
 fallbackSectorsUrl : HostConfig -> String
 fallbackSectorsUrl ( root, pathSegments ) =
     Url.Builder.crossOrigin root (List.take (List.length pathSegments - 1) pathSegments ++ [ "sectors" ]) []
+
+
+{-| The full-page Rails URL for a subsector, built from the
+`c/:campaign_slug` prefix of the API host's path segments.
+-}
+subsectorPageUrl : HostConfig -> Int -> String
+subsectorPageUrl ( _, pathSegments ) subsectorId =
+    let
+        campaignPrefix =
+            List.take 2 pathSegments |> String.join "/"
+    in
+    "/" ++ campaignPrefix ++ "/subsectors/" ++ String.fromInt subsectorId
 
 
 {-| The full-page Rails edit URL for a jump route, used when a "plotted"
@@ -9692,8 +9704,8 @@ update msg ( time, model ) =
 
         GotSubsectorLookupUrl result ->
             case result of
-                Ok url ->
-                    ( withTime model, Browser.Navigation.load url )
+                Ok subsectorId ->
+                    ( withTime model, Browser.Navigation.load (subsectorPageUrl model.hostConfig subsectorId) )
 
                 Err _ ->
                     ( withTime model, Browser.Navigation.load (fallbackSectorsUrl model.hostConfig) )

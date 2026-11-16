@@ -47,7 +47,9 @@
     operationId: getSubsector
     tags: [Subsectors]
     summary: Get a subsector
-    description: A subsector with its parent sector and a summary of each star system in it.
+    description: |
+      A subsector with its survey records, its parent sector and a summary of
+      each star system in it. Classified records are included for the referee only.
     parameters:
       - { $ref: '#/components/parameters/SubsectorId' }
     responses:
@@ -68,7 +70,7 @@
     tags: [Subsectors]
     summary: Find the subsector at a coordinate
     description: |
-      Returns the campaign path of the subsector containing a parsec. `x` and
+      Returns the subsector containing a parsec. `x` and
       `y` are the parsec's
       [universal coordinates](#description/universal-coordinates), not sector or subsector
       coordinates.
@@ -85,16 +87,10 @@
         schema: { type: integer }
     responses:
       '200':
-        description: The path of the subsector's page on the site.
+        description: The subsector containing the parsec. Use `GET /subsectors/{id}` for its star systems.
         content:
           application/json:
-            schema:
-              type: object
-              required: [url]
-              properties:
-                url:
-                  type: string
-                  examples: [/c/my-campaign/subsectors/42]
+            schema: { $ref: '#/components/schemas/SubsectorLookup' }
       '404':
         description: There is no parsec at this coordinate, so no subsector.
         content:
