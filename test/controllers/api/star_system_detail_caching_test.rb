@@ -123,6 +123,22 @@ class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
     assert_equal 7, response.parsed_body['survey_index']
   end
 
+  test 'renaming the subsector gives a new ETag and the new subsector name' do
+    subsector = Subsector.find_or_create_by!(sector: @sector, x: 1, y: 1) { |sub| sub.name = 'Original Subsector' }
+    assert_equal subsector, @system.parsec.reload.subsector
+
+    @urls.each do |name, url|
+      get url, as: :json
+      before = etag
+
+      subsector.update!(name: "Renamed #{name}")
+      get url, headers: { 'If-None-Match' => before }, as: :json
+
+      assert_response :success, name
+      assert_not_equal before, etag, name
+    end
+  end
+
   test 'the rendered JSON is kept, so a second caller does not load the system' do
     with_cache do
       @urls.each do |name, url|

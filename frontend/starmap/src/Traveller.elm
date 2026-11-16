@@ -7463,35 +7463,78 @@ parsecLookupDecoder =
         (JsDecode.field "survey_index" JsDecode.int)
 
 
+jsonResolver : JsDecode.Decoder a -> Http.Resolver Http.Error a
+jsonResolver decoder =
+    Http.stringResolver <|
+        \response ->
+            case response of
+                Http.BadUrl_ badUrl ->
+                    Err (Http.BadUrl badUrl)
+
+                Http.Timeout_ ->
+                    Err Http.Timeout
+
+                Http.NetworkError_ ->
+                    Err Http.NetworkError
+
+                Http.BadStatus_ metadata _ ->
+                    Err (Http.BadStatus metadata.statusCode)
+
+                Http.GoodStatus_ _ body ->
+                    case JsDecode.decodeString decoder body of
+                        Ok value ->
+                            Ok value
+
+                        Err err ->
+                            Err (Http.BadBody (JsDecode.errorToString err))
+
+
+{-| Find the parsec at a hex with the coordinate-filtered index, then fetch it
+with the parsec show endpoint. A hex that matches no parsec is a 404.
+-}
 fetchParsecLookupRequest : HostConfig -> SectorHexAddress -> Cmd Msg
 fetchParsecLookupRequest hostConfig hex =
     let
         ( urlHostRoot, urlHostPath ) =
             hostConfig
 
-        url =
+        indexUrl =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "parsecs", "lookup" ])
+                (urlHostPath ++ [ "parsecs" ])
                 [ Url.Builder.int "sx" hex.sectorX
                 , Url.Builder.int "sy" hex.sectorY
                 , Url.Builder.int "hx" <| hex.x + 1
                 , Url.Builder.int "hy" <| hex.y + 1
                 ]
 
-        requestCmd =
-            -- using Http.request instead of Http.get, to allow setting a timeout
-            Http.request
+        showUrl parsecId =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "parsecs", String.fromInt parsecId ])
+                []
+
+        getTask url decoder =
+            Http.task
                 { method = "GET"
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson FetchedParsecLookup parsecLookupDecoder
+                , resolver = jsonResolver decoder
                 , timeout = Just 5000
-                , tracker = Nothing
                 }
     in
-    requestCmd
+    getTask indexUrl (JsDecode.list (JsDecode.field "id" JsDecode.int))
+        |> Task.andThen
+            (\parsecIds ->
+                case parsecIds of
+                    parsecId :: _ ->
+                        getTask (showUrl parsecId) parsecLookupDecoder
+
+                    [] ->
+                        Task.fail (Http.BadStatus 404)
+            )
+        |> Task.attempt FetchedParsecLookup
 
 
 sendShipTrafficRequest : HostConfig -> Int -> Bool -> Cmd Msg

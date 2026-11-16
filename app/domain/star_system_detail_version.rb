@@ -22,8 +22,9 @@ require 'digest'
 # updated_at alone, so those writes must set it or touch the system.
 #
 # The parsec, shown by GET /parsecs/{id}, is not touched by its system's
-# changes, so it is added when given. The campaign is added for its reference
-# URL and signing secret.
+# changes, so it is added when given. The subsector is added for its name and
+# tags, which the detail shows but which do not touch the systems in it. The
+# campaign is added for its reference URL and signing secret.
 #
 # The digest also depends on who is asking, as `viewer`: :owner (the signed-in
 # referee), :referee_token (the API token, which has referee authority) or
@@ -42,7 +43,13 @@ class StarSystemDetailVersion
 
   def digest
     parts = [@star_system.cache_key_with_version, @parsec&.cache_key_with_version,
-             @viewer, Current.campaign&.cache_key_with_version]
+             subsector&.cache_key_with_version, @viewer, Current.campaign&.cache_key_with_version]
     Digest::SHA256.hexdigest(parts.to_json)[0, 32]
+  end
+
+  private
+
+  def subsector
+    (@parsec || @star_system.parsec)&.subsector
   end
 end
