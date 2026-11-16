@@ -15,7 +15,7 @@ class Ship < ApplicationRecord
     JumpLog.where(ship_id: ships.map(&:id))
            .select('DISTINCT ON (ship_id) jump_logs.*')
            .order(:ship_id, sequence: :desc, id: :desc)
-           .includes(to_parsec: :sector)
+           .includes(from_parsec: :star_systems, to_parsec: :star_systems)
            .index_by(&:ship_id)
   end
 

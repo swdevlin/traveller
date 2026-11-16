@@ -114,8 +114,12 @@ type alias ParsecOption =
 
 
 type alias LastJump =
-    { parsecId : Int
-    , sectorId : Int
+    { fromParsecId : Int
+    , fromSectorId : Int
+    , toParsecId : Int
+    , toSectorId : Int
+    , departYear : Int
+    , departDay : Int
     , arriveYear : Int
     , arriveDay : Int
     }
@@ -204,9 +208,13 @@ shipLastJumpDecoder =
 lastJumpDecoder : Decoder (Maybe LastJump)
 lastJumpDecoder =
     Decode.nullable
-        (Decode.map4 LastJump
-            (Decode.field "parsec_id" Decode.int)
-            (Decode.field "sector_id" Decode.int)
+        (Decode.map8 LastJump
+            (Decode.field "from_parsec_id" Decode.int)
+            (Decode.field "from_sector_id" Decode.int)
+            (Decode.field "to_parsec_id" Decode.int)
+            (Decode.field "to_sector_id" Decode.int)
+            (Decode.field "depart_year" Decode.int)
+            (Decode.field "depart_day" Decode.int)
             (Decode.field "arrive_year" Decode.int)
             (Decode.field "arrive_day" Decode.int)
         )

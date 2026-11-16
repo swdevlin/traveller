@@ -17,10 +17,27 @@ ShipDetail:
           description: Where the ship last arrived, or `null` if it has not jumped.
           oneOf:
             - type: object
-              required: [parsec_id, sector_id, arrive_year, arrive_day]
+              description: A jump is both a departure and an arrival.
+              required: [from_parsec_id, from_sector_id, from_star_system, to_parsec_id, to_sector_id, to_star_system, depart_year, depart_day, arrive_year, arrive_day, misjump]
               properties:
-                parsec_id: { type: integer }
-                sector_id: { type: integer }
+                from_parsec_id: { type: integer, description: Where the ship departed from. }
+                from_sector_id: { type: integer }
+                from_star_system: { $ref: '#/components/schemas/JumpStarSystem' }
+                to_parsec_id: { type: integer, description: Where the ship arrived, which is where it is now. }
+                to_sector_id: { type: integer }
+                to_star_system: { $ref: '#/components/schemas/JumpStarSystem' }
+                depart_year: { type: [integer, 'null'] }
+                depart_day: { type: [integer, 'null'] }
                 arrive_year: { type: [integer, 'null'] }
                 arrive_day: { type: [integer, 'null'] }
+                misjump: { type: boolean }
             - { type: 'null' }
+JumpStarSystem:
+  description: The star system in the parsec, or `null` if the parsec has none. A ship can jump to an empty parsec.
+  oneOf:
+    - type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+    - { type: 'null' }
