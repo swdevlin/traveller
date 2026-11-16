@@ -23,18 +23,26 @@ require 'digest'
 #
 # The parsec, shown by GET /parsecs/lookup, is not touched by its system's
 # changes, so it is added when given. The campaign is added for its reference
-# URL and signing secret. The digest also depends on who is asking, since only
-# the referee sees tags and classified records.
+# URL and signing secret.
+#
+# The digest also depends on who is asking, as `viewer`: :owner (the signed-in
+# referee), :referee_token (the API token, which has referee authority) or
+# :player. Tags and classified records are shown to both kinds of referee, but
+# a sophont's referee notes only to the owner, so each gets its own copy.
 class StarSystemDetailVersion
-  def initialize(star_system, referee:, parsec: nil)
+  VIEWERS = %i[owner referee_token player].freeze
+
+  def initialize(star_system, viewer:, parsec: nil)
+    raise ArgumentError, "unknown viewer #{viewer.inspect}" unless VIEWERS.include?(viewer)
+
     @star_system = star_system
-    @referee = referee
+    @viewer = viewer
     @parsec = parsec
   end
 
   def digest
     parts = [@star_system.cache_key_with_version, @parsec&.cache_key_with_version,
-             @referee, Current.campaign&.cache_key_with_version]
+             @viewer, Current.campaign&.cache_key_with_version]
     Digest::SHA256.hexdigest(parts.to_json)[0, 32]
   end
 end

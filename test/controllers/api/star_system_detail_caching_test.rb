@@ -161,6 +161,32 @@ class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # Sophont referee notes are shown to the signed-in owner only, not to a token caller, so the
+  # two must not share a cached copy whichever of them fills it.
+  test 'the owner and a token caller each get their own cached copy' do
+    sophont = Sophont.create!(name: 'Zhodani Test', referee_notes: 'owner-only notes')
+    @planet.update!(native_sophont: true, sophont_id: sophont.id)
+    token = { 'Authorization' => "Bearer #{@campaign.api_token}" }
+
+    [%i[token owner], %i[owner token]].each do |order|
+      @cache.clear
+      sign_out
+      order.each do |who|
+        with_cache do
+          if who == :owner
+            sign_in_as users(:one)
+            get @urls['star system'], as: :json
+            assert_includes response.body, 'owner-only notes', "owner, after #{order.first} filled the cache"
+          else
+            sign_out
+            get @urls['star system'], headers: token, as: :json
+            assert_not_includes response.body, 'owner-only notes', "token, after #{order.first} filled the cache"
+          end
+        end
+      end
+    end
+  end
+
   test 'a tag change reaches the referee, who sees it after the next request' do
     sign_in_as users(:one)
     with_cache do

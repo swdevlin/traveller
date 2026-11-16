@@ -9,8 +9,8 @@
 #   * the rendered JSON kept in Rails.cache, so another caller, or the same one
 #     with an empty browser cache, skips the load and the render too.
 #
-# The key includes the base URL because the JSON holds absolute URLs, and the
-# role, through the version, because the referee sees more than a player.
+# The key includes the base URL because the JSON holds absolute URLs, and who is
+# asking, through the version, because a referee sees more than a player.
 module StarSystemDetailCaching
   extend ActiveSupport::Concern
 
@@ -18,10 +18,20 @@ module StarSystemDetailCaching
 
   private
 
+  # What the JSON shows depends on this, so each gets its own cached copy. Where the partials
+  # test Current.referee_access? the token counts as a referee; where they test
+  # Current.owns_campaign? (sophont referee notes) only the signed-in owner does.
+  def star_system_detail_viewer
+    return :owner if Current.owns_campaign?
+    return :referee_token if Current.referee_access?
+
+    :player
+  end
+
   # `template` is a jbuilder template that reads @star_system, and @parsec if it needs it;
   # pass `parsec` if the response includes the parsec's own fields.
   def render_star_system_detail(star_system, template:, parsec: nil)
-    version = StarSystemDetailVersion.new(star_system, referee: @is_referee, parsec: parsec).digest
+    version = StarSystemDetailVersion.new(star_system, viewer: star_system_detail_viewer, parsec: parsec).digest
     key = ['star_system_detail', template, version, request.base_url]
     return unless stale?(etag: key)
 
