@@ -5,7 +5,10 @@ Sector:
   allOf:
     - $ref: '#/components/schemas/Records'
     - type: object
-      description: The `*_html` renders are not included in this response.
+      description: |
+        The `*_html` renders are not included in this response. Unlike other
+        records, `classified_records` is always present: it is `null` unless
+        the caller has referee access.
   properties:
     id: { type: integer }
     name: { type: [string, 'null'] }

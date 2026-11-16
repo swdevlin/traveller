@@ -54,7 +54,8 @@ class Api::SectorsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 'Sector survey', body['survey_records']
     assert_equal [], body['tags']
-    assert_not body.key?('classified_records')
+    assert body.key?('classified_records')
+    assert_nil body['classified_records']
     assert_not body.key?('survey_records_html')
     assert_not body.key?('classified_records_html')
     assert_not_includes response.body, 'secret'

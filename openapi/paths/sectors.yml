@@ -11,8 +11,7 @@
 
       - `survey_records` is returned to everyone.
       - `classified_records` and `tags` are for the referee only. Without
-        referee access `tags` is empty and the `classified_records` key is
-        omitted, so its existence is not revealed.
+        referee access `tags` is empty and `classified_records` is `null`.
 
       Referee access means the campaign's API token, or a session signed in
       as the campaign's owner. The `*_html` renders are not included.
@@ -32,7 +31,7 @@
                 abbreviation: Spin
                 tags: [core]
                 survey_records: Surveyed by the Imperial Scout Service.
-                classified_records: Referee only. Omitted for players.
+                classified_records: Referee only. Null for players.
                 subsectors:
                   - id: 1
                     name: Cronor

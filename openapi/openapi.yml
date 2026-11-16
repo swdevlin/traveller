@@ -146,7 +146,7 @@ tags:
   - name: Routes
     description: Jump routes, route links and route planning.
   - name: Search
-    description: Searching universe data and rulebooks.
+    description: Searching universe data and rulebooks, and listing the rulebooks available to search.
   - name: Sectors
     description: Sectors, and the subsectors within them.
   - name: Ships
