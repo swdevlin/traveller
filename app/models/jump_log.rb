@@ -26,6 +26,11 @@ class JumpLog < ApplicationRecord
   after_update :cascade_forward,  if: :arrival_or_destination_changed?
   after_update :cascade_backward, if: :departure_or_origin_changed?
 
+  # Jumps of one ship. With no ship given, every jump.
+  def self.for_ship(ship_id)
+    ship_id.present? ? where(ship_id: ship_id) : all
+  end
+
   # Newest first, matching the order of the starmap jump log table.
   def self.newest_first
     order(arrive_year: :desc, arrive_day: :desc, sequence: :desc, id: :desc)

@@ -13,8 +13,8 @@ JumpLogInput:
         depart_day: { type: integer }
         arrive_year: { type: integer }
         arrive_day: { type: integer }
-        notes: { type: string }
-        misjump: { type: boolean }
+        notes: { type: string, description: Optional. Markdown. }
+        misjump: { type: boolean, default: false, description: 'Optional, `false` if omitted. A misjump can take any length of time.' }
 JumpLog:
   type: object
   additionalProperties: true

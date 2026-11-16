@@ -3,6 +3,7 @@ class Api::JumpLogsController < Api::BaseController
 
   def index
     @jumps = JumpLog
+      .for_ship(params[:ship_id])
       .joins(
         'INNER JOIN parsecs from_parsecs ON from_parsecs.id = jump_logs.from_parsec_id ' \
         'INNER JOIN sectors from_sectors ON from_sectors.id = from_parsecs.sector_id ' \

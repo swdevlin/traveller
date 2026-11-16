@@ -125,7 +125,7 @@ tags:
   - name: Map
     description: Systems and labels for plotting an area, and rendered maps.
   - name: Jumps
-    description: Ship jump logs and the ships that make them.
+    description: Logged jumps between parsecs.
   - name: Routes
     description: Jump routes, route links and route planning.
   - name: Commerce
