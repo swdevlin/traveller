@@ -28,8 +28,7 @@
     summary: Search rulebooks
     description: |
       Full-text search of the campaign's rulebooks, grouped by rulebook.
-      Referee-only material is included for the referee. Using a token marks
-      the search as an API search in usage metrics.
+      Referee-only material is included for the referee.
     parameters:
       - { $ref: '#/components/parameters/Query' }
       - name: rulebook_ids[]
