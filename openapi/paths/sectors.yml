@@ -53,7 +53,7 @@
     summary: Get a subsector
     description: A subsector with its parent sector and a summary of each star system in it.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/SubsectorId' }
     responses:
       '200':
         description: The subsector.
@@ -165,7 +165,7 @@
     description: Sets the parsec's survey index. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/ParsecId' }
     requestBody:
       required: true
       content:

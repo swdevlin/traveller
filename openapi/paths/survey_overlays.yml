@@ -47,7 +47,7 @@
       make room. Overlays are applied in list order.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/SurveyOverlayId' }
     requestBody:
       required: true
       content:
@@ -69,7 +69,7 @@
     description: Referee only.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/SurveyOverlayId' }
     responses:
       '204':
         description: The overlay was deleted.

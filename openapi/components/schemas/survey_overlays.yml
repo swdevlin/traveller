@@ -120,7 +120,7 @@ SurveyOverlayCondition:
     | `known`, `native_sophont`, `extinct_sophont` | `eq` | `"true"` or `"false"` |
     | `primary_star` | `eq`, `one_of` | `O`, `B`, `A`, `F`, `G`, `K`, `M`, `L`, `T`, `Y`, or `BD`, `D`, `BH`, `PSR`, `NS`, `NB`, `PS`, `AN` for a brown dwarf, white dwarf, black hole, pulsar, neutron star, nebula, protostar or anomaly |
     | `allegiance` | `eq`, `one_of` | An allegiance code defined in the campaign |
-    | `sector`, `subsector` | `eq`, `one_of` | The record's id, as a string |
+    | `sector`, `subsector` | `eq`, `one_of` | The sector or subsector id, as a string |
     | `sophont` | `eq`, `one_of` | A sophont's id, as a string. Matches a system with a native world of that sophont |
     | `extinct_sophont_type` | `eq`, `one_of` | A sophont's id, as a string. Matches a system with an extinct world of that sophont |
     | `tags` | `has`, `has_one_of` | A tag name. Matches tags on the system, its bodies, its subsector, its sector or its regions |

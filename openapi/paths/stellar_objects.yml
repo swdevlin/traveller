@@ -8,7 +8,7 @@
       A planet, belt, moon, station or other body. The fields present depend
       on the object's `type`; the schema lists those common to all of them.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StellarObjectId' }
     responses:
       '200':
         description: The stellar object.
@@ -28,7 +28,7 @@
     summary: List a body's moons and rings
     description: Ten per page, in orbit order.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StellarObjectId' }
       - { $ref: '#/components/parameters/Page' }
       - { $ref: '#/components/parameters/SignificantOnly' }
     responses:
@@ -58,7 +58,7 @@
     summary: List the planetoids in a belt
     description: Ten per page. Only planetoid belts have planetoids.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StellarObjectId' }
       - { $ref: '#/components/parameters/Page' }
       - { $ref: '#/components/parameters/SignificantOnly' }
     responses:
@@ -84,7 +84,7 @@
     summary: List a world's cities
     description: Ten per page, largest first.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StellarObjectId' }
       - { $ref: '#/components/parameters/Page' }
     responses:
       '200':

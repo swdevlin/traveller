@@ -25,7 +25,7 @@
       API; they are edited on the website.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/JumpRouteId' }
     requestBody:
       required: true
       content:
@@ -63,7 +63,7 @@
     description: Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/JumpRouteId' }
     responses:
       '204':
         description: The route was deleted.

@@ -59,7 +59,7 @@
       The response has an `ETag`. Send it back as `If-None-Match` to get `304`
       with no body while the system is unchanged, which is much faster.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
       - { $ref: '#/components/parameters/IfNoneMatch' }
     responses:
       '200':
@@ -85,7 +85,7 @@
       index. Only the fields sent are changed. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
     requestBody:
       required: true
       content:
@@ -125,7 +125,7 @@
     description: A system's UWP and the DMs it contributes to passenger traffic. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
     responses:
       '200':
         description: The system's data.
@@ -143,7 +143,7 @@
     description: Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
     responses:
       '200':
         description: The system's data.
@@ -161,7 +161,7 @@
     description: Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
     responses:
       '200':
         description: The system's data.
@@ -182,7 +182,7 @@
       authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
       - name: seed
         in: query
         description: Seed from an earlier response, to repeat that roll.
@@ -218,7 +218,7 @@
       `d66s` is omitted. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
       - name: direction
         in: query
         description: Whether the goods are being bought or sold.
@@ -285,7 +285,7 @@
     summary: Daily ship traffic
     description: Estimates the number of ships arriving each day at the system's main world.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarSystemId' }
       - name: frontier
         in: query
         description: Pass `1` to treat the system as a frontier world.
@@ -326,7 +326,7 @@
       embedded in other sites and tools.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarId' }
       - { $ref: '#/components/parameters/OrbitMapTheme' }
       - { $ref: '#/components/parameters/OrbitMapDownload' }
     responses:
@@ -351,7 +351,7 @@
     description: The same diagram as a WebP image. Requires authentication.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/StarId' }
       - { $ref: '#/components/parameters/OrbitMapTheme' }
       - { $ref: '#/components/parameters/OrbitMapDownload' }
     responses:

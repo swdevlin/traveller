@@ -70,7 +70,7 @@
       The jumps that are moved are not checked against these rules.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/JumpId' }
     requestBody:
       required: true
       content:
@@ -94,7 +94,7 @@
       so that its route has no gap.
     security: [{ bearerToken: [] }]
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/JumpId' }
     responses:
       '204':
         description: The jump was deleted.

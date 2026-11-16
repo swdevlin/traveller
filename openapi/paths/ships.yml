@@ -18,7 +18,7 @@
     tags: [Ships]
     summary: Get a ship
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/ShipId' }
     responses:
       '200':
         description: The ship.
@@ -33,7 +33,7 @@
     summary: A ship's most recent jump
     description: Where the ship last arrived. The body is `null` if the ship has not jumped.
     parameters:
-      - { $ref: '#/components/parameters/Id' }
+      - { $ref: '#/components/parameters/ShipId' }
     responses:
       '200':
         description: The last jump, or `null`.

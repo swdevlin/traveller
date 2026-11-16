@@ -7,11 +7,59 @@ IfNoneMatch:
     is `304` with no body. The `ETag` depends on who is asking, so it is only
     valid for the same credentials.
   schema: { type: string }
-Id:
+JumpRouteId:
   name: id
   in: path
   required: true
-  description: The record's id.
+  description: The jump route's id.
+  schema: { type: integer }
+ShipId:
+  name: id
+  in: path
+  required: true
+  description: The ship's id.
+  schema: { type: integer }
+StarSystemId:
+  name: id
+  in: path
+  required: true
+  description: The star system's id.
+  schema: { type: integer }
+StarId:
+  name: id
+  in: path
+  required: true
+  description: The star's id.
+  schema: { type: integer }
+StellarObjectId:
+  name: id
+  in: path
+  required: true
+  description: The stellar object's id.
+  schema: { type: integer }
+SurveyOverlayId:
+  name: id
+  in: path
+  required: true
+  description: The survey overlay's id.
+  schema: { type: integer }
+SubsectorId:
+  name: id
+  in: path
+  required: true
+  description: The subsector's id.
+  schema: { type: integer }
+ParsecId:
+  name: id
+  in: path
+  required: true
+  description: The parsec's id.
+  schema: { type: integer }
+JumpId:
+  name: id
+  in: path
+  required: true
+  description: The jump's id.
   schema: { type: integer }
 FromId:
   name: from_id
