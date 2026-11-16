@@ -49,7 +49,7 @@ info:
 
     ## Universal coordinates
 
-    Every parsec (hex) in the universe has a unique integer `(x, y)` position,
+    Every parsec in the universe (MTU's name for a map hex) has a unique integer `(x, y)` position,
     its *universal coordinate*. They are independent of any one sector, so a
     position identifies a hex without needing a sector or a hex code.
 
@@ -88,9 +88,24 @@ info:
     and its lower-right hex `3240` is `(-97, -79)`.
 
     The star system fields `origin_x` and `origin_y`, a parsec's `x` and `y`,
-    and the `x` and `y` parameters of lookups are all universal coordinates.
+    and the `x` and `y` parameters of `GET /subsector_at` are all universal coordinates.
     The `x` and `y` of a *sector* are the sector coordinates `(sx, sy)`
     described above.
+
+    ## Sector and hex parameters
+
+    Many endpoints choose an area, or a single hex, with these parameters
+    instead of universal coordinates:
+
+    | Parameter | Meaning |
+    | --- | --- |
+    | `sx`, `sy` | The sector's coordinates `(sx, sy)`, as described under *Universal coordinates*. |
+    | `hx`, `hy` | A hex within a sector: its column (`1` to `32`) and row (`1` to `40`), counted from the sector's upper-left hex `0101`. They are the `HH` and `RR` of a hex address `HHRR`, so hex `1910` is `hx=19`, `hy=10`. |
+
+    `sx` and `sy` are always given as a pair, and select the whole sector.
+    `hx` and `hy` are meaningful only within a sector, so they are always
+    given as a pair *and* together with `sx` and `sy`, and narrow the selection
+    to the one hex. A hex outside the sector, such as `hx=33`, matches nothing.
 
     ## Viewports
 
@@ -118,6 +133,12 @@ tags:
     description: Logged jumps between parsecs.
   - name: Map
     description: Systems and labels for plotting an area, and rendered maps.
+  - name: Parsecs
+    description: |
+      A parsec is the name MTU uses for a map hex: one cell of the hex grid,
+      which may hold a star system and any rogue stellar objects. It is not
+      the unit of distance, though the two are linked, as adjacent hexes are
+      one parsec apart. Each parsec has a unique `(x, y)` [universal coordinate](#description/universal-coordinates).
   - name: Reference
     description: Reference tables.
   - name: Regions
@@ -127,7 +148,7 @@ tags:
   - name: Search
     description: Searching universe data and rulebooks.
   - name: Sectors
-    description: Sectors and parsecs.
+    description: Sectors, and the subsectors within them.
   - name: Ships
     description: Ships, and where they have jumped.
   - name: Star systems

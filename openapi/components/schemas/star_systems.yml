@@ -30,8 +30,8 @@ StarSystemSummary:
     subsector_id: { type: [integer, 'null'] }
     x: { type: integer, description: Hex column within the sector. }
     y: { type: integer, description: Hex row within the sector. }
-    origin_x: { type: integer, description: Universal x coordinate. }
-    origin_y: { type: integer, description: Universal y coordinate. }
+    origin_x: { type: integer, description: 'X [universal coordinate](#description/universal-coordinates).' }
+    origin_y: { type: integer, description: 'Y [universal coordinate](#description/universal-coordinates).' }
     scan_points: { type: integer }
     allegiance: { type: [string, 'null'], description: Allegiance code. }
     allegiance_name: { type: [string, 'null'] }

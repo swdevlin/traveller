@@ -21,7 +21,7 @@ require 'digest'
 # A change that writes columns directly (update_column, update_all) leaves
 # updated_at alone, so those writes must set it or touch the system.
 #
-# The parsec, shown by GET /parsecs/lookup, is not touched by its system's
+# The parsec, shown by GET /parsecs/{id}, is not touched by its system's
 # changes, so it is added when given. The campaign is added for its reference
 # URL and signing secret.
 #

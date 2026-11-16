@@ -114,17 +114,27 @@ OrbitMapDownload:
 Sx:
   name: sx
   in: query
-  description: Sector x. Use with `sy` to select a whole sector.
+  description: Sector x. Use with `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
   schema: { type: integer }
 Sy:
   name: sy
   in: query
-  description: Sector y. Use with `sx`.
+  description: Sector y. Use with `sx`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  schema: { type: integer }
+Hx:
+  name: hx
+  in: query
+  description: Hex column within the sector, 1 to 32. Use with `hy`, `sx` and `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  schema: { type: integer }
+Hy:
+  name: hy
+  in: query
+  description: Hex row within the sector, 1 to 40. Use with `hx`, `sx` and `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
   schema: { type: integer }
 Ulx:
   name: ulx
   in: query
-  description: Bounding box upper-left x (a universal coordinate; see Universal coordinates above).
+  description: Bounding box upper-left x (a [universal coordinate](#description/universal-coordinates)).
   schema: { type: integer }
 Uly:
   name: uly

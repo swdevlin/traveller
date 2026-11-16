@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       resources :subsectors, only: :show, defaults: { format: :json }
       resources :regions, only: :index, defaults: { format: :json }
       resources :parsecs, only: :index
-      get 'parsecs/lookup', to: 'parsecs#lookup', defaults: { format: :json }
+      get 'parsecs/:id', to: 'parsecs#show', defaults: { format: :json }
       patch 'parsecs/:id', to: 'parsecs#update', defaults: { format: :json }
       get  'jumps',       to: 'jump_logs#index', defaults: { format: :json }
       post 'jumps',       to: 'jump_logs#create', defaults: { format: :json }

@@ -1,0 +1,127 @@
+# Paths: Parsecs
+/parsecs:
+  get:
+    operationId: listParsecs
+    tags: [Parsecs]
+    summary: List parsecs
+    description: |
+      Returns parsecs, each with the name of its star system if it has one,
+      ordered by x, then y descending. Choose the parsecs in exactly one of
+      these ways:
+
+      - a sector, with `sector_id`;
+      - a subsector, with `subsector_id`;
+      - a sector by its coordinates, with `sx` and `sy`, or a single hex in it,
+        with `sx`, `sy`, `hx` and `hy` (see
+        [sector and hex parameters](#description/sector-and-hex-parameters)).
+        A hex with no parsec returns an empty list;
+      - a viewport, a bounding box of
+        [universal coordinates](#description/universal-coordinates), with
+        `ulx`, `uly`, `lrx` and `lry`. The box can be at most 16 parsecs wide
+        and 20 tall.
+
+      Giving none of these, more than one, or only some of the parameters for
+      one (such as `sx` without `sy`, or `hx` without `hy`), returns `400`.
+    parameters:
+      - name: sector_id
+        in: query
+        description: The sector's id.
+        schema: { type: integer }
+      - name: subsector_id
+        in: query
+        description: The subsector's id.
+        schema: { type: integer }
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Hx' }
+      - { $ref: '#/components/parameters/Hy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Parsecs ordered by x, then y descending.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/ParsecSummary' }
+      '400':
+        description: |
+          No selection was given, more than one was, a selection was incomplete, or the bounding box is too large.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'exactly one of sector_id, subsector_id, sector coordinates (sx and sy) or a bounding box (ulx, uly, lrx and lry) must be given, and only one of them; hx and hy may be added to sx and sy, but only together' }
+      '404':
+        description: No sector or subsector has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'sector not found' }
+/parsecs/{id}:
+  get:
+    operationId: getParsec
+    tags: [Parsecs]
+    summary: Get a parsec
+    description: |
+      Returns a parsec by id, with the star system in it nested as
+      `star_system`, or `null` if the hex is empty. The id comes from
+      `GET /parsecs`, which can also find a parsec by its hex. Details of the
+      system that the players have not discovered are withheld, as for
+      `GET /star_systems/{id}`.
+
+      The response has an `ETag` when the hex has a star system. Send it back
+      as `If-None-Match` to get `304` with no body while it is unchanged.
+    parameters:
+      - { $ref: '#/components/parameters/ParsecId' }
+      - { $ref: '#/components/parameters/IfNoneMatch' }
+    responses:
+      '200':
+        description: The parsec and, if it has one, its star system.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Parsec' }
+      '304': { $ref: '#/components/responses/NotModified' }
+      '404':
+        description: No parsec has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'parsec not found' }
+  patch:
+    operationId: updateParsec
+    tags: [Parsecs]
+    summary: Update a parsec
+    description: Sets the parsec's survey index. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/ParsecId' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              survey_index: { type: integer }
+    responses:
+      '200':
+        description: The parsec was updated.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [survey_index]
+              properties:
+                survey_index: { type: [integer, 'null'] }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404':
+        description: No parsec has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'parsec not found' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }

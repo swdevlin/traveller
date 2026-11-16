@@ -2,13 +2,14 @@
 
 require 'test_helper'
 
-# GET /star_systems/:id and GET /parsecs/lookup are cached against the system's updated_at:
+# GET /star_systems/:id and GET /parsecs/:id are cached against the system's updated_at:
 # a caller with a current copy gets a 304, and the rendered JSON is kept in Rails.cache.
 class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
   setup do
     @campaign = campaigns(:one)
     @sector = Sector.create!(name: 'Caching Sector', x: 92, y: 92, abbreviation: 'Cch')
     parsec = Parsec.create!(sector: @sector, x: 92 * 32, y: 92 * 40)
+    @parsec = parsec
     @system = StarSystem.create!(name: 'Caching System', parsec: parsec, known: true)
     @star = Star.create!(star_system: @system, colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V',
                          diameter: 1_392_000, jump_shadow: 139_200_000)
@@ -19,7 +20,7 @@ class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
     )
     @urls = {
       'star system' => "/c/#{@campaign.slug}/api/star_systems/#{@system.id}",
-      'parsec lookup' => "/c/#{@campaign.slug}/api/parsecs/lookup?sx=92&sy=92&hx=1&hy=1"
+      'parsec' => "/c/#{@campaign.slug}/api/parsecs/#{parsec.id}"
     }
     @cache = ActiveSupport::Cache::MemoryStore.new
   end
@@ -111,12 +112,12 @@ class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'the parsec lookup ETag changes when only the parsec changes' do
-    get @urls['parsec lookup'], as: :json
+  test 'the parsec ETag changes when only the parsec changes' do
+    get @urls['parsec'], as: :json
     before = etag
 
     @system.parsec.update!(survey_index: 7)
-    get @urls['parsec lookup'], as: :json
+    get @urls['parsec'], as: :json
 
     assert_not_equal before, etag
     assert_equal 7, response.parsed_body['survey_index']
@@ -210,7 +211,10 @@ class Api::StarSystemDetailCachingTest < ActionDispatch::IntegrationTest
   end
 
   test 'an empty hex is answered without a cached system' do
-    get "/c/#{@campaign.slug}/api/parsecs/lookup?sx=92&sy=92&hx=2&hy=2", as: :json
-    assert_response :not_found
+    empty = Parsec.create!(sector: @sector, x: 92 * 32 + 1, y: 92 * 40 - 1)
+    get "/c/#{@campaign.slug}/api/parsecs/#{empty.id}", as: :json
+
+    assert_response :success
+    assert_nil response.parsed_body['star_system']
   end
 end

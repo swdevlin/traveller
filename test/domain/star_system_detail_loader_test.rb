@@ -11,7 +11,7 @@ class StarSystemDetailLoaderTest < ActionDispatch::IntegrationTest
     @star = Star.create!(star_system: @system, colour: 'Yellow', stellar_type: 'G', stellar_subtype: 2, luminosity: 'V',
                          diameter: 1_392_000, jump_shadow: 139_200_000)
     @url = "/c/#{@campaign.slug}/api/star_systems/#{@system.id}"
-    @lookup_url = "/c/#{@campaign.slug}/api/parsecs/lookup?sx=90&sy=90&hx=1&hy=1"
+    @parsec_url = "/c/#{@campaign.slug}/api/parsecs/#{parsec.id}"
   end
 
   # A planet with a moon, a ring and tags, so each association a body is asked for is exercised.
@@ -65,7 +65,7 @@ class StarSystemDetailLoaderTest < ActionDispatch::IntegrationTest
   # referee by hex, and to a player (who is not shown tags).
   def detail_query_counts
     sign_in_as users(:one)
-    counts = [@url, @lookup_url].map do |url|
+    counts = [@url, @parsec_url].map do |url|
       count_queries { get url, as: :json }.tap { assert_response :success }
     end
     sign_out

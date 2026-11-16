@@ -9,8 +9,8 @@ SearchResult:
     display_type: { type: string, description: A human-readable form of `type`. }
     name: { type: string }
     meta: { type: [string, 'null'], description: Where the result is. }
-    x: { type: [integer, 'null'], description: Universal x. Systems and objects. }
-    y: { type: [integer, 'null'], description: Universal y. Systems and objects. }
+    x: { type: [integer, 'null'], description: 'X [universal coordinate](#description/universal-coordinates). Systems and objects.' }
+    y: { type: [integer, 'null'], description: 'Y [universal coordinate](#description/universal-coordinates). Systems and objects.' }
     sector_x: { type: [integer, 'null'], description: Sectors and subsectors. }
     sector_y: { type: [integer, 'null'], description: Sectors and subsectors. }
     subsector_x: { type: [integer, 'null'], description: Subsectors. }

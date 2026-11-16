@@ -70,18 +70,19 @@
     summary: Find the subsector at a coordinate
     description: |
       Returns the campaign path of the subsector containing a parsec. `x` and
-      `y` are the parsec's universal coordinates, not sector or subsector
+      `y` are the parsec's
+      [universal coordinates](#description/universal-coordinates), not sector or subsector
       coordinates.
     parameters:
       - name: x
         in: query
         required: true
-        description: Universal x coordinate of the parsec.
+        description: 'Universal x coordinate of the parsec; see [universal coordinates](#description/universal-coordinates).'
         schema: { type: integer }
       - name: y
         in: query
         required: true
-        description: Universal y coordinate of the parsec.
+        description: 'Universal y coordinate of the parsec; see [universal coordinates](#description/universal-coordinates).'
         schema: { type: integer }
     responses:
       '200':
@@ -101,92 +102,3 @@
           application/json:
             schema: { $ref: '#/components/schemas/Error' }
             example: { error: 'No subsector at this point' }
-/parsecs:
-  get:
-    operationId: listParsecs
-    tags: [Sectors]
-    summary: List a sector's parsecs
-    parameters:
-      - name: sector_id
-        in: query
-        required: true
-        description: The sector's id.
-        schema: { type: integer }
-    responses:
-      '200':
-        description: Parsecs ordered by x, then y descending.
-        content:
-          application/json:
-            schema:
-              type: array
-              items: { $ref: '#/components/schemas/ParsecSummary' }
-/parsecs/lookup:
-  get:
-    operationId: lookupParsec
-    tags: [Sectors]
-    summary: Look up what is at a hex
-    description: |
-      Finds a hex by sector and hex position and returns its parsec, with the
-      star system in it nested as `star_system`, or `null` if the hex is
-      empty. `hx` and `hy` are the hex's column and row within the sector (1-32
-      and 1-40). Details of the system that the players have not discovered are
-      withheld, as for `GET /star_systems/{id}`.
-    parameters:
-      - { name: sx, in: query, required: true, description: Sector x., schema: { type: integer } }
-      - { name: sy, in: query, required: true, description: Sector y., schema: { type: integer } }
-      - { name: hx, in: query, required: true, description: Hex column within the sector., schema: { type: integer } }
-      - { name: hy, in: query, required: true, description: Hex row within the sector., schema: { type: integer } }
-    responses:
-      '200':
-        description: The hex's parsec and, if it has one, its star system.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Parsec' }
-      '400':
-        description: One of `sx`, `sy`, `hx`, `hy` is missing.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'sx, sy, hx, hy required' }
-      '404':
-        description: There is no such parsec.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'parsec not found' }
-/parsecs/{id}:
-  patch:
-    operationId: updateParsec
-    tags: [Sectors]
-    summary: Update a parsec
-    description: Sets the parsec's survey index. The caller must be the owner of the campaign.
-    security: [{ bearerToken: [] }]
-    parameters:
-      - { $ref: '#/components/parameters/ParsecId' }
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              survey_index: { type: integer }
-    responses:
-      '200':
-        description: The parsec was updated.
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [survey_index]
-              properties:
-                survey_index: { type: [integer, 'null'] }
-      '401': { $ref: '#/components/responses/Unauthorised' }
-      '403': { $ref: '#/components/responses/Forbidden' }
-      '404':
-        description: No parsec has this id.
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'parsec not found' }
-      '422': { $ref: '#/components/responses/ValidationErrors' }

@@ -17,6 +17,83 @@ class Api::DocumentedEndpointsTest < AuthenticatedIntegrationTest
     assert response.parsed_body.any?
   end
 
+  test 'parsecs lists a subsector\'s parsecs' do
+    parsec = parsecs(:one)
+    get api_parsecs_url(subsector_id: parsec.subsector.id), as: :json
+    assert_response :success
+    assert_includes response.parsed_body.map { |p| p['id'] }, parsec.id
+  end
+
+  test 'parsecs lists a viewport\'s parsecs' do
+    parsec = parsecs(:one)
+    get api_parsecs_url(ulx: parsec.x, uly: parsec.y, lrx: parsec.x, lry: parsec.y), as: :json
+    assert_response :success
+    assert_equal [parsec.id], response.parsed_body.map { |p| p['id'] }
+  end
+
+  test 'parsecs rejects a missing, competing or incomplete selection with the same message' do
+    parsec = parsecs(:one)
+    box = { ulx: parsec.x, uly: parsec.y, lrx: parsec.x, lry: parsec.y }
+    bad_requests = {
+      'none' => {},
+      'sector and subsector' => { sector_id: parsec.sector_id, subsector_id: parsec.subsector.id },
+      'sector and sector coordinates' => { sector_id: parsec.sector_id, sx: 1, sy: 1 },
+      'sector and box' => { sector_id: parsec.sector_id }.merge(box),
+      'subsector and sector coordinates' => { subsector_id: parsec.subsector.id, sx: 1, sy: 1 },
+      'subsector and box' => { subsector_id: parsec.subsector.id }.merge(box),
+      'sector coordinates and box' => { sx: 1, sy: 1 }.merge(box),
+      'hx and hy without a sector' => { hx: 1, hy: 1 },
+      'hx without hy' => { sx: 1, sy: 1, hx: 1 },
+      'hy without hx' => { sx: 1, sy: 1, hy: 1 },
+      'hx and hy with sector_id' => { sector_id: parsec.sector_id, hx: 1, hy: 1 },
+      'hx and hy with subsector_id' => { subsector_id: parsec.subsector.id, hx: 1, hy: 1 },
+      'hx and hy with a box' => { hx: 1, hy: 1 }.merge(box),
+      'hx and hy with only sx' => { sx: 1, hx: 1, hy: 1 },
+      'sx without sy' => { sx: 1 },
+      'sy without sx' => { sy: 1 },
+      'incomplete box' => { ulx: parsec.x, uly: parsec.y },
+      'sector and incomplete box' => { sector_id: parsec.sector_id, ulx: parsec.x },
+      'competing with an oversized box' => { sector_id: parsec.sector_id, ulx: 0, uly: 100, lrx: 100, lry: 0 }
+    }
+
+    bad_requests.each do |name, query|
+      get api_parsecs_url(**query), as: :json
+      assert_response :bad_request, name
+      assert_equal Api::ParsecsController::SELECTION_ERROR, response.parsed_body['error'], name
+    end
+  end
+
+  test 'parsecs lists a sector by coordinates, optionally narrowed to one hex' do
+    parsec = parsecs(:one)  # sector (1, 1), hex 0101
+    get api_parsecs_url(sx: 1, sy: 1), as: :json
+    assert_response :success
+    assert_includes response.parsed_body.map { |p| p['id'] }, parsec.id
+
+    get api_parsecs_url(sx: 1, sy: 1, hx: 1, hy: 1), as: :json
+    assert_response :success
+    assert_equal [parsec.id], response.parsed_body.map { |p| p['id'] }
+    assert_equal '0101', response.parsed_body.first['hex_code']
+  end
+
+  test 'parsecs returns an empty list for a hex with no parsec' do
+    [{ sx: 1, sy: 1, hx: 99, hy: 99 }, { sx: 1, sy: 1, hx: 33, hy: 1 }, { sx: 500, sy: 500, hx: 1, hy: 1 }].each do |query|
+      get api_parsecs_url(**query), as: :json
+      assert_response :success, query.inspect
+      assert_empty response.parsed_body, query.inspect
+    end
+  end
+
+  test 'parsecs rejects an oversized bounding box' do
+    get api_parsecs_url(ulx: 0, uly: 100, lrx: 100, lry: 0), as: :json
+    assert_response :bad_request
+    assert_match(/no larger than/, response.parsed_body['error'])
+  end
+
+  test 'parsecs returns not found for an unknown sector' do
+    get api_parsecs_url(sector_id: 0), as: :json
+    assert_response :not_found
+  end
+
   test 'rogues lists rogue bodies in a viewport' do
     parsec = stellar_objects(:rogue).parsec
     get api_rogues_url(ulx: parsec.x, uly: parsec.y, lrx: parsec.x, lry: parsec.y), as: :json
