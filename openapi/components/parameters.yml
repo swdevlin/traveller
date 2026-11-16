@@ -94,12 +94,24 @@ Page:
   in: query
   description: Page number, starting at 1.
   schema: { type: integer, minimum: 1, default: 1 }
-SignificantOnly:
+SignificantOnlyMoons:
   name: significant_only
   in: query
-  description: If present, list only significant bodies.
-  allowEmptyValue: true
-  schema: { type: string }
+  description: |
+    When `true`, list only significant moons. A moon is significant unless
+    its `size_code` is `0` (negligible) or `S` (about 600 km across). Rings
+    are always significant. Accepts `true`, `false`, `1` or `0`; any other
+    value is rejected with a 400.
+  schema: { type: boolean, default: false }
+SignificantOnlyPlanetoids:
+  name: significant_only
+  in: query
+  description: |
+    When `true`, list only significant planetoids. A planetoid is
+    significant unless its `size_code` is `0` (negligible) or `S` (about
+    600 km across). Accepts `true`, `false`, `1` or `0`; any other value is
+    rejected with a 400.
+  schema: { type: boolean, default: false }
 OrbitMapTheme:
   name: theme
   in: query

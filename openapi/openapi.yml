@@ -154,7 +154,7 @@ tags:
   - name: Star systems
     description: Star systems and the stars within them.
   - name: Stellar objects
-    description: Planets, belts, moons and other bodies, rogue or in-system.
+    description: Planets, belts, moons and other stellar objects, whether in a star system or rogue.
   - name: Subsectors
     description: Subsectors and the star systems within them.
   - name: Survey overlays

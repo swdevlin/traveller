@@ -83,6 +83,20 @@ class Api::BaseController < ActionController::API
     value.split(',').map(&:strip).reject(&:blank?)
   end
 
+  # A boolean query parameter in the API's public form: `true`, `1`, `false`
+  # or `0`. Absent or blank is false. Returns :invalid for anything else.
+  def boolean_param(name)
+    value = params[name]
+    return false if value.blank?
+    return :invalid unless value.is_a?(String)
+
+    case value.downcase
+    when 'true', '1' then true
+    when 'false', '0' then false
+    else :invalid
+    end
+  end
+
   def viewport_bounds(pad: 0)
     if params[:sx].present? && params[:sy].present?
       sx = params[:sx].to_i

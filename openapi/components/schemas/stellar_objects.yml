@@ -87,6 +87,27 @@ StellarObject:
     url: { type: string, format: uri }
     sophont: { $ref: '#/components/schemas/Sophont' }
     extinct_sophont_record: { $ref: '#/components/schemas/Sophont' }
+Moon:
+  description: A `StellarObject` whose `type` is always `Moon`.
+  allOf:
+    - $ref: '#/components/schemas/StellarObject'
+    - type: object
+      properties:
+        type: { type: string, const: Moon }
+Ring:
+  description: A `StellarObject` whose `type` is always `Ring`.
+  allOf:
+    - $ref: '#/components/schemas/StellarObject'
+    - type: object
+      properties:
+        type: { type: string, const: Ring }
+Planetoid:
+  description: A `StellarObject` whose `type` is always `Planetoid`.
+  allOf:
+    - $ref: '#/components/schemas/StellarObject'
+    - type: object
+      properties:
+        type: { type: string, const: Planetoid }
 Sophont:
   type: object
   properties:
