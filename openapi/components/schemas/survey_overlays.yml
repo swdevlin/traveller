@@ -4,7 +4,7 @@ SurveyOverlayInput:
   properties:
     name: { type: string }
     colour: { type: string, description: 'Hex colour, such as `#E87040`.' }
-    enabled: { type: boolean }
+    enabled: { type: boolean, description: 'When `true` the overlay is displayed on the map. When `false` it is kept but not displayed.' }
     rule_data:
       description: |
         The overlay's rules. When sent, this **replaces** the whole rule; leave
@@ -32,12 +32,12 @@ SurveyOverlay:
     id: { type: integer }
     name: { type: string }
     colour: { type: [string, 'null'] }
-    enabled: { type: boolean }
+    enabled: { type: boolean, description: 'When `true` the overlay is displayed on the map. When `false` it is kept but not displayed.' }
     rule_data:
       oneOf:
         - { $ref: '#/components/schemas/SurveyOverlayRules' }
         - { type: 'null' }
-    position: { type: integer, description: 'Place in the list, where 1 is first. Overlays are applied in this order, and the first one that matches a system sets its colour.' }
+    position: { type: integer, description: 'Place in the list, where 1 is first. Overlays are applied in this order and the first enabled overlay that matches a system wins (first match wins, no layering), so a lower position takes priority when overlays overlap.' }
 SurveyOverlayRules:
   type: object
   description: |

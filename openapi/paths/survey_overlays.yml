@@ -4,7 +4,17 @@
     operationId: listSurveyOverlays
     tags: [Survey overlays]
     summary: List survey overlays
-    description: Referee only.
+    description: |
+      Returns every survey overlay in the campaign, in display order (the
+      `position` field, where 1 is first). Overlays are applied to the map in
+      this order with **first match wins**: overlays are not layered, so a
+      system is coloured by the lowest-positioned enabled overlay that matches
+      it, and overlays after that one are ignored for that system. Disabled overlays are included in the list, so check `enabled`
+      to see which are currently displayed.
+
+      Survey overlays are a referee-only tool: there is no player-visible
+      subset, so the request needs a bearer token belonging to a referee.
+      Anyone else receives a `403`. The list is not paginated.
     security: [{ bearerToken: [] }]
     responses:
       '200':
@@ -44,7 +54,9 @@
     description: |
       Referee only. Only the fields sent are changed. Send `position` to move
       the overlay to a place in the list, where 1 is first; the others shift to
-      make room. Overlays are applied in list order.
+      make room. Overlays are applied in list order, and the first enabled
+      overlay that matches a system wins, so a lower position takes priority
+      when overlays overlap.
     security: [{ bearerToken: [] }]
     parameters:
       - { $ref: '#/components/parameters/SurveyOverlayId' }
