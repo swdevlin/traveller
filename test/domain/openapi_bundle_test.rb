@@ -14,7 +14,7 @@ class OpenapiBundleTest < ActiveSupport::TestCase
     assert @document['paths'].key?('/sectors')
     assert @document['paths'].key?('/star_systems/{id}')
     assert @document.dig('components', 'schemas').key?('Sector')
-    assert @document.dig('components', 'parameters').key?('Id')
+    assert @document.dig('components', 'parameters').key?('StarSystemId')
     assert @document.dig('components', 'responses').key?('Unauthorised')
     assert @document.dig('components', 'securitySchemes').key?('bearerToken')
   end
