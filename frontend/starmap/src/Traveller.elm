@@ -4051,7 +4051,7 @@ type alias ViewHexesConfig =
     , jumpLog : JumpLogDisplay.Settings
     , themeIsLight : Bool
     , highlightRules : List HighlightRule.Rule
-    , previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String }
+    , previewRoute : Maybe { jumps : List RoutePlan.Jump, colour : String }
     , route : RouteList
     , currentAddress : HexAddress
     , hexSize : Float
@@ -4728,10 +4728,10 @@ viewHexes config =
                             Nothing ->
                                 []
 
-                            Just { hops, colour } ->
+                            Just { jumps, colour } ->
                                 let
                                     coords =
-                                        List.map (\hop -> ( hop.system.x, hop.system.y )) hops
+                                        List.map (\jump -> ( jump.system.x, jump.system.y )) jumps
                                 in
                                 List.map2
                                     (\( fromX, fromY ) ( toX, toY ) ->
@@ -5736,14 +5736,14 @@ closed (or has no successful plan yet). The preview uses the form's own
 default) so the line never changes colour out from under the user the moment
 they save - it just becomes the saved route.
 -}
-activePreviewRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+activePreviewRoute : ModelData -> Maybe { jumps : List RoutePlan.Jump, colour : String }
 activePreviewRoute model =
     case model.routePlanForm of
         Just form ->
             case RemoteData.toMaybe form.planResult of
                 Just result ->
                     if result.found then
-                        Just { hops = result.hops, colour = form.saveColour }
+                        Just { jumps = result.jumps, colour = form.saveColour }
 
                     else
                         storedActiveRoute model
@@ -5755,9 +5755,9 @@ activePreviewRoute model =
             storedActiveRoute model
 
 
-storedActiveRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+storedActiveRoute : ModelData -> Maybe { jumps : List RoutePlan.Jump, colour : String }
 storedActiveRoute model =
-    model.activeRoutePlan |> Maybe.map (\stored -> { hops = stored.result.hops, colour = stored.colour })
+    model.activeRoutePlan |> Maybe.map (\stored -> { jumps = stored.result.jumps, colour = stored.colour })
 
 
 moveRule : String -> Int -> List HighlightRule.Rule -> List HighlightRule.Rule
@@ -6024,7 +6024,7 @@ myRouteRowHtml : RoutePlan.StoredRoutePlan -> Html Msg
 myRouteRowHtml stored =
     let
         jumps =
-            max 0 (List.length stored.result.hops - 1)
+            max 0 (List.length stored.result.jumps - 1)
 
         jumpsLabel =
             String.fromInt jumps

@@ -15,6 +15,12 @@ class Api::JumpRouteLinksControllerTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
   end
 
+  test 'rejects both a sector and a bounding box' do
+    get api_jump_route_links_url(campaign_slug: @campaign.slug, sx: 0, sy: 0, **@bounds), as: :json
+
+    assert_response :bad_request
+  end
+
   test 'index includes the jump_route_id for a link whose from_star_system is in bounds' do
     route = JumpRoute.create!(name: 'Network Route')
     link = JumpRouteLink.create!(jump_route: route, from_star_system: star_systems(:in_one), to_star_system: star_systems(:in_two))

@@ -9,9 +9,18 @@
       Strategic data is included when `display_mode` is `Strategic` or `Resource`.
       Fields the players have not discovered are `null`, or empty for lists.
 
-      A bounding box may be at most 16 columns by 20 rows (a 2x2 block of
-      subsectors). Larger areas should be fetched as several requests. A whole sector (`sx`, `sy`) is
-      always accepted; if both a sector and a box are sent, the sector is used.
+      Choose the area in one of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+        A sector is always accepted.
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports). The box may be at most 16
+        columns by 20 rows (a 2x2 block of subsectors); fetch larger areas as
+        several requests.
+
+      If both are sent, the sector is used.
     parameters:
       - { $ref: '#/components/parameters/Sx' }
       - { $ref: '#/components/parameters/Sy' }
@@ -40,9 +49,18 @@
     description: |
       Parsec labels and icons. Labels the players have not discovered are `null`.
 
-      A bounding box may be at most 16 columns by 20 rows (a 2x2 block of
-      subsectors). Larger areas should be fetched as several requests. A whole sector (`sx`, `sy`) is
-      always accepted; if both a sector and a box are sent, the sector is used.
+      Choose the area in one of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+        A sector is always accepted.
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports). The box may be at most 16
+        columns by 20 rows (a 2x2 block of subsectors); fetch larger areas as
+        several requests.
+
+      If both are sent, the sector is used.
     parameters:
       - { $ref: '#/components/parameters/Sx' }
       - { $ref: '#/components/parameters/Sy' }

@@ -1,5 +1,5 @@
 module Traveller.RoutePlan exposing
-    ( Hop
+    ( Jump
     , RoutePlanEndpoint
     , RoutePlanResult
     , RoutePlanSystem
@@ -48,14 +48,14 @@ routePlanSystemDecoder =
         |> required "y" Decode.int
 
 
-{-| transitHours is the time to fly between this hop's system and its jump
+{-| transitHours is the time to fly between this jump's system and its jump
 shadow - the same figure whether departing (for the origin) or arriving (for
 every other stop), since it depends only on that world's diameter and the
 ship's M-drive. elapsedAvgHours is the running total from the start of the
 journey through this system; for the origin that's just its own transit time,
 since nothing else has happened yet.
 -}
-type alias Hop =
+type alias Jump =
     { system : RoutePlanSystem
     , distance : Int
     , transitHours : Float
@@ -63,9 +63,9 @@ type alias Hop =
     }
 
 
-hopDecoder : Decoder Hop
-hopDecoder =
-    Decode.succeed Hop
+jumpDecoder : Decoder Jump
+jumpDecoder =
+    Decode.succeed Jump
         |> required "system" routePlanSystemDecoder
         |> required "distance" Decode.int
         |> required "transit_hours" Decode.float
@@ -96,7 +96,7 @@ type alias RoutePlanResult =
     , refueling : String
     , excludedTravelZoneIds : List Int
     , found : Bool
-    , hops : List Hop
+    , jumps : List Jump
     , totalDistance : Maybe Int
     , parsecDistance : Maybe Int
     , totalJumpAvgHours : Maybe Float
@@ -118,7 +118,7 @@ routePlanResultDecoder =
         |> required "refueling" Decode.string
         |> required "excluded_travel_zone_ids" (Decode.list Decode.int)
         |> required "found" Decode.bool
-        |> required "hops" (Decode.list hopDecoder)
+        |> required "jumps" (Decode.list jumpDecoder)
         |> required "total_distance" (Decode.nullable Decode.int)
         |> required "parsec_distance" (Decode.nullable Decode.int)
         |> required "total_jump_avg_hours" (Decode.nullable Decode.float)
@@ -174,9 +174,9 @@ type alias StoredRoutePlan =
     }
 
 
-hopCodec : Codec Hop
-hopCodec =
-    Codec.object Hop
+jumpCodec : Codec Jump
+jumpCodec =
+    Codec.object Jump
         |> Codec.field "system" .system routePlanSystemCodec
         |> Codec.field "distance" .distance Codec.int
         |> Codec.field "transit_hours" .transitHours Codec.float
@@ -212,7 +212,7 @@ routePlanResultCodec =
         |> Codec.field "refueling" .refueling Codec.string
         |> Codec.field "excluded_travel_zone_ids" .excludedTravelZoneIds (Codec.list Codec.int)
         |> Codec.field "found" .found Codec.bool
-        |> Codec.field "hops" .hops (Codec.list hopCodec)
+        |> Codec.field "jumps" .jumps (Codec.list jumpCodec)
         |> Codec.field "total_distance" .totalDistance (Codec.nullable Codec.int)
         |> Codec.field "parsec_distance" .parsecDistance (Codec.nullable Codec.int)
         |> Codec.field "total_jump_avg_hours" .totalJumpAvgHours (Codec.nullable Codec.float)

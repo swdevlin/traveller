@@ -31,7 +31,7 @@ JumpRouteLink:
     to_y: { type: integer }
 RoutePlan:
   type: object
-  required: [found, from, to, hops]
+  required: [found, from, to, jumps]
   properties:
     found: { type: boolean }
     from: { $ref: '#/components/schemas/SystemRef' }
@@ -42,7 +42,7 @@ RoutePlan:
       type: array
       items: { type: integer }
     m_drive: { type: integer }
-    hops:
+    jumps:
       type: array
       items:
         type: object

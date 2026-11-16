@@ -75,7 +75,7 @@ class RouteTimingTest < ActiveSupport::TestCase
     assert_equal 184.0, RouteTiming::JUMP_MAX_HOURS
   end
 
-  test 'elapsed_avg_hours accumulates transit plus jump plus transit across hops, double-counting intermediate stops' do
+  test 'elapsed_avg_hours accumulates transit plus jump plus transit across jumps, double-counting intermediate stops' do
     a = build_system_with_main_world(0, 0, diameter: 10_000)
     b = build_system_with_main_world(1, 0, diameter: 20_000)
     c = build_system_with_main_world(2, 0, diameter: 10_000)

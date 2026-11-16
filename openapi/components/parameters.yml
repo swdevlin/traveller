@@ -114,12 +114,12 @@ OrbitMapDownload:
 Sx:
   name: sx
   in: query
-  description: Sector x. Use with `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  description: Sector x.
   schema: { type: integer }
 Sy:
   name: sy
   in: query
-  description: Sector y. Use with `sx`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  description: Sector y.
   schema: { type: integer }
 Hx:
   name: hx

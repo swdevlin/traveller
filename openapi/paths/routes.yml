@@ -74,7 +74,20 @@
     operationId: listJumpRouteLinks
     tags: [Routes]
     summary: List route links in a viewport
-    description: The individual links between systems that make up routes, with the styling to draw them.
+    description: |
+      The individual links between systems that make up routes, with the
+      styling to draw them. A link is included if either of its systems is in
+      the selected area, so links that run out of the area are included.
+      Choose the area in one of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports).
+
+      Send one or the other, not both. Sending both, or neither, returns
+      `400`.
     parameters:
       - { $ref: '#/components/parameters/Sx' }
       - { $ref: '#/components/parameters/Sy' }
@@ -90,7 +103,12 @@
             schema:
               type: array
               items: { $ref: '#/components/schemas/JumpRouteLink' }
-      '400': { $ref: '#/components/responses/ViewportRequired' }
+      '400':
+        description: Neither a sector nor a bounding box was supplied, or both were.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'exactly one of sector coordinates (sx, sy) or a bounding box (ulx, uly, lrx, lry) must be given' }
 /route_plan:
   get:
     operationId: planRoute
@@ -108,8 +126,21 @@
         schema: { type: integer, default: 2 }
       - name: refueling
         in: query
-        description: Where the ship can refuel along the way.
-        schema: { type: string, default: any }
+        description: |
+          Which systems may be used as refuelling stops along the route. The
+          origin and destination are always eligible. If omitted, `any` is
+          used. An unrecognised value returns `422`.
+
+          | Value | Systems allowed |
+          | --- | --- |
+          | `any` | No restriction. Any system qualifies. |
+          | `commercial` | A starport of class A, B, C or D. Wilderness refuelling is excluded. |
+          | `refined` | A starport of class A or B, which sell refined fuel. |
+          | `wilderness` | A system with at least one gas giant, for gas giant skimming. |
+
+          For players, `commercial`, `refined` and `wilderness` also
+          require that the system is known.
+        schema: { type: string, enum: [any, commercial, refined, wilderness], default: any }
       - name: excluded_travel_zone_ids
         in: query
         description: Travel zones to avoid, as a comma-separated list of IDs.
@@ -127,11 +158,17 @@
           application/json:
             schema: { $ref: '#/components/schemas/RoutePlan' }
       '422':
-        description: The origin and destination are missing, unknown or identical.
+        description: The origin and destination are missing, unknown or identical, or `refueling` is not a recognised value.
         content:
           application/json:
             schema: { $ref: '#/components/schemas/Error' }
-            example: { error: 'from_id and to_id must reference two different star systems' }
+            examples:
+              systems:
+                summary: Invalid origin or destination
+                value: { error: 'from_id and to_id must reference two different star systems' }
+              refueling:
+                summary: Invalid refuelling value
+                value: { error: 'refueling must be one of: any, commercial, refined, wilderness' }
 /route_plan/save:
   post:
     operationId: saveRoutePlan
@@ -154,7 +191,10 @@
               name: { type: string, default: Saved Route }
               colour: { type: string, default: '#E87040' }
               jump_range: { type: integer }
-              refueling: { type: string }
+              refueling:
+                type: string
+                enum: [any, commercial, refined, wilderness]
+                description: Refuelling restriction the route was planned with. See `refueling` on `/route_plan`.
               excluded_travel_zone_ids:
                 type: array
                 items: { type: integer }

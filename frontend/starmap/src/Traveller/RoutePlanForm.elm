@@ -298,7 +298,7 @@ update config msg model =
                             , fromId = from.id
                             , toId = to.id
                             , excludedTravelZoneIds = Set.toList model.excludedZoneIds
-                            , systemIds = List.map (.system >> .id) planResult.hops
+                            , systemIds = List.map (.system >> .id) planResult.jumps
                             , mDrive = model.mDrive
                             }
                         )
@@ -767,7 +767,7 @@ viewFoundRoute : Config -> Model -> RoutePlanResult -> Html Msg
 viewFoundRoute config model result =
     let
         jumps =
-            max 0 (List.length result.hops - 1)
+            max 0 (List.length result.jumps - 1)
     in
     Html.div []
         [ viewStatRow
@@ -780,7 +780,7 @@ viewFoundRoute config model result =
             , ( "Jump Time", viewTotalJumpTimeText result )
             , ( "Transit Time", viewTotalTransitTimeText result )
             ]
-        , viewHopTable result.hops
+        , viewJumpTable result.jumps
         , if config.isReferee then
             viewSaveForm model
 
@@ -851,11 +851,11 @@ viewTotalTransitTimeText result =
             "—"
 
 
-viewHopTable : List RoutePlan.Hop -> Html Msg
-viewHopTable hops =
+viewJumpTable : List RoutePlan.Jump -> Html Msg
+viewJumpTable jumps =
     let
         lastIndex =
-            List.length hops - 1
+            List.length jumps - 1
     in
     Html.table
         [ HtmlAttrs.style "width" "100%"
@@ -867,19 +867,19 @@ viewHopTable hops =
             [ Html.tr
                 [ HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
                 ]
-                [ hopHeaderCell "right" "Jump"
-                , hopHeaderCell "left" "System"
-                , hopHeaderCell "right" "Transit Time (one-way)"
-                , hopHeaderCell "right" "Elapsed"
+                [ jumpHeaderCell "right" "Jump"
+                , jumpHeaderCell "left" "System"
+                , jumpHeaderCell "right" "Transit Time (one-way)"
+                , jumpHeaderCell "right" "Elapsed"
                 ]
             ]
         , Html.tbody []
-            (List.indexedMap (viewHopTableRow lastIndex) hops)
+            (List.indexedMap (viewJumpTableRow lastIndex) jumps)
         ]
 
 
-hopHeaderCell : String -> String -> Html Msg
-hopHeaderCell align label =
+jumpHeaderCell : String -> String -> Html Msg
+jumpHeaderCell align label =
     Html.th
         [ HtmlAttrs.style "text-align" align
         , HtmlAttrs.style "padding" "0 8px 6px 8px"
@@ -892,8 +892,8 @@ hopHeaderCell align label =
         [ Html.text label ]
 
 
-viewHopTableRow : Int -> Int -> RoutePlan.Hop -> Html Msg
-viewHopTableRow lastIndex index hop =
+viewJumpTableRow : Int -> Int -> RoutePlan.Jump -> Html Msg
+viewJumpTableRow lastIndex index jump =
     let
         isEndpoint =
             index == 0 || index == lastIndex
@@ -917,7 +917,7 @@ viewHopTableRow lastIndex index hop =
             ]
             [ Html.text
                 (if index > 0 then
-                    "J-" ++ String.fromInt hop.distance
+                    "J-" ++ String.fromInt jump.distance
 
                  else
                     ""
@@ -926,12 +926,12 @@ viewHopTableRow lastIndex index hop =
         , Html.td
             [ HtmlAttrs.style "padding" "6px 8px"
             ]
-            [ Html.div [] [ Html.text hop.system.name ]
+            [ Html.div [] [ Html.text jump.system.name ]
             , Html.div
                 [ HtmlAttrs.style "font-size" "11px"
                 , HtmlAttrs.style "color" "var(--color-fg-muted)"
                 ]
-                [ Html.text hop.system.hexLabel ]
+                [ Html.text jump.system.hexLabel ]
             ]
         , Html.td
             [ HtmlAttrs.style "text-align" "right"
@@ -939,14 +939,14 @@ viewHopTableRow lastIndex index hop =
             , HtmlAttrs.style "color" "var(--color-fg-muted)"
             , HtmlAttrs.style "white-space" "nowrap"
             ]
-            [ Html.text (TravelCalc.formatDurationHours hop.transitHours) ]
+            [ Html.text (TravelCalc.formatDurationHours jump.transitHours) ]
         , Html.td
             [ HtmlAttrs.style "text-align" "right"
             , HtmlAttrs.style "padding" "6px 8px"
             , HtmlAttrs.style "color" "var(--color-fg-muted)"
             , HtmlAttrs.style "white-space" "nowrap"
             ]
-            [ Html.text (TravelCalc.formatDurationHours hop.elapsedAvgHours) ]
+            [ Html.text (TravelCalc.formatDurationHours jump.elapsedAvgHours) ]
         ]
 
 
