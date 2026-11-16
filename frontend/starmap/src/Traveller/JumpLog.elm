@@ -17,6 +17,7 @@ module Traveller.JumpLog exposing
     , hexDistance
     , jumpDecoder
     , lastJumpDecoder
+    , shipLastJumpDecoder
     , minimumTravelDays
     , parsecDecoder
     , previousArrival
@@ -171,7 +172,7 @@ shipDecoder =
     Decode.map3 ShipOption
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
-        (Decode.field "jump_drive" (Decode.nullable Decode.int))
+        (Decode.field "j_drive" (Decode.nullable Decode.int))
 
 
 sectorDecoder : Decoder SectorOption
@@ -193,8 +194,13 @@ parsecDecoder =
         (Decode.field "system_name" (Decode.nullable Decode.string))
 
 
-{-| `GET ships/:id/last_jump` renders JSON `null` for a ship with no jumps.
+{-| `GET ships/:id` renders `"last_jump": null` for a ship with no jumps.
 -}
+shipLastJumpDecoder : Decoder (Maybe LastJump)
+shipLastJumpDecoder =
+    Decode.field "last_jump" lastJumpDecoder
+
+
 lastJumpDecoder : Decoder (Maybe LastJump)
 lastJumpDecoder =
     Decode.nullable

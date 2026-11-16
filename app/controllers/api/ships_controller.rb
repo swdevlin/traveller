@@ -2,40 +2,33 @@
 
 class Api::ShipsController < Api::BaseController
   def index
-    render json: Ship.order(:name).map { |ship| ship_json(ship) }
+    ships = Ship.order(:name).to_a
+    last_jumps = Ship.last_jumps_for(ships)
+    render json: ships.map { |ship| ship_json(ship).merge(last_jump: last_jump_json(last_jumps[ship.id])) }
   end
 
   def show
     ship = Ship.find_by(id: params[:id])
     return render json: { error: 'ship not found' }, status: :not_found unless ship
 
-    render json: ship_json(ship)
-  end
-
-  def last_jump
-    ship = Ship.find_by(id: params[:id])
-    return render json: { error: 'ship not found' }, status: :not_found unless ship
-
-    last = JumpLog.includes(to_parsec: :sector)
-                  .where(ship_id: ship.id)
-                  .order(sequence: :desc, id: :desc)
-                  .first
-
-    if last&.to_parsec
-      render json: {
-        parsec_id: last.to_parsec_id,
-        sector_id: last.to_parsec.sector_id,
-        arrive_year: last.arrive_year,
-        arrive_day: last.arrive_day
-      }
-    else
-      render json: nil
-    end
+    render json: ship_json(ship).merge(last_jump: last_jump_json(ship.last_jump))
   end
 
   private
 
   def ship_json(ship)
-    { id: ship.id, name: ship.name, jump_drive: ship.jump_drive, m_drive: ship.m_drive }
+    { id: ship.id, name: ship.name, j_drive: ship.jump_drive, m_drive: ship.m_drive }
+  end
+
+  # Where the ship last arrived, or nil if it has not jumped.
+  def last_jump_json(last)
+    return unless last&.to_parsec
+
+    {
+      parsec_id: last.to_parsec_id,
+      sector_id: last.to_parsec.sector_id,
+      arrive_year: last.arrive_year,
+      arrive_day: last.arrive_day
+    }
   end
 end

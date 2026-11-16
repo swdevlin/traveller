@@ -1,9 +1,26 @@
 # Schemas: ships
 Ship:
   type: object
-  required: [id, name, jump_drive, m_drive]
+  required: [id, name, j_drive, m_drive]
   properties:
     id: { type: integer }
     name: { type: [string, 'null'] }
-    jump_drive: { type: [integer, 'null'], description: The ship's jump rating. }
+    j_drive: { type: [integer, 'null'], description: The ship's jump rating. }
     m_drive: { type: [integer, 'null'], description: The ship's manoeuvre drive rating, 0 to 10. }
+ShipDetail:
+  allOf:
+    - $ref: '#/components/schemas/Ship'
+    - type: object
+      required: [last_jump]
+      properties:
+        last_jump:
+          description: Where the ship last arrived, or `null` if it has not jumped.
+          oneOf:
+            - type: object
+              required: [parsec_id, sector_id, arrive_year, arrive_day]
+              properties:
+                parsec_id: { type: integer }
+                sector_id: { type: integer }
+                arrive_year: { type: [integer, 'null'] }
+                arrive_day: { type: [integer, 'null'] }
+            - { type: 'null' }

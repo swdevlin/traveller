@@ -144,11 +144,6 @@ class Api::DocumentedEndpointsTest < AuthenticatedIntegrationTest
     assert_response :not_found
   end
 
-  test 'last_jump returns the ship\'s most recent jump' do
-    get last_jump_api_ship_url(ships(:one)), as: :json
-    assert_response :success
-  end
-
   test 'map redirects to sign in without a session' do
     sign_out
     get api_map_url(ulx: 0, uly: 0, lrx: 1, lry: -1)

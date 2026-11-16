@@ -119,9 +119,9 @@ export default class extends Controller {
   async #loadLastJump(shipId) {
     if (!shipId || !this.shipsUrlValue) return;
     try {
-      const response = await fetch(`${this.shipsUrlValue}/${shipId}/last_jump`);
+      const response = await fetch(`${this.shipsUrlValue}/${shipId}`);
       if (!response.ok) return;
-      const data = await response.json();
+      const data = (await response.json()).last_jump;
       if (!data) return;
 
       const departYearInput = this.element.querySelector('[data-jump-dates-target="departYear"]');

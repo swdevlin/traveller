@@ -779,8 +779,8 @@ fetchParsecs hostConfig side sectorId =
 fetchLastJump : HostConfig -> Int -> Cmd Msg
 fetchLastJump hostConfig shipId =
     Http.get
-        { url = apiUrl hostConfig [ "ships", String.fromInt shipId, "last_jump" ] []
-        , expect = Http.expectJson GotLastJump JumpLog.lastJumpDecoder
+        { url = apiUrl hostConfig [ "ships", String.fromInt shipId ] []
+        , expect = Http.expectJson GotLastJump JumpLog.shipLastJumpDecoder
         }
 
 
