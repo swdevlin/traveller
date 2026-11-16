@@ -193,27 +193,3 @@
             schema: { $ref: '#/components/schemas/Error' }
             example: { error: 'parsec not found' }
       '422': { $ref: '#/components/responses/ValidationErrors' }
-/regions:
-  get:
-    operationId: listRegions
-    tags: [Sectors]
-    summary: List regions in a viewport
-    description: |
-      Regions (political or cultural areas) that touch the viewport, with the
-      hexes they cover within it. The viewport is padded by one hex.
-    parameters:
-      - { $ref: '#/components/parameters/Sx' }
-      - { $ref: '#/components/parameters/Sy' }
-      - { $ref: '#/components/parameters/Ulx' }
-      - { $ref: '#/components/parameters/Uly' }
-      - { $ref: '#/components/parameters/Lrx' }
-      - { $ref: '#/components/parameters/Lry' }
-    responses:
-      '200':
-        description: Regions in the viewport.
-        content:
-          application/json:
-            schema:
-              type: array
-              items: { $ref: '#/components/schemas/Region' }
-      '400': { $ref: '#/components/responses/ViewportRequired' }

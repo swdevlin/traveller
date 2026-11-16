@@ -114,6 +114,8 @@ servers:
 tags:
   - name: Sectors
     description: Sectors, subsectors and parsecs.
+  - name: Regions
+    description: Political and cultural areas drawn over the map.
   - name: Star systems
     description: Star systems and the stars within them.
   - name: Stellar objects
