@@ -5,8 +5,9 @@
     tags: [Sectors]
     summary: List sectors
     description: |
-      Returns every sector in the campaign with its subsectors. Sectors and
-      subsectors both carry notes, as Markdown:
+      Returns every sector in the campaign with a summary of its subsectors
+      (`id`, `name`, `x` and `y`; use `getSubsector` for more). Sectors carry
+      notes, as Markdown:
 
       - `survey_records` is returned to everyone.
       - `classified_records` and `tags` are for the referee only. Without
@@ -33,18 +34,14 @@
                 survey_records: Surveyed by the Imperial Scout Service.
                 classified_records: Referee only. Omitted for players.
                 subsectors:
-                  - x: 1
-                    y: 1
+                  - id: 1
                     name: Cronor
-                    tags: []
-                    survey_records: Home to the Cronor trade guilds.
-                    classified_records: Referee only. Omitted for players.
-                  - x: 2
+                    x: 1
                     y: 1
+                  - id: 2
                     name: Jewell
-                    tags: []
-                    survey_records: null
-                    classified_records: null
+                    x: 2
+                    y: 1
       '404': { $ref: '#/components/responses/CampaignNotFound' }
 /subsectors/{id}:
   get:

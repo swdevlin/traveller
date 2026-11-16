@@ -18,16 +18,12 @@ Sector:
       items: { $ref: '#/components/schemas/SubsectorSummary' }
 SubsectorSummary:
   type: object
-  required: [x, y, name, tags]
-  allOf:
-    - $ref: '#/components/schemas/Records'
-    - type: object
-      description: The `*_html` renders are not included in this response.
+  required: [id, name, x, y]
   properties:
-    x: { type: integer }
-    y: { type: integer }
+    id: { type: integer }
     name: { type: [string, 'null'] }
-    tags: { $ref: '#/components/schemas/Tags' }
+    x: { type: integer, description: Column within the sector, 1 to 4. }
+    y: { type: integer, description: Row within the sector, 1 to 4. }
 Subsector:
   type: object
   required: [id, name, x, y, letter, tags, sector, star_systems]
