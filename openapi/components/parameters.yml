@@ -13,12 +13,6 @@ Id:
   required: true
   description: The record's id.
   schema: { type: integer }
-SystemId:
-  name: id
-  in: query
-  required: true
-  description: Star system id.
-  schema: { type: integer }
 FromId:
   name: from_id
   in: query

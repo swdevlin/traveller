@@ -160,14 +160,14 @@ availabilityQueryTests =
     describe "TradeGoods.availabilityQuery"
         [ Test.test "omits seed when Nothing" <|
             \_ ->
-                TradeGoods.availabilityQuery { id = 1, seed = Nothing }
+                TradeGoods.availabilityQuery { seed = Nothing }
                     |> List.length
-                    |> Expect.equal 1
+                    |> Expect.equal 0
         , Test.test "includes seed when Just" <|
             \_ ->
-                TradeGoods.availabilityQuery { id = 1, seed = Just 42 }
+                TradeGoods.availabilityQuery { seed = Just 42 }
                     |> List.length
-                    |> Expect.equal 2
+                    |> Expect.equal 1
         ]
 
 
@@ -177,8 +177,7 @@ pricesQueryTests =
         [ Test.test "builds one query parameter per shared field, plus one per d66" <|
             \_ ->
                 TradeGoods.pricesQuery
-                    { id = 1
-                    , direction = "purchase"
+                    { direction = "purchase"
                     , skillEffect = 2
                     , counterpartBrokerSkill = 1
                     , otherDm = -1
@@ -188,12 +187,11 @@ pricesQueryTests =
                     , d66s = [ 11, 21 ]
                     }
                     |> List.length
-                    |> Expect.equal 10
+                    |> Expect.equal 9
         , Test.test "an empty d66s list still builds the shared fields" <|
             \_ ->
                 TradeGoods.pricesQuery
-                    { id = 1
-                    , direction = "sale"
+                    { direction = "sale"
                     , skillEffect = 0
                     , counterpartBrokerSkill = 2
                     , otherDm = 0
@@ -203,5 +201,5 @@ pricesQueryTests =
                     , d66s = []
                     }
                     |> List.length
-                    |> Expect.equal 8
+                    |> Expect.equal 7
         ]

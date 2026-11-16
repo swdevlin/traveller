@@ -112,28 +112,28 @@ servers:
         default: my-campaign
         description: The campaign's URL slug.
 tags:
+  - name: Commerce
+    description: Referee tools for passengers, freight, mail and speculative trade.
+  - name: Jumps
+    description: Logged jumps between parsecs.
+  - name: Map
+    description: Systems and labels for plotting an area, and rendered maps.
+  - name: Reference
+    description: Reference tables.
+  - name: Regions
+    description: Political and cultural areas drawn over the map.
+  - name: Routes
+    description: Jump routes, route links and route planning.
+  - name: Search
+    description: Searching universe data and rulebooks.
   - name: Sectors
     description: Sectors, subsectors and parsecs.
   - name: Ships
     description: Ships, and where they have jumped.
-  - name: Regions
-    description: Political and cultural areas drawn over the map.
   - name: Star systems
     description: Star systems and the stars within them.
   - name: Stellar objects
     description: Planets, belts, moons and other bodies, rogue or in-system.
-  - name: Map
-    description: Systems and labels for plotting an area, and rendered maps.
-  - name: Jumps
-    description: Logged jumps between parsecs.
-  - name: Routes
-    description: Jump routes, route links and route planning.
-  - name: Commerce
-    description: Referee tools for passengers, freight, mail and speculative trade.
   - name: Survey overlays
     description: Referee-only rules that highlight systems on the map.
-  - name: Search
-    description: Searching universe data and rulebooks.
-  - name: Reference
-    description: Reference tables.
 security: []

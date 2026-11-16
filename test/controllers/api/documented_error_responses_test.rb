@@ -24,8 +24,8 @@ class Api::DocumentedErrorResponsesTest < ActionDispatch::IntegrationTest
   test 'referee tools are forbidden to a non-referee' do
     sign_in_as_non_referee
 
-    %w[passenger_traffic passenger_traffic/system freight_traffic freight_traffic/system
-       mail_traffic mail_traffic/system trade_goods/availability trade_goods/prices].each do |path|
+    %w[passenger_traffic freight_traffic mail_traffic
+       star_systems/1/passenger_traffic star_systems/1/freight_traffic star_systems/1/mail_traffic star_systems/1/trade_goods/availability star_systems/1/trade_goods/prices].each do |path|
       get "#{@base}/#{path}", as: :json
       assert_response :forbidden, "GET #{path}"
     end

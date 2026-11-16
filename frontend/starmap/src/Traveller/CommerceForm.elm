@@ -650,8 +650,8 @@ sendSystemInfoRequest ( urlRoot, urlPath ) systemId toMsg =
         , headers = []
         , url =
             Url.Builder.crossOrigin urlRoot
-                (urlPath ++ [ "freight_traffic", "system" ])
-                (FreightTraffic.systemQuery { id = systemId })
+                (urlPath ++ [ "star_systems", String.fromInt systemId, "freight_traffic" ])
+                []
         , body = Http.emptyBody
         , expect = Http.expectJson toMsg FreightTraffic.systemInfoDecoder
         , timeout = Just 15000
@@ -739,8 +739,8 @@ sendAvailabilityRequest ( urlRoot, urlPath ) systemId =
         , headers = []
         , url =
             Url.Builder.crossOrigin urlRoot
-                (urlPath ++ [ "trade_goods", "availability" ])
-                (TradeGoods.availabilityQuery { id = systemId, seed = Nothing })
+                (urlPath ++ [ "star_systems", String.fromInt systemId, "trade_goods", "availability" ])
+                (TradeGoods.availabilityQuery { seed = Nothing })
         , body = Http.emptyBody
         , expect = Http.expectJson GotAvailability TradeGoods.availabilityResultDecoder
         , timeout = Just 15000
@@ -769,7 +769,7 @@ sendPricesRequest ( urlRoot, urlPath ) params toMsg =
         , headers = []
         , url =
             Url.Builder.crossOrigin urlRoot
-                (urlPath ++ [ "trade_goods", "prices" ])
+                (urlPath ++ [ "star_systems", String.fromInt params.id, "trade_goods", "prices" ])
                 (TradeGoods.pricesQuery params)
         , body = Http.emptyBody
         , expect = Http.expectJson toMsg TradeGoods.pricesResultDecoder

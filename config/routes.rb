@@ -74,6 +74,11 @@ Rails.application.routes.draw do
       get 'star_systems', to: 'star_systems#search', defaults: { format: :json }
       get 'star_systems/:id', to: 'star_systems#show', defaults: { format: :json }
       patch 'star_systems/:id', to: 'star_systems#update', defaults: { format: :json }
+      get 'star_systems/:id/passenger_traffic', to: 'passenger_traffic#system', as: :star_system_passenger_traffic, defaults: { format: :json }
+      get 'star_systems/:id/freight_traffic', to: 'freight_traffic#system', as: :star_system_freight_traffic, defaults: { format: :json }
+      get 'star_systems/:id/mail_traffic', to: 'mail_traffic#system', as: :star_system_mail_traffic, defaults: { format: :json }
+      get 'star_systems/:id/trade_goods/availability', to: 'trade_goods#availability', as: :star_system_trade_goods_availability, defaults: { format: :json }
+      get 'star_systems/:id/trade_goods/prices', to: 'trade_goods#prices', as: :star_system_trade_goods_prices, defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }
@@ -92,13 +97,8 @@ Rails.application.routes.draw do
       get  'route_plan',         to: 'route_plans#plan',    defaults: { format: :json }
       post 'route_plan/save',    to: 'route_plans#save',    defaults: { format: :json }
       get  'passenger_traffic',        to: 'passenger_traffic#calculate', defaults: { format: :json }
-      get  'passenger_traffic/system', to: 'passenger_traffic#system',    defaults: { format: :json }
       get  'freight_traffic',        to: 'freight_traffic#calculate', defaults: { format: :json }
-      get  'freight_traffic/system', to: 'freight_traffic#system',    defaults: { format: :json }
       get  'mail_traffic',        to: 'mail_traffic#calculate', defaults: { format: :json }
-      get  'mail_traffic/system', to: 'mail_traffic#system',    defaults: { format: :json }
-      get  'trade_goods/availability', to: 'trade_goods#availability', defaults: { format: :json }
-      get  'trade_goods/prices',       to: 'trade_goods#prices',       defaults: { format: :json }
       resources :travel_zones, only: :index, defaults: { format: :json }
       get 'rulebooks/search', to: '/rulebook_search#index', as: :rulebook_search, defaults: { format: :json }
     end

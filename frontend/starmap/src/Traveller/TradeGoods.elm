@@ -166,43 +166,40 @@ pricesResultDecoder =
         |> required "results" (Decode.list priceRowDecoder)
 
 
-{-| Query params for `GET api/trade_goods/availability`. Pass `seed` as
+{-| Query params for `GET api/star_systems/:id/trade_goods/availability`. Pass `seed` as
 `Just seed` to re-derive an identical goods list (unused by the Elm client,
 which keeps the survey result in memory rather than re-deriving it from a
 seed - but the API supports it for the Rails-rendered Commerce page, which has
 no persistent client-side state across page loads).
 -}
-availabilityQuery : { id : Int, seed : Maybe Int } -> List Url.Builder.QueryParameter
-availabilityQuery { id, seed } =
-    Url.Builder.int "id" id
-        :: (case seed of
-                Just s ->
-                    [ Url.Builder.int "seed" s ]
+availabilityQuery : { seed : Maybe Int } -> List Url.Builder.QueryParameter
+availabilityQuery { seed } =
+    case seed of
+        Just s ->
+            [ Url.Builder.int "seed" s ]
 
-                Nothing ->
-                    []
-           )
+        Nothing ->
+            []
 
 
-{-| Query params for `GET api/trade_goods/prices`. An empty `d66s` rolls every
+{-| Query params for `GET api/star_systems/:id/trade_goods/prices`. An empty `d66s` rolls every
 priceable good (used for Sale); a non-empty one restricts the roll to those
 goods (used for Purchase, scoped to the surveyed availability list).
 -}
 pricesQuery :
-    { id : Int
-    , direction : String
-    , skillEffect : Int
-    , counterpartBrokerSkill : Int
-    , otherDm : Int
-    , useBroker : Bool
-    , brokerLevel : Int
-    , brokerFeePercentage : Float
-    , d66s : List Int
+    { a
+        | direction : String
+        , skillEffect : Int
+        , counterpartBrokerSkill : Int
+        , otherDm : Int
+        , useBroker : Bool
+        , brokerLevel : Int
+        , brokerFeePercentage : Float
+        , d66s : List Int
     }
     -> List Url.Builder.QueryParameter
-pricesQuery { id, direction, skillEffect, counterpartBrokerSkill, otherDm, useBroker, brokerLevel, brokerFeePercentage, d66s } =
-    [ Url.Builder.int "id" id
-    , Url.Builder.string "direction" direction
+pricesQuery { direction, skillEffect, counterpartBrokerSkill, otherDm, useBroker, brokerLevel, brokerFeePercentage, d66s } =
+    [ Url.Builder.string "direction" direction
     , Url.Builder.int "skill_effect" skillEffect
     , Url.Builder.int "counterpart_broker_skill" counterpartBrokerSkill
     , Url.Builder.int "other_dm" otherDm

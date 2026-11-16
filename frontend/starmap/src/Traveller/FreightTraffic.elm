@@ -7,7 +7,6 @@ module Traveller.FreightTraffic exposing
     , SystemInfo
     , freightTrafficResultDecoder
     , systemInfoDecoder
-    , systemQuery
     , trafficQuery
     )
 
@@ -141,7 +140,7 @@ trafficQuery { fromId, toId, brokerEffect, refereeModifier } =
 
 
 {-| UWP + trade codes + travel zone for a single system, from
-`GET api/freight_traffic/system` - shared across tabs the same way the
+`GET api/star_systems/:id/freight_traffic` - shared across tabs the same way the
 Rails-rendered Commerce page reuses this endpoint for its From/To display,
 regardless of which tab is active.
 -}
@@ -158,10 +157,3 @@ systemInfoDecoder =
         |> required "uwp" (Decode.nullable Decode.string)
         |> required "trade_codes" (Decode.list Decode.string)
         |> required "travel_zone" (Decode.nullable Decode.string)
-
-
-{-| Query params for `GET api/freight_traffic/system`.
--}
-systemQuery : { id : Int } -> List Url.Builder.QueryParameter
-systemQuery { id } =
-    [ Url.Builder.int "id" id ]

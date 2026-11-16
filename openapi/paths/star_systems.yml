@@ -117,6 +117,167 @@
             schema: { $ref: '#/components/schemas/Error' }
             example: { error: 'star system not found' }
       '422': { $ref: '#/components/responses/ValidationErrors' }
+/star_systems/{id}/passenger_traffic:
+  get:
+    operationId: getStarSystemPassengerTraffic
+    tags: [Star systems]
+    summary: Passenger DMs for one system
+    description: A system's UWP and the DMs it contributes to passenger traffic. Requires authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/freight_traffic:
+  get:
+    operationId: getStarSystemFreightTraffic
+    tags: [Star systems]
+    summary: Freight DMs for one system
+    description: Requires authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/mail_traffic:
+  get:
+    operationId: getStarSystemMailTraffic
+    tags: [Star systems]
+    summary: Mail DMs for one system
+    description: Requires authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/trade_goods/availability:
+  get:
+    operationId: getStarSystemTradeGoodsAvailability
+    tags: [Star systems]
+    summary: Goods available for purchase
+    description: |
+      Rolls the goods on offer at a system. Keep the returned `seed` and send
+      it back to get the same list again; omit it to roll a new one. Requires
+      authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - name: seed
+        in: query
+        description: Seed from an earlier response, to repeat that roll.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: The available goods.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [system, seed, goods]
+              properties:
+                system: { $ref: '#/components/schemas/SystemRef' }
+                trade_codes:
+                  type: array
+                  items: { type: string }
+                population: { type: [integer, 'null'] }
+                seed: { type: integer }
+                goods:
+                  type: array
+                  items: { type: object, additionalProperties: true }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/trade_goods/prices:
+  get:
+    operationId: getStarSystemTradeGoodsPrices
+    tags: [Star systems]
+    summary: Purchase or sale prices
+    description: |
+      Rolls the price of each requested good, or of every priceable good if
+      `d66s` is omitted. Requires authentication.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+      - name: direction
+        in: query
+        description: Whether the goods are being bought or sold.
+        schema: { type: string, enum: [purchase, sale] }
+      - { name: skill_effect, in: query, description: Skill Effect of the roll., schema: { type: integer, default: 0 } }
+      - { name: counterpart_broker_skill, in: query, description: The other party's Broker skill., schema: { type: integer, default: 2 } }
+      - { name: other_dm, in: query, description: Any other DM., schema: { type: integer, default: 0 } }
+      - { name: use_broker, in: query, description: Whether a local broker is used., schema: { type: boolean } }
+      - { name: broker_level, in: query, description: Broker skill level. Defaults to the campaign's setting., schema: { type: integer } }
+      - { name: broker_fee_percentage, in: query, description: Broker fee. Defaults to the campaign's setting., schema: { type: number } }
+      - name: d66s[]
+        in: query
+        description: D66 codes of the goods to price.
+        style: form
+        explode: true
+        schema: { type: array, items: { $ref: '#/components/schemas/D66' } }
+    responses:
+      '200':
+        description: The prices.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [system, results]
+              properties:
+                system: { $ref: '#/components/schemas/SystemRef' }
+                direction: { type: [string, 'null'] }
+                skill_effect: { type: integer }
+                counterpart_broker_skill: { type: integer }
+                other_dm: { type: integer }
+                use_broker: { type: [boolean, 'null'] }
+                broker_level: { type: [integer, 'null'] }
+                broker_fee_percentage: { type: [number, 'null'] }
+                results:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      d66: { $ref: '#/components/schemas/D66' }
+                      name: { type: string }
+                      modifiers: { description: The modifiers applied. }
+                      result:
+                        type: object
+                        properties:
+                          base_price: { type: [number, 'null'] }
+                          percent: { type: [number, 'null'] }
+                          price_per_ton: { type: [number, 'null'] }
+                          net_price_per_ton: { type: [number, 'null'] }
+                          fee_percentage: { type: [number, 'null'] }
+                          qualifying_roll: { $ref: '#/components/schemas/Roll' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+      '422':
+        description: A parameter is invalid, such as an unknown `direction` or good.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'direction must be :purchase or :sale' }
 /star_systems/{id}/ship_traffic:
   get:
     operationId: getStarSystemShipTraffic

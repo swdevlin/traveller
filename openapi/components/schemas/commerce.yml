@@ -86,3 +86,10 @@ MailTraffic:
           oneOf:
             - { $ref: '#/components/schemas/Roll' }
             - { type: 'null' }
+D66:
+  type: integer
+  description: |
+    A D66 roll, always two digits: the first die (1-6) is the tens digit and
+    the second die (1-6) is the units digit, so 11 to 66 with no 0, 7, 8 or 9
+    in either place.
+  enum: [11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66]

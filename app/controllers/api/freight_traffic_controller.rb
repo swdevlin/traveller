@@ -9,7 +9,7 @@ class Api::FreightTrafficController < Api::BaseController
   # is selected.
   def system
     system = StarSystem.find_by(id: params[:id])
-    return render json: { error: 'id must reference a star system' }, status: :unprocessable_entity unless system
+    return render json: { error: 'star system not found' }, status: :not_found unless system
 
     dms = FreightTrafficDms.for(current_campaign)
     render json: {

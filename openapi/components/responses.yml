@@ -48,6 +48,12 @@ LimitedViewportRequired:
         too_large:
           summary: Bounding box too large
           value: { error: 'bounding box must be no larger than 16 columns by 20 rows' }
+StarSystemNotFound:
+  description: No star system has this id.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'star system not found' }
 StellarObjectNotFound:
   description: The object does not exist, is the wrong type, or is in a system the players have not discovered.
   content:
@@ -60,13 +66,6 @@ TwoSystemsRequired:
     application/json:
       schema: { $ref: '#/components/schemas/Error' }
       example: { error: 'from_id and to_id must reference two different star systems' }
-SystemRequired:
-  description: '`id` must reference a star system.'
-  content:
-    application/json:
-      schema: { $ref: '#/components/schemas/Error' }
-
-      example: { error: 'id must reference a star system' }
 ShipNotFound:
   description: No ship has this id.
   content:
