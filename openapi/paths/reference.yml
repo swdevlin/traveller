@@ -4,6 +4,9 @@
     operationId: listTravelZones
     tags: [Reference]
     summary: List travel zones
+    description: >
+      Traveller defines two travel zones: amber and red. MTU supports adding
+      further travel zones.
     responses:
       '200':
         description: Travel zones.
