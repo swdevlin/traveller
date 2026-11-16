@@ -47,11 +47,58 @@ info:
     "Test Request" button on this page work without a token. External tools
     should use the token.)
 
+    ## Universal coordinates
+
+    Every parsec (hex) in the universe has a unique integer `(x, y)` position,
+    its *universal coordinate*. They are independent of any one sector, so a
+    position identifies a hex without needing a sector or a hex code.
+
+    - `x` increases to the right on a map.
+    - `y` increases towards the top of the map. Hex rows count *down* the
+      page, so `y` falls as the row number rises.
+    - Sectors have their own coordinates `(sx, sy)`, with the sector at
+      `(0, 0)` as the origin. A sector is 32 parsecs wide and 40 tall, and
+      the sector's upper-left hex (`0101`) is its origin.
+
+    A sector's upper-left hex is at `(sx * 32, sy * 40)`. For a hex with
+    sector-relative address `HHRR` (column `hx` = `HH`, row `hy` = `RR`, both
+    counted from 1):
+
+    ```
+    x = sx * 32 + (hx - 1)
+    y = sy * 40 - (hy - 1)
+    ```
+
+    and back again:
+
+    ```
+    hx = x - sx * 32 + 1
+    hy = sy * 40 - y + 1
+    ```
+
+    A sector therefore covers `x` from `sx * 32` to `sx * 32 + 31`, and `y`
+    from `sy * 40 - 39` to `sy * 40`. To find the sector containing a
+    coordinate, use `sx = floor(x / 32)` and `sy = ceil(y / 40)`. Take care
+    with negative values: round towards negative infinity for `floor` and
+    towards positive infinity for `ceil`, not towards zero.
+
+    Worked example: the Spinward Marches is sector `(-4, -1)`. Its hex `1910`
+    has `hx = 19` and `hy = 10`, so `x = -4 * 32 + 18 = -110` and
+    `y = -1 * 40 - 9 = -49`. The sector's upper-left hex `0101` is `(-128, -40)`
+    and its lower-right hex `3240` is `(-97, -79)`.
+
+    The star system fields `origin_x` and `origin_y`, a parsec's `x` and `y`,
+    and the `x` and `y` parameters of lookups are all universal coordinates.
+    The `x` and `y` of a *sector* are the sector coordinates `(sx, sy)`
+    described above.
+
     ## Viewports
 
     Endpoints that return map data for a region take either a sector
     (`sx`, `sy`) or a bounding box in universal coordinates
-    (`ulx`, `uly`, `lrx`, `lry`). If neither is supplied they return `400`.
+    (`ulx`, `uly`, `lrx`, `lry`). The box is inclusive: `ulx`/`uly` is the
+    upper-left hex (smallest `x`, largest `y`) and `lrx`/`lry` the lower-right
+    hex (largest `x`, smallest `y`). If neither is supplied they return `400`.
 
     ## Errors
 

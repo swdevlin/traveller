@@ -5,8 +5,16 @@
     tags: [Sectors]
     summary: List sectors
     description: |
-      Returns every sector in the campaign with its subsectors. `tags` are
-      empty unless the request has referee access.
+      Returns every sector in the campaign with its subsectors. Sectors and
+      subsectors both carry notes, as Markdown:
+
+      - `survey_records` is returned to everyone.
+      - `classified_records` and `tags` are for the referee only. Without
+        referee access `tags` is empty and the `classified_records` key is
+        omitted, so its existence is not revealed.
+
+      Referee access means the campaign's API token, or a session signed in
+      as the campaign's owner. The `*_html` renders are not included.
     responses:
       '200':
         description: The campaign's sectors.
@@ -15,6 +23,28 @@
             schema:
               type: array
               items: { $ref: '#/components/schemas/Sector' }
+            example:
+              - id: 1
+                name: Spinward Marches
+                x: -4
+                y: -1
+                abbreviation: Spin
+                tags: [core]
+                survey_records: Surveyed by the Imperial Scout Service.
+                classified_records: Referee only. Omitted for players.
+                subsectors:
+                  - x: 1
+                    y: 1
+                    name: Cronor
+                    tags: []
+                    survey_records: Home to the Cronor trade guilds.
+                    classified_records: Referee only. Omitted for players.
+                  - x: 2
+                    y: 1
+                    name: Jewell
+                    tags: []
+                    survey_records: null
+                    classified_records: null
       '404': { $ref: '#/components/responses/CampaignNotFound' }
 /subsectors/{id}:
   get:
@@ -41,17 +71,20 @@
     operationId: getSubsectorAt
     tags: [Sectors]
     summary: Find the subsector at a coordinate
-    description: Returns the campaign path of the subsector containing a parsec.
+    description: |
+      Returns the campaign path of the subsector containing a parsec. `x` and
+      `y` are the parsec's universal coordinates, not sector or subsector
+      coordinates.
     parameters:
       - name: x
         in: query
         required: true
-        description: Universal x coordinate.
+        description: Universal x coordinate of the parsec.
         schema: { type: integer }
       - name: y
         in: query
         required: true
-        description: Universal y coordinate.
+        description: Universal y coordinate of the parsec.
         schema: { type: integer }
     responses:
       '200':
@@ -66,7 +99,7 @@
                   type: string
                   examples: [/c/my-campaign/subsectors/42]
       '404':
-        description: There is no subsector at this coordinate.
+        description: There is no parsec at this coordinate, so no subsector.
         content:
           application/json:
             schema: { $ref: '#/components/schemas/Error' }
@@ -101,24 +134,17 @@
       empty. `hx` and `hy` are the hex's column and row within the sector (1-32
       and 1-40). Details of the system that the players have not discovered are
       withheld, as for `GET /star_systems/{id}`.
-
-      The response has an `ETag`. Send it back as `If-None-Match` to get `304`
-      with no body while the hex and its system are unchanged.
     parameters:
       - { name: sx, in: query, required: true, description: Sector x., schema: { type: integer } }
       - { name: sy, in: query, required: true, description: Sector y., schema: { type: integer } }
       - { name: hx, in: query, required: true, description: Hex column within the sector., schema: { type: integer } }
       - { name: hy, in: query, required: true, description: Hex row within the sector., schema: { type: integer } }
-      - { $ref: '#/components/parameters/IfNoneMatch' }
     responses:
       '200':
         description: The hex's parsec and, if it has one, its star system.
-        headers:
-          ETag: { description: Identifies this version of the response, when the hex has a star system., schema: { type: string } }
         content:
           application/json:
             schema: { $ref: '#/components/schemas/Parsec' }
-      '304': { $ref: '#/components/responses/NotModified' }
       '400':
         description: One of `sx`, `sy`, `hx`, `hy` is missing.
         content:

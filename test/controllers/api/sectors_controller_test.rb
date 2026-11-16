@@ -30,6 +30,45 @@ class Api::SectorsControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['subsector-tag'], body['subsectors'].first['tags']
   end
 
+  test 'index includes survey and classified records for the referee' do
+    sector = create_sector_with_subsectors(x: 105, y: 1, subsector_count: 1)
+    sector.update!(player_notes: 'Sector **survey**', referee_notes: 'Sector secret')
+    sector.subsectors.first.update!(player_notes: 'Sub survey', referee_notes: 'Sub secret')
+
+    get api_sectors_url(campaign_slug: @campaign.slug), as: :json
+    body = response.parsed_body.find { |s| s['id'] == sector.id }
+
+    assert_equal 'Sector **survey**', body['survey_records']
+    assert_not body.key?('survey_records_html')
+    assert_not body.key?('classified_records_html')
+    assert_equal 'Sector secret', body['classified_records']
+    assert_equal 'Sub survey', body['subsectors'].first['survey_records']
+    assert_equal 'Sub secret', body['subsectors'].first['classified_records']
+  end
+
+  test 'index withholds classified records and tags from a non-referee' do
+    sector = create_sector_with_subsectors(x: 106, y: 1, subsector_count: 1)
+    sector.update!(player_notes: 'Sector survey', referee_notes: 'Sector secret')
+    sector.subsectors.first.update!(player_notes: 'Sub survey', referee_notes: 'Sub secret')
+
+    sign_in_as users(:two)
+    get api_sectors_url(campaign_slug: @campaign.slug), as: :json
+    assert_response :success
+    body = response.parsed_body.find { |s| s['id'] == sector.id }
+    sub = body['subsectors'].first
+
+    assert_equal 'Sector survey', body['survey_records']
+    assert_equal 'Sub survey', sub['survey_records']
+    assert_equal [], body['tags']
+    assert_equal [], sub['tags']
+    [body, sub].each do |record|
+      assert_not record.key?('classified_records')
+      assert_not record.key?('survey_records_html')
+      assert_not record.key?('classified_records_html')
+    end
+    assert_not_includes response.body, 'secret'
+  end
+
   test 'does not issue a query per sector or per subsector' do
     create_sector_with_subsectors(x: 102, y: 1, subsector_count: 1)
 

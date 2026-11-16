@@ -82,7 +82,7 @@ Sy:
 Ulx:
   name: ulx
   in: query
-  description: Bounding box upper-left x (universal coordinates).
+  description: Bounding box upper-left x (a universal coordinate; see Universal coordinates above).
   schema: { type: integer }
 Uly:
   name: uly

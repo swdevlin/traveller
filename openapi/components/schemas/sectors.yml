@@ -2,6 +2,10 @@
 Sector:
   type: object
   required: [id, name, x, y, abbreviation, tags, subsectors]
+  allOf:
+    - $ref: '#/components/schemas/Records'
+    - type: object
+      description: The `*_html` renders are not included in this response.
   properties:
     id: { type: integer }
     name: { type: [string, 'null'] }
@@ -15,6 +19,10 @@ Sector:
 SubsectorSummary:
   type: object
   required: [x, y, name, tags]
+  allOf:
+    - $ref: '#/components/schemas/Records'
+    - type: object
+      description: The `*_html` renders are not included in this response.
   properties:
     x: { type: integer }
     y: { type: integer }
