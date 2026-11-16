@@ -49,7 +49,7 @@
 /subsectors/{id}:
   get:
     operationId: getSubsector
-    tags: [Sectors]
+    tags: [Subsectors]
     summary: Get a subsector
     description: A subsector with its parent sector and a summary of each star system in it.
     parameters:
@@ -69,7 +69,7 @@
 /subsector_at:
   get:
     operationId: getSubsectorAt
-    tags: [Sectors]
+    tags: [Subsectors]
     summary: Find the subsector at a coordinate
     description: |
       Returns the campaign path of the subsector containing a parsec. `x` and

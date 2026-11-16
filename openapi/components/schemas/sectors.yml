@@ -40,13 +40,10 @@ Subsector:
     tags: { $ref: '#/components/schemas/Tags' }
     sector:
       type: object
-      required: [id, name, x, y, tags]
+      required: [id, name]
       properties:
         id: { type: integer }
         name: { type: [string, 'null'] }
-        x: { type: [integer, 'null'] }
-        y: { type: [integer, 'null'] }
-        tags: { $ref: '#/components/schemas/Tags' }
     star_systems:
       type: array
       items: { $ref: '#/components/schemas/StarSystemListItem' }

@@ -127,13 +127,15 @@ tags:
   - name: Search
     description: Searching universe data and rulebooks.
   - name: Sectors
-    description: Sectors, subsectors and parsecs.
+    description: Sectors and parsecs.
   - name: Ships
     description: Ships, and where they have jumped.
   - name: Star systems
     description: Star systems and the stars within them.
   - name: Stellar objects
     description: Planets, belts, moons and other bodies, rogue or in-system.
+  - name: Subsectors
+    description: Subsectors and the star systems within them.
   - name: Survey overlays
     description: Referee-only rules that highlight systems on the map.
 security: []

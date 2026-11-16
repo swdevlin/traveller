@@ -6,11 +6,8 @@ json.y      @subsector.y
 json.letter ('A'.ord + (@subsector.y - 1) * 4 + (@subsector.x - 1)).chr
 
 json.sector do
-  json.tags Current.referee_access? ? @subsector.sector.tag_names : []
   json.id   @subsector.sector.id
   json.name @subsector.sector.name
-  json.x    @subsector.sector.x
-  json.y    @subsector.sector.y
 end
 
 json.star_systems @star_systems do |star_system|
