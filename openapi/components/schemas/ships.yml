@@ -1,0 +1,9 @@
+# Schemas: ships
+Ship:
+  type: object
+  required: [id, name, jump_drive, m_drive]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    jump_drive: { type: [integer, 'null'], description: The ship's jump rating. }
+    m_drive: { type: [integer, 'null'], description: The ship's manoeuvre drive rating, 0 to 10. }

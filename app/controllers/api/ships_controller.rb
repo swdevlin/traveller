@@ -2,12 +2,20 @@
 
 class Api::ShipsController < Api::BaseController
   def index
-    ships = Ship.order(:name).map { |s| { id: s.id, name: s.name, jump_drive: s.jump_drive } }
-    render json: ships
+    render json: Ship.order(:name).map { |ship| ship_json(ship) }
+  end
+
+  def show
+    ship = Ship.find_by(id: params[:id])
+    return render json: { error: 'ship not found' }, status: :not_found unless ship
+
+    render json: ship_json(ship)
   end
 
   def last_jump
-    ship = Ship.find(params[:id])
+    ship = Ship.find_by(id: params[:id])
+    return render json: { error: 'ship not found' }, status: :not_found unless ship
+
     last = JumpLog.includes(to_parsec: :sector)
                   .where(ship_id: ship.id)
                   .order(sequence: :desc, id: :desc)
@@ -23,5 +31,11 @@ class Api::ShipsController < Api::BaseController
     else
       render json: nil
     end
+  end
+
+  private
+
+  def ship_json(ship)
+    { id: ship.id, name: ship.name, jump_drive: ship.jump_drive, m_drive: ship.m_drive }
   end
 end

@@ -66,7 +66,7 @@ Rails.application.routes.draw do
       post 'jumps',       to: 'jump_logs#create', defaults: { format: :json }
       patch 'jumps/:id',  to: 'jump_logs#update', as: :jump, defaults: { format: :json }
       delete 'jumps/:id', to: 'jump_logs#destroy', defaults: { format: :json }
-      resources :ships, only: :index, defaults: { format: :json } do
+      resources :ships, only: %i[index show], defaults: { format: :json } do
         member do
           get :last_jump
         end

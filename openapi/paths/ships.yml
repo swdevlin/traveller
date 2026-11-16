@@ -1,0 +1,52 @@
+# Paths: Ships
+/ships:
+  get:
+    operationId: listShips
+    tags: [Ships]
+    summary: List ships
+    responses:
+      '200':
+        description: Ships, ordered by name.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Ship' }
+/ships/{id}:
+  get:
+    operationId: getShip
+    tags: [Ships]
+    summary: Get a ship
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The ship.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Ship' }
+      '404': { $ref: '#/components/responses/ShipNotFound' }
+/ships/{id}/last_jump:
+  get:
+    operationId: getShipLastJump
+    tags: [Ships]
+    summary: A ship's most recent jump
+    description: Where the ship last arrived. The body is `null` if the ship has not jumped.
+    parameters:
+      - { $ref: '#/components/parameters/Id' }
+    responses:
+      '200':
+        description: The last jump, or `null`.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [parsec_id, sector_id, arrive_year, arrive_day]
+                  properties:
+                    parsec_id: { type: integer }
+                    sector_id: { type: integer }
+                    arrive_year: { type: [integer, 'null'] }
+                    arrive_day: { type: [integer, 'null'] }
+                - { type: 'null' }
+      '404': { $ref: '#/components/responses/ShipNotFound' }

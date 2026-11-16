@@ -67,3 +67,9 @@ SystemRequired:
       schema: { $ref: '#/components/schemas/Error' }
 
       example: { error: 'id must reference a star system' }
+ShipNotFound:
+  description: No ship has this id.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'ship not found' }
