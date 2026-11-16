@@ -1,0 +1,165 @@
+# Reusable parameters
+IfNoneMatch:
+  name: If-None-Match
+  in: header
+  description: |
+    The `ETag` of a copy you already have. If it is still current the response
+    is `304` with no body. The `ETag` depends on who is asking, so it is only
+    valid for the same credentials.
+  schema: { type: string }
+JumpRouteId:
+  name: id
+  in: path
+  required: true
+  description: The jump route's id.
+  schema: { type: integer }
+ShipId:
+  name: id
+  in: path
+  required: true
+  description: The ship's id.
+  schema: { type: integer }
+StarSystemId:
+  name: id
+  in: path
+  required: true
+  description: The star system's id.
+  schema: { type: integer }
+StarId:
+  name: id
+  in: path
+  required: true
+  description: The star's id.
+  schema: { type: integer }
+StellarObjectId:
+  name: id
+  in: path
+  required: true
+  description: The stellar object's id.
+  schema: { type: integer }
+SurveyOverlayId:
+  name: id
+  in: path
+  required: true
+  description: The survey overlay's id.
+  schema: { type: integer }
+SubsectorId:
+  name: id
+  in: path
+  required: true
+  description: The subsector's id.
+  schema: { type: integer }
+ParsecId:
+  name: id
+  in: path
+  required: true
+  description: The parsec's id.
+  schema: { type: integer }
+JumpId:
+  name: id
+  in: path
+  required: true
+  description: The jump's id.
+  schema: { type: integer }
+FromId:
+  name: from_id
+  in: query
+  required: true
+  description: Origin star system id.
+  schema: { type: integer }
+ToId:
+  name: to_id
+  in: query
+  required: true
+  description: Destination star system id. Must differ from `from_id`.
+  schema: { type: integer }
+BrokerEffect:
+  name: broker_effect
+  in: query
+  description: Effect of the Broker check, applied as a DM.
+  schema: { type: integer, default: 0 }
+RefereeModifier:
+  name: referee_modifier
+  in: query
+  description: Any extra DM the referee applies to the check.
+  schema: { type: integer, default: 0 }
+Query:
+  name: q
+  in: query
+  required: true
+  description: The text to search for.
+  schema: { type: string }
+Page:
+  name: page
+  in: query
+  description: Page number, starting at 1.
+  schema: { type: integer, minimum: 1, default: 1 }
+SignificantOnlyMoons:
+  name: significant_only
+  in: query
+  description: |
+    When `true`, list only significant moons. A moon is significant unless
+    its `size_code` is `0` (negligible) or `S` (about 600 km across). Rings
+    are always significant. Accepts `true`, `false`, `1` or `0`; any other
+    value is rejected with a 400.
+  schema: { type: boolean, default: false }
+SignificantOnlyPlanetoids:
+  name: significant_only
+  in: query
+  description: |
+    When `true`, list only significant planetoids. A planetoid is
+    significant unless its `size_code` is `0` (negligible) or `S` (about
+    600 km across). Accepts `true`, `false`, `1` or `0`; any other value is
+    rejected with a 400.
+  schema: { type: boolean, default: false }
+OrbitMapTheme:
+  name: theme
+  in: query
+  description: The colour theme to draw with.
+  schema: { type: string }
+OrbitMapDownload:
+  name: download
+  in: query
+  description: If present, the response is sent as a download rather than inline.
+  allowEmptyValue: true
+  schema: { type: string }
+Sx:
+  name: sx
+  in: query
+  description: Sector x.
+  schema: { type: integer }
+Sy:
+  name: sy
+  in: query
+  description: Sector y.
+  schema: { type: integer }
+Hx:
+  name: hx
+  in: query
+  description: Hex column within the sector, 1 to 32. Use with `hy`, `sx` and `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  schema: { type: integer }
+Hy:
+  name: hy
+  in: query
+  description: Hex row within the sector, 1 to 40. Use with `hx`, `sx` and `sy`. See [sector and hex parameters](#description/sector-and-hex-parameters).
+  schema: { type: integer }
+Ulx:
+  name: ulx
+  in: query
+  description: Bounding box upper-left x (a [universal coordinate](#description/universal-coordinates)).
+  schema: { type: integer }
+Uly:
+  name: uly
+  in: query
+  description: Bounding box upper-left y.
+  schema: { type: integer }
+Lrx:
+  name: lrx
+  in: query
+  description: Bounding box lower-right x.
+  schema: { type: integer }
+Lry:
+  name: lry
+  in: query
+  description: Bounding box lower-right y.
+  schema: { type: integer }

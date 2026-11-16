@@ -1,0 +1,244 @@
+# Schemas: star systems
+Records:
+  type: object
+  description: |
+    Survey records are visible to everyone once the players know the
+    object. Classified records, and the `classified_records*` keys
+    themselves, appear only for the referee.
+  properties:
+    tags: { $ref: '#/components/schemas/Tags' }
+    survey_records: { type: [string, 'null'], description: Survey records in Markdown. }
+    survey_records_html: { type: [string, 'null'], description: Survey records rendered to sanitised HTML. }
+    classified_records: { type: [string, 'null'], description: Referee only. Markdown. }
+    classified_records_html: { type: [string, 'null'], description: Referee only. Sanitised HTML. }
+StarSystemSummary:
+  type: object
+  description: The fields every star system listing carries.
+  properties:
+    id: { type: integer }
+    name: { type: string, description: Empty if the system is unnamed. }
+    tags: { $ref: '#/components/schemas/Tags' }
+    filter_tags: { $ref: '#/components/schemas/Tags' }
+    survey_index: { type: [integer, 'null'] }
+    gas_giant_count: { type: [integer, 'null'] }
+    terrestrial_count: { type: [integer, 'null'] }
+    belt_count: { type: [integer, 'null'] }
+    sector_id: { type: integer }
+    sector_x: { type: [integer, 'null'] }
+    sector_y: { type: [integer, 'null'] }
+    sector_name: { type: [string, 'null'] }
+    subsector_id: { type: [integer, 'null'] }
+    x: { type: integer, description: Hex column within the sector. }
+    y: { type: integer, description: Hex row within the sector. }
+    origin_x: { type: integer, description: 'X [universal coordinate](#description/universal-coordinates).' }
+    origin_y: { type: integer, description: 'Y [universal coordinate](#description/universal-coordinates).' }
+    scan_points: { type: integer }
+    allegiance: { type: [string, 'null'], description: Allegiance code. }
+    allegiance_name: { type: [string, 'null'] }
+    native_sophont: { type: [boolean, 'null'] }
+    extinct_sophont: { type: [boolean, 'null'] }
+    star_count: { type: integer }
+    bases:
+      type: [string, 'null']
+      description: Base codes, concatenated.
+    remarks:
+      type: [string, 'null']
+      description: Trade codes, space separated.
+StarSystemListItem:
+  allOf:
+    - { $ref: '#/components/schemas/StarSystemSummary' }
+    - type: object
+      properties:
+        hex:
+          type: string
+          description: Hex within the subsector. Present in a subsector's listing.
+        main_world:
+          oneOf:
+            - type: object
+              properties:
+                name: { type: [string, 'null'] }
+                uwp: { type: [string, 'null'] }
+            - { type: 'null' }
+        primary_star:
+          oneOf:
+            - { $ref: '#/components/schemas/StarSummary' }
+            - { type: 'null' }
+StarSummary:
+  type: object
+  properties:
+    colour: { type: [string, 'null'] }
+    stellar_class: { type: [string, 'null'] }
+    stellar_type: { type: [string, 'null'] }
+    stellar_subtype: { type: [integer, string, 'null'] }
+    luminosity: { type: [number, 'null'] }
+StarSystemDetail:
+  description: |
+    A star system with its main world and stars. If the players do not yet
+    know the system, the `known`-gated fields are empty.
+  allOf:
+    - type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        tags: { $ref: '#/components/schemas/Tags' }
+        filter_tags: { $ref: '#/components/schemas/Tags' }
+        survey_index: { type: [integer, 'null'] }
+        gas_giant_count: { type: [integer, 'null'] }
+        terrestrial_count: { type: [integer, 'null'] }
+        belt_count: { type: [integer, 'null'] }
+        sector_id: { type: integer }
+        sector_x: { type: [integer, 'null'] }
+        sector_y: { type: [integer, 'null'] }
+        sector_name: { type: [string, 'null'] }
+        subsector_id: { type: [integer, 'null'] }
+        x: { type: integer }
+        y: { type: integer }
+        origin_x: { type: integer }
+        origin_y: { type: integer }
+        scan_points: { type: integer }
+        allegiance: { type: [string, 'null'] }
+        allegiance_name: { type: [string, 'null'] }
+        native_sophont: { type: [boolean, 'null'] }
+        extinct_sophont: { type: [boolean, 'null'] }
+        star_count: { type: integer }
+        remarks: { type: [string, 'null'] }
+        known: { type: boolean }
+        map_url: { type: string, description: A signed URL for the system map image. }
+        contained_tags: { $ref: '#/components/schemas/Tags' }
+        reference_url: { type: [string, 'null'] }
+        bases:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string }
+              name: { type: string }
+              icon_class: { type: [string, 'null'] }
+        trade_codes:
+          type: array
+          items: { type: string }
+        main_world:
+          oneOf:
+            - type: object
+              additionalProperties: true
+              description: The main world's key facts; see the stellar object for the rest.
+              properties:
+                name: { type: [string, 'null'] }
+                uwp: { type: [string, 'null'] }
+                gravity: { type: [number, 'null'] }
+                temperature: { type: [number, string, 'null'] }
+                native_sophont: { type: boolean }
+                extinct_sophont: { type: boolean }
+                census_population: { type: [integer, 'null'] }
+                jump_shadow: { type: [number, 'null'] }
+                berthing_cost: { type: [number, 'null'] }
+                refined_fuel_cost: { type: [number, 'null'] }
+                unrefined_fuel_cost: { type: [number, 'null'] }
+            - { type: 'null' }
+        primary_star:
+          oneOf:
+            - { $ref: '#/components/schemas/StarBody' }
+            - { type: 'null' }
+    - { $ref: '#/components/schemas/Records' }
+StarBody:
+  type: object
+  additionalProperties: true
+  description: |
+    A star, its companion, and everything orbiting it. Bodies in
+    `stellar_objects` are listed in orbit order and may be stars,
+    planets, belts or other objects; each carries the fields of a
+    stellar object plus its moons and rings.
+  properties:
+    colour: { type: [string, 'null'] }
+    stellar_class: { type: [string, 'null'] }
+    stellar_type: { type: [string, 'null'] }
+    stellar_subtype: { type: [integer, string, 'null'] }
+    luminosity: { type: [number, 'null'] }
+    hzco: { type: [number, 'null'], description: Habitable zone centre orbit. }
+    minimum_allowable_orbit: { type: [number, 'null'] }
+    jump_shadow: { type: [number, 'null'] }
+    is_protostar: { type: [boolean, 'null'] }
+    temperature: { type: [number, 'null'] }
+    age: { type: [number, 'null'] }
+    period: { type: [number, 'null'] }
+    diameter: { type: [number, 'null'] }
+    mass: { type: [number, 'null'] }
+    au: { type: number }
+    orbit: { type: number }
+    orbit_sequence: { type: string }
+    eccentricity: { type: number }
+    inclination: { type: number }
+    effective_hzco_deviation: { type: number }
+    orbit_position:
+      type: object
+      properties:
+        x: { type: number }
+        y: { type: number }
+    periapsis: { type: [number, 'null'] }
+    apoapsis: { type: [number, 'null'] }
+    orbit_type: { type: integer, description: 0 for a primary star, 1 for one that orbits another. }
+    safe_jump_time: { type: [string, 'null'], description: 'Time to reach a safe jump distance, such as `2d 1w`.' }
+    companion:
+      oneOf:
+        - { $ref: '#/components/schemas/StarBody' }
+        - { type: 'null' }
+    stellar_objects:
+      type: array
+      items: { type: object, additionalProperties: true }
+StarMapSystem:
+  type: object
+  additionalProperties: true
+  description: |
+    A star system with the fields needed to plot it on a map, including
+    discovery-gated fields (`wtn`, `gwp`, `importance`, `trade_codes`, `bases`,
+    `government_*`, `strategic`), which are empty for systems the players do
+    not know.
+  properties:
+    id: { type: integer }
+    name: { type: string }
+    known: { type: boolean }
+    survey_index: { type: [integer, 'null'] }
+    gas_giant_count: { type: [integer, 'null'] }
+    terrestrial_count: { type: [integer, 'null'] }
+    belt_count: { type: [integer, 'null'] }
+    sector_x: { type: [integer, 'null'] }
+    sector_y: { type: [integer, 'null'] }
+    sector_name: { type: [string, 'null'] }
+    x: { type: integer }
+    y: { type: integer }
+    origin_x: { type: integer }
+    origin_y: { type: integer }
+    allegiance: { type: [string, 'null'] }
+    native_sophont: { type: boolean }
+    extinct_sophont: { type: boolean }
+    star_count: { type: integer }
+    tech_level: { type: [integer, 'null'] }
+    main_world_uwp: { type: [string, 'null'] }
+    travel_zone:
+      oneOf:
+        - type: object
+          properties:
+            code: { type: string }
+            colour: { type: [string, 'null'] }
+        - { type: 'null' }
+    stars:
+      type: array
+      items:
+        type: object
+        properties:
+          colour: { type: [string, 'null'] }
+          stellar_class: { type: [string, 'null'] }
+          stellar_type: { type: [string, 'null'] }
+          stellar_subtype: { type: [integer, string, 'null'] }
+          luminosity: { type: [number, 'null'] }
+          diameter: { type: [number, 'null'] }
+          hzco: { type: [number, 'null'] }
+          au: { type: number }
+          companion: { type: [object, 'null'], additionalProperties: true }
+StarSystemMatch:
+  type: object
+  required: [id, name, meta]
+  properties:
+    id: { type: integer }
+    name: { type: string, description: The system's name, or its sector and hex if it has none. }
+    meta: { type: string, description: 'Sector name and hex, such as "Spinward Marches · 1910".' }

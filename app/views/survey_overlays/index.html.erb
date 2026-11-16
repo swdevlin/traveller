@@ -25,7 +25,7 @@
         </thead>
 
         <tbody>
-        <% @survey_overlays.each do |survey_overlay| %>
+        <% @survey_overlays.each_with_index do |survey_overlay, index| %>
           <tr class='cursor-pointer'
               data-controller='row-link'
               data-row-link-url-value='<%= survey_overlay_path(survey_overlay) %>'
@@ -48,11 +48,15 @@
 
             <td class='actions-cell'>
               <div class='action-group'>
-                <%= button_to move_up_survey_overlay_path(survey_overlay), method: :patch, class: 'action', title: 'Move up' do %>
+                <%= button_to survey_overlay_path(survey_overlay), method: :patch,
+                              params: { survey_overlay: { position: [index, 1].max } },
+                              class: 'action', title: 'Move up' do %>
                   <i class='fa-regular fa-chevron-up'></i>
                 <% end %>
 
-                <%= button_to move_down_survey_overlay_path(survey_overlay), method: :patch, class: 'action', title: 'Move down' do %>
+                <%= button_to survey_overlay_path(survey_overlay), method: :patch,
+                              params: { survey_overlay: { position: [index + 2, @survey_overlays.size].min } },
+                              class: 'action', title: 'Move down' do %>
                   <i class='fa-regular fa-chevron-down'></i>
                 <% end %>
 

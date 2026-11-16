@@ -88,6 +88,21 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'Significant Moon', body['moons'].first['name']
   end
 
+  test 'significant_only=false does not filter moons' do
+    @gas_giant.star_system.update!(known: true)
+
+    get api_stellar_object_moons_url(@gas_giant, significant_only: 'false'), as: :json
+
+    assert_response :success
+    assert_operator response.parsed_body['count'], :>, 1
+  end
+
+  test 'significant_only rejects values that are not boolean' do
+    get api_stellar_object_moons_url(@gas_giant, significant_only: 'betty'), as: :json
+
+    assert_response :bad_request
+  end
+
   test 'returns 404 for a stellar object that does not exist' do
     get api_stellar_object_moons_url(999_999), as: :json
 

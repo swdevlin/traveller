@@ -1,0 +1,226 @@
+# Paths: Routes
+/jump_routes:
+  get:
+    operationId: listJumpRoutes
+    tags: [Routes]
+    summary: List jump routes
+    description: |
+      Players see only routes marked known, and no notes. The referee sees
+      every route with its notes.
+    responses:
+      '200':
+        description: Jump routes.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/JumpRoute' }
+/jump_routes/{id}:
+  patch:
+    operationId: updateJumpRoute
+    tags: [Routes]
+    summary: Update a jump route
+    description: |
+      The caller must be the owner of the campaign. Plotted routes cannot be changed through the
+      API; they are edited on the website.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/JumpRouteId' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              colour: { type: string }
+              line_style: { type: string }
+              line_width: { type: integer }
+              known: { type: boolean }
+              notes: { type: string }
+    responses:
+      '200':
+        description: The updated route.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JumpRoute' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422':
+        description: The route is plotted, or the values are invalid.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - { $ref: '#/components/schemas/Error' }
+                - { $ref: '#/components/schemas/ValidationErrors' }
+            example: { error: 'Plotted routes must be edited from the jump route page.' }
+  delete:
+    operationId: deleteJumpRoute
+    tags: [Routes]
+    summary: Delete a jump route
+    description: The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/JumpRouteId' }
+    responses:
+      '204':
+        description: The route was deleted.
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+/jump_route_links:
+  get:
+    operationId: listJumpRouteLinks
+    tags: [Routes]
+    summary: List route links in a viewport
+    description: |
+      The individual links between systems that make up routes, with the
+      styling to draw them. A link is included if either of its systems is in
+      the selected area, so links that run out of the area are included.
+      Choose the area in one of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports).
+
+      Send one or the other, not both. Sending both, or neither, returns
+      `400`.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Route links touching the viewport.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/JumpRouteLink' }
+      '400':
+        description: Neither a sector nor a bounding box was supplied, or both were.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'exactly one of sector coordinates (sx, sy) or a bounding box (ulx, uly, lrx, lry) must be given' }
+/route_plan:
+  get:
+    operationId: planRoute
+    tags: [Routes]
+    summary: Plan a route between two systems
+    description: |
+      Finds a route and estimates its travel time. Players are restricted to
+      known systems; the referee can route through any.
+    parameters:
+      - { name: from_id, in: query, required: true, description: Origin star system id., schema: { type: integer } }
+      - { name: to_id, in: query, required: true, description: Destination star system id., schema: { type: integer } }
+      - name: jump_range
+        in: query
+        description: Jump rating of the ship.
+        schema: { type: integer, default: 2 }
+      - name: refueling
+        in: query
+        description: |
+          Which systems may be used as refuelling stops along the route. The
+          origin and destination are always eligible. If omitted, `any` is
+          used. An unrecognised value returns `422`.
+
+          | Value | Systems allowed |
+          | --- | --- |
+          | `any` | No restriction. Any system qualifies. |
+          | `commercial` | A starport of class A, B, C or D. Wilderness refuelling is excluded. |
+          | `refined` | A starport of class A or B, which sell refined fuel. |
+          | `wilderness` | A system with at least one gas giant, for gas giant skimming. |
+
+          For players, `commercial`, `refined` and `wilderness` also
+          require that the system is known.
+        schema: { type: string, enum: [any, commercial, refined, wilderness], default: any }
+      - name: excluded_travel_zone_ids
+        in: query
+        description: Travel zones to avoid, as a comma-separated list of IDs.
+        style: form
+        explode: false
+        schema: { type: array, items: { type: integer } }
+      - name: m_drive
+        in: query
+        description: Manoeuvre drive rating, 1 to 6.
+        schema: { type: integer, minimum: 1, maximum: 6, default: 1 }
+    responses:
+      '200':
+        description: The plan. `found` is false if no route exists.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoutePlan' }
+      '422':
+        description: The origin and destination are missing, unknown or identical, or `refueling` is not a recognised value.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            examples:
+              systems:
+                summary: Invalid origin or destination
+                value: { error: 'from_id and to_id must reference two different star systems' }
+              refueling:
+                summary: Invalid refuelling value
+                value: { error: 'refueling must be one of: any, commercial, refined, wilderness' }
+/route_plan/save:
+  post:
+    operationId: saveRoutePlan
+    tags: [Routes]
+    summary: Save a planned route
+    description: Stores the route as a plotted jump route. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [system_ids]
+            properties:
+              system_ids:
+                type: array
+                description: Star system ids in travel order.
+                items: { type: integer }
+              name: { type: string, default: Saved Route }
+              colour: { type: string, default: '#E87040' }
+              jump_range: { type: integer }
+              refueling:
+                type: string
+                enum: [any, commercial, refined, wilderness]
+                description: Refuelling restriction the route was planned with. See `refueling` on `/route_plan`.
+              excluded_travel_zone_ids:
+                type: array
+                items: { type: integer }
+              from_id: { type: integer }
+              to_id: { type: integer }
+              m_drive: { type: integer, minimum: 1, maximum: 6 }
+    responses:
+      '201':
+        description: The route was saved.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id, name, colour]
+              properties:
+                id: { type: integer }
+                name: { type: string }
+                colour: { type: string }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422':
+        description: There are fewer than two systems, or the values are invalid.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - { $ref: '#/components/schemas/Error' }
+                - { $ref: '#/components/schemas/ValidationErrors' }
+            example: { error: 'Nothing to save.' }

@@ -1,0 +1,7 @@
+# Security schemes
+bearerToken:
+  type: http
+  scheme: bearer
+  description: |
+    The campaign's API token, which the referee can copy from the campaign's
+    settings page. Send it as `Authorization: Bearer <token>`.

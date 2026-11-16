@@ -12,7 +12,7 @@
         <div class='space-y-6'>
           <%# From system %>
           <div data-controller='system-search'
-               data-system-search-search-url-value='<%= search_star_systems_path %>'
+               data-system-search-search-url-value='<%= api_star_systems_path %>'
                <% if tab_system_data_url %>data-system-search-system-data-url-value='<%= tab_system_data_url %>'<% end %>
                data-system-search-auto-submit-value='true'>
             <label class='edit-label'>From</label>
@@ -36,7 +36,7 @@
 
           <%# To system %>
           <div data-controller='system-search'
-               data-system-search-search-url-value='<%= search_star_systems_path %>'
+               data-system-search-search-url-value='<%= api_star_systems_path %>'
                <% if tab_system_data_url %>data-system-search-system-data-url-value='<%= tab_system_data_url %>'<% end %>
                data-system-search-auto-submit-value='true'>
             <label class='edit-label'>To</label>

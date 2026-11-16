@@ -1,0 +1,67 @@
+# Paths: Commerce
+/passenger_traffic:
+  get:
+    operationId: calculatePassengerTraffic
+    tags: [Commerce]
+    summary: Passenger traffic between two systems
+    description: Rolls the passengers available in each class. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/FromId' }
+      - { $ref: '#/components/parameters/ToId' }
+      - { $ref: '#/components/parameters/BrokerEffect' }
+      - { name: chief_steward_skill, in: query, description: 'Chief Steward skill level, applied as a DM.', schema: { type: integer, default: 0 } }
+      - { $ref: '#/components/parameters/RefereeModifier' }
+    responses:
+      '200':
+        description: The traffic roll.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PassengerTraffic' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/TwoSystemsRequired' }
+/freight_traffic:
+  get:
+    operationId: calculateFreightTraffic
+    tags: [Commerce]
+    summary: Freight traffic between two systems
+    description: Rolls the freight lots available. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/FromId' }
+      - { $ref: '#/components/parameters/ToId' }
+      - { $ref: '#/components/parameters/BrokerEffect' }
+      - { $ref: '#/components/parameters/RefereeModifier' }
+    responses:
+      '200':
+        description: The freight roll.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FreightTraffic' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/TwoSystemsRequired' }
+/mail_traffic:
+  get:
+    operationId: calculateMailTraffic
+    tags: [Commerce]
+    summary: Mail between two systems
+    description: Rolls the mail containers available. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/FromId' }
+      - { $ref: '#/components/parameters/ToId' }
+      - { name: ship_armed, in: query, description: Whether the ship is armed., schema: { type: boolean } }
+      - { name: naval_or_scout_rank, in: query, description: Naval or Scout service rank., schema: { type: integer, default: 0 } }
+      - { name: soc_dm, in: query, description: DM from Social Standing., schema: { type: integer, default: 0 } }
+      - { $ref: '#/components/parameters/RefereeModifier' }
+    responses:
+      '200':
+        description: The mail roll.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MailTraffic' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/TwoSystemsRequired' }

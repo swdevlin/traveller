@@ -98,8 +98,7 @@ export default class extends Controller {
 
   async #fetchSystemData(id) {
     try {
-      const url = new URL(this.systemDataUrlValue, window.location.origin)
-      url.searchParams.set('id', id)
+      const url = new URL(this.systemDataUrlValue.replace('__ID__', encodeURIComponent(id)), window.location.origin);
       const response = await fetch(url, { headers: { Accept: 'application/json' } })
       if (!response.ok) return
 

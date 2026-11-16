@@ -16,6 +16,14 @@ class CampaignSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test 'show links to the API documentation for the campaign' do
+    sign_in_as users(:one)
+
+    get campaign_settings_url
+
+    assert_select "a[href='#{api_docs_path(campaign: @campaign.slug)}']", text: /API documentation/
+  end
+
   test 'edit renders' do
     sign_in_as users(:one)
 

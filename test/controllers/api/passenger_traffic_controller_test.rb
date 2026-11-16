@@ -81,7 +81,7 @@ class Api::PassengerTrafficControllerTest < ActionDispatch::IntegrationTest
   test 'system is unauthorised without credentials' do
     system = build_star_system(30, 0)
 
-    get api_passenger_traffic_system_url(campaign_slug: @campaign.slug, id: system.id), as: :json
+    get api_star_system_passenger_traffic_url(campaign_slug: @campaign.slug, id: system.id), as: :json
 
     assert_response :unauthorized
   end
@@ -90,7 +90,7 @@ class Api::PassengerTrafficControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(30, 0)
 
-    get api_passenger_traffic_system_url(campaign_slug: @campaign.slug, id: system.id), as: :json
+    get api_star_system_passenger_traffic_url(campaign_slug: @campaign.slug, id: system.id), as: :json
 
     assert_response :success
     body = response.parsed_body
@@ -101,11 +101,11 @@ class Api::PassengerTrafficControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Array, body['modifiers']
   end
 
-  test 'system returns unprocessable_entity when the id does not resolve' do
+  test 'system returns not_found when the id does not resolve' do
     sign_in_as users(:one)
 
-    get api_passenger_traffic_system_url(campaign_slug: @campaign.slug, id: 0), as: :json
+    get api_star_system_passenger_traffic_url(campaign_slug: @campaign.slug, id: 0), as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :not_found
   end
 end

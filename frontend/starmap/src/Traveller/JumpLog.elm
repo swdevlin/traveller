@@ -17,6 +17,7 @@ module Traveller.JumpLog exposing
     , hexDistance
     , jumpDecoder
     , lastJumpDecoder
+    , shipLastJumpDecoder
     , minimumTravelDays
     , parsecDecoder
     , previousArrival
@@ -113,8 +114,12 @@ type alias ParsecOption =
 
 
 type alias LastJump =
-    { parsecId : Int
-    , sectorId : Int
+    { fromParsecId : Int
+    , fromSectorId : Int
+    , toParsecId : Int
+    , toSectorId : Int
+    , departYear : Int
+    , departDay : Int
     , arriveYear : Int
     , arriveDay : Int
     }
@@ -171,7 +176,7 @@ shipDecoder =
     Decode.map3 ShipOption
         (Decode.field "id" Decode.int)
         (Decode.field "name" Decode.string)
-        (Decode.field "jump_drive" (Decode.nullable Decode.int))
+        (Decode.field "j_drive" (Decode.nullable Decode.int))
 
 
 sectorDecoder : Decoder SectorOption
@@ -193,14 +198,23 @@ parsecDecoder =
         (Decode.field "system_name" (Decode.nullable Decode.string))
 
 
-{-| `GET ships/:id/last_jump` renders JSON `null` for a ship with no jumps.
+{-| `GET ships/:id` renders `"last_jump": null` for a ship with no jumps.
 -}
+shipLastJumpDecoder : Decoder (Maybe LastJump)
+shipLastJumpDecoder =
+    Decode.field "last_jump" lastJumpDecoder
+
+
 lastJumpDecoder : Decoder (Maybe LastJump)
 lastJumpDecoder =
     Decode.nullable
-        (Decode.map4 LastJump
-            (Decode.field "parsec_id" Decode.int)
-            (Decode.field "sector_id" Decode.int)
+        (Decode.map8 LastJump
+            (Decode.field "from_parsec_id" Decode.int)
+            (Decode.field "from_sector_id" Decode.int)
+            (Decode.field "to_parsec_id" Decode.int)
+            (Decode.field "to_sector_id" Decode.int)
+            (Decode.field "depart_year" Decode.int)
+            (Decode.field "depart_day" Decode.int)
             (Decode.field "arrive_year" Decode.int)
             (Decode.field "arrive_day" Decode.int)
         )

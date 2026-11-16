@@ -4,8 +4,8 @@ class RoutePlanner
   include HexDistance
 
   SystemNode = Struct.new(:id, :name, :x, :y, :gas_giant_count, :starport_code, :hex_label, :sector_id, :travel_zone_id, :known, :survey_index, keyword_init: true)
-  Hop        = Struct.new(:system, :distance, keyword_init: true)
-  RoutePlan  = Struct.new(:hops, keyword_init: true)
+  Jump       = Struct.new(:system, :distance, keyword_init: true)
+  RoutePlan  = Struct.new(:jumps, keyword_init: true)
 
   STARPORT_COMMERCIAL = %w[A B C D].freeze
   STARPORT_REFINED    = %w[A B].freeze
@@ -32,11 +32,11 @@ class RoutePlanner
     path = a_star(from_node, to_node, pos_map)
     return nil unless path
 
-    hops = [Hop.new(system: path.first, distance: 0)]
+    jumps = [Jump.new(system: path.first, distance: 0)]
     path.each_cons(2) do |a, b|
-      hops << Hop.new(system: b, distance: hex_distance([a.x, a.y], [b.x, b.y]))
+      jumps << Jump.new(system: b, distance: hex_distance([a.x, a.y], [b.x, b.y]))
     end
-    RoutePlan.new(hops: hops)
+    RoutePlan.new(jumps: jumps)
   end
 
   def parsec_distance(from_system, to_system)

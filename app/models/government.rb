@@ -1,4 +1,6 @@
 class Government < ApplicationRecord
+  include TouchesStarSystems
+
   validates :code,
             presence: true,
             uniqueness: true,

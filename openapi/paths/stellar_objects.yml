@@ -1,0 +1,256 @@
+# Paths: Stellar objects
+/stellar_objects/{id}:
+  get:
+    operationId: getStellarObject
+    tags: [Stellar objects]
+    summary: Get a stellar object
+    description: |
+      A planet, belt, moon, station or other body. The fields present depend
+      on the object's `type`. Every type returns the common fields listed in
+      the schema; the sections below list what each type adds. Keys are
+      snake_case. A field is omitted, not null, when the object has no value
+      for it.
+
+      ### Planetary data (Moon, TerrestrialPlanet, Planetoid)
+
+      Worlds return the generator's physical data: `albedo`, `period`,
+      `temperature` (mean, K), `density`, `gravity`, `axial_tilt`,
+      `greenhouse`, `retrograde`, `rotation`, `tidal_lock`,
+      `tidal_lock_note`, `twilight_zone`, `sidereal_day`, `ice_caps`,
+      `latitude_temperatures`, `current_temperature`, `periapsis_temperature`
+      and `apoapsis_temperature`. They also return the UWP details listed
+      under the UWP details section below, and the biological and sophont fields
+      `habitability_rating`, `biomass_rating`, `biocomplexity_rating`,
+      `biodiversity_rating`, `compatibility_rating`, `resource_rating`,
+      `native_sophont`, `extinct_sophont`, `sophont` and
+      `extinct_sophont_record`.
+
+      ### Types
+
+      | `type` | Type-specific fields |
+      | --- | --- |
+      | `Star` | `stellar_class`, `stellar_type`, `stellar_subtype`, `luminosity`, `hzco`, `minimum_allowable_orbit`, `colour`, `is_protostar`, `temperature`, `age`, `period`, `baseline`, `spread`, `scan_points`, `companion_id` |
+      | `TerrestrialPlanet` | Planetary data and UWP details. `orbit_type` is `11`. |
+      | `Moon` | Planetary data and UWP details. `is_moon` is `true`. `tidal_lock_target_id` and `tidal_lock_target_type` name the body it is locked to. |
+      | `Planetoid` | Planetary data and UWP details. `planetoid_belt_id` links it to its belt. `orbit_type` is `13`. |
+      | `PlanetoidBelt` | `m_type`, `s_type`, `c_type`, `o_type` (composition percentages), `bulk`, `span`, `resource_rating`, `temperature`, `retrograde`, `period`, `planetoid_count`, plus UWP details. `orbit_type` is `12`. |
+      | `GasGiant` | `code` (`GS`, `GM` or `GL`), `period`, `rotation`, `axial_tilt`, `tidal_lock`, `tidal_lock_note`, `twilight_zone`, `sidereal_day`, `diameter`. `orbit_type` is `10`. |
+      | `Ring` | `span` (ring width, in multiples of the parent body's diameter). |
+      | `Comet` | `comet_type`. |
+      | `GasCloud`, `GravityAnomaly`, `InterstellarWreck`, `PhantomObject`, `RadiationCloud`, `Relic`, `SpaceStation`, `UnusualObject` | None. Only the common fields, the name, notes and `tags` are returned. |
+
+      ### UWP details
+
+      Returned by `TerrestrialPlanet`, `Moon`, `Planetoid` and
+      `PlanetoidBelt`. Each is an object with a `label`, a `code` and, where
+      the code has one, a `description`.
+
+      - `starport`: `code`, `quality`, `fuel`, `facilities`.
+      - `size_detail`: `code`, `description`.
+      - `atmosphere`: generator fields (`code`, `bar`, `gases`, `taint`,
+        `density`, `gas_type`, `subtype`, `irritant`, `hazard_code`,
+        `composition`, `characteristic`), `description`,
+        `survival_requirement` and, for tainted atmospheres, `taint_detail`
+        with `severity` and `persistence`.
+      - `hydrographics`: `code`, `description`, `percentage`, and where known
+        `liquid` and `distribution`.
+      - `population`: `code`, `range`, and where known `census_population`,
+        `concentration_rating`, `urbanization_percentage`, `major_cities`,
+        `major_city_population` and `cities`. Moons, terrestrial planets and
+        planetoids also return `native_sophont`, `extinct_sophont`, `culture`
+        and `biological_data`.
+      - `government`: `code`, `type`, `description`, and where known
+        `structure` (judicial, executive, legislative) and `characteristics`
+        (authority, centralisation).
+      - `law_level`: `code`, `sub_classifications` (weapons and armour,
+        criminal, economic, private law, personal rights) and
+        `characteristics` (uniformity, judicial system, death penalty,
+        presumed innocence, econometric infractions).
+      - `tech_level`: `code`, `descriptor`, and per-domain capability codes
+        (`energy`, `electronics`, `manufacturing`, `medical`, `environmental`,
+        `land`, `sea`, `air`, `space`, `personal_military`, `heavy_military`).
+      - `economics`: `world_trade_number`, `importance`, `development_score`,
+        `per_capita_gwp`, `total_gwp`, `infrastructure`, `resource_units`,
+        `resource_factor`, `labour_factor`, `efficiency`, `inequality_rating`,
+        `tariff_regime`, `tariff_rate`. Present only when the world has
+        economic data.
+      - `city_count`: number of cities, on worlds that can have them.
+    parameters:
+      - { $ref: '#/components/parameters/StellarObjectId' }
+    responses:
+      '200':
+        description: The stellar object.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StellarObject' }
+      '404':
+        description: No stellar object has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'stellar object not found' }
+/stellar_objects/{id}/moons:
+  get:
+    operationId: listStellarObjectMoons
+    tags: [Stellar objects]
+    summary: List a body's moons and rings
+    description: |
+      Moons and rings are listed in order of their distance from the body
+      they orbit. Page size is 10. Rings are always significant, so
+      `significant_only` never removes them.
+    parameters:
+      - { $ref: '#/components/parameters/StellarObjectId' }
+      - { $ref: '#/components/parameters/Page' }
+      - { $ref: '#/components/parameters/SignificantOnlyMoons' }
+    responses:
+      '200':
+        description: A page of moons and the body's rings.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, moons, rings]
+              properties:
+                count: { type: integer, description: Total moons and rings. }
+                page: { type: integer }
+                pages: { type: integer }
+                parent_diameter_km: { type: [number, 'null'] }
+                moons:
+                  type: array
+                  items: { $ref: '#/components/schemas/Moon' }
+                rings:
+                  type: array
+                  items: { $ref: '#/components/schemas/Ring' }
+      '400':
+        description: '`significant_only` is not `true`, `false`, `1` or `0`.'
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'significant_only must be true, false, 1 or 0' }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/stellar_objects/{id}/planetoids:
+  get:
+    operationId: listPlanetoidBeltPlanetoids
+    tags: [Stellar objects]
+    summary: List the planetoids in a belt
+    description: |
+      Planetoids are listed from largest to smallest by `size_code`, and by
+      orbit within the same size. When `significant_only` is `true` they are
+      listed by orbit alone. Only planetoid belts have planetoids, and any
+      other type returns a 404. Page size is 10.
+    parameters:
+      - { $ref: '#/components/parameters/StellarObjectId' }
+      - { $ref: '#/components/parameters/Page' }
+      - { $ref: '#/components/parameters/SignificantOnlyPlanetoids' }
+    responses:
+      '200':
+        description: A page of planetoids.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, planetoids]
+              properties:
+                count: { type: integer }
+                page: { type: integer }
+                pages: { type: integer }
+                planetoids:
+                  type: array
+                  items: { $ref: '#/components/schemas/Planetoid' }
+      '400':
+        description: '`significant_only` is not `true`, `false`, `1` or `0`.'
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'significant_only must be true, false, 1 or 0' }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/stellar_objects/{id}/cities:
+  get:
+    operationId: listStellarObjectCities
+    tags: [Stellar objects]
+    summary: List a world's cities
+    description: |
+      Cities are listed in descending order of population, so the most
+      populous city comes first. Page size is 10.
+    parameters:
+      - { $ref: '#/components/parameters/StellarObjectId' }
+      - { $ref: '#/components/parameters/Page' }
+    responses:
+      '200':
+        description: A page of cities.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count, page, pages, cities]
+              properties:
+                count: { type: integer }
+                page: { type: integer }
+                pages: { type: integer }
+                cities:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, population]
+                    properties:
+                      name: { type: string }
+                      type_label: { type: [string, 'null'] }
+                      capital_label: { type: [string, 'null'] }
+                      population: { type: [integer, 'null'] }
+      '404': { $ref: '#/components/responses/StellarObjectNotFound' }
+/rogues:
+  get:
+    operationId: listRogues
+    tags: [Stellar objects]
+    summary: List rogue stellar objects in a viewport
+    description: |
+      A rogue stellar object is one that does not orbit a star. It sits
+      directly in a parsec, such as a rogue planet, a comet, a gas cloud or a
+      wreck drifting in interstellar space. A parsec can hold more than one.
+      A rogue is returned whether or not its parsec also holds a star system.
+
+      Choose the area in one of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+        A sector is always accepted.
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports). The box may be at most 16
+        columns by 20 rows (a 2x2 block of subsectors); fetch larger areas as
+        several requests.
+
+      Send one or the other. Sending both returns a 400.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: The rogue stellar objects in the area.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Rogue' }
+      '400':
+        description: |
+          Neither a sector (`sx`, `sy`) nor a bounding box (`ulx`, `uly`,
+          `lrx`, `lry`) was supplied, both were supplied, or the bounding box
+          is larger than 16 columns by 20 rows.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            examples:
+              missing:
+                summary: No viewport
+                value: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' }
+              both:
+                summary: Both a sector and a bounding box
+                value: { error: 'exactly one of sector coordinates (sx, sy) or a bounding box (ulx, uly, lrx, lry) must be given' }
+              too_large:
+                summary: Bounding box too large
+                value: { error: 'bounding box must be no larger than 16 columns by 20 rows' }

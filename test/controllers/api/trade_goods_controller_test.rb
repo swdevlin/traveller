@@ -16,7 +16,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
   test 'availability is unauthorised without credentials' do
     system = build_star_system(0, 0)
 
-    get api_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id), as: :json
+    get api_star_system_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id), as: :json
 
     assert_response :unauthorized
   end
@@ -25,7 +25,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id), as: :json
+    get api_star_system_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id), as: :json
 
     assert_response :success
     body = response.parsed_body
@@ -48,18 +48,18 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     assert_equal first['goods'], second['goods']
   end
 
-  test 'availability returns unprocessable_entity when the id does not resolve' do
+  test 'availability returns not_found when the id does not resolve' do
     sign_in_as users(:one)
 
-    get api_trade_goods_availability_url(campaign_slug: @campaign.slug, id: 0), as: :json
+    get api_star_system_trade_goods_availability_url(campaign_slug: @campaign.slug, id: 0), as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :not_found
   end
 
   test 'prices is unauthorised without credentials' do
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase'), as: :json
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase'), as: :json
 
     assert_response :unauthorized
   end
@@ -68,7 +68,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase',
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase',
                                     skill_effect: 2, counterpart_broker_skill: 1, other_dm: -1), as: :json
 
     assert_response :success
@@ -94,8 +94,8 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase',
-                                    d66s: [11], use_broker: 'true', broker_level: 3, broker_fee_percentage: 10),
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase',
+                                    d66s: '11', use_broker: 'true', broker_level: 3, broker_fee_percentage: 10),
         as: :json
 
     assert_response :success
@@ -115,7 +115,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase', d66s: [11]),
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase', d66s: '11'),
         as: :json
 
     assert_response :success
@@ -131,7 +131,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'sale', d66s: [11, 21]), as: :json
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'sale', d66s: '11,21'), as: :json
 
     assert_response :success
     body = response.parsed_body
@@ -139,19 +139,19 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [11, 21], body['results'].map { |r| r['d66'] }
   end
 
-  test 'prices returns unprocessable_entity when the id does not resolve' do
+  test 'prices returns not_found when the id does not resolve' do
     sign_in_as users(:one)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: 0, direction: 'purchase'), as: :json
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: 0, direction: 'purchase'), as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :not_found
   end
 
   test 'prices returns unprocessable_entity for an invalid direction' do
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'browse'), as: :json
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'browse'), as: :json
 
     assert_response :unprocessable_entity
   end
@@ -159,7 +159,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def get_availability(system, seed:)
-    get api_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id, seed: seed), as: :json
+    get api_star_system_trade_goods_availability_url(campaign_slug: @campaign.slug, id: system.id, seed: seed), as: :json
     response.parsed_body
   end
 end

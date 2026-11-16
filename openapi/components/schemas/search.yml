@@ -1,0 +1,63 @@
+# Schemas: search
+SearchResult:
+  type: object
+  required: [type, display_type, name]
+  properties:
+    type:
+      type: string
+      description: '`StarSystem`, `Sector`, `Subsector`, or a stellar object class.'
+    display_type: { type: string, description: A human-readable form of `type`. }
+    name: { type: string }
+    meta: { type: [string, 'null'], description: Where the result is. }
+    x: { type: [integer, 'null'], description: 'X [universal coordinate](#description/universal-coordinates). Systems and objects.' }
+    y: { type: [integer, 'null'], description: 'Y [universal coordinate](#description/universal-coordinates). Systems and objects.' }
+    sector_x: { type: [integer, 'null'], description: Sectors and subsectors. }
+    sector_y: { type: [integer, 'null'], description: Sectors and subsectors. }
+    subsector_x: { type: [integer, 'null'], description: Subsectors. }
+    subsector_y: { type: [integer, 'null'], description: Subsectors. }
+Rulebook:
+  type: object
+  required: [id, title, category]
+  properties:
+    id: { type: integer }
+    title: { type: string }
+    short_title: { type: [string, 'null'] }
+    edition: { type: [string, 'null'] }
+    category:
+      type: string
+      enum: [rulebook, supplement, adventure, setting, alien_module, other]
+RulebookSearchGroup:
+  type: object
+  properties:
+    rulebook_id: { type: integer }
+    title: { type: string }
+    short_title: { type: [string, 'null'] }
+    edition: { type: [string, 'null'] }
+    category:
+      type: [string, 'null']
+      enum: [rulebook, supplement, adventure, setting, alien_module, other, null]
+    total_matches: { type: integer }
+    relevant_matches: { type: integer }
+    hits:
+      type: array
+      items: { $ref: '#/components/schemas/RulebookHit' }
+    low_relevance_hits:
+      type: array
+      items: { $ref: '#/components/schemas/RulebookHit' }
+RulebookHit:
+  type: object
+  properties:
+    printed_page_label: { type: [string, 'null'] }
+    rank: { type: number }
+    heading_segments:
+      type: array
+      items: { $ref: '#/components/schemas/HighlightSegment' }
+    excerpt_segments:
+      type: array
+      items: { $ref: '#/components/schemas/HighlightSegment' }
+HighlightSegment:
+  type: object
+  required: [text, highlighted]
+  properties:
+    text: { type: string }
+    highlighted: { type: boolean }

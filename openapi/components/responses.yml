@@ -1,0 +1,74 @@
+# Reusable responses
+NotModified:
+  description: The copy identified by `If-None-Match` is still current. There is no body.
+CampaignNotFound:
+  description: No campaign exists with the given slug.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'Campaign not found' }
+Unauthorised:
+  description: No valid API token was supplied.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'Unauthorised' }
+Forbidden:
+  description: |
+    A signed-in user who is not the campaign's referee. This only happens with a
+    browser session; a wrong API token gets `401`.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'Forbidden' }
+ValidationErrors:
+  description: The values were rejected.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/ValidationErrors' }
+      example: { errors: ['Survey index must be less than or equal to 12'] }
+ViewportRequired:
+  description: Neither a sector (`sx`, `sy`) nor a bounding box (`ulx`, `uly`, `lrx`, `lry`) was supplied.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' }
+LimitedViewportRequired:
+  description: |
+    Neither a sector (`sx`, `sy`) nor a bounding box (`ulx`, `uly`, `lrx`,
+    `lry`) was supplied, or the bounding box is larger than 16 columns by 20
+    rows.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      examples:
+        missing:
+          summary: No viewport
+          value: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' }
+        too_large:
+          summary: Bounding box too large
+          value: { error: 'bounding box must be no larger than 16 columns by 20 rows' }
+StarSystemNotFound:
+  description: No star system has this id.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'star system not found' }
+StellarObjectNotFound:
+  description: The object does not exist, is the wrong type, or is in a system the players have not discovered.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'stellar object not found' }
+TwoSystemsRequired:
+  description: '`from_id` and `to_id` must reference two different star systems.'
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'from_id and to_id must reference two different star systems' }
+ShipNotFound:
+  description: No ship has this id.
+  content:
+    application/json:
+      schema: { $ref: '#/components/schemas/Error' }
+      example: { error: 'ship not found' }

@@ -1,4 +1,6 @@
 class Api::MapLabelsController < Api::BaseController
+  limit_bounding_box only: :index
+
   def index
     parsecs = parsecs_in_region
     return render json: { error: 'either sector coordinates (sx, sy) or bounding box (ulx, uly, lrx, lry) required' },

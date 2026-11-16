@@ -23,7 +23,28 @@ class Api::RoutePlansControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = response.parsed_body
     assert body['found']
-    assert_equal 2, body['hops'].size
+    assert_equal 2, body['jumps'].size
+  end
+
+  test 'plan defaults refueling to any when omitted' do
+    from = build_star_system(0, 0)
+    to = build_star_system(1, 0)
+
+    get api_route_plan_url(campaign_slug: @campaign.slug, from_id: from.id, to_id: to.id, jump_range: 1), as: :json
+
+    assert_response :success
+    assert_equal 'any', response.parsed_body['refueling']
+  end
+
+  test 'plan rejects an invalid refueling value' do
+    from = build_star_system(0, 0)
+    to = build_star_system(1, 0)
+
+    get api_route_plan_url(campaign_slug: @campaign.slug,
+                            from_id: from.id, to_id: to.id, jump_range: 1, refueling: 'bogus'), as: :json
+
+    assert_response :unprocessable_entity
+    assert_match(/refueling must be one of/, response.parsed_body['error'])
   end
 
   test 'plan in player mode reports no route when a referee would find one through an unsurveyed system' do
@@ -96,18 +117,5 @@ class Api::RoutePlansControllerTest < ActionDispatch::IntegrationTest
            as: :json
     end
     assert_response :created
-  end
-
-  test 'systems excludes unsurveyed systems for anonymous requests and includes them for the referee' do
-    build_star_system(60, 0, name: 'Zeta Prime', known: false, survey_index: 0)
-
-    get api_route_plan_systems_url(campaign_slug: @campaign.slug, q: 'Zeta Prime'), as: :json
-    assert_response :success
-    assert_empty response.parsed_body
-
-    sign_in_as users(:one)
-    get api_route_plan_systems_url(campaign_slug: @campaign.slug, q: 'Zeta Prime'), as: :json
-    assert_response :success
-    assert_equal 1, response.parsed_body.size
   end
 end

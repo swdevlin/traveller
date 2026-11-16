@@ -75,7 +75,7 @@ class RoutePlannerTest < ActiveSupport::TestCase
     plan = planner.plan
 
     assert plan
-    assert_equal 3, plan.hops.size
+    assert_equal 3, plan.jumps.size
   end
 
   test 'player mode allows the unsurveyed system as a pass-through when no refuelling filter applies' do
@@ -87,6 +87,6 @@ class RoutePlannerTest < ActiveSupport::TestCase
     plan = planner.plan
 
     assert plan
-    assert_equal 3, plan.hops.size
+    assert_equal 3, plan.jumps.size
   end
 end

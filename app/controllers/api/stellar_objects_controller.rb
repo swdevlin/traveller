@@ -3,6 +3,8 @@ class Api::StellarObjectsController < Api::BaseController
 
   helper ApplicationHelper, StellarObjectsHelper
 
+  before_action :parse_significant_only, only: %i[moons planetoids]
+
   def show
     authenticated_by_session?
     @stellar_object = StellarObject
@@ -18,7 +20,7 @@ class Api::StellarObjectsController < Api::BaseController
     authenticated_by_session?
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible_star_system?(stellar_object.star_system)
 
-    scope = stellar_object.moons_and_rings(significant_only: params[:significant_only].present?)
+    scope = stellar_object.moons_and_rings(significant_only: @significant_only)
     @parent_diameter_km = stellar_object.diameter
     @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
   end
@@ -31,7 +33,7 @@ class Api::StellarObjectsController < Api::BaseController
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible_star_system?(stellar_object.star_system)
     return render json: { error: 'stellar object not found' }, status: :not_found unless stellar_object.is_a?(PlanetoidBelt)
 
-    scope = stellar_object.listed_planetoids(significant_only: params[:significant_only].present?)
+    scope = stellar_object.listed_planetoids(significant_only: @significant_only)
     @pagy, @planetoids = pagy(scope, limit: 10, params: request.query_parameters)
   end
 
@@ -48,6 +50,13 @@ class Api::StellarObjectsController < Api::BaseController
   end
 
   private
+
+  def parse_significant_only
+    @significant_only = boolean_param(:significant_only)
+    return unless @significant_only == :invalid
+
+    render json: { error: 'significant_only must be true, false, 1 or 0' }, status: :bad_request
+  end
 
   def player_visible_star_system?(star_system)
     Current.owns_campaign? || (star_system.present? && (star_system.known? || star_system.survey_index >= 10))

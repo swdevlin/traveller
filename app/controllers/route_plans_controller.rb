@@ -27,15 +27,15 @@ class RoutePlansController < ApplicationController
     )
     @plan = planner.plan
     if @plan
-      @total_distance   = @plan.hops.sum(&:distance)
+      @total_distance   = @plan.jumps.sum(&:distance)
       @parsec_distance  = planner.parsec_distance(@from_system, @to_system)
 
-      ids            = @plan.hops.map { |h| h.system.id }
+      ids            = @plan.jumps.map { |h| h.system.id }
       systems_by_id  = StarSystem.where(id: ids).includes(:main_world).index_by(&:id)
-      ordered        = @plan.hops.map { |h| systems_by_id[h.system.id] }
+      ordered        = @plan.jumps.map { |h| systems_by_id[h.system.id] }
       timing         = RouteTiming.new(m_drive: @m_drive)
-      @hop_timings   = timing.timings_for(ordered)
-      @route_total   = timing.total(@hop_timings)
+      @jump_timings  = timing.timings_for(ordered)
+      @route_total   = timing.total(@jump_timings)
     end
   end
 

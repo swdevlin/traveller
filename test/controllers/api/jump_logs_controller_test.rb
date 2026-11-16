@@ -15,7 +15,46 @@ class Api::JumpLogsControllerTest < ActionDispatch::IntegrationTest
     assert response.parsed_body.is_a?(Array)
   end
 
+  test 'index with ship_id returns only that ship\'s jumps' do
+    get api_jumps_url(campaign_slug: @campaign.slug, ship_id: ships(:one).id), as: :json
+
+    assert_response :success
+    ship_ids = response.parsed_body.map { |jump| jump['ship_id'] }
+    assert_not_empty ship_ids
+    assert_equal [ships(:one).id], ship_ids.uniq
+  end
+
+  test 'index without ship_id returns the jumps of every ship' do
+    get api_jumps_url(campaign_slug: @campaign.slug), as: :json
+
+    assert_operator response.parsed_body.map { |jump| jump['ship_id'] }.uniq.size, :>, 1
+  end
+
+  test 'index with an unknown ship_id returns an empty list' do
+    get api_jumps_url(campaign_slug: @campaign.slug, ship_id: 0), as: :json
+
+    assert_response :success
+    assert_empty response.parsed_body
+  end
+
   # POST /api/jumps — requires session or token
+
+  test 'create without notes or misjump leaves notes blank and misjump false' do
+    post api_jumps_url(campaign_slug: @campaign.slug),
+         params: { jump_log: {
+           ship_id:        ships(:one).id,
+           from_parsec_id: parsecs(:one).id,
+           to_parsec_id:   parsecs(:two).id,
+           depart_year: 1105, depart_day: 100,
+           arrive_year: 1105, arrive_day: 107
+         } },
+         headers: { 'Authorization' => "Bearer #{@campaign.api_token}" },
+         as: :json
+
+    assert_response :created
+    assert_nil response.parsed_body['notes']
+    assert_equal false, response.parsed_body['misjump']
+  end
 
   test 'create with valid bearer token creates jump log' do
     assert_difference 'JumpLog.count', 1 do

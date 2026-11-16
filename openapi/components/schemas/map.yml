@@ -1,0 +1,13 @@
+# Schemas: map
+MapLabel:
+  type: object
+  required: [id, x, y, known]
+  properties:
+    id: { type: integer }
+    x: { type: integer }
+    y: { type: integer }
+    known: { type: [boolean, 'null'] }
+    text: { type: [string, 'null'] }
+    colour: { type: [string, 'null'] }
+    icon_view_box: { type: [string, 'null'] }
+    icon_path_data: { type: [string, 'null'] }

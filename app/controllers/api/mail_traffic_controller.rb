@@ -9,7 +9,7 @@ class Api::MailTrafficController < Api::BaseController
   # is selected. Mail's qualifying roll is keyed off the same Freight Traffic DM.
   def system
     system = StarSystem.find_by(id: params[:id])
-    return render json: { error: 'id must reference a star system' }, status: :unprocessable_entity unless system
+    return render json: { error: 'star system not found' }, status: :not_found unless system
 
     dms = FreightTrafficDms.for(current_campaign)
     render json: { uwp: system.main_world_uwp, modifiers: FreightTrafficCalculator.world_modifiers(system, dms) }

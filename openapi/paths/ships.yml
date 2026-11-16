@@ -1,0 +1,30 @@
+# Paths: Ships
+/ships:
+  get:
+    operationId: listShips
+    tags: [Ships]
+    summary: List ships
+    description: Each ship includes its most recent jump, which is where it is now.
+    responses:
+      '200':
+        description: Ships, ordered by name.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/ShipDetail' }
+/ships/{id}:
+  get:
+    operationId: getShip
+    tags: [Ships]
+    summary: Get a ship
+    description: Includes the ship's most recent jump, which is where it is now.
+    parameters:
+      - { $ref: '#/components/parameters/ShipId' }
+    responses:
+      '200':
+        description: The ship.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ShipDetail' }
+      '404': { $ref: '#/components/responses/ShipNotFound' }

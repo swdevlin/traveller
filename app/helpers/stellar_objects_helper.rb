@@ -1,4 +1,14 @@
 module StellarObjectsHelper
+  SNAKE_KEYS = Concurrent::Map.new
+
+  # The snake_case form of a generator data key. The same few hundred keys recur
+  # in every object, and `underscore` is costly enough to show up when a system
+  # with hundreds of bodies is rendered, so each is converted once.
+  def self.snake_key(key)
+    name = key.to_s
+    SNAKE_KEYS.compute_if_absent(name) { name.underscore.freeze }
+  end
+
   STARPORT_DATA = {
     'A' => { quality: 'Excellent', fuel: 'Refined fuel', facilities: 'Shipyard (all), Repair' },
     'B' => { quality: 'Good', fuel: 'Refined fuel', facilities: 'Shipyard (spacecraft), Repair' },

@@ -1,0 +1,103 @@
+# Paths: Jumps
+/jumps:
+  get:
+    operationId: listJumps
+    tags: [Jumps]
+    summary: List jump logs
+    description: |
+      Logged jumps, oldest arrival first. `notes` is returned only to the referee.
+      Pass `ship_id` to list only that ship's jumps. A ship that does not exist,
+      or has no jumps, gives an empty list.
+    parameters:
+      - name: ship_id
+        in: query
+        description: Only return the jumps of this ship.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: Jump logs.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/JumpLogEntry' }
+  post:
+    operationId: createJump
+    tags: [Jumps]
+    summary: Log a jump
+    description: The caller must be the owner of the campaign. Raises the destination's survey index where appropriate.
+    security: [{ bearerToken: [] }]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/JumpLogInput' }
+    responses:
+      '201':
+        description: The jump was logged.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JumpLog' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+/jumps/{id}:
+  patch:
+    operationId: updateJump
+    tags: [Jumps]
+    summary: Update a jump
+    description: |
+      The caller must be the owner of the campaign.
+
+      Changing a jump's dates or locations also changes the other jumps of the
+      same ship, so that its route stays continuous. The response contains only
+      the jump you updated, so fetch the ship's jumps again to see the rest.
+
+      - **Arrival changed** (`arrive_year` or `arrive_day`): every later jump,
+        meaning one that departed on or after the old arrival date, is moved by
+        the same number of days. Both its departure and its arrival move.
+      - **Departure changed** (`depart_year` or `depart_day`): every earlier
+        jump, meaning one that arrived on or before the old departure date, is
+        moved by the same number of days, in the same way.
+      - **Destination changed** (`to_parsec_id`): the next jump's
+        `from_parsec_id` is set to the new destination.
+      - **Origin changed** (`from_parsec_id`): the previous jump's
+        `to_parsec_id` is set to the new origin.
+
+      Changed dates must leave the jump at least 6 days long, unless it is a
+      misjump, and the departure cannot be earlier than the ship's previous
+      arrival. Otherwise the request fails with `422` and nothing is changed.
+      The jumps that are moved are not checked against these rules.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/JumpId' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/JumpLogInput' }
+    responses:
+      '200':
+        description: The updated jump.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JumpLog' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+  delete:
+    operationId: deleteJump
+    tags: [Jumps]
+    summary: Delete a jump
+    description: |
+      The caller must be the owner of the campaign. Only a ship's most recent jump can be deleted,
+      so that its route has no gap.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/JumpId' }
+    responses:
+      '204':
+        description: The jump was deleted.
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }

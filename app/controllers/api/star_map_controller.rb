@@ -1,4 +1,6 @@
 class Api::StarMapController < Api::BaseController
+  limit_bounding_box only: :index
+
   def index
     parsec_scope = parsecs_in_region
     if parsec_scope.nil?

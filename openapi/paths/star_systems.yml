@@ -1,0 +1,325 @@
+# Paths: Star systems
+/star_systems/{id}:
+  get:
+    operationId: getStarSystem
+    tags: [Star systems]
+    summary: Get a star system
+    description: |
+      The full star system with its stars and the bodies orbiting them.
+      Details the players have not discovered are withheld: unless the
+      system is known or its survey index is at least 10, the response omits
+      survey records, bases, trade codes and similar fields.
+
+      The response has an `ETag`. Send it back as `If-None-Match` to get `304`
+      with no body while the system is unchanged, which is much faster.
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+      - { $ref: '#/components/parameters/IfNoneMatch' }
+    responses:
+      '200':
+        description: The star system.
+        headers:
+          ETag: { description: Identifies this version of the response., schema: { type: string } }
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StarSystemDetail' }
+      '304': { $ref: '#/components/responses/NotModified' }
+      '404':
+        description: No star system has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'star system not found' }
+  patch:
+    operationId: updateStarSystem
+    tags: [Star systems]
+    summary: Update a star system
+    description: |
+      Renames the system and sets whether the players know it and its survey
+      index. Only the fields sent are changed. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              known: { type: boolean }
+              survey_index: { type: integer }
+    responses:
+      '200':
+        description: The system's values after the update.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, known, survey_index]
+              properties:
+                name: { type: [string, 'null'] }
+                known: { type: boolean }
+                survey_index: { type: [integer, 'null'] }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404':
+        description: No star system has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'star system not found' }
+      '422': { $ref: '#/components/responses/ValidationErrors' }
+/star_systems/{id}/passenger_traffic:
+  get:
+    operationId: getStarSystemPassengerTraffic
+    tags: [Star systems]
+    summary: Passenger DMs for one system
+    description: A system's UWP and the DMs it contributes to passenger traffic. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/freight_traffic:
+  get:
+    operationId: getStarSystemFreightTraffic
+    tags: [Star systems]
+    summary: Freight DMs for one system
+    description: The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/mail_traffic:
+  get:
+    operationId: getStarSystemMailTraffic
+    tags: [Star systems]
+    summary: Mail DMs for one system
+    description: The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+    responses:
+      '200':
+        description: The system's data.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TrafficSystem' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/trade_goods/availability:
+  get:
+    operationId: getStarSystemTradeGoodsAvailability
+    tags: [Star systems]
+    summary: Goods available for purchase
+    description: |
+      Rolls the goods on offer at a system. Keep the returned `seed` and send
+      it back to get the same list again; omit it to roll a new one. The caller must be
+      the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+      - name: seed
+        in: query
+        description: Seed from an earlier response, to repeat that roll.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: The available goods.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [system, seed, goods]
+              properties:
+                system: { $ref: '#/components/schemas/SystemRef' }
+                trade_codes:
+                  type: array
+                  items: { type: string }
+                population: { type: [integer, 'null'] }
+                seed: { type: integer }
+                goods:
+                  type: array
+                  items: { type: object, additionalProperties: true }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+/star_systems/{id}/trade_goods/prices:
+  get:
+    operationId: getStarSystemTradeGoodsPrices
+    tags: [Star systems]
+    summary: Purchase or sale prices
+    description: |
+      Rolls the price of each requested good, or of every priceable good if
+      `d66s` is omitted. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+      - name: direction
+        in: query
+        description: Whether the goods are being bought or sold.
+        schema: { type: string, enum: [purchase, sale] }
+      - { name: skill_effect, in: query, description: Skill Effect of the roll., schema: { type: integer, default: 0 } }
+      - { name: counterpart_broker_skill, in: query, description: The other party's Broker skill., schema: { type: integer, default: 2 } }
+      - { name: other_dm, in: query, description: Any other DM., schema: { type: integer, default: 0 } }
+      - { name: use_broker, in: query, description: Whether a local broker is used., schema: { type: boolean } }
+      - { name: broker_level, in: query, description: Broker skill level. Defaults to the campaign's setting., schema: { type: integer } }
+      - { name: broker_fee_percentage, in: query, description: Broker fee. Defaults to the campaign's setting., schema: { type: number } }
+      - name: d66s
+        in: query
+        description: D66 codes of the goods to price, as a comma-separated list.
+        style: form
+        explode: false
+        schema: { type: array, items: { $ref: '#/components/schemas/D66' } }
+    responses:
+      '200':
+        description: The prices.
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [system, results]
+              properties:
+                system: { $ref: '#/components/schemas/SystemRef' }
+                direction: { type: [string, 'null'] }
+                skill_effect: { type: integer }
+                counterpart_broker_skill: { type: integer }
+                other_dm: { type: integer }
+                use_broker: { type: [boolean, 'null'] }
+                broker_level: { type: [integer, 'null'] }
+                broker_fee_percentage: { type: [number, 'null'] }
+                results:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      d66: { $ref: '#/components/schemas/D66' }
+                      name: { type: string }
+                      modifiers: { description: The modifiers applied. }
+                      result:
+                        type: object
+                        properties:
+                          base_price: { type: [number, 'null'] }
+                          percent: { type: [number, 'null'] }
+                          price_per_ton: { type: [number, 'null'] }
+                          net_price_per_ton: { type: [number, 'null'] }
+                          fee_percentage: { type: [number, 'null'] }
+                          qualifying_roll: { $ref: '#/components/schemas/Roll' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
+      '422':
+        description: A parameter is invalid, such as an unknown `direction` or good.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'direction must be :purchase or :sale' }
+/star_systems/{id}/ship_traffic:
+  get:
+    operationId: getStarSystemShipTraffic
+    tags: [Star systems]
+    summary: Daily ship traffic
+    description: Estimates the number of ships arriving each day at the system's main world.
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+      - name: frontier
+        in: query
+        description: Pass `1` to treat the system as a frontier world.
+        schema: { type: string, enum: ['1'] }
+    responses:
+      '200':
+        description: The traffic estimate.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result: { description: The calculated traffic. }
+                effective_importance: { type: [integer, 'null'] }
+                tier_label: { type: [string, 'null'] }
+                modifiers: { description: The DMs applied. }
+      '404':
+        description: No star system has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'star system not found' }
+      '422':
+        description: The system has no main world.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'no main world' }
+/stars/{id}/orbit_map:
+  get:
+    operationId: getStarOrbitMapSvg
+    tags: [Star systems]
+    summary: Orbit map (SVG)
+    description: |
+      A diagram of the star's orbits, as SVG by default (a `.svg` suffix is
+      also accepted). Here `id` is a **star** id. The caller must be the owner of the campaign.
+      An SVG fetched with the API token contains no hyperlinks, so it can be
+      embedded in other sites and tools.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarId' }
+      - { $ref: '#/components/parameters/OrbitMapTheme' }
+      - { $ref: '#/components/parameters/OrbitMapDownload' }
+    responses:
+      '200':
+        description: The orbit map.
+        content:
+          image/svg+xml:
+            schema: { type: string }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404':
+        description: No star has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'star not found' }
+/stars/{id}/orbit_map.webp:
+  get:
+    operationId: getStarOrbitMapWebp
+    tags: [Star systems]
+    summary: Orbit map (WebP)
+    description: The same diagram as a WebP image. The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarId' }
+      - { $ref: '#/components/parameters/OrbitMapTheme' }
+      - { $ref: '#/components/parameters/OrbitMapDownload' }
+    responses:
+      '200':
+        description: The orbit map.
+        content:
+          image/webp:
+            schema: { type: string, format: binary }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404':
+        description: No star has this id.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+
+            example: { error: 'star not found' }

@@ -43,8 +43,8 @@ class RulebookSearch
     # param — Array("").presence is [""] (non-empty), not nil, so blank
     # entries must be rejected before checking presence or an empty-string
     # filter value ends up bound against a bigint column.
-    @rulebook_ids = Array(rulebook_ids).reject(&:blank?).presence
-    @categories = Array(categories).reject(&:blank?).presence
+    @rulebook_ids = split_list(rulebook_ids)
+    @categories = split_list(categories)
     @per_rulebook_limit = per_rulebook_limit
     @rulebook_cap = rulebook_cap
   end
@@ -61,6 +61,13 @@ class RulebookSearch
   end
 
   private
+
+  # Accepts a scalar, an array (Rails `key[]=` style, used by the HTML form), or
+  # a comma-separated string (the public API style), and returns a flat array of
+  # non-blank strings, or nil when nothing was supplied.
+  def split_list(value)
+    Array(value).flat_map { |item| item.to_s.split(',') }.map(&:strip).reject(&:blank?).presence
+  end
 
   # Conditions/params are built together as named (`:foo`) bind variables via
   # ActiveRecord::Base.sanitize_sql_array, so @query can appear multiple times

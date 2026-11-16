@@ -1,0 +1,65 @@
+# Schemas: sectors
+Sector:
+  type: object
+  required: [id, name, x, y, abbreviation, tags, subsectors]
+  allOf:
+    - $ref: '#/components/schemas/Records'
+    - type: object
+      description: |
+        The `*_html` renders are not included in this response. Unlike other
+        records, `classified_records` is always present: it is `null` unless
+        the caller has referee access.
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    x: { type: [integer, 'null'], description: 'Sector x coordinate, in the [universal coordinate](#description/universal-coordinates) system.' }
+    y: { type: [integer, 'null'], description: 'Sector y coordinate, in the [universal coordinate](#description/universal-coordinates) system.' }
+    abbreviation: { type: [string, 'null'] }
+    tags: { $ref: '#/components/schemas/Tags' }
+    subsectors:
+      type: array
+      items: { $ref: '#/components/schemas/SubsectorSummary' }
+SubsectorSummary:
+  type: object
+  required: [id, name, x, y]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    x: { type: integer, description: Column within the sector, 1 to 4. }
+    y: { type: integer, description: Row within the sector, 1 to 4. }
+SubsectorLookup:
+  type: object
+  required: [id, name, letter, sector]
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    letter: { type: string, description: 'The subsector''s letter, A to P.', examples: [A] }
+    sector:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+Subsector:
+  type: object
+  required: [id, name, x, y, letter, tags, survey_records, sector, star_systems]
+  allOf:
+    - $ref: '#/components/schemas/Records'
+    - type: object
+      description: The `*_html` renders are not included in this response.
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    x: { type: integer, description: Column within the sector, 1 to 4. }
+    y: { type: integer, description: Row within the sector, 1 to 4. }
+    letter: { type: string, description: 'The subsector''s letter, A to P.', examples: [A] }
+    tags: { $ref: '#/components/schemas/Tags' }
+    sector:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+    star_systems:
+      type: array
+      items: { $ref: '#/components/schemas/StarSystemListItem' }

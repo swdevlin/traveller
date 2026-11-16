@@ -1111,7 +1111,7 @@ type Msg
     | RefreshMap
     | DownloadedStarSystems ( RequestEntry, String ) (Result Http.Error (List FallibleStarSystem))
     | ClearAllErrors
-    | FetchedStarSystemDetail (Result Http.Error StarSystemDetailResponse)
+    | FetchedParsecLookup (Result Http.Error ParsecLookupResponse)
     | DownloadedSectors ( RequestEntry, String ) (Result Http.Error (List Sector))
     | DownloadedRegions ( HexRect, String ) (Result Http.Error (List Region))
     | HoveringHex HexAddress ( Float, Float )
@@ -1200,7 +1200,7 @@ type Msg
     | MoveRuleDown String
     | HighlightRuleEditorMsg HighlightRuleEditor.Msg
     | GoToRailsApp
-    | GotSubsectorLookupUrl (Result Http.Error String)
+    | GotSubsectorLookupUrl (Result Http.Error Int)
     | GotSurveyOverlays (Result Http.Error (List HighlightRule.Rule))
     | SurveyOverlayMutated (Result Http.Error ())
     | OpenRoutePlanner
@@ -4051,7 +4051,7 @@ type alias ViewHexesConfig =
     , jumpLog : JumpLogDisplay.Settings
     , themeIsLight : Bool
     , highlightRules : List HighlightRule.Rule
-    , previewRoute : Maybe { hops : List RoutePlan.Hop, colour : String }
+    , previewRoute : Maybe { jumps : List RoutePlan.Jump, colour : String }
     , route : RouteList
     , currentAddress : HexAddress
     , hexSize : Float
@@ -4728,10 +4728,10 @@ viewHexes config =
                             Nothing ->
                                 []
 
-                            Just { hops, colour } ->
+                            Just { jumps, colour } ->
                                 let
                                     coords =
-                                        List.map (\hop -> ( hop.system.x, hop.system.y )) hops
+                                        List.map (\jump -> ( jump.system.x, jump.system.y )) jumps
                                 in
                                 List.map2
                                     (\( fromX, fromY ) ( toX, toY ) ->
@@ -5736,14 +5736,14 @@ closed (or has no successful plan yet). The preview uses the form's own
 default) so the line never changes colour out from under the user the moment
 they save - it just becomes the saved route.
 -}
-activePreviewRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+activePreviewRoute : ModelData -> Maybe { jumps : List RoutePlan.Jump, colour : String }
 activePreviewRoute model =
     case model.routePlanForm of
         Just form ->
             case RemoteData.toMaybe form.planResult of
                 Just result ->
                     if result.found then
-                        Just { hops = result.hops, colour = form.saveColour }
+                        Just { jumps = result.jumps, colour = form.saveColour }
 
                     else
                         storedActiveRoute model
@@ -5755,9 +5755,9 @@ activePreviewRoute model =
             storedActiveRoute model
 
 
-storedActiveRoute : ModelData -> Maybe { hops : List RoutePlan.Hop, colour : String }
+storedActiveRoute : ModelData -> Maybe { jumps : List RoutePlan.Jump, colour : String }
 storedActiveRoute model =
-    model.activeRoutePlan |> Maybe.map (\stored -> { hops = stored.result.hops, colour = stored.colour })
+    model.activeRoutePlan |> Maybe.map (\stored -> { jumps = stored.result.jumps, colour = stored.colour })
 
 
 moveRule : String -> Int -> List HighlightRule.Rule -> List HighlightRule.Rule
@@ -5768,6 +5768,16 @@ moveRule ruleId delta rules =
 
         Nothing ->
             rules
+
+
+{-| The 1-based place in the list the rule would have after moving `delta`
+places (-1 is up, 1 is down). For a referee the list is the server's whole list
+in order, so this is the `position` to ask the server for.
+-}
+rulePositionAfterMove : String -> Int -> List HighlightRule.Rule -> Maybe Int
+rulePositionAfterMove ruleId delta rules =
+    List.Extra.findIndex (\r -> r.id == ruleId) rules
+        |> Maybe.map (\index -> index + delta + 1)
 
 
 {-| Referee overlay ids are the `SurveyOverlay` row's real integer id (see
@@ -6014,7 +6024,7 @@ myRouteRowHtml : RoutePlan.StoredRoutePlan -> Html Msg
 myRouteRowHtml stored =
     let
         jumps =
-            max 0 (List.length stored.result.hops - 1)
+            max 0 (List.length stored.result.jumps - 1)
 
         jumpsLabel =
             String.fromInt jumps
@@ -7371,13 +7381,25 @@ sendSubsectorLookupRequest hostConfig x y =
     in
     Http.get
         { url = url
-        , expect = Http.expectJson GotSubsectorLookupUrl (JsDecode.field "url" JsDecode.string)
+        , expect = Http.expectJson GotSubsectorLookupUrl (JsDecode.field "id" JsDecode.int)
         }
 
 
 fallbackSectorsUrl : HostConfig -> String
 fallbackSectorsUrl ( root, pathSegments ) =
     Url.Builder.crossOrigin root (List.take (List.length pathSegments - 1) pathSegments ++ [ "sectors" ]) []
+
+
+{-| The full-page Rails URL for a subsector, built from the
+`c/:campaign_slug` prefix of the API host's path segments.
+-}
+subsectorPageUrl : HostConfig -> Int -> String
+subsectorPageUrl ( _, pathSegments ) subsectorId =
+    let
+        campaignPrefix =
+            List.take 2 pathSegments |> String.join "/"
+    in
+    "/" ++ campaignPrefix ++ "/subsectors/" ++ String.fromInt subsectorId
 
 
 {-| The full-page Rails edit URL for a jump route, used when a "plotted"
@@ -7426,50 +7448,93 @@ sendRouteRequest requestEntry hostConfig =
     requestCmd
 
 
-type alias StarSystemDetailResponse =
+type alias ParsecLookupResponse =
     { starSystem : Maybe StarSystemDetail
     , parsecId : Int
     , parsecSurveyIndex : Int
     }
 
 
-starSystemDetailResponseDecoder : JsDecode.Decoder StarSystemDetailResponse
-starSystemDetailResponseDecoder =
-    JsDecode.map3 StarSystemDetailResponse
+parsecLookupDecoder : JsDecode.Decoder ParsecLookupResponse
+parsecLookupDecoder =
+    JsDecode.map3 ParsecLookupResponse
         (JsDecode.field "star_system" (JsDecode.nullable (StarSystemDetail.codec |> Codec.decoder)))
-        (JsDecode.at [ "parsec", "id" ] JsDecode.int)
-        (JsDecode.at [ "parsec", "survey_index" ] JsDecode.int)
+        (JsDecode.field "id" JsDecode.int)
+        (JsDecode.field "survey_index" JsDecode.int)
 
 
-fetchStarSystemDetailRequest : HostConfig -> SectorHexAddress -> Cmd Msg
-fetchStarSystemDetailRequest hostConfig hex =
+jsonResolver : JsDecode.Decoder a -> Http.Resolver Http.Error a
+jsonResolver decoder =
+    Http.stringResolver <|
+        \response ->
+            case response of
+                Http.BadUrl_ badUrl ->
+                    Err (Http.BadUrl badUrl)
+
+                Http.Timeout_ ->
+                    Err Http.Timeout
+
+                Http.NetworkError_ ->
+                    Err Http.NetworkError
+
+                Http.BadStatus_ metadata _ ->
+                    Err (Http.BadStatus metadata.statusCode)
+
+                Http.GoodStatus_ _ body ->
+                    case JsDecode.decodeString decoder body of
+                        Ok value ->
+                            Ok value
+
+                        Err err ->
+                            Err (Http.BadBody (JsDecode.errorToString err))
+
+
+{-| Find the parsec at a hex with the coordinate-filtered index, then fetch it
+with the parsec show endpoint. A hex that matches no parsec is a 404.
+-}
+fetchParsecLookupRequest : HostConfig -> SectorHexAddress -> Cmd Msg
+fetchParsecLookupRequest hostConfig hex =
     let
         ( urlHostRoot, urlHostPath ) =
             hostConfig
 
-        url =
+        indexUrl =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "starsystem" ])
+                (urlHostPath ++ [ "parsecs" ])
                 [ Url.Builder.int "sx" hex.sectorX
                 , Url.Builder.int "sy" hex.sectorY
                 , Url.Builder.int "hx" <| hex.x + 1
                 , Url.Builder.int "hy" <| hex.y + 1
                 ]
 
-        requestCmd =
-            -- using Http.request instead of Http.get, to allow setting a timeout
-            Http.request
+        showUrl parsecId =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "parsecs", String.fromInt parsecId ])
+                []
+
+        getTask url decoder =
+            Http.task
                 { method = "GET"
                 , headers = []
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson FetchedStarSystemDetail starSystemDetailResponseDecoder
+                , resolver = jsonResolver decoder
                 , timeout = Just 5000
-                , tracker = Nothing
                 }
     in
-    requestCmd
+    getTask indexUrl (JsDecode.list (JsDecode.field "id" JsDecode.int))
+        |> Task.andThen
+            (\parsecIds ->
+                case parsecIds of
+                    parsecId :: _ ->
+                        getTask (showUrl parsecId) parsecLookupDecoder
+
+                    [] ->
+                        Task.fail (Http.BadStatus 404)
+            )
+        |> Task.attempt FetchedParsecLookup
 
 
 sendShipTrafficRequest : HostConfig -> Int -> Bool -> Cmd Msg
@@ -8509,7 +8574,7 @@ update msg ( time, model ) =
             -- covered so the next pan over it naturally retries the fetch.
             ( withTime { model | jumpRouteLinksCoverage = unmarkCovered hexRect model.jumpRouteLinksCoverage }, Cmd.none )
 
-        FetchedStarSystemDetail (Ok response) ->
+        FetchedParsecLookup (Ok response) ->
             case response.starSystem of
                 Nothing ->
                     if model.pendingCtrlNavigation then
@@ -8561,10 +8626,10 @@ update msg ( time, model ) =
                         , Cmd.none
                         )
 
-        FetchedStarSystemDetail (Err (Http.BadBody err)) ->
+        FetchedParsecLookup (Err (Http.BadBody err)) ->
             ( withTime { model | pendingCtrlNavigation = False, newStarSystemErrors = model.newStarSystemErrors ++ [ ( Http.BadBody err, "foo" ) ] }, Cmd.none )
 
-        FetchedStarSystemDetail (Err err) ->
+        FetchedParsecLookup (Err err) ->
             ( withTime { model | pendingCtrlNavigation = False }, Cmd.none )
 
         SetKnown known ->
@@ -8782,7 +8847,7 @@ update msg ( time, model ) =
                     , newStarSystemErrors = focusedErrors
                     , sidebarOpen = True
                 }
-            , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+            , fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
             )
 
         ToggleTravelTable ->
@@ -8988,7 +9053,7 @@ update msg ( time, model ) =
                                             | dragMode = NoDragging
                                             , pendingCtrlNavigation = True
                                         }
-                                    , fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+                                    , fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                                 else
@@ -9052,7 +9117,7 @@ update msg ( time, model ) =
                                             Cmd.none
 
                                         Nothing ->
-                                            fetchStarSystemDetailRequest model.hostConfig <| toSectorAddress hexAddress
+                                            fetchParsecLookupRequest model.hostConfig <| toSectorAddress hexAddress
                                     )
 
                             Nothing ->
@@ -9580,11 +9645,11 @@ update msg ( time, model ) =
 
         MoveRuleUp ruleId ->
             if model.isReferee then
-                case String.toInt ruleId of
-                    Just id ->
-                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id True )
+                case ( String.toInt ruleId, rulePositionAfterMove ruleId -1 model.highlightRules ) of
+                    ( Just id, Just position ) ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id position )
 
-                    Nothing ->
+                    _ ->
                         ( withTime model, Cmd.none )
 
             else
@@ -9598,11 +9663,11 @@ update msg ( time, model ) =
 
         MoveRuleDown ruleId ->
             if model.isReferee then
-                case String.toInt ruleId of
-                    Just id ->
-                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id False )
+                case ( String.toInt ruleId, rulePositionAfterMove ruleId 1 model.highlightRules ) of
+                    ( Just id, Just position ) ->
+                        ( withTime model, sendMoveSurveyOverlayRequest model.hostConfig id position )
 
-                    Nothing ->
+                    _ ->
                         ( withTime model, Cmd.none )
 
             else
@@ -9682,8 +9747,8 @@ update msg ( time, model ) =
 
         GotSubsectorLookupUrl result ->
             case result of
-                Ok url ->
-                    ( withTime model, Browser.Navigation.load url )
+                Ok subsectorId ->
+                    ( withTime model, Browser.Navigation.load (subsectorPageUrl model.hostConfig subsectorId) )
 
                 Err _ ->
                     ( withTime model, Browser.Navigation.load (fallbackSectorsUrl model.hostConfig) )
@@ -9903,7 +9968,7 @@ update msg ( time, model ) =
                                     case ( savedDestination, model.selectedSystem ) of
                                         ( Just hex, Just selected ) ->
                                             if selected.address == hex then
-                                                fetchStarSystemDetailRequest model.hostConfig (toSectorAddress hex)
+                                                fetchParsecLookupRequest model.hostConfig (toSectorAddress hex)
 
                                             else
                                                 Cmd.none
@@ -11385,26 +11450,20 @@ sendDeleteSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id =
         }
 
 
-sendMoveSurveyOverlayRequest : HostConfig -> Int -> Bool -> Cmd Msg
-sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id moveUp =
+{-| Moves a survey overlay to `position` in the list, where 1 is first. The
+server shifts the others to make room.
+-}
+sendMoveSurveyOverlayRequest : HostConfig -> Int -> Int -> Cmd Msg
+sendMoveSurveyOverlayRequest ( urlHostRoot, urlHostPath ) id position =
     Http.request
         { method = "PATCH"
         , headers = []
-        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id, moveAction moveUp ]) []
-        , body = Http.emptyBody
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "survey_overlays", String.fromInt id ]) []
+        , body = Http.jsonBody (Encode.object [ ( "position", Encode.int position ) ])
         , expect = Http.expectWhatever SurveyOverlayMutated
         , timeout = Just mapDataRequestTimeoutMs
         , tracker = Nothing
         }
-
-
-moveAction : Bool -> String
-moveAction moveUp =
-    if moveUp then
-        "move_up"
-
-    else
-        "move_down"
 
 
 sendDeleteJumpRouteRequest : HostConfig -> Int -> Cmd Msg

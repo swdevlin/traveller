@@ -30,7 +30,11 @@ class SurveyOverlaysController < ApplicationController
 
   def update
     if @survey_overlay.update(survey_overlay_params)
+      return redirect_to survey_overlays_path, status: :see_other if reordering?
+
       redirect_to @survey_overlay, notice: 'Survey overlay updated.', status: :see_other
+    elsif reordering?
+      redirect_to survey_overlays_path, alert: @survey_overlay.errors.full_messages.to_sentence, status: :see_other
     else
       render :edit, status: :unprocessable_entity
     end
@@ -39,16 +43,6 @@ class SurveyOverlaysController < ApplicationController
   def destroy
     @survey_overlay.destroy!
     redirect_to survey_overlays_path, notice: 'Survey overlay deleted.', status: :see_other
-  end
-
-  def move_up
-    @survey_overlay.move_up!
-    redirect_to survey_overlays_path, status: :see_other
-  end
-
-  def move_down
-    @survey_overlay.move_down!
-    redirect_to survey_overlays_path, status: :see_other
   end
 
   private
@@ -60,9 +54,16 @@ class SurveyOverlaysController < ApplicationController
   # PATCH only ever updates the fields actually present in the request —
   # `rule_data_json` is included only by the full rule editor.
   def survey_overlay_params
-    attrs = params.expect(survey_overlay: %i[name colour enabled])
+    attrs = params.expect(survey_overlay: %i[name colour enabled position])
+    # `position` is the overlay's place in the list (1 is first), not the stored column.
+    attrs[:target_position] = attrs.delete(:position) if attrs.key?(:position)
     attrs[:rule_data] = rule_data_param if rule_data_json_submitted?
     attrs
+  end
+
+  # The list's up/down buttons submit only a position.
+  def reordering?
+    params[:survey_overlay]&.keys == ['position']
   end
 
   def rule_data_json_submitted?

@@ -26,5 +26,7 @@ module Taggable
   def tag_names=(names)
     names = Array(names).map { |name| name.to_s.strip }.reject(&:blank?).uniq
     self.tags = names.map { |name| Tag.find_or_create_by!(name: name) }
+    # Removing a tag deletes its tagging without callbacks, so the owner is not touched by it.
+    touch if persisted?
   end
 end

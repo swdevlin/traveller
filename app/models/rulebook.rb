@@ -26,6 +26,16 @@ class Rulebook < ApplicationRecord
 
   after_commit :broadcast_update
 
+  # Rulebooks the current campaign has enabled, matching what RulebookSearch can
+  # reach: players only see those the referee has made player searchable.
+  # Rulebook is apartment-excluded while CampaignRulebook is per-tenant, so this
+  # is two queries rather than a join.
+  def self.available_to_campaign(referee:)
+    enabled = CampaignRulebook.enabled
+    enabled = enabled.player_searchable unless referee
+    searchable.where(id: enabled.select(:rulebook_id).to_a.map(&:rulebook_id)).order(:title)
+  end
+
   def to_s
     short_title.presence || title
   end

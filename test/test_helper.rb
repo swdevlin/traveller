@@ -2,6 +2,21 @@ ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 require 'rails/test_help'
 require 'webmock/minitest'
+require 'openapi_first'
+
+# Contract testing: every request/response made by an integration test is
+# validated against the OpenAPI document bundled from openapi/. Requests to
+# undocumented endpoints are ignored and coverage is reported, not enforced.
+OpenapiFirst::Test.setup do |test|
+  # The spec is relative to the `/c/{campaign_slug}/api` server URL.
+  definition = OpenapiFirst.parse(OpenapiBundle.document) do |config|
+    config.path = ->(req) { req.path.sub(%r{\A/c/[^/]+/api}, '') }
+  end
+  test.register(definition)
+  test.ignore_unknown_requests = true
+  test.report_coverage = :warn
+end
+OpenapiFirst::Test.observe(Rails.application)
 
 # Parallel worker databases are created via a direct Ruby call to load_schema,
 # bypassing rake hooks. Patch it here so shared_extensions is always created

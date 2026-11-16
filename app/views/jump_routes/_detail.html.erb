@@ -39,10 +39,10 @@
               </td>
               <td class='font-mono'><%= sys.main_world_uwp %></td>
               <td class='text-right tabular-nums text-fg-muted'>
-                <%= format_duration_hours(@hop_timings[i].transit_hours) %>
+                <%= format_duration_hours(@jump_timings[i].transit_hours) %>
               </td>
               <td class='text-right tabular-nums text-fg-muted'>
-                <%= format_duration_hours(@hop_timings[i].elapsed_avg_hours) %>
+                <%= format_duration_hours(@jump_timings[i].elapsed_avg_hours) %>
               </td>
             </tr>
           <% end %>

@@ -119,9 +119,9 @@ export default class extends Controller {
   async #loadLastJump(shipId) {
     if (!shipId || !this.shipsUrlValue) return;
     try {
-      const response = await fetch(`${this.shipsUrlValue}/${shipId}/last_jump`);
+      const response = await fetch(`${this.shipsUrlValue}/${shipId}`);
       if (!response.ok) return;
-      const data = await response.json();
+      const data = (await response.json()).last_jump;
       if (!data) return;
 
       const departYearInput = this.element.querySelector('[data-jump-dates-target="departYear"]');
@@ -130,11 +130,11 @@ export default class extends Controller {
       if (departDayInput) departDayInput.value = data.arrive_day ?? '';
       if (departDayInput) departDayInput.dispatchEvent(new Event('change', { bubbles: true }));
 
-      if (data.sector_id && data.parsec_id) {
+      if (data.to_sector_id && data.to_parsec_id) {
         const fromContainer = this.element.querySelector('[data-parsec-role="from"]');
         const parsecSelectController = this.application.getControllerForElementAndIdentifier(fromContainer, 'parsec-select');
         if (parsecSelectController) {
-          await parsecSelectController.setDefaults(data.sector_id, data.parsec_id);
+          await parsecSelectController.setDefaults(data.to_sector_id, data.to_parsec_id);
         }
       }
     } catch (_e) {

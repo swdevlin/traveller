@@ -152,8 +152,14 @@ suite =
                         |> Result.map .notes
                         |> Expect.equal (Ok "")
             ]
-        , describe "lastJumpDecoder"
-            [ test "null means the ship has no jumps" <|
-                \_ -> Decode.decodeString JumpLog.lastJumpDecoder "null" |> Expect.equal (Ok Nothing)
+        , describe "shipLastJumpDecoder"
+            [ test "a null last_jump means the ship has no jumps" <|
+                \_ -> Decode.decodeString JumpLog.shipLastJumpDecoder "{\"last_jump\":null}" |> Expect.equal (Ok Nothing)
+            , test "reads the last_jump of a ship" <|
+                \_ ->
+                    Decode.decodeString JumpLog.shipLastJumpDecoder
+                        "{\"last_jump\":{\"from_parsec_id\":1,\"from_sector_id\":2,\"to_parsec_id\":3,\"to_sector_id\":4,\"depart_year\":1105,\"depart_day\":1,\"arrive_year\":1105,\"arrive_day\":8}}"
+                        |> Result.map (Maybe.map (\j -> { from = j.fromParsecId, to = j.toParsecId, departDay = j.departDay, arriveDay = j.arriveDay }))
+                        |> Expect.equal (Ok (Just { from = 1, to = 3, departDay = 1, arriveDay = 8 }))
             ]
         ]

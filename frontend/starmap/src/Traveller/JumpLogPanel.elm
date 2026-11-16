@@ -283,8 +283,8 @@ update config msg model =
                             updateForm
                                 (\f ->
                                     { f
-                                        | fromSectorId = Just last.sectorId
-                                        , fromParsecId = Just last.parsecId
+                                        | fromSectorId = Just last.toSectorId
+                                        , fromParsecId = Just last.toParsecId
                                         , departYear = String.fromInt year
                                         , departDay = String.fromInt day
                                         , arriveYear = String.fromInt arriveYear
@@ -293,7 +293,7 @@ update config msg model =
                                 )
                                 model
                     in
-                    ( newModel, fetchParsecs config.hostConfig From last.sectorId )
+                    ( newModel, fetchParsecs config.hostConfig From last.toSectorId )
 
                 _ ->
                     ( model, Cmd.none )
@@ -779,8 +779,8 @@ fetchParsecs hostConfig side sectorId =
 fetchLastJump : HostConfig -> Int -> Cmd Msg
 fetchLastJump hostConfig shipId =
     Http.get
-        { url = apiUrl hostConfig [ "ships", String.fromInt shipId, "last_jump" ] []
-        , expect = Http.expectJson GotLastJump JumpLog.lastJumpDecoder
+        { url = apiUrl hostConfig [ "ships", String.fromInt shipId ] []
+        , expect = Http.expectJson GotLastJump JumpLog.shipLastJumpDecoder
         }
 
 

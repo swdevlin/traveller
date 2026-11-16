@@ -11,7 +11,7 @@ class JumpRoutesController < ApplicationController
   def show; end
 
   def statistics
-    hops =
+    jumps =
       if @jump_route.plotted?
         ActiveRecord::Associations::Preloader.new(
           records: [@jump_route],
@@ -19,15 +19,15 @@ class JumpRoutesController < ApplicationController
         ).call
 
         @ordered_systems = @jump_route.ordered_systems
-        @ordered_systems.each_cons(2).map { |a, b| hop_from_systems(a, b) }
+        @ordered_systems.each_cons(2).map { |a, b| jump_from_systems(a, b) }
       else
         @links = @jump_route.jump_route_links
           .includes(from_star_system: [:main_world, { parsec: :sector }],
                     to_star_system: [:main_world, { parsec: :sector }])
           .order(:id)
-        @links.map { |link| hop_from_systems(link.from_star_system, link.to_star_system) }
+        @links.map { |link| jump_from_systems(link.from_star_system, link.to_star_system) }
       end
-    @route_summary = RouteSummary.new(hops)
+    @route_summary = RouteSummary.new(jumps)
     @facilities_by_id = Facility.all.index_by(&:id)
 
     @show_detail = @route_summary.number_of_jumps.positive? && @route_summary.number_of_jumps <= 12
@@ -35,8 +35,8 @@ class JumpRoutesController < ApplicationController
 
     if @jump_route.plotted?
       timing        = RouteTiming.new(m_drive: @jump_route.m_drive || 1)
-      @hop_timings  = timing.timings_for(@ordered_systems)
-      @route_total  = timing.total(@hop_timings)
+      @jump_timings = timing.timings_for(@ordered_systems)
+      @route_total  = timing.total(@jump_timings)
     end
 
     @show_map = @jump_route.fits_in_sector?
@@ -154,8 +154,8 @@ class JumpRoutesController < ApplicationController
 
   private
 
-  def hop_from_systems(from, to)
-    RouteSummary::Hop.new(
+  def jump_from_systems(from, to)
+    RouteSummary::Jump.new(
       from_coord: [from.parsec.x, from.parsec.y],
       to_coord: [to.parsec.x, to.parsec.y],
       from_sector_id: from.parsec.sector_id,

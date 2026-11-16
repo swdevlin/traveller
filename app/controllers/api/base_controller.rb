@@ -8,6 +8,27 @@ class Api::BaseController < ActionController::API
   helper_method :current_campaign
   helper MarkdownHelper
 
+  # The largest bounding box a limited endpoint accepts: a 2x2 block of
+  # subsectors (a subsector is 8x10).
+  MAX_BOUNDING_BOX_COLUMNS = 16
+  MAX_BOUNDING_BOX_ROWS = 20
+
+  # Rejects a bounding box (ulx, uly, lrx, lry) larger than 16 columns by 20
+  # rows with a 400. Only the box is limited: a request that gives a sector
+  # (sx, sy) is unaffected, since viewport_bounds uses the sector and a sector
+  # is already no larger than 32x40. Takes before_action options.
+  def self.limit_bounding_box(**options)
+    before_action(**options) do
+      columns = params[:lrx].to_i - params[:ulx].to_i + 1
+      rows = params[:uly].to_i - params[:lry].to_i + 1
+      sector_given = params[:sx].present? && params[:sy].present?
+      next if sector_given || (columns <= MAX_BOUNDING_BOX_COLUMNS && rows <= MAX_BOUNDING_BOX_ROWS)
+
+      render json: { error: "bounding box must be no larger than #{MAX_BOUNDING_BOX_COLUMNS} columns by #{MAX_BOUNDING_BOX_ROWS} rows" },
+             status: :bad_request
+    end
+  end
+
   def default_url_options
     params[:campaign_slug].present? ? { campaign_slug: params[:campaign_slug] } : {}
   end
@@ -52,6 +73,30 @@ class Api::BaseController < ActionController::API
     Current.campaign
   end
 
+  # A list query parameter in the API's public form: `name=1,2,3`. Returns an
+  # array of non-blank strings; anything that isn't a string (including the
+  # Rails `name[]=` array form) is treated as absent.
+  def comma_list_param(name)
+    value = params[name]
+    return [] unless value.is_a?(String)
+
+    value.split(',').map(&:strip).reject(&:blank?)
+  end
+
+  # A boolean query parameter in the API's public form: `true`, `1`, `false`
+  # or `0`. Absent or blank is false. Returns :invalid for anything else.
+  def boolean_param(name)
+    value = params[name]
+    return false if value.blank?
+    return :invalid unless value.is_a?(String)
+
+    case value.downcase
+    when 'true', '1' then true
+    when 'false', '0' then false
+    else :invalid
+    end
+  end
+
   def viewport_bounds(pad: 0)
     if params[:sx].present? && params[:sy].present?
       sx = params[:sx].to_i
@@ -65,13 +110,5 @@ class Api::BaseController < ActionController::API
   def parsecs_in_region
     bounds = viewport_bounds
     Parsec.where(x: bounds[:x], y: bounds[:y]) if bounds
-  end
-
-  def star_systems_in_region
-    parsecs = parsecs_in_region
-    return nil if parsecs.nil?
-
-    StarSystem.where(parsec: parsecs)
-              .includes({ parsec: { sector: :subsectors } }, :allegiance, :facilities, stars: :stellar_objects, main_world: :trade_codes)
   end
 end

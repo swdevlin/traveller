@@ -23,6 +23,11 @@ class Api::RegionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
   end
 
+  test 'rejects both a sector and a bounding box' do
+    get api_regions_url(campaign_slug: @campaign.slug, sx: 0, sy: 0, ulx: 0, uly: 5, lrx: 5, lry: 0), as: :json
+    assert_response :bad_request
+  end
+
   test 'only returns regions that intersect the requested bounding box' do
     bounds = { ulx: @parsec_one.x, uly: @parsec_one.y, lrx: @parsec_one.x, lry: @parsec_one.y }
 

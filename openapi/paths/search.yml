@@ -1,0 +1,126 @@
+# Paths: Search
+/search:
+  get:
+    operationId: search
+    tags: [Search]
+    summary: Search universe data
+    description: |
+      Fuzzy name search across star systems, stellar objects, sectors and
+      subsectors, returning up to 12 results. Returns an empty list for
+      queries shorter than three characters. Players see only known or
+      surveyed systems. To find only star systems, including by hex code or
+      within a sector, use `GET /star_systems`.
+    parameters:
+      - { $ref: '#/components/parameters/Query' }
+    responses:
+      '200':
+        description: Matches, best first.
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 12
+              items: { $ref: '#/components/schemas/SearchResult' }
+/star_systems:
+  get:
+    operationId: findStarSystems
+    tags: [Search]
+    summary: Search star systems
+    description: |
+      Finds systems from text someone typed, for search boxes and pickers. The
+      query `q` is read as one of:
+
+      - **A name**, matched fuzzily against system names. If no system
+        matches, it is matched against sector names and the systems of the
+        matching sector are returned.
+      - **A hex code** of 1 to 4 digits, such as `1910`. Fewer than four digits
+        match every hex that starts with them.
+      - **A name and a hex code**, such as `Spinward 1910`: the system at that
+        hex in a sector with that name, as well as systems with that name.
+
+      A system with no name is shown as its sector and hex, such as
+      `Spinward Marches 1910`. At most 12 results are returned, best match
+      first. A `q` of fewer than three characters returns an empty list.
+
+      Players see only systems that are known or have a survey index of at
+      least 10. The referee, with the API token, sees every system.
+    parameters:
+      - { $ref: '#/components/parameters/Query' }
+      - name: sector_id
+        in: query
+        description: Only return systems in this sector.
+        schema: { type: integer }
+    responses:
+      '200':
+        description: Matching systems, best match first.
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 12
+              items: { $ref: '#/components/schemas/StarSystemMatch' }
+            example:
+              - { id: 4021, name: Zeta Prime, meta: 'Spinward Marches · 1910' }
+      '400':
+        description: '`sector_id` is not a whole number.'
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'sector_id must be a whole number' }
+/rulebooks:
+  get:
+    operationId: listRulebooks
+    tags: [Search]
+    summary: List rulebooks
+    description: |
+      The rulebooks the campaign has enabled, ordered by title. Use the `id`
+      values with `rulebook_ids` on `GET /rulebooks/search`. The campaign
+      owner sees every enabled rulebook; everyone else sees only those the
+      owner has made searchable by players.
+    responses:
+      '200':
+        description: Rulebooks available to the caller.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Rulebook' }
+/rulebooks/search:
+  get:
+    operationId: searchRulebooks
+    tags: [Search]
+    summary: Search rulebooks
+    description: |
+      Full-text search of the campaign's rulebooks, grouped by rulebook.
+      Referee-only material is included for the referee.
+    parameters:
+      - { $ref: '#/components/parameters/Query' }
+      - name: rulebook_ids
+        in: query
+        description: Limit the search to these rulebooks, as a comma-separated list of IDs.
+        style: form
+        explode: false
+        schema: { type: array, items: { type: integer } }
+        example: [1, 2]
+      - name: categories
+        in: query
+        description: Limit the search to rulebooks in these categories, as a comma-separated list.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum: [rulebook, supplement, adventure, setting, alien_module, other]
+      - name: per_rulebook_limit
+        in: query
+        description: Hits to return per rulebook, 1 to 10.
+        schema: { type: integer, minimum: 1, maximum: 10, default: 3 }
+    responses:
+      '200':
+        description: Results grouped by rulebook.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/RulebookSearchGroup' }

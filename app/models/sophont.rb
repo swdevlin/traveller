@@ -1,6 +1,8 @@
 # An intelligent species native to one or more worlds. Stellar objects reference a sophont by
 # id through their jsonb data (see HasSophont); tenant schemas scope these to the campaign.
 class Sophont < ApplicationRecord
+  include TouchesStarSystems
+
   PICTURE_TYPES = %w[image/png image/jpeg image/webp image/gif].freeze
   MAX_PICTURE_BYTES = 10.megabytes
 

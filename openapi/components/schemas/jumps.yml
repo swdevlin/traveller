@@ -1,0 +1,56 @@
+# Schemas: jumps
+JumpLogInput:
+  type: object
+  required: [jump_log]
+  properties:
+    jump_log:
+      type: object
+      properties:
+        ship_id: { type: integer }
+        from_parsec_id: { type: integer }
+        to_parsec_id: { type: integer }
+        depart_year: { type: integer }
+        depart_day: { type: integer }
+        arrive_year: { type: integer }
+        arrive_day: { type: integer }
+        notes: { type: string, description: Optional. Markdown. }
+        misjump: { type: boolean, default: false, description: 'Optional, `false` if omitted. A misjump can take any length of time.' }
+JumpLog:
+  type: object
+  additionalProperties: true
+  properties:
+    id: { type: integer }
+    ship_id: { type: integer }
+    from_parsec_id: { type: integer }
+    to_parsec_id: { type: integer }
+    depart_year: { type: [integer, 'null'] }
+    depart_day: { type: [integer, 'null'] }
+    arrive_year: { type: [integer, 'null'] }
+    arrive_day: { type: [integer, 'null'] }
+    sequence: { type: [integer, 'null'] }
+    notes: { type: [string, 'null'] }
+    misjump: { type: [boolean, 'null'] }
+JumpLogEntry:
+  type: object
+  required: [id, ship_id, ship_name, from_parsec_id, to_parsec_id]
+  properties:
+    id: { type: integer }
+    ship_id: { type: integer }
+    ship_name: { type: string }
+    sequence: { type: [integer, 'null'] }
+    depart_year: { type: [integer, 'null'] }
+    depart_day: { type: [integer, 'null'] }
+    arrive_year: { type: [integer, 'null'] }
+    arrive_day: { type: [integer, 'null'] }
+    misjump: { type: [boolean, 'null'] }
+    from_parsec_id: { type: integer }
+    from_x: { type: integer }
+    from_y: { type: integer }
+    from_sector_name: { type: [string, 'null'] }
+    from_hex_code: { type: [string, 'null'] }
+    to_parsec_id: { type: integer }
+    to_x: { type: integer }
+    to_y: { type: integer }
+    to_sector_name: { type: [string, 'null'] }
+    to_hex_code: { type: [string, 'null'] }
+    notes: { type: [string, 'null'], description: Referee only. }

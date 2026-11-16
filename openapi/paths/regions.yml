@@ -1,0 +1,43 @@
+/regions:
+  get:
+    operationId: listRegions
+    tags: [Regions]
+    summary: List regions
+    description: |
+      Regions (political or cultural areas) that touch an area of the map,
+      each with the hexes it covers within that area. Choose the area in one
+      of two ways:
+
+      - **By sector**: send `sx` and `sy` to select a whole sector. See
+        [sector and hex parameters](#description/sector-and-hex-parameters).
+      - **By viewport**: send `ulx`, `uly`, `lrx` and `lry` to select a
+        bounding box in [universal coordinates](#description/universal-coordinates).
+        See [viewports](#description/viewports).
+
+      Send one or the other, not both. Sending both, or neither, returns
+      `400`.
+
+      The selected area is padded by one hex on every side, so regions that
+      sit just outside it are included and can be drawn without a visible
+      edge.
+    parameters:
+      - { $ref: '#/components/parameters/Sx' }
+      - { $ref: '#/components/parameters/Sy' }
+      - { $ref: '#/components/parameters/Ulx' }
+      - { $ref: '#/components/parameters/Uly' }
+      - { $ref: '#/components/parameters/Lrx' }
+      - { $ref: '#/components/parameters/Lry' }
+    responses:
+      '200':
+        description: Regions in the viewport.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Region' }
+      '400':
+        description: Neither a sector nor a bounding box was supplied, or both were.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'exactly one of sector coordinates (sx, sy) or a bounding box (ulx, uly, lrx, lry) must be given' }

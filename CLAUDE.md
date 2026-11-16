@@ -25,6 +25,10 @@ bin/rails test test/models/star_system_test.rb
 # Run a specific test by line number
 bin/rails test test/models/star_system_test.rb:42
 
+# Run Elm tests (from frontend/starmap). Use elm-test-rs, not elm-test:
+# `npx elm-test` fails with an "Elm version mismatch" error
+cd frontend/starmap && npm test
+
 # Run linting
 bundle exec rubocop
 

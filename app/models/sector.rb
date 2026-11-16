@@ -9,6 +9,14 @@ class Sector < ApplicationRecord
   has_many :subsectors, dependent: :destroy
   has_many :parsecs, dependent: :destroy
 
+  include TouchesStarSystems
+
+  # The sector's name is shown with each of its systems. Its parsecs touch it whenever
+  # one of them changes, so only a rename counts here.
+  def affected_star_systems = StarSystem.where(parsec_id: parsecs.select(:id))
+
+  def touch_star_systems_after_update? = saved_change_to_name?
+
   attr_accessor :skip_subsector_creation, :default_build_spec, :t5_build_specs, :populate_subsectors,
             :density, :settled, :systems_known, :max_tech_level, :creation_mode, :subsector_settings, :campaign_slug
   after_create_commit :create_subsectors_and_parsecs, unless: :skip_subsector_creation

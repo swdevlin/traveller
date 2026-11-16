@@ -5,7 +5,13 @@ class SurveyOverlay < ApplicationRecord
   validates :name, presence: true
   validates_hex_colour :colour, presence: true
 
+  # Set to a 1-based place in the list to move the overlay there when it is
+  # saved; the others shift to make room. Left nil, position is not changed.
+  attr_accessor :target_position
+
   before_validation :assign_position, on: :create
+  validate :target_position_is_in_the_list, unless: -> { target_position.nil? }
+  after_save :move_to_target_position, unless: -> { target_position.nil? }
 
   scope :ordered, -> { order(:position) }
 
@@ -20,14 +26,6 @@ class SurveyOverlay < ApplicationRecord
   # matching. Mirrors `Traveller.HighlightRule.evaluate`.
   def matches?(star_system)
     groups.any? { |group| group.all? { |condition| condition_matches?(condition, star_system) } }
-  end
-
-  def move_up!
-    swap_with_adjacent(SurveyOverlay.ordered.where('position < ?', position).last)
-  end
-
-  def move_down!
-    swap_with_adjacent(SurveyOverlay.ordered.where('position > ?', position).first)
   end
 
   private
@@ -156,17 +154,32 @@ class SurveyOverlay < ApplicationRecord
     c >= low && c <= high
   end
 
-  def assign_position
-    self.position ||= (SurveyOverlay.maximum(:position) || 0) + 1
+  def requested_position
+    Integer(target_position.to_s, exception: false)
   end
 
-  def swap_with_adjacent(other)
-    return unless other
+  def target_position_is_in_the_list
+    count = SurveyOverlay.count
+    return if requested_position&.between?(1, count)
 
-    SurveyOverlay.transaction do
-      my_position = position
-      update!(position: other.position)
-      other.update!(position: my_position)
+    errors.add(:position, "must be a whole number between 1 and #{count}")
+  end
+
+  # Re-seats the overlay and renumbers the whole list 1..n. Every overlay that
+  # moves has updated_at touched, because the cached maps are keyed on it and
+  # the first matching overlay wins when colours are applied.
+  def move_to_target_position
+    others = SurveyOverlay.where.not(id: id).order(:position, :id).to_a
+    now = Time.current
+    others.insert(requested_position - 1, self).each_with_index do |overlay, index|
+      next if overlay.position == index + 1
+
+      overlay.update_columns(position: index + 1, updated_at: now)
     end
+    self.target_position = nil
+  end
+
+  def assign_position
+    self.position ||= (SurveyOverlay.maximum(:position) || 0) + 1
   end
 end

@@ -45,6 +45,9 @@ taintSubtypeDescription code =
         "H" ->
             "High Oxygen"
 
+        "" ->
+            "N/A"
+
         unknown ->
             "N/A" ++ " (Unknown subtype: " ++ unknown ++ ")"
 

@@ -1,0 +1,162 @@
+# Root of the MTU API description. The paths and components live in the
+# files beside this one; OpenapiBundle merges them into the single
+# document served at /api/openapi.yml. See openapi/README.md.
+openapi: 3.1.0
+info:
+  title: My Traveller Universe API
+  version: 0.1.0
+  description: |
+    JSON API for a Traveller campaign's universe data.
+
+    ## Stability
+
+    > [!WARNING]
+    > This API is **pre-release**: until version 1.0 there may be breaking
+    > changes, such as endpoints or fields being renamed, moved or removed, or
+    > their behaviour changing. Check the version above before relying on it,
+    > and expect to update your integration as the API settles.
+
+    From version 1.0 there will be no breaking changes. Later versions will
+    only add to the API, with new endpoints, optional parameters and response
+    fields, so clients should ignore response fields they do not recognise.
+
+    ## Campaigns
+
+    Every endpoint is scoped to a campaign: requests are made to
+    `/c/{campaign_slug}/api/...`. Replace `{campaign_slug}` with the slug of
+    the campaign. An unknown slug returns `404` with `{"error": "Campaign not found"}`.
+
+    ## Authentication
+
+    Most read endpoints are public and return only what players may see.
+    Referee-only content (tags, classified records, referee notes and so on)
+    is returned only to the campaign's referee. The referee identifies
+    themselves with the campaign's API token, which they can copy from the
+    campaign's settings page.
+
+    Endpoints that change data, and the referee tools (traffic, trade, survey
+    overlays, orbit maps), can only be called by the owner of the campaign.
+    Send the token as a bearer token:
+
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    A request without a valid token is rejected with `401`. (A signed-in
+    referee's browser session is accepted too, which is what lets the
+    "Test Request" button on this page work without a token. External tools
+    should use the token.)
+
+    ## Universal coordinates
+
+    Every parsec in the universe (MTU's name for a map hex) has a unique integer `(x, y)` position,
+    its *universal coordinate*. They are independent of any one sector, so a
+    position identifies a hex without needing a sector or a hex code.
+
+    - `x` increases to the right on a map.
+    - `y` increases towards the top of the map. Hex rows count *down* the
+      page, so `y` falls as the row number rises.
+    - Sectors have their own coordinates `(sx, sy)`, with the sector at
+      `(0, 0)` as the origin. A sector is 32 parsecs wide and 40 tall, and
+      the sector's upper-left hex (`0101`) is its origin.
+
+    A sector's upper-left hex is at `(sx * 32, sy * 40)`. For a hex with
+    sector-relative address `HHRR` (column `hx` = `HH`, row `hy` = `RR`, both
+    counted from 1):
+
+    ```
+    x = sx * 32 + (hx - 1)
+    y = sy * 40 - (hy - 1)
+    ```
+
+    and back again:
+
+    ```
+    hx = x - sx * 32 + 1
+    hy = sy * 40 - y + 1
+    ```
+
+    A sector therefore covers `x` from `sx * 32` to `sx * 32 + 31`, and `y`
+    from `sy * 40 - 39` to `sy * 40`. To find the sector containing a
+    coordinate, use `sx = floor(x / 32)` and `sy = ceil(y / 40)`. Take care
+    with negative values: round towards negative infinity for `floor` and
+    towards positive infinity for `ceil`, not towards zero.
+
+    Worked example: the Spinward Marches is sector `(-4, -1)`. Its hex `1910`
+    has `hx = 19` and `hy = 10`, so `x = -4 * 32 + 18 = -110` and
+    `y = -1 * 40 - 9 = -49`. The sector's upper-left hex `0101` is `(-128, -40)`
+    and its lower-right hex `3240` is `(-97, -79)`.
+
+    The star system fields `origin_x` and `origin_y`, a parsec's `x` and `y`,
+    and the `x` and `y` parameters of `GET /subsector_at` are all universal coordinates.
+    The `x` and `y` of a *sector* are the sector coordinates `(sx, sy)`
+    described above.
+
+    ## Sector and hex parameters
+
+    Many endpoints choose an area, or a single hex, with these parameters
+    instead of universal coordinates:
+
+    | Parameter | Meaning |
+    | --- | --- |
+    | `sx`, `sy` | The sector's coordinates `(sx, sy)`, as described under *Universal coordinates*. |
+    | `hx`, `hy` | A hex within a sector: its column (`1` to `32`) and row (`1` to `40`), counted from the sector's upper-left hex `0101`. They are the `HH` and `RR` of a hex address `HHRR`, so hex `1910` is `hx=19`, `hy=10`. |
+
+    `sx` and `sy` are always given as a pair, and select the whole sector.
+    `hx` and `hy` are meaningful only within a sector, so they are always
+    given as a pair *and* together with `sx` and `sy`, and narrow the selection
+    to the one hex. A hex outside the sector, such as `hx=33`, matches nothing.
+
+    ## Viewports
+
+    Endpoints that return map data for a region take either a sector
+    (`sx`, `sy`) or a bounding box in universal coordinates
+    (`ulx`, `uly`, `lrx`, `lry`). The box is inclusive: `ulx`/`uly` is the
+    upper-left hex (smallest `x`, largest `y`) and `lrx`/`lry` the lower-right
+    hex (largest `x`, smallest `y`). If neither is supplied they return `400`.
+
+    ## Errors
+
+    Errors are JSON: `{"error": "message"}` for a single failure, or
+    `{"errors": ["message", ...]}` for validation failures.
+servers:
+  - url: /c/{campaign_slug}/api
+    description: Campaign-scoped API
+    variables:
+      campaign_slug:
+        default: my-campaign
+        description: The campaign's URL slug.
+tags:
+  - name: Commerce
+    description: Referee tools for passengers, freight, mail and speculative trade.
+  - name: Jumps
+    description: Logged jumps between parsecs.
+  - name: Map
+    description: Systems and labels for plotting an area, and rendered maps.
+  - name: Parsecs
+    description: |
+      A parsec is the name MTU uses for a map hex: one cell of the hex grid,
+      which may hold a star system and any rogue stellar objects. It is not
+      the unit of distance, though the two are linked, as adjacent hexes are
+      one parsec apart. Each parsec has a unique `(x, y)` [universal coordinate](#description/universal-coordinates).
+  - name: Reference
+    description: Reference tables.
+  - name: Regions
+    description: Political and cultural areas drawn over the map.
+  - name: Routes
+    description: Jump routes, route links and route planning.
+  - name: Search
+    description: Searching universe data and rulebooks, and listing the rulebooks available to search.
+  - name: Sectors
+    description: Sectors, and the subsectors within them.
+  - name: Ships
+    description: Ships, and where they have jumped.
+  - name: Star systems
+    description: Star systems and the stars within them.
+  - name: Stellar objects
+    description: Planets, belts, moons and other stellar objects, whether in a star system or rogue.
+  - name: Subsectors
+    description: Subsectors and the star systems within them.
+  - name: Survey overlays
+    description: Referee-only rules that highlight systems on the map.
+security: []

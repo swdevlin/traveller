@@ -156,12 +156,15 @@ class CommerceController < ApplicationController
     end
   end
 
+  # Stands in for the star system id in the URL, which the picker's JS fills in.
+  SYSTEM_ID_PLACEHOLDER = '__ID__'
+
   # Used only for the shared picker's live JS preview before the form is submitted —
   # the rendered tab panels below get their own modifier breakdown regardless of tab.
   def tab_system_data_url
     case @tab
-    when 'passage' then api_passenger_traffic_system_path
-    when 'freight', 'mail', 'trade' then api_freight_traffic_system_path
+    when 'passage' then api_star_system_passenger_traffic_path(id: SYSTEM_ID_PLACEHOLDER)
+    when 'freight', 'mail', 'trade' then api_star_system_freight_traffic_path(id: SYSTEM_ID_PLACEHOLDER)
     end
   end
   helper_method :tab_system_data_url

@@ -5,6 +5,20 @@ class Api::ParsecsControllerTest < AuthenticatedIntegrationTest
     @parsec = parsecs(:four)
   end
 
+  test 'index with both sector hex coordinates and a bounding box returns bad request' do
+    base = "/c/#{campaigns(:one).slug}/api/parsecs"
+    box = { ulx: 0, uly: 5, lrx: 5, lry: 0 }
+
+    get base, params: box.merge(sx: 0, sy: 0), as: :json
+    assert_response :bad_request
+
+    get base, params: box.merge(sx: 0, sy: 0, hx: 1, hy: 1), as: :json
+    assert_response :bad_request
+
+    get base, params: box, as: :json
+    assert_response :success
+  end
+
   test 'update with active session sets survey_index' do
     patch "/c/#{campaigns(:one).slug}/api/parsecs/#{@parsec.id}",
           params: { survey_index: 8 },

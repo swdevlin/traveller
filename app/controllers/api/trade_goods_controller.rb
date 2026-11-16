@@ -9,7 +9,7 @@ class Api::TradeGoodsController < Api::BaseController
   # subsequent requests to keep the same list stable; omit it to roll a fresh one.
   def availability
     system = StarSystem.find_by(id: params[:id])
-    return render json: { error: 'id must reference a star system' }, status: :unprocessable_entity unless system
+    return render json: { error: 'star system not found' }, status: :not_found unless system
 
     seed = params[:seed].presence&.to_i || SecureRandom.random_number(1_000_000_000)
     calculator = TradeAvailabilityCalculator.new(system: system, campaign: current_campaign, seed: seed).calculate
@@ -29,7 +29,7 @@ class Api::TradeGoodsController < Api::BaseController
   # reason to roll one good at a time.
   def prices
     system = StarSystem.find_by(id: params[:id])
-    return render json: { error: 'id must reference a star system' }, status: :unprocessable_entity unless system
+    return render json: { error: 'star system not found' }, status: :not_found unless system
 
     skill_effect             = params[:skill_effect].presence&.to_i || 0
     counterpart_broker_skill = params[:counterpart_broker_skill].presence&.to_i || 2
@@ -38,7 +38,7 @@ class Api::TradeGoodsController < Api::BaseController
     broker_level              = params[:broker_level].presence&.to_i || current_campaign.local_broker_level_value
     broker_fee_percentage      = params[:broker_fee_percentage].presence&.to_f || current_campaign.local_broker_fee_percentage_value
     direction                = params[:direction]
-    d66s                     = Array(params[:d66s]).map(&:to_i).presence || TradeGoodsTable.priceable_d66_codes
+    d66s                     = comma_list_param(:d66s).map(&:to_i).presence || TradeGoodsTable.priceable_d66_codes
 
     results = d66s.map do |d66|
       calculator = TradePriceCalculator.new(

@@ -1,0 +1,99 @@
+# Paths: Sectors
+/sectors:
+  get:
+    operationId: listSectors
+    tags: [Sectors]
+    summary: List sectors
+    description: |
+      Returns every sector in the campaign with a summary of its subsectors
+      (`id`, `name`, `x` and `y`; use `getSubsector` for more). Sectors carry
+      notes, as Markdown:
+
+      - `survey_records` is returned to everyone.
+      - `classified_records` and `tags` are for the referee only. Without
+        referee access `tags` is empty and `classified_records` is `null`.
+
+      Referee access means the campaign's API token, or a session signed in
+      as the campaign's owner. The `*_html` renders are not included.
+    responses:
+      '200':
+        description: The campaign's sectors.
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: '#/components/schemas/Sector' }
+            example:
+              - id: 1
+                name: Spinward Marches
+                x: -4
+                y: -1
+                abbreviation: Spin
+                tags: [core]
+                survey_records: Surveyed by the Imperial Scout Service.
+                classified_records: Referee only. Null for players.
+                subsectors:
+                  - id: 1
+                    name: Cronor
+                    x: 1
+                    y: 1
+                  - id: 2
+                    name: Jewell
+                    x: 2
+                    y: 1
+      '404': { $ref: '#/components/responses/CampaignNotFound' }
+/subsectors/{id}:
+  get:
+    operationId: getSubsector
+    tags: [Subsectors]
+    summary: Get a subsector
+    description: |
+      A subsector with its survey records, its parent sector and a summary of
+      each star system in it. Classified records are included for the referee only.
+    parameters:
+      - { $ref: '#/components/parameters/SubsectorId' }
+    responses:
+      '200':
+        description: The subsector.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Subsector' }
+      '404':
+        description: No subsector has this id, or the campaign does not exist.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'subsector not found' }
+/subsector_at:
+  get:
+    operationId: getSubsectorAt
+    tags: [Subsectors]
+    summary: Find the subsector at a coordinate
+    description: |
+      Returns the subsector containing a parsec. `x` and
+      `y` are the parsec's
+      [universal coordinates](#description/universal-coordinates), not sector or subsector
+      coordinates.
+    parameters:
+      - name: x
+        in: query
+        required: true
+        description: 'Universal x coordinate of the parsec; see [universal coordinates](#description/universal-coordinates).'
+        schema: { type: integer }
+      - name: y
+        in: query
+        required: true
+        description: 'Universal y coordinate of the parsec; see [universal coordinates](#description/universal-coordinates).'
+        schema: { type: integer }
+    responses:
+      '200':
+        description: The subsector containing the parsec. Use `GET /subsectors/{id}` for its star systems.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SubsectorLookup' }
+      '404':
+        description: There is no parsec at this coordinate, so no subsector.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Error' }
+            example: { error: 'No subsector at this point' }

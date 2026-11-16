@@ -1,5 +1,5 @@
 class City < ApplicationRecord
-  belongs_to :stellar_object
+  belongs_to :stellar_object, touch: true
 
   TYPES = {
     'Ar' => { label: 'Arcology, sealed city', min_tl: 8 },

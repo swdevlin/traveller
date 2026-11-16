@@ -69,7 +69,7 @@ class JumpRoute < ApplicationRecord
     return nil unless plan
 
     jump_route_links.destroy_all
-    plan.hops.each_cons(2) do |a, b|
+    plan.jumps.each_cons(2) do |a, b|
       JumpRouteLink.create!(
         jump_route:          self,
         from_star_system_id: a.system.id,

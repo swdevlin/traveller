@@ -18,7 +18,7 @@ foundJson =
       "jump_range": 1,
       "refueling": "wilderness",
       "excluded_travel_zone_ids": [],
-      "hops": [
+      "jumps": [
         { "system": { "id": 1, "name": "Alpha", "hex_label": "0101", "x": 0, "y": 0 }, "distance": 0,
           "transit_hours": 1.5, "elapsed_avg_hours": 1.5 },
         { "system": { "id": 2, "name": "Beta", "hex_label": "0102", "x": 1, "y": 0 }, "distance": 1,
@@ -49,7 +49,7 @@ notFoundJson =
       "jump_range": 1,
       "refueling": "wilderness",
       "excluded_travel_zone_ids": [7],
-      "hops": [],
+      "jumps": [],
       "total_distance": null,
       "parsec_distance": null,
       "total_jump_avg_hours": null,
@@ -66,7 +66,7 @@ notFoundJson =
 routePlanResultDecoderTests : Test
 routePlanResultDecoderTests =
     describe "routePlanResultDecoder"
-        [ Test.test "decodes a found route with its hops and stats" <|
+        [ Test.test "decodes a found route with its jumps and stats" <|
             \_ ->
                 case Decode.decodeString RoutePlan.routePlanResultDecoder foundJson of
                     Ok result ->
@@ -74,7 +74,7 @@ routePlanResultDecoderTests =
                             [ \r -> Expect.equal True r.found
                             , \r -> Expect.equal 1 r.from.id
                             , \r -> Expect.equal "Gamma" r.to.name
-                            , \r -> Expect.equal 3 (List.length r.hops)
+                            , \r -> Expect.equal 3 (List.length r.jumps)
                             , \r -> Expect.equal (Just 2) r.totalDistance
                             , \r -> Expect.equal (Just 2) r.parsecDistance
                             , \r -> Expect.equal (Just 338.0) r.totalJumpAvgHours
@@ -84,22 +84,22 @@ routePlanResultDecoderTests =
                             , \r -> Expect.equal (Just 348.0) r.totalAvgHours
                             , \r -> Expect.equal (Just 318.0) r.totalMinHours
                             , \r -> Expect.equal (Just 378.0) r.totalMaxHours
-                            , \r -> Expect.equal (Just 1.5) (List.head r.hops |> Maybe.map .transitHours)
-                            , \r -> Expect.equal (Just 1.5) (List.head r.hops |> Maybe.map .elapsedAvgHours)
-                            , \r -> Expect.equal (Just 2.5) (List.drop 1 r.hops |> List.head |> Maybe.map .transitHours)
-                            , \r -> Expect.equal (Just 173.0) (List.drop 1 r.hops |> List.head |> Maybe.map .elapsedAvgHours)
+                            , \r -> Expect.equal (Just 1.5) (List.head r.jumps |> Maybe.map .transitHours)
+                            , \r -> Expect.equal (Just 1.5) (List.head r.jumps |> Maybe.map .elapsedAvgHours)
+                            , \r -> Expect.equal (Just 2.5) (List.drop 1 r.jumps |> List.head |> Maybe.map .transitHours)
+                            , \r -> Expect.equal (Just 173.0) (List.drop 1 r.jumps |> List.head |> Maybe.map .elapsedAvgHours)
                             ]
                             result
 
                     Err err ->
                         Expect.fail (Decode.errorToString err)
-        , Test.test "decodes a not-found route with null stats and empty hops" <|
+        , Test.test "decodes a not-found route with null stats and empty jumps" <|
             \_ ->
                 case Decode.decodeString RoutePlan.routePlanResultDecoder notFoundJson of
                     Ok result ->
                         Expect.all
                             [ \r -> Expect.equal False r.found
-                            , \r -> Expect.equal [] r.hops
+                            , \r -> Expect.equal [] r.jumps
                             , \r -> Expect.equal Nothing r.totalDistance
                             , \r -> Expect.equal Nothing r.parsecDistance
                             , \r -> Expect.equal Nothing r.totalAvgHours

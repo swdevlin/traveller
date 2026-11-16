@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Api::RoutePlansController < Api::BaseController
-  LIMIT = 12
-
   before_action :authenticate_user_or_token!, only: %i[save]
 
   def plan
@@ -17,8 +15,13 @@ class Api::RoutePlansController < Api::BaseController
     end
 
     jump_range               = params[:jump_range].presence&.to_i || 2
-    refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
-    excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
+    refueling                = params[:refueling].presence || 'any'
+    unless JumpRoute::REFUELING.include?(refueling)
+      return render json: { error: "refueling must be one of: #{JumpRoute::REFUELING.join(', ')}" },
+                    status: :unprocessable_entity
+    end
+
+    excluded_travel_zone_ids = comma_list_param(:excluded_travel_zone_ids).map(&:to_i).select(&:positive?)
     m_drive                  = params[:m_drive].presence&.to_i&.clamp(1, 6) || 1
 
     planner = RoutePlanner.new(
@@ -31,15 +34,15 @@ class Api::RoutePlansController < Api::BaseController
     )
     plan = planner.plan
 
-    hop_timings  = nil
+    jump_timings  = nil
     route_total  = nil
     if plan
-      ids           = plan.hops.map { |h| h.system.id }
+      ids           = plan.jumps.map { |h| h.system.id }
       systems_by_id = StarSystem.where(id: ids).includes(:main_world).index_by(&:id)
-      ordered       = plan.hops.map { |h| systems_by_id[h.system.id] }
+      ordered       = plan.jumps.map { |h| systems_by_id[h.system.id] }
       timing        = RouteTiming.new(m_drive: m_drive)
-      hop_timings   = timing.timings_for(ordered)
-      route_total   = timing.total(hop_timings)
+      jump_timings   = timing.timings_for(ordered)
+      route_total   = timing.total(jump_timings)
     end
 
     render json: {
@@ -50,8 +53,8 @@ class Api::RoutePlansController < Api::BaseController
       refueling:                 refueling,
       excluded_travel_zone_ids:  excluded_travel_zone_ids,
       m_drive:                   m_drive,
-      hops:                      plan ? plan.hops.each_with_index.map { |hop, i| hop_json(hop, hop_timings[i]) } : [],
-      total_distance:            plan ? plan.hops.sum(&:distance) : nil,
+      jumps:                     plan ? plan.jumps.each_with_index.map { |jump, i| jump_json(jump, jump_timings[i]) } : [],
+      total_distance:            plan ? plan.jumps.sum(&:distance) : nil,
       parsec_distance:           plan ? planner.parsec_distance(from_system, to_system) : nil,
       total_jump_avg_hours:      route_total&.fetch(:jump_avg_hours),
       total_jump_min_hours:      route_total&.fetch(:jump_min_hours),
@@ -94,59 +97,24 @@ class Api::RoutePlansController < Api::BaseController
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
-  def systems
-    q = params[:q].to_s.strip
-    return render json: [] if q.length < 3
-
-    authenticated_by_session?
-    is_referee = Current.owns_campaign?
-
-    render json: search_systems(q, is_referee)
-  end
-
   private
 
   def system_json(system)
     { id: system.id, name: system.name }
   end
 
-  def hop_json(hop, timing)
+  def jump_json(jump, timing)
     {
       system: {
-        id:        hop.system.id,
-        name:      hop.system.name,
-        hex_label: hop.system.hex_label,
-        x:         hop.system.x,
-        y:         hop.system.y
+        id:        jump.system.id,
+        name:      jump.system.name,
+        hex_label: jump.system.hex_label,
+        x:         jump.system.x,
+        y:         jump.system.y
       },
-      distance:          hop.distance,
+      distance:          jump.distance,
       transit_hours:     timing.transit_hours,
       elapsed_avg_hours: timing.elapsed_avg_hours
     }
-  end
-
-  HEX_CODE_SQL = <<~SQL.squish.freeze
-    LPAD((parsecs.x - sec.x * 32 + 1)::text, 2, '0') ||
-    LPAD((sec.y * 40 - parsecs.y + 1)::text, 2, '0')
-  SQL
-
-  def search_systems(q, is_referee)
-    visibility = is_referee ? '' : 'AND (ss.known = true OR ss.survey_index >= 10)'
-
-    sql = <<~SQL
-      SELECT ss.id, ss.name,
-             word_similarity($1, ss.name) AS score,
-             sec.name || ' · ' || #{HEX_CODE_SQL} AS meta
-      FROM star_systems ss
-      JOIN parsecs ON parsecs.id = ss.parsec_id
-      JOIN sectors sec ON sec.id = parsecs.sector_id
-      WHERE ss.name IS NOT NULL AND $1 <% ss.name
-        #{visibility}
-      ORDER BY score DESC, ss.name ASC
-      LIMIT #{LIMIT}
-    SQL
-
-    rows = ActiveRecord::Base.connection.exec_query(sql, 'RoutePlanSystemSearch', [q])
-    rows.map { |r| { id: r['id'], name: r['name'], meta: r['meta'] } }
   end
 end
