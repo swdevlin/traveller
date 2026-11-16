@@ -19,7 +19,7 @@ holds data only - the form/modal lives in `Traveller.CommerceForm`.
 
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline exposing (required)
-import Traveller.RoutePlan exposing (RoutePlanEndpoint, routePlanEndpointDecoder)
+import Traveller.RoutePlan exposing (RoutePlanEndpoint, commaListParam, routePlanEndpointDecoder)
 import Url.Builder
 
 
@@ -213,4 +213,4 @@ pricesQuery { direction, skillEffect, counterpartBrokerSkill, otherDm, useBroker
     , Url.Builder.int "broker_level" brokerLevel
     , Url.Builder.string "broker_fee_percentage" (String.fromFloat brokerFeePercentage)
     ]
-        ++ List.map (\d66 -> Url.Builder.string "d66s[]" (String.fromInt d66)) d66s
+        ++ commaListParam "d66s" d66s

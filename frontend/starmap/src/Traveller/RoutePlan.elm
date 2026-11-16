@@ -6,6 +6,7 @@ module Traveller.RoutePlan exposing
     , RoutePlanSystemResult
     , StoredRoutePlan
     , TravelZoneOption
+    , commaListParam
     , planQuery
     , routePlanEndpointDecoder
     , routePlanResultDecoder
@@ -232,16 +233,29 @@ storedRoutePlanCodec =
         |> Codec.buildObject
 
 
+{-| A list-valued API query parameter in its public form, `name=1,2,3`. An empty
+list produces no parameter at all.
+-}
+commaListParam : String -> List Int -> List Url.Builder.QueryParameter
+commaListParam name values =
+    if List.isEmpty values then
+        []
+
+    else
+        [ Url.Builder.string name (String.join "," (List.map String.fromInt values)) ]
+
+
 {-| Query params for `GET api/route_plan`.
 -}
 planQuery : { fromId : Int, toId : Int, jumpRange : Int, refueling : String, excludedTravelZoneIds : List Int, mDrive : Int } -> List Url.Builder.QueryParameter
 planQuery { fromId, toId, jumpRange, refueling, excludedTravelZoneIds, mDrive } =
-    Url.Builder.int "from_id" fromId
-        :: Url.Builder.int "to_id" toId
-        :: Url.Builder.int "jump_range" jumpRange
-        :: Url.Builder.string "refueling" refueling
-        :: Url.Builder.int "m_drive" mDrive
-        :: List.map (\id -> Url.Builder.int "excluded_travel_zone_ids[]" id) excludedTravelZoneIds
+    [ Url.Builder.int "from_id" fromId
+    , Url.Builder.int "to_id" toId
+    , Url.Builder.int "jump_range" jumpRange
+    , Url.Builder.string "refueling" refueling
+    , Url.Builder.int "m_drive" mDrive
+    ]
+        ++ commaListParam "excluded_travel_zone_ids" excludedTravelZoneIds
 
 
 {-| JSON body for `POST api/route_plan/save`.

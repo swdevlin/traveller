@@ -73,6 +73,16 @@ class Api::BaseController < ActionController::API
     Current.campaign
   end
 
+  # A list query parameter in the API's public form: `name=1,2,3`. Returns an
+  # array of non-blank strings; anything that isn't a string (including the
+  # Rails `name[]=` array form) is treated as absent.
+  def comma_list_param(name)
+    value = params[name]
+    return [] unless value.is_a?(String)
+
+    value.split(',').map(&:strip).reject(&:blank?)
+  end
+
   def viewport_bounds(pad: 0)
     if params[:sx].present? && params[:sy].present?
       sx = params[:sx].to_i

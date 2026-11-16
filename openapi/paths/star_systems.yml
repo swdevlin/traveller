@@ -229,11 +229,11 @@
       - { name: use_broker, in: query, description: Whether a local broker is used., schema: { type: boolean } }
       - { name: broker_level, in: query, description: Broker skill level. Defaults to the campaign's setting., schema: { type: integer } }
       - { name: broker_fee_percentage, in: query, description: Broker fee. Defaults to the campaign's setting., schema: { type: number } }
-      - name: d66s[]
+      - name: d66s
         in: query
-        description: D66 codes of the goods to price.
+        description: D66 codes of the goods to price, as a comma-separated list.
         style: form
-        explode: true
+        explode: false
         schema: { type: array, items: { $ref: '#/components/schemas/D66' } }
     responses:
       '200':

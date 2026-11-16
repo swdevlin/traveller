@@ -174,7 +174,7 @@ availabilityQueryTests =
 pricesQueryTests : Test
 pricesQueryTests =
     describe "TradeGoods.pricesQuery"
-        [ Test.test "builds one query parameter per shared field, plus one per d66" <|
+        [ Test.test "builds one query parameter per shared field, plus one comma-separated d66s" <|
             \_ ->
                 TradeGoods.pricesQuery
                     { direction = "purchase"
@@ -187,7 +187,7 @@ pricesQueryTests =
                     , d66s = [ 11, 21 ]
                     }
                     |> List.length
-                    |> Expect.equal 9
+                    |> Expect.equal 8
         , Test.test "an empty d66s list still builds the shared fields" <|
             \_ ->
                 TradeGoods.pricesQuery

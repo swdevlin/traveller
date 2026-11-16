@@ -38,7 +38,7 @@ class Api::TradeGoodsController < Api::BaseController
     broker_level              = params[:broker_level].presence&.to_i || current_campaign.local_broker_level_value
     broker_fee_percentage      = params[:broker_fee_percentage].presence&.to_f || current_campaign.local_broker_fee_percentage_value
     direction                = params[:direction]
-    d66s                     = Array(params[:d66s]).map(&:to_i).presence || TradeGoodsTable.priceable_d66_codes
+    d66s                     = comma_list_param(:d66s).map(&:to_i).presence || TradeGoodsTable.priceable_d66_codes
 
     results = d66s.map do |d66|
       calculator = TradePriceCalculator.new(

@@ -184,4 +184,10 @@ class RulebookSearchControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert_empty body
   end
+
+  test 'accepts comma-separated rulebook_ids and categories' do
+    get api_rulebook_search_url, params: { q: 'jump', rulebook_ids: '999999,999998', categories: 'adventure,core' }
+    assert_response :success
+    assert_empty JSON.parse(@response.body)
+  end
 end

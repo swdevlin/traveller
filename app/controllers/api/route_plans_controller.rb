@@ -16,7 +16,7 @@ class Api::RoutePlansController < Api::BaseController
 
     jump_range               = params[:jump_range].presence&.to_i || 2
     refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
-    excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
+    excluded_travel_zone_ids = comma_list_param(:excluded_travel_zone_ids).map(&:to_i).select(&:positive?)
     m_drive                  = params[:m_drive].presence&.to_i&.clamp(1, 6) || 1
 
     planner = RoutePlanner.new(

@@ -95,7 +95,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     system = build_star_system(0, 0)
 
     get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase',
-                                    d66s: [11], use_broker: 'true', broker_level: 3, broker_fee_percentage: 10),
+                                    d66s: '11', use_broker: 'true', broker_level: 3, broker_fee_percentage: 10),
         as: :json
 
     assert_response :success
@@ -115,7 +115,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase', d66s: [11]),
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'purchase', d66s: '11'),
         as: :json
 
     assert_response :success
@@ -131,7 +131,7 @@ class Api::TradeGoodsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     system = build_star_system(0, 0)
 
-    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'sale', d66s: [11, 21]), as: :json
+    get api_star_system_trade_goods_prices_url(campaign_slug: @campaign.slug, id: system.id, direction: 'sale', d66s: '11,21'), as: :json
 
     assert_response :success
     body = response.parsed_body

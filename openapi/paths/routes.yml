@@ -110,11 +110,11 @@
         in: query
         description: Where the ship can refuel along the way.
         schema: { type: string, default: any }
-      - name: excluded_travel_zone_ids[]
+      - name: excluded_travel_zone_ids
         in: query
-        description: Travel zones to avoid.
+        description: Travel zones to avoid, as a comma-separated list of IDs.
         style: form
-        explode: true
+        explode: false
         schema: { type: array, items: { type: integer } }
       - name: m_drive
         in: query
