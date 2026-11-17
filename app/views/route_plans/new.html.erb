@@ -62,7 +62,8 @@
             <% @ships.each do |ship| %>
               <option value='<%= ship.id %>'
                       data-jump-drive='<%= ship.jump_drive %>'
-                      data-m-drive='<%= ship.m_drive %>'>
+                      data-m-drive='<%= ship.m_drive %>'
+                      <%= 'selected' if @ship_id == ship.id %>>
                 <%= ship.name %> (J-<%= ship.jump_drive %>)
               </option>
             <% end %>

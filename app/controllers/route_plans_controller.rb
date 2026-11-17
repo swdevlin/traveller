@@ -5,6 +5,7 @@ class RoutePlansController < ApplicationController
     @from_system              = StarSystem.find_by(id: params[:from_id])
     @to_system                = StarSystem.find_by(id: params[:to_id])
     @ships                    = Ship.all.order(:name)
+    @ship_id                  = params[:ship_id].presence&.to_i
     @jump_range               = params[:jump_range].presence&.to_i || 2
     @refueling                = params[:refueling].presence_in(JumpRoute::REFUELING) || 'any'
     @excluded_travel_zone_ids = Array(params[:excluded_travel_zone_ids]).map(&:to_i).select(&:positive?)
