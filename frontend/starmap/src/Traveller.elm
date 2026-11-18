@@ -6047,10 +6047,10 @@ viewHighlightRulesMenuHtml rules =
     in
     Html.div
         [ HtmlAttrs.id "starmap-highlight-menu"
-        , HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.class "starmap-glass-panel starmap-navbar-menu"
         , HtmlAttrs.style "position" "absolute"
         , HtmlAttrs.style "top" "100%"
-        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "left" "0"
         , HtmlAttrs.style "margin-top" "4px"
         , HtmlAttrs.style "border-radius" "6px"
         , HtmlAttrs.style "width" "max-content"
@@ -6228,10 +6228,10 @@ viewJumpRouteLayersMenuHtml : Maybe RoutePlan.StoredRoutePlan -> List JumpRouteL
 viewJumpRouteLayersMenuHtml activeRoutePlan routes hiddenIds pendingDeleteId isReferee =
     Html.div
         [ HtmlAttrs.id "starmap-jump-route-layers-menu"
-        , HtmlAttrs.class "starmap-glass-panel"
+        , HtmlAttrs.class "starmap-glass-panel starmap-navbar-menu"
         , HtmlAttrs.style "position" "absolute"
         , HtmlAttrs.style "top" "100%"
-        , HtmlAttrs.style "right" "0"
+        , HtmlAttrs.style "left" "0"
         , HtmlAttrs.style "margin-top" "4px"
         , HtmlAttrs.style "border-radius" "6px"
         , HtmlAttrs.style "width" "280px"

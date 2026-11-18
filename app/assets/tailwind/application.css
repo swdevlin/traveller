@@ -1820,6 +1820,20 @@
   cursor: pointer;
 }
 
+@media (max-width: 600px) {
+  .starmap-navbar-menu {
+    position: fixed !important;
+    top: 44px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+}
+
 .starmap-glass-panel {
   background-color: color-mix(in srgb, var(--color-panel) 92%, transparent);
   backdrop-filter: blur(16px);
