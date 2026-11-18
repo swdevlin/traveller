@@ -1,30 +1,13 @@
 module Traveller.ShipTraffic exposing (Msgs, ShipTraffic, codec, viewModal)
 
 import Codec
-import Element
-    exposing
-        ( Element
-        , column
-        , el
-        , fill
-        , height
-        , row
-        , text
-        , width
-        )
-import Element.Border as Border
-import Element.Events as Events
-import Element.Font as Font
+import Element exposing (Element)
+import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Http
 import Json.Decode
 import RemoteData exposing (RemoteData(..))
-import Traveller.UI
-    exposing
-        ( fontVar
-        , zeroEach
-        )
 
 
 type alias ShipTraffic =
@@ -57,157 +40,105 @@ type alias Msgs msg =
 
 viewModal : Msgs msg -> RemoteData Http.Error ShipTraffic -> Bool -> Element msg
 viewModal msgs remoteTraffic frontier =
-    el
-        [ width fill
-        , height fill
-        , Events.onClick msgs.close
-        ]
-    <|
-        column
-            [ Element.centerX
-            , Element.centerY
-            , Element.width (Element.px 340)
-            , Element.htmlAttribute (Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( msgs.noOp, True )))
-            , Element.htmlAttribute (HtmlAttrs.class "starmap-glass-panel")
-            , Element.padding 20
-            , Border.rounded 6
-            , Border.shadow { offset = ( 0, 8 ), size = 0, blur = 32, color = Element.rgba 0 0 0 0.25 }
+    Element.html <|
+        Html.div
+            [ HtmlAttrs.class "analysis-backdrop"
+            , HtmlAttrs.style "position" "fixed"
+            , HtmlAttrs.style "inset" "0"
+            , HtmlAttrs.style "z-index" "200"
+            , HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "align-items" "center"
+            , HtmlAttrs.style "justify-content" "center"
+            , Html.Events.onClick msgs.close
             ]
-            [ row
-                [ width fill
-                , Element.paddingEach { zeroEach | bottom = 12 }
-                , Border.widthEach { zeroEach | bottom = 1 }
-                , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
+            [ Html.div
+                [ HtmlAttrs.class "analysis-console traffic-console"
+                , HtmlAttrs.attribute "role" "dialog"
+                , HtmlAttrs.attribute "aria-modal" "true"
+                , HtmlAttrs.attribute "aria-label" "Ship Traffic"
+                , Html.Events.stopPropagationOn "click" (Json.Decode.succeed ( msgs.noOp, True ))
                 ]
-                [ el [ Font.size 16, fontVar "--color-fg-bright", Font.bold ] (text "Ship Traffic")
-                , el
-                    [ Element.alignRight
-                    , Events.onClick msgs.close
-                    , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
-                    , Font.size 14
-                    , fontVar "--color-fg-muted"
-                    , Element.htmlAttribute (HtmlAttrs.class "starmap-modal-close")
+                [ Html.div [ HtmlAttrs.class "analysis-header" ]
+                    [ Html.div []
+                        [ Html.h2 [ HtmlAttrs.class "analysis-title" ] [ Html.text "Ship Traffic" ] ]
+                    , Html.button
+                        [ HtmlAttrs.type_ "button"
+                        , HtmlAttrs.class "analysis-close"
+                        , HtmlAttrs.attribute "aria-label" "Close ship traffic"
+                        , Html.Events.onClick msgs.close
+                        ]
+                        [ Html.i [ HtmlAttrs.class "fa-solid fa-xmark", HtmlAttrs.attribute "aria-hidden" "true" ] [] ]
                     ]
-                    (text "✕")
-                ]
-            , column
-                [ Element.paddingEach { zeroEach | top = 12 }
-                , Element.spacing 14
-                , width fill
-                ]
-                [ viewBody remoteTraffic
-                , viewFrontierToggle msgs frontier
+                , Html.div [ HtmlAttrs.class "traffic-body" ]
+                    [ viewBody remoteTraffic
+                    , viewFrontierToggle msgs frontier
+                    ]
                 ]
             ]
 
 
-viewBody : RemoteData Http.Error ShipTraffic -> Element msg
+viewBody : RemoteData Http.Error ShipTraffic -> Html msg
 viewBody remoteTraffic =
     case remoteTraffic of
         NotAsked ->
-            el [ Font.size 13, fontVar "--color-fg-muted" ] (text "—")
+            Html.div [ HtmlAttrs.class "traffic-note" ] [ Html.text "—" ]
 
         Loading ->
-            el
-                [ Element.centerX
-                , Element.paddingXY 0 24
-                , Font.size 13
-                , fontVar "--color-fg-muted"
-                ]
-                (text "Rolling…")
+            Html.div [ HtmlAttrs.class "traffic-note" ] [ Html.text "Rolling…" ]
 
         Failure _ ->
-            el
-                [ Element.centerX
-                , Element.paddingXY 0 24
-                , Font.size 13
-                , Element.htmlAttribute (HtmlAttrs.style "color" "var(--color-danger)")
-                ]
-                (text "Failed to compute ship traffic.")
+            Html.div [ HtmlAttrs.class "traffic-note is-error" ] [ Html.text "Failed to compute ship traffic." ]
 
         Success traffic ->
-            column [ width fill, Element.spacing 10 ]
-                [ el [ Element.centerX, Font.size 40, Font.bold, fontVar "--color-fg-bright" ]
-                    (text (String.fromInt traffic.result))
-                , el [ Element.centerX, Font.size 11, fontVar "--color-fg-muted" ]
-                    (text "ships / day")
-                , row [ width fill, Element.spacing 12 ]
-                    [ viewDataField "Effective Importance" (String.fromInt traffic.effectiveImportance)
+            Html.div []
+                [ Html.div [ HtmlAttrs.class "traffic-result" ]
+                    [ Html.div [ HtmlAttrs.class "traffic-count" ] [ Html.text (String.fromInt traffic.result) ]
+                    , Html.div [ HtmlAttrs.class "traffic-unit" ] [ Html.text "ships / day" ]
+                    ]
+                , Html.div [ HtmlAttrs.class "trade-readout" ]
+                    [ viewDataField "Effective importance" (String.fromInt traffic.effectiveImportance)
                     , viewDataField "Tier" traffic.tierLabel
                     ]
                 , if List.isEmpty traffic.modifiers then
-                    Element.none
+                    Html.text ""
 
                   else
-                    column [ Element.spacing 2 ]
-                        (List.map
-                            (\m -> el [ Font.size 11, fontVar "--color-fg-muted" ] (text ("• " ++ m)))
-                            traffic.modifiers
-                        )
+                    Html.ul [ HtmlAttrs.class "traffic-modifiers" ]
+                        (List.map (\m -> Html.li [] [ Html.text m ]) traffic.modifiers)
                 ]
 
 
-viewDataField : String -> String -> Element msg
+viewDataField : String -> String -> Html msg
 viewDataField lbl val =
-    column [ width fill, Element.spacing 2 ]
-        [ el [ Font.size 10, fontVar "--color-fg-muted", Font.bold ] (text (String.toUpper lbl))
-        , el [ Font.size 13 ] (text val)
+    Html.div [ HtmlAttrs.class "trade-field" ]
+        [ Html.span [ HtmlAttrs.class "trade-field-label" ] [ Html.text lbl ]
+        , Html.span [ HtmlAttrs.class "trade-field-value" ] [ Html.text val ]
         ]
 
 
-viewFrontierToggle : Msgs msg -> Bool -> Element msg
+viewFrontierToggle : Msgs msg -> Bool -> Html msg
 viewFrontierToggle msgs frontier =
-    row
-        [ width fill
-        , Element.paddingEach { zeroEach | top = 8 }
-        , Border.widthEach { zeroEach | top = 1 }
-        , Element.htmlAttribute (HtmlAttrs.style "border-color" "var(--color-outline)")
-        , Element.spacing 10
-        ]
-        [ el
-            [ Events.onClick msgs.toggleFrontier
-            , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
-            , Font.size 12
-            , Element.htmlAttribute
-                (HtmlAttrs.style "color"
-                    (if frontier then
-                        "var(--color-button-primary)"
+    Html.div [ HtmlAttrs.class "traffic-actions" ]
+        [ Html.button
+            [ HtmlAttrs.type_ "button"
+            , HtmlAttrs.class "traffic-check"
+            , HtmlAttrs.attribute "role" "checkbox"
+            , HtmlAttrs.attribute "aria-checked"
+                (if frontier then
+                    "true"
 
-                     else
-                        "var(--color-fg-muted)"
-                    )
+                 else
+                    "false"
                 )
+            , Html.Events.onClick msgs.toggleFrontier
             ]
-            (row [ Element.spacing 6 ]
-                [ el
-                    [ Element.width (Element.px 14)
-                    , Element.height (Element.px 14)
-                    , Border.width 1
-                    , Border.rounded 3
-                    , Element.htmlAttribute (HtmlAttrs.style "border-color" "color-mix(in srgb, var(--color-outline) 50%, transparent)")
-                    , Element.htmlAttribute
-                        (HtmlAttrs.style "background-color"
-                            (if frontier then
-                                "var(--color-button-primary)"
-
-                             else
-                                "transparent"
-                            )
-                        )
-                    ]
-                    Element.none
-                , text "Frontier world"
-                ]
-            )
-        , el
-            [ Element.alignRight
-            , Events.onClick msgs.reroll
-            , Element.htmlAttribute (HtmlAttrs.style "cursor" "pointer")
-            , Element.padding 6
-            , Border.rounded 4
-            , Element.htmlAttribute (HtmlAttrs.style "background-color" "color-mix(in srgb, var(--color-outline) 12%, transparent)")
-            , Font.size 12
-            , fontVar "--color-fg"
+            [ Html.span [ HtmlAttrs.class "traffic-box" ] []
+            , Html.text "Frontier world"
             ]
-            (text "Scan Again")
+        , Html.button
+            [ HtmlAttrs.type_ "button"
+            , HtmlAttrs.class "traffic-rescan"
+            , Html.Events.onClick msgs.reroll
+            ]
+            [ Html.text "Scan again" ]
         ]

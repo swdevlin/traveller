@@ -785,29 +785,29 @@ sendPricesRequest ( urlRoot, urlPath ) params toMsg =
 view : Config -> Model -> Html Msg
 view _ model =
     Html.div
-        [ HtmlAttrs.style "position" "fixed"
+        [ HtmlAttrs.class "analysis-backdrop"
+        , HtmlAttrs.style "position" "fixed"
         , HtmlAttrs.style "inset" "0"
         , HtmlAttrs.style "z-index" "200"
         , HtmlAttrs.style "display" "flex"
         , HtmlAttrs.style "align-items" "center"
         , HtmlAttrs.style "justify-content" "center"
-        , HtmlAttrs.style "background-color" "rgba(0, 0, 0, 0.35)"
         , HtmlEvents.onClick Cancel
         ]
         [ Html.div
-            [ HtmlAttrs.class "starmap-glass-panel"
-            , HtmlAttrs.style "width" "min(760px, 94vw)"
-            , HtmlAttrs.style "max-height" "85vh"
-            , HtmlAttrs.style "overflow-y" "auto"
-            , HtmlAttrs.style "border-radius" "6px"
-            , HtmlAttrs.style "padding" "20px"
+            [ HtmlAttrs.class "analysis-console commerce-console"
+            , HtmlAttrs.attribute "role" "dialog"
+            , HtmlAttrs.attribute "aria-modal" "true"
+            , HtmlAttrs.attribute "aria-label" "Commerce"
             , stopPropagation
             ]
             [ viewHeader
-            , viewPickerField "From" model.fromPicker SetFromQuery PickFrom CloseFromDropdown
-            , viewPickerField "To" model.toPicker SetToQuery PickTo CloseToDropdown
-            , viewTabBar model.activeTab
-            , viewActiveTab model
+            , Html.div [ HtmlAttrs.class "commerce-body" ]
+                [ viewPickerField "From" model.fromPicker SetFromQuery PickFrom CloseFromDropdown
+                , viewPickerField "To" model.toPicker SetToQuery PickTo CloseToDropdown
+                , viewTabBar model.activeTab
+                , viewActiveTab model
+                ]
             ]
         ]
 
@@ -824,52 +824,33 @@ stopPropagation =
 
 viewHeader : Html Msg
 viewHeader =
-    Html.div
-        [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "justify-content" "space-between"
-        , HtmlAttrs.style "align-items" "center"
-        , HtmlAttrs.style "margin-bottom" "14px"
-        ]
-        [ Html.span [ HtmlAttrs.style "font-size" "16px", HtmlAttrs.style "font-weight" "bold", HtmlAttrs.style "color" "var(--color-fg-bright)" ]
-            [ Html.text "Commerce" ]
-        , Html.span
-            [ HtmlAttrs.style "cursor" "pointer"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
+    Html.div [ HtmlAttrs.class "analysis-header" ]
+        [ Html.h2 [ HtmlAttrs.class "analysis-title" ] [ Html.text "Commerce" ]
+        , Html.button
+            [ HtmlAttrs.type_ "button"
+            , HtmlAttrs.class "analysis-close"
+            , HtmlAttrs.attribute "aria-label" "Close commerce"
             , HtmlEvents.onClick Cancel
             ]
-            [ Html.text "✕" ]
+            [ Html.i [ HtmlAttrs.class "fa-solid fa-xmark", HtmlAttrs.attribute "aria-hidden" "true" ] [] ]
         ]
 
 
 fieldLabel : String -> Html msg
 fieldLabel label =
-    Html.div
-        [ HtmlAttrs.style "font-size" "11px"
-        , HtmlAttrs.style "text-transform" "uppercase"
-        , HtmlAttrs.style "letter-spacing" "0.15em"
-        , HtmlAttrs.style "color" "var(--color-fg-muted)"
-        , HtmlAttrs.style "margin-bottom" "4px"
-        ]
-        [ Html.text label ]
+    Html.div [ HtmlAttrs.class "commerce-label" ] [ Html.text label ]
 
 
 viewPickerField : String -> PickerState -> (String -> Msg) -> (RoutePlanSystemResult -> Msg) -> Msg -> Html Msg
 viewPickerField label picker onQuery onPick onClose =
     Html.div
-        [ HtmlAttrs.style "margin-bottom" "12px", HtmlAttrs.style "position" "relative" ]
+        [ HtmlAttrs.class "commerce-picker" ]
         [ fieldLabel label
         , Html.input
             ([ HtmlAttrs.type_ "text"
              , HtmlAttrs.value picker.query
              , HtmlAttrs.placeholder "Search for a system…"
-             , HtmlAttrs.style "width" "100%"
-             , HtmlAttrs.style "box-sizing" "border-box"
-             , HtmlAttrs.style "font-size" "13px"
-             , HtmlAttrs.style "color" "var(--color-fg-bright)"
-             , HtmlAttrs.style "background-color" "var(--color-panel)"
-             , HtmlAttrs.style "border" "1px solid var(--color-outline)"
-             , HtmlAttrs.style "border-radius" "4px"
-             , HtmlAttrs.style "padding" "6px"
+             , HtmlAttrs.class "commerce-input"
              , HtmlEvents.onInput onQuery
              , HtmlEvents.stopPropagationOn "keydown"
                 (JsDecode.field "key" JsDecode.string
@@ -910,13 +891,8 @@ viewSystemInfo : RemoteData Http.Error FreightTraffic.SystemInfo -> Html Msg
 viewSystemInfo info =
     case info of
         Success systemInfo ->
-            Html.div
-                [ HtmlAttrs.style "margin-top" "6px"
-                , HtmlAttrs.style "font-size" "11px"
-                , HtmlAttrs.style "color" "var(--color-fg-muted)"
-                ]
-                [ Html.span
-                    [ HtmlAttrs.style "font-family" "monospace", HtmlAttrs.style "color" "var(--color-fg-bright)" ]
+            Html.div [ HtmlAttrs.class "commerce-sysinfo" ]
+                [ Html.span [ HtmlAttrs.class "commerce-uwp" ]
                     [ Html.text (Maybe.withDefault "—" systemInfo.uwp) ]
                 , Html.text (" · " ++ tradeCodesAndZoneLabel systemInfo)
                 ]
@@ -946,26 +922,15 @@ tradeCodesAndZoneLabel { tradeCodes, travelZone } =
 viewPickerDropdown : PickerState -> (RoutePlanSystemResult -> Msg) -> Msg -> Html Msg
 viewPickerDropdown picker onPick onClose =
     Html.div
-        [ HtmlAttrs.class "starmap-glass-panel"
-        , HtmlAttrs.style "position" "absolute"
-        , HtmlAttrs.style "top" "100%"
-        , HtmlAttrs.style "left" "0"
-        , HtmlAttrs.style "right" "0"
-        , HtmlAttrs.style "margin-top" "4px"
-        , HtmlAttrs.style "border-radius" "4px"
-        , HtmlAttrs.style "padding" "4px"
-        , HtmlAttrs.style "z-index" "10"
-        , HtmlAttrs.style "max-height" "220px"
-        , HtmlAttrs.style "overflow-y" "auto"
-        ]
+        [ HtmlAttrs.class "commerce-dropdown" ]
         (case picker.results of
             Loading ->
-                [ Html.div [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "padding" "8px" ]
+                [ Html.div [ HtmlAttrs.class "commerce-dropdown-note" ]
                     [ Html.text "Searching…" ]
                 ]
 
             Success [] ->
-                [ Html.div [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "padding" "8px" ]
+                [ Html.div [ HtmlAttrs.class "commerce-dropdown-note" ]
                     [ Html.text "No matches" ]
                 ]
 
@@ -973,7 +938,7 @@ viewPickerDropdown picker onPick onClose =
                 List.map (viewPickerResultRow onPick) results
 
             Failure _ ->
-                [ Html.div [ HtmlAttrs.style "font-size" "12px", HtmlAttrs.style "color" "var(--color-danger)", HtmlAttrs.style "padding" "8px" ]
+                [ Html.div [ HtmlAttrs.class "commerce-dropdown-note is-error" ]
                     [ Html.text "Search failed" ]
                 ]
 
@@ -985,14 +950,11 @@ viewPickerDropdown picker onPick onClose =
 viewPickerResultRow : (RoutePlanSystemResult -> Msg) -> RoutePlanSystemResult -> Html Msg
 viewPickerResultRow onPick result =
     Html.div
-        [ HtmlAttrs.style "padding" "6px 8px"
-        , HtmlAttrs.style "cursor" "pointer"
-        , HtmlAttrs.style "border-radius" "3px"
-        , HtmlAttrs.class "starmap-search-result"
+        [ HtmlAttrs.class "commerce-result"
         , HtmlEvents.onMouseDown (onPick result)
         ]
-        [ Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-bright)" ] [ Html.text result.name ]
-        , Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ] [ Html.text result.meta ]
+        [ Html.div [ HtmlAttrs.class "commerce-result-name" ] [ Html.text result.name ]
+        , Html.div [ HtmlAttrs.class "commerce-result-meta" ] [ Html.text result.meta ]
         ]
 
 
@@ -1023,12 +985,7 @@ tabLabel tab =
 
 viewTabBar : Tab -> Html Msg
 viewTabBar activeTab =
-    Html.div
-        [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "gap" "4px"
-        , HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
-        , HtmlAttrs.style "margin-bottom" "12px"
-        ]
+    Html.div [ HtmlAttrs.class "commerce-tabs", HtmlAttrs.attribute "role" "tablist" ]
         (List.map (viewTabButton activeTab) allTabs)
 
 
@@ -1038,24 +995,17 @@ viewTabButton activeTab tab =
         isActive =
             tab == activeTab
     in
-    Html.div
-        [ HtmlAttrs.style "padding" "8px 12px"
-        , HtmlAttrs.style "font-size" "12px"
-        , HtmlAttrs.style "font-weight" "600"
-        , HtmlAttrs.style "cursor" "pointer"
-        , HtmlAttrs.style "border-bottom"
+    Html.button
+        [ HtmlAttrs.type_ "button"
+        , HtmlAttrs.class "commerce-tab"
+        , HtmlAttrs.classList [ ( "is-active", isActive ) ]
+        , HtmlAttrs.attribute "role" "tab"
+        , HtmlAttrs.attribute "aria-selected"
             (if isActive then
-                "2px solid var(--color-highlight)"
+                "true"
 
              else
-                "2px solid transparent"
-            )
-        , HtmlAttrs.style "color"
-            (if isActive then
-                "var(--color-fg-bright)"
-
-             else
-                "var(--color-fg-muted)"
+                "false"
             )
         , HtmlEvents.onClick (SetTab tab)
         ]
@@ -1085,14 +1035,7 @@ viewNumberInput label value toMsg =
         , Html.input
             [ HtmlAttrs.type_ "number"
             , HtmlAttrs.value (String.fromInt value)
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "box-sizing" "border-box"
-            , HtmlAttrs.style "font-size" "13px"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            , HtmlAttrs.style "background-color" "var(--color-panel)"
-            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
-            , HtmlAttrs.style "border-radius" "4px"
-            , HtmlAttrs.style "padding" "6px"
+            , HtmlAttrs.class "commerce-input"
             , HtmlEvents.onInput (\s -> toMsg (String.toInt s |> Maybe.withDefault value))
             ]
             []
@@ -1112,14 +1055,7 @@ viewFloatInput label value toMsg =
             [ HtmlAttrs.type_ "number"
             , HtmlAttrs.step "1"
             , HtmlAttrs.value (formatFee value)
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "box-sizing" "border-box"
-            , HtmlAttrs.style "font-size" "13px"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            , HtmlAttrs.style "background-color" "var(--color-panel)"
-            , HtmlAttrs.style "border" "1px solid var(--color-outline)"
-            , HtmlAttrs.style "border-radius" "4px"
-            , HtmlAttrs.style "padding" "6px"
+            , HtmlAttrs.class "commerce-input"
             , HtmlEvents.onInput (\s -> toMsg (String.toFloat s |> Maybe.withDefault value))
             ]
             []
@@ -1141,32 +1077,17 @@ formatFee value =
 viewStatRow : List ( String, String ) -> Html Msg
 viewStatRow stats =
     Html.div
-        [ HtmlAttrs.style "display" "grid"
+        [ HtmlAttrs.class "commerce-stats"
         , HtmlAttrs.style "grid-template-columns" ("repeat(" ++ String.fromInt (List.length stats) ++ ", 1fr)")
-        , HtmlAttrs.style "gap" "8px 16px"
-        , HtmlAttrs.style "text-align" "center"
-        , HtmlAttrs.style "margin-bottom" "12px"
         ]
         (List.map viewStatTile stats)
 
 
 viewStatTile : ( String, String ) -> Html Msg
 viewStatTile ( label, value ) =
-    Html.div []
-        [ Html.div
-            [ HtmlAttrs.style "font-size" "10px"
-            , HtmlAttrs.style "text-transform" "uppercase"
-            , HtmlAttrs.style "letter-spacing" "0.08em"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            , HtmlAttrs.style "margin-bottom" "2px"
-            ]
-            [ Html.text label ]
-        , Html.div
-            [ HtmlAttrs.style "font-size" "13px"
-            , HtmlAttrs.style "font-weight" "600"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            ]
-            [ Html.text value ]
+    Html.div [ HtmlAttrs.class "commerce-stat" ]
+        [ Html.div [ HtmlAttrs.class "commerce-label" ] [ Html.text label ]
+        , Html.div [ HtmlAttrs.class "commerce-stat-value" ] [ Html.text value ]
         ]
 
 
@@ -1204,20 +1125,15 @@ viewPassageTab : PickerState -> PickerState -> PassageState -> Html Msg
 viewPassageTab fromPicker toPicker state =
     Html.div []
         [ Html.div
-            [ HtmlAttrs.style "display" "grid"
+            [ HtmlAttrs.class "commerce-grid"
             , HtmlAttrs.style "grid-template-columns" "1fr 1fr 1fr"
-            , HtmlAttrs.style "gap" "12px"
-            , HtmlAttrs.style "margin-bottom" "12px"
             ]
             [ viewNumberInput "Skill Effect" state.brokerEffect SetPassageBrokerEffect
             , viewNumberInput "Steward" state.chiefStewardSkill SetPassageChiefStewardSkill
             , viewNumberInput "Other DM" state.refereeModifier SetPassageRefereeModifier
             ]
         , Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlAttrs.disabled (fromPicker.selected == Nothing || toPicker.selected == Nothing)
             , HtmlEvents.onClick SubmitPassage
             ]
@@ -1233,11 +1149,11 @@ viewPassageResult trafficResult =
             Html.text ""
 
         Loading ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            Html.div [ HtmlAttrs.class "commerce-note" ]
                 [ Html.text "Updating board…" ]
 
         Failure _ ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)" ]
+            Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                 [ Html.text "Could not compute passenger traffic. Please try again." ]
 
         Success result ->
@@ -1248,9 +1164,8 @@ viewPassageResult trafficResult =
                     , ( "Parsec Distance", String.fromInt result.parsecDistance )
                     ]
                 , Html.div
-                    [ HtmlAttrs.style "display" "grid"
+                    [ HtmlAttrs.class "commerce-cards"
                     , HtmlAttrs.style "grid-template-columns" "1fr 1fr"
-                    , HtmlAttrs.style "gap" "10px"
                     ]
                     [ viewPassengerTypeCard "Low" result.passengerTypes.low
                     , viewPassengerTypeCard "Basic" result.passengerTypes.basic
@@ -1263,45 +1178,25 @@ viewPassageResult trafficResult =
 viewPassengerTypeCard : String -> PassengerTypeResult -> Html Msg
 viewPassengerTypeCard label result =
     Html.div
-        [ HtmlAttrs.style "border" "1px solid var(--color-outline)"
-        , HtmlAttrs.style "border-radius" "6px"
-        , HtmlAttrs.style "padding" "10px"
-        ]
-        [ Html.div
-            [ HtmlAttrs.style "font-size" "10px"
-            , HtmlAttrs.style "text-transform" "uppercase"
-            , HtmlAttrs.style "letter-spacing" "0.08em"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
-            [ Html.text label ]
-        , Html.div
-            [ HtmlAttrs.style "font-size" "26px"
-            , HtmlAttrs.style "font-weight" "700"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            ]
+        [ HtmlAttrs.class "commerce-card" ]
+        [ Html.div [ HtmlAttrs.class "commerce-label" ] [ Html.text label ]
+        , Html.div [ HtmlAttrs.class "commerce-card-big" ]
             [ Html.text (String.fromInt result.passengers) ]
-        , Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+        , Html.div [ HtmlAttrs.class "commerce-card-meta" ]
             [ Html.text ("Total DM: " ++ signedString result.qualifyingRoll.dm) ]
         , if List.isEmpty result.modifiers then
             Html.text ""
 
           else
-            Html.div [ HtmlAttrs.style "margin-top" "6px" ]
+            Html.div [ HtmlAttrs.class "commerce-card-mods" ]
                 (List.map
                     (\m ->
-                        Html.div [ HtmlAttrs.style "font-size" "11px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+                        Html.div [ HtmlAttrs.class "commerce-card-meta" ]
                             [ Html.text ("• " ++ m.label ++ " (" ++ signedString m.value ++ ")") ]
                     )
                     result.modifiers
                 )
-        , Html.div
-            [ HtmlAttrs.style "margin-top" "8px"
-            , HtmlAttrs.style "padding-top" "6px"
-            , HtmlAttrs.style "border-top" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
-            , HtmlAttrs.style "font-family" "monospace"
-            , HtmlAttrs.style "font-size" "11px"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
+        , Html.div [ HtmlAttrs.class "commerce-card-audit" ]
             (Html.div [] [ Html.text ("Qualifying: " ++ rollDescription result.qualifyingRoll) ]
                 :: (case result.countRoll of
                         Just countRoll ->
@@ -1322,19 +1217,14 @@ viewFreightTab : PickerState -> PickerState -> FreightState -> Html Msg
 viewFreightTab fromPicker toPicker state =
     Html.div []
         [ Html.div
-            [ HtmlAttrs.style "display" "grid"
+            [ HtmlAttrs.class "commerce-grid"
             , HtmlAttrs.style "grid-template-columns" "1fr 1fr"
-            , HtmlAttrs.style "gap" "12px"
-            , HtmlAttrs.style "margin-bottom" "12px"
             ]
             [ viewNumberInput "Skill Effect" state.brokerEffect SetFreightBrokerEffect
             , viewNumberInput "Other DM" state.refereeModifier SetFreightRefereeModifier
             ]
         , Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlAttrs.disabled (fromPicker.selected == Nothing || toPicker.selected == Nothing)
             , HtmlEvents.onClick SubmitFreight
             ]
@@ -1350,11 +1240,11 @@ viewFreightResult trafficResult =
             Html.text ""
 
         Loading ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            Html.div [ HtmlAttrs.class "commerce-note" ]
                 [ Html.text "Compiling manifest…" ]
 
         Failure _ ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)" ]
+            Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                 [ Html.text "Could not compute freight traffic. Please try again." ]
 
         Success result ->
@@ -1365,9 +1255,8 @@ viewFreightResult trafficResult =
                     , ( "Parsec Distance", String.fromInt result.parsecDistance )
                     ]
                 , Html.div
-                    [ HtmlAttrs.style "display" "grid"
+                    [ HtmlAttrs.class "commerce-cards"
                     , HtmlAttrs.style "grid-template-columns" "1fr 1fr 1fr"
-                    , HtmlAttrs.style "gap" "10px"
                     ]
                     [ viewLotTypeCard "Incidental" result.lotTypes.incidental
                     , viewLotTypeCard "Minor" result.lotTypes.minor
@@ -1379,50 +1268,31 @@ viewFreightResult trafficResult =
 viewLotTypeCard : String -> LotTypeResult -> Html Msg
 viewLotTypeCard label result =
     Html.div
-        [ HtmlAttrs.style "border" "1px solid var(--color-outline)"
-        , HtmlAttrs.style "border-radius" "6px"
-        , HtmlAttrs.style "padding" "10px"
-        ]
-        [ Html.div
-            [ HtmlAttrs.style "font-size" "10px"
-            , HtmlAttrs.style "text-transform" "uppercase"
-            , HtmlAttrs.style "letter-spacing" "0.08em"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
-            [ Html.text label ]
+        [ HtmlAttrs.class "commerce-card" ]
+        [ Html.div [ HtmlAttrs.class "commerce-label" ] [ Html.text label ]
         , if List.isEmpty result.lotSizeRolls then
             Html.text ""
 
           else
-            Html.div [ HtmlAttrs.style "margin-top" "6px" ]
+            Html.div [ HtmlAttrs.class "commerce-card-mods" ]
                 (List.map
-                    (\line -> Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg)" ] [ Html.text line ])
+                    (\line -> Html.div [ HtmlAttrs.class "commerce-card-line" ] [ Html.text line ])
                     (lotSizeSummary result.lotSizeRolls)
                 )
-        , Html.div
-            [ HtmlAttrs.style "margin-top" "6px"
-            , HtmlAttrs.style "font-size" "11px"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
+        , Html.div [ HtmlAttrs.class "commerce-card-meta" ]
             [ Html.text (pluralizeLots result.lots ++ " for " ++ pluralizeTons result.totalTons) ]
-        , Html.div
-            [ HtmlAttrs.style "margin-top" "8px"
-            , HtmlAttrs.style "padding-top" "6px"
-            , HtmlAttrs.style "border-top" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
-            , HtmlAttrs.style "font-size" "11px"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
+        , Html.div [ HtmlAttrs.class "commerce-card-audit" ]
             (List.concat
                 [ [ Html.div [] [ Html.text ("Total DM: " ++ signedString result.qualifyingRoll.dm) ] ]
                 , List.map
                     (\m -> Html.div [] [ Html.text ("• " ++ m.label ++ " (" ++ signedString m.value ++ ")") ])
                     result.modifiers
-                , [ Html.div [ HtmlAttrs.style "font-family" "monospace", HtmlAttrs.style "margin-top" "4px" ]
+                , [ Html.div [ HtmlAttrs.class "commerce-mono commerce-mono-first" ]
                         [ Html.text ("Qualifying: " ++ rollDescription result.qualifyingRoll) ]
                   ]
                 , case result.lotsRoll of
                     Just lotsRoll ->
-                        [ Html.div [ HtmlAttrs.style "font-family" "monospace" ] [ Html.text ("Lots: " ++ rollDescription lotsRoll) ] ]
+                        [ Html.div [ HtmlAttrs.class "commerce-mono" ] [ Html.text ("Lots: " ++ rollDescription lotsRoll) ] ]
 
                     Nothing ->
                         []
@@ -1482,9 +1352,9 @@ pluralizeTons tons =
 
 viewToggleInput : String -> Bool -> (Bool -> Msg) -> Html Msg
 viewToggleInput label value toMsg =
-    Html.div [ HtmlAttrs.style "padding-top" "4px" ]
+    Html.div [ HtmlAttrs.class "commerce-toggle" ]
         [ fieldLabel label
-        , Html.div [ HtmlAttrs.style "padding-top" "2px" ]
+        , Html.div []
             [ ToggleSwitch.view ToggleSwitch.Regular value (HtmlEvents.onClick (toMsg (not value))) ]
         ]
 
@@ -1493,10 +1363,8 @@ viewMailTab : PickerState -> PickerState -> MailState -> Html Msg
 viewMailTab fromPicker toPicker state =
     Html.div []
         [ Html.div
-            [ HtmlAttrs.style "display" "grid"
+            [ HtmlAttrs.class "commerce-grid"
             , HtmlAttrs.style "grid-template-columns" "1fr 1fr 1fr 1fr"
-            , HtmlAttrs.style "gap" "12px"
-            , HtmlAttrs.style "margin-bottom" "12px"
             ]
             [ viewToggleInput "Ship Armed" state.shipArmed SetMailShipArmed
             , viewNumberInput "Naval/Scout Rank" state.navalOrScoutRank SetMailNavalOrScoutRank
@@ -1504,10 +1372,7 @@ viewMailTab fromPicker toPicker state =
             , viewNumberInput "Other DM" state.refereeModifier SetMailRefereeModifier
             ]
         , Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlAttrs.disabled (fromPicker.selected == Nothing || toPicker.selected == Nothing)
             , HtmlEvents.onClick SubmitMail
             ]
@@ -1523,11 +1388,11 @@ viewMailResult trafficResult =
             Html.text ""
 
         Loading ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            Html.div [ HtmlAttrs.class "commerce-note" ]
                 [ Html.text "Compiling manifest…" ]
 
         Failure _ ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)" ]
+            Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                 [ Html.text "Could not compute mail traffic. Please try again." ]
 
         Success result ->
@@ -1544,15 +1409,11 @@ viewMailResult trafficResult =
 viewMailResultCard : List MailTraffic.Modifier -> MailResult -> Html Msg
 viewMailResultCard modifiers result =
     Html.div
-        [ HtmlAttrs.style "border" "1px solid var(--color-outline)"
-        , HtmlAttrs.style "border-radius" "6px"
-        , HtmlAttrs.style "padding" "10px"
-        ]
+        [ HtmlAttrs.class "commerce-card" ]
         [ if result.available then
             Html.div
-                [ HtmlAttrs.style "display" "grid"
+                [ HtmlAttrs.class "commerce-cards"
                 , HtmlAttrs.style "grid-template-columns" "1fr 1fr 1fr"
-                , HtmlAttrs.style "gap" "10px"
                 ]
                 [ viewMailStatTile "Containers" (String.fromInt result.containers)
                 , viewMailStatTile "Tonnage" (pluralizeTons result.totalTons)
@@ -1560,26 +1421,20 @@ viewMailResultCard modifiers result =
                 ]
 
           else
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            Html.div [ HtmlAttrs.class "commerce-note" ]
                 [ Html.text "No mail is available for this route." ]
-        , Html.div
-            [ HtmlAttrs.style "margin-top" "8px"
-            , HtmlAttrs.style "padding-top" "6px"
-            , HtmlAttrs.style "border-top" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
-            , HtmlAttrs.style "font-size" "11px"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
+        , Html.div [ HtmlAttrs.class "commerce-card-audit" ]
             (List.concat
                 [ [ Html.div [] [ Html.text ("Total DM: " ++ signedString result.qualifyingRoll.dm) ] ]
                 , List.map
                     (\m -> Html.div [] [ Html.text ("• " ++ m.label ++ " (" ++ signedString m.value ++ ")") ])
                     modifiers
-                , [ Html.div [ HtmlAttrs.style "font-family" "monospace", HtmlAttrs.style "margin-top" "4px" ]
+                , [ Html.div [ HtmlAttrs.class "commerce-mono commerce-mono-first" ]
                         [ Html.text ("Qualifying: " ++ rollDescription result.qualifyingRoll) ]
                   ]
                 , case result.containersRoll of
                     Just containersRoll ->
-                        [ Html.div [ HtmlAttrs.style "font-family" "monospace" ] [ Html.text ("Containers: " ++ rollDescription containersRoll) ] ]
+                        [ Html.div [ HtmlAttrs.class "commerce-mono" ] [ Html.text ("Containers: " ++ rollDescription containersRoll) ] ]
 
                     Nothing ->
                         []
@@ -1591,19 +1446,8 @@ viewMailResultCard modifiers result =
 viewMailStatTile : String -> String -> Html Msg
 viewMailStatTile label value =
     Html.div []
-        [ Html.div
-            [ HtmlAttrs.style "font-size" "10px"
-            , HtmlAttrs.style "text-transform" "uppercase"
-            , HtmlAttrs.style "letter-spacing" "0.08em"
-            , HtmlAttrs.style "color" "var(--color-fg-muted)"
-            ]
-            [ Html.text label ]
-        , Html.div
-            [ HtmlAttrs.style "font-size" "18px"
-            , HtmlAttrs.style "font-weight" "700"
-            , HtmlAttrs.style "color" "var(--color-fg-bright)"
-            ]
-            [ Html.text value ]
+        [ Html.div [ HtmlAttrs.class "commerce-label" ] [ Html.text label ]
+        , Html.div [ HtmlAttrs.class "commerce-stat-big" ] [ Html.text value ]
         ]
 
 
@@ -1615,10 +1459,7 @@ viewTradeTab : PickerState -> PickerState -> TradeState -> Html Msg
 viewTradeTab fromPicker toPicker state =
     Html.div []
         [ Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlAttrs.disabled (fromPicker.selected == Nothing)
             , HtmlEvents.onClick SurveyMarket
             ]
@@ -1628,11 +1469,11 @@ viewTradeTab fromPicker toPicker state =
                 Html.text ""
 
             Loading ->
-                Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+                Html.div [ HtmlAttrs.class "commerce-note" ]
                     [ Html.text "Surveying market…" ]
 
             Failure _ ->
-                Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)" ]
+                Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                     [ Html.text "Could not survey the market. Please try again." ]
 
             Success availability ->
@@ -1669,6 +1510,7 @@ Hiring a local broker replaces the "Skill Effect" field with "Level"/"Fee %"
 fields for that broker, mirroring the Rails Trade tab's `trade-broker-toggle`
 Stimulus controller — the fields are swapped, not stacked, so the row's width
 follows whichever set is active rather than reserving space for both.
+
 -}
 viewPurchaseSection : List TradeGoodRow -> TradeState -> Html Msg
 viewPurchaseSection goods state =
@@ -1690,27 +1532,22 @@ viewPurchaseSection goods state =
     Html.div []
         [ sectionHeading "Purchase"
         , Html.div
-            [ HtmlAttrs.style "display" "grid"
+            [ HtmlAttrs.class "commerce-grid"
             , HtmlAttrs.style "grid-template-columns" ("repeat(" ++ String.fromInt (List.length fields) ++ ", 1fr)")
-            , HtmlAttrs.style "gap" "12px"
-            , HtmlAttrs.style "margin-bottom" "12px"
             ]
             fields
         , Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlEvents.onClick SubmitPurchase
             ]
             [ Html.text "Negotiate Purchase Prices" ]
         , case state.purchaseResults of
             Loading ->
-                Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)", HtmlAttrs.style "margin-bottom" "8px" ]
+                Html.div [ HtmlAttrs.class "commerce-note" ]
                     [ Html.text "Rolling purchase prices…" ]
 
             Failure _ ->
-                Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)", HtmlAttrs.style "margin-bottom" "8px" ]
+                Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                     [ Html.text "Could not roll purchase prices. Please try again." ]
 
             _ ->
@@ -1738,12 +1575,7 @@ viewGoodsTable goods purchaseResults =
                 _ ->
                     False
     in
-    Html.table
-        [ HtmlAttrs.style "width" "100%"
-        , HtmlAttrs.style "font-size" "12px"
-        , HtmlAttrs.style "border-collapse" "collapse"
-        , HtmlAttrs.style "margin-bottom" "12px"
-        ]
+    Html.table [ HtmlAttrs.class "commerce-table" ]
         [ Html.thead []
             [ Html.tr []
                 (List.concat
@@ -1779,18 +1611,14 @@ viewGoodRow priceFor showPriceColumn good =
 
 viewPriceCell : Maybe PriceRow -> Html Msg
 viewPriceCell maybeRow =
-    Html.td
-        [ HtmlAttrs.style "padding" "4px 6px"
-        , HtmlAttrs.style "border-bottom" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
-        , HtmlAttrs.style "color" "var(--color-fg)"
-        ]
+    Html.td []
         (case maybeRow of
             Nothing ->
                 [ Html.text "—" ]
 
             Just row ->
                 [ Html.div [] [ Html.text ("Cr" ++ String.fromInt row.result.netPricePerTon) ]
-                , Html.div [ HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+                , Html.div [ HtmlAttrs.class "commerce-price-meta" ]
                     [ Html.text
                         (String.fromInt row.result.percent
                             ++ "% · DM "
@@ -1830,17 +1658,12 @@ viewSaleSection toPicker state =
     Html.div []
         [ sectionHeading "Sale"
         , Html.div
-            [ HtmlAttrs.style "display" "grid"
+            [ HtmlAttrs.class "commerce-grid"
             , HtmlAttrs.style "grid-template-columns" ("repeat(" ++ String.fromInt (List.length fields) ++ ", 1fr)")
-            , HtmlAttrs.style "gap" "12px"
-            , HtmlAttrs.style "margin-bottom" "12px"
             ]
             fields
         , Html.button
-            [ HtmlAttrs.class "btn btn-primary"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "padding" "8px"
-            , HtmlAttrs.style "margin-bottom" "12px"
+            [ HtmlAttrs.class "commerce-submit"
             , HtmlAttrs.disabled (toPicker.selected == Nothing)
             , HtmlEvents.onClick SubmitSale
             ]
@@ -1856,20 +1679,15 @@ viewSaleResults saleResults =
             Html.text ""
 
         Loading ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-fg-muted)" ]
+            Html.div [ HtmlAttrs.class "commerce-note" ]
                 [ Html.text "Rolling sale prices…" ]
 
         Failure _ ->
-            Html.div [ HtmlAttrs.style "font-size" "13px", HtmlAttrs.style "color" "var(--color-danger)" ]
+            Html.div [ HtmlAttrs.class "commerce-note is-error" ]
                 [ Html.text "Could not roll sale prices. Please try again." ]
 
         Success prices ->
-            Html.table
-                [ HtmlAttrs.style "width" "100%"
-                , HtmlAttrs.style "font-size" "12px"
-                , HtmlAttrs.style "border-collapse" "collapse"
-                , HtmlAttrs.style "margin-bottom" "12px"
-                ]
+            Html.table [ HtmlAttrs.class "commerce-table" ]
                 [ Html.thead []
                     [ Html.tr [] [ viewHeaderCell "Good", viewHeaderCell "Sale Price" ] ]
                 , Html.tbody [] (List.map viewSaleRow prices.results)
@@ -1886,31 +1704,16 @@ viewSaleRow row =
 
 sectionHeading : String -> Html Msg
 sectionHeading label =
-    Html.div
-        [ HtmlAttrs.style "font-size" "13px"
-        , HtmlAttrs.style "font-weight" "600"
-        , HtmlAttrs.style "color" "var(--color-fg-bright)"
-        , HtmlAttrs.style "margin" "4px 0 8px"
-        ]
-        [ Html.text label ]
+    Html.div [ HtmlAttrs.class "commerce-heading" ] [ Html.text label ]
 
 
 viewHeaderCell : String -> Html Msg
 viewHeaderCell label =
-    Html.th
-        [ HtmlAttrs.style "text-align" "left"
-        , HtmlAttrs.style "padding" "4px 6px"
-        , HtmlAttrs.style "border-bottom" "1px solid var(--color-outline)"
-        , HtmlAttrs.style "color" "var(--color-fg-muted)"
-        ]
+    Html.th []
         [ Html.text label ]
 
 
 viewCell : String -> Html Msg
 viewCell value =
-    Html.td
-        [ HtmlAttrs.style "padding" "4px 6px"
-        , HtmlAttrs.style "border-bottom" "1px solid color-mix(in srgb, var(--color-outline) 30%, transparent)"
-        , HtmlAttrs.style "color" "var(--color-fg)"
-        ]
+    Html.td []
         [ Html.text value ]

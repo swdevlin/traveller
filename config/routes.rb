@@ -75,6 +75,7 @@ Rails.application.routes.draw do
       get 'star_systems/:id/mail_traffic', to: 'mail_traffic#system', as: :star_system_mail_traffic, defaults: { format: :json }
       get 'star_systems/:id/trade_goods/availability', to: 'trade_goods#availability', as: :star_system_trade_goods_availability, defaults: { format: :json }
       get 'star_systems/:id/trade_goods/prices', to: 'trade_goods#prices', as: :star_system_trade_goods_prices, defaults: { format: :json }
+      get 'star_systems/:id/trade_synergies', to: 'trade_synergies#show', as: :star_system_trade_synergies, defaults: { format: :json }
       get 'star_systems/:id/ship_traffic', to: 'star_systems#ship_traffic', defaults: { format: :json }
       get 'stellar_objects/:id', to: 'stellar_objects#show', defaults: { format: :json }
       get 'stellar_objects/:id/moons', to: 'stellar_objects#moons', as: :stellar_object_moons, defaults: { format: :json }

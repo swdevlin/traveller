@@ -264,6 +264,7 @@ type alias SidebarMsgs msg =
     , toggleTravelTable : msg
     , openShipTraffic : msg
     , openCommerce : msg
+    , openTradeSynergies : msg
     , setKnown : Bool -> msg
     , setSurveyIndex : Int -> msg
     , setParsecSurveyIndex : Int -> msg
@@ -881,7 +882,7 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
                                             [ viewSidebarButton
                                                 { active = False
                                                 , icon = "fa-solid fa-rocket"
-                                                , label = "Ship Traffic"
+                                                , label = "Traffic"
                                                 , onClick = msgs.openShipTraffic
                                                 }
                                             , viewSidebarButton
@@ -889,6 +890,12 @@ viewSidebarColumn msgs { selectedHex, starSystemStatus, sectors, regions, select
                                                 , icon = "fa-solid fa-cart-shopping"
                                                 , label = "Commerce"
                                                 , onClick = msgs.openCommerce
+                                                }
+                                            , viewSidebarButton
+                                                { active = False
+                                                , icon = "fa-solid fa-arrow-right-arrow-left"
+                                                , label = "Trade"
+                                                , onClick = msgs.openTradeSynergies
                                                 }
                                             ]
 

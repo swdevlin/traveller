@@ -93,3 +93,51 @@ D66:
     the second die (1-6) is the units digit, so 11 to 66 with no 0, 7, 8 or 9
     in either place.
   enum: [11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26, 31, 32, 33, 34, 35, 36, 41, 42, 43, 44, 45, 46, 51, 52, 53, 54, 55, 56, 61, 62, 63, 64, 65, 66]
+TradeSynergyGood:
+  type: object
+  properties:
+    d66: { $ref: '#/components/schemas/D66' }
+    name: { type: string }
+    category: { type: string, enum: [common, trade, illegal, exotic] }
+    bonus: { type: integer, description: The combined purchase and sale DM; always above zero. }
+TradeSynergySystem:
+  type: object
+  properties:
+    id: { type: integer }
+    name: { type: [string, 'null'] }
+    hex: { type: string, description: The four-digit hex within the sector. }
+    sector: { type: string }
+    origin_x: { type: integer }
+    origin_y: { type: integer }
+    uwp: { type: [string, 'null'] }
+    starport: { type: [string, 'null'] }
+    gas_giant: { type: boolean }
+    travel_zone: { type: [string, 'null'], description: 'A for Amber, R for Red.' }
+    trade_codes:
+      type: array
+      items: { type: string }
+TradeSynergyPartner:
+  allOf:
+    - { $ref: '#/components/schemas/TradeSynergySystem' }
+    - type: object
+      properties:
+        distance: { type: integer, description: Distance from the origin in parsecs. }
+        outbound_count: { type: integer, description: Goods that flow profitably from the origin to this system. }
+        outbound_bonus: { type: integer, description: Total bonus of the outbound goods. }
+        inbound_count: { type: integer, description: Goods that flow profitably from this system to the origin. }
+        inbound_bonus: { type: integer, description: Total bonus of the inbound goods. }
+        outbound_goods:
+          type: array
+          items: { $ref: '#/components/schemas/TradeSynergyGood' }
+        inbound_goods:
+          type: array
+          items: { $ref: '#/components/schemas/TradeSynergyGood' }
+TradeSynergies:
+  type: object
+  required: [jump, origin, partners]
+  properties:
+    jump: { type: integer }
+    origin: { $ref: '#/components/schemas/TradeSynergySystem' }
+    partners:
+      type: array
+      items: { $ref: '#/components/schemas/TradeSynergyPartner' }

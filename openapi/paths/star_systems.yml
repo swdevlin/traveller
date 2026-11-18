@@ -232,6 +232,32 @@
           application/json:
             schema: { $ref: '#/components/schemas/Error' }
             example: { error: 'direction must be :purchase or :sale' }
+/star_systems/{id}/trade_synergies:
+  get:
+    operationId: getStarSystemTradeSynergies
+    tags: [Star systems]
+    summary: Trade partners within jump range
+    description: |
+      Lists every system with a main world within `jump` parsecs of this one, with the
+      goods that would flow profitably in each direction. A good flows from A to B when
+      A's best purchase DM less its best sale DM, plus B's best sale DM less its best
+      purchase DM, is above zero. The result is deterministic (no dice). Each partner
+      carries a count and a total bonus per direction, plus the goods themselves.
+      Partners are sorted by combined goods count (highest first), then distance.
+      The caller must be the owner of the campaign.
+    security: [{ bearerToken: [] }]
+    parameters:
+      - { $ref: '#/components/parameters/StarSystemId' }
+      - { name: jump, in: query, description: 'Jump range in parsecs, 1 to 6.', schema: { type: integer, minimum: 1, maximum: 6, default: 2 } }
+    responses:
+      '200':
+        description: The origin system and its trade partners.
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TradeSynergies' }
+      '401': { $ref: '#/components/responses/Unauthorised' }
+      '403': { $ref: '#/components/responses/Forbidden' }
+      '404': { $ref: '#/components/responses/StarSystemNotFound' }
 /star_systems/{id}/ship_traffic:
   get:
     operationId: getStarSystemShipTraffic

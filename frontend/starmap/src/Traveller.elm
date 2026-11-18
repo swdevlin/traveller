@@ -62,6 +62,8 @@ import Traveller.AnalysisDetail
 import Traveller.Atmosphere exposing (atmosphereDescription, atmosphereDescriptionEx, atmosphereHazardDescription)
 import Traveller.City exposing (CitiesPage, citiesPageDecoder)
 import Traveller.CommerceForm as CommerceForm
+import Traveller.TradeSynergy as TradeSynergy
+import Traveller.TradeSynergyPanel as TradeSynergyPanel
 import Traveller.Government as Government
 import Traveller.HexAddress as HexAddress exposing (HexAddress, SectorHexAddress, createFromStarSystem, shiftAddressBy, toSectorAddress, toUniversalAddress)
 import Traveller.HexGeometry
@@ -1079,6 +1081,7 @@ type alias ModelData =
     , viewedSophont : Maybe Sophont
     , routePlanForm : Maybe RoutePlanForm.Model
     , commerceForm : Maybe CommerceForm.Model
+    , tradeSynergyPanel : Maybe TradeSynergyPanel.Model
     , activeRoutePlan : Maybe RoutePlan.StoredRoutePlan
     , travelZoneOptions : List RoutePlan.TravelZoneOption
     , jumpRouteLayers : List JumpRouteLayer.Route
@@ -1208,6 +1211,8 @@ type Msg
     | ClearActiveRoutePlan
     | OpenCommerce
     | CommerceFormMsg CommerceForm.Msg
+    | OpenTradeSynergies
+    | TradeSynergyPanelMsg TradeSynergyPanel.Msg
     | DownloadedTravelZones (Result Http.Error (List RoutePlan.TravelZoneOption))
     | ToggleJumpRouteLayersMenu
     | ToggleJumpRouteLayerHidden Int
@@ -1870,6 +1875,7 @@ init viewport settings key hostConfig referee =
             , viewedSophont = Nothing
             , routePlanForm = Nothing
             , commerceForm = Nothing
+            , tradeSynergyPanel = Nothing
             , activeRoutePlan = initialActiveRoutePlan
             , travelZoneOptions = []
             , jumpRouteLayers = []
@@ -2648,7 +2654,13 @@ type alias HexRenderOpts =
     , themeIsLight : Bool
     , sectorCapitalColour : Maybe String
     , subsectorCapitalColour : Maybe String
+    , centreOverride : Maybe CentreOverride
     }
+
+
+{-| Replaces a hex's centre symbol with two lines of text. -}
+type alias CentreOverride =
+    { primary : String, secondary : String }
 
 
 renderHexBg : HexRenderOpts -> Svg Msg
@@ -2810,7 +2822,7 @@ viewRoleBadge size cx rowY role hexColour themeIsLight =
 
 
 renderHexContent : HexRenderOpts -> Svg Msg
-renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode, themeIsLight } =
+renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, isReferee, facilityIcons, displayMode, themeIsLight, centreOverride } =
     let
         hexAddress =
             HexAddress hexAddrX hexAddrY
@@ -3008,315 +3020,332 @@ renderHexContent { starSystem, hexColour, hexAddrX, hexAddrY, vox, voy, size, is
     in
     Svg.g []
         [ hexAddressLabel vox voy size hexAddress themeIsLight
-        , case effectiveMode of
-            ShowMainWorld ->
+        , case centreOverride of
+            Just override ->
+                -- Used by the Trade Synergies map: the standard hex, with the
+                -- centre symbol swapped for the synergy figures.
                 Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.mainWorldImage of
-                        Just imgName ->
-                            let
-                                d =
-                                    size * 0.55
-
-                                ix =
-                                    toFloat vox - d / 2
-
-                                iy =
-                                    toFloat voy - d / 2
-                            in
-                            Svg.image
-                                [ HtmlAttrs.attribute "href" ("/stellar_objects/" ++ imgName ++ ".webp")
-                                , SvgAttrs.x (String.fromFloat ix)
-                                , SvgAttrs.y (String.fromFloat iy)
-                                , SvgAttrs.width (String.fromFloat d)
-                                , SvgAttrs.height (String.fromFloat d)
-                                , SvgAttrs.clipPath "url(#planet-hex-clip)"
-                                , SvgAttrs.preserveAspectRatio "xMidYMid slice"
-                                ]
-                                []
-
-                        Nothing ->
-                            Svg.text ""
+                    [ hexCentreTextOffset (size * 0.0) override.primary
+                    , hexCentreTextOffset (size * 0.3) override.secondary
                     , if showGasGiant && size > 15 then
                         drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
                       else
                         Svg.text ""
                     , travelZoneRing
-                    , starportSvg (-size * 0.42) 0.2
+                    , starportSvg (-size * 0.38) 0.2
                     ]
 
-            ShowWTN ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.wtn of
-                        Just wtn ->
-                            Svg.g []
-                                [ hexCentreTextOffset (size * 0.05) (String.fromFloat (toFloat (round (wtn * 10)) / 10))
-                                , starportSvg (-size * 0.28) 0.2
-                                ]
+            Nothing ->
+                case effectiveMode of
+                    ShowMainWorld ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.mainWorldImage of
+                                Just imgName ->
+                                    let
+                                        d =
+                                            size * 0.55
 
-                        Nothing ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
+                                        ix =
+                                            toFloat vox - d / 2
 
-            ShowGWP ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.gwp of
-                        Just gwp ->
-                            Svg.g []
-                                [ hexCentreTextOffset (size * 0.05) (gwpCompact gwp)
-                                , starportSvg (-size * 0.28) 0.2
-                                ]
+                                        iy =
+                                            toFloat voy - d / 2
+                                    in
+                                    Svg.image
+                                        [ HtmlAttrs.attribute "href" ("/stellar_objects/" ++ imgName ++ ".webp")
+                                        , SvgAttrs.x (String.fromFloat ix)
+                                        , SvgAttrs.y (String.fromFloat iy)
+                                        , SvgAttrs.width (String.fromFloat d)
+                                        , SvgAttrs.height (String.fromFloat d)
+                                        , SvgAttrs.clipPath "url(#planet-hex-clip)"
+                                        , SvgAttrs.preserveAspectRatio "xMidYMid slice"
+                                        ]
+                                        []
 
-                        Nothing ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
+                                Nothing ->
+                                    Svg.text ""
+                            , if showGasGiant && size > 15 then
+                                drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
-            ShowTradeCodes ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ if List.isEmpty starSystem.tradeCodes then
-                        Svg.text ""
-
-                      else
-                        Svg.g []
-                            [ hexCentreTextOffset (size * 0.05) (String.join " " starSystem.tradeCodes)
-                            , starportSvg (-size * 0.28) 0.2
+                              else
+                                Svg.text ""
+                            , travelZoneRing
+                            , starportSvg (-size * 0.42) 0.2
                             ]
-                    , if showGasGiant && size > 15 then
-                        drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
-                      else
-                        Svg.text ""
-                    , travelZoneRing
-                    ]
+                    ShowWTN ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.wtn of
+                                Just wtn ->
+                                    Svg.g []
+                                        [ hexCentreTextOffset (size * 0.05) (String.fromFloat (toFloat (round (wtn * 10)) / 10))
+                                        , starportSvg (-size * 0.28) 0.2
+                                        ]
 
-            ShowImportance ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.importance of
-                        Just imp ->
-                            Svg.g []
-                                [ hexCentreTextOffset (size * 0.05)
-                                    ("{"
-                                        ++ (if imp >= 0 then
-                                                "+"
+                                Nothing ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
 
-                                            else
-                                                ""
-                                           )
-                                        ++ String.fromInt imp
-                                        ++ "}"
-                                    )
-                                , starportSvg (-size * 0.28) 0.2
-                                ]
+                    ShowGWP ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.gwp of
+                                Just gwp ->
+                                    Svg.g []
+                                        [ hexCentreTextOffset (size * 0.05) (gwpCompact gwp)
+                                        , starportSvg (-size * 0.28) 0.2
+                                        ]
 
-                        Nothing ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
+                                Nothing ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
 
-            ShowStrategic ->
-                case starSystem.strategic of
-                    Just strat ->
-                        if size >= 30 then
-                            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                                [ starportSvg (-size * 0.46) 0.18
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour themeIsLight
-                                , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour themeIsLight
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.1) "Rs" strat.resourceTier hexColour themeIsLight
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour themeIsLight
-                                , travelZoneRing
-                                ]
+                    ShowTradeCodes ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ if List.isEmpty starSystem.tradeCodes then
+                                Svg.text ""
 
-                        else
-                            Svg.text ""
-
-                    Nothing ->
-                        Svg.text ""
-
-            ShowResource ->
-                case starSystem.strategic of
-                    Just strat ->
-                        if size >= 30 then
-                            Svg.g [ SvgAttrs.pointerEvents "none" ]
-                                [ starportSvg (-size * 0.46) 0.2
-                                , case strat.routeRole of
-                                    Just role ->
-                                        viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.16) role hexColour themeIsLight
-
-                                    Nothing ->
-                                        Svg.text ""
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.13) "Ix" strat.importanceTier hexColour themeIsLight
-                                , viewBarRow size (toFloat vox) (toFloat voy + size * 0.35) "Td" strat.tradeEaseTier hexColour themeIsLight
-                                , travelZoneRing
-                                ]
-
-                        else
-                            Svg.text ""
-
-                    Nothing ->
-                        Svg.text ""
-
-            ShowTechLevel ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.techLevel of
-                        Just tl ->
-                            Svg.g []
-                                [ hexCentreTextOffset (size * 0.05) (String.fromInt tl)
-                                , starportSvg (-size * 0.28) 0.2
-                                ]
-
-                        Nothing ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
-
-            ShowHabitability ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case starSystem.habitabilityRating of
-                        Just rating ->
-                            Svg.g []
-                                [ hexCentreTextOffset (size * 0.05) (String.fromInt rating)
-                                , starportSvg (-size * 0.28) 0.2
-                                ]
-
-                        Nothing ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
-
-            ShowGovernment ->
-                Svg.g [ SvgAttrs.pointerEvents "none" ]
-                    [ case ( starSystem.governmentCode, starSystem.governmentName ) of
-                        ( Just code, Just name ) ->
-                            let
-                                colour =
-                                    if code == 6 then
-                                        captiveGovernmentColour hexColour
-
-                                    else
-                                        hexTextColour themeIsLight
-                            in
-                            Svg.g []
-                                [ starportSvg (-size * 0.42) 0.2
-                                , Svg.text_
-                                    [ SvgAttrs.x (String.fromInt vox)
-                                    , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.12))
-                                    , SvgAttrs.textAnchor "middle"
-                                    , SvgAttrs.dominantBaseline "middle"
-                                    , SvgAttrs.fill colour
-                                    , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
-                                    , SvgAttrs.fontFamily "Oxanium, sans-serif"
-                                    , SvgAttrs.fontWeight "700"
-                                    , SvgAttrs.pointerEvents "none"
+                              else
+                                Svg.g []
+                                    [ hexCentreTextOffset (size * 0.05) (String.join " " starSystem.tradeCodes)
+                                    , starportSvg (-size * 0.28) 0.2
                                     ]
-                                    [ Svg.text (String.fromInt code) ]
-                                , Svg.text_
-                                    [ SvgAttrs.x (String.fromInt vox)
-                                    , SvgAttrs.y (String.fromFloat (toFloat voy + size * 0.18))
-                                    , SvgAttrs.textAnchor "middle"
-                                    , SvgAttrs.dominantBaseline "middle"
-                                    , SvgAttrs.fill colour
-                                    , SvgAttrs.fontSize (String.fromFloat (size * 0.2))
-                                    , SvgAttrs.fontFamily "Oxanium, sans-serif"
-                                    , SvgAttrs.fontWeight "700"
-                                    , SvgAttrs.pointerEvents "none"
-                                    ]
-                                    [ Svg.text name ]
-                                ]
+                            , if showGasGiant && size > 15 then
+                                drawGasGiant themeIsLight topRightAnchorX topRightAnchorY size
 
-                        _ ->
-                            Svg.text ""
-                    , travelZoneRing
-                    ]
+                              else
+                                Svg.text ""
+                            , travelZoneRing
+                            ]
 
-            ShowStars ->
-                Svg.g
-                    [ SvgAttrs.pointerEvents "none" ]
-                    [ -- center star
-                      if showStar then
-                        let
-                            primaryPos =
-                                ( toFloat vox, toFloat voy )
+                    ShowImportance ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.importance of
+                                Just imp ->
+                                    Svg.g []
+                                        [ hexCentreTextOffset (size * 0.05)
+                                            ("{"
+                                                ++ (if imp >= 0 then
+                                                        "+"
 
-                            isKnown : StarType -> Bool
-                            isKnown theStar =
-                                if theStar |> (getStarTypeData >> isBrownDwarfType) then
-                                    starSystem.surveyIndex >= 4
+                                                    else
+                                                        ""
+                                                   )
+                                                ++ String.fromInt imp
+                                                ++ "}"
+                                            )
+                                        , starportSvg (-size * 0.28) 0.2
+                                        ]
+
+                                Nothing ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
+
+                    ShowStrategic ->
+                        case starSystem.strategic of
+                            Just strat ->
+                                if size >= 30 then
+                                    Svg.g [ SvgAttrs.pointerEvents "none" ]
+                                        [ starportSvg (-size * 0.46) 0.18
+                                        , viewBarRow size (toFloat vox) (toFloat voy - size * 0.28) "Ix" strat.importanceTier hexColour themeIsLight
+                                        , viewBarRow size (toFloat vox) (toFloat voy - size * 0.09) "RU" strat.resourceUnitsTier hexColour themeIsLight
+                                        , viewBarRow size (toFloat vox) (toFloat voy + size * 0.1) "Rs" strat.resourceTier hexColour themeIsLight
+                                        , viewBarRow size (toFloat vox) (toFloat voy + size * 0.29) "Td" strat.tradeEaseTier hexColour themeIsLight
+                                        , travelZoneRing
+                                        ]
 
                                 else
-                                    starSystem.surveyIndex >= 1
+                                    Svg.text ""
 
-                            generateStar : Int -> StarType -> Svg Msg
-                            generateStar idx starType =
+                            Nothing ->
+                                Svg.text ""
+
+                    ShowResource ->
+                        case starSystem.strategic of
+                            Just strat ->
+                                if size >= 30 then
+                                    Svg.g [ SvgAttrs.pointerEvents "none" ]
+                                        [ starportSvg (-size * 0.46) 0.2
+                                        , case strat.routeRole of
+                                            Just role ->
+                                                viewRoleBadge size (toFloat vox) (toFloat voy - size * 0.16) role hexColour themeIsLight
+
+                                            Nothing ->
+                                                Svg.text ""
+                                        , viewBarRow size (toFloat vox) (toFloat voy + size * 0.13) "Ix" strat.importanceTier hexColour themeIsLight
+                                        , viewBarRow size (toFloat vox) (toFloat voy + size * 0.35) "Td" strat.tradeEaseTier hexColour themeIsLight
+                                        , travelZoneRing
+                                        ]
+
+                                else
+                                    Svg.text ""
+
+                            Nothing ->
+                                Svg.text ""
+
+                    ShowTechLevel ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.techLevel of
+                                Just tl ->
+                                    Svg.g []
+                                        [ hexCentreTextOffset (size * 0.05) (String.fromInt tl)
+                                        , starportSvg (-size * 0.28) 0.2
+                                        ]
+
+                                Nothing ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
+
+                    ShowHabitability ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case starSystem.habitabilityRating of
+                                Just rating ->
+                                    Svg.g []
+                                        [ hexCentreTextOffset (size * 0.05) (String.fromInt rating)
+                                        , starportSvg (-size * 0.28) 0.2
+                                        ]
+
+                                Nothing ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
+
+                    ShowGovernment ->
+                        Svg.g [ SvgAttrs.pointerEvents "none" ]
+                            [ case ( starSystem.governmentCode, starSystem.governmentName ) of
+                                ( Just code, Just name ) ->
+                                    let
+                                        colour =
+                                            if code == 6 then
+                                                captiveGovernmentColour hexColour
+
+                                            else
+                                                hexTextColour themeIsLight
+                                    in
+                                    Svg.g []
+                                        [ starportSvg (-size * 0.42) 0.2
+                                        , Svg.text_
+                                            [ SvgAttrs.x (String.fromInt vox)
+                                            , SvgAttrs.y (String.fromFloat (toFloat voy - size * 0.12))
+                                            , SvgAttrs.textAnchor "middle"
+                                            , SvgAttrs.dominantBaseline "middle"
+                                            , SvgAttrs.fill colour
+                                            , SvgAttrs.fontSize (String.fromFloat (size * 0.28))
+                                            , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                                            , SvgAttrs.fontWeight "700"
+                                            , SvgAttrs.pointerEvents "none"
+                                            ]
+                                            [ Svg.text (String.fromInt code) ]
+                                        , Svg.text_
+                                            [ SvgAttrs.x (String.fromInt vox)
+                                            , SvgAttrs.y (String.fromFloat (toFloat voy + size * 0.18))
+                                            , SvgAttrs.textAnchor "middle"
+                                            , SvgAttrs.dominantBaseline "middle"
+                                            , SvgAttrs.fill colour
+                                            , SvgAttrs.fontSize (String.fromFloat (size * 0.2))
+                                            , SvgAttrs.fontFamily "Oxanium, sans-serif"
+                                            , SvgAttrs.fontWeight "700"
+                                            , SvgAttrs.pointerEvents "none"
+                                            ]
+                                            [ Svg.text name ]
+                                        ]
+
+                                _ ->
+                                    Svg.text ""
+                            , travelZoneRing
+                            ]
+
+                    ShowStars ->
+                        Svg.g
+                            [ SvgAttrs.pointerEvents "none" ]
+                            [ -- center star
+                              if showStar then
                                 let
-                                    starData =
-                                        getStarTypeData starType
+                                    primaryPos =
+                                        ( toFloat vox, toFloat voy )
 
-                                    ( sx, sy ) =
-                                        if idx == 0 then
-                                            ( toFloat vox, toFloat voy )
+                                    isKnown : StarType -> Bool
+                                    isKnown theStar =
+                                        if theStar |> (getStarTypeData >> isBrownDwarfType) then
+                                            starSystem.surveyIndex >= 4
 
                                         else
-                                            rotatePoint size (idx + 2) primaryPos 60 (round (20 * starScale))
-                                in
-                                case starData.companion of
-                                    Just companion ->
+                                            starSystem.surveyIndex >= 1
+
+                                    generateStar : Int -> StarType -> Svg Msg
+                                    generateStar idx starType =
                                         let
-                                            primaryRadius =
-                                                7
+                                            starData =
+                                                getStarTypeData starType
 
-                                            companionRadius =
-                                                3
+                                            ( sx, sy ) =
+                                                if idx == 0 then
+                                                    ( toFloat vox, toFloat voy )
 
-                                            -- nestle the companion against the primary's inner edge,
-                                            -- scaling with zoom so it doesn't get swallowed at high size
-                                            ( cx, cy ) =
-                                                ( sx - toFloat (primaryRadius - companionRadius) * iconScale size * starScale, sy )
-
-                                            compStarData =
-                                                getStarTypeData companion
+                                                else
+                                                    rotatePoint size (idx + 2) primaryPos 60 (round (20 * starScale))
                                         in
-                                        Svg.g []
-                                            [ Svg.Lazy.lazy5 drawStar sx sy primaryRadius size <| starColourRGB starData.colour
-                                            , Svg.Lazy.lazy5 drawStar cx cy companionRadius size <| starColourRGB compStarData.colour
-                                            ]
+                                        case starData.companion of
+                                            Just companion ->
+                                                let
+                                                    primaryRadius =
+                                                        7
 
-                                    Nothing ->
-                                        Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
-                        in
-                        Svg.g
-                            []
-                            (starSystem.stars
-                                |> List.filter isKnown
-                                |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
-                            )
+                                                    companionRadius =
+                                                        3
 
-                      else
-                        Svg.text ""
-                    , if showGasGiant && size > 15 then
-                        drawGasGiant themeIsLight gasGiantX topRightAnchorY size
+                                                    -- nestle the companion against the primary's inner edge,
+                                                    -- scaling with zoom so it doesn't get swallowed at high size
+                                                    ( cx, cy ) =
+                                                        ( sx - toFloat (primaryRadius - companionRadius) * iconScale size * starScale, sy )
 
-                      else
-                        Svg.text ""
-                    , if showPlanetoidBelt && size > 15 then
-                        drawPlanetoidBelt themeIsLight beltX beltY size
+                                                    compStarData =
+                                                        getStarTypeData companion
+                                                in
+                                                Svg.g []
+                                                    [ Svg.Lazy.lazy5 drawStar sx sy primaryRadius size <| starColourRGB starData.colour
+                                                    , Svg.Lazy.lazy5 drawStar cx cy companionRadius size <| starColourRGB compStarData.colour
+                                                    ]
 
-                      else
-                        Svg.text ""
-                    , if showUnknownGasGiant && size > 15 then
-                        drawUnknownSlot themeIsLight gasGiantX topRightAnchorY size
+                                            Nothing ->
+                                                Svg.Lazy.lazy5 drawStar sx sy 7 size <| starColourRGB starData.colour
+                                in
+                                Svg.g
+                                    []
+                                    (starSystem.stars
+                                        |> List.filter isKnown
+                                        |> List.indexedMap (Svg.Lazy.lazy2 generateStar)
+                                    )
 
-                      else
-                        Svg.text ""
-                    , if showUnknownPlanetoidBelt && size > 15 then
-                        drawUnknownSlot themeIsLight beltX beltY size
+                              else
+                                Svg.text ""
+                            , if showGasGiant && size > 15 then
+                                drawGasGiant themeIsLight gasGiantX topRightAnchorY size
 
-                      else
-                        Svg.text ""
-                    , travelZoneRing
-                    , starportSvg (-size * 0.32) 0.24
-                    ]
+                              else
+                                Svg.text ""
+                            , if showPlanetoidBelt && size > 15 then
+                                drawPlanetoidBelt themeIsLight beltX beltY size
+
+                              else
+                                Svg.text ""
+                            , if showUnknownGasGiant && size > 15 then
+                                drawUnknownSlot themeIsLight gasGiantX topRightAnchorY size
+
+                              else
+                                Svg.text ""
+                            , if showUnknownPlanetoidBelt && size > 15 then
+                                drawUnknownSlot themeIsLight beltX beltY size
+
+                              else
+                                Svg.text ""
+                            , travelZoneRing
+                            , starportSvg (-size * 0.32) 0.24
+                            ]
         , if showBases && size > 15 then
             drawBases themeIsLight facilityIcons starSystem.baseCodes vox voy size
 
@@ -3464,6 +3493,7 @@ type alias ViewHexOpts =
     , themeIsLight : Bool
     , sectorCapitalColour : Maybe String
     , subsectorCapitalColour : Maybe String
+    , centreOverride : Maybe CentreOverride
     }
 
 
@@ -3498,6 +3528,7 @@ viewHex options =
                     , themeIsLight = options.themeIsLight
                     , sectorCapitalColour = options.sectorCapitalColour
                     , subsectorCapitalColour = options.subsectorCapitalColour
+                    , centreOverride = options.centreOverride
                     }
             in
             ( Svg.Lazy.lazy renderHexBg opts
@@ -4065,6 +4096,17 @@ type alias ViewHexesConfig =
     , displayMode : DisplayMode
     , sectorCapitalColour : Maybe String
     , subsectorCapitalColour : Maybe String
+
+    -- Replaces the centre symbol of individual hexes (keyed by hex address),
+    -- as the Trade Synergies map does with its goods counts.
+    , centreOverrides : Dict.Dict String CentreOverride
+
+    -- A fixed, non-interactive view (no wheel zoom, scales to its container),
+    -- used when the map is embedded in a modal.
+    , staticView : Bool
+
+    -- Limits which hexes of the rectangle are drawn (the Trade map is a hexagon).
+    , hexFilter : HexAddress -> Bool
     }
 
 
@@ -4097,6 +4139,7 @@ viewHexes config =
                 (HexAddress.shiftAddressBy { deltaX = -1, deltaY = -1 } config.hexRect.upperLeftHex)
                 config.hexRect.lowerRightHex
                 { maxAcross = config.maxAcross, maxTall = config.maxTall }
+                |> List.filter config.hexFilter
 
         renderMapLabel : HexAddress -> Maybe (Svg Msg)
         renderMapLabel hexAddress =
@@ -4270,6 +4313,7 @@ viewHexes config =
                 , themeIsLight = config.themeIsLight
                 , sectorCapitalColour = config.sectorCapitalColour
                 , subsectorCapitalColour = config.subsectorCapitalColour
+                , centreOverride = Dict.get hexKey config.centreOverrides
                 }
             )
     in
@@ -4333,6 +4377,7 @@ viewHexes config =
                                     , themeIsLight = config.themeIsLight
                                     , sectorCapitalColour = config.sectorCapitalColour
                                     , subsectorCapitalColour = config.subsectorCapitalColour
+                                    , centreOverride = Dict.get hexKey config.centreOverrides
                                     }
 
                             _ ->
@@ -4793,19 +4838,28 @@ viewHexes config =
                     String.fromFloat <| config.svgHeight
             in
             Svg.svg
-                [ SvgAttrs.width <| widthString
-                , SvgAttrs.height <| heightString
-                , SvgAttrs.id "hexmap"
-                , SvgEvents.on "mouseleave" (JsDecode.succeed MapMouseLeave)
-                , Html.Events.preventDefaultOn "wheel"
-                    (JsDecode.map (\dy -> ( HexMapWheelZoom dy, True )) (JsDecode.field "deltaY" JsDecode.float))
-                , viewBox <|
+                ([ SvgAttrs.width <| widthString
+                 , SvgAttrs.height <| heightString
+                 , viewBox <|
                     toViewBox config.hexSize config.hexRect.upperLeftHex config.panOffset
                         ++ " "
                         ++ widthString
                         ++ " "
                         ++ heightString
-                ]
+                 ]
+                    ++ (if config.staticView then
+                            [ SvgAttrs.id "trade-synergy-map"
+                            , SvgAttrs.style "max-width: 100%; height: auto; display: block; margin: 0 auto;"
+                            ]
+
+                        else
+                            [ SvgAttrs.id "hexmap"
+                            , SvgEvents.on "mouseleave" (JsDecode.succeed MapMouseLeave)
+                            , Html.Events.preventDefaultOn "wheel"
+                                (JsDecode.map (\dy -> ( HexMapWheelZoom dy, True )) (JsDecode.field "deltaY" JsDecode.float))
+                            ]
+                       )
+                )
            )
 
 
@@ -5706,6 +5760,193 @@ routePlanFormConfig model =
 commerceFormConfig : ModelData -> CommerceForm.Config
 commerceFormConfig model =
     { hostConfig = model.hostConfig }
+
+
+tradeSynergyPanelConfig : ModelData -> TradeSynergyPanel.Config
+tradeSynergyPanelConfig model =
+    { hostConfig = model.hostConfig
+    , defaultJump = model.ship |> Maybe.andThen .jDrive |> Maybe.withDefault 2
+    , renderMap = viewTradeSynergyMap model
+    }
+
+
+requestTradeSynergyHexes : TradeSynergy.TradeSynergies -> ModelData -> ( ModelData, Cmd Msg )
+requestTradeSynergyHexes data model =
+    let
+        ox =
+            data.origin.originX
+
+        oy =
+            data.origin.originY
+
+        hexRect =
+            { upperLeftHex = HexAddress (ox - data.jump) (oy + data.jump + 1)
+            , lowerRightHex = HexAddress (ox + data.jump) (oy - data.jump - 1)
+            }
+
+        ( newState, cmds ) =
+            prepAndSendRequests
+                { starSystems = model.starSystems
+                , requestHistory = model.requestHistory
+                , regionsCoverage = model.regionsCoverage
+                , jumpRouteLinksCoverage = model.jumpRouteLinksCoverage
+                , pendingStarSystemTiles = model.pendingStarSystemTiles
+                , inFlightStarSystemTiles = model.inFlightStarSystemTiles
+                }
+                hexRect
+                model.displayMode
+                model.hostConfig
+    in
+    ( { model
+        | requestHistory = newState.requestHistory
+        , starSystems = newState.starSystems
+        , regionsCoverage = newState.regionsCoverage
+        , jumpRouteLinksCoverage = newState.jumpRouteLinksCoverage
+        , pendingStarSystemTiles = newState.pendingStarSystemTiles
+        , inFlightStarSystemTiles = newState.inFlightStarSystemTiles
+      }
+    , cmds
+    )
+
+
+{-| The Trade Synergies map: the standard map renderer (`viewHexes`) pointed at
+the hexes around the origin, with the origin and selected partner highlighted.
+With the `trade` fill each partner's centre symbol is replaced by its goods
+counts and bonuses; any other fill is one of the main map's display modes.
+Mouse events from the standard hexes are translated to panel messages, so
+clicking a partner selects it rather than the main map.
+-}
+viewTradeSynergyMap : ModelData -> TradeSynergy.TradeSynergies -> Maybe Int -> Html TradeSynergyPanel.Msg
+viewTradeSynergyMap model data selectedId =
+    let
+        size =
+            40
+
+        labelPad =
+            size * 1.5
+
+        -- API coordinates are parsec coordinates, which are the map's universal coordinates.
+        ox =
+            data.origin.originX
+
+        oy =
+            data.origin.originY
+
+        n =
+            data.jump
+
+        -- `viewHexes` draws from one column left of, and one row above, its upper-left hex.
+        hexRect =
+            { upperLeftHex = HexAddress (ox - n + 1) (oy + n)
+            , lowerRightHex = HexAddress (ox + n) (oy - n - 1)
+            }
+
+        inRange a =
+            TradeSynergy.hexDistance ( ox, oy ) ( a.x, a.y ) <= n
+
+        drawn =
+            HexAddress.betweenWithMax
+                (HexAddress.shiftAddressBy { deltaX = -1, deltaY = -1 } hexRect.upperLeftHex)
+                hexRect.lowerRightHex
+                { maxAcross = 1000, maxTall = 1000 }
+                |> List.filter inRange
+
+        visuals =
+            List.map (\a -> calcVisualOrigin size { row = a.y, col = a.x }) drawn
+
+        minX =
+            visuals |> List.map Tuple.first |> List.minimum |> Maybe.withDefault 0 |> toFloat
+
+        maxX =
+            visuals |> List.map Tuple.first |> List.maximum |> Maybe.withDefault 0 |> toFloat
+
+        minY =
+            visuals |> List.map Tuple.second |> List.minimum |> Maybe.withDefault 0 |> toFloat
+
+        maxY =
+            visuals |> List.map Tuple.second |> List.maximum |> Maybe.withDefault 0 |> toFloat
+
+        ( ulX, ulY ) =
+            calcVisualOrigin size { row = hexRect.upperLeftHex.y, col = hexRect.upperLeftHex.x }
+
+        originAddress =
+            HexAddress ox oy
+
+        selectedAddress =
+            data.partners
+                |> List.filter (\p -> Just p.system.id == selectedId)
+                |> List.head
+                |> Maybe.map (\p -> HexAddress p.system.originX p.system.originY)
+
+        partnerAt addr =
+            data.partners
+                |> List.filter (\p -> p.system.originX == addr.x && p.system.originY == addr.y)
+                |> List.head
+
+        centreOverrides =
+            data.partners
+                |> List.map
+                    (\p ->
+                        ( HexAddress.toKey (HexAddress p.system.originX p.system.originY)
+                        , { primary = String.fromInt p.outboundCount ++ "/" ++ String.fromInt p.inboundCount
+                          , secondary = "+" ++ String.fromInt p.outboundBonus ++ "/+" ++ String.fromInt p.inboundBonus
+                          }
+                        )
+                    )
+                |> Dict.fromList
+
+        toPanelMsg msg =
+            case msg of
+                MapMouseUp (Just addr) _ _ ->
+                    case partnerAt addr of
+                        Just p ->
+                            TradeSynergyPanel.SelectPartner (Just p.system.id)
+
+                        Nothing ->
+                            TradeSynergyPanel.NoOp
+
+                _ ->
+                    TradeSynergyPanel.NoOp
+    in
+    viewHexes
+        { hexRect = hexRect
+        , rawHexaPoints = rawHexagonPoints size
+        , svgWidth = maxX - minX + 2 * size + 2 * labelPad
+        , svgHeight = maxY - minY + 2 * size
+        , maxAcross = 1000
+        , maxTall = 1000
+        , starSystemDict = model.starSystems
+        , hexColours = Dict.empty
+        , regionLabels = Dict.empty
+        , regions = Dict.empty
+        , regionDisplay = HideRegions
+        , mapLabels = Dict.empty
+        , showSectorLines = False
+        , showSubsectorLines = False
+        , sectors = model.sectors
+        , showBackgroundNames = False
+        , jumpLog = JumpLogDisplay.defaultSettings
+        , themeIsLight = model.themeIsLight
+        , highlightRules = []
+        , previewRoute = Nothing
+        , route = []
+        , currentAddress = originAddress
+        , hexSize = size
+        , maybeSelectedHex = selectedAddress
+        , isReferee = model.isReferee
+        , panOffset = { x = minX - toFloat ulX - size - labelPad, y = minY - toFloat ulY - size }
+        , jumpRouteLinks = []
+        , hiddenJumpRouteIds = Set.empty
+        , rogueObjectPathData = model.rogueObjectPathData
+        , facilityIcons = model.facilityIcons
+        , displayMode = model.displayMode
+        , sectorCapitalColour = model.sectorCapitalColour
+        , subsectorCapitalColour = model.subsectorCapitalColour
+        , centreOverrides = centreOverrides
+        , staticView = True
+        , hexFilter = inRange
+        }
+        |> Html.map toPanelMsg
 
 
 jumpLogPanelConfig : ModelData -> JumpLogPanel.Config
@@ -6716,6 +6957,9 @@ viewHexMap model =
         , displayMode = model.displayMode
         , sectorCapitalColour = model.sectorCapitalColour
         , subsectorCapitalColour = model.subsectorCapitalColour
+        , centreOverrides = Dict.empty
+        , staticView = False
+        , hexFilter = always True
         }
         |> Element.html
 
@@ -7006,6 +7250,7 @@ view ( time, model ) =
             , toggleTravelTable = ToggleTravelTable
             , openShipTraffic = OpenShipTraffic
             , openCommerce = OpenCommerce
+            , openTradeSynergies = OpenTradeSynergies
             , setKnown = SetKnown
             , setSurveyIndex = SetSurveyIndex
             , setParsecSurveyIndex = SetParsecSurveyIndex
@@ -7217,6 +7462,12 @@ view ( time, model ) =
                , case model.commerceForm of
                     Just formModel ->
                         Element.inFront <| Element.map CommerceFormMsg (Element.html (CommerceForm.view (commerceFormConfig model) formModel))
+
+                    Nothing ->
+                        Element.htmlAttribute <| HtmlAttrs.class ""
+               , case model.tradeSynergyPanel of
+                    Just panelModel ->
+                        Element.inFront <| Element.map TradeSynergyPanelMsg (Element.html (TradeSynergyPanel.view (tradeSynergyPanelConfig model) panelModel))
 
                     Nothing ->
                         Element.htmlAttribute <| HtmlAttrs.class ""
@@ -10070,6 +10321,51 @@ update msg ( time, model ) =
 
         ClearActiveRoutePlan ->
             ( withTime { model | activeRoutePlan = Nothing }, storeRoutePlan Encode.null )
+
+        OpenTradeSynergies ->
+            case model.selectedSystem of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just sys ->
+                    let
+                        ( panelModel, panelCmd ) =
+                            TradeSynergyPanel.init (tradeSynergyPanelConfig model) sys.id
+                    in
+                    ( withTime { model | tradeSynergyPanel = Just panelModel }, Cmd.map TradeSynergyPanelMsg panelCmd )
+
+        TradeSynergyPanelMsg subMsg ->
+            case model.tradeSynergyPanel of
+                Nothing ->
+                    ( withTime model, Cmd.none )
+
+                Just panelModel ->
+                    case subMsg of
+                        TradeSynergyPanel.Cancel ->
+                            ( withTime { model | tradeSynergyPanel = Nothing }, Cmd.none )
+
+                        TradeSynergyPanel.ZoomTo address ->
+                            update (ZoomToHex address True) <| withTime { model | tradeSynergyPanel = Nothing }
+
+                        _ ->
+                            let
+                                ( newPanel, panelCmd ) =
+                                    TradeSynergyPanel.update (tradeSynergyPanelConfig model) subMsg panelModel
+
+                                updatedModel =
+                                    { model | tradeSynergyPanel = Just newPanel }
+
+                                -- The map draws from the star system cache, so make sure
+                                -- every hex in range is loaded, even if it's off screen.
+                                ( loadedModel, loadCmd ) =
+                                    case subMsg of
+                                        TradeSynergyPanel.GotResult (Ok data) ->
+                                            requestTradeSynergyHexes data updatedModel
+
+                                        _ ->
+                                            ( updatedModel, Cmd.none )
+                            in
+                            ( withTime loadedModel, Cmd.batch [ Cmd.map TradeSynergyPanelMsg panelCmd, loadCmd ] )
 
         CommerceFormMsg subMsg ->
             case model.commerceForm of
