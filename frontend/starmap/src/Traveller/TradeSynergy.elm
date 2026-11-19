@@ -28,6 +28,8 @@ type alias Good =
     { d66 : Int
     , name : String
     , category : String
+    , buyDm : Int
+    , sellDm : Int
     , bonus : Int
     }
 
@@ -41,6 +43,7 @@ type alias SystemInfo =
     , originY : Int
     , uwp : Maybe String
     , starport : Maybe String
+    , wtn : Maybe Float
     , gasGiant : Bool
     , travelZone : Maybe String
     , tradeCodes : List String
@@ -75,6 +78,8 @@ goodDecoder =
         |> required "d66" Decode.int
         |> required "name" Decode.string
         |> required "category" Decode.string
+        |> required "buy_dm" Decode.int
+        |> required "sell_dm" Decode.int
         |> required "bonus" Decode.int
 
 
@@ -89,6 +94,7 @@ systemInfoDecoder =
         |> required "origin_y" Decode.int
         |> required "uwp" (Decode.nullable Decode.string)
         |> required "starport" (Decode.nullable Decode.string)
+        |> required "wtn" (Decode.nullable Decode.float)
         |> required "gas_giant" Decode.bool
         |> required "travel_zone" (Decode.nullable Decode.string)
         |> required "trade_codes" (Decode.list Decode.string)

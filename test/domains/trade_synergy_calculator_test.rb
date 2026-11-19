@@ -24,12 +24,34 @@ class TradeSynergyCalculatorTest < ActiveSupport::TestCase
     assert_nil flowing.find { it[:d66] == 15 }
   end
 
-  test "the origin's own sale DM counts against exporting a good" do
-    # In both buys (+2 sale) and sells (+5 purchase) Common Industrial Goods differently: Ag sells at +2.
-    # Origin Ag: purchase 0, sale 2 for d66 12 -> net -2; partner Ni: sale 3 -> total +1.
-    flowing = TradeSynergyCalculator.goods_flowing(dms(%w[Ag]), dms(%w[Ni]))
+  test 'a negative buy DM is outweighed by a larger sell DM' do
+    # Ag has a 0 purchase DM for d66 12 and Ni pays +3; a -1 buy DM against +3 still sums above zero.
+    flowing = TradeSynergyCalculator.goods_flowing(
+      { 12 => { d66: 12, purchase_dm: -1, sale_dm: 0 } },
+      { 12 => { d66: 12, purchase_dm: 0, sale_dm: 3 } }
+    )
 
-    assert_equal 1, flowing.find { it[:d66] == 12 }[:bonus]
+    assert_equal [2], flowing.map { it[:bonus] }
+    assert_equal(-1, flowing.first[:buy_dm])
+    assert_equal 3, flowing.first[:sell_dm]
+  end
+
+  test 'the same rule applies in the reverse direction' do
+    # Partner buys at +3 and the origin sells at -1: inbound flows, outbound (-1 buy... +0 sell) does not.
+    origin = { 12 => { d66: 12, purchase_dm: 0, sale_dm: -1 } }
+    partner = { 12 => { d66: 12, purchase_dm: 3, sale_dm: 0 } }
+
+    assert_equal [2], TradeSynergyCalculator.goods_flowing(partner, origin).map { it[:bonus] }
+    assert_empty TradeSynergyCalculator.goods_flowing(origin, partner)
+  end
+
+  test 'a good whose buy and sell DMs sum to zero or less does not flow' do
+    flowing = TradeSynergyCalculator.goods_flowing(
+      { 12 => { d66: 12, purchase_dm: -3, sale_dm: 0 } },
+      { 12 => { d66: 12, purchase_dm: 0, sale_dm: 3 } }
+    )
+
+    assert_empty flowing
   end
 
   test 'the two directions are computed independently' do

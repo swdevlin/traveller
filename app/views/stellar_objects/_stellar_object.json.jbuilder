@@ -13,6 +13,7 @@ json.orbit_sequence stellar_object.orbit_sequence || ''
 json.partial! 'api/records', record: stellar_object
 json.reference_url stellar_object.effective_reference_url(current_campaign)
 json.tidal_lock_target_type stellar_object.tidal_lock_target&.type
+json.tidal_lock_target_name stellar_object.tidal_lock_target&.display_name
 
 deep_snake = ->(val) {
   case val

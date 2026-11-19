@@ -18,4 +18,14 @@ class GeneratorMappingsTest < ActiveSupport::TestCase
 
     assert_equal 'A III', planet.orbit_sequence
   end
+
+  test 'tech level capabilities below zero from the generator are clamped to zero' do
+    tl = GeneratorMappings.build_tech_level_from_generator(
+      { 'code' => 3, 'spaceTransport' => -1, 'airTransport' => 2, 'energy' => nil }
+    )
+
+    assert_equal 0, tl['space']
+    assert_equal 2, tl['air']
+    assert_equal 3, tl['energy']
+  end
 end

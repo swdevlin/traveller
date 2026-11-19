@@ -31,7 +31,7 @@
       | --- | --- |
       | `Star` | `stellar_class`, `stellar_type`, `stellar_subtype`, `luminosity`, `hzco`, `minimum_allowable_orbit`, `colour`, `is_protostar`, `temperature`, `age`, `period`, `baseline`, `spread`, `scan_points`, `companion_id` |
       | `TerrestrialPlanet` | Planetary data and UWP details. `orbit_type` is `11`. |
-      | `Moon` | Planetary data and UWP details. `is_moon` is `true`. `tidal_lock_target_id` and `tidal_lock_target_type` name the body it is locked to. |
+      | `Moon` | Planetary data and UWP details. `is_moon` is `true`. `tidal_lock_target_id`, `tidal_lock_target_type` and `tidal_lock_target_name` identify the body it is locked to. |
       | `Planetoid` | Planetary data and UWP details. `planetoid_belt_id` links it to its belt. `orbit_type` is `13`. |
       | `PlanetoidBelt` | `m_type`, `s_type`, `c_type`, `o_type` (composition percentages), `bulk`, `span`, `resource_rating`, `temperature`, `retrograde`, `period`, `planetoid_count`, plus UWP details. `orbit_type` is `12`. |
       | `GasGiant` | `code` (`GS`, `GM` or `GL`), `period`, `rotation`, `axial_tilt`, `tidal_lock`, `tidal_lock_note`, `twilight_zone`, `sidereal_day`, `diameter`. `orbit_type` is `10`. |

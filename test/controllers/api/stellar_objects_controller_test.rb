@@ -182,6 +182,7 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     planet.update_column(:tidal_lock_target_id, @gas_giant.id)
     get show_url, as: :json
     assert_equal 'GasGiant', response.parsed_body['tidal_lock_target_type']
+    assert_equal @gas_giant.display_name, response.parsed_body['tidal_lock_target_name']
   end
 
   test 'map url is null without a map and signed once one exists' do

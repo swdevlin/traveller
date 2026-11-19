@@ -10671,6 +10671,9 @@ update msg ( time, model ) =
                                             else
                                                 "No"
                                         , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
+                                        , tidalLock = ""
+                                        , siderealDay = ""
+                                        , twilightZone = ""
                                         }
                                     , atmosphere =
                                         { type_ = toEHexChar atm.code ++ " – " ++ atmosphereDescriptionEx atm.code
@@ -11005,6 +11008,20 @@ update msg ( time, model ) =
                                     else
                                         "No"
                                 , effectiveHZCODeviation = rnd 2 pdata.effectiveHZCODeviation
+                                , tidalLock =
+                                    case pdata.tidalLockTargetName of
+                                        Just target ->
+                                            target ++ (pdata.tidalLockNote |> Maybe.map (\note -> " (" ++ note ++ ")") |> Maybe.withDefault "")
+
+                                        Nothing ->
+                                            ""
+                                , siderealDay = pdata.siderealDay |> Maybe.map (\d -> rnd 2 d ++ " hours") |> Maybe.withDefault ""
+                                , twilightZone =
+                                    if pdata.twilightZone == Just True then
+                                        "Yes"
+
+                                    else
+                                        ""
                                 }
                             , atmosphere =
                                 { type_ = toEHexChar pdata.atmosphere.code ++ " – " ++ atmosphereDescriptionEx pdata.atmosphere.code

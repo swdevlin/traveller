@@ -133,22 +133,25 @@ module GeneratorMappings
     end
   end
 
+  # The generator can send capability levels below zero (e.g. -1 space transport on a
+  # low-tech world); a tech level can never be negative, so they are clamped to 0.
   def self.build_tech_level_from_generator(tl)
     if tl.is_a?(Hash)
       code = tl['code']
+      capability = ->(key) { (tl[key].nil? ? code : tl[key])&.clamp(0..) }
       {
         'code'              => code,
-        'energy'            => tl['energy'].nil?            ? code : tl['energy'],
-        'electronics'       => tl['electronics'].nil?       ? code : tl['electronics'],
-        'manufacturing'     => tl['manufacturing'].nil?     ? code : tl['manufacturing'],
-        'medical'           => tl['medical'].nil?           ? code : tl['medical'],
-        'environmental'     => tl['environmental'].nil?     ? code : tl['environmental'],
-        'land'              => tl['landTransport'].nil?     ? code : tl['landTransport'],
-        'sea'               => tl['waterTransport'].nil?    ? code : tl['waterTransport'],
-        'air'               => tl['airTransport'].nil?      ? code : tl['airTransport'],
-        'space'             => tl['spaceTransport'].nil?    ? code : tl['spaceTransport'],
-        'personal_military' => tl['personalMilitary'].nil?  ? code : tl['personalMilitary'],
-        'heavy_military'    => tl['heavyMilitary'].nil?     ? code : tl['heavyMilitary']
+        'energy'            => capability.call('energy'),
+        'electronics'       => capability.call('electronics'),
+        'manufacturing'     => capability.call('manufacturing'),
+        'medical'           => capability.call('medical'),
+        'environmental'     => capability.call('environmental'),
+        'land'              => capability.call('landTransport'),
+        'sea'               => capability.call('waterTransport'),
+        'air'               => capability.call('airTransport'),
+        'space'             => capability.call('spaceTransport'),
+        'personal_military' => capability.call('personalMilitary'),
+        'heavy_military'    => capability.call('heavyMilitary')
       }
     else
       { 'code' => tl }

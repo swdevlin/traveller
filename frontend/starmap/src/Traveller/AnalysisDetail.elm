@@ -171,6 +171,9 @@ type alias AnalyisDetailPlanetoidData =
         { orbit : String
         , retrograde : String
         , effectiveHZCODeviation : String
+        , tidalLock : String
+        , siderealDay : String
+        , twilightZone : String
         }
     , atmosphere :
         { type_ : String
@@ -1386,28 +1389,28 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
         firstTabIndex =
             case safeTab of
                 "starport" ->
-                    81
+                    84
 
                 "physical" ->
-                    9
+                    12
 
                 "atmo" ->
-                    22
+                    25
 
                 "hydro" ->
-                    28
-
-                "pop" ->
                     31
 
+                "pop" ->
+                    34
+
                 "gov" ->
-                    49
+                    52
 
                 "law" ->
-                    57
+                    60
 
                 "tech" ->
-                    68
+                    71
 
                 _ ->
                     0
@@ -1448,7 +1451,12 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
             , data.physical.periapsis
             , data.physical.apoapsis
 
-            -- 9–21: physical tab
+            -- 9–11: orbital tab (tidal lock, sidereal day, twilight zone)
+            , data.orbital.tidalLock
+            , data.orbital.siderealDay
+            , data.orbital.twilightZone
+
+            -- 12–24: physical tab
             , data.physical.sizeCode
             , data.physical.diameter
             , data.physical.mass
@@ -1463,7 +1471,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
             , data.physical.albedo
             , data.physical.greenhouse
 
-            -- 22–27: atmo tab
+            -- 25–30: atmo tab
             , data.atmosphere.type_
             , data.atmosphere.bar
             , data.atmosphere.hazardCode
@@ -1471,12 +1479,12 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
             , data.atmosphere.taint.severity
             , data.atmosphere.taint.persistence
 
-            -- 28–30: hydro tab
+            -- 31–33: hydro tab
             , data.hydrographics.percentage
             , data.hydrographics.liquid
             , data.hydrographics.surfaceDistribution
 
-            -- 31–40: pop tab
+            -- 34–43: pop tab
             , data.social.population
             , data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault ""
             , data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault ""
@@ -1488,9 +1496,9 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
             , data.life.habitability
             , data.life.sophonts
             ]
-                -- 41–48: culture (8 fixed slots)
+                -- 44–51: culture (8 fixed slots)
                 ++ cultureLabels
-                -- 49–56: gov tab
+                -- 52–59: gov tab
                 ++ [ data.social.government
                    , data.government.type_
                    , data.government.description
@@ -1500,7 +1508,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                    , data.government.authority
                    , data.government.centralisation
                    ]
-                -- 57–67: law tab
+                -- 60–70: law tab
                 ++ [ data.social.lawLevel
                    , data.lawSubClassifications.weaponsAndArmour
                    , data.lawSubClassifications.criminalLaw
@@ -1513,7 +1521,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                    , data.lawCharacteristics.presumedInnocence
                    , data.lawCharacteristics.econometricInfractionsAdministrative
                    ]
-                -- 68–80: tech tab
+                -- 71–83: tech tab
                 ++ [ data.social.techLevel
                    , data.techDetail.descriptor
                    , data.techDetail.energy
@@ -1528,7 +1536,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                    , data.techDetail.personalMilitary
                    , data.techDetail.heavyMilitary
                    ]
-                -- 81–86: starport tab
+                -- 84–89: starport tab
                 ++ [ data.starport.code
                    , data.starport.quality
                    , data.starport.fuel
@@ -1598,16 +1606,16 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
 
                 "starport" ->
                     column groupAttrs
-                        [ textDisplay "Starport Class" <| show 81 data.starport.code
-                        , textDisplay "Quality" <| show 82 data.starport.quality
+                        [ textDisplay "Starport Class" <| show 84 data.starport.code
+                        , textDisplay "Quality" <| show 85 data.starport.quality
                         , if data.starport.facilities /= "None" then
-                            textDisplay "Facilities" <| show 84 data.starport.facilities
+                            textDisplay "Facilities" <| show 87 data.starport.facilities
 
                           else
                             none
-                        , textDisplay "Berthing" <| show 85 (starportCredits data.starport.berthingCost)
+                        , textDisplay "Berthing" <| show 88 (starportCredits data.starport.berthingCost)
                         , textDisplayAttrs "Fuel Cost"
-                            (show 86 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
+                            (show 89 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
                             [ HtmlAttrs.title (starportFuelCostTooltip data.starport.refinedFuelCost data.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
                         ]
 
@@ -1617,11 +1625,11 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                         , row (spacing 40 :: groupAttrs)
                             [ narrowDisplayGrid <|
                                 List.concat
-                                    [ textDisplayMedium ("Diameter (" ++ show 9 data.physical.sizeCode ++ ")") <| show 10 data.physical.diameter
+                                    [ textDisplayMedium ("Diameter (" ++ show 12 data.physical.sizeCode ++ ")") <| show 13 data.physical.diameter
                                     , textDisplayMedium "Mass" <|
                                         let
                                             m =
-                                                show 11 data.physical.mass
+                                                show 14 data.physical.mass
                                         in
                                         if m == "—" || m == "" then
                                             m
@@ -1631,14 +1639,14 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                                     , textDisplayMedium "Density" <|
                                         let
                                             d =
-                                                show 12 data.physical.density
+                                                show 15 data.physical.density
                                         in
                                         if d == "—" || d == "" then
                                             d
 
                                         else
                                             d ++ " ☉"
-                                    , textDisplayMedium "Gravity (G)" <| show 13 data.physical.gravity
+                                    , textDisplayMedium "Gravity (G)" <| show 16 data.physical.gravity
                                     ]
                             ]
                         , viewSectionHeader "Environmental Data"
@@ -1649,60 +1657,45 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                                         []
 
                                       else
-                                        textDisplayNarrow "Current Temp" <| show 14 (data.physical.currentTemperature |> Maybe.withDefault "")
-                                    , textDisplayNarrow "Temperature" <| show 15 data.physical.meanTemperature
+                                        textDisplayNarrow "Current Temp" <| show 17 (data.physical.currentTemperature |> Maybe.withDefault "")
+                                    , textDisplayNarrow "Temperature" <| show 18 data.physical.meanTemperature
                                     , if data.physical.periapsisTemperature == Nothing then
                                         []
 
                                       else
-                                        textDisplayNarrow "Periapsis Temp" <| show 16 (data.physical.periapsisTemperature |> Maybe.withDefault "")
+                                        textDisplayNarrow "Periapsis Temp" <| show 19 (data.physical.periapsisTemperature |> Maybe.withDefault "")
                                     , if data.physical.apoapsisTemperature == Nothing then
                                         []
 
                                       else
-                                        textDisplayNarrow "Apoapsis Temp" <| show 17 (data.physical.apoapsisTemperature |> Maybe.withDefault "")
-                                    , textDisplayNarrow "Rotation" <| show 18 data.physical.rotation
-                                    , textDisplayNarrow "Axial Tilt" <| show 19 data.physical.axialTilt
-                                    , textDisplayNarrow "Albedo" <| show 20 data.physical.albedo
-                                    , textDisplayNarrow "Greenhouse" <| show 21 data.physical.greenhouse
+                                        textDisplayNarrow "Apoapsis Temp" <| show 20 (data.physical.apoapsisTemperature |> Maybe.withDefault "")
+                                    , textDisplayNarrow "Rotation" <| show 21 data.physical.rotation
+                                    , textDisplayNarrow "Axial Tilt" <| show 22 data.physical.axialTilt
+                                    , textDisplayNarrow "Albedo" <| show 23 data.physical.albedo
+                                    , textDisplayNarrow "Greenhouse" <| show 24 data.physical.greenhouse
                                     ]
                             ]
                         ]
 
                 "atmo" ->
                     column groupAttrs
-                        [ textDisplay "Type" <| show 22 data.atmosphere.type_
-                        , textDisplay "BAR" <| show 23 data.atmosphere.bar
-                        , textDisplay "Hazard Code" <| show 24 data.atmosphere.hazardCode
-                        , row [ width fill ]
-                            [ el
-                                [ fontVar "--color-fg-muted"
-                                , HtmlAttrs.class "font-bold"
-                                , HtmlAttrs.style "font-size" "14px"
-                                , alignTop
-                                , width (px 50)
-                                , paddingEach <| { zeroEach | top = 5 }
-                                ]
-                              <|
-                                text "Taint"
-                            , narrowDisplayGrid <|
-                                List.concat
-                                    [ taintTextDisplay "Subtype" <| show 25 data.atmosphere.taint.subtype
-                                    , taintTextDisplay "Severity" <| show 26 data.atmosphere.taint.severity
-                                    , taintTextDisplay "Persistence" <| show 27 data.atmosphere.taint.persistence
-                                    ]
-                            ]
+                        [ textDisplay "Type" <| show 25 data.atmosphere.type_
+                        , textDisplay "BAR" <| show 26 data.atmosphere.bar
+                        , textDisplay "Hazard Code" <| show 27 data.atmosphere.hazardCode
+                        , textDisplay "Taint Subtype" <| show 28 data.atmosphere.taint.subtype
+                        , textDisplay "Taint Severity" <| show 29 data.atmosphere.taint.severity
+                        , textDisplay "Taint Persistence" <| show 30 data.atmosphere.taint.persistence
                         ]
 
                 "hydro" ->
                     column groupAttrs
-                        [ textDisplay "Percentage" <| show 28 data.hydrographics.percentage
+                        [ textDisplay "Percentage" <| show 31 data.hydrographics.percentage
                         , if data.hydrographics.liquid /= "" then
-                            textDisplay "Liquid" <| show 29 data.hydrographics.liquid
+                            textDisplay "Liquid" <| show 32 data.hydrographics.liquid
 
                           else
                             none
-                        , textDisplay "Surface Distribution" <| show 30 data.hydrographics.surfaceDistribution
+                        , textDisplay "Surface Distribution" <| show 33 data.hydrographics.surfaceDistribution
                         ]
 
                 "pop" ->
@@ -1732,11 +1725,11 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                     column [ width fill ]
                         [ viewSectionHeader "Population"
                         , column groupAttrs
-                            [ textDisplay "Population" <| show 31 data.social.population
+                            [ textDisplay "Population" <| show 34 data.social.population
                             , textDisplay "Concentration Rating"
                                 (let
                                     s =
-                                        show 32 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 35 (data.social.concentrationRating |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.concentrationRating == Nothing then
@@ -1751,7 +1744,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                             , textDisplay "Urbanisation %"
                                 (let
                                     s =
-                                        show 33 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 36 (data.social.urbanizationPercentage |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.urbanizationPercentage == Nothing then
@@ -1766,7 +1759,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                             , textDisplay "Major Cities"
                                 (let
                                     s =
-                                        show 34 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
+                                        show 37 (data.social.majorCities |> Maybe.map String.fromInt |> Maybe.withDefault "")
                                  in
                                  if s == "" then
                                     if data.social.majorCities == Nothing then
@@ -1781,12 +1774,12 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                             ]
                         , viewSectionHeader "Life"
                         , column groupAttrs
-                            [ textDisplay "Biomass" <| show 35 data.life.biomass
-                            , textDisplay "Biocomplexity" <| show 36 data.life.biocomplexity
-                            , textDisplay "Biodiversity" <| show 37 data.life.biodiversity
-                            , textDisplay "Compatibility" <| show 38 data.life.compatibility
-                            , textDisplay "Habitability" <| show 39 data.life.habitability
-                            , textDisplay "Sophonts" <| show 40 data.life.sophonts
+                            [ textDisplay "Biomass" <| show 38 data.life.biomass
+                            , textDisplay "Biocomplexity" <| show 39 data.life.biocomplexity
+                            , textDisplay "Biodiversity" <| show 40 data.life.biodiversity
+                            , textDisplay "Compatibility" <| show 41 data.life.compatibility
+                            , textDisplay "Habitability" <| show 42 data.life.habitability
+                            , textDisplay "Sophonts" <| show 43 data.life.sophonts
                             , sophontDisplay onSophont data.life.sophont
                             ]
                         , if isReferee && not (List.isEmpty data.cultureTrait) then
@@ -1803,13 +1796,13 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                         ]
 
                 "gov" ->
-                    viewGovernmentDetail show data
+                    viewGovernmentDetail (\i -> show (i + 3)) data
 
                 "law" ->
-                    viewLawLevelDetail show data
+                    viewLawLevelDetail (\i -> show (i + 3)) data
 
                 "tech" ->
-                    viewTechLevelDetail show data
+                    viewTechLevelDetail (\i -> show (i + 3)) data
 
                 _ ->
                     column [ width fill ]
@@ -1825,6 +1818,21 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                                     , textDisplayNarrow "Eccentricity" <| show 6 data.physical.eccentricity
                                     , textDisplayNarrow "Periapsis" <| show 7 data.physical.periapsis
                                     , textDisplayNarrow "Apoapsis" <| show 8 data.physical.apoapsis
+                                    , if data.orbital.tidalLock == "" then
+                                        []
+
+                                      else
+                                        textDisplayNarrow "Tidally Locked" <| show 9 data.orbital.tidalLock
+                                    , if data.orbital.siderealDay == "" then
+                                        []
+
+                                      else
+                                        textDisplayNarrow "Sidereal Day" <| show 10 data.orbital.siderealDay
+                                    , if data.orbital.twilightZone == "" then
+                                        []
+
+                                      else
+                                        textDisplayNarrow "Twilight Zone" <| show 11 data.orbital.twilightZone
                                     ]
                             ]
                         , viewJumpShadowTable data.jumpShadowKm

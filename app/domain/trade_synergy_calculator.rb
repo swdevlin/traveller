@@ -4,11 +4,10 @@
 # in each direction. Deterministic: it uses only the purchase and sale DMs of
 # each world's trade codes (see TradeGoodsTable), never dice.
 #
-# A good flows from A to B when A's net purchase DM plus B's net sale DM is
-# positive, where a world's net purchase DM is its best purchase DM less its
-# best sale DM for that good, and its net sale DM is the reverse. This mirrors
-# the sign convention in TradePriceCalculator. A good can only leave a world
-# where it is available for purchase (see TradeAvailabilityCalculator).
+# A good flows from A to B when A's purchase DM for it (its buy DM) plus B's
+# sale DM for it (its sell DM) is above zero, so a negative DM at one end can
+# be outweighed by the other. The bonus is the sum of the two. A good can only leave a world where it is available for
+# purchase (see TradeAvailabilityCalculator).
 class TradeSynergyCalculator
   include HexDistance
 
@@ -22,11 +21,13 @@ class TradeSynergyCalculator
 
       from = from_dms.fetch(d66, { purchase_dm: 0, sale_dm: 0 })
       to = to_dms.fetch(d66, { purchase_dm: 0, sale_dm: 0 })
-      bonus = (from[:purchase_dm] - from[:sale_dm]) + (to[:sale_dm] - to[:purchase_dm])
-      next unless bonus.positive?
+      buy_dm = from[:purchase_dm]
+      sell_dm = to[:sale_dm]
+      next unless (buy_dm + sell_dm).positive?
 
       good = TradeGoodsTable.for(d66)
-      { d66: d66, name: good[:name], category: good[:category].to_s, bonus: bonus }
+      { d66: d66, name: good[:name], category: good[:category].to_s,
+        buy_dm: buy_dm, sell_dm: sell_dm, bonus: buy_dm + sell_dm }
     end.sort_by { |g| [-g[:bonus], g[:d66]] }
   end
 
@@ -103,6 +104,7 @@ class TradeSynergyCalculator
       origin_y: parsec.y,
       uwp: system.main_world_uwp,
       starport: system.main_world_starport_code,
+      wtn: system.main_world_wtn,
       gas_giant: system.has_gas_giant?,
       travel_zone: system.travel_zone&.code,
       trade_codes: system.trade_codes.map(&:code).sort

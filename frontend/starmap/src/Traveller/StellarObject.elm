@@ -138,6 +138,10 @@ type alias SharedPData =
     , au : Float
     , population : Maybe StellarPopulation
     , rotation : Maybe Float
+    , siderealDay : Maybe Float
+    , twilightZone : Maybe Bool
+    , tidalLockTargetName : Maybe String
+    , tidalLockNote : Maybe String
     , governmentDetail : Maybe GovernmentDetailData
     , lawLevelDetail : Maybe LawLevelDetailData
     , techLevelDetail : Maybe TechLevelDetailData
@@ -774,7 +778,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM survey classified tags ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot sidDay twiZone tlTarget tlNote govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM survey classified tags ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -820,6 +824,10 @@ codecSharedPData =
             , au = au
             , population = pop
             , rotation = rot
+            , siderealDay = sidDay
+            , twilightZone = twiZone
+            , tidalLockTargetName = tlTarget
+            , tidalLockNote = tlNote
             , governmentDetail = govD
             , lawLevelDetail = llD
             , techLevelDetail = tlD
@@ -906,6 +914,10 @@ codecSharedPData =
                 ]
             )
         |> Codec.optionalNullableField "rotation" .rotation Codec.float
+        |> Codec.optionalNullableField "sidereal_day" .siderealDay Codec.float
+        |> Codec.optionalNullableField "twilight_zone" .twilightZone Codec.bool
+        |> Codec.optionalNullableField "tidal_lock_target_name" .tidalLockTargetName Codec.string
+        |> Codec.optionalNullableField "tidal_lock_note" .tidalLockNote Codec.string
         |> Codec.optionalField "government" .governmentDetail codecGovernmentDetail
         |> Codec.optionalField "law_level" .lawLevelDetail codecLawLevelDetail
         |> Codec.optionalField "tech_level" .techLevelDetail codecTechLevelDetail

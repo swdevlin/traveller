@@ -13,14 +13,14 @@ sampleJson =
       "jump": 2,
       "origin": {
         "id": 1, "name": "Alpha", "hex": "0101", "sector": "Spinward", "origin_x": 0, "origin_y": 0,
-        "uwp": "A788899-C", "starport": "A", "gas_giant": true, "travel_zone": null, "trade_codes": ["In"]
+        "uwp": "A788899-C", "wtn": 4.5, "starport": "A", "gas_giant": true, "travel_zone": null, "trade_codes": ["In"]
       },
       "partners": [
         {
           "id": 2, "name": null, "hex": "0102", "sector": "Spinward", "origin_x": 1, "origin_y": 0,
-          "uwp": null, "starport": "C", "gas_giant": false, "travel_zone": "A", "trade_codes": ["Ni"],
+          "uwp": null, "wtn": null, "starport": "C", "gas_giant": false, "travel_zone": "A", "trade_codes": ["Ni"],
           "distance": 1, "outbound_count": 1, "outbound_bonus": 8, "inbound_count": 0, "inbound_bonus": 0,
-          "outbound_goods": [ { "d66": 12, "name": "Common Industrial Goods", "category": "common", "bonus": 8 } ],
+          "outbound_goods": [ { "d66": 12, "name": "Common Industrial Goods", "category": "common", "buy_dm": 5, "sell_dm": 3, "bonus": 8 } ],
           "inbound_goods": []
         }
       ]

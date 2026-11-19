@@ -99,10 +99,13 @@ TradeSynergyGood:
     d66: { $ref: '#/components/schemas/D66' }
     name: { type: string }
     category: { type: string, enum: [common, trade, illegal, exotic] }
+    buy_dm: { type: integer, description: The origin world's purchase DM for the good; may be negative. }
+    sell_dm: { type: integer, description: The destination world's sale DM for the good; may be negative. }
     bonus: { type: integer, description: The combined purchase and sale DM; always above zero. }
 TradeSynergySystem:
   type: object
   properties:
+    wtn: { type: [number, 'null'], description: The main world's World Trade Number. }
     id: { type: integer }
     name: { type: [string, 'null'] }
     hex: { type: string, description: The four-digit hex within the sector. }

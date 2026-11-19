@@ -42,10 +42,9 @@ type SortKey
     = SortDefault
     | SortName
     | SortDistance
+    | SortWtn
     | SortOutCount
-    | SortOutBonus
     | SortInCount
-    | SortInBonus
 
 
 type alias Model =
@@ -223,6 +222,7 @@ viewOrigin model =
             Html.div [ HtmlAttrs.class "trade-readout" ]
                 [ readoutField "Hex" [ Html.text (data.origin.sector ++ " " ++ data.origin.hex) ]
                 , readoutField "UWP" [ Html.text (Maybe.withDefault "" data.origin.uwp) ]
+                , readoutField "WTN" [ Html.text (wtnLabel data.origin.wtn) ]
                 , readoutField "Trade codes" [ tradeCodeChips data.origin.tradeCodes ]
                 ]
 
@@ -297,10 +297,29 @@ viewBody config model =
             else
                 case model.viewMode of
                     TableView ->
-                        viewTable model data
+                        if List.any hasSynergy data.partners then
+                            viewTable model data
+
+                        else
+                            note "" ("No trade synergies with any system within Jump " ++ String.fromInt data.jump ++ ".")
 
                     MapView ->
                         viewMap config model data
+
+
+wtnLabel : Maybe Float -> String
+wtnLabel wtn =
+    case wtn of
+        Just value ->
+            String.fromFloat (toFloat (round (value * 10)) / 10)
+
+        Nothing ->
+            ""
+
+
+hasSynergy : Partner -> Bool
+hasSynergy partner =
+    partner.system.wtn /= Nothing && partner.outboundCount + partner.inboundCount > 0
 
 
 note : String -> String -> Html Msg
@@ -327,16 +346,15 @@ viewTable model data =
                     , headerCell False "Hex" Nothing model
                     , headerCell True "Distance" (Just SortDistance) model
                     , headerCell False "UWP" Nothing model
+                    , headerCell True "WTN" (Just SortWtn) model
                     , headerCell False "Trade codes" Nothing model
                     , headerCell False "Zone" Nothing model
                     , headerCell True "Exports" (Just SortOutCount) model
-                    , headerCell True "Export bonus" (Just SortOutBonus) model
                     , headerCell True "Imports" (Just SortInCount) model
-                    , headerCell True "Import bonus" (Just SortInBonus) model
                     , headerCell True "" Nothing model
                     ]
                 ]
-            , Html.tbody [] (List.concatMap (viewRow model data.origin) (sortPartners model data.partners))
+            , Html.tbody [] (List.concatMap (viewRow model data.origin) (sortPartners model (List.filter hasSynergy data.partners)))
             ]
         ]
 
@@ -358,14 +376,11 @@ sortPartners model partners =
                 SortOutCount ->
                     List.sortBy .outboundCount partners
 
-                SortOutBonus ->
-                    List.sortBy .outboundBonus partners
+                SortWtn ->
+                    List.sortBy (\p -> Maybe.withDefault 0 p.system.wtn) partners
 
                 SortInCount ->
                     List.sortBy .inboundCount partners
-
-                SortInBonus ->
-                    List.sortBy .inboundBonus partners
     in
     if model.sortDescending && model.sortKey /= SortDefault then
         List.reverse sorted
@@ -434,12 +449,11 @@ viewRow model origin partner =
                 , cell False [ Html.text partner.system.hex ]
                 , cell True [ Html.text (String.fromInt partner.distance) ]
                 , cell False [ Html.text (Maybe.withDefault "" partner.system.uwp) ]
+                , cell True [ Html.text (wtnLabel partner.system.wtn) ]
                 , cell False [ tradeCodeChips partner.system.tradeCodes ]
                 , cell False [ Html.text (zoneLabel partner.system.travelZone) ]
-                , cell True [ Html.text (String.fromInt partner.outboundCount) ]
-                , cell True [ Html.text (String.fromInt partner.outboundBonus) ]
-                , cell True [ Html.text (String.fromInt partner.inboundCount) ]
-                , cell True [ Html.text (String.fromInt partner.inboundBonus) ]
+                , cell True [ Html.text (String.fromInt partner.outboundCount ++ " / " ++ signed partner.outboundBonus) ]
+                , cell True [ Html.text (String.fromInt partner.inboundCount ++ " / " ++ signed partner.inboundBonus) ]
                 , cell True
                     [ Html.span
                         [ HtmlAttrs.class "trade-toggle"
@@ -467,7 +481,7 @@ viewRow model origin partner =
     if isOpen then
         [ mainRow
         , Html.tr [ HtmlAttrs.class "trade-detail" ]
-            [ Html.td [ HtmlAttrs.colspan 11 ] [ viewGoodsLists origin partner ] ]
+            [ Html.td [ HtmlAttrs.colspan 10 ] [ viewGoodsLists origin partner ] ]
         ]
 
     else
@@ -503,7 +517,10 @@ viewGoodsLists origin partner =
 goodsList : String -> String -> List Good -> Html Msg
 goodsList from to goods =
     Html.div []
-        [ Html.div [ HtmlAttrs.class "trade-goods-title" ]
+        [ Html.div
+            [ HtmlAttrs.class "trade-goods-title"
+            , HtmlAttrs.title ("Each good shows +buy/+sell: the purchase DM at " ++ from ++ " and the sale DM at " ++ to ++ ". Only goods where the two add up to more than zero are listed.")
+            ]
             [ Html.text from, icon "fa-solid fa-arrow-right", Html.text to ]
         , if List.isEmpty goods then
             Html.div [ HtmlAttrs.class "trade-none" ] [ Html.text "No profitable goods" ]
@@ -523,6 +540,15 @@ goodsList from to goods =
         ]
 
 
+signed : Int -> String
+signed n =
+    if n >= 0 then
+        "+" ++ String.fromInt n
+
+    else
+        String.fromInt n
+
+
 goodItem : Bool -> Good -> Html Msg
 goodItem firstIllegal good =
     let
@@ -540,7 +566,8 @@ goodItem firstIllegal good =
                 ]
             , Html.span [] [ Html.text good.name ]
             ]
-        , Html.span [ HtmlAttrs.class "trade-bonus" ] [ Html.text ("+" ++ String.fromInt good.bonus) ]
+        , Html.span [ HtmlAttrs.class "trade-bonus" ]
+            [ Html.text (signed good.buyDm ++ "/" ++ signed good.sellDm) ]
         ]
 
 
