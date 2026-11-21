@@ -66,6 +66,34 @@ class Api::TradeSynergiesControllerTest < ActionDispatch::IntegrationTest
     assert row['outbound_goods'].any? { it['d66'] == 12 }
   end
 
+  test 'omits the BTN unless the campaign house rule is on' do
+    sign_in_as users(:one)
+    origin = build_system(0, 0, codes: %w[In])
+    build_system(1, 0, codes: %w[Ni])
+    @campaign.update!(bilateral_trade_number: false)
+
+    get_synergies(origin)
+
+    assert_nil response.parsed_body['btn_help_url']
+    assert_not response.parsed_body['partners'].first.key?('btn')
+  end
+
+  test 'includes the BTN and help link when the campaign house rule is on' do
+    sign_in_as users(:one)
+    origin = build_system(0, 0, codes: %w[In])
+    partner = build_system(1, 0, codes: %w[Ni])
+    @campaign.update!(bilateral_trade_number: true)
+
+    get_synergies(origin)
+
+    body = response.parsed_body
+    row = body['partners'].find { it['id'] == partner.id }
+    assert_includes body['btn_help_url'], '/help/bilateral_trade_number'
+    assert_equal row['outbound_count'] + row['inbound_count'] + row['btn']['distance_dm'] +
+                 row['btn']['source_wtn_dm'] + row['btn']['destination_wtn_dm'], row['btn']['value']
+    assert_kind_of String, row['btn']['classification']
+  end
+
   test 'excludes systems beyond the jump range and the origin itself' do
     sign_in_as users(:one)
     origin = build_system(0, 0, codes: %w[In])

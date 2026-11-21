@@ -15,12 +15,13 @@ type alias CultureTrait =
     , highLabel : String
     , min : Int
     , max : Int
+    , dm : Int
     }
 
 
 decodeCultureTrait : JsDecode.Decoder CultureTrait
 decodeCultureTrait =
-    JsDecode.map7 CultureTrait
+    JsDecode.map8 CultureTrait
         (JsDecode.field "label" JsDecode.string)
         (JsDecode.field "code" JsDecode.string)
         (JsDecode.field "value" JsDecode.int)
@@ -28,6 +29,7 @@ decodeCultureTrait =
         (JsDecode.field "high_label" JsDecode.string)
         (JsDecode.field "min" JsDecode.int)
         (JsDecode.field "max" JsDecode.int)
+        (JsDecode.field "dm" JsDecode.int)
 
 
 type alias StellarPopulation =

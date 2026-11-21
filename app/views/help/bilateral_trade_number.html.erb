@@ -1,0 +1,216 @@
+<% content_for :title, 'Bilateral Trade Number' %>
+
+<%= render 'help/page', title: 'Bilateral Trade Number' do %>
+  <div class="space-y-8 leading-snug">
+
+    <p class="text-fg">
+      The Bilateral Trade Number (BTN) is a house rule that attempts to model the amount of trade between two systems.
+      The goal is to be a tool referees can use to help map trade routes in their Traveller Universe.
+    </p>
+
+    <p class="text-fg">
+      BTN is calculated using the World Trade Number (WTN) (<cite> World Builder's Handbook, pg. 190 </cite>),
+      number of arbitrage goods, distance between the systems, and each system's
+      Xenophilia rating (<cite> World Builder's Handbook, pg. 182 </cite>).
+    </p>
+
+    <section>
+      <p class="uppercase tracking-[0.06em] text-highlight-fg mb-2">Arbitrage</p>
+
+      <p class="text-fg">
+        The trade rules (<cite>Core Rulebook, pg. 241</cite>) list trade goods with their buy/sell modifiers. The modifiers
+        are derived from the system's trade classifications. These modifiers
+        represent
+        <%= link_to 'arbitrage', 'https://en.wikipedia.org/wiki/Arbitrage', class: 'no-underline hover:underline', target: '_blank', rel: 'noopener' %>
+        opportunities. This system assumes the greater the number of arbitrage goods, the greater
+        the trade between two systems. Somebody is gonna want to make credits from the price
+        difference.
+      </p>
+
+      <p class="text-fg">
+        BTN uses both exports from the source system plus imports from the destination system.
+        A good is counted if:
+      </p>
+      <ul class="mt-3 space-y-2 list-disc list-outside pl-5">
+        <li>All common goods and goods with a positive buy DM are included. The positive DM
+           indicates a surplus in the system.</li>
+        <li>There is a net positive DM for a good purchased in the source system and sold in the
+          destination system. For example, purchasing
+          <span class="text-highlight-fg">Biochemicals</span> on a
+          <span class="text-highlight-fg">Water World</span> has a DM+2.
+          Selling those on an <span class="text-highlight-fg">Agricultural</span> world
+          has a DM-1. The net DM is 1, so Biochemicals would be included.</li>
+        <li>The good is legal. Illegal goods are not counted towards the BTN, so a pair of systems whose only arbitrage opportunities are in illegal goods has a BTN of 0.</li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="uppercase tracking-[0.06em] text-highlight-fg mb-2">World Trade Number</p>
+
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <table class="text-fg-muted border-collapse shrink-0">
+          <thead>
+            <tr class="text-left text-fg">
+              <th class="pr-4 pb-1 font-semibold">WTN</th>
+              <th class="pb-1 font-semibold text-right">DM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="pr-4 py-0.5">0–5</td><td class="text-right">0</td></tr>
+            <tr><td class="pr-4 py-0.5">6–8</td><td class="text-right">+1</td></tr>
+            <tr><td class="pr-4 py-0.5">9–10</td><td class="text-right">+2</td></tr>
+            <tr><td class="pr-4 py-0.5">11–12</td><td class="text-right">+3</td></tr>
+            <tr><td class="pr-4 py-0.5">13+</td><td class="text-right">+4</td></tr>
+          </tbody>
+        </table>
+
+        <p class="text-fg">
+          The World Trade Number (WTN) reflects a world's capacity for interstellar commerce,
+          based on its population, technology level and starport facilities
+          (<cite>World Builder's Handbook, p. 190</cite>).
+
+          These factors also influence bilateral trade, but using WTN directly would
+          give it disproportionate weight in the BTN calculation. Instead, each
+          world's WTN contributes a modifier according to the table.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <p class="uppercase tracking-[0.06em] text-highlight-fg mb-2">Distance</p>
+
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <table class="text-fg-muted border-collapse shrink-0">
+          <thead>
+            <tr class="text-left text-fg">
+              <th class="pr-4 pb-1 font-semibold">Parsecs</th>
+              <th class="pb-1 font-semibold text-right">DM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="pr-4 py-0.5">1-2</td><td class="text-right">0</td></tr>
+            <tr><td class="pr-4 py-0.5">3</td><td class="text-right">−1</td></tr>
+            <tr><td class="pr-4 py-0.5">4</td><td class="text-right">−2</td></tr>
+            <tr><td class="pr-4 py-0.5">5</td><td class="text-right">−4</td></tr>
+            <tr><td class="pr-4 py-0.5">6</td><td class="text-right">−6</td></tr>
+          </tbody>
+        </table>
+
+        <div>
+          <p class="text-fg">
+            The BTN calculation assumes that distances of one or two parsecs impose no significant barrier to trade. Beyond two parsecs, trade becomes less attractive. Ships with smaller jump drives require multiple jumps, increasing travel time, while ships capable of longer jumps must devote more of their tonnage to fuel, reducing cargo capacity.
+
+            The resulting distance DM is shown in the table.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <p class="uppercase tracking-[0.06em] text-highlight-fg mb-2">Xenophilia</p>
+
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <table class="text-fg-muted border-collapse shrink-0">
+          <thead>
+            <tr class="text-left text-fg">
+              <th class="pr-4 pb-1 font-semibold">Xenophilia</th>
+              <th class="pb-1 font-semibold text-right">DM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="pr-4 py-0.5">0–2</td><td class="text-right">−2</td></tr>
+            <tr><td class="pr-4 py-0.5">3–5</td><td class="text-right">−1</td></tr>
+            <tr><td class="pr-4 py-0.5">6–8</td><td class="text-right">0</td></tr>
+            <tr><td class="pr-4 py-0.5">9–11</td><td class="text-right">+1</td></tr>
+            <tr><td class="pr-4 py-0.5">12–14</td><td class="text-right">+2</td></tr>
+            <tr><td class="pr-4 py-0.5">15+</td><td class="text-right">+3</td></tr>
+          </tbody>
+        </table>
+
+        <div>
+          <p class="text-fg">
+            Xenophilia measures a society's openness to outside ideas and influences
+            (<cite>World Builder's Handbook, p. 182</cite>). Societies that welcome
+            outsiders are generally more receptive to interstellar commerce, while
+            more insular societies may discourage it.
+          </p>
+
+          <p class="text-fg mt-2">
+            The Xenophilia rating of each world contributes a DM to the BTN calculation,
+            as shown in the table.
+          </p>
+        </div>
+      </div>
+    </section>
+
+      <section>
+        <p class="uppercase tracking-[0.1em] text-highlight-fg mb-4">Calculation</p>
+
+        <p class="text-fg">
+          The BTN is calculated using seven terms, where the source and destination are the two systems
+          between which trade is being rated:
+        </p>
+        <div class="help-formula">
+          <math display="block" aria-label="BTN equals the greater of zero and exports plus imports plus the source and destination WTN DMs plus the distance DM plus the source and destination xeno DMs">
+            <mrow>
+              <mi mathvariant="normal">BTN</mi>
+              <mo>=</mo>
+              <mo movablelimits="true">max</mo>
+              <mo>(</mo>
+              <mn>0</mn><mo>,</mo>
+              <mi>E</mi><mo>+</mo><mi>I</mi><mo>+</mo>
+              <msub><mi mathvariant="normal">WTN</mi><mi>s</mi></msub><mo>+</mo><msub><mi mathvariant="normal">WTN</mi><mi>d</mi></msub><mo>+</mo>
+              <mi>D</mi><mo>+</mo>
+              <msub><mi mathvariant="normal">X</mi><mi>s</mi></msub><mo>+</mo><msub><mi mathvariant="normal">X</mi><mi>d</mi></msub>
+              <mo>)</mo>
+            </mrow>
+          </math>
+        </div>
+        <ul class="mt-3 space-y-2 list-disc list-outside pl-5">
+          <li>
+            <span class="font-semibold text-fg-bright">E, Exports</span>
+            — the number of legal goods with arbitrage opportunities from the source to the destination.
+          </li>
+          <li>
+            <span class="font-semibold text-fg-bright">I, Imports</span>
+            — the number of legal goods with arbitrage opportunities from the destination to the source.
+          </li>
+          <li><span class="font-semibold text-fg-bright">WTN<sub>s</sub>, WTN<sub>d</sub></span> — the WTN DM for the source and destination.</li>
+          <li><span class="font-semibold text-fg-bright">D, Distance — distance DM</span></li>
+          <li><span class="font-semibold text-fg-bright">X<sub>s</sub>, X<sub>d</sub></span> — the Xeno DM for the source and destination.</li>
+        </ul>
+        <p class="mt-3 text-fg">
+          The BTN is 0 if there is no arbitrage for any goods between the two systems, or if either
+          system's WTN is 0. The BTN is never less than 0: if the total comes to less, it is set to 0.
+        </p>
+      </section>
+
+    <section>
+      <p class="uppercase tracking-[0.22em] text-highlight-fg mb-4">Classification</p>
+      <p class="text-fg mb-3">
+        The BTN provides an estimate of the volume of trade between two systems. Higher values
+         indicate greater commercial exchange, from occasional trade by independent merchants
+          to substantial cargo movements involving large commercial operators. The
+          classifications below provide guidance for referees when determining the nature
+          and scale of that trade.
+      </p>
+      <table class="text-fg-muted border-collapse">
+        <thead>
+          <tr class="text-left text-fg">
+            <th class="pr-6 pb-1 font-semibold">BTN</th>
+            <th class="pr-6 pb-1 font-semibold">Classification</th>
+            <th class="pb-1 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody class="align-top">
+          <tr><td class="pr-6 py-0.5">0</td><td class="pr-6">Opportunistic</td><td>Trade is largely confined to individual merchants exploiting occasional opportunities.</td></tr>
+          <tr><td class="pr-6 py-0.5">1–6</td><td class="pr-6">Low</td><td>Trade volumes are modest and can be accommodated by small commercial operators.</td></tr>
+          <tr><td class="pr-6 py-0.5">7–18</td><td class="pr-6">Moderate</td><td>Trade supports a mix of independent merchants and larger commercial operators.</td></tr>
+          <tr><td class="pr-6 py-0.5">19–34</td><td class="pr-6">High</td><td>Substantial cargo volumes support dedicated freighters and significant commercial infrastructure.</td></tr>
+          <tr><td class="pr-6 py-0.5">35+</td><td class="pr-6 whitespace-nowrap">Very High</td><td>Very large cargo volumes, generally requiring Substantial freight capacity between the systems.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+<% end %>

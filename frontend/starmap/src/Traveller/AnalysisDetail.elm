@@ -135,6 +135,7 @@ type alias CultureTraitItem =
     , max : Int
     , lowLabel : String
     , highLabel : String
+    , dm : Int
     }
 
 
@@ -857,64 +858,6 @@ viewJumpShadowTable maybeKm =
                     ]
 
 
-cultureDm : Int -> String
-cultureDm value =
-    case value of
-        1 ->
-            "±2"
-
-        2 ->
-            "±2"
-
-        3 ->
-            "±1"
-
-        4 ->
-            "±1"
-
-        5 ->
-            "±1"
-
-        6 ->
-            "±0"
-
-        7 ->
-            "±0"
-
-        8 ->
-            "±0"
-
-        9 ->
-            "±1"
-
-        10 ->
-            "±1"
-
-        11 ->
-            "±1"
-
-        12 ->
-            "±2"
-
-        13 ->
-            "±2"
-
-        14 ->
-            "±2"
-
-        15 ->
-            "±3"
-
-        16 ->
-            "±3"
-
-        17 ->
-            "±3"
-
-        _ ->
-            "±4"
-
-
 toHexChar : Int -> String
 toHexChar n =
     if n < 10 then
@@ -982,7 +925,7 @@ viewCultureGauge trait =
             max 0.0 (min 100.0 pct)
 
         dm =
-            cultureDm trait.value
+            trait.dm
 
         hexVal =
             toHexChar trait.value
@@ -1032,8 +975,8 @@ viewCultureGauge trait =
                         , HtmlAttrs.style "color" "var(--color-fg)"
                         ]
                         [ Html.text hexVal
-                        , if dm /= "±0" then
-                            Html.text (" DM: " ++ dm)
+                        , if dm /= 0 then
+                            Html.text (" DM: ±" ++ String.fromInt dm)
 
                           else
                             Html.text ""

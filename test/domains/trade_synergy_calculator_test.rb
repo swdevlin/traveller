@@ -45,6 +45,37 @@ class TradeSynergyCalculatorTest < ActiveSupport::TestCase
     assert_empty TradeSynergyCalculator.goods_flowing(origin, partner)
   end
 
+  test "the origin's sale DM counts against buying the good there" do
+    # A world that pays well for a good (+4 sale) is a poor place to buy it.
+    flowing = TradeSynergyCalculator.goods_flowing(
+      { 12 => { d66: 12, purchase_dm: 2, sale_dm: 4 } },
+      { 12 => { d66: 12, purchase_dm: 0, sale_dm: 1 } }
+    )
+
+    assert_empty flowing
+  end
+
+  test "the destination's purchase DM counts against selling the good there" do
+    # A world that produces a good (+4 purchase) is a poor place to sell it.
+    flowing = TradeSynergyCalculator.goods_flowing(
+      { 12 => { d66: 12, purchase_dm: 2, sale_dm: 0 } },
+      { 12 => { d66: 12, purchase_dm: 4, sale_dm: 1 } }
+    )
+
+    assert_empty flowing
+  end
+
+  test 'buy and sell DMs are net of the opposite DM at the same world' do
+    flowing = TradeSynergyCalculator.goods_flowing(
+      { 12 => { d66: 12, purchase_dm: 5, sale_dm: 1 } },
+      { 12 => { d66: 12, purchase_dm: 1, sale_dm: 3 } }
+    )
+
+    assert_equal 4, flowing.first[:buy_dm]
+    assert_equal 2, flowing.first[:sell_dm]
+    assert_equal 6, flowing.first[:bonus]
+  end
+
   test 'a good whose buy and sell DMs sum to zero or less does not flow' do
     flowing = TradeSynergyCalculator.goods_flowing(
       { 12 => { d66: 12, purchase_dm: -3, sale_dm: 0 } },
@@ -86,5 +117,12 @@ class TradeSynergyCalculatorTest < ActiveSupport::TestCase
     flowing = TradeSynergyCalculator.goods_flowing(dms(%w[In]), dms(%w[Ni]), from_codes: [])
 
     assert(flowing.any? { it[:d66] == 12 })
+  end
+
+  test 'illegal goods are not counted towards the BTN' do
+    goods = [{ category: 'common' }, { category: 'illegal' }, { category: 'illegal' }, { category: 'trade' }]
+    calculator = TradeSynergyCalculator.new(origin: nil, partners: [])
+
+    assert_equal 2, calculator.send(:legal_count, goods)
   end
 end

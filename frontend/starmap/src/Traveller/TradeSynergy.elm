@@ -1,5 +1,6 @@
 module Traveller.TradeSynergy exposing
-    ( Good
+    ( Btn
+    , Good
     , Partner
     , SystemInfo
     , TradeSynergies
@@ -17,12 +18,13 @@ partners out on the modal's map). The modal lives in
 -}
 
 import Json.Decode as Decode exposing (Decoder)
-import Json.Decode.Pipeline exposing (required)
+import Json.Decode.Pipeline exposing (optional, required)
 import Url.Builder
 
 
-{-| A good that flows profitably in one direction. `bonus` is the combined
-purchase and sale DM, always above zero.
+{-| A good that flows profitably in one direction. `buyDm` is the origin's
+purchase DM less its sale DM, `sellDm` the destination's sale DM less its
+purchase DM, and `bonus` their sum, always above zero.
 -}
 type alias Good =
     { d66 : Int
@@ -50,6 +52,15 @@ type alias SystemInfo =
     }
 
 
+{-| House-rule Bilateral Trade Number for a partner, with its classification.
+Only present when the campaign has the rule switched on.
+-}
+type alias Btn =
+    { value : Int
+    , classification : String
+    }
+
+
 {-| A neighbouring system. "Outbound" is from the origin to this system,
 "inbound" is from this system to the origin.
 -}
@@ -62,11 +73,13 @@ type alias Partner =
     , inboundBonus : Int
     , outboundGoods : List Good
     , inboundGoods : List Good
+    , btn : Maybe Btn
     }
 
 
 type alias TradeSynergies =
     { jump : Int
+    , btnHelpUrl : Maybe String
     , origin : SystemInfo
     , partners : List Partner
     }
@@ -100,6 +113,13 @@ systemInfoDecoder =
         |> required "trade_codes" (Decode.list Decode.string)
 
 
+btnDecoder : Decoder Btn
+btnDecoder =
+    Decode.succeed Btn
+        |> required "value" Decode.int
+        |> required "classification" Decode.string
+
+
 partnerDecoder : Decoder Partner
 partnerDecoder =
     Decode.succeed Partner
@@ -111,12 +131,14 @@ partnerDecoder =
         |> required "inbound_bonus" Decode.int
         |> required "outbound_goods" (Decode.list goodDecoder)
         |> required "inbound_goods" (Decode.list goodDecoder)
+        |> optional "btn" (Decode.map Just btnDecoder) Nothing
 
 
 tradeSynergiesDecoder : Decoder TradeSynergies
 tradeSynergiesDecoder =
     Decode.succeed TradeSynergies
         |> required "jump" Decode.int
+        |> optional "btn_help_url" (Decode.nullable Decode.string) Nothing
         |> required "origin" systemInfoDecoder
         |> required "partners" (Decode.list partnerDecoder)
 

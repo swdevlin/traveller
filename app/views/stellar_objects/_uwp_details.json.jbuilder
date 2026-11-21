@@ -160,7 +160,7 @@ json.population do
     traits = StellarObjectsHelper::CULTURE_TRAIT_DATA.filter_map do |t|
       val = stellar_object.send(t[:getter])
       next unless val.present?
-      { label: t[:label], code: t[:code], value: val, low_label: t[:low_label], high_label: t[:high_label], min: t[:min], max: t[:max] }
+      { label: t[:label], code: t[:code], value: val, low_label: t[:low_label], high_label: t[:high_label], min: t[:min], max: t[:max], dm: CultureTraitDm.magnitude(val) }
     end
     if traits.any?
       json.culture do

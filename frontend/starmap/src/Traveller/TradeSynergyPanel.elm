@@ -45,6 +45,7 @@ type SortKey
     | SortWtn
     | SortOutCount
     | SortInCount
+    | SortBtn
 
 
 type alias Model =
@@ -317,6 +318,44 @@ wtnLabel wtn =
             ""
 
 
+showBtn : TradeSynergies -> Bool
+showBtn data =
+    List.any (\p -> p.btn /= Nothing) data.partners
+
+
+{-| The Bilateral Trade Number as a pill, with its classification as plain
+text beside it (not part of the pill).
+-}
+btnPill : TradeSynergy.Btn -> Html Msg
+btnPill btn =
+    Html.span
+        [ HtmlAttrs.class "trade-btn"
+        , HtmlAttrs.title "Bilateral Trade Number"
+        ]
+        [ Html.span [ HtmlAttrs.class "trade-btn-value" ] [ Html.text (String.fromInt btn.value) ]
+        , Html.span [ HtmlAttrs.class "trade-btn-label" ] [ Html.text btn.classification ]
+        ]
+
+
+{-| Link to the Rails help page for the BTN house rule; only offered when the
+campaign has the rule on.
+-}
+btnHelpLink : TradeSynergies -> Html Msg
+btnHelpLink data =
+    case data.btnHelpUrl of
+        Just url ->
+            Html.a
+                [ HtmlAttrs.class "trade-help"
+                , HtmlAttrs.href url
+                , HtmlAttrs.target "_blank"
+                , HtmlAttrs.rel "noopener"
+                ]
+                [ icon "fa-regular fa-circle-question", Html.text " How BTN is calculated" ]
+
+        Nothing ->
+            Html.text ""
+
+
 hasSynergy : Partner -> Bool
 hasSynergy partner =
     partner.system.wtn /= Nothing && partner.outboundCount + partner.inboundCount > 0
@@ -339,20 +378,30 @@ systemName info =
 viewTable : Model -> TradeSynergies -> Html Msg
 viewTable model data =
     Html.div [ HtmlAttrs.class "trade-scroll" ]
-        [ Html.table [ HtmlAttrs.class "trade-table" ]
+        [ btnHelpLink data
+        , Html.table [ HtmlAttrs.class "trade-table" ]
             [ Html.thead []
                 [ Html.tr []
-                    [ headerCell False "Name" (Just SortName) model
-                    , headerCell False "Hex" Nothing model
-                    , headerCell True "Distance" (Just SortDistance) model
-                    , headerCell False "UWP" Nothing model
-                    , headerCell True "WTN" (Just SortWtn) model
-                    , headerCell False "Trade codes" Nothing model
-                    , headerCell False "Zone" Nothing model
-                    , headerCell True "Exports" (Just SortOutCount) model
-                    , headerCell True "Imports" (Just SortInCount) model
-                    , headerCell True "" Nothing model
-                    ]
+                    (List.concat
+                        [ [ headerCell False "Name" (Just SortName) model
+                          , headerCell False "Hex" Nothing model
+                          , headerCell True "Distance" (Just SortDistance) model
+                          , headerCell False "UWP" Nothing model
+                          ]
+                        , if showBtn data then
+                            [ headerCell False "BTN" (Just SortBtn) model ]
+
+                          else
+                            []
+                        , [ headerCell True "WTN" (Just SortWtn) model
+                          , headerCell False "Trade codes" Nothing model
+                          , headerCell False "Zone" Nothing model
+                          , headerCell True "Exports" (Just SortOutCount) model
+                          , headerCell True "Imports" (Just SortInCount) model
+                          , headerCell True "" Nothing model
+                          ]
+                        ]
+                    )
                 ]
             , Html.tbody [] (List.concatMap (viewRow model data.origin) (sortPartners model (List.filter hasSynergy data.partners)))
             ]
@@ -381,6 +430,9 @@ sortPartners model partners =
 
                 SortInCount ->
                     List.sortBy .inboundCount partners
+
+                SortBtn ->
+                    List.sortBy (\p -> p.btn |> Maybe.map .value |> Maybe.withDefault 0) partners
     in
     if model.sortDescending && model.sortKey /= SortDefault then
         List.reverse sorted
@@ -437,51 +489,61 @@ viewRow model origin partner =
                 , HtmlAttrs.class "trade-row"
                 , HtmlAttrs.classList [ ( "is-open", isOpen ) ]
                 ]
-                [ cell False
-                    [ Html.span
-                        [ HtmlAttrs.class "trade-name"
-                        , HtmlAttrs.title "Centre the map on this system"
-                        , HtmlEvents.stopPropagationOn "click"
-                            (JsDecode.succeed ( ZoomTo { x = partner.system.originX, y = partner.system.originY }, True ))
-                        ]
-                        [ Html.text (systemName partner.system) ]
-                    ]
-                , cell False [ Html.text partner.system.hex ]
-                , cell True [ Html.text (String.fromInt partner.distance) ]
-                , cell False [ Html.text (Maybe.withDefault "" partner.system.uwp) ]
-                , cell True [ Html.text (wtnLabel partner.system.wtn) ]
-                , cell False [ tradeCodeChips partner.system.tradeCodes ]
-                , cell False [ Html.text (zoneLabel partner.system.travelZone) ]
-                , cell True [ Html.text (String.fromInt partner.outboundCount ++ " / " ++ signed partner.outboundBonus) ]
-                , cell True [ Html.text (String.fromInt partner.inboundCount ++ " / " ++ signed partner.inboundBonus) ]
-                , cell True
-                    [ Html.span
-                        [ HtmlAttrs.class "trade-toggle"
-                        , HtmlAttrs.attribute "role" "button"
-                        , HtmlAttrs.attribute "aria-expanded"
-                            (if isOpen then
-                                "true"
+                (List.concat
+                    [ [ cell False
+                            [ Html.span
+                                [ HtmlAttrs.class "trade-name"
+                                , HtmlAttrs.title "Centre the map on this system"
+                                , HtmlEvents.stopPropagationOn "click"
+                                    (JsDecode.succeed ( ZoomTo { x = partner.system.originX, y = partner.system.originY }, True ))
+                                ]
+                                [ Html.text (systemName partner.system) ]
+                            ]
+                      , cell False [ Html.text partner.system.hex ]
+                      , cell True [ Html.text (String.fromInt partner.distance) ]
+                      , cell False [ Html.text (Maybe.withDefault "" partner.system.uwp) ]
+                      ]
+                    , case partner.btn of
+                        Just btn ->
+                            [ cell False [ btnPill btn ] ]
 
-                             else
-                                "false"
-                            )
-                        , HtmlAttrs.attribute "aria-label" "Show goods"
-                        ]
-                        [ icon
-                            (if isOpen then
-                                "fa-regular fa-square-chevron-up"
+                        Nothing ->
+                            []
+                    , [ cell True [ Html.text (wtnLabel partner.system.wtn) ]
+                      , cell False [ tradeCodeChips partner.system.tradeCodes ]
+                      , cell False [ Html.text (zoneLabel partner.system.travelZone) ]
+                      , cell True [ countAndBonus partner.outboundCount partner.outboundBonus ]
+                      , cell True [ countAndBonus partner.inboundCount partner.inboundBonus ]
+                      , cell True
+                            [ Html.span
+                                [ HtmlAttrs.class "trade-toggle"
+                                , HtmlAttrs.attribute "role" "button"
+                                , HtmlAttrs.attribute "aria-expanded"
+                                    (if isOpen then
+                                        "true"
 
-                             else
-                                "fa-regular fa-square-chevron-down"
-                            )
-                        ]
+                                     else
+                                        "false"
+                                    )
+                                , HtmlAttrs.attribute "aria-label" "Show goods"
+                                ]
+                                [ icon
+                                    (if isOpen then
+                                        "fa-regular fa-square-chevron-up"
+
+                                     else
+                                        "fa-regular fa-square-chevron-down"
+                                    )
+                                ]
+                            ]
+                      ]
                     ]
-                ]
+                )
     in
     if isOpen then
         [ mainRow
         , Html.tr [ HtmlAttrs.class "trade-detail" ]
-            [ Html.td [ HtmlAttrs.colspan 10 ] [ viewGoodsLists origin partner ] ]
+            [ Html.td [ HtmlAttrs.colspan (if partner.btn == Nothing then 10 else 11) ] [ viewGoodsLists origin partner ] ]
         ]
 
     else
@@ -499,6 +561,28 @@ zoneLabel zone =
 
         _ ->
             ""
+
+
+{-| "count / bonus", with each number right-aligned in a box as wide as a
+two-digit number, so the digits and the slashes line up down the table. Styled
+inline so the alignment does not depend on the stylesheet.
+-}
+countAndBonus : Int -> Int -> Html Msg
+countAndBonus count bonus =
+    let
+        box chars text =
+            Html.span
+                [ HtmlAttrs.style "display" "inline-block"
+                , HtmlAttrs.style "min-width" (String.fromInt chars ++ "ch")
+                , HtmlAttrs.style "text-align" "right"
+                ]
+                [ Html.text text ]
+    in
+    Html.span [ HtmlAttrs.style "white-space" "pre" ]
+        [ box 2 (String.fromInt count)
+        , Html.text " / "
+        , box 3 (signed bonus)
+        ]
 
 
 cell : Bool -> List (Html Msg) -> Html Msg
@@ -519,7 +603,7 @@ goodsList from to goods =
     Html.div []
         [ Html.div
             [ HtmlAttrs.class "trade-goods-title"
-            , HtmlAttrs.title ("Each good shows +buy/+sell: the purchase DM at " ++ from ++ " and the sale DM at " ++ to ++ ". Only goods where the two add up to more than zero are listed.")
+            , HtmlAttrs.title ("Each good shows +buy/+sell: the buy DM at " ++ from ++ " (purchase DM less sale DM) and the sell DM at " ++ to ++ " (sale DM less purchase DM). Only goods where the two add up to more than zero are listed.")
             ]
             [ Html.text from, icon "fa-solid fa-arrow-right", Html.text to ]
         , if List.isEmpty goods then
@@ -611,7 +695,9 @@ viewMap config model data =
                         [ Html.span [] [ Html.text (systemName partner.system) ]
                         , Html.span [ HtmlAttrs.class "trade-category" ]
                             [ Html.text (" · " ++ partner.system.hex ++ " · Jump " ++ String.fromInt partner.distance ++ " · " ++ Maybe.withDefault "" partner.system.uwp) ]
+                        , partner.btn |> Maybe.map btnPill |> Maybe.withDefault (Html.text "")
                         , tradeCodeChips partner.system.tradeCodes
+                        , btnHelpLink data
                         ]
                     , viewGoodsLists data.origin partner
                     ]

@@ -5888,9 +5888,14 @@ viewTradeSynergyMap model data selectedId =
                 |> List.map
                     (\p ->
                         ( HexAddress.toKey (HexAddress p.system.originX p.system.originY)
-                        , { primary = String.fromInt p.outboundCount ++ "/" ++ String.fromInt p.inboundCount
-                          , secondary = "+" ++ String.fromInt p.outboundBonus ++ "/+" ++ String.fromInt p.inboundBonus
-                          }
+                        , case p.btn of
+                            Just btn ->
+                                { primary = String.fromInt btn.value, secondary = "" }
+
+                            Nothing ->
+                                { primary = String.fromInt p.outboundCount ++ "/" ++ String.fromInt p.inboundCount
+                                , secondary = ""
+                                }
                         )
                     )
                 |> Dict.fromList
@@ -10345,7 +10350,19 @@ update msg ( time, model ) =
                             ( withTime { model | tradeSynergyPanel = Nothing }, Cmd.none )
 
                         TradeSynergyPanel.ZoomTo address ->
-                            update (ZoomToHex address True) <| withTime { model | tradeSynergyPanel = Nothing }
+                            -- Like picking a search result: close the modal, show the hex map,
+                            -- centre on the system and select it.
+                            let
+                                closedModel =
+                                    withTime { model | tradeSynergyPanel = Nothing, viewMode = HexMap }
+
+                                ( zoomedModel, zoomCmds ) =
+                                    update (ZoomToHex address True) closedModel
+
+                                ( finalModel, viewCmds ) =
+                                    update (ViewingHex address) zoomedModel
+                            in
+                            ( finalModel, Cmd.batch [ zoomCmds, viewCmds ] )
 
                         _ ->
                             let
@@ -10762,6 +10779,7 @@ update msg ( time, model ) =
                                                     , max = ct.max
                                                     , lowLabel = ct.lowLabel
                                                     , highLabel = ct.highLabel
+                                                    , dm = ct.dm
                                                     }
                                                 )
                                     , government =
@@ -11122,6 +11140,7 @@ update msg ( time, model ) =
                                             , max = ct.max
                                             , lowLabel = ct.lowLabel
                                             , highLabel = ct.highLabel
+                                            , dm = ct.dm
                                             }
                                         )
                             , government =

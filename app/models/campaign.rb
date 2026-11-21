@@ -41,7 +41,7 @@ class Campaign < ApplicationRecord
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
                             :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
-                            :initial_sector_name,
+                            :initial_sector_name, :bilateral_trade_number,
                             :jump_log_display, :jump_log_fill_colour, :jump_log_line_colour,
                             :jump_log_line_style, :jump_log_line_width,
                             *PASSENGER_DM_SETTINGS, *FREIGHT_DM_SETTINGS, *MAIL_DM_SETTINGS
@@ -102,6 +102,11 @@ class Campaign < ApplicationRecord
   def starting_location
     sector = starting_sector
     sector ? [sector.centre_coordinate.x, sector.centre_coordinate.y] : [0, 0]
+  end
+
+  # House rule: show the Bilateral Trade Number in the starmap's trade modal. Off by default.
+  def bilateral_trade_number?
+    ActiveModel::Type::Boolean.new.cast(bilateral_trade_number) || false
   end
 
   def native_tech_level?

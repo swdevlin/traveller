@@ -197,6 +197,14 @@
                  checked: @campaign.limited_main_world_eccentricity?,
                  label: 'Limit Populated World Eccentricity' %>
 
+      <%= render 'application/subsection', title: 'House Rules' %>
+
+      <%= render 'application/boolean_toggle',
+                 form: form,
+                 attribute: :bilateral_trade_number,
+                 checked: @campaign.bilateral_trade_number?,
+                 label: 'Bilateral Trade Number (BTN)' %>
+
       <%= render 'application/subsection', title: 'Display Preferences' %>
 
       <%= render 'application/edit_field', form: form, attribute: :orbit_distance_display, field_label: 'Distance Display' do %>

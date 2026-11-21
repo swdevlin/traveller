@@ -12,12 +12,7 @@ namespace :trade do
   task :btn, [:campaign, :sector, :output, :jump] => :environment do |_task, args|
     campaign = Campaign.find_by!(slug: args[:campaign])
     jump = (args[:jump].presence || 6).to_i
-    # Xenophilia (1-17) as a standard Traveller characteristic DM: 0-2 is -2, 3-5 is -1, 6-8 is 0,
-    # 9-11 is +1, 12-14 is +2 and 15+ is +3, so a xenophobic world has a negative DM.
-    xenophilia = lambda { |system|
-      value = system.main_world.try(:population_xenophilia)
-      value && (value / 3) - 2
-    }
+    xenophilia = ->(system) { BilateralTradeNumber.xeno_dm(system.main_world.try(:population_xenophilia)) }
     wtn = ->(system) { system.main_world_wtn&.round(1) }
 
     Apartment::Tenant.switch(campaign.schema_name) do

@@ -366,6 +366,15 @@ class CampaignTest < ActiveSupport::TestCase
     assert_equal 'deepnight_defaults', campaign.sector_source
   end
 
+  test 'bilateral_trade_number? is off by default and on once set' do
+    campaign = campaigns(:one)
+    campaign.bilateral_trade_number = nil
+    assert_not campaign.bilateral_trade_number?
+
+    campaign.bilateral_trade_number = 'true'
+    assert campaign.bilateral_trade_number?
+  end
+
   # limited_main_world_eccentricity
 
   test 'limited_main_world_eccentricity? defaults to false for charted_space campaigns' do

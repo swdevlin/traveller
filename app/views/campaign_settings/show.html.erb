@@ -86,6 +86,14 @@
                  value: @campaign.limited_main_world_eccentricity? ? 'Yes' : 'No' %>
     </div>
 
+    <%= render 'application/subsection', title: 'House Rules' %>
+
+    <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>
+      <%= render 'application/data_block',
+                 label: 'Bilateral Trade Number',
+                 value: @campaign.bilateral_trade_number? ? 'On' : 'Off' %>
+    </div>
+
     <%= render 'application/subsection', title: 'Display Preferences' %>
 
     <div class='grid grid-cols-1 gap-4 sm:grid-cols-4'>

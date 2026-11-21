@@ -492,19 +492,7 @@ module StellarObjectsHelper
 
   CULTURE_TRAIT_DATA = HasUwp::CULTURE_TRAIT_DATA
 
-  def culture_trait_dm(value)
-    return nil if value.nil?
-
-    case value.to_i
-    when 1..2 then '±2'
-    when 3..5 then '±1'
-    when 6..8 then '±0'
-    when 9..11 then '±1'
-    when 12..14 then '±2'
-    when 15..17 then '±3'
-    else '±4'
-    end
-  end
+  def culture_trait_dm(value) = CultureTraitDm.display(value)
 
   def transit_matrix_for(star_system)
     bodies = []

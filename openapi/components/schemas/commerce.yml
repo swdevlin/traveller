@@ -99,9 +99,9 @@ TradeSynergyGood:
     d66: { $ref: '#/components/schemas/D66' }
     name: { type: string }
     category: { type: string, enum: [common, trade, illegal, exotic] }
-    buy_dm: { type: integer, description: The origin world's purchase DM for the good; may be negative. }
-    sell_dm: { type: integer, description: The destination world's sale DM for the good; may be negative. }
-    bonus: { type: integer, description: The combined purchase and sale DM; always above zero. }
+    buy_dm: { type: integer, description: The origin world's purchase DM for the good less its sale DM; may be negative. }
+    sell_dm: { type: integer, description: The destination world's sale DM for the good less its purchase DM; may be negative. }
+    bonus: { type: integer, description: The sum of the buy and sell DMs; always above zero. }
 TradeSynergySystem:
   type: object
   properties:
@@ -135,11 +135,25 @@ TradeSynergyPartner:
         inbound_goods:
           type: array
           items: { $ref: '#/components/schemas/TradeSynergyGood' }
+        btn:
+          type: object
+          description: Bilateral Trade Number house rule. Only present when the campaign has it enabled.
+          properties:
+            value: { type: integer }
+            classification: { type: string, enum: [Opportunistic, Low, Moderate, High, Very High] }
+            exports: { type: integer }
+            imports: { type: integer }
+            source_wtn_dm: { type: integer }
+            destination_wtn_dm: { type: integer }
+            distance_dm: { type: integer }
+            source_xeno_dm: { type: integer }
+            destination_xeno_dm: { type: integer }
 TradeSynergies:
   type: object
   required: [jump, origin, partners]
   properties:
     jump: { type: integer }
+    btn_help_url: { type: [string, 'null'], description: Help page for the BTN house rule; null when the campaign has it off. }
     origin: { $ref: '#/components/schemas/TradeSynergySystem' }
     partners:
       type: array

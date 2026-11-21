@@ -4,10 +4,13 @@
 # in each direction. Deterministic: it uses only the purchase and sale DMs of
 # each world's trade codes (see TradeGoodsTable), never dice.
 #
-# A good flows from A to B when A's purchase DM for it (its buy DM) plus B's
-# sale DM for it (its sell DM) is above zero, so a negative DM at one end can
-# be outweighed by the other. The bonus is the sum of the two. A good can only leave a world where it is available for
-# purchase (see TradeAvailabilityCalculator).
+# A good flows from A to B when A's buy DM for it plus B's sell DM for it is
+# above zero, so a negative DM at one end can be outweighed by the other. The
+# bonus is the sum of the two. As in TradePriceCalculator, a world's purchase DM
+# also works as a negative sale DM and its sale DM as a negative purchase DM, so
+# the buy DM at A is A's purchase DM less its sale DM, and the sell DM at B is
+# B's sale DM less its purchase DM. A good can only leave a world where it is
+# available for purchase (see TradeAvailabilityCalculator).
 class TradeSynergyCalculator
   include HexDistance
 
@@ -21,8 +24,8 @@ class TradeSynergyCalculator
 
       from = from_dms.fetch(d66, { purchase_dm: 0, sale_dm: 0 })
       to = to_dms.fetch(d66, { purchase_dm: 0, sale_dm: 0 })
-      buy_dm = from[:purchase_dm]
-      sell_dm = to[:sale_dm]
+      buy_dm = from[:purchase_dm] - from[:sale_dm]
+      sell_dm = to[:sale_dm] - to[:purchase_dm]
       next unless (buy_dm + sell_dm).positive?
 
       good = TradeGoodsTable.for(d66)
@@ -55,9 +58,10 @@ class TradeSynergyCalculator
     TradeGoodsTable.dms_for(system.trade_dm_codes).index_by { it[:d66] }
   end
 
-  def initialize(origin:, partners:)
+  def initialize(origin:, partners:, with_btn: false)
     @origin = origin
     @partners = partners
+    @with_btn = with_btn
   end
 
   # @return [Hash] { origin:, partners: } where each partner carries its
@@ -78,8 +82,9 @@ class TradeSynergyCalculator
     outbound = self.class.goods_flowing(origin_dms, partner_dms, from_codes: codes_for(@origin))
     inbound = self.class.goods_flowing(partner_dms, origin_dms, from_codes: codes_for(partner))
 
-    system_json(partner).merge(
-      distance: hex_distance([@origin.parsec.x, @origin.parsec.y], [partner.parsec.x, partner.parsec.y]),
+    distance = hex_distance([@origin.parsec.x, @origin.parsec.y], [partner.parsec.x, partner.parsec.y])
+    row = system_json(partner).merge(
+      distance: distance,
       outbound_count: outbound.size,
       outbound_bonus: outbound.sum { it[:bonus] },
       inbound_count: inbound.size,
@@ -87,6 +92,25 @@ class TradeSynergyCalculator
       outbound_goods: outbound,
       inbound_goods: inbound
     )
+    row[:btn] = btn_for(partner, distance, legal_count(outbound), legal_count(inbound)) if @with_btn
+    row
+  end
+
+  # Illegal goods are not counted towards the BTN.
+  def legal_count(goods)
+    goods.count { it[:category] != 'illegal' }
+  end
+
+  def btn_for(partner, distance, exports, imports)
+    BilateralTradeNumber.calculate(
+      exports: exports, imports: imports, distance: distance,
+      source_wtn: @origin.main_world_wtn, destination_wtn: partner.main_world_wtn,
+      source_xenophilia: xenophilia_for(@origin), destination_xenophilia: xenophilia_for(partner)
+    )
+  end
+
+  def xenophilia_for(system)
+    system.main_world.try(:population_xenophilia)
   end
 
   def codes_for(system)

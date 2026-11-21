@@ -13,6 +13,8 @@ class Api::TradeSynergiesController < Api::BaseController
     jump = params[:jump].presence&.to_i&.clamp(1, MAX_JUMP) || 2
     partners = TradeSynergyCalculator.partners_within(system, jump)
 
-    render json: { jump: jump }.merge(TradeSynergyCalculator.new(origin: system, partners: partners).calculate)
+    btn = current_campaign.bilateral_trade_number?
+    result = TradeSynergyCalculator.new(origin: system, partners: partners, with_btn: btn).calculate
+    render json: { jump: jump, btn_help_url: (help_page_path('bilateral_trade_number') if btn) }.merge(result)
   end
 end
