@@ -1,0 +1,7 @@
+---
+ignore:
+  # mcp 0.25.0: OAuth discovery check allows SSRF to private hosts over HTTPS. That is an MCP *client*
+  # feature; this app only uses mcp through faultline's MCP server endpoint, which has no OAuth or
+  # client code. Cannot upgrade: faultline (every upstream commit, checked 2026-11-22) pins mcp ~> 0.15,
+  # and the fix is in mcp >= 1.2.0. Remove this entry once faultline allows mcp 1.x.
+  - GHSA-4m5j-jjfc-97gx
