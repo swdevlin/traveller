@@ -66,6 +66,7 @@ module HasUwp
     # Every character of the UWP is required when a body is added by hand.
     validates :starport_code, :atmosphere_code, :hydrographics_code, :population_code, :government_code,
               :law_level_code, :tech_level_code, presence: true, on: :manual
+    validate :starport_capacity_figures_non_negative
     before_validation :normalize_uwp_attributes
     before_validation :sync_uwp, if: :uwp_inputs_changed?
 
@@ -513,6 +514,7 @@ module HasUwp
         :law_level_death_penalty, :law_level_presumed_innocence, :law_level_econometric_infractions_administrative,
         :starport_code,
         :berthing_cost, :refined_fuel_cost, :unrefined_fuel_cost,
+        *STARPORT_CAPACITY_FIGURES, :has_highport, :shipyard_capability,
         :tech_level_code,
         :tech_level_electronics, :tech_level_energy, :tech_level_land, :tech_level_sea,
         :tech_level_air, :tech_level_space, :tech_level_personal_military, :tech_level_heavy_military,
@@ -577,8 +579,38 @@ module HasUwp
     data&.dig('starport_capacity').present?
   end
 
+  STARPORT_CAPACITY_FIGURES = %i[
+    highport_capacity downport_capacity internal_bay_capacity shipyard_build_capacity annual_shipyard_output
+  ].freeze
+  SHIPYARD_CAPABILITY_CODES = %w[starships spacecraft smallCraft none].freeze
+
   def has_highport?
     data&.dig('starport_capacity', 'hasHighport')
+  end
+  alias has_highport has_highport?
+
+  def has_highport=(val)
+    assign_starport_capacity('hasHighport', val.nil? || val == '' ? nil : ActiveModel::Type::Boolean.new.cast(val))
+  end
+
+  def shipyard_capability=(val)
+    assign_starport_capacity('shipyardCapability', val.presence)
+  end
+
+  def highport_capacity=(val)
+    assign_starport_capacity('highport', capacity_figure(val))
+  end
+  def downport_capacity=(val)
+    assign_starport_capacity('downport', capacity_figure(val))
+  end
+  def internal_bay_capacity=(val)
+    assign_starport_capacity('internalBayCapacity', capacity_figure(val))
+  end
+  def shipyard_build_capacity=(val)
+    assign_starport_capacity('shipyardBuildCapacity', capacity_figure(val))
+  end
+  def annual_shipyard_output=(val)
+    assign_starport_capacity('annualShipyardOutput', capacity_figure(val))
   end
 
   def highport_capacity
@@ -606,6 +638,26 @@ module HasUwp
   end
 
   private
+
+  # Always a number (never the form's string); decimal input is rounded rather than dropped.
+  def capacity_figure(val)
+    return nil if val.blank?
+
+    Integer(val.to_s, exception: false) || Float(val.to_s, exception: false)&.round
+  end
+
+  # Stored as the generator sent it (camelCase keys). Clearing every figure removes the block,
+  # so a world with nothing entered shows no capacity section rather than an empty one.
+  def assign_starport_capacity(key, value)
+    capacity = (data&.dig('starport_capacity') || {}).merge(key => value)
+    self.data = (data || {}).merge('starport_capacity' => capacity.values.all?(&:nil?) ? nil : capacity)
+  end
+
+  def starport_capacity_figures_non_negative
+    STARPORT_CAPACITY_FIGURES.each do |attribute|
+      errors.add(attribute, 'must be zero or more') if public_send(attribute)&.negative?
+    end
+  end
 
   def sync_uwp
     self.uwp = [

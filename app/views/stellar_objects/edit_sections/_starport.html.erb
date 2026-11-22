@@ -32,3 +32,39 @@
                         step: 1,
                         min: 0 %>
 <% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :has_highport, field_label: 'Highport' do %>
+  <%= form.select :has_highport,
+                  options_for_select([['Present', 'true'], ['None', 'false']], stellar_object.has_highport.nil? ? nil : stellar_object.has_highport.to_s),
+                  { include_blank: 'Unknown' },
+                  class: 'edit-base' %>
+<% end %>
+
+<% { highport_capacity: 'Highport Capacity', downport_capacity: 'Downport Capacity',
+     internal_bay_capacity: 'Internal Bay Capacity' }.each do |attribute, field_label| %>
+  <%= render 'application/edit_field', form: form, attribute: attribute, field_label: field_label, unit: 'tons' do %>
+    <%= form.number_field attribute,
+                          value: stellar_object.public_send(attribute),
+                          class: 'edit-base sm:w-36 w-28',
+                          step: 1,
+                          min: 0 %>
+  <% end %>
+<% end %>
+
+<%= render 'application/edit_field', form: form, attribute: :shipyard_capability, field_label: 'Shipyard' do %>
+  <%= form.select :shipyard_capability,
+                  options_for_select(StellarObjectsHelper::SHIPYARD_CAPABILITIES.map { |code, label| [label, code] }, stellar_object.shipyard_capability),
+                  { include_blank: 'Unknown' },
+                  class: 'edit-base' %>
+<% end %>
+
+<% { shipyard_build_capacity: ['Shipyard Build Capacity', 'tons'],
+     annual_shipyard_output: ['Annual Shipyard Output', 'tons / year'] }.each do |attribute, (field_label, unit)| %>
+  <%= render 'application/edit_field', form: form, attribute: attribute, field_label: field_label, unit: unit do %>
+    <%= form.number_field attribute,
+                          value: stellar_object.public_send(attribute),
+                          class: 'edit-base sm:w-36 w-28',
+                          step: 1,
+                          min: 0 %>
+  <% end %>
+<% end %>

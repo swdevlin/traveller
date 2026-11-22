@@ -50,21 +50,7 @@
       </dl>
     </div>
 
-    <div>
-      <%= render 'application/subsection', title: 'Starport' %>
-      <dl class='mt-4 space-y-5'>
-        <div>
-          <dt class='font-semibold text-fg-bright'>Starport</dt>
-          <dd class='mt-1 text-fg'>Class A&ndash;E, or X for none.</dd>
-        </div>
-        <div>
-          <dt class='font-semibold text-fg-bright'>Berthing and fuel costs</dt>
-          <dd class='mt-1 text-fg'>
-            Assigned from the starport class on import (WBH p. 257); blank means none. Edit to override.
-          </dd>
-        </div>
-      </dl>
-    </div>
+    <%= render 'help/starport_edit' %>
 
     <div>
       <%= render 'application/subsection', title: 'Physical' %>

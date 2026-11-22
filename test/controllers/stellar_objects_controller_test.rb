@@ -202,6 +202,32 @@ class StellarObjectsControllerTest < AuthenticatedIntegrationTest
     assert_select 'a[href=?]', 'https://example.com/planet', text: 'Reference'
   end
 
+  test 'should set and clear starport capacity from the edit form' do
+    planet = stellar_objects(:two)
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        has_highport: 'false', downport_capacity: '808000', highport_capacity: '',
+        shipyard_capability: 'smallCraft', annual_shipyard_output: '3500'
+      }
+    }
+    assert_redirected_to stellar_object_url(planet)
+    planet.reload
+    assert_equal false, planet.has_highport?
+    assert_equal 808_000, planet.downport_capacity
+    assert_nil planet.highport_capacity
+    assert_equal 'smallCraft', planet.shipyard_capability
+    assert_equal 3500, planet.annual_shipyard_output
+
+    patch stellar_object_url(planet), params: {
+      stellar_object: {
+        size_code: '5', atmosphere_code: 5, hydrographics_code: 5,
+        has_highport: '', downport_capacity: '', shipyard_capability: '', annual_shipyard_output: ''
+      }
+    }
+    assert_not planet.reload.starport_capacity?
+  end
+
   test 'should update culture trait fields within their own ranges' do
     planet = stellar_objects(:two)
     patch stellar_object_url(planet), params: {

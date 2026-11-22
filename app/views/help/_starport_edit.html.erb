@@ -1,0 +1,27 @@
+<div>
+  <%= render 'application/subsection', title: 'Starport' %>
+  <dl class="mt-4 space-y-5">
+    <div>
+      <dt class="font-semibold text-fg-bright">Starport</dt>
+      <dd class="mt-1 text-fg">Class A&ndash;E, or X for none.</dd>
+    </div>
+    <div>
+      <dt class="font-semibold text-fg-bright">Berthing and fuel costs</dt>
+      <dd class="mt-1 text-fg">
+        Assigned from the starport class on import (WBH p. 257); blank means none. Edit to override.
+      </dd>
+    </div>
+    <div>
+      <dt class="font-semibold text-fg-bright">Starport capacity</dt>
+      <dd class="mt-1 text-fg">
+        <p class="mb-2">Highport, downport and internal bay capacities, along with shipyard capability, build
+        capacity and annual output, are expressed in tons (<cite>WBH pp. 198–199</cite>).</p>
+
+        <p class="mb-2">These values are generated during import and can be edited independently. Leave fields blank
+        where they do not apply, or clear them all to remove the capacity section.</p>
+
+        <p>Changing the starport class does not automatically update these values.</p>
+      </dd>
+    </div>
+  </dl>
+</div>

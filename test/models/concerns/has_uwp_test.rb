@@ -172,4 +172,11 @@ class HasUwpTest < ActiveSupport::TestCase
       assert_not_empty planet.errors[trait[:getter]], "expected #{trait[:getter]} to reject above its max (#{trait[:max]})"
     end
   end
+
+  test 'starport capacity rejects negative figures' do
+    planet = TerrestrialPlanet.new
+    planet.downport_capacity = -5
+    planet.valid?
+    assert_not_empty planet.errors[:downport_capacity]
+  end
 end
