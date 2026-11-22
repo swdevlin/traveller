@@ -29,6 +29,38 @@ class GeneratorService
     call_service('orbit_mechanics', payload)
   end
 
+  # Network errors propagate so callers can retry; a 400 comes back as a failed Result carrying the
+  # generator's own validation message. The response is random (dice rolls), so call once per world.
+  def starport_capacity(payload)
+    uri = URI.join(base_url.end_with?('/') ? base_url : "#{base_url}/", 'starport')
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 10
+    http.read_timeout = 10
+
+    headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
+    headers['x-tenant-id'] = @campaign_id.to_s if @campaign_id.present?
+    response = http.post(uri.request_uri, payload.to_json, headers)
+
+    if response.is_a?(Net::HTTPBadRequest)
+      message = begin
+        JSON.parse(response.body)['error']
+      rescue JSON::ParserError
+        nil
+      end
+      return Result.new(errors: [message.presence || 'Invalid starport request'])
+    end
+
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "#{uri} Failure: HTTP #{response.code} - #{response.body}"
+      return Result.new(errors: ["HTTP #{response.code}"])
+    end
+
+    Result.new(value: JSON.parse(response.body))
+  rescue JSON::ParserError => e
+    Rails.logger.error "#{uri} JSON Error: #{e.message} - Body: #{response&.body}"
+    Result.new(errors: ['Unparseable response'])
+  end
+
   def generate_stellar_object(klass, params: {})
     get_service(klass.name.underscore, params)
   end
