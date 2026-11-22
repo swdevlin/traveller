@@ -67,6 +67,7 @@ class PlanetoidBelt < StellarObject
     law_level: 'lawLevel',
     starport_code: 'starPort',
     economics: 'economics',
+    starport_capacity: 'starportCapacity',
     extinct_sophont: 'extinctSophont',
     native_sophont: 'nativeSophont',
   )

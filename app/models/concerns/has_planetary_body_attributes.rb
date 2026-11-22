@@ -33,7 +33,8 @@ module HasPlanetaryBodyAttributes
       tidal_lock_note: 'tidalLockNote',
       twilight_zone: 'twilightZone',
       sidereal_day: 'siderealDay',
-      economics: 'economics'
+      economics: 'economics',
+      starport_capacity: 'starportCapacity'
     )
 
     # store_accessor keeps whatever the form submits, so cast to integers or the starmap decoder gets strings.

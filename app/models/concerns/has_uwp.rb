@@ -573,6 +573,34 @@ module HasUwp
     data&.dig('economics', 'tariffs', 'regime')
   end
 
+  def has_highport?
+    data&.dig('starport_capacity', 'hasHighport')
+  end
+
+  def highport_capacity
+    data&.dig('starport_capacity', 'highport')
+  end
+
+  def downport_capacity
+    data&.dig('starport_capacity', 'downport')
+  end
+
+  def internal_bay_capacity
+    data&.dig('starport_capacity', 'internalBayCapacity')
+  end
+
+  def shipyard_capability
+    data&.dig('starport_capacity', 'shipyardCapability')
+  end
+
+  def shipyard_build_capacity
+    data&.dig('starport_capacity', 'shipyardBuildCapacity')
+  end
+
+  def annual_shipyard_output
+    data&.dig('starport_capacity', 'annualShipyardOutput')
+  end
+
   private
 
   def sync_uwp
