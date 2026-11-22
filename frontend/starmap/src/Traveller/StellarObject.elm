@@ -9,6 +9,7 @@ import Traveller.Point as Point exposing (StellarPoint)
 import Traveller.Records as Records exposing (Records)
 import Traveller.Population as Population exposing (CultureTrait, StellarPopulation)
 import Traveller.StarColour exposing (StarColour, codecStarColour)
+import Traveller.StarportCapacity as StarportCapacity exposing (StarportCapacity)
 import Traveller.TravelCalculations as TravelCalculations
 import Traveller.Sophont as Sophont exposing (Sophont)
 
@@ -152,6 +153,7 @@ type alias SharedPData =
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
+    , starportCapacity : Maybe StarportCapacity
     , planetoidBeltId : Maybe Int
     , mapUrl : Maybe String
     , referenceUrl : Maybe String
@@ -275,6 +277,7 @@ type alias PlanetoidBeltData =
     , berthingCost : Maybe Int
     , refinedFuelCost : Maybe Int
     , unrefinedFuelCost : Maybe Int
+    , starportCapacity : Maybe StarportCapacity
     , planetoidCount : Int
     , referenceUrl : Maybe String
     , records : Records
@@ -483,7 +486,7 @@ getPlanetoidData stellarObject =
 codecPlanetoidBeltData : Codec PlanetoidBeltData
 codecPlanetoidBeltData =
     Codec.object
-        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel planetoidCount_ sophont_ refUrl survey classified tags ->
+        (\pos inc ecc peri apo hzco orb mt st ct ot sp blk rr per orbitSeq uwp_ js ot_ au ret nm atm hydro pop bio bioC bioDiv compat hab natS extS govD llD tlD temp periT apoT currT id_ cityCount_ berthCost refFuel unrefFuel starportCap planetoidCount_ sophont_ refUrl survey classified tags ->
             { orbitPosition = pos
             , inclination = inc
             , eccentricity = ecc
@@ -528,6 +531,7 @@ codecPlanetoidBeltData =
             , berthingCost = berthCost
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
+            , starportCapacity = starportCap
             , planetoidCount = planetoidCount_
             , sophont = sophont_
             , referenceUrl = refUrl
@@ -590,6 +594,7 @@ codecPlanetoidBeltData =
         |> Codec.optionalNullableField "berthing_cost" .berthingCost Codec.int
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
+        |> Codec.optionalNullableField "starport_capacity" .starportCapacity StarportCapacity.codec
         |> Codec.field "planetoid_count" .planetoidCount Codec.int
         |> Codec.optionalNullableField "sophont" .sophont Sophont.codec
         |> Codec.optionalNullableField "reference_url" .referenceUrl Codec.string
@@ -778,7 +783,7 @@ codecTechLevelDetail =
 codecSharedPData : Codec SharedPData
 codecSharedPData =
     Codec.object
-        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot sidDay twiZone tlTarget tlNote govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel beltId mapUrl_ sophont_ refUrl ringsM survey classified tags ->
+        (\atm pos inc ecc peri apo hzco sz orb per comp ret tj axTilt mns bio bioC bioDiv compat res natS extS hasRingM hydro alb den grn temp periT apoT currT hab orbitSeq uwp_ diam grav mass_ escV js ot au pop rot sidDay twiZone tlTarget tlNote govD llD tlD nm id_ isMoon_ cityCount_ berthCost refFuel unrefFuel starportCap beltId mapUrl_ sophont_ refUrl ringsM survey classified tags ->
             { atmosphere = atm
             , orbitPosition = pos
             , inclination = inc
@@ -838,6 +843,7 @@ codecSharedPData =
             , berthingCost = berthCost
             , refinedFuelCost = refFuel
             , unrefinedFuelCost = unrefFuel
+            , starportCapacity = starportCap
             , planetoidBeltId = beltId
             , mapUrl = mapUrl_
             , referenceUrl = refUrl
@@ -928,6 +934,7 @@ codecSharedPData =
         |> Codec.optionalNullableField "berthing_cost" .berthingCost Codec.int
         |> Codec.optionalNullableField "refined_fuel_cost" .refinedFuelCost Codec.int
         |> Codec.optionalNullableField "unrefined_fuel_cost" .unrefinedFuelCost Codec.int
+        |> Codec.optionalNullableField "starport_capacity" .starportCapacity StarportCapacity.codec
         |> Codec.optionalNullableField "planetoid_belt_id" .planetoidBeltId Codec.int
         |> Codec.optionalNullableField "map_url" .mapUrl Codec.string
         |> Codec.optionalNullableField "sophont" .sophont Sophont.codec

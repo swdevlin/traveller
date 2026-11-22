@@ -34,6 +34,7 @@ import Traveller.City exposing (CitiesPage)
 import Traveller.Records as Records exposing (Records)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
+import Traveller.StarportCapacity as StarportCapacity exposing (StarportCapacity)
 import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 
@@ -209,6 +210,7 @@ type alias AnalyisDetailPlanetoidData =
         , berthingCost : Maybe Int
         , refinedFuelCost : Maybe Int
         , unrefinedFuelCost : Maybe Int
+        , starportCapacity : Maybe StarportCapacity
         }
     , social :
         { population : String
@@ -477,6 +479,21 @@ narrowDisplayGrid children =
         , HtmlAttrs.style "align-items" "start"
         ]
         children
+
+
+starportCapacityRows : Maybe StarportCapacity -> List ( String, String )
+starportCapacityRows maybeCapacity =
+    maybeCapacity |> Maybe.map StarportCapacity.rows |> Maybe.withDefault []
+
+
+{-| The capacity section of the starport tab: nothing at all for worlds that
+have no capacity data yet. `firstIndex` is where these values start in the
+reveal strings list.
+-}
+starportCapacityDisplay : (Int -> String -> String) -> Int -> Maybe StarportCapacity -> List (Html msg)
+starportCapacityDisplay show firstIndex maybeCapacity =
+    starportCapacityRows maybeCapacity
+        |> List.indexedMap (\i ( lbl, raw ) -> textDisplay lbl (show (firstIndex + i) raw))
 
 
 starportCredits : Maybe Int -> String
@@ -1487,6 +1504,8 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                    , starportCredits data.starport.berthingCost
                    , starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost
                    ]
+                -- starport capacity rows follow the starport tab, when the world has them
+                ++ List.map Tuple.second (starportCapacityRows data.starport.starportCapacity)
 
         counts =
             List.Extra.scanl (\word total -> total + (floor <| sqrt <| toFloat <| String.length word)) 0 strings
@@ -1549,7 +1568,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
 
                 "starport" ->
                     column groupAttrs
-                        [ textDisplay "Starport Class" <| show 84 data.starport.code
+                        ([ textDisplay "Starport Class" <| show 84 data.starport.code
                         , textDisplay "Quality" <| show 85 data.starport.quality
                         , if data.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 87 data.starport.facilities
@@ -1560,7 +1579,9 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
                         , textDisplayAttrs "Fuel Cost"
                             (show 89 (starportFuelCostString data.starport.refinedFuelCost data.starport.unrefinedFuelCost))
                             [ HtmlAttrs.title (starportFuelCostTooltip data.starport.refinedFuelCost data.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
-                        ]
+                         ]
+                            ++ starportCapacityDisplay show 90 data.starport.starportCapacity
+                        )
 
                 "physical" ->
                     column [ width fill ]
@@ -2520,6 +2541,8 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
                    , starportCredits pd.starport.berthingCost
                    , starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost
                    ]
+                -- starport capacity rows follow the starport tab, when the world has them
+                ++ List.map Tuple.second (starportCapacityRows pd.starport.starportCapacity)
 
         counts =
             List.Extra.scanl (\word total -> total + (floor <| sqrt <| toFloat <| String.length word)) 0 strings
@@ -2572,7 +2595,7 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
 
                 "starport" ->
                     column groupAttrs
-                        [ textDisplay "Starport Class" <| show 81 pd.starport.code
+                        ([ textDisplay "Starport Class" <| show 81 pd.starport.code
                         , textDisplay "Quality" <| show 82 pd.starport.quality
                         , if pd.starport.facilities /= "None" then
                             textDisplay "Facilities" <| show 84 pd.starport.facilities
@@ -2583,7 +2606,9 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
                         , textDisplayAttrs "Fuel Cost"
                             (show 86 (starportFuelCostString pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost))
                             [ HtmlAttrs.title (starportFuelCostTooltip pd.starport.refinedFuelCost pd.starport.unrefinedFuelCost), HtmlAttrs.style "cursor" "help" ]
-                        ]
+                         ]
+                            ++ starportCapacityDisplay show 87 pd.starport.starportCapacity
+                        )
 
                 "physical" ->
                     column [ width fill ]
