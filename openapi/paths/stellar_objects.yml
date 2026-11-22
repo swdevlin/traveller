@@ -74,6 +74,13 @@
         `resource_factor`, `labour_factor`, `efficiency`, `inequality_rating`,
         `tariff_regime`, `tariff_rate`. Present only when the world has
         economic data.
+      - `starport_capacity`: `has_highport`, `highport`, `downport`,
+        `internal_bay_capacity` (tons), `shipyard_capability` (`starships`,
+        `spacecraft`, `smallCraft` or `none`), `shipyard_build_capacity`
+        (tons) and `annual_shipyard_output` (tons per year). Values that do
+        not apply are `null` (for example no highport, or no shipyard below
+        class C). The field is absent or `null` on worlds that have no
+        capacity data yet.
       - `city_count`: number of cities, on worlds that can have them.
     parameters:
       - { $ref: '#/components/parameters/StellarObjectId' }

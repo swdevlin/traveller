@@ -573,6 +573,10 @@ module HasUwp
     data&.dig('economics', 'tariffs', 'regime')
   end
 
+  def starport_capacity?
+    data&.dig('starport_capacity').present?
+  end
+
   def has_highport?
     data&.dig('starport_capacity', 'hasHighport')
   end

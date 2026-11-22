@@ -12,6 +12,31 @@
     <%= render 'application/data_block', label: 'Costs', value: starport_costs_summary(stellar_object) %>
   </div>
 
+  <% if stellar_object.starport_capacity? %>
+    <%= render 'application/subsection', title: 'Starport Capacity' %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'application/data_block', label: 'Highport', value: stellar_object.has_highport? ? 'Present' : 'None' %>
+      <% unless stellar_object.highport_capacity.nil? %>
+        <%= render 'application/data_block', label: 'Highport Capacity', value: format_tons(stellar_object.highport_capacity) %>
+      <% end %>
+      <% unless stellar_object.downport_capacity.nil? %>
+        <%= render 'application/data_block', label: 'Downport Capacity', value: format_tons(stellar_object.downport_capacity) %>
+      <% end %>
+      <% unless stellar_object.internal_bay_capacity.nil? %>
+        <%= render 'application/data_block', label: 'Internal Bay Capacity', value: format_tons(stellar_object.internal_bay_capacity) %>
+      <% end %>
+      <% if stellar_object.shipyard_capability.present? %>
+        <%= render 'application/data_block', label: 'Shipyard', value: shipyard_capability_label(stellar_object.shipyard_capability) %>
+      <% end %>
+      <% unless stellar_object.shipyard_build_capacity.nil? %>
+        <%= render 'application/data_block', label: 'Shipyard Build Capacity', value: format_tons(stellar_object.shipyard_build_capacity) %>
+      <% end %>
+      <% unless stellar_object.annual_shipyard_output.nil? %>
+        <%= render 'application/data_block', label: 'Annual Shipyard Output', value: "#{number_with_delimiter(stellar_object.annual_shipyard_output)} tons / year" %>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class='flex flex-wrap gap-2'>
     <% if stellar_object.importance.present? %>
       <%= link_to 'Generate Daily Traffic',

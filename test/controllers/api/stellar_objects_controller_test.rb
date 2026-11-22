@@ -131,6 +131,36 @@ class Api::StellarObjectsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, response.parsed_body['planetoid_count']
   end
 
+  test 'a world with starport capacity returns it as a flat snake_case object' do
+    sign_in_as users(:one)
+    belt = stellar_objects(:planetoids_test_belt)
+    belt.update_column(:data, (belt.data || {}).merge(
+      'starport_capacity' => { 'hasHighport' => true, 'highport' => 2_020_000, 'downport' => 808_000,
+                               'internalBayCapacity' => 202_000, 'shipyardCapability' => 'smallCraft',
+                               'shipyardBuildCapacity' => nil, 'annualShipyardOutput' => nil }
+    ))
+
+    get "/c/#{campaigns(:one).slug}/api/stellar_objects/#{belt.id}", as: :json
+
+    assert_response :success
+    capacity = response.parsed_body['starport_capacity']
+    assert_equal true, capacity['has_highport']
+    assert_equal 2_020_000, capacity['highport']
+    assert_equal 808_000, capacity['downport']
+    assert_equal 202_000, capacity['internal_bay_capacity']
+    assert_equal 'smallCraft', capacity['shipyard_capability']
+    assert_nil capacity['shipyard_build_capacity']
+  end
+
+  test 'a world without starport capacity data has no capacity value' do
+    sign_in_as users(:one)
+
+    get "/c/#{campaigns(:one).slug}/api/stellar_objects/#{stellar_objects(:planetoids_test_belt).id}", as: :json
+
+    assert_response :success
+    assert_nil response.parsed_body['starport_capacity']
+  end
+
   test 'planetoids significant_only filters out size 0/S planetoids' do
     sign_in_as users(:one)
 

@@ -81,6 +81,21 @@ module StellarObjectsHelper
     ])
   end
 
+  SHIPYARD_CAPABILITIES = {
+    'starships' => 'Starships',
+    'spacecraft' => 'Spacecraft',
+    'smallCraft' => 'Small craft',
+    'none' => 'None'
+  }.freeze
+
+  def shipyard_capability_label(value)
+    SHIPYARD_CAPABILITIES.fetch(value, value.to_s.humanize)
+  end
+
+  def format_tons(value)
+    "#{number_with_delimiter(value)} tons"
+  end
+
   def gas_giant_size_description(code)
     GasGiant::SIZES[code] || code
   end
