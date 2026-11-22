@@ -159,6 +159,11 @@ class MarkdownPresenterBase
       ['Refined Fuel Cost', format_credits(@obj.respond_to?(:refined_fuel_cost) ? @obj.refined_fuel_cost : nil)],
       ['Unrefined Fuel Cost', format_credits(@obj.respond_to?(:unrefined_fuel_cost) ? @obj.unrefined_fuel_cost : nil)]
     ]
+    table_section('Starport', rows + starport_capacity_rows)
+  end
+
+  def economics_section
+    rows = []
     rows << ['World Trade Number', @obj.world_trade_number] if @obj.respond_to?(:world_trade_number) && @obj.world_trade_number.present?
     rows << ['Importance', format_importance(@obj.importance)] if @obj.respond_to?(:importance) && @obj.importance.present?
     rows << ['Development Score', fmt(@obj.development_score, 1)] if @obj.respond_to?(:development_score) && @obj.development_score.present?
@@ -174,7 +179,25 @@ class MarkdownPresenterBase
       rows << ['Tariff Regime', @obj.tariff_regime.humanize] if @obj.respond_to?(:tariff_regime) && @obj.tariff_regime.present?
       rows << ['Tariff Rate', number_to_percentage(@obj.tariff_rate, precision: 0)]
     end
-    table_section('Starport', rows)
+    table_section('Economics', rows)
+  end
+
+  def starport_capacity_rows
+    return [] unless @obj.respond_to?(:starport_capacity?) && @obj.starport_capacity?
+
+    tons = ->(value) { "#{number_with_delimiter(value)} tons" }
+    rows = [['Highport', @obj.has_highport? ? 'Present' : 'None']]
+    rows << ['Highport Capacity', tons.call(@obj.highport_capacity)] unless @obj.highport_capacity.nil?
+    rows << ['Downport Capacity', tons.call(@obj.downport_capacity)] unless @obj.downport_capacity.nil?
+    rows << ['Internal Bay Capacity', tons.call(@obj.internal_bay_capacity)] unless @obj.internal_bay_capacity.nil?
+    if @obj.shipyard_capability.present?
+      rows << ['Shipyard', StellarObjectsHelper::SHIPYARD_CAPABILITIES.fetch(@obj.shipyard_capability, @obj.shipyard_capability)]
+    end
+    rows << ['Shipyard Build Capacity', tons.call(@obj.shipyard_build_capacity)] unless @obj.shipyard_build_capacity.nil?
+    unless @obj.annual_shipyard_output.nil?
+      rows << ['Annual Shipyard Output', "#{number_with_delimiter(@obj.annual_shipyard_output)} tons / year"]
+    end
+    rows
   end
 
   def notes_section

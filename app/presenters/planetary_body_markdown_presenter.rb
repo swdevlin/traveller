@@ -26,6 +26,7 @@ class PlanetaryBodyMarkdownPresenter < MarkdownPresenterBase
       atmosphere_section +
       hydrographics_section +
       population_section +
+      economics_section +
       government_section +
       law_level_section +
       tech_level_section

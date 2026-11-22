@@ -63,4 +63,28 @@ class TerrestrialPlanetMarkdownPresenterTest < ActiveSupport::TestCase
     assert_includes markdown, '## Law Level'
     assert_includes markdown, '## Tech Level'
   end
+
+  test 'renders starport capacity when the world has it, leaving out figures that do not apply' do
+    planet = stellar_objects(:two)
+    planet.update_column(:data, (planet.data || {}).merge(
+      'starport_capacity' => { 'hasHighport' => false, 'highport' => nil, 'downport' => 808_000,
+                               'shipyardCapability' => 'smallCraft', 'shipyardBuildCapacity' => nil }
+    ))
+
+    markdown = TerrestrialPlanetMarkdownPresenter.new(planet).render
+
+    assert_not_includes markdown, '## Starport Capacity'
+    assert_match(/## Starport\n.*\| Highport \| None \|.*## /m, markdown)
+    assert_includes markdown, '| Highport | None |'
+    assert_includes markdown, '| Downport Capacity | 808,000 tons |'
+    assert_includes markdown, '| Shipyard | Small craft |'
+    assert_not_includes markdown, 'Highport Capacity'
+    assert_not_includes markdown, 'Shipyard Build Capacity'
+  end
+
+  test 'omits the starport capacity section when the world has no capacity data' do
+    markdown = TerrestrialPlanetMarkdownPresenter.new(stellar_objects(:two)).render
+
+    assert_not_includes markdown, 'Highport'
+  end
 end
