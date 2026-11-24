@@ -7013,10 +7013,10 @@ viewDirectionLabels =
             ]
             "Spinward"
         , label
-            [ HtmlAttrs.style "right" "2px"
+            [ HtmlAttrs.style "left" "calc(100% - 2px)"
             , HtmlAttrs.style "top" "50%"
-            , HtmlAttrs.style "transform" "translateY(-50%)"
-            , HtmlAttrs.style "writing-mode" "vertical-rl"
+            , HtmlAttrs.style "transform-origin" "0 0"
+            , HtmlAttrs.style "transform" "rotate(90deg) translateX(-50%)"
             ]
             "Trailing"
         ]

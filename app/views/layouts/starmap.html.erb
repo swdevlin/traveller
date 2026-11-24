@@ -10,6 +10,9 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
+  <%# The starmap fills the viewport and never scrolls, so the global stable scrollbar gutter only wastes a strip on the right (hiding the Trailing label) in Chromium %>
+  <style>html { scrollbar-gutter: auto; overflow: hidden; }</style>
+
   <%= yield :head %>
 
   <link rel='preconnect' href='https://fonts.googleapis.com'>
