@@ -189,6 +189,21 @@ class SectorsControllerTest < AuthenticatedIntegrationTest
     assert_response :forbidden
   end
 
+  test 'map loads travel zones in one query, not one per star system' do
+    zone = TravelZone.create!(code: 'A', name: 'Amber', colour: '#ffbf00')
+    StarSystem.joins(:parsec).where(parsecs: { sector_id: @sector.id }).update_all(travel_zone_id: zone.id)
+    assert_operator StarSystem.where(travel_zone_id: zone.id).count, :>, 1
+
+    loads = 0
+    callback = ->(*, payload) { loads += 1 if payload[:name] == 'TravelZone Load' }
+    ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+      get map_sector_url(@sector, format: :svg)
+    end
+
+    assert_response :success
+    assert_operator loads, :<=, 1
+  end
+
   test 'map is reachable for a logged-in user who does not referee this campaign, at the player variant' do
     get map_sector_url(@sector, format: :svg)
     owner_etag = response.headers['ETag']

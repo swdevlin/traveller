@@ -18,12 +18,10 @@ module JumpShadowMath
   def format_travel_time(hours)
     return '-' if hours.nil?
 
-    if hours < 24
-      "#{number_with_precision(hours, precision: 1, strip_insignificant_zeros: true)}h"
-    else
-      days = hours / 24.0
-      "#{number_with_precision(days, precision: 1, strip_insignificant_zeros: true)}d"
-    end
+    value, unit = hours < 24 ? [hours, 'h'] : [hours / 24.0, 'd']
+    # Plain formatting: number_with_precision costs ~60µs a call, and the system page's transit
+    # matrix makes ~10 calls per cell (thousands per page).
+    "#{format('%.1f', value).delete_suffix('.0')}#{unit}"
   end
 
   # Returns a hash of G rating => formatted travel time.
