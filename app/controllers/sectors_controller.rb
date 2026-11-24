@@ -431,7 +431,7 @@ class SectorsController < ApplicationController
       systems = StarSystem
         .joins(:parsec)
         .where(parsecs: { sector_id: @sector.id })
-        .includes({ parsec: { sector: :subsectors } }, :allegiance)
+        .includes({ parsec: { sector: :subsectors } }, :allegiance, :travel_zone)
         .load
       lean = StellarObject.select(StellarObject.column_names - MAP_EXCLUDED_COLUMNS)
       preload_with(systems.to_a, :stars, lean)
