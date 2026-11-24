@@ -36,7 +36,7 @@ class AhoyTrackingTest < ActionDispatch::IntegrationTest
   test 'the starmap records a Used starmap event and not Viewed page' do
     sign_in_as users(:one)
     # The all-sectors raster is irrelevant here (and slow to build).
-    generator = Struct.new(:output_path, :call).new(Rails.root.join('Gemfile'), nil)
+    generator = Struct.new(:output_path, :stale?).new(Rails.root.join('Gemfile'), false)
     stub_new(AllSectorsMapGenerator, generator) do
       get campaign_starmap_url, headers: { 'User-Agent' => BROWSER_USER_AGENT }
     end

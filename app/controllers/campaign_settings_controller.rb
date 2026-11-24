@@ -17,7 +17,7 @@ class CampaignSettingsController < ApplicationController
   def update
     @campaign = current_campaign
     if @campaign.update(campaign_settings_params)
-      GenerateAllSectorsMapJob.perform_later(@campaign.id) if @campaign.saved_change_to_settings?
+      GenerateAllSectorsMapJob.perform_later(@campaign.id, force: true) if @campaign.saved_change_to_settings?
       redirect_to campaign_settings_path, notice: 'Campaign updated.'
     else
       render :edit, status: :unprocessable_entity
@@ -39,7 +39,7 @@ class CampaignSettingsController < ApplicationController
   end
 
   def generate_all_sectors_map
-    GenerateAllSectorsMapJob.perform_later(current_campaign.id)
+    GenerateAllSectorsMapJob.perform_later(current_campaign.id, force: true)
     redirect_to campaign_settings_path, notice: 'All-sectors map generation queued.'
   end
 

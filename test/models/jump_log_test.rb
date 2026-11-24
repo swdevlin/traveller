@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class JumpLogTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   test 'misjump defaults to false' do
     assert_not JumpLog.new.misjump?
   end
@@ -120,5 +122,21 @@ class JumpLogTest < ActiveSupport::TestCase
     a.update!(arrive_day: 10)
 
     assert_equal 1, other.reload.depart_day
+  end
+
+  test 'destroying a jump log forces the all-sectors map to rebuild' do
+    jump_log = jump_logs(:chain_c)
+    campaign = campaigns(:one)
+
+    # Model tests run in the public schema, which has no campaign; point the lookup at a fixture.
+    Campaign.singleton_class.send(:alias_method, :__find_by_original, :find_by)
+    Campaign.singleton_class.send(:define_method, :find_by) { |*_args, **_kwargs| campaign }
+
+    assert_enqueued_with(job: GenerateAllSectorsMapJob, args: [campaign.id, { force: true }]) do
+      jump_log.destroy!
+    end
+  ensure
+    Campaign.singleton_class.send(:alias_method, :find_by, :__find_by_original)
+    Campaign.singleton_class.send(:remove_method, :__find_by_original)
   end
 end

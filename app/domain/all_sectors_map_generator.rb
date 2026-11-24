@@ -32,6 +32,22 @@ class AllSectorsMapGenerator
     dir.join('all_sectors.webp')
   end
 
+  # True when the image is missing or older than the data it depicts. Must be called within the
+  # campaign's tenant.
+  def stale?
+    path = output_path
+    return true unless path.exist?
+
+    latest_change = [
+      JumpLog.maximum(:updated_at),
+      StarSystem.maximum(:updated_at),
+      Sector.with_discarded.maximum(:updated_at),
+      Sector.with_discarded.maximum(:discarded_at),
+      Subsector.maximum(:updated_at)
+    ].compact.max
+    latest_change.present? && latest_change > path.mtime
+  end
+
   private
 
   def compute_bounds(sectors)
@@ -178,7 +194,14 @@ class AllSectorsMapGenerator
   def write_webp(vips)
     dir = output_path.dirname
     FileUtils.mkdir_p(dir)
-    vips.flatten(background: [0, 0, 0]).webpsave(output_path.to_s)
+    # Write to a temporary file then rename, so readers never see a partial image.
+    tmp_path = dir.join("all_sectors.#{Process.pid}.#{SecureRandom.hex(4)}.tmp.webp")
+    begin
+      vips.flatten(background: [0, 0, 0]).webpsave(tmp_path.to_s)
+      File.rename(tmp_path, output_path)
+    ensure
+      FileUtils.rm_f(tmp_path)
+    end
     output_path
   end
 end

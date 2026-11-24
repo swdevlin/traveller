@@ -21,7 +21,8 @@ class JumpLog < ApplicationRecord
   after_save :apply_destination_survey_index, if: -> { destination_survey_index.present? }
   after_create_commit  :queue_map_regeneration
   after_update_commit  :queue_map_regeneration, if: :saved_change_to_to_parsec_id?
-  after_destroy_commit :queue_map_regeneration
+  # A destroy leaves no newer updated_at behind, so the job's staleness check can't see it.
+  after_destroy_commit { queue_map_regeneration(force: true) }
 
   after_update :cascade_forward,  if: :arrival_or_destination_changed?
   after_update :cascade_backward, if: :departure_or_origin_changed?
@@ -124,9 +125,9 @@ class JumpLog < ApplicationRecord
     end
   end
 
-  def queue_map_regeneration
+  def queue_map_regeneration(force: false)
     campaign = Campaign.find_by(schema_name: Apartment::Tenant.current)
-    GenerateAllSectorsMapJob.perform_later(campaign.id) if campaign
+    GenerateAllSectorsMapJob.perform_later(campaign.id, force: force) if campaign
   end
 
   def assign_sequence

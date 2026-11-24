@@ -9,16 +9,8 @@ class StarmapsController < ApplicationController
       if Current.campaign
         generator = AllSectorsMapGenerator.new(Current.campaign)
         map_path  = generator.output_path
-        latest_change = [
-          JumpLog.maximum(:updated_at),
-          StarSystem.maximum(:updated_at),
-          Sector.with_discarded.maximum(:updated_at),
-          Sector.with_discarded.maximum(:discarded_at),
-          Subsector.maximum(:updated_at)
-        ].compact.max
-        if !map_path.exist? || (latest_change && latest_change > map_path.mtime)
-          map_path = generator.call || map_path
-        end
+        # Never build the map in the request: serve what exists and refresh in the background.
+        GenerateAllSectorsMapJob.perform_later(Current.campaign.id) if generator.stale?
         campaign_all_sectors_map_url(v: map_path.mtime.to_i) if map_path.exist?
       end
 

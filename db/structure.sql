@@ -3294,6 +3294,13 @@ CREATE INDEX index_star_systems_on_travel_zone_id ON public.star_systems USING b
 
 
 --
+-- Name: index_star_systems_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_star_systems_on_updated_at ON public.star_systems USING btree (updated_at);
+
+
+--
 -- Name: index_stellar_object_trade_codes_on_stellar_object_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3795,6 +3802,7 @@ ALTER TABLE ONLY public.jump_routes
 SET search_path TO "public", "shared_extensions";
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261124100000'),
 ('20261118100000'),
 ('20261114100000'),
 ('20261103240000'),
