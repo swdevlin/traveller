@@ -86,8 +86,10 @@ env:
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 
-    # Set number of cores available to the application on each server (default: 1).
-    # WEB_CONCURRENCY: 2
+    # Number of Puma worker processes (default: 1). Ruby's GVL limits each process to
+    # about one core; the host has 8, shared with Postgres, the generator and map
+    # services and the Solid Queue workers.
+    WEB_CONCURRENCY: 4
 
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
