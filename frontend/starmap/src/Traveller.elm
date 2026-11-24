@@ -39,6 +39,7 @@ import Json.Encode as Encode
 import List.Extra
 import Parser
 import RemoteData exposing (RemoteData(..))
+import Process
 import Result.Extra as Result
 import Round
 import Set
@@ -1184,6 +1185,7 @@ type Msg
     | SetJumpLogLineWidth String
     | ResetJumpLogDisplay
     | SearchInput String
+    | SearchDebounceElapsed String
     | GotSearchResults (Result Http.Error (List SearchResult))
     | SelectSearchResult SearchResult
     | FocusSearch
@@ -8034,14 +8036,32 @@ updateParsecSurveyIndex hostConfig parsecId surveyIndex =
         }
 
 
+searchRequestTracker : String
+searchRequestTracker =
+    "search"
+
+
+-- How long typing must pause before a search request is sent.
+
+
+searchDebounceMillis : Float
+searchDebounceMillis =
+    300
+
+
 sendSearchRequest : String -> HostConfig.HostConfig -> Cmd Msg
 sendSearchRequest query ( urlRoot, urlPath ) =
-    Http.get
-        { url =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url =
             Url.Builder.crossOrigin urlRoot
                 (urlPath ++ [ "search" ])
                 [ Url.Builder.string "q" query ]
+        , body = Http.emptyBody
         , expect = Http.expectJson GotSearchResults (JsDecode.list searchResultDecoder)
+        , timeout = Nothing
+        , tracker = Just searchRequestTracker
         }
 
 
@@ -9689,12 +9709,25 @@ update msg ( time, model ) =
                     }
             in
             ( withTime { model | searchState = newState }
-            , if String.length query >= 3 then
-                sendSearchRequest query model.hostConfig
+            , Cmd.batch
+                -- Drop any request still in flight for older text, then wait for a pause in typing.
+                [ Http.cancel searchRequestTracker
+                , if String.length query >= 3 then
+                    Process.sleep searchDebounceMillis
+                        |> Task.perform (always (SearchDebounceElapsed query))
 
-              else
-                Cmd.none
+                  else
+                    Cmd.none
+                ]
             )
+
+        SearchDebounceElapsed query ->
+            -- Only the timer for the latest text may fire a request; earlier ones are stale.
+            if query == model.searchState.query && String.length query >= 3 then
+                ( withTime model, sendSearchRequest query model.hostConfig )
+
+            else
+                ( withTime model, Cmd.none )
 
         GotSearchResults (Ok results) ->
             let
