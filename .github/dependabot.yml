@@ -5,6 +5,11 @@ updates:
   schedule:
     interval: weekly
   open-pull-requests-limit: 10
+  ignore:
+    # Prism 2.x removed Prism::MissingNode, which refract (via phlex) needs at boot.
+    # Remove once refract supports Prism 2 (see the pin in Gemfile).
+    - dependency-name: prism
+      update-types: ["version-update:semver-major"]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
