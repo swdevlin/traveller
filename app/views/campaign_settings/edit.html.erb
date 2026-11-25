@@ -205,6 +205,12 @@
                  checked: @campaign.bilateral_trade_number?,
                  label: 'Bilateral Trade Number (BTN)' %>
 
+      <%= render 'application/boolean_toggle',
+                 form: form,
+                 attribute: :advance_orbits_on_visit,
+                 checked: @campaign.advance_orbits_on_visit?,
+                 label: 'Advance Orbits on Visit' %>
+
       <%= render 'application/subsection', title: 'Display Preferences' %>
 
       <%= render 'application/edit_field', form: form, attribute: :orbit_distance_display, field_label: 'Distance Display' do %>

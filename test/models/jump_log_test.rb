@@ -139,4 +139,72 @@ class JumpLogTest < ActiveSupport::TestCase
     Campaign.singleton_class.send(:alias_method, :find_by, :__find_by_original)
     Campaign.singleton_class.send(:remove_method, :__find_by_original)
   end
+
+  # Model tests run in the public schema, which has no campaign; point the lookup at a fixture.
+  def with_revisit_campaign(enabled)
+    campaign = campaigns(:one)
+    campaign.advance_orbits_on_visit = enabled
+    swap_singleton(Campaign, :find_by, ->(*_args, **_kwargs) { campaign }) { yield }
+  end
+
+  def swap_singleton(klass, name, callable)
+    original = klass.method(name)
+    klass.define_singleton_method(name) { |*args, **kwargs| callable.call(*args, **kwargs) }
+    yield
+  ensure
+    klass.define_singleton_method(name, original)
+  end
+
+  def record_advances(&block)
+    advances = []
+    fake = ->(system, days:) { advances << [system.id, days]; Struct.new(:call).new(nil) }
+    swap_singleton(OrbitAdvancer, :new, fake) { block.call }
+    advances
+  end
+
+  def jump_to_two(arrive_day)
+    JumpLog.create!(ship: ships(:one), from_parsec: parsecs(:one), to_parsec: parsecs(:two),
+                    depart_year: 1105, depart_day: arrive_day - 6, arrive_year: 1105, arrive_day: arrive_day)
+  end
+
+  test 'a repeat visit advances the destination system by the days since the previous arrival' do
+    advances = with_revisit_campaign(true) { record_advances { jump_to_two(108) } }
+
+    assert_equal [[star_systems(:in_two).id, 86]], advances
+  end
+
+  test 'a first visit does not advance orbits' do
+    advances = with_revisit_campaign(true) do
+      record_advances do
+        JumpLog.create!(ship: ships(:one), from_parsec: parsecs(:two), to_parsec: parsecs(:five),
+                        depart_year: 1105, depart_day: 100, arrive_year: 1105, arrive_day: 108)
+      end
+    end
+
+    assert_empty advances
+  end
+
+  test 'another ship arriving first does not count as a revisit' do
+    advances = with_revisit_campaign(true) do
+      record_advances do
+        JumpLog.create!(ship: ships(:two), from_parsec: parsecs(:two), to_parsec: parsecs(:one),
+                        depart_year: 1105, depart_day: 100, arrive_year: 1105, arrive_day: 108)
+      end
+    end
+
+    assert_empty advances
+  end
+
+  test 'a repeat visit leaves orbits alone when the campaign option is off' do
+    advances = with_revisit_campaign(false) { record_advances { jump_to_two(108) } }
+
+    assert_empty advances
+  end
+
+  test 'deleting a repeat visit rewinds the destination system by the same days' do
+    jump = jump_to_two(108)
+    advances = with_revisit_campaign(true) { record_advances { jump.destroy! } }
+
+    assert_equal [[star_systems(:in_two).id, -86]], advances
+  end
 end

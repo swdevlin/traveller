@@ -18,6 +18,9 @@ require 'digest'
 #   generated systems                 the importer touches the system once, at the end
 #   survey index raised by a jump     JumpLog sets updated_at as it writes
 #
+# Advancing orbits writes positions directly and leaves updated_at alone (the sector and subsector maps key on
+# it), so the digest also includes the system's elapsed days.
+#
 # A change that writes columns directly (update_column, update_all) leaves
 # updated_at alone, so those writes must set it or touch the system.
 #
@@ -42,7 +45,7 @@ class StarSystemDetailVersion
   end
 
   def digest
-    parts = [@star_system.cache_key_with_version, @parsec&.cache_key_with_version,
+    parts = [@star_system.cache_key_with_version, @star_system.elapsed_days, @parsec&.cache_key_with_version,
              subsector&.cache_key_with_version, @viewer, Current.campaign&.cache_key_with_version]
     Digest::SHA256.hexdigest(parts.to_json)[0, 32]
   end

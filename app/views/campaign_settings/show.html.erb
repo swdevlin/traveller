@@ -92,6 +92,9 @@
       <%= render 'application/data_block',
                  label: 'Bilateral Trade Number',
                  value: @campaign.bilateral_trade_number? ? 'On' : 'Off' %>
+      <%= render 'application/data_block',
+                 label: 'Advance Orbits on Visit',
+                 value: @campaign.advance_orbits_on_visit? ? 'On' : 'Off' %>
     </div>
 
     <%= render 'application/subsection', title: 'Display Preferences' %>

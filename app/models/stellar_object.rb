@@ -230,6 +230,12 @@ class StellarObject < ApplicationRecord
     nil
   end
 
+  # Days the system this object belongs to has had its orbits advanced (see OrbitAdvancer). Orbit maps include it
+  # in their cache keys, because advancing moves bodies without touching them.
+  def system_elapsed_days
+    orbit_star_system&.elapsed_days.to_i
+  end
+
   private
 
   def compute_effective_jump_shadow

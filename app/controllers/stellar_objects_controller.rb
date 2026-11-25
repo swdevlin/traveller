@@ -104,7 +104,9 @@ class StellarObjectsController < ApplicationController
     significant_only = params[:significant_only].present?
     theme = OrbitMapTheme.key_for(helpers.current_theme)
     # Moons and rings touch the planet they orbit when they change, so its cache version covers them.
-    key = ['moon_orbit_map', current_campaign.id, MoonOrbitMap::VERSION, theme, significant_only, @stellar_object.cache_key_with_version]
+    # Advancing orbits touches nothing, so the system's elapsed days are part of the key.
+    key = ['moon_orbit_map', current_campaign.id, MoonOrbitMap::VERSION, theme, significant_only, @stellar_object.cache_key_with_version,
+           @stellar_object.system_elapsed_days]
     webp = Rails.cache.fetch(key) do
       map = MoonOrbitMap.new(@stellar_object, significant_only: significant_only, theme: theme, inline_images: true)
       SvgRasteriser.webp(map.to_svg)

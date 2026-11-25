@@ -10,6 +10,11 @@ class JumpLog < ApplicationRecord
   # Survey index a destination is raised to when a ship arrives there.
   DESTINATION_SURVEY_INDEX = 10
 
+  # Multiplies the days between visits when moving a revisited system's orbits: forward on arrival, backward
+  # to undo it when the jump is deleted.
+  ORBIT_FORWARD = 1
+  ORBIT_BACKWARD = -1
+
   attr_accessor :destination_survey_index
 
   # Both rules apply to new jumps and to edits that touch the dates, so an old
@@ -19,6 +24,8 @@ class JumpLog < ApplicationRecord
 
   before_create :assign_sequence
   after_save :apply_destination_survey_index, if: -> { destination_survey_index.present? }
+  after_create  { shift_revisited_system(ORBIT_FORWARD) }
+  after_destroy { shift_revisited_system(ORBIT_BACKWARD) }
   after_create_commit  :queue_map_regeneration
   after_update_commit  :queue_map_regeneration, if: :saved_change_to_to_parsec_id?
   # A destroy leaves no newer updated_at behind, so the job's staleness check can't see it.
@@ -52,6 +59,15 @@ class JumpLog < ApplicationRecord
       Parsec.where(id: to_parsec_id).where('survey_index IS NULL OR survey_index < ?', minimum)
             .update_all(survey_index: minimum, updated_at: Time.current)
     end
+  end
+
+  # The ship's latest earlier arrival at this jump's destination, or nil on a first visit.
+  def previous_visit
+    return unless arrive_year && arrive_day
+
+    JumpLog.where(ship_id: ship_id, to_parsec_id: to_parsec_id).where.not(id: id)
+           .where('arrive_year < ? OR (arrive_year = ? AND arrive_day <= ?)', arrive_year, arrive_year, arrive_day)
+           .newest_first.first
   end
 
   def most_recent_for_ship?
@@ -113,6 +129,23 @@ class JumpLog < ApplicationRecord
 
   def format_total(total)
     format('%<year>d.%<day>03d', year: total / 365 + 1, day: total % 365 + 1)
+  end
+
+  # On a repeat visit, when the campaign asks for it, moves the destination system's bodies along their orbits
+  # by the time since the ship's previous arrival there (`ORBIT_BACKWARD` undoes that, when the jump is deleted).
+  # A first visit, or any other system, is left alone.
+  def shift_revisited_system(direction)
+    return unless Campaign.find_by(schema_name: Apartment::Tenant.current)&.advance_orbits_on_visit?
+
+    previous = previous_visit
+    return unless previous
+
+    days = date_to_total(arrive_year, arrive_day) - date_to_total(previous.arrive_year, previous.arrive_day)
+    return unless days.positive?
+
+    StarSystem.where(parsec_id: to_parsec_id).find_each do |system|
+      OrbitAdvancer.new(system, days: days * direction).call
+    end
   end
 
   def apply_destination_survey_index

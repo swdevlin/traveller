@@ -40,7 +40,7 @@ class Campaign < ApplicationRecord
                             :default_language, :date_format, :trade_good_base_prices, :handout_paper_size,
                             :local_broker_level, :local_broker_fee_percentage,
                             :sector_capital_colour, :subsector_capital_colour, :hex_size,
-                            :limited_main_world_eccentricity, :starting_sector_x, :starting_sector_y,
+                            :limited_main_world_eccentricity, :advance_orbits_on_visit, :starting_sector_x, :starting_sector_y,
                             :initial_sector_name, :bilateral_trade_number,
                             :jump_log_display, :jump_log_fill_colour, :jump_log_line_colour,
                             :jump_log_line_style, :jump_log_line_width,
@@ -107,6 +107,12 @@ class Campaign < ApplicationRecord
   # House rule: show the Bilateral Trade Number in the starmap's trade modal. Off by default.
   def bilateral_trade_number?
     ActiveModel::Type::Boolean.new.cast(bilateral_trade_number) || false
+  end
+
+  # House rule: when a ship jumps back into a system it has visited before, advance that system's orbits by the
+  # time since its previous arrival there. Off by default.
+  def advance_orbits_on_visit?
+    ActiveModel::Type::Boolean.new.cast(advance_orbits_on_visit) || false
   end
 
   def native_tech_level?

@@ -495,4 +495,13 @@ class CampaignTest < ActiveSupport::TestCase
     quoted = ActiveRecord::Base.connection.quote(schema_name)
     ActiveRecord::Base.connection.select_value("SELECT 1 FROM information_schema.schemata WHERE schema_name = #{quoted}").present?
   end
+
+  test 'advance_orbits_on_visit? is off by default and on once set' do
+    campaign = campaigns(:one)
+    campaign.advance_orbits_on_visit = nil
+    assert_not campaign.advance_orbits_on_visit?
+
+    campaign.advance_orbits_on_visit = 'true'
+    assert campaign.advance_orbits_on_visit?
+  end
 end

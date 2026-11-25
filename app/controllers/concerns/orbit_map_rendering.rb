@@ -22,9 +22,10 @@ module OrbitMapRendering
   end
 
   # Objects touch the star they orbit when they change, so the star's cache version covers them.
+  # Advancing orbits moves bodies without touching them, so the system's elapsed days are part of the key.
   # The companion is the one drawn object that doesn't orbit the star.
   def orbit_map_cache_key(format, star, theme, linked)
     ['star_orbit_map', format, current_campaign.id, StarOrbitMap::VERSION, theme, linked,
-     star.cache_key_with_version, star.companion&.cache_key_with_version]
+     star.cache_key_with_version, star.companion&.cache_key_with_version, star.system_elapsed_days]
   end
 end
