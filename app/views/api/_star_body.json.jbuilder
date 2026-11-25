@@ -50,9 +50,15 @@ json.stellar_objects all_objects do |obj|
     json.type 'Star'
     json.partial! 'api/star_body', star: obj, render_context: render_context
   else
-    json.partial! 'stellar_objects/stellar_object', stellar_object: obj, render_context: render_context
-    json.moons obj.moons do |m|
-      json.partial! 'stellar_objects/stellar_object', stellar_object: m, render_context: render_context
+    if @summary
+      # The starmap's lean form: only what the panel and maps need, built from the record. The full
+      # object comes from starmap/data/objects/:id when it is opened. See StellarObjectSummary.
+      json.merge! StellarObjectSummary.from_record(obj, campaign: current_campaign, render_context: render_context)
+    else
+      json.partial! 'stellar_objects/stellar_object', stellar_object: obj, render_context: render_context
+      json.moons obj.moons do |m|
+        json.partial! 'stellar_objects/stellar_object', stellar_object: m, render_context: render_context
+      end
     end
     json.rings obj.rings.sort_by { |r| r.orbit.to_f } do |ring|
       json.extract! ring, :id, :name, :orbit

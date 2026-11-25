@@ -1,10 +1,9 @@
-module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
+module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, decodeStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
 import Json.Encode as JsEncode
 import Traveller.Atmosphere as Atmosphere exposing (StellarAtmosphere)
-import Traveller.Moon as Moon exposing (Moon)
 import Traveller.Point as Point exposing (StellarPoint)
 import Traveller.Records as Records exposing (Records)
 import Traveller.Population as Population exposing (CultureTrait, StellarPopulation)
@@ -108,7 +107,7 @@ type alias SharedPData =
     , retrograde : Bool
     , trojanOffset : Maybe Float
     , axialTilt : Float
-    , moons : List Moon
+    , moonCount : Int
     , rings : List RingData
     , biomassRating : Int
     , biocomplexityCode : Int
@@ -173,7 +172,7 @@ type alias PlanetoidData =
     , retrograde : Bool
     , trojanOffset : Maybe Float
     , axialTilt : Float
-    , moons : List Moon
+    , moonCount : Int
     , biomassRating : Int
     , biocomplexityCode : Int
     , biodiversityRating : Int
@@ -215,7 +214,7 @@ type alias GasGiantData =
     , diameter : Float
     , mass : Maybe Float
     , orbit : Float
-    , moons : List Moon
+    , moonCount : Int
     , rings : List RingData
     , hasRing : Bool
     , trojanOffset : Maybe Float
@@ -618,7 +617,7 @@ codecGasGiantData =
             , diameter = diam
             , mass = mass_
             , orbit = orb
-            , moons = mns
+            , moonCount = Maybe.withDefault 0 mns
             , rings = Maybe.withDefault [] ringsM
             , hasRing = Maybe.withDefault False hasRingM
             , trojanOffset = tj
@@ -643,16 +642,7 @@ codecGasGiantData =
         |> Codec.field "diameter" .diameter Codec.float
         |> Codec.optionalNullableField "mass" .mass Codec.float
         |> Codec.field "orbit" .orbit Codec.float
-        |> Codec.field "moons"
-            .moons
-            (Codec.build
-                (Codec.encoder (Codec.list Moon.codec))
-                (JsDecode.oneOf
-                    [ Codec.decoder (Codec.list Moon.codec)
-                    , JsDecode.succeed []
-                    ]
-                )
-            )
+        |> Codec.optionalField "moon_count" (\d -> Just d.moonCount) Codec.int
         |> Codec.optionalField "has_ring" (\d -> Just d.hasRing) Codec.bool
         |> Codec.optionalNullableField "trojan_offset" .trojanOffset Codec.float
         |> Codec.field "axial_tilt" .axialTilt Codec.float
@@ -798,7 +788,7 @@ codecSharedPData =
             , retrograde = ret
             , trojanOffset = tj
             , axialTilt = axTilt
-            , moons = mns
+            , moonCount = Maybe.withDefault 0 mns
             , rings = Maybe.withDefault [] ringsM
             , biomassRating = bio
             , biocomplexityCode = bioC
@@ -870,16 +860,7 @@ codecSharedPData =
         |> Codec.field "retrograde" .retrograde Codec.bool
         |> Codec.optionalNullableField "trojan_offset" .trojanOffset Codec.float
         |> Codec.field "axial_tilt" .axialTilt Codec.float
-        |> Codec.field "moons"
-            .moons
-            (Codec.build
-                (Codec.encoder (Codec.list (Codec.lazy (\_ -> Moon.codec))))
-                (JsDecode.oneOf
-                    [ Codec.decoder (Codec.list (Codec.lazy (\_ -> Moon.codec)))
-                    , JsDecode.succeed []
-                    ]
-                )
-            )
+        |> Codec.optionalField "moon_count" (\d -> Just d.moonCount) Codec.int
         |> Codec.field "biomass_rating" .biomassRating Codec.int
         |> Codec.field "biocomplexity_rating" .biocomplexityCode Codec.int
         |> Codec.field "biodiversity_rating" .biodiversityRating Codec.int

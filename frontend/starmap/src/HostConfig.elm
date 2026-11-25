@@ -1,4 +1,4 @@
-module HostConfig exposing (HostConfig, default, fromApiBaseUrl)
+module HostConfig exposing (HostConfig, default, fromApiBaseUrl, starmapData)
 
 import Url
 
@@ -24,6 +24,14 @@ fromApiBaseUrl apiBaseUrl =
             ( ""
             , pathSegments apiBaseUrl
             )
+
+
+{-| The same host, for the endpoints that serve the starmap alone (`starmap/data`, beside `api`).
+These carry what the map draws and are free to change with it; `api` is the documented API.
+-}
+starmapData : HostConfig -> HostConfig
+starmapData ( root, apiPath ) =
+    ( root, List.take (List.length apiPath - 1) apiPath ++ [ "starmap", "data" ] )
 
 
 protocolToString : Url.Protocol -> String

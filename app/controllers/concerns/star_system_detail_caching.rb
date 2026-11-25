@@ -30,13 +30,18 @@ module StarSystemDetailCaching
 
   # `template` is a jbuilder template that reads @star_system, and @parsec if it needs it;
   # pass `parsec` if the response includes the parsec's own fields.
-  def render_star_system_detail(star_system, template:, parsec: nil)
+  #
+  # `summary` renders each planet, belt and gas giant cut down to what the starmap needs before
+  # an object is opened (see StellarObjectSummary), loaded with `loader`. Only the starmap's own
+  # endpoints use it; the API returns full objects.
+  def render_star_system_detail(star_system, template:, parsec: nil, summary: false, loader: StarSystemDetailLoader)
     version = StarSystemDetailVersion.new(star_system, viewer: star_system_detail_viewer, parsec: parsec).digest
-    key = ['star_system_detail', template, version, request.base_url]
+    key = ['star_system_detail', template, summary ? 'summary' : 'full', version, request.base_url]
     return unless stale?(etag: key)
 
     json = Rails.cache.fetch(key, expires_in: CACHE_LIFETIME) do
-      @star_system = StarSystemDetailLoader.new(StarSystem.where(id: star_system.id), referee: @is_referee).load
+      @summary = summary
+      @star_system = loader.new(StarSystem.where(id: star_system.id), referee: @is_referee).load
       render_to_string(template, formats: [:json])
     end
     render json: json

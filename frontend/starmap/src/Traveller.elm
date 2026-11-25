@@ -117,7 +117,7 @@ import Traveller.StarColour exposing (starColourRGB)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.Starport as Starport
-import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
+import Traveller.StellarObject exposing (GasGiantData, InnerStarData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, SharedPData, StarData(..), StellarObject(..), getInnerStarData, getProfileString, getStarData, decodeStellarObject, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 import Traveller.StellarObjectView
     exposing
         ( JumpShadowChecker
@@ -1150,6 +1150,8 @@ type Msg
     | ZoomToHex HexAddress Bool
     | JourneyMsg JourneyMsg
     | ViewObjectAnalysisDetail StellarObject
+    | FetchedStellarObjectDetail StellarObject (Result Http.Error StellarObject)
+    | OpenObjectAnalysisDetail StellarObject
     | CloseObjectAnalysis
     | SetAnalysisTab String
     | FetchedMoons (Result Http.Error MoonsPage)
@@ -7747,51 +7749,34 @@ jsonResolver decoder =
                             Err (Http.BadBody (JsDecode.errorToString err))
 
 
-{-| Find the parsec at a hex with the coordinate-filtered index, then fetch it
-with the parsec show endpoint. A hex that matches no parsec is a 404.
+{-| Fetch the parsec at a hex with the star system in it, as the starmap draws it: the planets, belts
+and gas giants without their detail, which is fetched when one is opened (sendStellarObjectRequest).
+A hex that matches no parsec is a 404.
 -}
 fetchParsecLookupRequest : HostConfig -> SectorHexAddress -> Cmd Msg
 fetchParsecLookupRequest hostConfig hex =
     let
         ( urlHostRoot, urlHostPath ) =
-            hostConfig
+            HostConfig.starmapData hostConfig
 
-        indexUrl =
+        url =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "parsecs" ])
+                (urlHostPath ++ [ "hex" ])
                 [ Url.Builder.int "sx" hex.sectorX
                 , Url.Builder.int "sy" hex.sectorY
                 , Url.Builder.int "hx" <| hex.x + 1
                 , Url.Builder.int "hy" <| hex.y + 1
                 ]
-
-        showUrl parsecId =
-            Url.Builder.crossOrigin
-                urlHostRoot
-                (urlHostPath ++ [ "parsecs", String.fromInt parsecId ])
-                []
-
-        getTask url decoder =
-            Http.task
-                { method = "GET"
-                , headers = []
-                , url = url
-                , body = Http.emptyBody
-                , resolver = jsonResolver decoder
-                , timeout = Just 5000
-                }
     in
-    getTask indexUrl (JsDecode.list (JsDecode.field "id" JsDecode.int))
-        |> Task.andThen
-            (\parsecIds ->
-                case parsecIds of
-                    parsecId :: _ ->
-                        getTask (showUrl parsecId) parsecLookupDecoder
-
-                    [] ->
-                        Task.fail (Http.BadStatus 404)
-            )
+    Http.task
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , resolver = jsonResolver parsecLookupDecoder
+        , timeout = Just 5000
+        }
         |> Task.attempt FetchedParsecLookup
 
 
@@ -7882,6 +7867,60 @@ currentCitiesParentId model =
                     _ ->
                         Nothing
             )
+
+
+sendStellarObjectRequest : HostConfig -> Int -> StellarObject -> Cmd Msg
+sendStellarObjectRequest hostConfig objectId summary =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            HostConfig.starmapData hostConfig
+
+        url =
+            Url.Builder.crossOrigin
+                urlHostRoot
+                (urlHostPath ++ [ "objects", String.fromInt objectId ])
+                []
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson (FetchedStellarObjectDetail summary) decodeStellarObject
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
+{-| The id to fetch the full object with. The system tree only carries what the sidebar and the maps
+need, so opening a planet, gas giant or belt loads the rest. Stars are complete in the tree, and
+moons come from the paged moons request, already complete.
+-}
+fullObjectId : StellarObject -> Maybe Int
+fullObjectId stellarObject =
+    case stellarObject of
+        GasGiant data ->
+            Just data.id
+
+        TerrestrialPlanet data ->
+            if data.isMoon then
+                Nothing
+
+            else
+                Just data.id
+
+        Planetoid data ->
+            if data.isMoon then
+                Nothing
+
+            else
+                Just data.id
+
+        PlanetoidBelt data ->
+            Just data.id
+
+        Star _ ->
+            Nothing
 
 
 sendMoonsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
@@ -10450,6 +10489,18 @@ update msg ( time, model ) =
             updateJourney journeyMsg <| withTime model
 
         ViewObjectAnalysisDetail stellarObject ->
+            case fullObjectId stellarObject of
+                Just objectId ->
+                    ( withTime model, sendStellarObjectRequest model.hostConfig objectId stellarObject )
+
+                Nothing ->
+                    update (OpenObjectAnalysisDetail stellarObject) ( time, model )
+
+        FetchedStellarObjectDetail summary result ->
+            -- If the fetch fails, fall back to the summary: it opens, with the detail tabs sparse.
+            update (OpenObjectAnalysisDetail (Result.withDefault summary result)) ( time, model )
+
+        OpenObjectAnalysisDetail stellarObject ->
             let
                 rnd digits =
                     Round.round digits
@@ -10530,7 +10581,7 @@ update msg ( time, model ) =
                                 , mass = rndm 2 0 ggdata.mass
                                 , diameter = format { usLocale | decimals = Exact 0, thousandSeparator = " " } ggdata.diameter
                                 , axialTilt = rnd 2 ggdata.axialTilt ++ "°"
-                                , moons = String.fromInt <| List.length ggdata.moons
+                                , moons = String.fromInt ggdata.moonCount
                                 , hasRing =
                                     if ggdata.hasRing || not (List.isEmpty ggdata.rings) then
                                         "Yes"
@@ -11010,7 +11061,7 @@ update msg ( time, model ) =
                             { uwp = pdata.uwp
                             , records = pdata.records
                             , jumpShadowKm = pdata.jumpShadow
-                            , moons = List.length pdata.moons
+                            , moons = pdata.moonCount
                             , cityCount = pdata.cityCount
                             , mapUrl = pdata.mapUrl
                             , referenceUrl = pdata.referenceUrl

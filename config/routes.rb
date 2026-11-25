@@ -55,6 +55,9 @@ Rails.application.routes.draw do
   scope '/c/:campaign_slug' do
     get '/', to: redirect { |params, _req| "/c/#{params[:campaign_slug]}/sectors" }, as: :campaign_root
     get 'starmap', to: 'starmaps#show', as: :campaign_starmap
+    # What the starmap loads as it is used. For the starmap only; the documented API is under /api.
+    get 'starmap/data/hex', to: 'starmap_data/hexes#show', defaults: { format: :json }
+    get 'starmap/data/objects/:id', to: 'starmap_data/objects#show', defaults: { format: :json }
     namespace :api do
       resources :sectors, only: :index, defaults: { format: :json }
       resources :subsectors, only: :show, defaults: { format: :json }
