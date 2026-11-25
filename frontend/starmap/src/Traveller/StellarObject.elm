@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (CodeAndDesc, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, decodeStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
+module Traveller.StellarObject exposing (CodeAndDesc, MoonRow, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, decodeStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -1067,8 +1067,19 @@ type alias RingData =
     }
 
 
+{-| A row of the Moons tab. A moon is fetched in full when it is clicked.
+-}
+type alias MoonRow =
+    { id : Int
+    , name : Maybe String
+    , orbitSequence : String
+    , orbit : Float
+    , uwp : Maybe String
+    }
+
+
 type alias MoonsPage =
-    { moons : List StellarObject
+    { moons : List MoonRow
     , rings : List RingData
     , count : Int
     , page : Int
@@ -1087,10 +1098,20 @@ ringCodec =
         |> Codec.buildObject
 
 
+moonRowDecoder : JsDecode.Decoder MoonRow
+moonRowDecoder =
+    JsDecode.map5 MoonRow
+        (JsDecode.field "id" JsDecode.int)
+        (JsDecode.maybe (JsDecode.field "name" JsDecode.string))
+        (JsDecode.field "orbit_sequence" JsDecode.string)
+        (JsDecode.field "orbit" JsDecode.float)
+        (JsDecode.maybe (JsDecode.field "uwp" JsDecode.string))
+
+
 moonsPageDecoder : JsDecode.Decoder MoonsPage
 moonsPageDecoder =
     JsDecode.map6 MoonsPage
-        (JsDecode.field "moons" (JsDecode.list decodeStellarObject))
+        (JsDecode.field "moons" (JsDecode.list moonRowDecoder))
         (JsDecode.oneOf [ JsDecode.field "rings" (JsDecode.list (Codec.decoder ringCodec)), JsDecode.succeed [] ])
         (JsDecode.field "count" JsDecode.int)
         (JsDecode.field "page" JsDecode.int)

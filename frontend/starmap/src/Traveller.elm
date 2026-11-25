@@ -1151,6 +1151,8 @@ type Msg
     | JourneyMsg JourneyMsg
     | ViewObjectAnalysisDetail StellarObject
     | FetchedStellarObjectDetail StellarObject (Result Http.Error StellarObject)
+    | ViewObjectById Int
+    | FetchedObjectDetail (Result Http.Error StellarObject)
     | OpenObjectAnalysisDetail StellarObject
     | CloseObjectAnalysis
     | SetAnalysisTab String
@@ -7375,6 +7377,7 @@ view ( time, model ) =
                                     , significantOnly = model.moonsSignificantOnly
                                     , onToggleSignificant = ToggleMoonsSignificantOnly
                                     , onSetPage = SetMoonsPage
+                                    , onSelectMoon = ViewObjectById
                                     }
                                     { page = model.planetoidsPage
                                     , significantOnly = model.planetoidsSignificantOnly
@@ -7894,7 +7897,7 @@ sendStellarObjectRequest hostConfig objectId summary =
 
 {-| The id to fetch the full object with. The system tree only carries what the sidebar and the maps
 need, so opening a planet, gas giant or belt loads the rest. Stars are complete in the tree, and
-moons come from the paged moons request, already complete.
+moons are opened by id from the Moons tab (sendObjectRequest).
 -}
 fullObjectId : StellarObject -> Maybe Int
 fullObjectId stellarObject =
@@ -7923,16 +7926,35 @@ fullObjectId stellarObject =
             Nothing
 
 
+{-| A moon clicked in the Moons tab, which lists only a row for each, is fetched in full to be opened.
+-}
+sendObjectRequest : HostConfig -> Int -> Cmd Msg
+sendObjectRequest hostConfig moonId =
+    let
+        ( urlHostRoot, urlHostPath ) =
+            HostConfig.starmapData hostConfig
+    in
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = Url.Builder.crossOrigin urlHostRoot (urlHostPath ++ [ "objects", String.fromInt moonId ]) []
+        , body = Http.emptyBody
+        , expect = Http.expectJson FetchedObjectDetail decodeStellarObject
+        , timeout = Just 5000
+        , tracker = Nothing
+        }
+
+
 sendMoonsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
 sendMoonsRequest hostConfig gasGiantId page significantOnly =
     let
         ( urlHostRoot, urlHostPath ) =
-            hostConfig
+            HostConfig.starmapData hostConfig
 
         url =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "stellar_objects", String.fromInt gasGiantId, "moons" ])
+                (urlHostPath ++ [ "objects", String.fromInt gasGiantId, "moons" ])
                 ([ Url.Builder.int "page" page ]
                     ++ (if significantOnly then
                             [ Url.Builder.string "significant_only" "1" ]
@@ -10495,6 +10517,17 @@ update msg ( time, model ) =
 
                 Nothing ->
                     update (OpenObjectAnalysisDetail stellarObject) ( time, model )
+
+        ViewObjectById moonId ->
+            ( withTime model, sendObjectRequest model.hostConfig moonId )
+
+        FetchedObjectDetail result ->
+            case result of
+                Ok moon ->
+                    update (OpenObjectAnalysisDetail moon) ( time, model )
+
+                Err _ ->
+                    ( withTime model, Cmd.none )
 
         FetchedStellarObjectDetail summary result ->
             -- If the fetch fails, fall back to the summary: it opens, with the detail tabs sparse.

@@ -20,7 +20,7 @@ class Api::StellarObjectsController < Api::BaseController
     authenticated_by_session?
     return render json: { error: 'stellar object not found' }, status: :not_found unless player_visible_star_system?(stellar_object.star_system)
 
-    scope = stellar_object.moons_and_rings(significant_only: @significant_only)
+    scope = moons_scope(stellar_object)
     @parent_diameter_km = stellar_object.diameter
     @pagy, @moons = pagy(scope, limit: 10, params: request.query_parameters)
   end
@@ -50,6 +50,9 @@ class Api::StellarObjectsController < Api::BaseController
   end
 
   private
+
+  # What the moons action pages through; the starmap's own controller narrows it.
+  def moons_scope(stellar_object) = stellar_object.moons_and_rings(significant_only: @significant_only)
 
   def parse_significant_only
     @significant_only = boolean_param(:significant_only)

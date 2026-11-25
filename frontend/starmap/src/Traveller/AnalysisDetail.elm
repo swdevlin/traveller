@@ -35,7 +35,7 @@ import Traveller.Records as Records exposing (Records)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StarportCapacity as StarportCapacity exposing (StarportCapacity)
-import Traveller.StellarObject exposing (MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
+import Traveller.StellarObject exposing (MoonRow, MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 
 
@@ -75,6 +75,7 @@ type alias MoonsTabConfig msg =
     , significantOnly : Bool
     , onToggleSignificant : msg
     , onSetPage : Int -> msg
+    , onSelectMoon : Int -> msg
     }
 
 
@@ -1555,7 +1556,7 @@ viewPlanetoidAnalysisDetail onSophont timeChars activeTab setTab isReferee showM
         tabContent =
             case safeTab of
                 "moons" ->
-                    viewMoonsTab onSelectObject moonsTabConfig
+                    viewMoonsTab moonsTabConfig
 
                 "cities" ->
                     viewCitiesTab citiesTabConfig
@@ -1888,7 +1889,7 @@ viewGasGiantAnalysisDetail timeChars activeTab setTab isReferee onSelectObject m
                         ]
 
                 "moons" ->
-                    viewMoonsTab onSelectObject moonsTabConfig
+                    viewMoonsTab moonsTabConfig
 
                 "notes" ->
                     Records.viewForReferee isReferee (Records.withTags (Just []) data.records)
@@ -1932,8 +1933,8 @@ viewSignificantToggle checked toggle =
         ]
 
 
-viewMoonsTab : (StellarObject -> msg) -> MoonsTabConfig msg -> Html msg
-viewMoonsTab onSelectObject moonsTabConfig =
+viewMoonsTab : MoonsTabConfig msg -> Html msg
+viewMoonsTab moonsTabConfig =
     let
         checkboxRow =
             viewSignificantToggle moonsTabConfig.significantOnly moonsTabConfig.onToggleSignificant
@@ -1952,24 +1953,16 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 )
                 (text label)
 
-        bodyCell moonObj alignAttrs content =
+        bodyCell moonId alignAttrs content =
             el
                 ([ HtmlAttrs.style "font-size" "13px"
                  , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
                  , pointerCursor
-                 , Html.Events.onClick (onSelectObject moonObj)
+                 , Html.Events.onClick (moonsTabConfig.onSelectMoon moonId)
                  ]
                     ++ alignAttrs
                 )
                 content
-
-        asTerrestrialPlanet moonObj =
-            case moonObj of
-                TerrestrialPlanet pdata ->
-                    Just ( moonObj, pdata )
-
-                _ ->
-                    Nothing
 
         formatOrbit orbit =
             Round.round
@@ -2017,28 +2010,28 @@ viewMoonsTab onSelectObject moonsTabConfig =
                     )
                 |> Maybe.withDefault "—"
 
-        moonRow diameter ( moonObj, pdata ) =
-            ( pdata.orbit
+        moonRow diameter moon =
+            ( moon.orbit
             , [ Html.div
                     [ HtmlAttrs.class "analysis-moon-row"
                     , HtmlAttrs.attribute "role" "button"
                     , HtmlAttrs.tabindex 0
-                    , HtmlAttrs.attribute "aria-label" ("Inspect " ++ (pdata.name |> Maybe.withDefault pdata.orbitSequence))
+                    , HtmlAttrs.attribute "aria-label" ("Inspect " ++ (moon.name |> Maybe.withDefault moon.orbitSequence))
                     , Html.Events.on "keydown"
                         (Json.Decode.field "key" Json.Decode.string
                             |> Json.Decode.andThen
                                 (\key ->
                                     if key == "Enter" then
-                                        Json.Decode.succeed (onSelectObject moonObj)
+                                        Json.Decode.succeed (moonsTabConfig.onSelectMoon moon.id)
 
                                     else
                                         Json.Decode.fail "Not an activation key"
                                 )
                         )
                     ]
-                    [ bodyCell moonObj [] (text (pdata.name |> Maybe.withDefault pdata.orbitSequence))
-                    , bodyCell moonObj [ HtmlAttrs.class "text-right font-mono" ] (text (orbitKm diameter pdata.orbit))
-                    , bodyCell moonObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+                    [ bodyCell moon.id [] (text (moon.name |> Maybe.withDefault moon.orbitSequence))
+                    , bodyCell moon.id [ HtmlAttrs.class "text-right font-mono" ] (text (orbitKm diameter moon.orbit))
+                    , bodyCell moon.id [ HtmlAttrs.class "font-mono" ] (text (Maybe.withDefault "" moon.uwp))
                     ]
               ]
             )
@@ -2053,7 +2046,7 @@ viewMoonsTab onSelectObject moonsTabConfig =
               ]
             )
 
-        bodiesTable : Maybe Float -> List StellarObject -> List RingData -> Html msg
+        bodiesTable : Maybe Float -> List MoonRow -> List RingData -> Html msg
         bodiesTable diameter moons rings =
             Html.div
                 [ HtmlAttrs.style "display" "grid"
@@ -2064,7 +2057,7 @@ viewMoonsTab onSelectObject moonsTabConfig =
                 (headerCell [] "Name"
                     :: headerCell [ HtmlAttrs.class "text-right" ] "Orbit (km)"
                     :: headerCell [] "UWP"
-                    :: (List.map (moonRow diameter) (List.filterMap asTerrestrialPlanet moons)
+                    :: (List.map (moonRow diameter) moons
                             ++ List.map (ringRow diameter) rings
                             |> List.sortBy Tuple.first
                             |> List.concatMap Tuple.second
