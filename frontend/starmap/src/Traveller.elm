@@ -7383,6 +7383,7 @@ view ( time, model ) =
                                     , significantOnly = model.planetoidsSignificantOnly
                                     , onToggleSignificant = TogglePlanetoidsSignificantOnly
                                     , onSetPage = SetPlanetoidsPage
+                                    , onSelectPlanetoid = ViewObjectById
                                     }
                                     { page = model.citiesPage
                                     , onSetPage = SetCitiesPage
@@ -7897,7 +7898,7 @@ sendStellarObjectRequest hostConfig objectId summary =
 
 {-| The id to fetch the full object with. The system tree only carries what the sidebar and the maps
 need, so opening a planet, gas giant or belt loads the rest. Stars are complete in the tree, and
-moons are opened by id from the Moons tab (sendObjectRequest).
+moons and planetoids are opened by id from their tabs (sendObjectRequest).
 -}
 fullObjectId : StellarObject -> Maybe Int
 fullObjectId stellarObject =
@@ -7926,7 +7927,7 @@ fullObjectId stellarObject =
             Nothing
 
 
-{-| A moon clicked in the Moons tab, which lists only a row for each, is fetched in full to be opened.
+{-| A moon or planetoid clicked in its tab, which lists only a row for each, is fetched in full to be opened.
 -}
 sendObjectRequest : HostConfig -> Int -> Cmd Msg
 sendObjectRequest hostConfig moonId =
@@ -7979,12 +7980,12 @@ sendPlanetoidsRequest : HostConfig -> Int -> Int -> Bool -> Cmd Msg
 sendPlanetoidsRequest hostConfig beltId page significantOnly =
     let
         ( urlHostRoot, urlHostPath ) =
-            hostConfig
+            HostConfig.starmapData hostConfig
 
         url =
             Url.Builder.crossOrigin
                 urlHostRoot
-                (urlHostPath ++ [ "stellar_objects", String.fromInt beltId, "planetoids" ])
+                (urlHostPath ++ [ "objects", String.fromInt beltId, "planetoids" ])
                 ([ Url.Builder.int "page" page ]
                     ++ (if significantOnly then
                             [ Url.Builder.string "significant_only" "1" ]

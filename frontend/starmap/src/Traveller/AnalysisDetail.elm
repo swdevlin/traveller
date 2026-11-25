@@ -35,7 +35,7 @@ import Traveller.Records as Records exposing (Records)
 import Traveller.Sophont as Sophont exposing (Sophont)
 import Traveller.StarOrbitMap as StarOrbitMap
 import Traveller.StarportCapacity as StarportCapacity exposing (StarportCapacity)
-import Traveller.StellarObject exposing (MoonRow, MoonsPage, PlanetoidsPage, RingData, StarData, StellarObject(..))
+import Traveller.StellarObject exposing (MoonRow, MoonsPage, PlanetoidRow, PlanetoidsPage, RingData, StarData, StellarObject(..))
 import Traveller.TravelCalculations as TravelCalc
 
 
@@ -84,6 +84,7 @@ type alias PlanetoidsTabConfig msg =
     , significantOnly : Bool
     , onToggleSignificant : msg
     , onSetPage : Int -> msg
+    , onSelectPlanetoid : Int -> msg
     }
 
 
@@ -2091,8 +2092,8 @@ viewMoonsTab moonsTabConfig =
         ]
 
 
-viewPlanetoidsTab : (StellarObject -> msg) -> PlanetoidsTabConfig msg -> Html msg
-viewPlanetoidsTab onSelectObject planetoidsTabConfig =
+viewPlanetoidsTab : PlanetoidsTabConfig msg -> Html msg
+viewPlanetoidsTab planetoidsTabConfig =
     let
         checkboxRow =
             viewSignificantToggle planetoidsTabConfig.significantOnly planetoidsTabConfig.onToggleSignificant
@@ -2111,24 +2112,16 @@ viewPlanetoidsTab onSelectObject planetoidsTabConfig =
                 )
                 (text label)
 
-        bodyCell planetoidObj alignAttrs content =
+        bodyCell planetoidId alignAttrs content =
             el
                 ([ HtmlAttrs.style "font-size" "13px"
                  , paddingEach { left = 8, right = 8, top = 6, bottom = 6 }
                  , pointerCursor
-                 , Html.Events.onClick (onSelectObject planetoidObj)
+                 , Html.Events.onClick (planetoidsTabConfig.onSelectPlanetoid planetoidId)
                  ]
                     ++ alignAttrs
                 )
                 content
-
-        asPlanetoid planetoidObj =
-            case planetoidObj of
-                Planetoid pdata ->
-                    Just ( planetoidObj, pdata )
-
-                _ ->
-                    Nothing
 
         sophontIcons pdata =
             Html.span []
@@ -2146,6 +2139,7 @@ viewPlanetoidsTab onSelectObject planetoidsTabConfig =
                        )
                 )
 
+        planetoidsTable : List PlanetoidRow -> Html msg
         planetoidsTable planetoids =
             Html.div
                 [ HtmlAttrs.style "display" "grid"
@@ -2158,14 +2152,13 @@ viewPlanetoidsTab onSelectObject planetoidsTabConfig =
                     :: headerCell [] ""
                     :: headerCell [] "UWP"
                     :: (planetoids
-                            |> List.filterMap asPlanetoid
                             |> List.concatMap
-                                (\( planetoidObj, pdata ) ->
-                                    [ bodyCell planetoidObj [ HtmlAttrs.class "font-mono" ] (text pdata.size)
-                                    , bodyCell planetoidObj [] (text pdata.orbitSequence)
-                                    , bodyCell planetoidObj [ HtmlAttrs.class "text-right font-mono" ] (text (Round.round 2 pdata.au))
-                                    , bodyCell planetoidObj [] (sophontIcons pdata)
-                                    , bodyCell planetoidObj [ HtmlAttrs.class "font-mono" ] (text pdata.uwp)
+                                (\planetoid ->
+                                    [ bodyCell planetoid.id [ HtmlAttrs.class "font-mono" ] (text planetoid.size)
+                                    , bodyCell planetoid.id [] (text planetoid.orbitSequence)
+                                    , bodyCell planetoid.id [ HtmlAttrs.class "text-right font-mono" ] (text (Round.round 2 planetoid.au))
+                                    , bodyCell planetoid.id [] (sophontIcons planetoid)
+                                    , bodyCell planetoid.id [ HtmlAttrs.class "font-mono" ] (text (Maybe.withDefault "" planetoid.uwp))
                                     ]
                                 )
                        )
@@ -2578,7 +2571,7 @@ viewPlanetoidBeltAnalysisDetail onSophont timeChars activeTab setTab isReferee o
         tabContent =
             case safeTab of
                 "planetoids" ->
-                    viewPlanetoidsTab onSelectObject planetoidsTabConfig
+                    viewPlanetoidsTab planetoidsTabConfig
 
                 "cities" ->
                     viewCitiesTab citiesTabConfig

@@ -75,4 +75,44 @@ class StarmapData::ObjectsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not response.parsed_body.key?('rings')
   end
+
+  test 'lists the planetoids of a belt as a row each, in the order the API lists them' do
+    belt = stellar_objects(:planetoids_test_belt)
+
+    get "/c/#{@slug}/starmap/data/objects/#{belt.id}/planetoids", as: :json
+    rows = response.parsed_body['planetoids']
+    get "/c/#{@slug}/api/stellar_objects/#{belt.id}/planetoids", as: :json
+    full = response.parsed_body['planetoids']
+
+    assert_operator rows.size, :>, 1
+    assert_equal full.pluck('id'), rows.pluck('id')
+    assert_equal %w[au extinct_sophont id native_sophont orbit_sequence size_code uwp], rows.first.keys.sort
+    rows.zip(full).each do |row, planetoid|
+      assert_equal planetoid.slice(*row.keys), row, "planetoid #{row['id']}"
+    end
+  end
+
+  test 'lists only the significant planetoids when asked' do
+    belt = stellar_objects(:planetoids_test_belt)
+
+    get "/c/#{@slug}/starmap/data/objects/#{belt.id}/planetoids?significant_only=1", as: :json
+
+    assert_response :success
+    assert_equal belt.listed_planetoids(significant_only: true).pluck(:id), response.parsed_body['planetoids'].pluck('id')
+  end
+
+  test 'planetoids are only listed for a belt' do
+    get "/c/#{@slug}/starmap/data/objects/#{@gas_giant.id}/planetoids", as: :json
+
+    assert_response :not_found
+  end
+
+  test 'a planetoid is opened as a planetoid' do
+    planetoid = stellar_objects(:planetoids_test_belt).listed_planetoids.first
+
+    get "/c/#{@slug}/starmap/data/objects/#{planetoid.id}", as: :json
+
+    assert_response :success
+    assert_equal 13, response.parsed_body['orbit_type']
+  end
 end

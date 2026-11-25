@@ -5,7 +5,7 @@ import Expect
 import Json.Decode as JsDecode
 import SummaryFixtures
 import Test exposing (Test, describe, test)
-import Traveller.StellarObject exposing (StarData(..), StellarObject(..), codecStarData, decodeStellarObject, getInnerStarData, moonsPageDecoder)
+import Traveller.StellarObject exposing (StarData(..), StellarObject(..), codecStarData, decodeStellarObject, getInnerStarData, moonsPageDecoder, planetoidsPageDecoder)
 
 
 decodeStar : String -> Result JsDecode.Error StarData
@@ -98,6 +98,26 @@ suite =
                 case JsDecode.decodeString moonsPageDecoder SummaryFixtures.moonsPage of
                     Ok page ->
                         Expect.equal ( List.length page.moons, page.count, page.pages ) ( 3, 27, 3 )
+
+                    Err e ->
+                        Expect.fail (JsDecode.errorToString e)
+        , test "an opened planetoid decodes as a planetoid" <|
+            \_ ->
+                case JsDecode.decodeString decodeStellarObject SummaryFixtures.fullPlanetoid of
+                    Ok (Planetoid d) ->
+                        Expect.equal d.moonCount 0
+
+                    Ok _ ->
+                        Expect.fail "expected a planetoid"
+
+                    Err e ->
+                        Expect.fail (JsDecode.errorToString e)
+        , test "a page of the Planetoids tab decodes to a row per planetoid" <|
+            \_ ->
+                case JsDecode.decodeString planetoidsPageDecoder SummaryFixtures.planetoidsPage of
+                    Ok page ->
+                        Expect.equal ( List.length page.planetoids, page.count, page.pages )
+                            ( 10, 93, 10 )
 
                     Err e ->
                         Expect.fail (JsDecode.errorToString e)

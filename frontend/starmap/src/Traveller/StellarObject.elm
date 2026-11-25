@@ -1,4 +1,4 @@
-module Traveller.StellarObject exposing (CodeAndDesc, MoonRow, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, decodeStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
+module Traveller.StellarObject exposing (CodeAndDesc, MoonRow, PlanetoidRow, GasGiantData, GovernmentDetailData, InnerStarData, IntCodeAndDesc, LawLevelDetailData, MoonsPage, PlanetoidBeltData, PlanetoidData, PlanetoidsPage, RingData, SharedPData, StarData(..), StellarObject(..), TechCapability, TechLevelDetailData, codecStarData, codecStellarObject, decodeStellarObject, getInnerStarData, getProfileString, getSafeJumpTime, getStarData, getStellarOrbit, isBrownDwarf, moonsPageDecoder, planetoidsPageDecoder)
 
 import Codec exposing (Codec)
 import Json.Decode as JsDecode
@@ -1119,18 +1119,43 @@ moonsPageDecoder =
         (JsDecode.maybe (JsDecode.field "parent_diameter_km" JsDecode.float))
 
 
+{-| A row of the Planetoids tab. A planetoid is fetched in full when it is clicked.
+-}
+type alias PlanetoidRow =
+    { id : Int
+    , size : String
+    , orbitSequence : String
+    , au : Float
+    , uwp : Maybe String
+    , nativeSophont : Bool
+    , extinctSophont : Bool
+    }
+
+
 type alias PlanetoidsPage =
-    { planetoids : List StellarObject
+    { planetoids : List PlanetoidRow
     , count : Int
     , page : Int
     , pages : Int
     }
 
 
+planetoidRowDecoder : JsDecode.Decoder PlanetoidRow
+planetoidRowDecoder =
+    JsDecode.map7 PlanetoidRow
+        (JsDecode.field "id" JsDecode.int)
+        (JsDecode.field "size_code" JsDecode.string)
+        (JsDecode.field "orbit_sequence" JsDecode.string)
+        (JsDecode.field "au" JsDecode.float)
+        (JsDecode.maybe (JsDecode.field "uwp" JsDecode.string))
+        (JsDecode.field "native_sophont" JsDecode.bool)
+        (JsDecode.field "extinct_sophont" JsDecode.bool)
+
+
 planetoidsPageDecoder : JsDecode.Decoder PlanetoidsPage
 planetoidsPageDecoder =
     JsDecode.map4 PlanetoidsPage
-        (JsDecode.field "planetoids" (JsDecode.list decodeStellarObject))
+        (JsDecode.field "planetoids" (JsDecode.list planetoidRowDecoder))
         (JsDecode.field "count" JsDecode.int)
         (JsDecode.field "page" JsDecode.int)
         (JsDecode.field "pages" JsDecode.int)

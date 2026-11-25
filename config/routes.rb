@@ -59,6 +59,7 @@ Rails.application.routes.draw do
     get 'starmap/data/hex', to: 'starmap_data/hexes#show', defaults: { format: :json }
     get 'starmap/data/objects/:id', to: 'starmap_data/objects#show', defaults: { format: :json }
     get 'starmap/data/objects/:id/moons', to: 'starmap_data/objects#moons', defaults: { format: :json }
+    get 'starmap/data/objects/:id/planetoids', to: 'starmap_data/objects#planetoids', defaults: { format: :json }
     namespace :api do
       resources :sectors, only: :index, defaults: { format: :json }
       resources :subsectors, only: :show, defaults: { format: :json }
