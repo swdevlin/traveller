@@ -37,8 +37,7 @@ class PlanetoidBeltsController < ApplicationController
       position = OrbitPositionCalculator.for_body_orbiting_star(body: belt, star: @star)
       return unless position
 
-      belt.orbit_x = position.x
-      belt.orbit_y = position.y
+      belt.assign_orbit_position(position)
     end
 
     def planetoid_belt_params

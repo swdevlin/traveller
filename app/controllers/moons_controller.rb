@@ -34,8 +34,7 @@ class MoonsController < ApplicationController
       position = OrbitPositionCalculator.for_moon(moon: moon, planet: @stellar_object)
       return unless position
 
-      moon.orbit_x = position.x
-      moon.orbit_y = position.y
+      moon.assign_orbit_position(position)
     end
 
     def moon_params

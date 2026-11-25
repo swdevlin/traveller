@@ -1,0 +1,28 @@
+<%= modal(title: 'Advance Orbits', padding: true, advance: false, overlay: false) do %>
+  <%= form_with model: @orbit_advance, scope: :orbit_advance, url: advance_orbits_star_system_path(@star_system),
+                html: { class: 'sm:w-96' } do |f| %>
+    <div class='space-y-4'>
+      <div>
+        <%= f.label :days, 'Days', class: 'edit-label' %>
+        <div class='mt-1'>
+          <%= f.number_field :days, step: 1, required: true, autofocus: true, class: 'edit-base w-full',
+                                    'aria-invalid': @orbit_advance.errors[:days].any? ? 'true' : nil %>
+        </div>
+        <%= render 'application/field_error', form: f, attribute: :days %>
+        <p class='text-xs text-fg-muted mt-1'>
+          Every body with an orbital period moves along its orbit by this many days, retrograde bodies in the
+          opposite direction. Use a negative number to go back.
+        </p>
+        <% if @star_system.elapsed_days != 0 %>
+          <p class='text-xs text-fg-muted mt-1'>
+            Already advanced by <%= number_with_delimiter(@star_system.elapsed_days) %> days.
+          </p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class='mt-6 flex justify-end'>
+      <%= f.submit 'Advance', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+<% end %>

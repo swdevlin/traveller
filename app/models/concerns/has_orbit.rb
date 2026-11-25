@@ -19,6 +19,24 @@ module HasOrbit
     data&.dig('apoapsis') || au.to_f * (1 + eccentricity.to_f)
   end
 
+  # Where the major axis of the orbit points, in degrees, as supplied by the generator (`longitudeOfPeriapsis`) or
+  # stored when a body is placed or its orbit is advanced. Nil for bodies that have neither.
+  def longitude_of_periapsis
+    data&.dig('longitude_of_periapsis')&.to_f
+  end
+
+  def longitude_of_periapsis_radians
+    longitude_of_periapsis&.then { |degrees| degrees * Math::PI / 180 }
+  end
+
+  # Takes up an OrbitPositionCalculator's position, keeping the periapsis it was worked out with so the orbit can
+  # later be advanced and drawn consistently.
+  def assign_orbit_position(position)
+    self.orbit_x = position.x
+    self.orbit_y = position.y
+    self.data = (data || {}).merge('longitude_of_periapsis' => position.longitude_of_periapsis)
+  end
+
   # `orbit_x`/`orbit_y` are the generator's actual position (already in km), absolute to the system's primary
   # star. This is the same position relative to the body being orbited (the primary star's own is the
   # origin), or nil when the position isn't known.

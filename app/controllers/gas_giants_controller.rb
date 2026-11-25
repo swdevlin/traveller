@@ -37,8 +37,7 @@ class GasGiantsController < ApplicationController
       position = OrbitPositionCalculator.for_body_orbiting_star(body: gas_giant, star: @star)
       return unless position
 
-      gas_giant.orbit_x = position.x
-      gas_giant.orbit_y = position.y
+      gas_giant.assign_orbit_position(position)
     end
 
     def gas_giant_params

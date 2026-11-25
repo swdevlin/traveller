@@ -16,6 +16,12 @@
     <i class='fa-regular fa-map mt-1' aria-hidden='true'></i> Generate maps
   <% end %>
 
+  <%= link_to advance_orbits_modal_star_system_path(star_system),
+              class: item_class,
+              data: { turbo_frame: 'modal', action: 'dropdown#close' } do %>
+    <i class='fa-regular fa-rotate-right mt-1' aria-hidden='true'></i> Advance orbits
+  <% end %>
+
   <%= link_to commerce_path(from_id: star_system.id), class: item_class do %>
     <i class='fa-regular fa-cart-shopping mt-1' aria-hidden='true'></i> Commerce
   <% end %>

@@ -1,6 +1,15 @@
 require 'test_helper'
 
 class StarTest < ActiveSupport::TestCase
+  test 'retrograde comes from the generator and defaults to false' do
+    star = Star.new
+    star.assign_data_from_generator({ 'retrograde' => true })
+
+    assert star.retrograde
+
+    assert_not Star.new.tap(&:valid?).retrograde
+  end
+
   # primary_star tests
 
   test 'primary_star returns self when not orbiting anything' do

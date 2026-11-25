@@ -37,6 +37,7 @@ class Star < StellarObject
     temperature: 'temperature',
     age: 'age',
     period: 'period',
+    retrograde: 'retrograde',
     baseline: 'baseline',
     spread: 'spread',
     scan_points: 'scanPoints'
@@ -138,6 +139,7 @@ class Star < StellarObject
   def normalize_data_types
     cast_string_data_fields(INTEGER_DATA_FIELDS) { |v| v.to_f.round }
     cast_string_data_fields(FLOAT_DATA_FIELDS, &:to_f)
+    self.retrograde = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(retrograde) || false
   end
 
   def cast_string_data_fields(fields)

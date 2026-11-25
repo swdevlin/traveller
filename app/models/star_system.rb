@@ -101,6 +101,15 @@ class StarSystem < ApplicationRecord
     facilities.order(:code).pluck(:code).join(' ')
   end
 
+  # Days the system's orbits have been advanced since it was generated (see OrbitAdvancer).
+  def elapsed_days
+    meta&.dig('elapsed_days').to_i
+  end
+
+  def add_elapsed_days!(days)
+    update_columns(meta: (meta || {}).merge('elapsed_days' => elapsed_days + days), updated_at: Time.current)
+  end
+
   def primary_star
     @primary_star ||= stars.loaded? ? stars.find { |s| s.orbiting_id.nil? } : stars.find_by(orbiting_id: nil)
   end

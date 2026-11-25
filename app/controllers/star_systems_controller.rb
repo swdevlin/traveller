@@ -300,6 +300,23 @@ class StarSystemsController < ApplicationController
                                     modal_path: move_modal_star_system_path(@star_system), label: @star_system.name)
   end
 
+  # GET /star_systems/1/advance_orbits_modal
+  def advance_orbits_modal
+    @orbit_advance = OrbitAdvance.new
+  end
+
+  # POST /star_systems/1/advance_orbits
+  def advance_orbits
+    @orbit_advance = OrbitAdvance.new(params.expect(orbit_advance: [:days]))
+    return render :advance_orbits_modal, status: :unprocessable_entity unless @orbit_advance.valid?
+
+    advancer = OrbitAdvancer.new(@star_system, days: @orbit_advance.days).call
+    notice = "Orbits advanced by #{helpers.pluralize(@orbit_advance.days, 'day')}: " \
+             "#{helpers.pluralize(advancer.changes.size, 'body')} moved"
+    notice += ", #{advancer.skipped.size} skipped (no period or position)" if advancer.skipped.any?
+    redirect_to star_system_path(@star_system), notice: "#{notice}.", status: :see_other
+  end
+
   # PATCH /star_systems/1/move
   def move
     result = hex_mover_for(@star_system).call

@@ -208,6 +208,8 @@ Rails.application.routes.draw do
         post :do_replace
         post :derive_build
         post :generate_maps
+        get  :advance_orbits_modal
+        post :advance_orbits
         get  :map
         get  :handout
         get  :select_main_world

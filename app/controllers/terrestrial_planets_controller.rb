@@ -33,8 +33,7 @@ class TerrestrialPlanetsController < ApplicationController
       position = OrbitPositionCalculator.for_body_orbiting_star(body: planet, star: @star)
       return unless position
 
-      planet.orbit_x = position.x
-      planet.orbit_y = position.y
+      planet.assign_orbit_position(position)
     end
 
     def terrestrial_planet_params

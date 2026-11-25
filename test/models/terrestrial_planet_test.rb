@@ -1,6 +1,23 @@
 require 'test_helper'
 
 class TerrestrialPlanetTest < ActiveSupport::TestCase
+  test 'assign_data_from_generator stores the longitude of periapsis from the payload' do
+    planet = TerrestrialPlanet.new
+    planet.assign_data_from_generator({ 'longitudeOfPeriapsis' => 123.5 })
+
+    assert_equal 123.5, planet.longitude_of_periapsis
+    assert_in_delta 123.5 * Math::PI / 180, planet.longitude_of_periapsis_radians, 1e-9
+  end
+
+  test 'assign_orbit_position keeps the periapsis the position was worked out with' do
+    planet = TerrestrialPlanet.new(eccentricity: 0.2)
+    position = OrbitPositionCalculator.new(semi_major_axis: 1000, eccentricity: 0.2, centre_x: 0, centre_y: 0)
+    planet.assign_orbit_position(position)
+
+    assert_in_delta position.x, planet.orbit_x, 1e-9
+    assert_in_delta position.longitude_of_periapsis, planet.longitude_of_periapsis, 1e-9
+  end
+
   test 'assign_data_from_generator stores periapsis/apoapsis temperature from the payload' do
     planet = TerrestrialPlanet.new
     planet.assign_data_from_generator({ 'meanTemperature' => 280.0, 'periapsisTemperature' => 310.0, 'apoapsisTemperature' => 260.0 })

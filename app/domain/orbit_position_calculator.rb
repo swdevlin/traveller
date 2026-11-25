@@ -30,7 +30,10 @@ class OrbitPositionCalculator
   # @param semi_major_axis [Numeric] km
   # @param centre_x [Numeric, nil] km, the position of the body being orbited
   # @param random [Random] anything responding to `rand(range)`
-  def initialize(semi_major_axis:, eccentricity:, centre_x:, centre_y:, random: Random.new)
+  # @param periapsis_direction [Numeric, nil] radians; fixes the direction of periapsis instead of drawing it
+  # @param mean_anomaly [Numeric, nil] radians; fixes the point on the orbit instead of drawing it
+  def initialize(semi_major_axis:, eccentricity:, centre_x:, centre_y:, random: Random.new,
+                 periapsis_direction: nil, mean_anomaly: nil)
     @semi_major_axis = semi_major_axis.to_f
     @eccentricity = eccentricity.to_f
     @centre_x = centre_x.to_f
@@ -38,6 +41,13 @@ class OrbitPositionCalculator
     @argument_of_periapsis = random.rand(0.0...360.0)
     @longitude_of_ascending_node = random.rand(0.0...360.0)
     @mean_anomaly = random.rand(0.0...(Math::PI * 2))
+    return unless periapsis_direction || mean_anomaly
+
+    if periapsis_direction
+      @longitude_of_ascending_node = 0.0
+      @argument_of_periapsis = periapsis_direction * 180 / Math::PI
+    end
+    @mean_anomaly = mean_anomaly if mean_anomaly
   end
 
   def longitude_of_periapsis

@@ -19,6 +19,26 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_equal "\x89PNG".b, response.body.b[0, 4]
   end
 
+  test 'advance orbits modal renders' do
+    get advance_orbits_modal_star_system_url(@star_system)
+    assert_response :success
+    assert_select 'input[name=?]', 'orbit_advance[days]'
+  end
+
+  test 'advance orbits records the elapsed days and redirects' do
+    post advance_orbits_star_system_url(@star_system), params: { orbit_advance: { days: '30' } }
+    assert_redirected_to star_system_url(@star_system)
+    assert_equal 30, @star_system.reload.elapsed_days
+  end
+
+  test 'advance orbits rejects a missing or zero number of days' do
+    ['', '0', 'abc'].each do |days|
+      post advance_orbits_star_system_url(@star_system), params: { orbit_advance: { days: days } }
+      assert_response :unprocessable_entity
+    end
+    assert_equal 0, @star_system.reload.elapsed_days
+  end
+
   test 'should get new' do
     get new_star_system_url
     assert_response :success

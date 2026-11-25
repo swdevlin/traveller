@@ -15,6 +15,18 @@ class OrbitPositionRecomputer
 
   attr_reader :changes, :skipped
 
+  # Semi-major axis of a body's orbit in km, or nil when it can't be worked out. A moon's orbit is in diameters of
+  # the planet it orbits.
+  def self.semi_major_axis_km(body, parent)
+    if body.is_a?(Moon)
+      body.orbit.to_f * parent.diameter.to_f if body.orbit.present? && parent.diameter.present?
+    elsif body.orbit.present?
+      OrbitToAu.convert(body.orbit) * StellarConstants::AU_TO_KM
+    elsif body.au.present?
+      body.au.to_f * StellarConstants::AU_TO_KM
+    end
+  end
+
   def initialize(star_system, random: Random.new)
     @star_system = star_system
     @random = random
@@ -65,15 +77,7 @@ class OrbitPositionRecomputer
     [calculator.x, calculator.y]
   end
 
-  def semi_major_axis_km(body, parent)
-    if body.is_a?(Moon)
-      body.orbit.to_f * parent.diameter.to_f if body.orbit.present? && parent.diameter.present?
-    elsif body.orbit.present?
-      OrbitToAu.convert(body.orbit) * StellarConstants::AU_TO_KM
-    elsif body.au.present?
-      body.au.to_f * StellarConstants::AU_TO_KM
-    end
-  end
+  def semi_major_axis_km(body, parent) = self.class.semi_major_axis_km(body, parent)
 
   def record(body, position)
     @changes << Change.new(body: body, from: [body.orbit_x.to_f, body.orbit_y.to_f], to: position)

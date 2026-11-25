@@ -79,7 +79,8 @@ class MoonOrbitMap
     theta = position ? Math.atan2(position[1], position[0]) : index * GOLDEN_ANGLE
     semi_major_km = [moon.distance_km.to_f, 1.0].max
     ellipse = ranked_orbit_ellipse(theta, current_km(position, semi_major_km), semi_major_km,
-                                   moon.eccentricity.to_f, pixel_r)
+                                   moon.eccentricity.to_f, pixel_r,
+                                   stored_direction: moon.longitude_of_periapsis_radians)
     Placement.new(moon, ellipse[:r_px] * Math.cos(theta), ellipse[:r_px] * Math.sin(theta), pixel_r, ellipse)
   end
 

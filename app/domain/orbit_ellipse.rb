@@ -8,14 +8,22 @@ module OrbitEllipse
 
   private
 
+  # A stored direction of periapsis (radians) wins; otherwise it is recovered from the position, taking the body to
+  # be on the outbound half of its orbit.
+  def true_anomaly_cosine_and_periapsis(theta, r, a, ecc, stored_direction)
+    return [Math.cos(theta - stored_direction), stored_direction] if stored_direction
+
+    cos_nu = ecc > 1.0e-6 ? (((a * (1 - (ecc**2))) / r - 1) / ecc).clamp(-1, 1) : 1
+    [cos_nu, theta - Math.acos(cos_nu)]
+  end
+
   # The orbit's ellipse, recovered from the object's real position (bearing theta, distance r),
   # semi-major axis a and eccentricity e. The generator keeps only the resulting position, not
   # the direction of periapsis, so that is recovered from the orbit's polar equation. The
   # ellipse is then scaled to put the object exactly on its ring.
-  def orbit_ellipse(theta, r, a, e, pixel_r)
+  def orbit_ellipse(theta, r, a, e, pixel_r, stored_direction: nil)
     ecc = e.clamp(0, 0.95)
-    cos_nu = ecc > 1.0e-6 ? (((a * (1 - (ecc**2))) / r - 1) / ecc).clamp(-1, 1) : 1
-    periapsis_dir = theta - Math.acos(cos_nu)
+    cos_nu, periapsis_dir = true_anomaly_cosine_and_periapsis(theta, r, a, ecc, stored_direction)
 
     a_px = [pixel_r * (1 + (ecc * cos_nu)) / (1 - (ecc**2)), MAX_ORBIT_STRETCH * pixel_r].min
     b_px = a_px * Math.sqrt(1 - (ecc**2))
@@ -33,10 +41,9 @@ module OrbitEllipse
   # As orbit_ellipse, but the semi-major axis is fixed at a_px (the body's rank ring) and the
   # object is placed where its real distance r puts it on that ellipse, so it always lies on
   # the drawn orbit. Adds the object's pixel distance from the focus as :r_px.
-  def ranked_orbit_ellipse(theta, r, a, e, a_px)
+  def ranked_orbit_ellipse(theta, r, a, e, a_px, stored_direction: nil)
     ecc = e.clamp(0, 0.95)
-    cos_nu = ecc > 1.0e-6 ? (((a * (1 - (ecc**2))) / r - 1) / ecc).clamp(-1, 1) : 1
-    periapsis_dir = theta - Math.acos(cos_nu)
+    cos_nu, periapsis_dir = true_anomaly_cosine_and_periapsis(theta, r, a, ecc, stored_direction)
     c_px = a_px * ecc
 
     {

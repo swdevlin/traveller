@@ -191,6 +191,12 @@ module GeneratorMappings
       self.data['periapsis'] = periapsis_payload
     end
 
+    longitude_of_periapsis_payload = payload['longitudeOfPeriapsis']
+    unless longitude_of_periapsis_payload.nil?
+      self.data ||= {}
+      self.data['longitude_of_periapsis'] = longitude_of_periapsis_payload
+    end
+
     apoapsis_payload = payload['apoapsis']
     unless apoapsis_payload.nil?
       self.data ||= {}

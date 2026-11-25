@@ -273,7 +273,8 @@ class StarOrbitMap
   def orbit_ring(placement)
     child = placement.child
     theta = Math.atan2(placement.y - @center, placement.x - @center)
-    ellipse = orbit_ellipse(theta, child.au_dist, [child.au, 0.01].max, child.eccentricity, placement.pixel_r)
+    ellipse = orbit_ellipse(theta, child.au_dist, [child.au, 0.01].max, child.eccentricity, placement.pixel_r,
+                            stored_direction: child.object.longitude_of_periapsis_radians)
     cx = @center + ellipse[:offset_x]
     cy = @center + ellipse[:offset_y]
 

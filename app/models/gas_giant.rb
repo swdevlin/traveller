@@ -10,6 +10,7 @@ class GasGiant < StellarObject
     diameter: 'diameter',
     code: 'code',
     period: 'period',
+    retrograde: 'retrograde',
     rotation: 'rotation',
     axial_tilt: 'axialTilt',
     tidal_lock: 'tidalLock',
@@ -32,7 +33,7 @@ class GasGiant < StellarObject
     [
       :name, :player_notes, :referee_notes, :tag_list, :reference_url, :orbit, :inclination, :eccentricity, :diameter, :mass,
       :tidal_lock_target_id,
-      data: [:code, :period, :rotation, :axial_tilt, :sidereal_day, :twilight_zone, :tidal_lock_note]
+      data: [:code, :period, :retrograde, :rotation, :axial_tilt, :sidereal_day, :twilight_zone, :tidal_lock_note]
     ]
   end
 
@@ -44,5 +45,6 @@ class GasGiant < StellarObject
       public_send(:"#{field}=", value.presence&.to_f)
     end
     self.twilight_zone = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(twilight_zone) || false
+    self.retrograde = NormalizesPlanetaryData::BOOLEAN_TYPE.cast(retrograde) || false
   end
 end
