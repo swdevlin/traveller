@@ -86,6 +86,14 @@ class OrbitAdvancerTest < ActiveSupport::TestCase
     assert_in_delta 0, bearing(result[3]), 5
   end
 
+  test 'a body with no stored position (a companion star) starts at periapsis and advances from there' do
+    companion = Body.new(5, 1, 0.0, 0.0, nil, 0, 5, nil, :star, 360.0, false, nil)
+    result = advance([companion], 90)
+
+    assert_in_delta 90, bearing(result[5]), 0.01
+    assert_in_delta @radius, Math.hypot(*result[5]), 1
+  end
+
   test 'reports a body with no period and does not move the primary' do
     body = planet(period: nil)
     @system.stellar_objects = [@primary, body]
