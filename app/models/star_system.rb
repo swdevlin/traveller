@@ -106,8 +106,10 @@ class StarSystem < ApplicationRecord
     meta&.dig('elapsed_days').to_i
   end
 
+  # Deliberately leaves `updated_at` alone: the sector and subsector maps key on it and show no orbits. The orbit
+  # maps key on `elapsed_days` instead (see SubwayMapRendering#map_cache_variant).
   def add_elapsed_days!(days)
-    update_columns(meta: (meta || {}).merge('elapsed_days' => elapsed_days + days), updated_at: Time.current)
+    update_columns(meta: (meta || {}).merge('elapsed_days' => elapsed_days + days))
   end
 
   def primary_star

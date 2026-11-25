@@ -49,7 +49,9 @@ module SubwayMapRendering
 
   def map_cache_variant
     audience = owns_campaign? ? 'auth' : 'public'
-    "#{audience}_v#{SUBWAY_MAP_TEMPLATE_VERSION}#{"_moons_#{map_moons_mode}" if map_moons_mode}"
+    # Advancing orbits moves bodies without touching the system (that would invalidate the sector and
+    # subsector maps, which show no orbits), so the elapsed days stand in for the change.
+    "#{audience}_v#{SUBWAY_MAP_TEMPLATE_VERSION}_d#{subway_map_record.elapsed_days}#{"_moons_#{map_moons_mode}" if map_moons_mode}"
   end
 
   def subway_map_cache_key(format)

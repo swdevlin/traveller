@@ -32,6 +32,26 @@ class StarSystemTouchingTest < ActiveSupport::TestCase
     assert_equal stale, @system.reload.updated_at, 'the system was touched'
   end
 
+  # ---- advancing orbits
+
+  # The sector and subsector maps show no orbits, so moving bodies along them must leave every timestamp
+  # those maps are keyed on (the system's, its parsec's, the sector's) alone.
+  test 'advancing orbits touches neither the system, its parsec nor its sector' do
+    @star.update_columns(orbit_x: 0.0, orbit_y: 0.0)
+    @planet.update_columns(orbit_x: 149_597_870.0, orbit_y: 0.0, data: { 'period' => 365.0 })
+    stale = 1.day.ago.change(usec: 0)
+    [StarSystem.where(id: @system.id), Parsec.where(id: @parsec.id), Sector.where(id: @sector.id)]
+      .each { |scope| scope.update_all(updated_at: stale) }
+
+    advancer = OrbitAdvancer.new(@system.reload, days: 30).call
+
+    assert_equal 1, advancer.changes.size, 'the planet should have moved'
+    assert_equal 30, @system.reload.elapsed_days
+    assert_equal stale, @system.updated_at, 'the system was touched'
+    assert_equal stale, @parsec.reload.updated_at, 'the parsec was touched'
+    assert_equal stale, @sector.reload.updated_at, 'the sector was touched'
+  end
+
   # ---- its own tree
 
   test 'saving a body touches the system' do

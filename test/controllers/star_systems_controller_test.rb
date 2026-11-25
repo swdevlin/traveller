@@ -31,6 +31,18 @@ class StarSystemsControllerTest < AuthenticatedIntegrationTest
     assert_equal 30, @star_system.reload.elapsed_days
   end
 
+  test 'advance orbits invalidates the system orbit map but not the system timestamp' do
+    get map_star_system_url(@star_system, format: :svg)
+    etag = response.headers['ETag']
+    updated_at = @star_system.reload.updated_at
+
+    post advance_orbits_star_system_url(@star_system), params: { orbit_advance: { days: '30' } }
+
+    assert_equal updated_at, @star_system.reload.updated_at
+    get map_star_system_url(@star_system, format: :svg)
+    assert_not_equal etag, response.headers['ETag']
+  end
+
   test 'advance orbits rejects a missing or zero number of days' do
     ['', '0', 'abc'].each do |days|
       post advance_orbits_star_system_url(@star_system), params: { orbit_advance: { days: days } }
