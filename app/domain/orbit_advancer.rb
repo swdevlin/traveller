@@ -30,17 +30,14 @@ class OrbitAdvancer < OrbitPositionRecomputer
 
     dx = body.orbit_x.to_f - centre.orbit_x.to_f
     dy = body.orbit_y.to_f - centre.orbit_y.to_f
+    # The generator gives companion stars no position, so they are stored on top of their parent. The orbit maps
+    # draw such a body at bearing 0, a semi-major axis out, so start it there: its orbit line is then unchanged.
+    dx, dy = semi_major_axis, 0.0 if dx.zero? && dy.zero?
+
     eccentricity = body.eccentricity.to_f.clamp(0, MAX_ECCENTRICITY)
-    if dx.zero? && dy.zero?
-      # The generator gives companion stars no position, so they are stored on top of their parent. Start them
-      # at periapsis, which is where the orbit maps would otherwise have to invent a place for them.
-      direction = body.longitude_of_periapsis_radians || 0.0
-      mean_anomaly = 0.0
-    else
-      direction = body.longitude_of_periapsis_radians ||
-                  recovered_periapsis_direction(dx, dy, semi_major_axis, eccentricity)
-      mean_anomaly = mean_anomaly_at(Math.atan2(dy, dx) - direction, eccentricity)
-    end
+    direction = body.longitude_of_periapsis_radians ||
+                recovered_periapsis_direction(dx, dy, semi_major_axis, eccentricity)
+    mean_anomaly = mean_anomaly_at(Math.atan2(dy, dx) - direction, eccentricity)
     retrograde = signed_period.negative? || body.try(:retrograde)
     travelled = TWO_PI * @days / period * (retrograde ? -1 : 1)
 

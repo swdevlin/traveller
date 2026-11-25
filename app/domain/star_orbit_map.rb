@@ -22,7 +22,7 @@ class StarOrbitMap
   include OrbitEllipse
 
   # Bump when the drawing changes, to invalidate cached output.
-  VERSION = 1
+  VERSION = 2
 
   STAR_RADIUS = 14
   GAS_GIANT_RADIUS = 10
@@ -66,7 +66,9 @@ class StarOrbitMap
     end
   end
 
-  Placement = Struct.new(:child, :x, :y, :pixel_r)
+  # `pixel_r` is the ring (the orbit's semi-major axis in pixels); `ellipse` is the orbit drawn on it, nil for
+  # bodies drawn on a plain circle (planetoids bound to a belt).
+  Placement = Struct.new(:child, :x, :y, :pixel_r, :ellipse)
 
   attr_reader :size, :placements
 
@@ -211,7 +213,23 @@ class StarOrbitMap
     positions.map { |position| INNER_PX + ((position - INNER_PX) * scale) }
   end
 
+  # The orbit is fixed by the body's ring, so its drawn line never changes as the body moves. The body sits where
+  # its real position puts it on that ellipse, so an eccentric body is nearer the star at periapsis than on its ring.
   def place(child, pixel_r)
+    theta = child.synthetic_index ? child.synthetic_index * GOLDEN_ANGLE : Math.atan2(child.y_km, child.x_km)
+    ellipse = ranked_orbit_ellipse(theta, child.au_dist, [child.au, 0.01].max, child.eccentricity,
+                                   fitted_semi_major_px(pixel_r, child.eccentricity),
+                                   stored_direction: child.object.longitude_of_periapsis_radians)
+    Placement.new(child, @center + (ellipse[:r_px] * Math.cos(theta)), @center + (ellipse[:r_px] * Math.sin(theta)),
+                  pixel_r, ellipse)
+  end
+
+  # The ring itself, unless the ellipse would reach past the edge of the canvas.
+  def fitted_semi_major_px(pixel_r, eccentricity)
+    [pixel_r, @outer_px / (1 + eccentricity.clamp(0, OrbitAdvancer::MAX_ECCENTRICITY))].min
+  end
+
+  def place_on_ring(child, pixel_r)
     theta = child.synthetic_index ? child.synthetic_index * GOLDEN_ANGLE : Math.atan2(child.y_km, child.x_km)
     Placement.new(child, @center + (pixel_r * Math.cos(theta)), @center + (pixel_r * Math.sin(theta)), pixel_r)
   end
@@ -224,7 +242,7 @@ class StarOrbitMap
 
       relative_offset = (child.au_dist - belt.child.au_dist) / [belt.child.au_dist, 0.01].max
       spread = (relative_offset / PLANETOID_SPREAD_FRACTION).clamp(-1, 1) * PLANETOID_SPREAD_PX
-      place(child, [INNER_PX + 4, belt.pixel_r + spread].max)
+      place_on_ring(child, [INNER_PX + 4, belt.pixel_r + spread].max)
     end
   end
 
@@ -271,10 +289,7 @@ class StarOrbitMap
   end
 
   def orbit_ring(placement)
-    child = placement.child
-    theta = Math.atan2(placement.y - @center, placement.x - @center)
-    ellipse = orbit_ellipse(theta, child.au_dist, [child.au, 0.01].max, child.eccentricity, placement.pixel_r,
-                            stored_direction: child.object.longitude_of_periapsis_radians)
+    ellipse = placement.ellipse
     cx = @center + ellipse[:offset_x]
     cy = @center + ellipse[:offset_y]
 

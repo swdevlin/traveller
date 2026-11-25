@@ -86,12 +86,22 @@ class OrbitAdvancerTest < ActiveSupport::TestCase
     assert_in_delta 0, bearing(result[3]), 5
   end
 
-  test 'a body with no stored position (a companion star) starts at periapsis and advances from there' do
+  test 'a body with no stored position (a companion star) starts where the orbit map draws it and advances' do
     companion = Body.new(5, 1, 0.0, 0.0, nil, 0, 5, nil, :star, 360.0, false, nil)
     result = advance([companion], 90)
 
     assert_in_delta 90, bearing(result[5]), 0.01
     assert_in_delta @radius, Math.hypot(*result[5]), 1
+  end
+
+  test 'an eccentric body with no stored position keeps the orbit line the map drew for it' do
+    companion = Body.new(5, 1, 0.0, 0.0, nil, 0.5, 5, nil, :star, 360.0, false, nil)
+    @system.stellar_objects = [@primary, companion]
+    advancer = OrbitAdvancer.new(@system, days: 0).call(apply: false)
+    periapsis = advancer.send(:instance_variable_get, :@periapsis_directions)[5]
+
+    # The map recovers periapsis from a body at bearing 0, a semi-major axis out
+    assert_in_delta(-Math.acos(-0.5), periapsis, 1.0e-6)
   end
 
   test 'reports a body with no period and does not move the primary' do
