@@ -13,10 +13,17 @@ class PopulateDeepnightCampaignJob < ApplicationJob
 
     source = campaign.source_deepnight_defaults? ? 'deepnight' : 'traveller_map'
 
+    created = []
     campaign.with_lock do
       create_allegiances
       catalogue = remaining ? DeepnightDefaults.sectors : [home_sector_data]
-      catalogue.each { |data| create_sector(source, data) }
+      catalogue.each { |data| (sector = create_sector(source, data)) && created << [sector, data] }
+    end
+
+    # Enqueue only once the sectors are committed. The queue lives in a separate
+    # database, so a job enqueued inside the lock can run before the sector is visible.
+    created.each do |sector, data|
+      (data['subsectors'] || []).each { |subsector_data| enqueue_subsector(sector, subsector_data) }
     end
   end
 
@@ -47,10 +54,7 @@ class PopulateDeepnightCampaignJob < ApplicationJob
     sector.source = source
     sector.skip_subsector_creation = true
     sector.save!
-
-    (data['subsectors'] || []).each do |subsector_data|
-      enqueue_subsector(sector, subsector_data)
-    end
+    sector
   end
 
   def enqueue_subsector(sector, subsector_data)
